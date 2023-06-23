@@ -15,8 +15,6 @@
  */
 package androidx.media3.effect;
 
-import static androidx.media3.common.util.Assertions.checkState;
-
 import androidx.annotation.CallSuper;
 import androidx.media3.common.GlObjectsProvider;
 import androidx.media3.common.GlTextureInfo;
@@ -49,7 +47,6 @@ public abstract class BaseGlShaderProgram implements GlShaderProgram {
   private OutputListener outputListener;
   private ErrorListener errorListener;
   private Executor errorListenerExecutor;
-  private boolean frameProcessingStarted;
 
   /**
    * Creates a {@code BaseGlShaderProgram} instance.
@@ -119,20 +116,12 @@ public abstract class BaseGlShaderProgram implements GlShaderProgram {
   }
 
   @Override
-  public void setGlObjectsProvider(GlObjectsProvider glObjectsProvider) {
-    checkState(
-        !frameProcessingStarted,
-        "The GlObjectsProvider cannot be set after frame processing has started.");
-    outputTexturePool.setGlObjectsProvider(glObjectsProvider);
-  }
-
-  @Override
-  public void queueInputFrame(GlTextureInfo inputTexture, long presentationTimeUs) {
+  public void queueInputFrame(
+      GlObjectsProvider glObjectsProvider, GlTextureInfo inputTexture, long presentationTimeUs) {
     try {
       Size outputTextureSize = configure(inputTexture.getWidth(), inputTexture.getHeight());
       outputTexturePool.ensureConfigured(
-          outputTextureSize.getWidth(), outputTextureSize.getHeight());
-      frameProcessingStarted = true;
+          glObjectsProvider, outputTextureSize.getWidth(), outputTextureSize.getHeight());
 
       // Focus on the next free buffer.
       GlTextureInfo outputTexture = outputTexturePool.useTexture();
@@ -152,21 +141,18 @@ public abstract class BaseGlShaderProgram implements GlShaderProgram {
 
   @Override
   public void releaseOutputFrame(GlTextureInfo outputTexture) {
-    frameProcessingStarted = true;
     outputTexturePool.freeTexture(outputTexture);
     inputListener.onReadyToAcceptInputFrame();
   }
 
   @Override
   public void signalEndOfCurrentInputStream() {
-    frameProcessingStarted = true;
     outputListener.onCurrentOutputStreamEnded();
   }
 
   @Override
   @CallSuper
   public void flush() {
-    frameProcessingStarted = true;
     outputTexturePool.freeAllTextures();
     inputListener.onFlush();
     for (int i = 0; i < outputTexturePool.capacity(); i++) {
@@ -177,7 +163,6 @@ public abstract class BaseGlShaderProgram implements GlShaderProgram {
   @Override
   @CallSuper
   public void release() throws VideoFrameProcessingException {
-    frameProcessingStarted = true;
     try {
       outputTexturePool.deleteAllTextures();
     } catch (GlUtil.GlException e) {

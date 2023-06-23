@@ -25,6 +25,7 @@ import android.opengl.GLUtils;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.FrameInfo;
+import androidx.media3.common.GlObjectsProvider;
 import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.GlUtil;
@@ -47,6 +48,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       "Unsupported Image Configuration: No more than 8 bits of precision should be used for each"
           + " RGB channel.";
 
+  private final GlObjectsProvider glObjectsProvider;
   private final GlShaderProgram shaderProgram;
   private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
   // The queue holds all bitmaps with one or more frames pending to be sent downstream.
@@ -62,14 +64,17 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   /**
    * Creates a new instance.
    *
+   * @param glObjectsProvider The {@link GlObjectsProvider} for using EGL and GLES.
    * @param shaderProgram The {@link GlShaderProgram} for which this {@code BitmapTextureManager}
    *     will be set as the {@link GlShaderProgram.InputListener}.
    * @param videoFrameProcessingTaskExecutor The {@link VideoFrameProcessingTaskExecutor} that the
    *     methods of this class run on.
    */
   public BitmapTextureManager(
+      GlObjectsProvider glObjectsProvider,
       GlShaderProgram shaderProgram,
       VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor) {
+    this.glObjectsProvider = glObjectsProvider;
     this.shaderProgram = shaderProgram;
     this.videoFrameProcessingTaskExecutor = videoFrameProcessingTaskExecutor;
     pendingBitmaps = new LinkedBlockingQueue<>();
@@ -187,7 +192,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     framesToQueueForCurrentBitmap--;
     downstreamShaderProgramCapacity--;
     shaderProgram.queueInputFrame(
-        checkNotNull(currentGlTextureInfo), round(currentPresentationTimeUs));
+        glObjectsProvider, checkNotNull(currentGlTextureInfo), round(currentPresentationTimeUs));
     currentPresentationTimeUs += currentBitmapInfo.frameDurationUs;
 
     if (framesToQueueForCurrentBitmap == 0) {

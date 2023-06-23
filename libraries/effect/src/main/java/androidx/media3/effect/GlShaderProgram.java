@@ -25,9 +25,9 @@ import java.util.concurrent.Executor;
  * Processes frames from one OpenGL 2D texture to another.
  *
  * <p>The {@code GlShaderProgram} consumes input frames it accepts via {@link
- * #queueInputFrame(GlTextureInfo, long)} and surrenders each texture back to the caller via its
- * {@linkplain InputListener#onInputFrameProcessed(GlTextureInfo) listener} once the texture's
- * contents have been processed.
+ * #queueInputFrame(GlObjectsProvider, GlTextureInfo, long)} and surrenders each texture back to the
+ * caller via its {@linkplain InputListener#onInputFrameProcessed(GlTextureInfo) listener} once the
+ * texture's contents have been processed.
  *
  * <p>The {@code GlShaderProgram} produces output frames asynchronously and notifies its owner when
  * they are available via its {@linkplain OutputListener#onOutputFrameAvailable(GlTextureInfo, long)
@@ -57,8 +57,8 @@ public interface GlShaderProgram {
     /**
      * Called when the {@link GlShaderProgram} is ready to accept another input frame.
      *
-     * <p>For each time this method is called, {@link #queueInputFrame(GlTextureInfo, long)} can be
-     * called once.
+     * <p>For each time this method is called, {@link #queueInputFrame(GlObjectsProvider,
+     * GlTextureInfo, long)} can be called once.
      */
     default void onReadyToAcceptInputFrame() {}
 
@@ -69,7 +69,7 @@ public interface GlShaderProgram {
      * #onReadyToAcceptInputFrame ready to accept another input frame} when this method is called.
      *
      * @param inputTexture The {@link GlTextureInfo} that was used to {@linkplain
-     *     #queueInputFrame(GlTextureInfo, long) queue} the input frame.
+     *     #queueInputFrame(GlObjectsProvider, GlTextureInfo, long) queue} the input frame.
      */
     default void onInputFrameProcessed(GlTextureInfo inputTexture) {}
 
@@ -150,13 +150,6 @@ public interface GlShaderProgram {
   void setErrorListener(Executor executor, ErrorListener errorListener);
 
   /**
-   * Sets the {@link GlObjectsProvider}.
-   *
-   * <p>This method should not be called after any of the frame processing methods.
-   */
-  void setGlObjectsProvider(GlObjectsProvider glObjectsProvider);
-
-  /**
    * Processes an input frame if possible.
    *
    * <p>The {@code GlShaderProgram} owns the accepted frame until it calls {@link
@@ -166,10 +159,12 @@ public interface GlShaderProgram {
    * <p>This method must only be called when the {@code GlShaderProgram} can {@linkplain
    * InputListener#onReadyToAcceptInputFrame() accept an input frame}.
    *
+   * @param glObjectsProvider The {@link GlObjectsProvider} for using EGL and GLES.
    * @param inputTexture A {@link GlTextureInfo} describing the texture containing the input frame.
    * @param presentationTimeUs The presentation timestamp of the input frame, in microseconds.
    */
-  void queueInputFrame(GlTextureInfo inputTexture, long presentationTimeUs);
+  void queueInputFrame(
+      GlObjectsProvider glObjectsProvider, GlTextureInfo inputTexture, long presentationTimeUs);
 
   /**
    * Notifies the {@code GlShaderProgram} that the frame on the given output texture is no longer

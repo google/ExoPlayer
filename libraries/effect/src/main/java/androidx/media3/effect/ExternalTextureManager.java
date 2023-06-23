@@ -23,6 +23,7 @@ import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.FrameInfo;
+import androidx.media3.common.GlObjectsProvider;
 import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.GlUtil;
@@ -55,6 +56,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   private static final long SURFACE_TEXTURE_TIMEOUT_MS =
       Util.DEVICE.contains("emulator") ? 10_000 : 500;
 
+  private final GlObjectsProvider glObjectsProvider;
   private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
   private final ExternalShaderProgram externalShaderProgram;
   private final int externalTexId;
@@ -90,6 +92,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   /**
    * Creates a new instance.
    *
+   * @param glObjectsProvider The {@link GlObjectsProvider} for using EGL and GLES.
    * @param externalShaderProgram The {@link ExternalShaderProgram} for which this {@code
    *     ExternalTextureManager} will be set as the {@link InputListener}.
    * @param videoFrameProcessingTaskExecutor The {@link VideoFrameProcessingTaskExecutor}.
@@ -98,9 +101,11 @@ import java.util.concurrent.atomic.AtomicInteger;
   // The onFrameAvailableListener will not be invoked until the constructor returns.
   @SuppressWarnings("nullness:method.invocation.invalid")
   public ExternalTextureManager(
+      GlObjectsProvider glObjectsProvider,
       ExternalShaderProgram externalShaderProgram,
       VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor)
       throws VideoFrameProcessingException {
+    this.glObjectsProvider = glObjectsProvider;
     this.externalShaderProgram = externalShaderProgram;
     this.videoFrameProcessingTaskExecutor = videoFrameProcessingTaskExecutor;
     try {
@@ -314,6 +319,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     // Correct the presentation time so that GlShaderPrograms don't see the stream offset.
     long presentationTimeUs = (frameTimeNs / 1000) + offsetToAddUs;
     externalShaderProgram.queueInputFrame(
+        glObjectsProvider,
         new GlTextureInfo(
             externalTexId,
             /* fboId= */ C.INDEX_UNSET,

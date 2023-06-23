@@ -32,8 +32,6 @@ import java.util.Queue;
   private final int capacity;
   private final boolean useHighPrecisionColorComponents;
 
-  private GlObjectsProvider glObjectsProvider;
-
   /**
    * Creates a {@code TexturePool} instance.
    *
@@ -47,14 +45,6 @@ import java.util.Queue;
 
     freeTextures = new ArrayDeque<>(capacity);
     inUseTextures = new ArrayDeque<>(capacity);
-
-    glObjectsProvider = new DefaultGlObjectsProvider(/* sharedEglContext= */ null);
-  }
-
-  /** Sets the {@link GlObjectsProvider}. */
-  public void setGlObjectsProvider(GlObjectsProvider glObjectsProvider) {
-    checkState(!isConfigured());
-    this.glObjectsProvider = glObjectsProvider;
   }
 
   /** Returns whether the instance has been {@linkplain #ensureConfigured configured}. */
@@ -80,15 +70,16 @@ import java.util.Queue;
    *
    * <p>Reconfigures backing textures as needed.
    */
-  public void ensureConfigured(int width, int height) throws GlUtil.GlException {
+  public void ensureConfigured(GlObjectsProvider glObjectsProvider, int width, int height)
+      throws GlUtil.GlException {
     if (!isConfigured()) {
-      createTextures(width, height);
+      createTextures(glObjectsProvider, width, height);
       return;
     }
     GlTextureInfo texture = getIteratorToAllTextures().next();
     if (texture.getWidth() != width || texture.getHeight() != height) {
       deleteAllTextures();
-      createTextures(width, height);
+      createTextures(glObjectsProvider, width, height);
     }
   }
 
@@ -147,7 +138,8 @@ import java.util.Queue;
     inUseTextures.clear();
   }
 
-  private void createTextures(int width, int height) throws GlUtil.GlException {
+  private void createTextures(GlObjectsProvider glObjectsProvider, int width, int height)
+      throws GlUtil.GlException {
     checkState(freeTextures.isEmpty());
     checkState(inUseTextures.isEmpty());
     for (int i = 0; i < capacity; i++) {

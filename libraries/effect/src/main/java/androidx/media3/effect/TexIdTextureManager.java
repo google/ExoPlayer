@@ -21,13 +21,14 @@ import android.opengl.GLES10;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.FrameInfo;
+import androidx.media3.common.GlObjectsProvider;
 import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.OnInputFrameProcessedListener;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * Forwards a video frames made available via {@linkplain GLES10#GL_TEXTURE_2D traditional GLES
- * texture} to a {@link GlShaderProgram} for consumption.
+ * Forwards frames made available via {@linkplain GLES10#GL_TEXTURE_2D traditional GLES textures} to
+ * a {@link GlShaderProgram} for consumption.
  *
  * <p>Public methods in this class can be called from any thread.
  */
@@ -41,16 +42,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   /**
    * Creates a new instance.
    *
+   * @param glObjectsProvider The {@link GlObjectsProvider} for using EGL and GLES.
    * @param shaderProgram The {@link GlShaderProgram} for which this {@code texIdTextureManager}
    *     will be set as the {@link GlShaderProgram.InputListener}.
    * @param videoFrameProcessingTaskExecutor The {@link VideoFrameProcessingTaskExecutor}.
    */
   public TexIdTextureManager(
+      GlObjectsProvider glObjectsProvider,
       GlShaderProgram shaderProgram,
       VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor) {
     this.videoFrameProcessingTaskExecutor = videoFrameProcessingTaskExecutor;
     frameConsumptionManager =
-        new FrameConsumptionManager(shaderProgram, videoFrameProcessingTaskExecutor);
+        new FrameConsumptionManager(
+            glObjectsProvider, shaderProgram, videoFrameProcessingTaskExecutor);
   }
 
   @Override

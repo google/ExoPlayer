@@ -72,21 +72,16 @@ import java.util.concurrent.Executor;
   }
 
   @Override
-  public void setGlObjectsProvider(GlObjectsProvider glObjectsProvider) {
-    copyGlShaderProgram.setGlObjectsProvider(glObjectsProvider);
-    wrappedGlShaderProgram.setGlObjectsProvider(glObjectsProvider);
-  }
-
-  @Override
-  public void queueInputFrame(GlTextureInfo inputTexture, long presentationTimeUs) {
+  public void queueInputFrame(
+      GlObjectsProvider glObjectsProvider, GlTextureInfo inputTexture, long presentationTimeUs) {
     // TODO(b/277726418) Properly report shader program capacity when switching from wrapped shader
     //  program to copying shader program.
     if (presentationTimeUs >= startTimeUs && presentationTimeUs <= endTimeUs) {
       pendingWrappedGlShaderProgramFrames++;
-      wrappedGlShaderProgram.queueInputFrame(inputTexture, presentationTimeUs);
+      wrappedGlShaderProgram.queueInputFrame(glObjectsProvider, inputTexture, presentationTimeUs);
     } else {
       pendingCopyGlShaderProgramFrames++;
-      copyGlShaderProgram.queueInputFrame(inputTexture, presentationTimeUs);
+      copyGlShaderProgram.queueInputFrame(glObjectsProvider, inputTexture, presentationTimeUs);
     }
   }
 

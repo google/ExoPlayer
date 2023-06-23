@@ -22,7 +22,6 @@ import android.opengl.EGLDisplay;
 import android.opengl.EGLSurface;
 import androidx.annotation.IntRange;
 import androidx.annotation.RequiresApi;
-import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.GlUtil.GlException;
 import androidx.media3.common.util.UnstableApi;
 
@@ -30,45 +29,6 @@ import androidx.media3.common.util.UnstableApi;
 /** Provider to customize the creation and maintenance of GL objects. */
 @UnstableApi
 public interface GlObjectsProvider {
-  /**
-   * @deprecated Please use {@code DefaultGlObjectsProvider} in {@code androidx.media3.effect}.
-   */
-  @Deprecated
-  GlObjectsProvider DEFAULT =
-      new GlObjectsProvider() {
-        @Override
-        @RequiresApi(17)
-        public EGLContext createEglContext(
-            EGLDisplay eglDisplay, int openGlVersion, int[] configAttributes) throws GlException {
-          return GlUtil.createEglContext(
-              EGL14.EGL_NO_CONTEXT, eglDisplay, openGlVersion, configAttributes);
-        }
-
-        @Override
-        @RequiresApi(17)
-        public EGLSurface createEglSurface(
-            EGLDisplay eglDisplay,
-            Object surface,
-            @C.ColorTransfer int colorTransfer,
-            boolean isEncoderInputSurface)
-            throws GlException {
-          return GlUtil.createEglSurface(eglDisplay, surface, colorTransfer, isEncoderInputSurface);
-        }
-
-        @Override
-        @RequiresApi(17)
-        public EGLSurface createFocusedPlaceholderEglSurface(
-            EGLContext eglContext, EGLDisplay eglDisplay) throws GlException {
-          return GlUtil.createFocusedPlaceholderEglSurface(eglContext, eglDisplay);
-        }
-
-        @Override
-        public GlTextureInfo createBuffersForTexture(int texId, int width, int height)
-            throws GlException {
-          int fboId = GlUtil.createFboForTexture(texId);
-          return new GlTextureInfo(texId, fboId, /* rboId= */ C.INDEX_UNSET, width, height);
-        }
-      };
 
   /**
    * Creates a new {@link EGLContext} for the specified {@link EGLDisplay}.

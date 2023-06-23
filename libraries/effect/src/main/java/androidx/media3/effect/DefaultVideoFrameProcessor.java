@@ -102,7 +102,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       /** Creates an instance. */
       public Builder() {
         enableColorTransfers = true;
-        glObjectsProvider = GlObjectsProvider.DEFAULT;
+        glObjectsProvider = new DefaultGlObjectsProvider();
       }
 
       /**
@@ -119,7 +119,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       /**
        * Sets the {@link GlObjectsProvider}.
        *
-       * <p>The default value is {@link GlObjectsProvider#DEFAULT}.
+       * <p>The default value is a {@link DefaultGlObjectsProvider}.
        */
       @CanIgnoreReturnValue
       public Builder setGlObjectsProvider(GlObjectsProvider glObjectsProvider) {
@@ -285,6 +285,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   private static final long RELEASE_WAIT_TIME_MS = 500;
 
   private final Context context;
+  private final GlObjectsProvider glObjectsProvider;
   private final EGLDisplay eglDisplay;
   private final EGLContext eglContext;
   private final InputSwitcher inputSwitcher;
@@ -303,7 +304,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   private final List<Effect> activeEffects;
   private final Object lock;
   private final ColorInfo outputColorInfo;
-  private final GlObjectsProvider glObjectsProvider;
 
   // CountDownLatch to wait for the current input stream to finish processing.
   private volatile @MonotonicNonNull CountDownLatch latch;
@@ -313,6 +313,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
   private DefaultVideoFrameProcessor(
       Context context,
+      GlObjectsProvider glObjectsProvider,
       EGLDisplay eglDisplay,
       EGLContext eglContext,
       InputSwitcher inputSwitcher,
@@ -322,9 +323,9 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       ImmutableList<GlShaderProgram> intermediateGlShaderPrograms,
       FinalShaderProgramWrapper finalShaderProgramWrapper,
       boolean renderFramesAutomatically,
-      ColorInfo outputColorInfo,
-      GlObjectsProvider glObjectsProvider) {
+      ColorInfo outputColorInfo) {
     this.context = context;
+    this.glObjectsProvider = glObjectsProvider;
     this.eglDisplay = eglDisplay;
     this.eglContext = eglContext;
     this.inputSwitcher = inputSwitcher;
@@ -335,7 +336,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     this.activeEffects = new ArrayList<>();
     this.lock = new Object();
     this.outputColorInfo = outputColorInfo;
-    this.glObjectsProvider = glObjectsProvider;
     this.finalShaderProgramWrapper = finalShaderProgramWrapper;
     finalShaderProgramWrapper.setOnInputStreamProcessedListener(
         () -> {
@@ -461,8 +461,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             inputSwitcher.setDownstreamShaderProgram(
                 getFirst(
                     intermediateGlShaderPrograms, /* defaultValue= */ finalShaderProgramWrapper));
-            setGlObjectProviderOnShaderPrograms(intermediateGlShaderPrograms, glObjectsProvider);
             chainShaderProgramsWithListeners(
+                glObjectsProvider,
                 intermediateGlShaderPrograms,
                 finalShaderProgramWrapper,
                 videoFrameProcessingTaskExecutor,
@@ -521,7 +521,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
         !renderFramesAutomatically,
         "Calling this method is not allowed when renderFramesAutomatically is enabled");
     videoFrameProcessingTaskExecutor.submitWithHighPriority(
-        () -> finalShaderProgramWrapper.renderOutputFrame(renderTimeNs));
+        () -> finalShaderProgramWrapper.renderOutputFrame(glObjectsProvider, renderTimeNs));
   }
 
   @Override
@@ -658,7 +658,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             videoFrameProcessingTaskExecutor,
             videoFrameProcessorListenerExecutor,
             listener,
-            glObjectsProvider,
             textureOutputListener,
             textureOutputCapacity);
 
@@ -681,8 +680,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     inputSwitcher.setDownstreamShaderProgram(
         getFirst(intermediateGlShaderPrograms, /* defaultValue= */ finalShaderProgramWrapper));
 
-    setGlObjectProviderOnShaderPrograms(intermediateGlShaderPrograms, glObjectsProvider);
     chainShaderProgramsWithListeners(
+        glObjectsProvider,
         intermediateGlShaderPrograms,
         finalShaderProgramWrapper,
         videoFrameProcessingTaskExecutor,
@@ -691,6 +690,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
     return new DefaultVideoFrameProcessor(
         context,
+        glObjectsProvider,
         eglDisplay,
         eglContext,
         inputSwitcher,
@@ -700,8 +700,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
         intermediateGlShaderPrograms,
         finalShaderProgramWrapper,
         renderFramesAutomatically,
-        outputColorInfo,
-        glObjectsProvider);
+        outputColorInfo);
   }
 
   /**
@@ -766,20 +765,12 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     return shaderProgramListBuilder.build();
   }
 
-  /** Sets the {@link GlObjectsProvider} on all of the {@linkplain GlShaderProgram}s provided. */
-  private static void setGlObjectProviderOnShaderPrograms(
-      List<GlShaderProgram> shaderPrograms, GlObjectsProvider glObjectsProvider) {
-    for (int i = 0; i < shaderPrograms.size(); i++) {
-      GlShaderProgram shaderProgram = shaderPrograms.get(i);
-      shaderProgram.setGlObjectsProvider(glObjectsProvider);
-    }
-  }
-
   /**
    * Chains the given {@link GlShaderProgram} instances using {@link
    * ChainingGlShaderProgramListener} instances.
    */
   private static void chainShaderProgramsWithListeners(
+      GlObjectsProvider glObjectsProvider,
       List<GlShaderProgram> shaderPrograms,
       FinalShaderProgramWrapper finalShaderProgramWrapper,
       VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor,
@@ -792,7 +783,10 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       GlShaderProgram consumingGlShaderProgram = shaderProgramsToChain.get(i + 1);
       ChainingGlShaderProgramListener chainingGlShaderProgramListener =
           new ChainingGlShaderProgramListener(
-              producingGlShaderProgram, consumingGlShaderProgram, videoFrameProcessingTaskExecutor);
+              glObjectsProvider,
+              producingGlShaderProgram,
+              consumingGlShaderProgram,
+              videoFrameProcessingTaskExecutor);
       producingGlShaderProgram.setOutputListener(chainingGlShaderProgramListener);
       producingGlShaderProgram.setErrorListener(
           videoFrameProcessorListenerExecutor, videoFrameProcessorListener::onError);

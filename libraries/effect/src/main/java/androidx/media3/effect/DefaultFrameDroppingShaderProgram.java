@@ -44,7 +44,6 @@ import androidx.media3.common.util.Size;
  */
 /* package */ final class DefaultFrameDroppingShaderProgram extends FrameCacheGlShaderProgram {
 
-  private final GlObjectsProvider glObjectsProvider;
   private final boolean useHdr;
   private final long targetFrameDeltaUs;
 
@@ -69,25 +68,25 @@ import androidx.media3.common.util.Size;
     this.targetFrameDeltaUs = (long) (C.MICROS_PER_SECOND / targetFrameRate);
     lastQueuedPresentationTimeUs = C.TIME_UNSET;
     previousPresentationTimeUs = C.TIME_UNSET;
-    glObjectsProvider = new DefaultGlObjectsProvider(/* sharedEglContext= */ null);
   }
 
   @Override
-  public void queueInputFrame(GlTextureInfo inputTexture, long presentationTimeUs) {
+  public void queueInputFrame(
+      GlObjectsProvider glObjectsProvider, GlTextureInfo inputTexture, long presentationTimeUs) {
     framesReceived++;
     if (framesReceived == 1) {
-      copyTextureToPreviousFrame(inputTexture, presentationTimeUs);
-      queuePreviousFrame();
+      copyTextureToPreviousFrame(glObjectsProvider, inputTexture, presentationTimeUs);
+      queuePreviousFrame(glObjectsProvider);
       getInputListener().onInputFrameProcessed(inputTexture);
       getInputListener().onReadyToAcceptInputFrame();
       return;
     }
 
     if (shouldQueuePreviousFrame(presentationTimeUs)) {
-      queuePreviousFrame();
+      queuePreviousFrame(glObjectsProvider);
     }
 
-    copyTextureToPreviousFrame(inputTexture, presentationTimeUs);
+    copyTextureToPreviousFrame(glObjectsProvider, inputTexture, presentationTimeUs);
     getInputListener().onInputFrameProcessed(inputTexture);
     getInputListener().onReadyToAcceptInputFrame();
   }
@@ -129,7 +128,8 @@ import androidx.media3.common.util.Size;
     framesReceived = 0;
   }
 
-  private void copyTextureToPreviousFrame(GlTextureInfo newTexture, long presentationTimeUs) {
+  private void copyTextureToPreviousFrame(
+      GlObjectsProvider glObjectsProvider, GlTextureInfo newTexture, long presentationTimeUs) {
     try {
       if (previousTexture == null) {
         int texId = GlUtil.createTexture(newTexture.getWidth(), newTexture.getHeight(), useHdr);
@@ -171,12 +171,12 @@ import androidx.media3.common.util.Size;
         < abs(currentFrameTimeDeltaUs - targetFrameDeltaUs);
   }
 
-  private void queuePreviousFrame() {
+  private void queuePreviousFrame(GlObjectsProvider glObjectsProvider) {
     try {
       GlTextureInfo previousTexture = checkNotNull(this.previousTexture);
       Size outputTextureSize = configure(previousTexture.getWidth(), previousTexture.getHeight());
       outputTexturePool.ensureConfigured(
-          outputTextureSize.getWidth(), outputTextureSize.getHeight());
+          glObjectsProvider, outputTextureSize.getWidth(), outputTextureSize.getHeight());
 
       // Focus on the next free buffer.
       GlTextureInfo outputTexture = outputTexturePool.useTexture();

@@ -92,9 +92,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 inputColorInfo,
                 outputColorInfo,
                 enableColorTransfers);
-        samplingShaderProgram.setGlObjectsProvider(glObjectsProvider);
         textureManager =
-            new ExternalTextureManager(samplingShaderProgram, videoFrameProcessingTaskExecutor);
+            new ExternalTextureManager(
+                glObjectsProvider, samplingShaderProgram, videoFrameProcessingTaskExecutor);
         inputs.put(inputType, new Input(textureManager, samplingShaderProgram));
         break;
       case VideoFrameProcessor.INPUT_TYPE_BITMAP:
@@ -107,9 +107,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 outputColorInfo,
                 enableColorTransfers,
                 inputType);
-        samplingShaderProgram.setGlObjectsProvider(glObjectsProvider);
         textureManager =
-            new BitmapTextureManager(samplingShaderProgram, videoFrameProcessingTaskExecutor);
+            new BitmapTextureManager(
+                glObjectsProvider, samplingShaderProgram, videoFrameProcessingTaskExecutor);
         inputs.put(inputType, new Input(textureManager, samplingShaderProgram));
         break;
       case VideoFrameProcessor.INPUT_TYPE_TEXTURE_ID:
@@ -122,9 +122,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 outputColorInfo,
                 enableColorTransfers,
                 inputType);
-        samplingShaderProgram.setGlObjectsProvider(glObjectsProvider);
         textureManager =
-            new TexIdTextureManager(samplingShaderProgram, videoFrameProcessingTaskExecutor);
+            new TexIdTextureManager(
+                glObjectsProvider, samplingShaderProgram, videoFrameProcessingTaskExecutor);
         inputs.put(inputType, new Input(textureManager, samplingShaderProgram));
         break;
       default:
@@ -155,6 +155,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       if (inputType == newInputType) {
         input.setChainingListener(
             new GatedChainingListenerWrapper(
+                glObjectsProvider,
                 input.samplingGlShaderProgram,
                 this.downstreamShaderProgram,
                 videoFrameProcessingTaskExecutor));
@@ -235,15 +236,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       implements GlShaderProgram.OutputListener, GlShaderProgram.InputListener {
 
     private final ChainingGlShaderProgramListener chainingGlShaderProgramListener;
-    private boolean isActive = false;
+
+    private boolean isActive;
 
     public GatedChainingListenerWrapper(
+        GlObjectsProvider glObjectsProvider,
         GlShaderProgram producingGlShaderProgram,
         GlShaderProgram consumingGlShaderProgram,
         VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor) {
       this.chainingGlShaderProgramListener =
           new ChainingGlShaderProgramListener(
-              producingGlShaderProgram, consumingGlShaderProgram, videoFrameProcessingTaskExecutor);
+              glObjectsProvider,
+              producingGlShaderProgram,
+              consumingGlShaderProgram,
+              videoFrameProcessingTaskExecutor);
     }
 
     @Override

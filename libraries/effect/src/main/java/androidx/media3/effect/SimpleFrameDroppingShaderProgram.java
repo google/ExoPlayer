@@ -20,6 +20,7 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 import static java.lang.Math.round;
 
 import android.content.Context;
+import androidx.media3.common.GlObjectsProvider;
 import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 
@@ -54,10 +55,11 @@ import androidx.media3.common.VideoFrameProcessingException;
   }
 
   @Override
-  public void queueInputFrame(GlTextureInfo inputTexture, long presentationTimeUs) {
+  public void queueInputFrame(
+      GlObjectsProvider glObjectsProvider, GlTextureInfo inputTexture, long presentationTimeUs) {
     framesReceived++;
     if (framesReceived % n == 0) {
-      super.queueInputFrame(inputTexture, presentationTimeUs);
+      super.queueInputFrame(glObjectsProvider, inputTexture, presentationTimeUs);
     } else {
       getInputListener().onInputFrameProcessed(inputTexture);
       getInputListener().onReadyToAcceptInputFrame();
