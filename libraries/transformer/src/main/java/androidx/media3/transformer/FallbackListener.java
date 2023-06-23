@@ -89,7 +89,8 @@ import java.util.concurrent.atomic.AtomicInteger;
    * @throws IllegalStateException If called for more tracks than declared in {@link
    *     #setTrackCount(int)}.
    */
-  public void onTransformationRequestFinalized(TransformationRequest transformationRequest) {
+  public synchronized void onTransformationRequestFinalized(
+      TransformationRequest transformationRequest) {
     checkState(trackCount.getAndDecrement() > 0);
 
     TransformationRequest.Builder fallbackRequestBuilder =
