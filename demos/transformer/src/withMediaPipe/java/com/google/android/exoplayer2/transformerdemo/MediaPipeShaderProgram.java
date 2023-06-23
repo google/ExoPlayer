@@ -169,10 +169,8 @@ import java.util.concurrent.Future;
   }
 
   @Override
-  public void setGlObjectsProvider(GlObjectsProvider glObjectsProvider) {}
-
-  @Override
-  public void queueInputFrame(GlTextureInfo inputTexture, long presentationTimeUs) {
+  public void queueInputFrame(
+      GlObjectsProvider glObjectsProvider, GlTextureInfo inputTexture, long presentationTimeUs) {
     AppTextureFrame appTextureFrame =
         new AppTextureFrame(
             inputTexture.getTexId(), inputTexture.getWidth(), inputTexture.getHeight());

@@ -412,10 +412,8 @@ public final class DefaultVideoFrameProcessorVideoFrameRenderingTest {
     public void setErrorListener(Executor executor, ErrorListener errorListener) {}
 
     @Override
-    public void setGlObjectsProvider(GlObjectsProvider glObjectsProvider) {}
-
-    @Override
-    public void queueInputFrame(GlTextureInfo inputTexture, long presentationTimeUs) {
+    public void queueInputFrame(
+        GlObjectsProvider glObjectsProvider, GlTextureInfo inputTexture, long presentationTimeUs) {
       // No input is queued in these tests. The BlankFrameProducer is used to produce frames.
       throw new UnsupportedOperationException();
     }

@@ -50,7 +50,6 @@ import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 @Deprecated
 /* package */ final class DefaultFrameDroppingShaderProgram extends FrameCacheGlShaderProgram {
 
-  private final GlObjectsProvider glObjectsProvider;
   private final boolean useHdr;
   private final long targetFrameDeltaUs;
 
@@ -75,25 +74,25 @@ import com.google.android.exoplayer2.util.VideoFrameProcessingException;
     this.targetFrameDeltaUs = (long) (C.MICROS_PER_SECOND / targetFrameRate);
     lastQueuedPresentationTimeUs = C.TIME_UNSET;
     previousPresentationTimeUs = C.TIME_UNSET;
-    glObjectsProvider = new DefaultGlObjectsProvider(/* sharedEglContext= */ null);
   }
 
   @Override
-  public void queueInputFrame(GlTextureInfo inputTexture, long presentationTimeUs) {
+  public void queueInputFrame(
+      GlObjectsProvider glObjectsProvider, GlTextureInfo inputTexture, long presentationTimeUs) {
     framesReceived++;
     if (framesReceived == 1) {
-      copyTextureToPreviousFrame(inputTexture, presentationTimeUs);
-      queuePreviousFrame();
+      copyTextureToPreviousFrame(glObjectsProvider, inputTexture, presentationTimeUs);
+      queuePreviousFrame(glObjectsProvider);
       getInputListener().onInputFrameProcessed(inputTexture);
       getInputListener().onReadyToAcceptInputFrame();
       return;
     }
 
     if (shouldQueuePreviousFrame(presentationTimeUs)) {
-      queuePreviousFrame();
+      queuePreviousFrame(glObjectsProvider);
     }
 
-    copyTextureToPreviousFrame(inputTexture, presentationTimeUs);
+    copyTextureToPreviousFrame(glObjectsProvider, inputTexture, presentationTimeUs);
     getInputListener().onInputFrameProcessed(inputTexture);
     getInputListener().onReadyToAcceptInputFrame();
   }
@@ -135,7 +134,8 @@ import com.google.android.exoplayer2.util.VideoFrameProcessingException;
     framesReceived = 0;
   }
 
-  private void copyTextureToPreviousFrame(GlTextureInfo newTexture, long presentationTimeUs) {
+  private void copyTextureToPreviousFrame(
+      GlObjectsProvider glObjectsProvider, GlTextureInfo newTexture, long presentationTimeUs) {
     try {
       if (previousTexture == null) {
         int texId = GlUtil.createTexture(newTexture.getWidth(), newTexture.getHeight(), useHdr);
@@ -177,12 +177,12 @@ import com.google.android.exoplayer2.util.VideoFrameProcessingException;
         < abs(currentFrameTimeDeltaUs - targetFrameDeltaUs);
   }
 
-  private void queuePreviousFrame() {
+  private void queuePreviousFrame(GlObjectsProvider glObjectsProvider) {
     try {
       GlTextureInfo previousTexture = checkNotNull(this.previousTexture);
       Size outputTextureSize = configure(previousTexture.getWidth(), previousTexture.getHeight());
       outputTexturePool.ensureConfigured(
-          outputTextureSize.getWidth(), outputTextureSize.getHeight());
+          glObjectsProvider, outputTextureSize.getWidth(), outputTextureSize.getHeight());
 
       // Focus on the next free buffer.
       GlTextureInfo outputTexture = outputTexturePool.useTexture();

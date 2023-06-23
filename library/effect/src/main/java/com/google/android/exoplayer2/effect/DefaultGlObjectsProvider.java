@@ -43,10 +43,15 @@ public final class DefaultGlObjectsProvider implements GlObjectsProvider {
 
   private final EGLContext sharedEglContext;
 
+  /** Creates an instance with no shared EGL context. */
+  public DefaultGlObjectsProvider() {
+    this(/* sharedEglContext= */ null);
+  }
+
   /**
-   * Creates an instance.
+   * Creates an instance with the specified shared EGL context.
    *
-   * @param sharedEglContext The {@link EGLContext} with which to share data.
+   * @param sharedEglContext The context with which to share data, or {@code null} if none.
    */
   public DefaultGlObjectsProvider(@Nullable EGLContext sharedEglContext) {
     this.sharedEglContext = sharedEglContext != null ? sharedEglContext : EGL14.EGL_NO_CONTEXT;

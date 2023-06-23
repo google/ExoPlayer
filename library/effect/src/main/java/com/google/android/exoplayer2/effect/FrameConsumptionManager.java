@@ -19,6 +19,7 @@ import android.util.Pair;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.util.GlObjectsProvider;
 import com.google.android.exoplayer2.util.GlTextureInfo;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import java.util.ArrayDeque;
@@ -37,6 +38,8 @@ import java.util.Queue;
  */
 @Deprecated
 /* package */ final class FrameConsumptionManager implements GlShaderProgram.InputListener {
+
+  private final GlObjectsProvider glObjectsProvider;
   private final GlShaderProgram consumingGlShaderProgram;
   private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
 
@@ -49,12 +52,15 @@ import java.util.Queue;
   /**
    * Creates a new instance.
    *
+   * @param glObjectsProvider The {@link GlObjectsProvider} for using EGL and GLES.
    * @param consumingGlShaderProgram The {@link GlShaderProgram} that frames are queued to.
    * @param videoFrameProcessingTaskExecutor The {@link VideoFrameProcessingTaskExecutor}.
    */
   public FrameConsumptionManager(
+      GlObjectsProvider glObjectsProvider,
       GlShaderProgram consumingGlShaderProgram,
       VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor) {
+    this.glObjectsProvider = glObjectsProvider;
     this.consumingGlShaderProgram = consumingGlShaderProgram;
     this.videoFrameProcessingTaskExecutor = videoFrameProcessingTaskExecutor;
     availableFrames = new ArrayDeque<>();
@@ -71,6 +77,7 @@ import java.util.Queue;
     videoFrameProcessingTaskExecutor.submit(
         () ->
             consumingGlShaderProgram.queueInputFrame(
+                glObjectsProvider,
                 /* inputTexture= */ pendingFrame.first,
                 /* presentationTimeUs= */ pendingFrame.second));
     @Nullable Pair<GlTextureInfo, Long> nextPendingFrame = availableFrames.peek();
@@ -87,15 +94,15 @@ import java.util.Queue;
     availableFrames.clear();
   }
 
-  public synchronized void queueInputFrame(GlTextureInfo texture, long presentationTimeUs) {
+  public synchronized void queueInputFrame(GlTextureInfo inputTexture, long presentationTimeUs) {
     if (consumingGlShaderProgramInputCapacity > 0) {
       videoFrameProcessingTaskExecutor.submit(
           () ->
               consumingGlShaderProgram.queueInputFrame(
-                  /* inputTexture= */ texture, presentationTimeUs));
+                  glObjectsProvider, inputTexture, presentationTimeUs));
       consumingGlShaderProgramInputCapacity--;
     } else {
-      availableFrames.add(Pair.create(texture, presentationTimeUs));
+      availableFrames.add(Pair.create(inputTexture, presentationTimeUs));
     }
   }
 

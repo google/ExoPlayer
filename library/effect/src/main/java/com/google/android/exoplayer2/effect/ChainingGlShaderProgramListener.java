@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.effect;
 
 import com.google.android.exoplayer2.effect.GlShaderProgram.InputListener;
 import com.google.android.exoplayer2.effect.GlShaderProgram.OutputListener;
+import com.google.android.exoplayer2.util.GlObjectsProvider;
 import com.google.android.exoplayer2.util.GlTextureInfo;
 
 /**
@@ -41,6 +42,7 @@ import com.google.android.exoplayer2.util.GlTextureInfo;
   /**
    * Creates a new instance.
    *
+   * @param glObjectsProvider The {@link GlObjectsProvider} for using EGL and GLES.
    * @param producingGlShaderProgram The {@link GlShaderProgram} for which this listener will be set
    *     as {@link OutputListener}.
    * @param consumingGlShaderProgram The {@link GlShaderProgram} for which this listener will be set
@@ -51,12 +53,14 @@ import com.google.android.exoplayer2.util.GlTextureInfo;
    *     releasing the {@link VideoFrameProcessingTaskExecutor}.
    */
   public ChainingGlShaderProgramListener(
+      GlObjectsProvider glObjectsProvider,
       GlShaderProgram producingGlShaderProgram,
       GlShaderProgram consumingGlShaderProgram,
       VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor) {
     this.producingGlShaderProgram = producingGlShaderProgram;
     frameConsumptionManager =
-        new FrameConsumptionManager(consumingGlShaderProgram, videoFrameProcessingTaskExecutor);
+        new FrameConsumptionManager(
+            glObjectsProvider, consumingGlShaderProgram, videoFrameProcessingTaskExecutor);
     this.videoFrameProcessingTaskExecutor = videoFrameProcessingTaskExecutor;
   }
 

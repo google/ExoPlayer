@@ -20,6 +20,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static java.lang.Math.round;
 
 import android.content.Context;
+import com.google.android.exoplayer2.util.GlObjectsProvider;
 import com.google.android.exoplayer2.util.GlTextureInfo;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 
@@ -60,10 +61,11 @@ import com.google.android.exoplayer2.util.VideoFrameProcessingException;
   }
 
   @Override
-  public void queueInputFrame(GlTextureInfo inputTexture, long presentationTimeUs) {
+  public void queueInputFrame(
+      GlObjectsProvider glObjectsProvider, GlTextureInfo inputTexture, long presentationTimeUs) {
     framesReceived++;
     if (framesReceived % n == 0) {
-      super.queueInputFrame(inputTexture, presentationTimeUs);
+      super.queueInputFrame(glObjectsProvider, inputTexture, presentationTimeUs);
     } else {
       getInputListener().onInputFrameProcessed(inputTexture);
       getInputListener().onReadyToAcceptInputFrame();

@@ -20,6 +20,7 @@ import static org.mockito.Mockito.verify;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.util.GlObjectsProvider;
 import com.google.android.exoplayer2.util.GlTextureInfo;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
@@ -37,10 +38,12 @@ public final class ChainingGlShaderProgramListenerTest {
   private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor =
       new VideoFrameProcessingTaskExecutor(
           Util.newSingleThreadExecutor("Test"), mockFrameProcessorListener);
+  private final GlObjectsProvider mockGlObjectsProvider = mock(GlObjectsProvider.class);
   private final GlShaderProgram mockProducingGlShaderProgram = mock(GlShaderProgram.class);
   private final GlShaderProgram mockConsumingGlShaderProgram = mock(GlShaderProgram.class);
   private final ChainingGlShaderProgramListener chainingGlShaderProgramListener =
       new ChainingGlShaderProgramListener(
+          mockGlObjectsProvider,
           mockProducingGlShaderProgram,
           mockConsumingGlShaderProgram,
           videoFrameProcessingTaskExecutor);
@@ -83,7 +86,8 @@ public final class ChainingGlShaderProgramListenerTest {
     chainingGlShaderProgramListener.onOutputFrameAvailable(texture, presentationTimeUs);
     Thread.sleep(EXECUTOR_WAIT_TIME_MS);
 
-    verify(mockConsumingGlShaderProgram).queueInputFrame(texture, presentationTimeUs);
+    verify(mockConsumingGlShaderProgram)
+        .queueInputFrame(mockGlObjectsProvider, texture, presentationTimeUs);
   }
 
   @Test
@@ -102,7 +106,8 @@ public final class ChainingGlShaderProgramListenerTest {
     chainingGlShaderProgramListener.onReadyToAcceptInputFrame();
     Thread.sleep(EXECUTOR_WAIT_TIME_MS);
 
-    verify(mockConsumingGlShaderProgram).queueInputFrame(texture, presentationTimeUs);
+    verify(mockConsumingGlShaderProgram)
+        .queueInputFrame(mockGlObjectsProvider, texture, presentationTimeUs);
   }
 
   @Test
@@ -131,8 +136,10 @@ public final class ChainingGlShaderProgramListenerTest {
     chainingGlShaderProgramListener.onReadyToAcceptInputFrame();
     Thread.sleep(EXECUTOR_WAIT_TIME_MS);
 
-    verify(mockConsumingGlShaderProgram).queueInputFrame(firstTexture, firstPresentationTimeUs);
-    verify(mockConsumingGlShaderProgram).queueInputFrame(secondTexture, secondPresentationTimeUs);
+    verify(mockConsumingGlShaderProgram)
+        .queueInputFrame(mockGlObjectsProvider, firstTexture, firstPresentationTimeUs);
+    verify(mockConsumingGlShaderProgram)
+        .queueInputFrame(mockGlObjectsProvider, secondTexture, secondPresentationTimeUs);
   }
 
   @Test
