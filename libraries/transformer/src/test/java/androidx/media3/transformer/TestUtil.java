@@ -149,7 +149,7 @@ public final class TestUtil {
   public static final String FILE_VIDEO_ONLY = "mp4/sample_18byte_nclx_colr.mp4";
   public static final String FILE_AUDIO_ONLY = "mp3/test.mp3";
   public static final String FILE_AUDIO_VIDEO = "mp4/sample.mp4";
-  public static final String FILE_AUDIO_VIDEO_STEREO = "mp4/sample_with_increasing_timestamps.mp4";
+  public static final String FILE_AUDIO_VIDEO_STEREO = "mp4/testvid_1022ms.mp4";
   public static final String FILE_AUDIO_VIDEO_INCREASING_TIMESTAMPS_15S =
       "mp4/sample_with_increasing_timestamps_320w_240h.mp4";
   public static final String FILE_AUDIO_RAW = "wav/sample.wav";
