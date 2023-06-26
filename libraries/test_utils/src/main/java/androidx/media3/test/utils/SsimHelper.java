@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media3.transformer;
+package androidx.media3.test.utils;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertThat;
@@ -24,6 +24,8 @@ import android.content.Context;
 import android.media.Image;
 import android.media.MediaCodec;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.media3.common.util.UnstableApi;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -40,6 +42,8 @@ import java.nio.ByteBuffer;
  * <p>SSIM is traditionally computed with the luminance channel (Y), this class uses the luma
  * channel (Y') because the {@linkplain MediaCodec decoder} decodes to luma.
  */
+@UnstableApi
+@RequiresApi(21)
 public final class SsimHelper {
 
   /** The default comparison interval. */

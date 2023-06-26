@@ -16,9 +16,9 @@
 
 package androidx.media3.transformer.mh.analysis;
 
+import static androidx.media3.common.C.MEDIA_CODEC_PRIORITY_NON_REALTIME;
+import static androidx.media3.common.C.MEDIA_CODEC_PRIORITY_REALTIME;
 import static androidx.media3.common.util.Assertions.checkNotNull;
-import static androidx.media3.transformer.AndroidTestUtil.MEDIA_CODEC_PRIORITY_NON_REALTIME;
-import static androidx.media3.transformer.AndroidTestUtil.MEDIA_CODEC_PRIORITY_REALTIME;
 import static androidx.media3.transformer.AndroidTestUtil.recordTestSkipped;
 
 import android.content.Context;

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.media3.transformer;
+package androidx.media3.test.utils;
 
+import static androidx.media3.common.C.MEDIA_CODEC_PRIORITY_NON_REALTIME;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
-import static androidx.media3.transformer.AndroidTestUtil.MEDIA_CODEC_PRIORITY_NON_REALTIME;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
@@ -33,14 +33,18 @@ import android.media.MediaExtractor;
 import android.media.MediaFormat;
 import android.os.Handler;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.ConditionVariable;
+import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /** A wrapper for decoding a video using {@link MediaCodec}. */
-/* package */ final class VideoDecodingWrapper implements AutoCloseable {
+@UnstableApi
+@RequiresApi(21)
+public final class VideoDecodingWrapper implements AutoCloseable {
 
   private static final int IMAGE_AVAILABLE_TIMEOUT_MS = 10_000;
 
