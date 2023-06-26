@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":18,"i1":18,"i2":18,"i3":18,"i4":6,"i5":6,"i6":6};
+var data = {"i0":18,"i1":18,"i2":18,"i3":18,"i4":18,"i5":6,"i6":6,"i7":6};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -149,26 +149,33 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioCapabilitiesChanged()">onAudioCapabilitiesChanged</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Called when audio capabilities changed.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioSinkError(java.lang.Exception)">onAudioSinkError</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;audioSinkError)</code></th>
 <td class="colLast">
 <div class="block">Called when <a href="AudioSink.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioSink</code></a> has encountered an error.</div>
 </td>
 </tr>
-<tr id="i1" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onOffloadBufferEmptying()">onOffloadBufferEmptying</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Called when the offload buffer has been partially emptied.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onOffloadBufferFull()">onOffloadBufferFull</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Called when the offload buffer has been filled completely.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPositionAdvancing(long)">onPositionAdvancing</a></span>&#8203;(long&nbsp;playoutStartSystemTimeMs)</code></th>
 <td class="colLast">
@@ -176,7 +183,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  paused or flushed.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPositionDiscontinuity()">onPositionDiscontinuity</a></span>()</code></th>
 <td class="colLast">
@@ -184,14 +191,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  buffer handled since it was reset.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSkipSilenceEnabledChanged(boolean)">onSkipSilenceEnabledChanged</a></span>&#8203;(boolean&nbsp;skipSilenceEnabled)</code></th>
 <td class="colLast">
 <div class="block">Called when skipping silences is enabled or disabled.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onUnderrun(int,long,long)">onUnderrun</a></span>&#8203;(int&nbsp;bufferSize,
           long&nbsp;bufferSizeMs,
@@ -304,7 +311,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <a id="onAudioSinkError(java.lang.Exception)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>onAudioSinkError</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onAudioSinkError&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;audioSinkError)</pre>
@@ -326,6 +333,16 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code>audioSinkError</code> - The error that occurred. Typically an <a href="AudioSink.InitializationException.html" title="class in com.google.android.exoplayer2.audio"><code>AudioSink.InitializationException</code></a>,
      a <a href="AudioSink.WriteException.html" title="class in com.google.android.exoplayer2.audio"><code>AudioSink.WriteException</code></a>, or an <a href="AudioSink.UnexpectedDiscontinuityException.html" title="class in com.google.android.exoplayer2.audio"><code>AudioSink.UnexpectedDiscontinuityException</code></a>.</dd>
 </dl>
+</li>
+</ul>
+<a id="onAudioCapabilitiesChanged()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>onAudioCapabilitiesChanged</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;onAudioCapabilitiesChanged()</pre>
+<div class="block">Called when audio capabilities changed.</div>
 </li>
 </ul>
 </li>

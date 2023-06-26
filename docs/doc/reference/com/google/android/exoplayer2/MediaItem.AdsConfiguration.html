@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -129,12 +129,17 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><code><a href="Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></code></dd>
+</dl>
+<dl>
 <dt>Enclosing class:</dt>
 <dd><a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a></dd>
 </dl>
 <hr>
 <pre>public static final class <span class="typeNameLabel">MediaItem.AdsConfiguration</span>
-extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
+implements <a href="Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></pre>
 <div class="block">Configuration for playing back linear ads with a media item.</div>
 </li>
 </ul>
@@ -164,6 +169,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 </table>
+<ul class="blockList">
+<li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.Bundleable">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.<a href="Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></h3>
+<code><a href="Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="Bundleable.Creator.html" title="type parameter in Bundleable.Creator">T</a> extends <a href="Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;</code></li>
+</ul>
 </li>
 </ul>
 </section>
@@ -194,6 +206,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#adTagUri">adTagUri</a></span></code></th>
 <td class="colLast">
 <div class="block">The ad tag URI to load.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static <a href="Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="MediaItem.AdsConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.AdsConfiguration</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#CREATOR">CREATOR</a></span></code></th>
+<td class="colLast">
+<div class="block">An object that can restore <a href="MediaItem.AdsConfiguration.html" title="class in com.google.android.exoplayer2"><code>MediaItem.AdsConfiguration</code></a> from a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.</div>
 </td>
 </tr>
 </table>
@@ -230,6 +249,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundle()">toBundle</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representing the information stored in this object.</div>
+</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -268,7 +294,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <a id="adsId">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>adsId</h4>
 <pre>@Nullable
@@ -279,6 +305,18 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
  <p>Media items in the playlist that have the same ads identifier and ads loader share the
  same ad playback state. To resume ad playback when recreating the playlist on returning from
  the background, pass the same ads identifiers to the player.</div>
+</li>
+</ul>
+<a id="CREATOR">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>CREATOR</h4>
+<pre>public static final&nbsp;<a href="Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="MediaItem.AdsConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.AdsConfiguration</a>&gt; CREATOR</pre>
+<div class="block">An object that can restore <a href="MediaItem.AdsConfiguration.html" title="class in com.google.android.exoplayer2"><code>MediaItem.AdsConfiguration</code></a> from a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.
+
+ <p>The <a href="#adsId"><code>adsId</code></a> of a restored instance will always be <code>null</code>.</div>
 </li>
 </ul>
 </li>
@@ -318,13 +356,30 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <a id="hashCode()">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>hashCode</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;hashCode()</pre>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="toBundle()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>toBundle</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;toBundle()</pre>
+<div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representing the information stored in this object.
+
+ <p>It omits the <a href="#adsId"><code>adsId</code></a> field. The <a href="#adsId"><code>adsId</code></a> of an instance restored from such a
+ bundle by <a href="#CREATOR"><code>CREATOR</code></a> will be <code>null</code>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="Bundleable.html#toBundle()">toBundle</a></code>&nbsp;in interface&nbsp;<code><a href="Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></code></dd>
 </dl>
 </li>
 </ul>

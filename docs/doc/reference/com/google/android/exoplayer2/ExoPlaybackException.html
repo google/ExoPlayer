@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":41,"i4":9,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
+var data = {"i0":41,"i1":41,"i2":41,"i3":41,"i4":41,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -148,8 +148,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></code>, <code><a href="https://developer.android.com/reference/java/io/Serializable.html" title="class or interface in java.io" class="externalLink" target="_top">Serializable</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">ExoPlaybackException</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">ExoPlaybackException</span>
 extends <a href="PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Thrown when a non locally recoverable playback failure occurs.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -179,6 +185,7 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="ExoPlaybackException.Type.html" title="annotation in com.google.android.exoplayer2">ExoPlaybackException.Type</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The type of source that produced the error.</div>
 </td>
 </tr>
@@ -218,6 +225,7 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 <td class="colFirst"><code>static <a href="Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#CREATOR">CREATOR</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Object that can restore <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2"><code>ExoPlaybackException</code></a> from a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.</div>
 </td>
 </tr>
@@ -225,6 +233,7 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 <td class="colFirst"><code><a href="source/MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaPeriodId</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#mediaPeriodId">mediaPeriodId</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="source/MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaPeriodId</code></a> of the media associated with this error, or null if undetermined.</div>
 </td>
 </tr>
@@ -232,6 +241,7 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 <td class="colFirst"><code><a href="Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#rendererFormat">rendererFormat</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If <a href="#type"><code>type</code></a> is <a href="#TYPE_RENDERER"><code>TYPE_RENDERER</code></a>, this is the <a href="Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> the renderer was using
  at the time of the exception, or null if the renderer wasn't using a <a href="Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 </td>
@@ -240,6 +250,7 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 <td class="colFirst"><code>@com.google.android.exoplayer2.C.FormatSupport int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#rendererFormatSupport">rendererFormatSupport</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If <a href="#type"><code>type</code></a> is <a href="#TYPE_RENDERER"><code>TYPE_RENDERER</code></a>, this is the level of <a href="C.FormatSupport.html" title="annotation in com.google.android.exoplayer2"><code>C.FormatSupport</code></a> of the
  renderer for <a href="#rendererFormat"><code>rendererFormat</code></a>.</div>
 </td>
@@ -248,6 +259,7 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#rendererIndex">rendererIndex</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If <a href="#type"><code>type</code></a> is <a href="#TYPE_RENDERER"><code>TYPE_RENDERER</code></a>, this is the index of the renderer.</div>
 </td>
 </tr>
@@ -255,6 +267,7 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#rendererName">rendererName</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If <a href="#type"><code>type</code></a> is <a href="#TYPE_RENDERER"><code>TYPE_RENDERER</code></a>, this is the name of the renderer.</div>
 </td>
 </tr>
@@ -262,6 +275,7 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 <td class="colFirst"><code>@com.google.android.exoplayer2.ExoPlaybackException.Type int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#type">type</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="ExoPlaybackException.Type.html" title="annotation in com.google.android.exoplayer2"><code>ExoPlaybackException.Type</code></a> of the playback failure.</div>
 </td>
 </tr>
@@ -269,6 +283,7 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TYPE_REMOTE">TYPE_REMOTE</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The error occurred in a remote component.</div>
 </td>
 </tr>
@@ -276,6 +291,7 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TYPE_RENDERER">TYPE_RENDERER</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The error occurred in a <a href="Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a>.</div>
 </td>
 </tr>
@@ -283,6 +299,7 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TYPE_SOURCE">TYPE_SOURCE</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The error occurred loading data from a <a href="source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>.</div>
 </td>
 </tr>
@@ -290,6 +307,7 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TYPE_UNEXPECTED">TYPE_UNEXPECTED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The error was an unexpected <a href="https://developer.android.com/reference/java/lang/RuntimeException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>RuntimeException</code></a>.</div>
 </td>
 </tr>
@@ -299,7 +317,7 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 <!--   -->
 </a>
 <h3>Fields inherited from class&nbsp;com.google.android.exoplayer2.<a href="PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a></h3>
-<code><a href="PlaybackException.html#CUSTOM_ERROR_CODE_BASE">CUSTOM_ERROR_CODE_BASE</a>, <a href="PlaybackException.html#ERROR_CODE_AUDIO_TRACK_INIT_FAILED">ERROR_CODE_AUDIO_TRACK_INIT_FAILED</a>, <a href="PlaybackException.html#ERROR_CODE_AUDIO_TRACK_WRITE_FAILED">ERROR_CODE_AUDIO_TRACK_WRITE_FAILED</a>, <a href="PlaybackException.html#ERROR_CODE_BEHIND_LIVE_WINDOW">ERROR_CODE_BEHIND_LIVE_WINDOW</a>, <a href="PlaybackException.html#ERROR_CODE_DECODER_INIT_FAILED">ERROR_CODE_DECODER_INIT_FAILED</a>, <a href="PlaybackException.html#ERROR_CODE_DECODER_QUERY_FAILED">ERROR_CODE_DECODER_QUERY_FAILED</a>, <a href="PlaybackException.html#ERROR_CODE_DECODING_FAILED">ERROR_CODE_DECODING_FAILED</a>, <a href="PlaybackException.html#ERROR_CODE_DECODING_FORMAT_EXCEEDS_CAPABILITIES">ERROR_CODE_DECODING_FORMAT_EXCEEDS_CAPABILITIES</a>, <a href="PlaybackException.html#ERROR_CODE_DECODING_FORMAT_UNSUPPORTED">ERROR_CODE_DECODING_FORMAT_UNSUPPORTED</a>, <a href="PlaybackException.html#ERROR_CODE_DRM_CONTENT_ERROR">ERROR_CODE_DRM_CONTENT_ERROR</a>, <a href="PlaybackException.html#ERROR_CODE_DRM_DEVICE_REVOKED">ERROR_CODE_DRM_DEVICE_REVOKED</a>, <a href="PlaybackException.html#ERROR_CODE_DRM_DISALLOWED_OPERATION">ERROR_CODE_DRM_DISALLOWED_OPERATION</a>, <a href="PlaybackException.html#ERROR_CODE_DRM_LICENSE_ACQUISITION_FAILED">ERROR_CODE_DRM_LICENSE_ACQUISITION_FAILED</a>, <a href="PlaybackException.html#ERROR_CODE_DRM_LICENSE_EXPIRED">ERROR_CODE_DRM_LICENSE_EXPIRED</a>, <a href="PlaybackException.html#ERROR_CODE_DRM_PROVISIONING_FAILED">ERROR_CODE_DRM_PROVISIONING_FAILED</a>, <a href="PlaybackException.html#ERROR_CODE_DRM_SCHEME_UNSUPPORTED">ERROR_CODE_DRM_SCHEME_UNSUPPORTED</a>, <a href="PlaybackException.html#ERROR_CODE_DRM_SYSTEM_ERROR">ERROR_CODE_DRM_SYSTEM_ERROR</a>, <a href="PlaybackException.html#ERROR_CODE_DRM_UNSPECIFIED">ERROR_CODE_DRM_UNSPECIFIED</a>, <a href="PlaybackException.html#ERROR_CODE_FAILED_RUNTIME_CHECK">ERROR_CODE_FAILED_RUNTIME_CHECK</a>, <a href="PlaybackException.html#ERROR_CODE_IO_BAD_HTTP_STATUS">ERROR_CODE_IO_BAD_HTTP_STATUS</a>, <a href="PlaybackException.html#ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED">ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED</a>, <a href="PlaybackException.html#ERROR_CODE_IO_FILE_NOT_FOUND">ERROR_CODE_IO_FILE_NOT_FOUND</a>, <a href="PlaybackException.html#ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE">ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE</a>, <a href="PlaybackException.html#ERROR_CODE_IO_NETWORK_CONNECTION_FAILED">ERROR_CODE_IO_NETWORK_CONNECTION_FAILED</a>, <a href="PlaybackException.html#ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT">ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT</a>, <a href="PlaybackException.html#ERROR_CODE_IO_NO_PERMISSION">ERROR_CODE_IO_NO_PERMISSION</a>, <a href="PlaybackException.html#ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE">ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE</a>, <a href="PlaybackException.html#ERROR_CODE_IO_UNSPECIFIED">ERROR_CODE_IO_UNSPECIFIED</a>, <a href="PlaybackException.html#ERROR_CODE_PARSING_CONTAINER_MALFORMED">ERROR_CODE_PARSING_CONTAINER_MALFORMED</a>, <a href="PlaybackException.html#ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED">ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED</a>, <a href="PlaybackException.html#ERROR_CODE_PARSING_MANIFEST_MALFORMED">ERROR_CODE_PARSING_MANIFEST_MALFORMED</a>, <a href="PlaybackException.html#ERROR_CODE_PARSING_MANIFEST_UNSUPPORTED">ERROR_CODE_PARSING_MANIFEST_UNSUPPORTED</a>, <a href="PlaybackException.html#ERROR_CODE_REMOTE_ERROR">ERROR_CODE_REMOTE_ERROR</a>, <a href="PlaybackException.html#ERROR_CODE_TIMEOUT">ERROR_CODE_TIMEOUT</a>, <a href="PlaybackException.html#ERROR_CODE_UNSPECIFIED">ERROR_CODE_UNSPECIFIED</a>, <a href="PlaybackException.html#errorCode">errorCode</a>, <a href="PlaybackException.html#FIELD_CUSTOM_ID_BASE">FIELD_CUSTOM_ID_BASE</a>, <a href="PlaybackException.html#timestampMs">timestampMs</a></code></li>
+<code><a href="PlaybackException.html#CUSTOM_ERROR_CODE_BASE">CUSTOM_ERROR_CODE_BASE</a>, <a href="PlaybackException.html#ERROR_CODE_AUDIO_TRACK_INIT_FAILED">ERROR_CODE_AUDIO_TRACK_INIT_FAILED</a>, <a href="PlaybackException.html#ERROR_CODE_AUDIO_TRACK_WRITE_FAILED">ERROR_CODE_AUDIO_TRACK_WRITE_FAILED</a>, <a href="PlaybackException.html#ERROR_CODE_BEHIND_LIVE_WINDOW">ERROR_CODE_BEHIND_LIVE_WINDOW</a>, <a href="PlaybackException.html#ERROR_CODE_DECODER_INIT_FAILED">ERROR_CODE_DECODER_INIT_FAILED</a>, <a href="PlaybackException.html#ERROR_CODE_DECODER_QUERY_FAILED">ERROR_CODE_DECODER_QUERY_FAILED</a>, <a href="PlaybackException.html#ERROR_CODE_DECODING_FAILED">ERROR_CODE_DECODING_FAILED</a>, <a href="PlaybackException.html#ERROR_CODE_DECODING_FORMAT_EXCEEDS_CAPABILITIES">ERROR_CODE_DECODING_FORMAT_EXCEEDS_CAPABILITIES</a>, <a href="PlaybackException.html#ERROR_CODE_DECODING_FORMAT_UNSUPPORTED">ERROR_CODE_DECODING_FORMAT_UNSUPPORTED</a>, <a href="PlaybackException.html#ERROR_CODE_DRM_CONTENT_ERROR">ERROR_CODE_DRM_CONTENT_ERROR</a>, <a href="PlaybackException.html#ERROR_CODE_DRM_DEVICE_REVOKED">ERROR_CODE_DRM_DEVICE_REVOKED</a>, <a href="PlaybackException.html#ERROR_CODE_DRM_DISALLOWED_OPERATION">ERROR_CODE_DRM_DISALLOWED_OPERATION</a>, <a href="PlaybackException.html#ERROR_CODE_DRM_LICENSE_ACQUISITION_FAILED">ERROR_CODE_DRM_LICENSE_ACQUISITION_FAILED</a>, <a href="PlaybackException.html#ERROR_CODE_DRM_LICENSE_EXPIRED">ERROR_CODE_DRM_LICENSE_EXPIRED</a>, <a href="PlaybackException.html#ERROR_CODE_DRM_PROVISIONING_FAILED">ERROR_CODE_DRM_PROVISIONING_FAILED</a>, <a href="PlaybackException.html#ERROR_CODE_DRM_SCHEME_UNSUPPORTED">ERROR_CODE_DRM_SCHEME_UNSUPPORTED</a>, <a href="PlaybackException.html#ERROR_CODE_DRM_SYSTEM_ERROR">ERROR_CODE_DRM_SYSTEM_ERROR</a>, <a href="PlaybackException.html#ERROR_CODE_DRM_UNSPECIFIED">ERROR_CODE_DRM_UNSPECIFIED</a>, <a href="PlaybackException.html#ERROR_CODE_FAILED_RUNTIME_CHECK">ERROR_CODE_FAILED_RUNTIME_CHECK</a>, <a href="PlaybackException.html#ERROR_CODE_IO_BAD_HTTP_STATUS">ERROR_CODE_IO_BAD_HTTP_STATUS</a>, <a href="PlaybackException.html#ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED">ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED</a>, <a href="PlaybackException.html#ERROR_CODE_IO_FILE_NOT_FOUND">ERROR_CODE_IO_FILE_NOT_FOUND</a>, <a href="PlaybackException.html#ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE">ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE</a>, <a href="PlaybackException.html#ERROR_CODE_IO_NETWORK_CONNECTION_FAILED">ERROR_CODE_IO_NETWORK_CONNECTION_FAILED</a>, <a href="PlaybackException.html#ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT">ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT</a>, <a href="PlaybackException.html#ERROR_CODE_IO_NO_PERMISSION">ERROR_CODE_IO_NO_PERMISSION</a>, <a href="PlaybackException.html#ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE">ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE</a>, <a href="PlaybackException.html#ERROR_CODE_IO_UNSPECIFIED">ERROR_CODE_IO_UNSPECIFIED</a>, <a href="PlaybackException.html#ERROR_CODE_PARSING_CONTAINER_MALFORMED">ERROR_CODE_PARSING_CONTAINER_MALFORMED</a>, <a href="PlaybackException.html#ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED">ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED</a>, <a href="PlaybackException.html#ERROR_CODE_PARSING_MANIFEST_MALFORMED">ERROR_CODE_PARSING_MANIFEST_MALFORMED</a>, <a href="PlaybackException.html#ERROR_CODE_PARSING_MANIFEST_UNSUPPORTED">ERROR_CODE_PARSING_MANIFEST_UNSUPPORTED</a>, <a href="PlaybackException.html#ERROR_CODE_REMOTE_ERROR">ERROR_CODE_REMOTE_ERROR</a>, <a href="PlaybackException.html#ERROR_CODE_TIMEOUT">ERROR_CODE_TIMEOUT</a>, <a href="PlaybackException.html#ERROR_CODE_UNSPECIFIED">ERROR_CODE_UNSPECIFIED</a>, <a href="PlaybackException.html#ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED">ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED</a>, <a href="PlaybackException.html#ERROR_CODE_VIDEO_FRAME_PROCESSOR_INIT_FAILED">ERROR_CODE_VIDEO_FRAME_PROCESSOR_INIT_FAILED</a>, <a href="PlaybackException.html#errorCode">errorCode</a>, <a href="PlaybackException.html#FIELD_CUSTOM_ID_BASE">FIELD_CUSTOM_ID_BASE</a>, <a href="PlaybackException.html#timestampMs">timestampMs</a></code></li>
 </ul>
 </li>
 </ul>
@@ -322,6 +340,7 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 <td class="colFirst"><code>static <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createForRemote(java.lang.String)">createForRemote</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance of type <a href="#TYPE_REMOTE"><code>TYPE_REMOTE</code></a>.</div>
 </td>
 </tr>
@@ -335,6 +354,7 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
                  boolean&nbsp;isRecoverable,
                  @com.google.android.exoplayer2.PlaybackException.ErrorCode int&nbsp;errorCode)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance of type <a href="#TYPE_RENDERER"><code>TYPE_RENDERER</code></a>.</div>
 </td>
 </tr>
@@ -343,6 +363,7 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createForSource(java.io.IOException,int)">createForSource</a></span>&#8203;(<a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;cause,
                int&nbsp;errorCode)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance of type <a href="#TYPE_SOURCE"><code>TYPE_SOURCE</code></a>.</div>
 </td>
 </tr>
@@ -360,6 +381,7 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createForUnexpected(java.lang.RuntimeException,@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">createForUnexpected</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/RuntimeException.html" title="class or interface in java.lang" class="externalLink" target="_top">RuntimeException</a>&nbsp;cause,
                    @com.google.android.exoplayer2.PlaybackException.ErrorCode int&nbsp;errorCode)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance of type <a href="#TYPE_UNEXPECTED"><code>TYPE_UNEXPECTED</code></a>.</div>
 </td>
 </tr>
@@ -367,6 +389,7 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#errorInfoEquals(com.google.android.exoplayer2.PlaybackException)">errorInfoEquals</a></span>&#8203;(<a href="PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a>&nbsp;that)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the error data associated to this exception equals the error data associated to
  <code>other</code>.</div>
 </td>
@@ -375,6 +398,7 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getRendererException()">getRendererException</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Retrieves the underlying error when <a href="#type"><code>type</code></a> is <a href="#TYPE_RENDERER"><code>TYPE_RENDERER</code></a>.</div>
 </td>
 </tr>
@@ -382,6 +406,7 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSourceException()">getSourceException</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Retrieves the underlying error when <a href="#type"><code>type</code></a> is <a href="#TYPE_SOURCE"><code>TYPE_SOURCE</code></a>.</div>
 </td>
 </tr>
@@ -389,6 +414,7 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/RuntimeException.html" title="class or interface in java.lang" class="externalLink" target="_top">RuntimeException</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getUnexpectedException()">getUnexpectedException</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Retrieves the underlying error when <a href="#type"><code>type</code></a> is <a href="#TYPE_UNEXPECTED"><code>TYPE_UNEXPECTED</code></a>.</div>
 </td>
 </tr>
@@ -396,6 +422,7 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundle()">toBundle</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representing the information stored in this object.</div>
 </td>
 </tr>
@@ -444,6 +471,7 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 <li class="blockList">
 <h4>TYPE_SOURCE</h4>
 <pre>public static final&nbsp;int TYPE_SOURCE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The error occurred loading data from a <a href="source/MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>.
 
  <p>Call <a href="#getSourceException()"><code>getSourceException()</code></a> to retrieve the underlying cause.</div>
@@ -460,6 +488,7 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 <li class="blockList">
 <h4>TYPE_RENDERER</h4>
 <pre>public static final&nbsp;int TYPE_RENDERER</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The error occurred in a <a href="Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a>.
 
  <p>Call <a href="#getRendererException()"><code>getRendererException()</code></a> to retrieve the underlying cause.</div>
@@ -476,6 +505,7 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 <li class="blockList">
 <h4>TYPE_UNEXPECTED</h4>
 <pre>public static final&nbsp;int TYPE_UNEXPECTED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The error was an unexpected <a href="https://developer.android.com/reference/java/lang/RuntimeException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>RuntimeException</code></a>.
 
  <p>Call <a href="#getUnexpectedException()"><code>getUnexpectedException()</code></a> to retrieve the underlying cause.</div>
@@ -492,6 +522,7 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 <li class="blockList">
 <h4>TYPE_REMOTE</h4>
 <pre>public static final&nbsp;int TYPE_REMOTE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The error occurred in a remote component.
 
  <p>Call <a href="https://developer.android.com/reference/java/lang/Throwable.html#getMessage()" title="class or interface in java.lang" class="externalLink" target="_top"><code>Throwable.getMessage()</code></a> to retrieve the message associated with the error.</div>
@@ -509,6 +540,7 @@ extends <a href="PlaybackException.html" title="class in com.google.android.exop
 <h4>type</h4>
 <pre><a href="ExoPlaybackException.Type.html" title="annotation in com.google.android.exoplayer2">@Type</a>
 public final&nbsp;@com.google.android.exoplayer2.ExoPlaybackException.Type int type</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="ExoPlaybackException.Type.html" title="annotation in com.google.android.exoplayer2"><code>ExoPlaybackException.Type</code></a> of the playback failure.</div>
 </li>
 </ul>
@@ -520,6 +552,7 @@ public final&nbsp;@com.google.android.exoplayer2.ExoPlaybackException.Type int t
 <h4>rendererName</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> rendererName</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If <a href="#type"><code>type</code></a> is <a href="#TYPE_RENDERER"><code>TYPE_RENDERER</code></a>, this is the name of the renderer.</div>
 </li>
 </ul>
@@ -530,6 +563,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <li class="blockList">
 <h4>rendererIndex</h4>
 <pre>public final&nbsp;int rendererIndex</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If <a href="#type"><code>type</code></a> is <a href="#TYPE_RENDERER"><code>TYPE_RENDERER</code></a>, this is the index of the renderer.</div>
 </li>
 </ul>
@@ -541,6 +575,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <h4>rendererFormat</h4>
 <pre>@Nullable
 public final&nbsp;<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a> rendererFormat</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If <a href="#type"><code>type</code></a> is <a href="#TYPE_RENDERER"><code>TYPE_RENDERER</code></a>, this is the <a href="Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> the renderer was using
  at the time of the exception, or null if the renderer wasn't using a <a href="Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 </li>
@@ -553,6 +588,7 @@ public final&nbsp;<a href="Format.html" title="class in com.google.android.exopl
 <h4>rendererFormatSupport</h4>
 <pre><a href="C.FormatSupport.html" title="annotation in com.google.android.exoplayer2">@FormatSupport</a>
 public final&nbsp;@com.google.android.exoplayer2.C.FormatSupport int rendererFormatSupport</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If <a href="#type"><code>type</code></a> is <a href="#TYPE_RENDERER"><code>TYPE_RENDERER</code></a>, this is the level of <a href="C.FormatSupport.html" title="annotation in com.google.android.exoplayer2"><code>C.FormatSupport</code></a> of the
  renderer for <a href="#rendererFormat"><code>rendererFormat</code></a>. If <a href="#rendererFormat"><code>rendererFormat</code></a> is null, this is <a href="C.html#FORMAT_HANDLED"><code>C.FORMAT_HANDLED</code></a>.</div>
 </li>
@@ -565,6 +601,7 @@ public final&nbsp;@com.google.android.exoplayer2.C.FormatSupport int rendererFor
 <h4>mediaPeriodId</h4>
 <pre>@Nullable
 public final&nbsp;<a href="source/MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaPeriodId</a> mediaPeriodId</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="source/MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaPeriodId</code></a> of the media associated with this error, or null if undetermined.</div>
 </li>
 </ul>
@@ -575,6 +612,7 @@ public final&nbsp;<a href="source/MediaPeriodId.html" title="class in com.google
 <li class="blockList">
 <h4>CREATOR</h4>
 <pre>public static final&nbsp;<a href="Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&gt; CREATOR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Object that can restore <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2"><code>ExoPlaybackException</code></a> from a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.</div>
 </li>
 </ul>
@@ -596,6 +634,7 @@ public final&nbsp;<a href="source/MediaPeriodId.html" title="class in com.google
 <h4>createForSource</h4>
 <pre class="methodSignature">public static&nbsp;<a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;createForSource&#8203;(<a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;cause,
                                                    int&nbsp;errorCode)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance of type <a href="#TYPE_SOURCE"><code>TYPE_SOURCE</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -622,6 +661,7 @@ public final&nbsp;<a href="source/MediaPeriodId.html" title="class in com.google
                                                      boolean&nbsp;isRecoverable,
                                                      <a href="PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2">@ErrorCode</a>
                                                      @com.google.android.exoplayer2.PlaybackException.ErrorCode int&nbsp;errorCode)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance of type <a href="#TYPE_RENDERER"><code>TYPE_RENDERER</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -662,6 +702,7 @@ public static&nbsp;<a href="ExoPlaybackException.html" title="class in com.googl
 <pre class="methodSignature">public static&nbsp;<a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;createForUnexpected&#8203;(<a href="https://developer.android.com/reference/java/lang/RuntimeException.html" title="class or interface in java.lang" class="externalLink" target="_top">RuntimeException</a>&nbsp;cause,
                                                        <a href="PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2">@ErrorCode</a>
                                                        @com.google.android.exoplayer2.PlaybackException.ErrorCode int&nbsp;errorCode)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance of type <a href="#TYPE_UNEXPECTED"><code>TYPE_UNEXPECTED</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -679,6 +720,7 @@ public static&nbsp;<a href="ExoPlaybackException.html" title="class in com.googl
 <li class="blockList">
 <h4>createForRemote</h4>
 <pre class="methodSignature">public static&nbsp;<a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a>&nbsp;createForRemote&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance of type <a href="#TYPE_REMOTE"><code>TYPE_REMOTE</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -695,6 +737,7 @@ public static&nbsp;<a href="ExoPlaybackException.html" title="class in com.googl
 <li class="blockList">
 <h4>getSourceException</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;getSourceException()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Retrieves the underlying error when <a href="#type"><code>type</code></a> is <a href="#TYPE_SOURCE"><code>TYPE_SOURCE</code></a>.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -709,6 +752,7 @@ public static&nbsp;<a href="ExoPlaybackException.html" title="class in com.googl
 <li class="blockList">
 <h4>getRendererException</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;getRendererException()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Retrieves the underlying error when <a href="#type"><code>type</code></a> is <a href="#TYPE_RENDERER"><code>TYPE_RENDERER</code></a>.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -723,6 +767,7 @@ public static&nbsp;<a href="ExoPlaybackException.html" title="class in com.googl
 <li class="blockList">
 <h4>getUnexpectedException</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/RuntimeException.html" title="class or interface in java.lang" class="externalLink" target="_top">RuntimeException</a>&nbsp;getUnexpectedException()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Retrieves the underlying error when <a href="#type"><code>type</code></a> is <a href="#TYPE_UNEXPECTED"><code>TYPE_UNEXPECTED</code></a>.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -738,6 +783,7 @@ public static&nbsp;<a href="ExoPlaybackException.html" title="class in com.googl
 <h4>errorInfoEquals</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;errorInfoEquals&#8203;(@Nullable
                                <a href="PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a>&nbsp;that)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="PlaybackException.html#errorInfoEquals(com.google.android.exoplayer2.PlaybackException)">PlaybackException</a></code></span></div>
 <div class="block">Returns whether the error data associated to this exception equals the error data associated to
  <code>other</code>.
@@ -756,6 +802,7 @@ public static&nbsp;<a href="ExoPlaybackException.html" title="class in com.googl
 <li class="blockList">
 <h4>toBundle</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;toBundle()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representing the information stored in this object.
 
  <p>It omits the <a href="#mediaPeriodId"><code>mediaPeriodId</code></a> field. The <a href="#mediaPeriodId"><code>mediaPeriodId</code></a> of an instance

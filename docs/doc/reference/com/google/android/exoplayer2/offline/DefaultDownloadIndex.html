@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="DownloadIndex.html" title="interface in com.google.android.exoplayer2.offline">DownloadIndex</a></code>, <code><a href="WritableDownloadIndex.html" title="interface in com.google.android.exoplayer2.offline">WritableDownloadIndex</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">DefaultDownloadIndex</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">DefaultDownloadIndex</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="WritableDownloadIndex.html" title="interface in com.google.android.exoplayer2.offline">WritableDownloadIndex</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A <a href="DownloadIndex.html" title="interface in com.google.android.exoplayer2.offline"><code>DownloadIndex</code></a> that uses SQLite to persist <a href="Download.html" title="class in com.google.android.exoplayer2.offline"><code>Downloads</code></a>.</div>
 </li>
 </ul>
@@ -159,6 +165,7 @@ implements <a href="WritableDownloadIndex.html" title="interface in com.google.a
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.database.DatabaseProvider)">DefaultDownloadIndex</a></span>&#8203;(<a href="../database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database">DatabaseProvider</a>&nbsp;databaseProvider)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance that stores the <a href="Download.html" title="class in com.google.android.exoplayer2.offline"><code>Downloads</code></a> in an SQLite database provided
  by a <a href="../database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database"><code>DatabaseProvider</code></a>.</div>
 </td>
@@ -167,6 +174,7 @@ implements <a href="WritableDownloadIndex.html" title="interface in com.google.a
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.database.DatabaseProvider,java.lang.String)">DefaultDownloadIndex</a></span>&#8203;(<a href="../database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database">DatabaseProvider</a>&nbsp;databaseProvider,
                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance that stores the <a href="Download.html" title="class in com.google.android.exoplayer2.offline"><code>Downloads</code></a> in an SQLite database provided
  by a <a href="../database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database"><code>DatabaseProvider</code></a>.</div>
 </td>
@@ -183,7 +191,7 @@ implements <a href="WritableDownloadIndex.html" title="interface in com.google.a
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -193,6 +201,7 @@ implements <a href="WritableDownloadIndex.html" title="interface in com.google.a
 <td class="colFirst"><code><a href="Download.html" title="class in com.google.android.exoplayer2.offline">Download</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDownload(java.lang.String)">getDownload</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a> with the given <code>id</code>, or null.</div>
 </td>
 </tr>
@@ -200,6 +209,7 @@ implements <a href="WritableDownloadIndex.html" title="interface in com.google.a
 <td class="colFirst"><code><a href="DownloadCursor.html" title="interface in com.google.android.exoplayer2.offline">DownloadCursor</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDownloads(@com.google.android.exoplayer2.offline.Download.Stateint...)">getDownloads</a></span>&#8203;(@com.google.android.exoplayer2.offline.Download.State int...&nbsp;states)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="DownloadCursor.html" title="interface in com.google.android.exoplayer2.offline"><code>DownloadCursor</code></a> to <a href="Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a>s with the given <code>states</code>.</div>
 </td>
 </tr>
@@ -207,6 +217,7 @@ implements <a href="WritableDownloadIndex.html" title="interface in com.google.a
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#putDownload(com.google.android.exoplayer2.offline.Download)">putDownload</a></span>&#8203;(<a href="Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;download)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds or replaces a <a href="Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a>.</div>
 </td>
 </tr>
@@ -214,6 +225,7 @@ implements <a href="WritableDownloadIndex.html" title="interface in com.google.a
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeDownload(java.lang.String)">removeDownload</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Removes the download with the given ID.</div>
 </td>
 </tr>
@@ -221,6 +233,7 @@ implements <a href="WritableDownloadIndex.html" title="interface in com.google.a
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDownloadingStatesToQueued()">setDownloadingStatesToQueued</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets all <a href="Download.html#STATE_DOWNLOADING"><code>Download.STATE_DOWNLOADING</code></a> states to <a href="Download.html#STATE_QUEUED"><code>Download.STATE_QUEUED</code></a>.</div>
 </td>
 </tr>
@@ -228,6 +241,7 @@ implements <a href="WritableDownloadIndex.html" title="interface in com.google.a
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setStatesToRemoving()">setStatesToRemoving</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets all states to <a href="Download.html#STATE_REMOVING"><code>Download.STATE_REMOVING</code></a>.</div>
 </td>
 </tr>
@@ -235,6 +249,7 @@ implements <a href="WritableDownloadIndex.html" title="interface in com.google.a
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setStopReason(int)">setStopReason</a></span>&#8203;(int&nbsp;stopReason)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the stop reason of the downloads in a terminal state (<a href="Download.html#STATE_COMPLETED"><code>Download.STATE_COMPLETED</code></a>,
  <a href="Download.html#STATE_FAILED"><code>Download.STATE_FAILED</code></a>).</div>
 </td>
@@ -244,6 +259,7 @@ implements <a href="WritableDownloadIndex.html" title="interface in com.google.a
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setStopReason(java.lang.String,int)">setStopReason</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
              int&nbsp;stopReason)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the stop reason of the download with the given ID in a terminal state (<a href="Download.html#STATE_COMPLETED"><code>Download.STATE_COMPLETED</code></a>, <a href="Download.html#STATE_FAILED"><code>Download.STATE_FAILED</code></a>).</div>
 </td>
 </tr>
@@ -278,6 +294,7 @@ implements <a href="WritableDownloadIndex.html" title="interface in com.google.a
 <li class="blockList">
 <h4>DefaultDownloadIndex</h4>
 <pre>public&nbsp;DefaultDownloadIndex&#8203;(<a href="../database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database">DatabaseProvider</a>&nbsp;databaseProvider)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance that stores the <a href="Download.html" title="class in com.google.android.exoplayer2.offline"><code>Downloads</code></a> in an SQLite database provided
  by a <a href="../database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database"><code>DatabaseProvider</code></a>.
 
@@ -301,6 +318,7 @@ implements <a href="WritableDownloadIndex.html" title="interface in com.google.a
 <h4>DefaultDownloadIndex</h4>
 <pre>public&nbsp;DefaultDownloadIndex&#8203;(<a href="../database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database">DatabaseProvider</a>&nbsp;databaseProvider,
                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance that stores the <a href="Download.html" title="class in com.google.android.exoplayer2.offline"><code>Downloads</code></a> in an SQLite database provided
  by a <a href="../database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database"><code>DatabaseProvider</code></a>.</div>
 <dl>
@@ -330,6 +348,7 @@ implements <a href="WritableDownloadIndex.html" title="interface in com.google.a
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;getDownload&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id)
                      throws <a href="../database/DatabaseIOException.html" title="class in com.google.android.exoplayer2.database">DatabaseIOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DownloadIndex.html#getDownload(java.lang.String)">DownloadIndex</a></code></span></div>
 <div class="block">Returns the <a href="Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a> with the given <code>id</code>, or null.
 
@@ -356,6 +375,7 @@ public&nbsp;<a href="Download.html" title="class in com.google.android.exoplayer
 <pre class="methodSignature">public&nbsp;<a href="DownloadCursor.html" title="interface in com.google.android.exoplayer2.offline">DownloadCursor</a>&nbsp;getDownloads&#8203;(<a href="Download.State.html" title="annotation in com.google.android.exoplayer2.offline">@State</a>
                                    @com.google.android.exoplayer2.offline.Download.State int...&nbsp;states)
                             throws <a href="../database/DatabaseIOException.html" title="class in com.google.android.exoplayer2.database">DatabaseIOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DownloadIndex.html#getDownloads(@com.google.android.exoplayer2.offline.Download.Stateint...)">DownloadIndex</a></code></span></div>
 <div class="block">Returns a <a href="DownloadCursor.html" title="interface in com.google.android.exoplayer2.offline"><code>DownloadCursor</code></a> to <a href="Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a>s with the given <code>states</code>.
 
@@ -380,6 +400,7 @@ public&nbsp;<a href="Download.html" title="class in com.google.android.exoplayer
 <h4>putDownload</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;putDownload&#8203;(<a href="Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;download)
                  throws <a href="../database/DatabaseIOException.html" title="class in com.google.android.exoplayer2.database">DatabaseIOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="WritableDownloadIndex.html#putDownload(com.google.android.exoplayer2.offline.Download)">WritableDownloadIndex</a></code></span></div>
 <div class="block">Adds or replaces a <a href="Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a>.
 
@@ -402,6 +423,7 @@ public&nbsp;<a href="Download.html" title="class in com.google.android.exoplayer
 <h4>removeDownload</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;removeDownload&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id)
                     throws <a href="../database/DatabaseIOException.html" title="class in com.google.android.exoplayer2.database">DatabaseIOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="WritableDownloadIndex.html#removeDownload(java.lang.String)">WritableDownloadIndex</a></code></span></div>
 <div class="block">Removes the download with the given ID. Does nothing if a download with the given ID does not
  exist.
@@ -425,6 +447,7 @@ public&nbsp;<a href="Download.html" title="class in com.google.android.exoplayer
 <h4>setDownloadingStatesToQueued</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setDownloadingStatesToQueued()
                                   throws <a href="../database/DatabaseIOException.html" title="class in com.google.android.exoplayer2.database">DatabaseIOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="WritableDownloadIndex.html#setDownloadingStatesToQueued()">WritableDownloadIndex</a></code></span></div>
 <div class="block">Sets all <a href="Download.html#STATE_DOWNLOADING"><code>Download.STATE_DOWNLOADING</code></a> states to <a href="Download.html#STATE_QUEUED"><code>Download.STATE_QUEUED</code></a>.
 
@@ -445,6 +468,7 @@ public&nbsp;<a href="Download.html" title="class in com.google.android.exoplayer
 <h4>setStatesToRemoving</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setStatesToRemoving()
                          throws <a href="../database/DatabaseIOException.html" title="class in com.google.android.exoplayer2.database">DatabaseIOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="WritableDownloadIndex.html#setStatesToRemoving()">WritableDownloadIndex</a></code></span></div>
 <div class="block">Sets all states to <a href="Download.html#STATE_REMOVING"><code>Download.STATE_REMOVING</code></a>.
 
@@ -465,6 +489,7 @@ public&nbsp;<a href="Download.html" title="class in com.google.android.exoplayer
 <h4>setStopReason</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setStopReason&#8203;(int&nbsp;stopReason)
                    throws <a href="../database/DatabaseIOException.html" title="class in com.google.android.exoplayer2.database">DatabaseIOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="WritableDownloadIndex.html#setStopReason(int)">WritableDownloadIndex</a></code></span></div>
 <div class="block">Sets the stop reason of the downloads in a terminal state (<a href="Download.html#STATE_COMPLETED"><code>Download.STATE_COMPLETED</code></a>,
  <a href="Download.html#STATE_FAILED"><code>Download.STATE_FAILED</code></a>).
@@ -489,6 +514,7 @@ public&nbsp;<a href="Download.html" title="class in com.google.android.exoplayer
 <pre class="methodSignature">public&nbsp;void&nbsp;setStopReason&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
                           int&nbsp;stopReason)
                    throws <a href="../database/DatabaseIOException.html" title="class in com.google.android.exoplayer2.database">DatabaseIOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="WritableDownloadIndex.html#setStopReason(java.lang.String,int)">WritableDownloadIndex</a></code></span></div>
 <div class="block">Sets the stop reason of the download with the given ID in a terminal state (<a href="Download.html#STATE_COMPLETED"><code>Download.STATE_COMPLETED</code></a>, <a href="Download.html#STATE_FAILED"><code>Download.STATE_FAILED</code></a>). Does nothing if a download with the
  given ID does not exist, or if it's not in a terminal state.

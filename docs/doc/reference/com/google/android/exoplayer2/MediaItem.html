@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":9,"i3":9,"i4":10,"i5":10};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":41,"i3":41,"i4":42,"i5":42,"i6":42};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">MediaItem</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">MediaItem</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Representation of a media item.</div>
 </li>
 </ul>
@@ -161,6 +167,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaItem.AdsConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.AdsConfiguration</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Configuration for playing back linear ads with a media item.</div>
 </td>
 </tr>
@@ -168,6 +175,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A builder for <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> instances.</div>
 </td>
 </tr>
@@ -175,6 +183,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaItem.ClippingConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.ClippingConfiguration</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optionally clips the media item to a custom start and end position.</div>
 </td>
 </tr>
@@ -191,6 +200,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaItem.DrmConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.DrmConfiguration</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">DRM configuration for a media item.</div>
 </td>
 </tr>
@@ -198,6 +208,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaItem.LiveConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.LiveConfiguration</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Live playback configuration.</div>
 </td>
 </tr>
@@ -205,26 +216,19 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaItem.LocalConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.LocalConfiguration</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Properties for local playback.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2">MediaItem.PlaybackProperties</a></span></code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="MediaItem.LocalConfiguration.html" title="class in com.google.android.exoplayer2"><code>MediaItem.LocalConfiguration</code></a>.</div>
-</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaItem.RequestMetadata.html" title="class in com.google.android.exoplayer2">MediaItem.RequestMetadata</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Metadata that helps the player to understand a playback request represented by a <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaItem.Subtitle.html" title="class in com.google.android.exoplayer2">MediaItem.Subtitle</a></span></code></th>
 <td class="colLast">
@@ -233,10 +237,11 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 </div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaItem.SubtitleConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.SubtitleConfiguration</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Properties for a text track.</div>
 </td>
 </tr>
@@ -269,6 +274,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="MediaItem.ClippingConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.ClippingConfiguration</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clippingConfiguration">clippingConfiguration</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The clipping properties.</div>
 </td>
 </tr>
@@ -285,13 +291,15 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static <a href="Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#CREATOR">CREATOR</a></span></code></th>
 <td class="colLast">
-<div class="block">Object that can restore <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> from a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">An object that can restore <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> from a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_MEDIA_ID">DEFAULT_MEDIA_ID</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default media ID that is used if the media ID is not explicitly set by <a href="MediaItem.Builder.html#setMediaId(java.lang.String)"><code>MediaItem.Builder.setMediaId(String)</code></a>.</div>
 </td>
 </tr>
@@ -299,6 +307,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static <a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EMPTY">EMPTY</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Empty <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 </td>
 </tr>
@@ -306,6 +315,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="MediaItem.LiveConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.LiveConfiguration</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#liveConfiguration">liveConfiguration</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The live playback configuration.</div>
 </td>
 </tr>
@@ -313,6 +323,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="MediaItem.LocalConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.LocalConfiguration</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#localConfiguration">localConfiguration</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional configuration for local playback.</div>
 </td>
 </tr>
@@ -320,6 +331,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#mediaId">mediaId</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Identifies the media item.</div>
 </td>
 </tr>
@@ -327,11 +339,12 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="MediaMetadata.html" title="class in com.google.android.exoplayer2">MediaMetadata</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#mediaMetadata">mediaMetadata</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The media metadata.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code><a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2">MediaItem.PlaybackProperties</a></code></td>
+<td class="colFirst"><code><a href="MediaItem.LocalConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.LocalConfiguration</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#playbackProperties">playbackProperties</a></span></code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
@@ -343,6 +356,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="MediaItem.RequestMetadata.html" title="class in com.google.android.exoplayer2">MediaItem.RequestMetadata</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#requestMetadata">requestMetadata</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The media <a href="MediaItem.RequestMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaItem.RequestMetadata</code></a>.</div>
 </td>
 </tr>
@@ -358,7 +372,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -368,18 +382,22 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildUpon()">buildUpon</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2"><code>MediaItem.Builder</code></a> initialized with the values of this instance.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>static <a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fromUri(android.net.Uri)">fromUri</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> for the given <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>URI</code></a>.</div>
 </td>
 </tr>
@@ -387,19 +405,32 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static <a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fromUri(java.lang.String)">fromUri</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;uri)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> for the given URI.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundle()">toBundle</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representing the information stored in this object.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundleIncludeLocalConfiguration()">toBundleIncludeLocalConfiguration</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink"><code>Bundle</code></a> representing the information stored in this <a href="#%3Cinit%3E(java.lang.String,com.google.android.exoplayer2.MediaItem.ClippingProperties,com.google.android.exoplayer2.MediaItem.LocalConfiguration,com.google.android.exoplayer2.MediaItem.LiveConfiguration,com.google.android.exoplayer2.MediaMetadata,com.google.android.exoplayer2.MediaItem.RequestMetadata)" target="_top"><code>MediaItem(java.lang.String, com.google.android.exoplayer2.MediaItem.ClippingProperties, com.google.android.exoplayer2.MediaItem.LocalConfiguration, com.google.android.exoplayer2.MediaItem.LiveConfiguration, com.google.android.exoplayer2.MediaMetadata, com.google.android.exoplayer2.MediaItem.RequestMetadata)</code></a> object,
+ while including the <a href="#localConfiguration"><code>localConfiguration</code></a> field if it is not null (otherwise skips it).</div>
 </td>
 </tr>
 </table>
@@ -433,6 +464,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>DEFAULT_MEDIA_ID</h4>
 <pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> DEFAULT_MEDIA_ID</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default media ID that is used if the media ID is not explicitly set by <a href="MediaItem.Builder.html#setMediaId(java.lang.String)"><code>MediaItem.Builder.setMediaId(String)</code></a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -447,6 +479,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>EMPTY</h4>
 <pre>public static final&nbsp;<a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a> EMPTY</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Empty <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 </li>
 </ul>
@@ -457,6 +490,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>mediaId</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> mediaId</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Identifies the media item.</div>
 </li>
 </ul>
@@ -468,6 +502,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <h4>localConfiguration</h4>
 <pre>@Nullable
 public final&nbsp;<a href="MediaItem.LocalConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.LocalConfiguration</a> localConfiguration</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional configuration for local playback. May be <code>null</code> if shared over process
  boundaries.</div>
 </li>
@@ -480,7 +515,7 @@ public final&nbsp;<a href="MediaItem.LocalConfiguration.html" title="class in co
 <h4>playbackProperties</h4>
 <pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 @Nullable
-public final&nbsp;<a href="MediaItem.PlaybackProperties.html" title="class in com.google.android.exoplayer2">MediaItem.PlaybackProperties</a> playbackProperties</pre>
+public final&nbsp;<a href="MediaItem.LocalConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.LocalConfiguration</a> playbackProperties</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
 <div class="deprecationComment">Use <a href="#localConfiguration"><code>localConfiguration</code></a> instead.</div>
 </div>
@@ -493,6 +528,7 @@ public final&nbsp;<a href="MediaItem.PlaybackProperties.html" title="class in co
 <li class="blockList">
 <h4>liveConfiguration</h4>
 <pre>public final&nbsp;<a href="MediaItem.LiveConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.LiveConfiguration</a> liveConfiguration</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The live playback configuration.</div>
 </li>
 </ul>
@@ -503,6 +539,7 @@ public final&nbsp;<a href="MediaItem.PlaybackProperties.html" title="class in co
 <li class="blockList">
 <h4>mediaMetadata</h4>
 <pre>public final&nbsp;<a href="MediaMetadata.html" title="class in com.google.android.exoplayer2">MediaMetadata</a> mediaMetadata</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The media metadata.</div>
 </li>
 </ul>
@@ -513,6 +550,7 @@ public final&nbsp;<a href="MediaItem.PlaybackProperties.html" title="class in co
 <li class="blockList">
 <h4>clippingConfiguration</h4>
 <pre>public final&nbsp;<a href="MediaItem.ClippingConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.ClippingConfiguration</a> clippingConfiguration</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The clipping properties.</div>
 </li>
 </ul>
@@ -536,6 +574,7 @@ public final&nbsp;<a href="MediaItem.ClippingProperties.html" title="class in co
 <li class="blockList">
 <h4>requestMetadata</h4>
 <pre>public final&nbsp;<a href="MediaItem.RequestMetadata.html" title="class in com.google.android.exoplayer2">MediaItem.RequestMetadata</a> requestMetadata</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The media <a href="MediaItem.RequestMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaItem.RequestMetadata</code></a>.</div>
 </li>
 </ul>
@@ -546,7 +585,8 @@ public final&nbsp;<a href="MediaItem.ClippingProperties.html" title="class in co
 <li class="blockList">
 <h4>CREATOR</h4>
 <pre>public static final&nbsp;<a href="Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&gt; CREATOR</pre>
-<div class="block">Object that can restore <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> from a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">An object that can restore <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> from a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.
 
  <p>The <a href="#localConfiguration"><code>localConfiguration</code></a> of a restored instance will always be <code>null</code>.</div>
 </li>
@@ -568,6 +608,7 @@ public final&nbsp;<a href="MediaItem.ClippingProperties.html" title="class in co
 <li class="blockList">
 <h4>fromUri</h4>
 <pre class="methodSignature">public static&nbsp;<a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;fromUri&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;uri)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> for the given URI.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -584,6 +625,7 @@ public final&nbsp;<a href="MediaItem.ClippingProperties.html" title="class in co
 <li class="blockList">
 <h4>fromUri</h4>
 <pre class="methodSignature">public static&nbsp;<a href="MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;fromUri&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> for the given <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>URI</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -600,6 +642,7 @@ public final&nbsp;<a href="MediaItem.ClippingProperties.html" title="class in co
 <li class="blockList">
 <h4>buildUpon</h4>
 <pre class="methodSignature">public&nbsp;<a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2">MediaItem.Builder</a>&nbsp;buildUpon()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="MediaItem.Builder.html" title="class in com.google.android.exoplayer2"><code>MediaItem.Builder</code></a> initialized with the values of this instance.</div>
 </li>
 </ul>
@@ -611,6 +654,7 @@ public final&nbsp;<a href="MediaItem.ClippingProperties.html" title="class in co
 <h4>equals</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;equals&#8203;(@Nullable
                       <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
@@ -624,6 +668,7 @@ public final&nbsp;<a href="MediaItem.ClippingProperties.html" title="class in co
 <li class="blockList">
 <h4>hashCode</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;hashCode()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
@@ -633,18 +678,31 @@ public final&nbsp;<a href="MediaItem.ClippingProperties.html" title="class in co
 <a id="toBundle()">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>toBundle</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;toBundle()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representing the information stored in this object.
 
  <p>It omits the <a href="#localConfiguration"><code>localConfiguration</code></a> field. The <a href="#localConfiguration"><code>localConfiguration</code></a> of an
- instance restored by <a href="#CREATOR"><code>CREATOR</code></a> will always be <code>null</code>.</div>
+ instance restored from such a bundle by <a href="#CREATOR"><code>CREATOR</code></a> will be <code>null</code>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Bundleable.html#toBundle()">toBundle</a></code>&nbsp;in interface&nbsp;<code><a href="Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></code></dd>
 </dl>
+</li>
+</ul>
+<a id="toBundleIncludeLocalConfiguration()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>toBundleIncludeLocalConfiguration</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;toBundleIncludeLocalConfiguration()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink"><code>Bundle</code></a> representing the information stored in this <a href="#%3Cinit%3E(java.lang.String,com.google.android.exoplayer2.MediaItem.ClippingProperties,com.google.android.exoplayer2.MediaItem.LocalConfiguration,com.google.android.exoplayer2.MediaItem.LiveConfiguration,com.google.android.exoplayer2.MediaMetadata,com.google.android.exoplayer2.MediaItem.RequestMetadata)" target="_top"><code>MediaItem(java.lang.String, com.google.android.exoplayer2.MediaItem.ClippingProperties, com.google.android.exoplayer2.MediaItem.LocalConfiguration, com.google.android.exoplayer2.MediaItem.LiveConfiguration, com.google.android.exoplayer2.MediaMetadata, com.google.android.exoplayer2.MediaItem.RequestMetadata)</code></a> object,
+ while including the <a href="#localConfiguration"><code>localConfiguration</code></a> field if it is not null (otherwise skips it).</div>
 </li>
 </ul>
 </li>

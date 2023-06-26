@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="SectionPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts">SectionPayloadReader</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">PassthroughSectionPayloadReader</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">PassthroughSectionPayloadReader</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="SectionPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts">SectionPayloadReader</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A <a href="SectionPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts"><code>SectionPayloadReader</code></a> that directly outputs the section bytes as sample data.
 
  <p>Timestamp adjustment is provided through <a href="../../Format.html#subsampleOffsetUs"><code>Format.subsampleOffsetUs</code></a>.</div>
@@ -161,6 +167,7 @@ implements <a href="SectionPayloadReader.html" title="interface in com.google.an
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String)">PassthroughSectionPayloadReader</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Create a new PassthroughSectionPayloadReader.</div>
 </td>
 </tr>
@@ -176,7 +183,7 @@ implements <a href="SectionPayloadReader.html" title="interface in com.google.an
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -186,6 +193,7 @@ implements <a href="SectionPayloadReader.html" title="interface in com.google.an
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#consume(com.google.android.exoplayer2.util.ParsableByteArray)">consume</a></span>&#8203;(<a href="../../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;sectionData)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called by a <a href="SectionReader.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>SectionReader</code></a> when a full section is received.</div>
 </td>
 </tr>
@@ -195,6 +203,7 @@ implements <a href="SectionPayloadReader.html" title="interface in com.google.an
     <a href="../ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;extractorOutput,
     <a href="TsPayloadReader.TrackIdGenerator.html" title="class in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.TrackIdGenerator</a>&nbsp;idGenerator)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Initializes the section payload reader.</div>
 </td>
 </tr>
@@ -229,6 +238,7 @@ implements <a href="SectionPayloadReader.html" title="interface in com.google.an
 <li class="blockList">
 <h4>PassthroughSectionPayloadReader</h4>
 <pre>public&nbsp;PassthroughSectionPayloadReader&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Create a new PassthroughSectionPayloadReader.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -255,6 +265,7 @@ implements <a href="SectionPayloadReader.html" title="interface in com.google.an
 <pre class="methodSignature">public&nbsp;void&nbsp;init&#8203;(<a href="../../util/TimestampAdjuster.html" title="class in com.google.android.exoplayer2.util">TimestampAdjuster</a>&nbsp;timestampAdjuster,
                  <a href="../ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;extractorOutput,
                  <a href="TsPayloadReader.TrackIdGenerator.html" title="class in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.TrackIdGenerator</a>&nbsp;idGenerator)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="SectionPayloadReader.html#init(com.google.android.exoplayer2.util.TimestampAdjuster,com.google.android.exoplayer2.extractor.ExtractorOutput,com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator)">SectionPayloadReader</a></code></span></div>
 <div class="block">Initializes the section payload reader.</div>
 <dl>
@@ -275,6 +286,7 @@ implements <a href="SectionPayloadReader.html" title="interface in com.google.an
 <li class="blockList">
 <h4>consume</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;consume&#8203;(<a href="../../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;sectionData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="SectionPayloadReader.html#consume(com.google.android.exoplayer2.util.ParsableByteArray)">SectionPayloadReader</a></code></span></div>
 <div class="block">Called by a <a href="SectionReader.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>SectionReader</code></a> when a full section is received.</div>
 <dl>

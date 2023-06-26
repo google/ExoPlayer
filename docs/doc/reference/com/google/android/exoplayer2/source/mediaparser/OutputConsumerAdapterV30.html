@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42,"i12":42,"i13":42,"i14":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -134,9 +134,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 <hr>
 <pre>@RequiresApi(30)
+<a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 public final class <span class="typeNameLabel">OutputConsumerAdapterV30</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="https://developer.android.com/reference/android/media/MediaParser.OutputConsumer.html" title="class or interface in android.media" class="externalLink" target="_top">MediaParser.OutputConsumer</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block"><a href="https://developer.android.com/reference/android/media/MediaParser.OutputConsumer.html" title="class or interface in android.media" class="externalLink"><code>MediaParser.OutputConsumer</code></a> implementation that redirects output to an <a href="../../extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor" target="_top"><code>ExtractorOutput</code></a>.</div>
 </li>
 </ul>
@@ -160,6 +166,7 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">OutputConsumerAdapterV30</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Equivalent to <a href="#%3Cinit%3E(com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.C.TrackTypeint,boolean)"><code>OutputConsumerAdapterV30(primaryTrackManifestFormat= null, primaryTrackType= C.TRACK_TYPE_NONE,
  expectDummySeekMap= false)</code></a></div>
 </td>
@@ -169,6 +176,7 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
                         @com.google.android.exoplayer2.C.TrackType int&nbsp;primaryTrackType,
                         boolean&nbsp;expectDummySeekMap)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new instance.</div>
 </td>
 </tr>
@@ -184,7 +192,7 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -194,6 +202,7 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#disableSeeking()">disableSeeking</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Overrides future received <a href="../../extractor/SeekMap.html" title="interface in com.google.android.exoplayer2.extractor"><code>SeekMaps</code></a> with non-seekable instances.</div>
 </td>
 </tr>
@@ -201,6 +210,7 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
 <td class="colFirst"><code><a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor">ChunkIndex</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getChunkIndex()">getChunkIndex</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the most recently output <a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor"><code>ChunkIndex</code></a>, or null if none has been output.</div>
 </td>
 </tr>
@@ -208,6 +218,7 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/media/MediaParser.SeekMap.html" title="class or interface in android.media" class="externalLink" target="_top">MediaParser.SeekMap</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDummySeekMap()">getDummySeekMap</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a dummy <a href="https://developer.android.com/reference/android/media/MediaParser.SeekMap.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaParser.SeekMap</code></a>, or null if not available.</div>
 </td>
 </tr>
@@ -215,6 +226,7 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
 <td class="colFirst"><code><a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSampleFormats()">getSampleFormats</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the last output format for each track, or null if not all the tracks have been
  identified.</div>
 </td>
@@ -223,6 +235,7 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="https://developer.android.com/reference/android/media/MediaParser.SeekPoint.html?is-external=true" title="class or interface in android.media" class="externalLink">MediaParser.SeekPoint</a>,&#8203;<a href="https://developer.android.com/reference/android/media/MediaParser.SeekPoint.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top">MediaParser.SeekPoint</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSeekPoints(long)">getSeekPoints</a></span>&#8203;(long&nbsp;seekTimeUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="https://developer.android.com/reference/android/media/MediaParser.SeekPoint.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaParser.SeekPoint</code></a> instances corresponding to the given timestamp.</div>
 </td>
 </tr>
@@ -234,34 +247,45 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
                  int&nbsp;size,
                  int&nbsp;offset,
                  <a href="https://developer.android.com/reference/android/media/MediaCodec.CryptoInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodec.CryptoInfo</a>&nbsp;cryptoInfo)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSampleDataFound(int,android.media.MediaParser.InputReader)">onSampleDataFound</a></span>&#8203;(int&nbsp;trackIndex,
                  <a href="https://developer.android.com/reference/android/media/MediaParser.InputReader.html" title="class or interface in android.media" class="externalLink" target="_top">MediaParser.InputReader</a>&nbsp;sampleData)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSeekMapFound(android.media.MediaParser.SeekMap)">onSeekMapFound</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/MediaParser.SeekMap.html" title="class or interface in android.media" class="externalLink" target="_top">MediaParser.SeekMap</a>&nbsp;seekMap)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTrackCountFound(int)">onTrackCountFound</a></span>&#8203;(int&nbsp;numberOfTracks)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTrackDataFound(int,android.media.MediaParser.TrackData)">onTrackDataFound</a></span>&#8203;(int&nbsp;trackIndex,
                 <a href="https://developer.android.com/reference/android/media/MediaParser.TrackData.html" title="class or interface in android.media" class="externalLink" target="_top">MediaParser.TrackData</a>&nbsp;trackData)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setExtractorOutput(com.google.android.exoplayer2.extractor.ExtractorOutput)">setExtractorOutput</a></span>&#8203;(<a href="../../extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;extractorOutput)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="../../extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorOutput</code></a> to which <a href="https://developer.android.com/reference/android/media/MediaParser.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaParser's</code></a> output is directed.</div>
 </td>
 </tr>
@@ -269,6 +293,7 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMuxedCaptionFormats(java.util.List)">setMuxedCaptionFormats</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;muxedCaptionFormats)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets <a href="../../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> information associated to the caption tracks multiplexed in the media.</div>
 </td>
 </tr>
@@ -276,6 +301,7 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSampleTimestampUpperLimitFilterUs(long)">setSampleTimestampUpperLimitFilterUs</a></span>&#8203;(long&nbsp;sampleTimestampUpperLimitFilterUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets an upper limit for sample timestamp filtering.</div>
 </td>
 </tr>
@@ -283,13 +309,15 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSelectedParserName(java.lang.String)">setSelectedParserName</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;parserName)</code></th>
 <td class="colLast">
-<div class="block">Defines the container mime type to propagate through <a href="../../extractor/TrackOutput.html#format(com.google.android.exoplayer2.Format)"><code>TrackOutput.format(com.google.android.exoplayer2.Format)</code></a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Defines the container MIME type to propagate through <a href="../../extractor/TrackOutput.html#format(com.google.android.exoplayer2.Format)"><code>TrackOutput.format(com.google.android.exoplayer2.Format)</code></a>.</div>
 </td>
 </tr>
 <tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTimestampAdjuster(com.google.android.exoplayer2.util.TimestampAdjuster)">setTimestampAdjuster</a></span>&#8203;(<a href="../../util/TimestampAdjuster.html" title="class in com.google.android.exoplayer2.util">TimestampAdjuster</a>&nbsp;timestampAdjuster)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets a <a href="../../util/TimestampAdjuster.html" title="class in com.google.android.exoplayer2.util"><code>TimestampAdjuster</code></a> for adjusting the timestamps of the output samples.</div>
 </td>
 </tr>
@@ -324,6 +352,7 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
 <li class="blockList">
 <h4>OutputConsumerAdapterV30</h4>
 <pre>public&nbsp;OutputConsumerAdapterV30()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Equivalent to <a href="#%3Cinit%3E(com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.C.TrackTypeint,boolean)"><code>OutputConsumerAdapterV30(primaryTrackManifestFormat= null, primaryTrackType= C.TRACK_TYPE_NONE,
  expectDummySeekMap= false)</code></a></div>
 </li>
@@ -338,6 +367,7 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
                                 <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;primaryTrackManifestFormat,
                                 @com.google.android.exoplayer2.C.TrackType int&nbsp;primaryTrackType,
                                 boolean&nbsp;expectDummySeekMap)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -366,6 +396,7 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
 <li class="blockList">
 <h4>setSampleTimestampUpperLimitFilterUs</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setSampleTimestampUpperLimitFilterUs&#8203;(long&nbsp;sampleTimestampUpperLimitFilterUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets an upper limit for sample timestamp filtering.
 
  <p>When set, samples with timestamps greater than <code>sampleTimestampUpperLimitFilterUs</code>
@@ -383,6 +414,7 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
 <li class="blockList">
 <h4>setTimestampAdjuster</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setTimestampAdjuster&#8203;(<a href="../../util/TimestampAdjuster.html" title="class in com.google.android.exoplayer2.util">TimestampAdjuster</a>&nbsp;timestampAdjuster)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets a <a href="../../util/TimestampAdjuster.html" title="class in com.google.android.exoplayer2.util"><code>TimestampAdjuster</code></a> for adjusting the timestamps of the output samples.</div>
 </li>
 </ul>
@@ -393,6 +425,7 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
 <li class="blockList">
 <h4>setExtractorOutput</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setExtractorOutput&#8203;(<a href="../../extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;extractorOutput)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="../../extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorOutput</code></a> to which <a href="https://developer.android.com/reference/android/media/MediaParser.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaParser's</code></a> output is directed.</div>
 </li>
 </ul>
@@ -403,6 +436,7 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
 <li class="blockList">
 <h4>setMuxedCaptionFormats</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setMuxedCaptionFormats&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;muxedCaptionFormats)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets <a href="../../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> information associated to the caption tracks multiplexed in the media.</div>
 </li>
 </ul>
@@ -413,6 +447,7 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
 <li class="blockList">
 <h4>disableSeeking</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;disableSeeking()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Overrides future received <a href="../../extractor/SeekMap.html" title="interface in com.google.android.exoplayer2.extractor"><code>SeekMaps</code></a> with non-seekable instances.</div>
 </li>
 </ul>
@@ -424,6 +459,7 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
 <h4>getDummySeekMap</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="https://developer.android.com/reference/android/media/MediaParser.SeekMap.html" title="class or interface in android.media" class="externalLink" target="_top">MediaParser.SeekMap</a>&nbsp;getDummySeekMap()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a dummy <a href="https://developer.android.com/reference/android/media/MediaParser.SeekMap.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaParser.SeekMap</code></a>, or null if not available.
 
  <p>the dummy <a href="https://developer.android.com/reference/android/media/MediaParser.SeekMap.html" title="class or interface in android.media" class="externalLink"><code>MediaParser.SeekMap</code></a> returns a single <a href="https://developer.android.com/reference/android/media/MediaParser.SeekPoint.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaParser.SeekPoint</code></a> whose
@@ -438,6 +474,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/media/Media
 <h4>getChunkIndex</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor">ChunkIndex</a>&nbsp;getChunkIndex()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the most recently output <a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor"><code>ChunkIndex</code></a>, or null if none has been output.</div>
 </li>
 </ul>
@@ -448,6 +485,7 @@ public&nbsp;<a href="../../extractor/ChunkIndex.html" title="class in com.google
 <li class="blockList">
 <h4>getSeekPoints</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="https://developer.android.com/reference/android/media/MediaParser.SeekPoint.html?is-external=true" title="class or interface in android.media" class="externalLink">MediaParser.SeekPoint</a>,&#8203;<a href="https://developer.android.com/reference/android/media/MediaParser.SeekPoint.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top">MediaParser.SeekPoint</a>&gt;&nbsp;getSeekPoints&#8203;(long&nbsp;seekTimeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="https://developer.android.com/reference/android/media/MediaParser.SeekPoint.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaParser.SeekPoint</code></a> instances corresponding to the given timestamp.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -465,7 +503,8 @@ public&nbsp;<a href="../../extractor/ChunkIndex.html" title="class in com.google
 <li class="blockList">
 <h4>setSelectedParserName</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setSelectedParserName&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;parserName)</pre>
-<div class="block">Defines the container mime type to propagate through <a href="../../extractor/TrackOutput.html#format(com.google.android.exoplayer2.Format)"><code>TrackOutput.format(com.google.android.exoplayer2.Format)</code></a>.</div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Defines the container MIME type to propagate through <a href="../../extractor/TrackOutput.html#format(com.google.android.exoplayer2.Format)"><code>TrackOutput.format(com.google.android.exoplayer2.Format)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>parserName</code> - The name of the selected parser.</dd>
@@ -480,6 +519,7 @@ public&nbsp;<a href="../../extractor/ChunkIndex.html" title="class in com.google
 <h4>getSampleFormats</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>[]&nbsp;getSampleFormats()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the last output format for each track, or null if not all the tracks have been
  identified.</div>
 </li>
@@ -491,6 +531,7 @@ public&nbsp;<a href="../../Format.html" title="class in com.google.android.exopl
 <li class="blockList">
 <h4>onTrackCountFound</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onTrackCountFound&#8203;(int&nbsp;numberOfTracks)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/media/MediaParser.OutputConsumer.html#onTrackCountFound(int)" title="class or interface in android.media" class="externalLink">onTrackCountFound</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/android/media/MediaParser.OutputConsumer.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top">MediaParser.OutputConsumer</a></code></dd>
@@ -504,6 +545,7 @@ public&nbsp;<a href="../../Format.html" title="class in com.google.android.exopl
 <li class="blockList">
 <h4>onSeekMapFound</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onSeekMapFound&#8203;(<a href="https://developer.android.com/reference/android/media/MediaParser.SeekMap.html" title="class or interface in android.media" class="externalLink" target="_top">MediaParser.SeekMap</a>&nbsp;seekMap)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/media/MediaParser.OutputConsumer.html#onSeekMapFound(android.media.MediaParser.SeekMap)" title="class or interface in android.media" class="externalLink">onSeekMapFound</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/android/media/MediaParser.OutputConsumer.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top">MediaParser.OutputConsumer</a></code></dd>
@@ -518,6 +560,7 @@ public&nbsp;<a href="../../Format.html" title="class in com.google.android.exopl
 <h4>onTrackDataFound</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onTrackDataFound&#8203;(int&nbsp;trackIndex,
                              <a href="https://developer.android.com/reference/android/media/MediaParser.TrackData.html" title="class or interface in android.media" class="externalLink" target="_top">MediaParser.TrackData</a>&nbsp;trackData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/media/MediaParser.OutputConsumer.html#onTrackDataFound(int,android.media.MediaParser.TrackData)" title="class or interface in android.media" class="externalLink">onTrackDataFound</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/android/media/MediaParser.OutputConsumer.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top">MediaParser.OutputConsumer</a></code></dd>
@@ -533,6 +576,7 @@ public&nbsp;<a href="../../Format.html" title="class in com.google.android.exopl
 <pre class="methodSignature">public&nbsp;void&nbsp;onSampleDataFound&#8203;(int&nbsp;trackIndex,
                               <a href="https://developer.android.com/reference/android/media/MediaParser.InputReader.html" title="class or interface in android.media" class="externalLink" target="_top">MediaParser.InputReader</a>&nbsp;sampleData)
                        throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/media/MediaParser.OutputConsumer.html#onSampleDataFound(int,android.media.MediaParser.InputReader)" title="class or interface in android.media" class="externalLink">onSampleDataFound</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/android/media/MediaParser.OutputConsumer.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top">MediaParser.OutputConsumer</a></code></dd>
@@ -554,6 +598,7 @@ public&nbsp;<a href="../../Format.html" title="class in com.google.android.exopl
                               int&nbsp;offset,
                               @Nullable
                               <a href="https://developer.android.com/reference/android/media/MediaCodec.CryptoInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodec.CryptoInfo</a>&nbsp;cryptoInfo)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/media/MediaParser.OutputConsumer.html#onSampleCompleted(int,long,int,int,int,android.media.MediaCodec.CryptoInfo)" title="class or interface in android.media" class="externalLink">onSampleCompleted</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/android/media/MediaParser.OutputConsumer.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top">MediaParser.OutputConsumer</a></code></dd>

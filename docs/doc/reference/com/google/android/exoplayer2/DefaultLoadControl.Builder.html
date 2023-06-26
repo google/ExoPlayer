@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":42,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -173,7 +173,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -187,22 +187,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="DefaultLoadControl.html" title="class in com.google.android.exoplayer2">DefaultLoadControl</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createDefaultLoadControl()">createDefaultLoadControl</a></span>()</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">use <a href="#build()"><code>build()</code></a> instead.</div>
-</div>
-</td>
-</tr>
-<tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLoadControl.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAllocator(com.google.android.exoplayer2.upstream.DefaultAllocator)">setAllocator</a></span>&#8203;(<a href="upstream/DefaultAllocator.html" title="class in com.google.android.exoplayer2.upstream">DefaultAllocator</a>&nbsp;allocator)</code></th>
 <td class="colLast">
 <div class="block">Sets the <a href="upstream/DefaultAllocator.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultAllocator</code></a> used by the loader.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLoadControl.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setBackBuffer(int,boolean)">setBackBuffer</a></span>&#8203;(int&nbsp;backBufferDurationMs,
              boolean&nbsp;retainBackBufferFromKeyframe)</code></th>
@@ -211,7 +202,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  keyframe.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLoadControl.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setBufferDurationsMs(int,int,int,int)">setBufferDurationsMs</a></span>&#8203;(int&nbsp;minBufferMs,
                     int&nbsp;maxBufferMs,
@@ -221,7 +212,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Sets the buffer duration parameters.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLoadControl.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPrioritizeTimeOverSizeThresholds(boolean)">setPrioritizeTimeOverSizeThresholds</a></span>&#8203;(boolean&nbsp;prioritizeTimeOverSizeThresholds)</code></th>
 <td class="colLast">
@@ -229,7 +220,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  constraints.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLoadControl.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTargetBufferBytes(int)">setTargetBufferBytes</a></span>&#8203;(int&nbsp;targetBufferBytes)</code></th>
 <td class="colLast">
@@ -391,19 +382,6 @@ public&nbsp;<a href="DefaultLoadControl.Builder.html" title="class in com.google
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink">IllegalStateException</a></code> - If <a href="#build()" target="_top"><code>build()</code></a> has already been called.</dd>
 </dl>
-</li>
-</ul>
-<a id="createDefaultLoadControl()">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>createDefaultLoadControl</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public&nbsp;<a href="DefaultLoadControl.html" title="class in com.google.android.exoplayer2">DefaultLoadControl</a>&nbsp;createDefaultLoadControl()</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">use <a href="#build()"><code>build()</code></a> instead.</div>
-</div>
 </li>
 </ul>
 <a id="build()">

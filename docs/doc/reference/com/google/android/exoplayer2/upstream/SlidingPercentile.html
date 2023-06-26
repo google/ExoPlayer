@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public class <span class="typeNameLabel">SlidingPercentile</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">SlidingPercentile</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Calculate any percentile over a sliding window of weighted values. A maximum weight is
  configured. Once the total weight of the values reaches the maximum weight, the oldest value is
  reduced in weight until it reaches zero and is removed. This maintains a constant total weight,
@@ -167,7 +173,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int)">SlidingPercentile</a></span>&#8203;(int&nbsp;maxWeight)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -181,7 +189,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -192,6 +200,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addSample(int,float)">addSample</a></span>&#8203;(int&nbsp;weight,
          float&nbsp;value)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a new weighted value.</div>
 </td>
 </tr>
@@ -199,6 +208,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>float</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPercentile(float)">getPercentile</a></span>&#8203;(float&nbsp;percentile)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Computes a percentile by integration.</div>
 </td>
 </tr>
@@ -206,6 +216,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset()">reset</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Resets the sliding percentile.</div>
 </td>
 </tr>
@@ -240,6 +251,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>SlidingPercentile</h4>
 <pre>public&nbsp;SlidingPercentile&#8203;(int&nbsp;maxWeight)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>maxWeight</code> - The maximum weight.</dd>
@@ -263,6 +275,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>reset</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;reset()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Resets the sliding percentile.</div>
 </li>
 </ul>
@@ -274,6 +287,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>addSample</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;addSample&#8203;(int&nbsp;weight,
                       float&nbsp;value)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a new weighted value.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -289,6 +303,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>getPercentile</h4>
 <pre class="methodSignature">public&nbsp;float&nbsp;getPercentile&#8203;(float&nbsp;percentile)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Computes a percentile by integration.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

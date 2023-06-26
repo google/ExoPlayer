@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":10,"i5":10,"i6":9};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":41,"i1":41,"i2":41,"i3":41,"i4":41,"i5":42,"i6":42,"i7":41};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -143,9 +143,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="https://developer.android.com/reference/java/io/Serializable.html" title="class or interface in java.io" class="externalLink" target="_top">Serializable</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">TransformationException</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">TransformationException</span>
 extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a></pre>
-<div class="block">Thrown when a non-locally recoverable transformation failure occurs.</div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer"><code>ExportException</code></a> instead.</div>
+</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../serialized-form.html#com.google.android.exoplayer2.transformer.TransformationException">Serialized Form</a></dd>
@@ -174,7 +177,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="TransformationException.ErrorCode.html" title="annotation in com.google.android.exoplayer2.transformer">TransformationException.ErrorCode</a></span></code></th>
 <td class="colLast">
-<div class="block">Codes that identify causes of <a href="Transformer.html" title="class in com.google.android.exoplayer2.transformer"><code>Transformer</code></a> errors.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Error codes that identify causes of <a href="Transformer.html" title="class in com.google.android.exoplayer2.transformer"><code>Transformer</code></a> errors.</div>
 </td>
 </tr>
 </table>
@@ -197,163 +201,178 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_AUDIO_PROCESSING_FAILED">ERROR_CODE_AUDIO_PROCESSING_FAILED</a></span></code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Caused by an audio processing failure.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_DECODER_INIT_FAILED">ERROR_CODE_DECODER_INIT_FAILED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Caused by a decoder initialization failure.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_DECODING_FAILED">ERROR_CODE_DECODING_FAILED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Caused by a failure while trying to decode media samples.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_DECODING_FORMAT_UNSUPPORTED">ERROR_CODE_DECODING_FORMAT_UNSUPPORTED</a></span></code></th>
-<td class="colLast">
-<div class="block">Caused by trying to decode content whose format is not supported.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_ENCODER_INIT_FAILED">ERROR_CODE_ENCODER_INIT_FAILED</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_DECODING_FORMAT_UNSUPPORTED">ERROR_CODE_DECODING_FORMAT_UNSUPPORTED</a></span></code></th>
 <td class="colLast">
-<div class="block">Caused by an encoder initialization failure.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Caused by trying to decode content whose format is not supported.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_ENCODER_INIT_FAILED">ERROR_CODE_ENCODER_INIT_FAILED</a></span></code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Caused by an encoder initialization failure.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_ENCODING_FAILED">ERROR_CODE_ENCODING_FAILED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Caused by a failure while trying to encode media samples.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED">ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED</a></span></code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Caused by trying to encode content whose format is not supported.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_FAILED_RUNTIME_CHECK">ERROR_CODE_FAILED_RUNTIME_CHECK</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Caused by a failed runtime check.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_FRAME_PROCESSING_FAILED">ERROR_CODE_FRAME_PROCESSING_FAILED</a></span></code></th>
-<td class="colLast">
-<div class="block">Caused by a frame processing failure.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_HDR_DECODING_UNSUPPORTED">ERROR_CODE_HDR_DECODING_UNSUPPORTED</a></span></code></th>
-<td class="colLast">
-<div class="block">Caused by the decoder not supporting HDR formats.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_HDR_ENCODING_UNSUPPORTED">ERROR_CODE_HDR_ENCODING_UNSUPPORTED</a></span></code></th>
-<td class="colLast">
-<div class="block">Caused by the encoder not supporting HDR formats.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_IO_BAD_HTTP_STATUS">ERROR_CODE_IO_BAD_HTTP_STATUS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Caused by an HTTP server returning an unexpected HTTP response status code.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED">ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED</a></span></code></th>
 <td class="colLast">
-<div class="block">Caused by the player trying to access cleartext HTTP traffic (meaning http:// rather than
- https://) when the app's Network Security Configuration does not permit it.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Caused by the <a href="AssetLoader.html" title="interface in com.google.android.exoplayer2.transformer"><code>AssetLoader</code></a> trying to access cleartext HTTP traffic (meaning http://
+ rather than https://) when the app's Network Security Configuration does not permit it.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_IO_FILE_NOT_FOUND">ERROR_CODE_IO_FILE_NOT_FOUND</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Caused by a non-existent file.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE">ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Caused by a server returning a resource with an invalid "Content-Type" HTTP header value.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_IO_NETWORK_CONNECTION_FAILED">ERROR_CODE_IO_NETWORK_CONNECTION_FAILED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Caused by a network connection failure.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT">ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Caused by a network timeout, meaning the server is taking too long to fulfill a request.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_IO_NO_PERMISSION">ERROR_CODE_IO_NO_PERMISSION</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Caused by lack of permission to perform an IO operation.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE">ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Caused by reading data out of the data bound.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_IO_UNSPECIFIED">ERROR_CODE_IO_UNSPECIFIED</a></span></code></th>
-<td class="colLast">
-<div class="block">Caused by an Input/Output error which could not be identified.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_MUXING_FAILED">ERROR_CODE_MUXING_FAILED</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_IO_UNSPECIFIED">ERROR_CODE_IO_UNSPECIFIED</a></span></code></th>
 <td class="colLast">
-<div class="block">Caused by a failure while muxing media samples.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Caused by an Input/Output error which could not be identified.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED">ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_MUXING_FAILED">ERROR_CODE_MUXING_FAILED</a></span></code></th>
 <td class="colLast">
-<div class="block">Caused by the output format for a track not being supported.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Caused by a failure while muxing media samples.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_UNSPECIFIED">ERROR_CODE_UNSPECIFIED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Caused by an error whose cause could not be identified.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>@com.google.android.exoplayer2.transformer.TransformationException.ErrorCode int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#errorCode">errorCode</a></span></code></th>
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED">ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED</a></span></code></th>
 <td class="colLast">
-<div class="block">An error code which identifies the cause of the transformation failure.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Caused by a video frame processing failure.</div>
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>@com.google.android.exoplayer2.transformer.TransformationException.ErrorCode int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#errorCode">errorCode</a></span></code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">An error code which identifies the cause of the transformation failure.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#timestampMs">timestampMs</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The value of <a href="https://developer.android.com/reference/android/os/SystemClock.html#elapsedRealtime()" title="class or interface in android.os" class="externalLink" target="_top"><code>SystemClock.elapsedRealtime()</code></a> when this exception was created.</div>
 </td>
 </tr>
@@ -369,7 +388,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -377,64 +396,76 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>static <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createForAudioProcessor(java.lang.Throwable,java.lang.String,com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat,int)">createForAudioProcessor</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
-                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;componentName,
-                       <a href="../audio/AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;audioFormat,
-                       int&nbsp;errorCode)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createForAssetLoader(java.lang.Throwable,int)">createForAssetLoader</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
+                    int&nbsp;errorCode)</code></th>
 <td class="colLast">
-<div class="block">Creates an instance for an <a href="../audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioProcessor</code></a> related exception.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Creates an instance for an <a href="AssetLoader.html" title="interface in com.google.android.exoplayer2.transformer"><code>AssetLoader</code></a> related exception.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>static <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createForCodec(java.lang.Throwable,boolean,boolean,android.media.MediaFormat,java.lang.String,int)">createForCodec</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
-              boolean&nbsp;isVideo,
-              boolean&nbsp;isDecoder,
-              <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;mediaFormat,
-              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mediaCodecName,
-              int&nbsp;errorCode)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createForAudioProcessing(java.lang.Throwable,com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat)">createForAudioProcessing</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
+                        <a href="../audio/AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;audioFormat)</code></th>
 <td class="colLast">
-<div class="block">Creates an instance for a decoder or encoder related exception.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Creates an instance for an audio processing related exception.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>static <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createForCodec(java.lang.Throwable,boolean,boolean,com.google.android.exoplayer2.Format,java.lang.String,int)">createForCodec</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createForCodec(java.lang.Throwable,@com.google.android.exoplayer2.transformer.TransformationException.ErrorCodeint,boolean,boolean,com.google.android.exoplayer2.Format)">createForCodec</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
+              @com.google.android.exoplayer2.transformer.TransformationException.ErrorCode int&nbsp;errorCode,
               boolean&nbsp;isVideo,
               boolean&nbsp;isDecoder,
-              <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
-              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mediaCodecName,
-              int&nbsp;errorCode)</code></th>
+              <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
-<div class="block">Creates an instance for a decoder or encoder related exception.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Creates an instance for a <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a> related exception.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>static <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createForUnexpected(java.lang.Exception)">createForUnexpected</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;cause)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createForCodec(java.lang.Throwable,@com.google.android.exoplayer2.transformer.TransformationException.ErrorCodeint,boolean,boolean,java.lang.String)">createForCodec</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
+              @com.google.android.exoplayer2.transformer.TransformationException.ErrorCode int&nbsp;errorCode,
+              boolean&nbsp;isVideo,
+              boolean&nbsp;isDecoder,
+              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;details)</code></th>
 <td class="colLast">
-<div class="block">Creates an instance for an unexpected exception.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Creates an instance for a <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a> related exception.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
+<td class="colFirst"><code>static <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createForUnexpected(java.lang.Exception)">createForUnexpected</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;cause)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Creates an instance for an unexpected exception.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#errorInfoEquals(com.google.android.exoplayer2.transformer.TransformationException)">errorInfoEquals</a></span>&#8203;(<a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a>&nbsp;other)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the error data associated to this exception equals the error data associated to
  <code>other</code>.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getErrorCodeName()">getErrorCodeName</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Equivalent to <a href="#getErrorCodeName(@com.google.android.exoplayer2.transformer.TransformationException.ErrorCodeint)"><code>TransformationException.getErrorCodeName(this.errorCode)</code></a>.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getErrorCodeName(@com.google.android.exoplayer2.transformer.TransformationException.ErrorCodeint)">getErrorCodeName</a></span>&#8203;(@com.google.android.exoplayer2.transformer.TransformationException.ErrorCode int&nbsp;errorCode)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the name of a given <code>errorCode</code>.</div>
 </td>
 </tr>
@@ -476,6 +507,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <li class="blockList">
 <h4>ERROR_CODE_UNSPECIFIED</h4>
 <pre>public static final&nbsp;int ERROR_CODE_UNSPECIFIED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Caused by an error whose cause could not be identified.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -490,6 +522,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <li class="blockList">
 <h4>ERROR_CODE_FAILED_RUNTIME_CHECK</h4>
 <pre>public static final&nbsp;int ERROR_CODE_FAILED_RUNTIME_CHECK</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Caused by a failed runtime check.
 
  <p>This can happen when transformer reaches an invalid state.</div>
@@ -506,6 +539,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <li class="blockList">
 <h4>ERROR_CODE_IO_UNSPECIFIED</h4>
 <pre>public static final&nbsp;int ERROR_CODE_IO_UNSPECIFIED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Caused by an Input/Output error which could not be identified.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -520,6 +554,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <li class="blockList">
 <h4>ERROR_CODE_IO_NETWORK_CONNECTION_FAILED</h4>
 <pre>public static final&nbsp;int ERROR_CODE_IO_NETWORK_CONNECTION_FAILED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Caused by a network connection failure.
 
  <p>The following is a non-exhaustive list of possible reasons:
@@ -543,6 +578,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <li class="blockList">
 <h4>ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT</h4>
 <pre>public static final&nbsp;int ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Caused by a network timeout, meaning the server is taking too long to fulfill a request.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -557,10 +593,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <li class="blockList">
 <h4>ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE</h4>
 <pre>public static final&nbsp;int ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Caused by a server returning a resource with an invalid "Content-Type" HTTP header value.
 
- <p>For example, this can happen when the player is expecting a piece of media, but the server
- returns a paywall HTML page, with content type "text/html".</div>
+ <p>For example, this can happen when the <a href="AssetLoader.html" title="interface in com.google.android.exoplayer2.transformer"><code>AssetLoader</code></a> is expecting a piece of media, but
+ the server returns a paywall HTML page, with content type "text/html".</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.transformer.TransformationException.ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE">Constant Field Values</a></dd>
@@ -574,6 +611,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <li class="blockList">
 <h4>ERROR_CODE_IO_BAD_HTTP_STATUS</h4>
 <pre>public static final&nbsp;int ERROR_CODE_IO_BAD_HTTP_STATUS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Caused by an HTTP server returning an unexpected HTTP response status code.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -588,6 +626,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <li class="blockList">
 <h4>ERROR_CODE_IO_FILE_NOT_FOUND</h4>
 <pre>public static final&nbsp;int ERROR_CODE_IO_FILE_NOT_FOUND</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Caused by a non-existent file.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -602,6 +641,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <li class="blockList">
 <h4>ERROR_CODE_IO_NO_PERMISSION</h4>
 <pre>public static final&nbsp;int ERROR_CODE_IO_NO_PERMISSION</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Caused by lack of permission to perform an IO operation. For example, lack of permission to
  access internet or external storage.</div>
 <dl>
@@ -617,8 +657,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <li class="blockList">
 <h4>ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED</h4>
 <pre>public static final&nbsp;int ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED</pre>
-<div class="block">Caused by the player trying to access cleartext HTTP traffic (meaning http:// rather than
- https://) when the app's Network Security Configuration does not permit it.</div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Caused by the <a href="AssetLoader.html" title="interface in com.google.android.exoplayer2.transformer"><code>AssetLoader</code></a> trying to access cleartext HTTP traffic (meaning http://
+ rather than https://) when the app's Network Security Configuration does not permit it.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.transformer.TransformationException.ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED">Constant Field Values</a></dd>
@@ -632,6 +673,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <li class="blockList">
 <h4>ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE</h4>
 <pre>public static final&nbsp;int ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Caused by reading data out of the data bound.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -646,6 +688,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <li class="blockList">
 <h4>ERROR_CODE_DECODER_INIT_FAILED</h4>
 <pre>public static final&nbsp;int ERROR_CODE_DECODER_INIT_FAILED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Caused by a decoder initialization failure.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -660,6 +703,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <li class="blockList">
 <h4>ERROR_CODE_DECODING_FAILED</h4>
 <pre>public static final&nbsp;int ERROR_CODE_DECODING_FAILED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Caused by a failure while trying to decode media samples.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -674,24 +718,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <li class="blockList">
 <h4>ERROR_CODE_DECODING_FORMAT_UNSUPPORTED</h4>
 <pre>public static final&nbsp;int ERROR_CODE_DECODING_FORMAT_UNSUPPORTED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Caused by trying to decode content whose format is not supported.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.transformer.TransformationException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a id="ERROR_CODE_HDR_DECODING_UNSUPPORTED">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>ERROR_CODE_HDR_DECODING_UNSUPPORTED</h4>
-<pre>public static final&nbsp;int ERROR_CODE_HDR_DECODING_UNSUPPORTED</pre>
-<div class="block">Caused by the decoder not supporting HDR formats.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.transformer.TransformationException.ERROR_CODE_HDR_DECODING_UNSUPPORTED">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
@@ -702,6 +733,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <li class="blockList">
 <h4>ERROR_CODE_ENCODER_INIT_FAILED</h4>
 <pre>public static final&nbsp;int ERROR_CODE_ENCODER_INIT_FAILED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Caused by an encoder initialization failure.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -716,6 +748,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <li class="blockList">
 <h4>ERROR_CODE_ENCODING_FAILED</h4>
 <pre>public static final&nbsp;int ERROR_CODE_ENCODING_FAILED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Caused by a failure while trying to encode media samples.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -723,47 +756,51 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 </dl>
 </li>
 </ul>
-<a id="ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED">
+<a id="ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED</h4>
-<pre>public static final&nbsp;int ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED</pre>
-<div class="block">Caused by the output format for a track not being supported.
+<h4>ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED</h4>
+<pre>public static final&nbsp;int ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Caused by trying to encode content whose format is not supported. *
 
- <p>Supported output formats are limited by the muxer's capabilities and the <a href="Codec.DecoderFactory.html" title="interface in com.google.android.exoplayer2.transformer">encoders</a> available.</div>
+ <p>Supported output formats are limited by the <a href="Codec.DecoderFactory.html" title="interface in com.google.android.exoplayer2.transformer">encoders</a>
+ available.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.transformer.TransformationException.ERROR_CODE_OUTPUT_FORMAT_UNSUPPORTED">Constant Field Values</a></dd>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.transformer.TransformationException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
-<a id="ERROR_CODE_HDR_ENCODING_UNSUPPORTED">
+<a id="ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>ERROR_CODE_HDR_ENCODING_UNSUPPORTED</h4>
-<pre>public static final&nbsp;int ERROR_CODE_HDR_ENCODING_UNSUPPORTED</pre>
-<div class="block">Caused by the encoder not supporting HDR formats.</div>
+<h4>ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED</h4>
+<pre>public static final&nbsp;int ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Caused by a video frame processing failure.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.transformer.TransformationException.ERROR_CODE_HDR_ENCODING_UNSUPPORTED">Constant Field Values</a></dd>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.transformer.TransformationException.ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
-<a id="ERROR_CODE_FRAME_PROCESSING_FAILED">
+<a id="ERROR_CODE_AUDIO_PROCESSING_FAILED">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>ERROR_CODE_FRAME_PROCESSING_FAILED</h4>
-<pre>public static final&nbsp;int ERROR_CODE_FRAME_PROCESSING_FAILED</pre>
-<div class="block">Caused by a frame processing failure.</div>
+<h4>ERROR_CODE_AUDIO_PROCESSING_FAILED</h4>
+<pre>public static final&nbsp;int ERROR_CODE_AUDIO_PROCESSING_FAILED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Caused by an audio processing failure.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.transformer.TransformationException.ERROR_CODE_FRAME_PROCESSING_FAILED">Constant Field Values</a></dd>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.transformer.TransformationException.ERROR_CODE_AUDIO_PROCESSING_FAILED">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
@@ -774,6 +811,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <li class="blockList">
 <h4>ERROR_CODE_MUXING_FAILED</h4>
 <pre>public static final&nbsp;int ERROR_CODE_MUXING_FAILED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Caused by a failure while muxing media samples.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -788,6 +826,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <li class="blockList">
 <h4>errorCode</h4>
 <pre>public final&nbsp;@com.google.android.exoplayer2.transformer.TransformationException.ErrorCode int errorCode</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">An error code which identifies the cause of the transformation failure.</div>
 </li>
 </ul>
@@ -798,6 +837,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <li class="blockList">
 <h4>timestampMs</h4>
 <pre>public final&nbsp;long timestampMs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The value of <a href="https://developer.android.com/reference/android/os/SystemClock.html#elapsedRealtime()" title="class or interface in android.os" class="externalLink" target="_top"><code>SystemClock.elapsedRealtime()</code></a> when this exception was created.</div>
 </li>
 </ul>
@@ -818,6 +858,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <li class="blockList">
 <h4>getErrorCodeName</h4>
 <pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;getErrorCodeName&#8203;(@com.google.android.exoplayer2.transformer.TransformationException.ErrorCode int&nbsp;errorCode)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the name of a given <code>errorCode</code>.</div>
 </li>
 </ul>
@@ -828,85 +869,96 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <li class="blockList">
 <h4>getErrorCodeName</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;getErrorCodeName()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Equivalent to <a href="#getErrorCodeName(@com.google.android.exoplayer2.transformer.TransformationException.ErrorCodeint)"><code>TransformationException.getErrorCodeName(this.errorCode)</code></a>.</div>
 </li>
 </ul>
-<a id="createForCodec(java.lang.Throwable,boolean,boolean,android.media.MediaFormat,java.lang.String,int)">
+<a id="createForAssetLoader(java.lang.Throwable,int)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>createForCodec</h4>
-<pre class="methodSignature">public static&nbsp;<a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a>&nbsp;createForCodec&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
-                                                     boolean&nbsp;isVideo,
-                                                     boolean&nbsp;isDecoder,
-                                                     <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;mediaFormat,
-                                                     @Nullable
-                                                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mediaCodecName,
-                                                     int&nbsp;errorCode)</pre>
-<div class="block">Creates an instance for a decoder or encoder related exception.
-
- <p>Use this method after the <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink"><code>MediaFormat</code></a> used to configure the <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer" target="_top"><code>Codec</code></a> is known.</div>
+<h4>createForAssetLoader</h4>
+<pre class="methodSignature">public static&nbsp;<a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a>&nbsp;createForAssetLoader&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
+                                                           int&nbsp;errorCode)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Creates an instance for an <a href="AssetLoader.html" title="interface in com.google.android.exoplayer2.transformer"><code>AssetLoader</code></a> related exception.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>cause</code> - The cause of the failure.</dd>
-<dd><code>isVideo</code> - Whether the decoder or encoder is configured for video.</dd>
-<dd><code>isDecoder</code> - Whether the exception is created for a decoder.</dd>
-<dd><code>mediaFormat</code> - The <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink"><code>MediaFormat</code></a> used for configuring the underlying <a href="https://developer.android.com/reference/android/media/MediaCodec.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</dd>
-<dd><code>mediaCodecName</code> - The name of the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> used, if known.</dd>
 <dd><code>errorCode</code> - See <a href="#errorCode"><code>errorCode</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The created instance.</dd>
 </dl>
 </li>
 </ul>
-<a id="createForCodec(java.lang.Throwable,boolean,boolean,com.google.android.exoplayer2.Format,java.lang.String,int)">
+<a id="createForCodec(java.lang.Throwable,@com.google.android.exoplayer2.transformer.TransformationException.ErrorCodeint,boolean,boolean,com.google.android.exoplayer2.Format)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>createForCodec</h4>
 <pre class="methodSignature">public static&nbsp;<a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a>&nbsp;createForCodec&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
+                                                     @com.google.android.exoplayer2.transformer.TransformationException.ErrorCode int&nbsp;errorCode,
                                                      boolean&nbsp;isVideo,
                                                      boolean&nbsp;isDecoder,
-                                                     <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
-                                                     @Nullable
-                                                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mediaCodecName,
-                                                     int&nbsp;errorCode)</pre>
-<div class="block">Creates an instance for a decoder or encoder related exception.
+                                                     <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Creates an instance for a <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a> related exception.
 
- <p>Use this method before configuring the <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a>, or when the <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a> is not
- configured with a <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaFormat</code></a>.</div>
+ <p>This method should be used when the <code>cause</code> occurs before the <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a> is
+ initialized.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>cause</code> - The cause of the failure.</dd>
-<dd><code>isVideo</code> - Whether the decoder or encoder is configured for video.</dd>
+<dd><code>errorCode</code> - See <a href="#errorCode"><code>errorCode</code></a>.</dd>
+<dd><code>isVideo</code> - Whether the <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a> is configured for video.</dd>
 <dd><code>isDecoder</code> - Whether the exception is created for a decoder.</dd>
 <dd><code>format</code> - The <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> used for configuring the <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a>.</dd>
-<dd><code>mediaCodecName</code> - The name of the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> used, if known.</dd>
-<dd><code>errorCode</code> - See <a href="#errorCode"><code>errorCode</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The created instance.</dd>
 </dl>
 </li>
 </ul>
-<a id="createForAudioProcessor(java.lang.Throwable,java.lang.String,com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat,int)">
+<a id="createForCodec(java.lang.Throwable,@com.google.android.exoplayer2.transformer.TransformationException.ErrorCodeint,boolean,boolean,java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>createForAudioProcessor</h4>
-<pre class="methodSignature">public static&nbsp;<a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a>&nbsp;createForAudioProcessor&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
-                                                              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;componentName,
-                                                              <a href="../audio/AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;audioFormat,
-                                                              int&nbsp;errorCode)</pre>
-<div class="block">Creates an instance for an <a href="../audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioProcessor</code></a> related exception.</div>
+<h4>createForCodec</h4>
+<pre class="methodSignature">public static&nbsp;<a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a>&nbsp;createForCodec&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
+                                                     @com.google.android.exoplayer2.transformer.TransformationException.ErrorCode int&nbsp;errorCode,
+                                                     boolean&nbsp;isVideo,
+                                                     boolean&nbsp;isDecoder,
+                                                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;details)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Creates an instance for a <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a> related exception.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>cause</code> - The cause of the failure.</dd>
-<dd><code>componentName</code> - The name of the <a href="../audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioProcessor</code></a> used.</dd>
-<dd><code>audioFormat</code> - The <a href="../audio/AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio"><code>AudioProcessor.AudioFormat</code></a> used.</dd>
 <dd><code>errorCode</code> - See <a href="#errorCode"><code>errorCode</code></a>.</dd>
+<dd><code>isVideo</code> - Whether the <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a> is configured for video.</dd>
+<dd><code>isDecoder</code> - Whether the exception is created for a decoder.</dd>
+<dd><code>details</code> - The details associated with this exception.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The created instance.</dd>
+</dl>
+</li>
+</ul>
+<a id="createForAudioProcessing(java.lang.Throwable,com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createForAudioProcessing</h4>
+<pre class="methodSignature">public static&nbsp;<a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a>&nbsp;createForAudioProcessing&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
+                                                               <a href="../audio/AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;audioFormat)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Creates an instance for an audio processing related exception.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>cause</code> - The cause of the failure.</dd>
+<dd><code>audioFormat</code> - The <a href="../audio/AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio"><code>AudioProcessor.AudioFormat</code></a> used.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The created instance.</dd>
 </dl>
@@ -919,6 +971,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <li class="blockList">
 <h4>createForUnexpected</h4>
 <pre class="methodSignature">public static&nbsp;<a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a>&nbsp;createForUnexpected&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;cause)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance for an unexpected exception.
 
  <p>If the exception is a runtime exception, error code <a href="#ERROR_CODE_FAILED_RUNTIME_CHECK"><code>ERROR_CODE_FAILED_RUNTIME_CHECK</code></a>
@@ -939,6 +992,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <h4>errorInfoEquals</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;errorInfoEquals&#8203;(@Nullable
                                <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a>&nbsp;other)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the error data associated to this exception equals the error data associated to
  <code>other</code>.
 

@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var data = {"i0":38,"i1":38,"i2":38,"i3":38,"i4":38,"i5":38,"i6":38,"i7":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -125,7 +125,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="DefaultPlaybackSessionManager.html" title="class in com.google.android.exoplayer2.analytics">DefaultPlaybackSessionManager</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">PlaybackSessionManager</span></pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">PlaybackSessionManager</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Manager for active playback sessions.
 
  <p>The manager keeps track of the association between window index and/or media period id to
@@ -154,6 +160,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="PlaybackSessionManager.Listener.html" title="interface in com.google.android.exoplayer2.analytics">PlaybackSessionManager.Listener</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A listener for session updates.</div>
 </td>
 </tr>
@@ -169,7 +176,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -180,6 +187,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#belongsToSession(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.String)">belongsToSession</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                 <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sessionId)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether an event time belong to a session.</div>
 </td>
 </tr>
@@ -187,6 +195,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#finishAllSessions(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">finishAllSessions</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Finishes all existing sessions and calls their respective <a href="PlaybackSessionManager.Listener.html#onSessionFinished(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.String,boolean)"><code>PlaybackSessionManager.Listener.onSessionFinished(EventTime, String, boolean)</code></a> callback.</div>
 </td>
 </tr>
@@ -194,6 +203,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getActiveSessionId()">getActiveSessionId</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the session identifier of the session that is currently actively playing, or <code>
  null</code> if there no such session.</div>
 </td>
@@ -203,6 +213,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSessionForMediaPeriodId(com.google.android.exoplayer2.Timeline,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">getSessionForMediaPeriodId</a></span>&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
                           <a href="../source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the session identifier for the given media period id.</div>
 </td>
 </tr>
@@ -210,6 +221,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setListener(com.google.android.exoplayer2.analytics.PlaybackSessionManager.Listener)">setListener</a></span>&#8203;(<a href="PlaybackSessionManager.Listener.html" title="interface in com.google.android.exoplayer2.analytics">PlaybackSessionManager.Listener</a>&nbsp;listener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the listener to be notified of session updates.</div>
 </td>
 </tr>
@@ -217,6 +229,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#updateSessions(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">updateSessions</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates or creates sessions based on a player <a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a>.</div>
 </td>
 </tr>
@@ -225,6 +238,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#updateSessionsWithDiscontinuity(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.Player.DiscontinuityReasonint)">updateSessionsWithDiscontinuity</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                @com.google.android.exoplayer2.Player.DiscontinuityReason int&nbsp;reason)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates or creates sessions based on a position discontinuity at <a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a>.</div>
 </td>
 </tr>
@@ -232,6 +246,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#updateSessionsWithTimelineChange(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">updateSessionsWithTimelineChange</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates or creates sessions based on a <a href="../Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> change at <a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a>.</div>
 </td>
 </tr>
@@ -259,6 +274,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>setListener</h4>
 <pre class="methodSignature">void&nbsp;setListener&#8203;(<a href="PlaybackSessionManager.Listener.html" title="interface in com.google.android.exoplayer2.analytics">PlaybackSessionManager.Listener</a>&nbsp;listener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the listener to be notified of session updates. Must be called before the session manager
  is used.</div>
 <dl>
@@ -275,6 +291,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>getSessionForMediaPeriodId</h4>
 <pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;getSessionForMediaPeriodId&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2" target="_top">Timeline</a>&nbsp;timeline,
                                   <a href="../source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the session identifier for the given media period id.
 
  <p>Note that this will reserve a new session identifier if it doesn't exist yet, but will not
@@ -294,6 +311,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>belongsToSession</h4>
 <pre class="methodSignature">boolean&nbsp;belongsToSession&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;sessionId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether an event time belong to a session.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -311,6 +329,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>updateSessions</h4>
 <pre class="methodSignature">void&nbsp;updateSessions&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates or creates sessions based on a player <a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a>.
 
  <p>Call <a href="#updateSessionsWithTimelineChange(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)"><code>updateSessionsWithTimelineChange(EventTime)</code></a> or <a href="#updateSessionsWithDiscontinuity(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.Player.DiscontinuityReasonint)"><code>updateSessionsWithDiscontinuity(EventTime, int)</code></a> if the event is a <a href="../Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> change or
@@ -328,6 +347,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>updateSessionsWithTimelineChange</h4>
 <pre class="methodSignature">void&nbsp;updateSessionsWithTimelineChange&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates or creates sessions based on a <a href="../Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> change at <a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a>.
 
  <p>Should be called instead of <a href="#updateSessions(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)"><code>updateSessions(EventTime)</code></a> if a <a href="../Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> change
@@ -347,6 +367,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre class="methodSignature">void&nbsp;updateSessionsWithDiscontinuity&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                      <a href="../Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2">@DiscontinuityReason</a>
                                      @com.google.android.exoplayer2.Player.DiscontinuityReason int&nbsp;reason)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates or creates sessions based on a position discontinuity at <a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a>.
 
  <p>Should be called instead of <a href="#updateSessions(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)"><code>updateSessions(EventTime)</code></a> if a position discontinuity
@@ -366,6 +387,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>getActiveSessionId</h4>
 <pre class="methodSignature">@Nullable
 <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;getActiveSessionId()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the session identifier of the session that is currently actively playing, or <code>
  null</code> if there no such session.</div>
 </li>
@@ -377,6 +399,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>finishAllSessions</h4>
 <pre class="methodSignature">void&nbsp;finishAllSessions&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Finishes all existing sessions and calls their respective <a href="PlaybackSessionManager.Listener.html#onSessionFinished(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.String,boolean)"><code>PlaybackSessionManager.Listener.onSessionFinished(EventTime, String, boolean)</code></a> callback.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

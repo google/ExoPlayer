@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":10,"i1":42,"i2":10,"i3":42,"i4":10,"i5":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -173,7 +173,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -190,61 +190,37 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#experimental_setEnableHdrEditing(boolean)">experimental_setEnableHdrEditing</a></span>&#8203;(boolean&nbsp;enableHdrEditing)</code></th>
 <td class="colLast">
-<div class="block">Sets whether to allow processing high dynamic range (HDR) input video streams as HDR.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">This method is now a no-op if <code>false</code>, and sets <code>
+     setHdrMode(HDR_MODE_KEEP_HDR)</code> if <code>true</code>.</div>
+</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#experimental_setForceInterpretHdrVideoAsSdr(boolean)">experimental_setForceInterpretHdrVideoAsSdr</a></span>&#8203;(boolean&nbsp;forceInterpretHdrVideoAsSdr)</code></th>
-<td class="colLast">
-<div class="block">Sets whether to interpret HDR video as SDR, resulting in washed out video.</div>
-</td>
-</tr>
-<tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAudioMimeType(java.lang.String)">setAudioMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;audioMimeType)</code></th>
 <td class="colLast">
 <div class="block">Sets the audio MIME type of the output.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setEnableRequestSdrToneMapping(boolean)">setEnableRequestSdrToneMapping</a></span>&#8203;(boolean&nbsp;enableRequestSdrToneMapping)</code></th>
 <td class="colLast">
-<div class="block">Sets whether to request tone-mapping to standard dynamic range (SDR).</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">This method is now a no-op if <code>false</code>, and sets <code>
+     setHdrMode(HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC)</code> if <code>true</code>.</div>
+</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code><a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setHdrMode(@com.google.android.exoplayer2.transformer.TransformationRequest.HdrModeint)">setHdrMode</a></span>&#8203;(@com.google.android.exoplayer2.transformer.TransformationRequest.HdrMode int&nbsp;hdrMode)</code></th>
+<td class="colLast">
+<div class="block">Sets the <a href="TransformationRequest.HdrMode.html" title="annotation in com.google.android.exoplayer2.transformer"><code>TransformationRequest.HdrMode</code></a> for HDR video input.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code><a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFlattenForSlowMotion(boolean)">setFlattenForSlowMotion</a></span>&#8203;(boolean&nbsp;flattenForSlowMotion)</code></th>
-<td class="colLast">
-<div class="block">Sets whether the input should be flattened for media containing slow motion markers.</div>
-</td>
-</tr>
-<tr id="i6" class="altColor">
-<td class="colFirst"><code><a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setResolution(int)">setResolution</a></span>&#8203;(int&nbsp;outputHeight)</code></th>
-<td class="colLast">
-<div class="block">Sets the output resolution using the output height.</div>
-</td>
-</tr>
-<tr id="i7" class="rowColor">
-<td class="colFirst"><code><a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRotationDegrees(float)">setRotationDegrees</a></span>&#8203;(float&nbsp;rotationDegrees)</code></th>
-<td class="colLast">
-<div class="block">Sets the rotation, in degrees, counterclockwise, to apply to each frame.</div>
-</td>
-</tr>
-<tr id="i8" class="altColor">
-<td class="colFirst"><code><a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setScale(float,float)">setScale</a></span>&#8203;(float&nbsp;scaleX,
-        float&nbsp;scaleY)</code></th>
-<td class="colLast">
-<div class="block">Sets the x and y axis scaling factors to apply to each frame's width and height, stretching
- the video along these axes appropriately.</div>
-</td>
-</tr>
-<tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVideoMimeType(java.lang.String)">setVideoMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;videoMimeType)</code></th>
 <td class="colLast">
@@ -298,115 +274,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="setFlattenForSlowMotion(boolean)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setFlattenForSlowMotion</h4>
-<pre class="methodSignature">@CanIgnoreReturnValue
-public&nbsp;<a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a>&nbsp;setFlattenForSlowMotion&#8203;(boolean&nbsp;flattenForSlowMotion)</pre>
-<div class="block">Sets whether the input should be flattened for media containing slow motion markers.
-
- <p>The transformed output is obtained by removing the slow motion metadata and by actually
- slowing down the parts of the video and audio streams defined in this metadata. The default
- value for <code>flattenForSlowMotion</code> is <code>false</code>.
-
- <p>Only Samsung Extension Format (SEF) slow motion metadata type is supported. The
- transformation has no effect if the input does not contain this metadata type.
-
- <p>For SEF slow motion media, the following assumptions are made on the input:
-
- <ul>
-   <li>The input container format is (unfragmented) MP4.
-   <li>The input contains an AVC video elementary stream with temporal SVC.
-   <li>The recording frame rate of the video is 120 or 240 fps.
- </ul>
-
- <p>If specifying a <a href="../source/MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource.Factory</code></a> using <a href="Transformer.Builder.html#setMediaSourceFactory(com.google.android.exoplayer2.source.MediaSource.Factory)"><code>Transformer.Builder.setMediaSourceFactory(MediaSource.Factory)</code></a>, make sure that <a href="../extractor/mp4/Mp4Extractor.html#FLAG_READ_SEF_DATA"><code>Mp4Extractor.FLAG_READ_SEF_DATA</code></a> is set on the <a href="../extractor/mp4/Mp4Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp4"><code>Mp4Extractor</code></a> used. Otherwise, the slow
- motion metadata will be ignored and the input won't be flattened.
-
- <p>Using slow motion flattening together with <a href="../MediaItem.ClippingConfiguration.html" title="class in com.google.android.exoplayer2"><code>MediaItem.ClippingConfiguration</code></a> is not supported yet.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>flattenForSlowMotion</code> - Whether to flatten for slow motion.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This builder.</dd>
-</dl>
-</li>
-</ul>
-<a id="setScale(float,float)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setScale</h4>
-<pre class="methodSignature">@CanIgnoreReturnValue
-public&nbsp;<a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a>&nbsp;setScale&#8203;(float&nbsp;scaleX,
-                                              float&nbsp;scaleY)</pre>
-<div class="block">Sets the x and y axis scaling factors to apply to each frame's width and height, stretching
- the video along these axes appropriately.
-
- <p>The default value for <code>scaleX</code> and <code>scaleY</code>, 1, corresponds to not scaling
- along the x and y axes, respectively.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>scaleX</code> - The multiplier by which the frame will scale horizontally, along the x-axis.</dd>
-<dd><code>scaleY</code> - The multiplier by which the frame will scale vertically, along the y-axis.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This builder.</dd>
-</dl>
-</li>
-</ul>
-<a id="setRotationDegrees(float)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setRotationDegrees</h4>
-<pre class="methodSignature">@CanIgnoreReturnValue
-public&nbsp;<a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a>&nbsp;setRotationDegrees&#8203;(float&nbsp;rotationDegrees)</pre>
-<div class="block">Sets the rotation, in degrees, counterclockwise, to apply to each frame.
-
- <p>The output frame's width and height are automatically adjusted to preserve all input
- pixels. The rotated input frame is fitted inside an enclosing black rectangle if its edges
- aren't parallel to the x and y axes.
-
- <p>The default value, 0, corresponds to not applying any rotation.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>rotationDegrees</code> - The counterclockwise rotation, in degrees.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This builder.</dd>
-</dl>
-</li>
-</ul>
-<a id="setResolution(int)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setResolution</h4>
-<pre class="methodSignature">@CanIgnoreReturnValue
-public&nbsp;<a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a>&nbsp;setResolution&#8203;(int&nbsp;outputHeight)</pre>
-<div class="block">Sets the output resolution using the output height.
-
- <p>Output width of the displayed video will scale to preserve the video's aspect ratio after
- other transformations.
-
- <p>For example, a 1920x1440 video can be scaled to 640x480 by calling setResolution(480).
-
- <p>The default value, <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>, leaves the width and height unchanged unless
- <a href="#setScale(float,float)">scaling</a> or @linkplain #setRotationDegrees(float)
- rotation} are requested.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>outputHeight</code> - The output height of the displayed video, in pixels.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This builder.</dd>
-</dl>
-</li>
-</ul>
 <a id="setVideoMimeType(java.lang.String)">
 <!--   -->
 </a>
@@ -468,66 +335,38 @@ public&nbsp;<a href="TransformationRequest.Builder.html" title="class in com.goo
 </dl>
 </li>
 </ul>
+<a id="setHdrMode(@com.google.android.exoplayer2.transformer.TransformationRequest.HdrModeint)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setHdrMode</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a>&nbsp;setHdrMode&#8203;(@com.google.android.exoplayer2.transformer.TransformationRequest.HdrMode int&nbsp;hdrMode)</pre>
+<div class="block">Sets the <a href="TransformationRequest.HdrMode.html" title="annotation in com.google.android.exoplayer2.transformer"><code>TransformationRequest.HdrMode</code></a> for HDR video input.
+
+ <p>The default value is <a href="TransformationRequest.html#HDR_MODE_KEEP_HDR"><code>TransformationRequest.HDR_MODE_KEEP_HDR</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>hdrMode</code> - The <a href="TransformationRequest.HdrMode.html" title="annotation in com.google.android.exoplayer2.transformer"><code>TransformationRequest.HdrMode</code></a> used.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This builder.</dd>
+</dl>
+</li>
+</ul>
 <a id="setEnableRequestSdrToneMapping(boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>setEnableRequestSdrToneMapping</h4>
-<pre class="methodSignature">@CanIgnoreReturnValue
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+@CanIgnoreReturnValue
 public&nbsp;<a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a>&nbsp;setEnableRequestSdrToneMapping&#8203;(boolean&nbsp;enableRequestSdrToneMapping)</pre>
-<div class="block">Sets whether to request tone-mapping to standard dynamic range (SDR). If enabled and
- supported, high dynamic range (HDR) input will be tone-mapped into an SDR opto-electrical
- transfer function before processing.
-
- <p>The default value is <code>true</code>, which corresponds to tone-mapping output if possible.
-
- <p>The setting has no effect if the input is already in SDR, or if tone-mapping is not
- supported. Currently tone-mapping is only guaranteed to be supported from Android T onwards.
-
- <p>Setting this as <code>true</code> will set <a href="#experimental_setEnableHdrEditing(boolean)">experimental_setEnableHdrEditing(boolean)</a> and
- <a href="#forceInterpretHdrVideoAsSdr">forceInterpretHdrVideoAsSdr</a> to <code>false</code>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>enableRequestSdrToneMapping</code> - Whether to request tone-mapping down to SDR.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This builder.</dd>
-</dl>
-</li>
-</ul>
-<a id="experimental_setForceInterpretHdrVideoAsSdr(boolean)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>experimental_setForceInterpretHdrVideoAsSdr</h4>
-<pre class="methodSignature">@CanIgnoreReturnValue
-public&nbsp;<a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a>&nbsp;experimental_setForceInterpretHdrVideoAsSdr&#8203;(boolean&nbsp;forceInterpretHdrVideoAsSdr)</pre>
-<div class="block">Sets whether to interpret HDR video as SDR, resulting in washed out video.
-
- <p>The default value is <code>false</code>, with <a href="#setEnableRequestSdrToneMapping(boolean)"><code>setEnableRequestSdrToneMapping(boolean)</code></a> being
- applied.
-
- <p>Use of this flag may result in <code>
- TransformationException.ERROR_CODE_HDR_DECODING_UNSUPPORTED</code> or <code>
- ERROR_CODE_DECODING_FORMAT_UNSUPPORTED</code>.
-
- <p>This method is experimental, and will be renamed or removed in a future release.
-
- <p>If enabled, HDR information will be interpreted as SDR, which is much more widely
- supported than tone mapping or HDR editing. However, as HDR transfer functions and metadata
- will be ignored, contents will be displayed incorrectly, likely with a washed out look.
-
- <p>The setting has no effect if the input is already in SDR.
-
- <p>Setting this as <code>true</code> will set <a href="#experimental_setEnableHdrEditing(boolean)">experimental_setEnableHdrEditing(boolean)</a> and
- <a href="#forceInterpretHdrVideoAsSdr">forceInterpretHdrVideoAsSdr</a> to <code>false</code>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>forceInterpretHdrVideoAsSdr</code> - Whether to interpret HDR contents as SDR.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This builder.</dd>
-</dl>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">This method is now a no-op if <code>false</code>, and sets <code>
+     setHdrMode(HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC)</code> if <code>true</code>. Use <a href="#setHdrMode(@com.google.android.exoplayer2.transformer.TransformationRequest.HdrModeint)"><code>setHdrMode(@com.google.android.exoplayer2.transformer.TransformationRequest.HdrMode int)</code></a> with <a href="TransformationRequest.html#HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC"><code>TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="experimental_setEnableHdrEditing(boolean)">
@@ -536,29 +375,14 @@ public&nbsp;<a href="TransformationRequest.Builder.html" title="class in com.goo
 <ul class="blockList">
 <li class="blockList">
 <h4>experimental_setEnableHdrEditing</h4>
-<pre class="methodSignature">@CanIgnoreReturnValue
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+@CanIgnoreReturnValue
 public&nbsp;<a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a>&nbsp;experimental_setEnableHdrEditing&#8203;(boolean&nbsp;enableHdrEditing)</pre>
-<div class="block">Sets whether to allow processing high dynamic range (HDR) input video streams as HDR.
-
- <p>The default value is <code>false</code>, with <a href="#setEnableRequestSdrToneMapping(boolean)"><code>setEnableRequestSdrToneMapping(boolean)</code></a> being
- applied.
-
- <p>This method is experimental, and will be renamed or removed in a future release. The HDR
- editing feature is under development and is intended for developing/testing HDR support.
-
- <p>Setting this as <code>true</code> will set <a href="#experimental_setEnableHdrEditing(boolean)">experimental_setEnableHdrEditing(boolean)</a> and
- <a href="#forceInterpretHdrVideoAsSdr">forceInterpretHdrVideoAsSdr</a> to <code>false</code>.
-
- <p>With this flag enabled, HDR streams will correctly edit in HDR, convert via tone-mapping
- to SDR, or throw an error, based on the device's HDR support. SDR streams will be interpreted
- the same way regardless of this flag's state.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>enableHdrEditing</code> - Whether to attempt to process any input video stream as a high
-     dynamic range (HDR) signal.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This builder.</dd>
-</dl>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">This method is now a no-op if <code>false</code>, and sets <code>
+     setHdrMode(HDR_MODE_KEEP_HDR)</code> if <code>true</code>. <code>
+     experimental_setEnableHdrEditing(true)</code> is now the default behavior. Use <a href="#setHdrMode(@com.google.android.exoplayer2.transformer.TransformationRequest.HdrModeint)"><code>setHdrMode(@com.google.android.exoplayer2.transformer.TransformationRequest.HdrMode int)</code></a> with link <a href="TransformationRequest.html#HDR_MODE_KEEP_HDR"><code>TransformationRequest.HDR_MODE_KEEP_HDR</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="build()">

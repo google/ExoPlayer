@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42,"i12":42,"i13":42,"i14":42,"i15":42,"i16":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="MediaCodecAdapter.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">SynchronousMediaCodecAdapter</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">SynchronousMediaCodecAdapter</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="MediaCodecAdapter.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A <a href="MediaCodecAdapter.html" title="interface in com.google.android.exoplayer2.mediacodec"><code>MediaCodecAdapter</code></a> that operates the underlying <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> in synchronous mode.</div>
 </li>
 </ul>
@@ -161,6 +167,7 @@ implements <a href="MediaCodecAdapter.html" title="interface in com.google.andro
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="SynchronousMediaCodecAdapter.Factory.html" title="class in com.google.android.exoplayer2.mediacodec">SynchronousMediaCodecAdapter.Factory</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A factory for <a href="SynchronousMediaCodecAdapter.html" title="class in com.google.android.exoplayer2.mediacodec"><code>SynchronousMediaCodecAdapter</code></a> instances.</div>
 </td>
 </tr>
@@ -183,7 +190,7 @@ implements <a href="MediaCodecAdapter.html" title="interface in com.google.andro
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -193,6 +200,7 @@ implements <a href="MediaCodecAdapter.html" title="interface in com.google.andro
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dequeueInputBufferIndex()">dequeueInputBufferIndex</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the next available input buffer index from the underlying <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink"><code>MediaCodec</code></a> or <a href="https://developer.android.com/reference/android/media/MediaCodec.html?is-external=true#INFO_TRY_AGAIN_LATER" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.INFO_TRY_AGAIN_LATER</code></a> if no such buffer exists.</div>
 </td>
 </tr>
@@ -200,6 +208,7 @@ implements <a href="MediaCodecAdapter.html" title="interface in com.google.andro
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dequeueOutputBufferIndex(android.media.MediaCodec.BufferInfo)">dequeueOutputBufferIndex</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodec.BufferInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodec.BufferInfo</a>&nbsp;bufferInfo)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the next available output buffer index from the underlying <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</div>
 </td>
 </tr>
@@ -207,6 +216,7 @@ implements <a href="MediaCodecAdapter.html" title="interface in com.google.andro
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#flush()">flush</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Flushes the adapter and the underlying <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</div>
 </td>
 </tr>
@@ -214,6 +224,7 @@ implements <a href="MediaCodecAdapter.html" title="interface in com.google.andro
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getInputBuffer(int)">getInputBuffer</a></span>&#8203;(int&nbsp;index)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a writable ByteBuffer object for a dequeued input buffer index.</div>
 </td>
 </tr>
@@ -221,6 +232,7 @@ implements <a href="MediaCodecAdapter.html" title="interface in com.google.andro
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/PersistableBundle.html" title="class or interface in android.os" class="externalLink" target="_top">PersistableBundle</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMetrics()">getMetrics</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns metrics data about the current codec instance.</div>
 </td>
 </tr>
@@ -228,6 +240,7 @@ implements <a href="MediaCodecAdapter.html" title="interface in com.google.andro
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getOutputBuffer(int)">getOutputBuffer</a></span>&#8203;(int&nbsp;index)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a read-only ByteBuffer for a dequeued output buffer index.</div>
 </td>
 </tr>
@@ -235,6 +248,7 @@ implements <a href="MediaCodecAdapter.html" title="interface in com.google.andro
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getOutputFormat()">getOutputFormat</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Gets the <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink"><code>MediaFormat</code></a> that was output from the <a href="https://developer.android.com/reference/android/media/MediaCodec.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</div>
 </td>
 </tr>
@@ -242,6 +256,7 @@ implements <a href="MediaCodecAdapter.html" title="interface in com.google.andro
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#needsReconfiguration()">needsReconfiguration</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the adapter needs to be reconfigured before it is used.</div>
 </td>
 </tr>
@@ -253,6 +268,7 @@ implements <a href="MediaCodecAdapter.html" title="interface in com.google.andro
                 long&nbsp;presentationTimeUs,
                 int&nbsp;flags)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Submit an input buffer for decoding.</div>
 </td>
 </tr>
@@ -264,6 +280,7 @@ implements <a href="MediaCodecAdapter.html" title="interface in com.google.andro
                       long&nbsp;presentationTimeUs,
                       int&nbsp;flags)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Submit an input buffer that is potentially encrypted for decoding.</div>
 </td>
 </tr>
@@ -271,6 +288,7 @@ implements <a href="MediaCodecAdapter.html" title="interface in com.google.andro
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases the adapter and the underlying <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</div>
 </td>
 </tr>
@@ -279,6 +297,7 @@ implements <a href="MediaCodecAdapter.html" title="interface in com.google.andro
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#releaseOutputBuffer(int,boolean)">releaseOutputBuffer</a></span>&#8203;(int&nbsp;index,
                    boolean&nbsp;render)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the buffer to the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</div>
 </td>
 </tr>
@@ -287,6 +306,7 @@ implements <a href="MediaCodecAdapter.html" title="interface in com.google.andro
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#releaseOutputBuffer(int,long)">releaseOutputBuffer</a></span>&#8203;(int&nbsp;index,
                    long&nbsp;renderTimeStampNs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates the output buffer's surface timestamp and sends it to the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> to render
  it on the output surface.</div>
 </td>
@@ -296,6 +316,7 @@ implements <a href="MediaCodecAdapter.html" title="interface in com.google.andro
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOnFrameRenderedListener(com.google.android.exoplayer2.mediacodec.MediaCodecAdapter.OnFrameRenderedListener,android.os.Handler)">setOnFrameRenderedListener</a></span>&#8203;(<a href="MediaCodecAdapter.OnFrameRenderedListener.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter.OnFrameRenderedListener</a>&nbsp;listener,
                           <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;handler)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Registers a callback to be invoked when an output frame is rendered on the output surface.</div>
 </td>
 </tr>
@@ -303,6 +324,7 @@ implements <a href="MediaCodecAdapter.html" title="interface in com.google.andro
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOutputSurface(android.view.Surface)">setOutputSurface</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dynamically sets the output surface of a <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</div>
 </td>
 </tr>
@@ -310,6 +332,7 @@ implements <a href="MediaCodecAdapter.html" title="interface in com.google.andro
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setParameters(android.os.Bundle)">setParameters</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;params)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Communicate additional parameter changes to the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> instance.</div>
 </td>
 </tr>
@@ -317,6 +340,7 @@ implements <a href="MediaCodecAdapter.html" title="interface in com.google.andro
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVideoScalingMode(@com.google.android.exoplayer2.C.VideoScalingModeint)">setVideoScalingMode</a></span>&#8203;(@com.google.android.exoplayer2.C.VideoScalingMode int&nbsp;scalingMode)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Specifies the scaling mode to use, if a surface was specified when the codec was created.</div>
 </td>
 </tr>
@@ -351,6 +375,7 @@ implements <a href="MediaCodecAdapter.html" title="interface in com.google.andro
 <li class="blockList">
 <h4>needsReconfiguration</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;needsReconfiguration()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaCodecAdapter.html#needsReconfiguration()">MediaCodecAdapter</a></code></span></div>
 <div class="block">Whether the adapter needs to be reconfigured before it is used.</div>
 <dl>
@@ -366,6 +391,7 @@ implements <a href="MediaCodecAdapter.html" title="interface in com.google.andro
 <li class="blockList">
 <h4>dequeueInputBufferIndex</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;dequeueInputBufferIndex()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaCodecAdapter.html#dequeueInputBufferIndex()">MediaCodecAdapter</a></code></span></div>
 <div class="block">Returns the next available input buffer index from the underlying <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink"><code>MediaCodec</code></a> or <a href="https://developer.android.com/reference/android/media/MediaCodec.html?is-external=true#INFO_TRY_AGAIN_LATER" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.INFO_TRY_AGAIN_LATER</code></a> if no such buffer exists.</div>
 <dl>
@@ -381,6 +407,7 @@ implements <a href="MediaCodecAdapter.html" title="interface in com.google.andro
 <li class="blockList">
 <h4>dequeueOutputBufferIndex</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;dequeueOutputBufferIndex&#8203;(<a href="https://developer.android.com/reference/android/media/MediaCodec.BufferInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodec.BufferInfo</a>&nbsp;bufferInfo)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaCodecAdapter.html#dequeueOutputBufferIndex(android.media.MediaCodec.BufferInfo)">MediaCodecAdapter</a></code></span></div>
 <div class="block">Returns the next available output buffer index from the underlying <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>. If the
  next available output is a MediaFormat change, it will return <a href="https://developer.android.com/reference/android/media/MediaCodec.html#INFO_OUTPUT_FORMAT_CHANGED" title="class or interface in android.media" class="externalLink"><code>MediaCodec.INFO_OUTPUT_FORMAT_CHANGED</code></a> and you should call <a href="MediaCodecAdapter.html#getOutputFormat()" target="_top"><code>MediaCodecAdapter.getOutputFormat()</code></a> to get
@@ -398,6 +425,7 @@ implements <a href="MediaCodecAdapter.html" title="interface in com.google.andro
 <li class="blockList">
 <h4>getOutputFormat</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;getOutputFormat()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaCodecAdapter.html#getOutputFormat()">MediaCodecAdapter</a></code></span></div>
 <div class="block">Gets the <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink"><code>MediaFormat</code></a> that was output from the <a href="https://developer.android.com/reference/android/media/MediaCodec.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.
 
@@ -416,6 +444,7 @@ implements <a href="MediaCodecAdapter.html" title="interface in com.google.andro
 <h4>getInputBuffer</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;getInputBuffer&#8203;(int&nbsp;index)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaCodecAdapter.html#getInputBuffer(int)">MediaCodecAdapter</a></code></span></div>
 <div class="block">Returns a writable ByteBuffer object for a dequeued input buffer index.</div>
 <dl>
@@ -434,6 +463,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <h4>getOutputBuffer</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;getOutputBuffer&#8203;(int&nbsp;index)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaCodecAdapter.html#getOutputBuffer(int)">MediaCodecAdapter</a></code></span></div>
 <div class="block">Returns a read-only ByteBuffer for a dequeued output buffer index.</div>
 <dl>
@@ -455,6 +485,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
                              int&nbsp;size,
                              long&nbsp;presentationTimeUs,
                              int&nbsp;flags)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaCodecAdapter.html#queueInputBuffer(int,int,int,long,int)">MediaCodecAdapter</a></code></span></div>
 <div class="block">Submit an input buffer for decoding.
 
@@ -479,6 +510,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
                                    <a href="../decoder/CryptoInfo.html" title="class in com.google.android.exoplayer2.decoder">CryptoInfo</a>&nbsp;info,
                                    long&nbsp;presentationTimeUs,
                                    int&nbsp;flags)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaCodecAdapter.html#queueSecureInputBuffer(int,int,com.google.android.exoplayer2.decoder.CryptoInfo,long,int)">MediaCodecAdapter</a></code></span></div>
 <div class="block">Submit an input buffer that is potentially encrypted for decoding.
 
@@ -503,6 +535,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <h4>releaseOutputBuffer</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;releaseOutputBuffer&#8203;(int&nbsp;index,
                                 boolean&nbsp;render)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaCodecAdapter.html#releaseOutputBuffer(int,boolean)">MediaCodecAdapter</a></code></span></div>
 <div class="block">Returns the buffer to the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink"><code>MediaCodec</code></a>. If the <a href="https://developer.android.com/reference/android/media/MediaCodec.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> was configured with an
  output surface, setting <code>render</code> to <code>true</code> will first send the buffer to the output
@@ -525,6 +558,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <pre class="methodSignature">@RequiresApi(21)
 public&nbsp;void&nbsp;releaseOutputBuffer&#8203;(int&nbsp;index,
                                 long&nbsp;renderTimeStampNs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaCodecAdapter.html#releaseOutputBuffer(int,long)">MediaCodecAdapter</a></code></span></div>
 <div class="block">Updates the output buffer's surface timestamp and sends it to the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> to render
  it on the output surface. If the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> is not configured with an output surface,
@@ -544,6 +578,7 @@ public&nbsp;void&nbsp;releaseOutputBuffer&#8203;(int&nbsp;index,
 <li class="blockList">
 <h4>flush</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;flush()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaCodecAdapter.html#flush()">MediaCodecAdapter</a></code></span></div>
 <div class="block">Flushes the adapter and the underlying <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</div>
 <dl>
@@ -559,6 +594,7 @@ public&nbsp;void&nbsp;releaseOutputBuffer&#8203;(int&nbsp;index,
 <li class="blockList">
 <h4>release</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;release()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaCodecAdapter.html#release()">MediaCodecAdapter</a></code></span></div>
 <div class="block">Releases the adapter and the underlying <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</div>
 <dl>
@@ -576,6 +612,7 @@ public&nbsp;void&nbsp;releaseOutputBuffer&#8203;(int&nbsp;index,
 <pre class="methodSignature">@RequiresApi(23)
 public&nbsp;void&nbsp;setOnFrameRenderedListener&#8203;(<a href="MediaCodecAdapter.OnFrameRenderedListener.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter.OnFrameRenderedListener</a>&nbsp;listener,
                                        <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;handler)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaCodecAdapter.html#setOnFrameRenderedListener(com.google.android.exoplayer2.mediacodec.MediaCodecAdapter.OnFrameRenderedListener,android.os.Handler)">MediaCodecAdapter</a></code></span></div>
 <div class="block">Registers a callback to be invoked when an output frame is rendered on the output surface.</div>
 <dl>
@@ -594,6 +631,7 @@ public&nbsp;void&nbsp;setOnFrameRenderedListener&#8203;(<a href="MediaCodecAdapt
 <h4>setOutputSurface</h4>
 <pre class="methodSignature">@RequiresApi(23)
 public&nbsp;void&nbsp;setOutputSurface&#8203;(<a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaCodecAdapter.html#setOutputSurface(android.view.Surface)">MediaCodecAdapter</a></code></span></div>
 <div class="block">Dynamically sets the output surface of a <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</div>
 <dl>
@@ -612,6 +650,7 @@ public&nbsp;void&nbsp;setOutputSurface&#8203;(<a href="https://developer.android
 <h4>setParameters</h4>
 <pre class="methodSignature">@RequiresApi(19)
 public&nbsp;void&nbsp;setParameters&#8203;(<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;params)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaCodecAdapter.html#setParameters(android.os.Bundle)">MediaCodecAdapter</a></code></span></div>
 <div class="block">Communicate additional parameter changes to the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> instance.</div>
 <dl>
@@ -630,6 +669,7 @@ public&nbsp;void&nbsp;setParameters&#8203;(<a href="https://developer.android.co
 <h4>setVideoScalingMode</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setVideoScalingMode&#8203;(<a href="../C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2">@VideoScalingMode</a>
                                 @com.google.android.exoplayer2.C.VideoScalingMode int&nbsp;scalingMode)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaCodecAdapter.html#setVideoScalingMode(@com.google.android.exoplayer2.C.VideoScalingModeint)">MediaCodecAdapter</a></code></span></div>
 <div class="block">Specifies the scaling mode to use, if a surface was specified when the codec was created.</div>
 <dl>
@@ -648,6 +688,7 @@ public&nbsp;void&nbsp;setParameters&#8203;(<a href="https://developer.android.co
 <h4>getMetrics</h4>
 <pre class="methodSignature">@RequiresApi(26)
 public&nbsp;<a href="https://developer.android.com/reference/android/os/PersistableBundle.html" title="class or interface in android.os" class="externalLink" target="_top">PersistableBundle</a>&nbsp;getMetrics()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaCodecAdapter.html#getMetrics()">MediaCodecAdapter</a></code></span></div>
 <div class="block">Returns metrics data about the current codec instance.</div>
 <dl>

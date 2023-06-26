@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":9,"i2":9,"i3":10,"i4":9,"i5":9,"i6":10,"i7":10};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":41,"i2":41,"i3":42,"i4":41,"i5":41,"i6":42,"i7":42};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">RtpPacket</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">RtpPacket</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Represents the header and the payload of an RTP packet.
 
  <p>Not supported parsing at the moment: header extension and CSRC.
@@ -182,6 +188,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="RtpPacket.Builder.html" title="class in com.google.android.exoplayer2.source.rtsp">RtpPacket.Builder</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builder class for an <a href="RtpPacket.html" title="class in com.google.android.exoplayer2.source.rtsp"><code>RtpPacket</code></a></div>
 </td>
 </tr>
@@ -207,18 +214,22 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#csrc">csrc</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The RTP CSRC fields (Optional, up to 15 items).</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#CSRC_SIZE">CSRC_SIZE</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>byte</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#csrcCount">csrcCount</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The RTP CSRC count field (Word 0, bits 4-7).</div>
 </td>
 </tr>
@@ -226,6 +237,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#extension">extension</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The RTP extension bit (Word 0, bit 3).</div>
 </td>
 </tr>
@@ -233,57 +245,73 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#marker">marker</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The RTP marker bit (Word 0, bit 8).</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MAX_SEQUENCE_NUMBER">MAX_SEQUENCE_NUMBER</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MAX_SIZE">MAX_SIZE</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MIN_HEADER_SIZE">MIN_HEADER_SIZE</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MIN_SEQUENCE_NUMBER">MIN_SEQUENCE_NUMBER</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#padding">padding</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The RTP padding bit (Word 0, bit 2).</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#payloadData">payloadData</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>byte</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#payloadType">payloadType</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The RTP CSRC count field (Word 0, bits 9-15).</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#RTP_VERSION">RTP_VERSION</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sequenceNumber">sequenceNumber</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The RTP sequence number field (Word 0, bits 16-31).</div>
 </td>
 </tr>
@@ -291,6 +319,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ssrc">ssrc</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The RTP SSRC field (Word 2).</div>
 </td>
 </tr>
@@ -298,6 +327,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#timestamp">timestamp</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The RTP timestamp field (Word 1).</div>
 </td>
 </tr>
@@ -305,6 +335,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>byte</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#version">version</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The RTP version field (Word 0, bits 0-1), should always be 2.</div>
 </td>
 </tr>
@@ -320,7 +351,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -329,12 +360,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;o)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getNextSequenceNumber(int)">getNextSequenceNumber</a></span>&#8203;(int&nbsp;sequenceNumber)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the next sequence number of the <code>sequenceNumber</code>.</div>
 </td>
 </tr>
@@ -342,19 +376,23 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPreviousSequenceNumber(int)">getPreviousSequenceNumber</a></span>&#8203;(int&nbsp;sequenceNumber)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the previous sequence number from the <code>sequenceNumber</code>.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>static <a href="RtpPacket.html" title="class in com.google.android.exoplayer2.source.rtsp">RtpPacket</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parse(byte%5B%5D,int)">parse</a></span>&#8203;(byte[]&nbsp;buffer,
      int&nbsp;length)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an <a href="RtpPacket.html" title="class in com.google.android.exoplayer2.source.rtsp"><code>RtpPacket</code></a> from a byte array.</div>
 </td>
 </tr>
@@ -362,13 +400,16 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static <a href="RtpPacket.html" title="class in com.google.android.exoplayer2.source.rtsp">RtpPacket</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parse(com.google.android.exoplayer2.util.ParsableByteArray)">parse</a></span>&#8203;(<a href="../../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;packetBuffer)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an <a href="RtpPacket.html" title="class in com.google.android.exoplayer2.source.rtsp"><code>RtpPacket</code></a> from a <a href="../../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util"><code>ParsableByteArray</code></a>.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>int</code></td>
@@ -376,6 +417,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
              int&nbsp;offset,
              int&nbsp;length)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Writes the data in an RTP packet to a target buffer.</div>
 </td>
 </tr>
@@ -410,6 +452,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>RTP_VERSION</h4>
 <pre>public static final&nbsp;int RTP_VERSION</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.source.rtsp.RtpPacket.RTP_VERSION">Constant Field Values</a></dd>
@@ -423,6 +466,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>MAX_SIZE</h4>
 <pre>public static final&nbsp;int MAX_SIZE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.source.rtsp.RtpPacket.MAX_SIZE">Constant Field Values</a></dd>
@@ -436,6 +480,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>MIN_HEADER_SIZE</h4>
 <pre>public static final&nbsp;int MIN_HEADER_SIZE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.source.rtsp.RtpPacket.MIN_HEADER_SIZE">Constant Field Values</a></dd>
@@ -449,6 +494,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>MIN_SEQUENCE_NUMBER</h4>
 <pre>public static final&nbsp;int MIN_SEQUENCE_NUMBER</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.source.rtsp.RtpPacket.MIN_SEQUENCE_NUMBER">Constant Field Values</a></dd>
@@ -462,6 +508,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>MAX_SEQUENCE_NUMBER</h4>
 <pre>public static final&nbsp;int MAX_SEQUENCE_NUMBER</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.source.rtsp.RtpPacket.MAX_SEQUENCE_NUMBER">Constant Field Values</a></dd>
@@ -475,6 +522,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>CSRC_SIZE</h4>
 <pre>public static final&nbsp;int CSRC_SIZE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.source.rtsp.RtpPacket.CSRC_SIZE">Constant Field Values</a></dd>
@@ -488,6 +536,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>version</h4>
 <pre>public final&nbsp;byte version</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The RTP version field (Word 0, bits 0-1), should always be 2.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -502,6 +551,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>padding</h4>
 <pre>public final&nbsp;boolean padding</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The RTP padding bit (Word 0, bit 2).</div>
 </li>
 </ul>
@@ -512,6 +562,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>extension</h4>
 <pre>public final&nbsp;boolean extension</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The RTP extension bit (Word 0, bit 3).</div>
 </li>
 </ul>
@@ -522,6 +573,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>csrcCount</h4>
 <pre>public final&nbsp;byte csrcCount</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The RTP CSRC count field (Word 0, bits 4-7).</div>
 </li>
 </ul>
@@ -532,6 +584,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>marker</h4>
 <pre>public final&nbsp;boolean marker</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The RTP marker bit (Word 0, bit 8).</div>
 </li>
 </ul>
@@ -542,6 +595,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>payloadType</h4>
 <pre>public final&nbsp;byte payloadType</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The RTP CSRC count field (Word 0, bits 9-15).</div>
 </li>
 </ul>
@@ -552,6 +606,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>sequenceNumber</h4>
 <pre>public final&nbsp;int sequenceNumber</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The RTP sequence number field (Word 0, bits 16-31).</div>
 </li>
 </ul>
@@ -562,6 +617,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>timestamp</h4>
 <pre>public final&nbsp;long timestamp</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The RTP timestamp field (Word 1).</div>
 </li>
 </ul>
@@ -572,6 +628,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>ssrc</h4>
 <pre>public final&nbsp;int ssrc</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The RTP SSRC field (Word 2).</div>
 </li>
 </ul>
@@ -582,6 +639,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>csrc</h4>
 <pre>public final&nbsp;byte[] csrc</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The RTP CSRC fields (Optional, up to 15 items).</div>
 </li>
 </ul>
@@ -592,6 +650,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>payloadData</h4>
 <pre>public final&nbsp;byte[] payloadData</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -611,6 +670,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>getNextSequenceNumber</h4>
 <pre class="methodSignature">public static&nbsp;int&nbsp;getNextSequenceNumber&#8203;(int&nbsp;sequenceNumber)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the next sequence number of the <code>sequenceNumber</code>.</div>
 </li>
 </ul>
@@ -621,6 +681,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>getPreviousSequenceNumber</h4>
 <pre class="methodSignature">public static&nbsp;int&nbsp;getPreviousSequenceNumber&#8203;(int&nbsp;sequenceNumber)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the previous sequence number from the <code>sequenceNumber</code>.</div>
 </li>
 </ul>
@@ -632,6 +693,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>parse</h4>
 <pre class="methodSignature">@Nullable
 public static&nbsp;<a href="RtpPacket.html" title="class in com.google.android.exoplayer2.source.rtsp">RtpPacket</a>&nbsp;parse&#8203;(<a href="../../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;packetBuffer)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an <a href="RtpPacket.html" title="class in com.google.android.exoplayer2.source.rtsp"><code>RtpPacket</code></a> from a <a href="../../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util"><code>ParsableByteArray</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -650,6 +712,7 @@ public static&nbsp;<a href="RtpPacket.html" title="class in com.google.android.e
 <pre class="methodSignature">@Nullable
 public static&nbsp;<a href="RtpPacket.html" title="class in com.google.android.exoplayer2.source.rtsp">RtpPacket</a>&nbsp;parse&#8203;(byte[]&nbsp;buffer,
                               int&nbsp;length)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an <a href="RtpPacket.html" title="class in com.google.android.exoplayer2.source.rtsp"><code>RtpPacket</code></a> from a byte array.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -669,6 +732,7 @@ public static&nbsp;<a href="RtpPacket.html" title="class in com.google.android.e
 <pre class="methodSignature">public&nbsp;int&nbsp;writeToBuffer&#8203;(byte[]&nbsp;target,
                          int&nbsp;offset,
                          int&nbsp;length)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Writes the data in an RTP packet to a target buffer.
 
  <p>The size of the target buffer and the length argument should be big enough so that the
@@ -693,6 +757,7 @@ public static&nbsp;<a href="RtpPacket.html" title="class in com.google.android.e
 <h4>equals</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;equals&#8203;(@Nullable
                       <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;o)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
@@ -706,6 +771,7 @@ public static&nbsp;<a href="RtpPacket.html" title="class in com.google.android.e
 <li class="blockList">
 <h4>hashCode</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;hashCode()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
@@ -719,6 +785,7 @@ public static&nbsp;<a href="RtpPacket.html" title="class in com.google.android.e
 <li class="blockList">
 <h4>toString</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;toString()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#toString()" title="class or interface in java.lang" class="externalLink">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>

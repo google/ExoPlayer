@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">AesCipherDataSink</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">AesCipherDataSink</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="../DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A wrapping <a href="../DataSink.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSink</code></a> that encrypts the data being consumed.</div>
 </li>
 </ul>
@@ -177,6 +183,7 @@ implements <a href="../DataSink.html" title="interface in com.google.android.exo
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(byte%5B%5D,com.google.android.exoplayer2.upstream.DataSink)">AesCipherDataSink</a></span>&#8203;(byte[]&nbsp;secretKey,
                  <a href="../DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a>&nbsp;wrappedDataSink)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Create an instance whose <code>write</code> methods have the side effect of overwriting the input
  <code>data</code>.</div>
 </td>
@@ -186,6 +193,7 @@ implements <a href="../DataSink.html" title="interface in com.google.android.exo
                  <a href="../DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a>&nbsp;wrappedDataSink,
                  byte[]&nbsp;scratch)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Create an instance whose <code>write</code> methods are free of side effects.</div>
 </td>
 </tr>
@@ -201,7 +209,7 @@ implements <a href="../DataSink.html" title="interface in com.google.android.exo
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -211,6 +219,7 @@ implements <a href="../DataSink.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#close()">close</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Closes the sink.</div>
 </td>
 </tr>
@@ -218,6 +227,7 @@ implements <a href="../DataSink.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#open(com.google.android.exoplayer2.upstream.DataSpec)">open</a></span>&#8203;(<a href="../DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Opens the sink to consume the specified data.</div>
 </td>
 </tr>
@@ -227,6 +237,7 @@ implements <a href="../DataSink.html" title="interface in com.google.android.exo
      int&nbsp;offset,
      int&nbsp;length)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Consumes the provided data.</div>
 </td>
 </tr>
@@ -262,6 +273,7 @@ implements <a href="../DataSink.html" title="interface in com.google.android.exo
 <h4>AesCipherDataSink</h4>
 <pre>public&nbsp;AesCipherDataSink&#8203;(byte[]&nbsp;secretKey,
                          <a href="../DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a>&nbsp;wrappedDataSink)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Create an instance whose <code>write</code> methods have the side effect of overwriting the input
  <code>data</code>. Use this constructor for maximum efficiency in the case that there is no
  requirement for the input data arrays to remain unchanged.</div>
@@ -282,6 +294,7 @@ implements <a href="../DataSink.html" title="interface in com.google.android.exo
                          <a href="../DataSink.html" title="interface in com.google.android.exoplayer2.upstream">DataSink</a>&nbsp;wrappedDataSink,
                          @Nullable
                          byte[]&nbsp;scratch)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Create an instance whose <code>write</code> methods are free of side effects. Use this constructor
  when the input data arrays are required to remain unchanged.</div>
 <dl>
@@ -314,6 +327,7 @@ implements <a href="../DataSink.html" title="interface in com.google.android.exo
 <h4>open</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;open&#8203;(<a href="../DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)
           throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../DataSink.html#open(com.google.android.exoplayer2.upstream.DataSpec)">DataSink</a></code></span></div>
 <div class="block">Opens the sink to consume the specified data.
 
@@ -339,6 +353,7 @@ implements <a href="../DataSink.html" title="interface in com.google.android.exo
                   int&nbsp;offset,
                   int&nbsp;length)
            throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../DataSink.html#write(byte%5B%5D,int,int)">DataSink</a></code></span></div>
 <div class="block">Consumes the provided data.</div>
 <dl>
@@ -361,6 +376,7 @@ implements <a href="../DataSink.html" title="interface in com.google.android.exo
 <h4>close</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;close()
            throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../DataSink.html#close()">DataSink</a></code></span></div>
 <div class="block">Closes the sink.
 

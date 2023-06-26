@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":9,"i6":10,"i7":10,"i8":9,"i9":9};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":41,"i7":42,"i8":42,"i9":41,"i10":41};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">TimestampAdjuster</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">TimestampAdjuster</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Adjusts and offsets sample timestamps. MPEG-2 TS timestamps scaling and adjustment is supported,
  taking into account timestamp rollover.</div>
 </li>
@@ -157,6 +163,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MODE_NO_OFFSET">MODE_NO_OFFSET</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A special <code>firstSampleTimestampUs</code> value indicating that presentation timestamps should
  not be offset.</div>
 </td>
@@ -165,6 +172,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MODE_SHARED">MODE_SHARED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A special <code>firstSampleTimestampUs</code> value indicating that the adjuster will be shared by
  multiple threads.</div>
 </td>
@@ -188,7 +196,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(long)">TimestampAdjuster</a></span>&#8203;(long&nbsp;firstSampleTimestampUs)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -202,7 +212,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -212,6 +222,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#adjustSampleTimestamp(long)">adjustSampleTimestamp</a></span>&#8203;(long&nbsp;timeUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Offsets a timestamp in microseconds.</div>
 </td>
 </tr>
@@ -219,6 +230,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#adjustTsTimestamp(long)">adjustTsTimestamp</a></span>&#8203;(long&nbsp;pts90Khz)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Scales and offsets an MPEG-2 TS presentation timestamp considering wraparound.</div>
 </td>
 </tr>
@@ -226,6 +238,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFirstSampleTimestampUs()">getFirstSampleTimestampUs</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the value of the first adjusted sample timestamp in microseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if timestamps will not be offset or if the adjuster is in shared mode.</div>
 </td>
 </tr>
@@ -233,6 +246,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLastAdjustedTimestampUs()">getLastAdjustedTimestampUs</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the last adjusted timestamp, in microseconds.</div>
 </td>
 </tr>
@@ -240,43 +254,58 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTimestampOffsetUs()">getTimestampOffsetUs</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the offset between the input of <a href="#adjustSampleTimestamp(long)"><code>adjustSampleTimestamp(long)</code></a> and its output, or
  <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the offset has not yet been determined.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code>static long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ptsToUs(long)">ptsToUs</a></span>&#8203;(long&nbsp;pts)</code></th>
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isInitialized()">isInitialized</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Converts a 90 kHz clock timestamp to a timestamp in microseconds.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns whether the instance is initialized with a timestamp offset.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset(long)">reset</a></span>&#8203;(long&nbsp;firstSampleTimestampUs)</code></th>
+<td class="colFirst"><code>static long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ptsToUs(long)">ptsToUs</a></span>&#8203;(long&nbsp;pts)</code></th>
 <td class="colLast">
-<div class="block">Resets the instance.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Converts a 90 kHz clock timestamp to a timestamp in microseconds.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sharedInitializeOrWait(boolean,long)">sharedInitializeOrWait</a></span>&#8203;(boolean&nbsp;canInitialize,
-                      long&nbsp;nextSampleTimestampUs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset(long)">reset</a></span>&#8203;(long&nbsp;firstSampleTimestampUs)</code></th>
 <td class="colLast">
-<div class="block">For shared timestamp adjusters, performs necessary initialization actions for a caller.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Resets the instance.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
-<td class="colFirst"><code>static long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#usToNonWrappedPts(long)">usToNonWrappedPts</a></span>&#8203;(long&nbsp;us)</code></th>
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sharedInitializeOrWait(boolean,long,long)">sharedInitializeOrWait</a></span>&#8203;(boolean&nbsp;canInitialize,
+                      long&nbsp;nextSampleTimestampUs,
+                      long&nbsp;timeoutMs)</code></th>
 <td class="colLast">
-<div class="block">Converts a timestamp in microseconds to a 90 kHz clock timestamp.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">For shared timestamp adjusters, performs necessary initialization actions for a caller.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>static long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#usToNonWrappedPts(long)">usToNonWrappedPts</a></span>&#8203;(long&nbsp;us)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Converts a timestamp in microseconds to a 90 kHz clock timestamp.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>static long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#usToWrappedPts(long)">usToWrappedPts</a></span>&#8203;(long&nbsp;us)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Converts a timestamp in microseconds to a 90 kHz clock timestamp, performing wraparound to keep
  the result within 33-bits.</div>
 </td>
@@ -312,6 +341,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>MODE_NO_OFFSET</h4>
 <pre>public static final&nbsp;long MODE_NO_OFFSET</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A special <code>firstSampleTimestampUs</code> value indicating that presentation timestamps should
  not be offset. In this mode:
 
@@ -332,12 +362,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>MODE_SHARED</h4>
 <pre>public static final&nbsp;long MODE_SHARED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A special <code>firstSampleTimestampUs</code> value indicating that the adjuster will be shared by
  multiple threads. In this mode:
 
  <ul>
    <li><a href="#getFirstSampleTimestampUs()"><code>getFirstSampleTimestampUs()</code></a> will always return <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>.
-   <li>Calling threads must call <a href="#sharedInitializeOrWait(boolean,long)"><code>sharedInitializeOrWait(boolean, long)</code></a> prior to adjusting timestamps.
+   <li>Calling threads must call <a href="#sharedInitializeOrWait(boolean,long,long)"><code>sharedInitializeOrWait(boolean, long, long)</code></a> prior to adjusting timestamps.
  </ul></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -362,6 +393,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>TimestampAdjuster</h4>
 <pre>public&nbsp;TimestampAdjuster&#8203;(long&nbsp;firstSampleTimestampUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>firstSampleTimestampUs</code> - The desired value of the first adjusted sample timestamp in
@@ -379,15 +411,18 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="sharedInitializeOrWait(boolean,long)">
+<a id="sharedInitializeOrWait(boolean,long,long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>sharedInitializeOrWait</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;sharedInitializeOrWait&#8203;(boolean&nbsp;canInitialize,
-                                   long&nbsp;nextSampleTimestampUs)
-                            throws <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" class="externalLink" target="_top">InterruptedException</a></pre>
+                                   long&nbsp;nextSampleTimestampUs,
+                                   long&nbsp;timeoutMs)
+                            throws <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" class="externalLink" target="_top">InterruptedException</a>,
+                                   <a href="https://developer.android.com/reference/java/util/concurrent/TimeoutException.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">TimeoutException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">For shared timestamp adjusters, performs necessary initialization actions for a caller.
 
  <ul>
@@ -406,9 +441,13 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dd><code>canInitialize</code> - Whether the caller is able to initialize the adjuster, if needed.</dd>
 <dd><code>nextSampleTimestampUs</code> - The desired timestamp for the next sample loaded by the calling
      thread, in microseconds. Only used if <code>canInitialize</code> is <code>true</code>.</dd>
+<dd><code>timeoutMs</code> - The timeout for the thread to wait for the timestamp adjuster to initialize,
+     in milliseconds. A timeout of zero is interpreted as an infinite timeout.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" class="externalLink" target="_top">InterruptedException</a></code> - If the thread is interrupted whilst blocked waiting for
      initialization to complete.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/util/concurrent/TimeoutException.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">TimeoutException</a></code> - If the thread is timeout whilst blocked waiting for initialization to
+     complete.</dd>
 </dl>
 </li>
 </ul>
@@ -419,6 +458,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>getFirstSampleTimestampUs</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getFirstSampleTimestampUs()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the value of the first adjusted sample timestamp in microseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if timestamps will not be offset or if the adjuster is in shared mode.</div>
 </li>
 </ul>
@@ -429,6 +469,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>getLastAdjustedTimestampUs</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getLastAdjustedTimestampUs()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the last adjusted timestamp, in microseconds. If no timestamps have been adjusted yet
  then the result of <a href="#getFirstSampleTimestampUs()"><code>getFirstSampleTimestampUs()</code></a> is returned.</div>
 </li>
@@ -440,6 +481,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>getTimestampOffsetUs</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getTimestampOffsetUs()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the offset between the input of <a href="#adjustSampleTimestamp(long)"><code>adjustSampleTimestamp(long)</code></a> and its output, or
  <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the offset has not yet been determined.</div>
 </li>
@@ -451,6 +493,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>reset</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;reset&#8203;(long&nbsp;firstSampleTimestampUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Resets the instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -467,6 +510,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>adjustTsTimestamp</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;adjustTsTimestamp&#8203;(long&nbsp;pts90Khz)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Scales and offsets an MPEG-2 TS presentation timestamp considering wraparound.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -483,6 +527,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>adjustSampleTimestamp</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;adjustSampleTimestamp&#8203;(long&nbsp;timeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Offsets a timestamp in microseconds.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -492,6 +537,17 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
+<a id="isInitialized()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isInitialized</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isInitialized()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns whether the instance is initialized with a timestamp offset.</div>
+</li>
+</ul>
 <a id="ptsToUs(long)">
 <!--   -->
 </a>
@@ -499,6 +555,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>ptsToUs</h4>
 <pre class="methodSignature">public static&nbsp;long&nbsp;ptsToUs&#8203;(long&nbsp;pts)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Converts a 90 kHz clock timestamp to a timestamp in microseconds.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -515,6 +572,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>usToWrappedPts</h4>
 <pre class="methodSignature">public static&nbsp;long&nbsp;usToWrappedPts&#8203;(long&nbsp;us)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Converts a timestamp in microseconds to a 90 kHz clock timestamp, performing wraparound to keep
  the result within 33-bits.</div>
 <dl>
@@ -532,6 +590,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>usToNonWrappedPts</h4>
 <pre class="methodSignature">public static&nbsp;long&nbsp;usToNonWrappedPts&#8203;(long&nbsp;us)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Converts a timestamp in microseconds to a 90 kHz clock timestamp.
 
  <p>Does not perform any wraparound. To get a 90 kHz timestamp suitable for use with MPEG-TS,

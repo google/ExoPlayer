@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var data = {"i0":38,"i1":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -125,7 +125,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="DefaultHlsPlaylistParserFactory.html" title="class in com.google.android.exoplayer2.source.hls.playlist">DefaultHlsPlaylistParserFactory</a></code>, <code><a href="FilteringHlsPlaylistParserFactory.html" title="class in com.google.android.exoplayer2.source.hls.playlist">FilteringHlsPlaylistParserFactory</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">HlsPlaylistParserFactory</span></pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">HlsPlaylistParserFactory</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Factory for <a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsPlaylist</code></a> parsers.</div>
 </li>
 </ul>
@@ -141,7 +147,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -151,6 +157,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="../../../upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createPlaylistParser()">createPlaylistParser</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a stand-alone playlist parser.</div>
 </td>
 </tr>
@@ -159,6 +166,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createPlaylistParser(com.google.android.exoplayer2.source.hls.playlist.HlsMultivariantPlaylist,com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist)">createPlaylistParser</a></span>&#8203;(<a href="HlsMultivariantPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMultivariantPlaylist</a>&nbsp;multivariantPlaylist,
                     <a href="HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist</a>&nbsp;previousMediaPlaylist)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a playlist parser for playlists that were referenced by the given <a href="HlsMultivariantPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMultivariantPlaylist</code></a>.</div>
 </td>
 </tr>
@@ -186,6 +194,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>createPlaylistParser</h4>
 <pre class="methodSignature"><a href="../../../upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&gt;&nbsp;createPlaylistParser()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a stand-alone playlist parser. Playlists parsed by the returned parser do not inherit
  any attributes from other playlists.</div>
 </li>
@@ -199,6 +208,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre class="methodSignature"><a href="../../../upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&gt;&nbsp;createPlaylistParser&#8203;(<a href="HlsMultivariantPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMultivariantPlaylist</a>&nbsp;multivariantPlaylist,
                                                          @Nullable
                                                          <a href="HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist</a>&nbsp;previousMediaPlaylist)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a playlist parser for playlists that were referenced by the given <a href="HlsMultivariantPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMultivariantPlaylist</code></a>. Returned <a href="HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>HlsMediaPlaylist</code></a> instances may inherit attributes
  from <code>multivariantPlaylist</code>.</div>
 <dl>

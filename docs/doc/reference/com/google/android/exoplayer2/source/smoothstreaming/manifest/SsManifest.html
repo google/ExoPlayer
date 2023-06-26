@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../../../offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;<a href="SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&gt;</code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">SsManifest</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">SsManifest</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="../../../offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;<a href="SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&gt;</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Represents a SmoothStreaming manifest.
 
  <p>See the <a href="http://msdn.microsoft.com/en-us/library/ee673436(v=vs.90).aspx">IIS Smooth
@@ -164,6 +170,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="SsManifest.ProtectionElement.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest.ProtectionElement</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Represents a protection element containing a single header.</div>
 </td>
 </tr>
@@ -171,6 +178,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="SsManifest.StreamElement.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest.StreamElement</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Represents a StreamIndex element.</div>
 </td>
 </tr>
@@ -196,6 +204,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#durationUs">durationUs</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The overall presentation duration of the media in microseconds, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the
  duration is unknown.</div>
 </td>
@@ -204,6 +213,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dvrWindowLengthUs">dvrWindowLengthUs</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The length of the trailing window for a live broadcast in microseconds, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>
  if the stream is not live or if the window length is unspecified.</div>
 </td>
@@ -212,6 +222,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isLive">isLive</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the manifest describes a live presentation still in progress.</div>
 </td>
 </tr>
@@ -219,6 +230,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#lookAheadCount">lookAheadCount</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of fragments in a lookahead, or <a href="#UNSET_LOOKAHEAD"><code>UNSET_LOOKAHEAD</code></a> if the lookahead is
  unspecified.</div>
 </td>
@@ -227,6 +239,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#majorVersion">majorVersion</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The client manifest major version.</div>
 </td>
 </tr>
@@ -234,6 +247,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#minorVersion">minorVersion</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The client manifest minor version.</div>
 </td>
 </tr>
@@ -241,6 +255,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <td class="colFirst"><code><a href="SsManifest.ProtectionElement.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest.ProtectionElement</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#protectionElement">protectionElement</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Content protection information, or null if the content is not protected.</div>
 </td>
 </tr>
@@ -248,13 +263,16 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <td class="colFirst"><code><a href="SsManifest.StreamElement.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest.StreamElement</a>[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#streamElements">streamElements</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The contained stream elements.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#UNSET_LOOKAHEAD">UNSET_LOOKAHEAD</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -283,7 +301,9 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
           boolean&nbsp;isLive,
           <a href="SsManifest.ProtectionElement.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest.ProtectionElement</a>&nbsp;protectionElement,
           <a href="SsManifest.StreamElement.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest.StreamElement</a>[]&nbsp;streamElements)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -297,7 +317,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -307,6 +327,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <td class="colFirst"><code><a href="SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copy(java.util.List)">copy</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy of the manifest including only the streams specified by the given keys.</div>
 </td>
 </tr>
@@ -341,6 +362,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <li class="blockList">
 <h4>UNSET_LOOKAHEAD</h4>
 <pre>public static final&nbsp;int UNSET_LOOKAHEAD</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../../constant-values.html#com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.UNSET_LOOKAHEAD">Constant Field Values</a></dd>
@@ -354,6 +376,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <li class="blockList">
 <h4>majorVersion</h4>
 <pre>public final&nbsp;int majorVersion</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The client manifest major version.</div>
 </li>
 </ul>
@@ -364,6 +387,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <li class="blockList">
 <h4>minorVersion</h4>
 <pre>public final&nbsp;int minorVersion</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The client manifest minor version.</div>
 </li>
 </ul>
@@ -374,6 +398,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <li class="blockList">
 <h4>lookAheadCount</h4>
 <pre>public final&nbsp;int lookAheadCount</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of fragments in a lookahead, or <a href="#UNSET_LOOKAHEAD"><code>UNSET_LOOKAHEAD</code></a> if the lookahead is
  unspecified.</div>
 </li>
@@ -385,6 +410,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <li class="blockList">
 <h4>isLive</h4>
 <pre>public final&nbsp;boolean isLive</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the manifest describes a live presentation still in progress.</div>
 </li>
 </ul>
@@ -396,6 +422,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <h4>protectionElement</h4>
 <pre>@Nullable
 public final&nbsp;<a href="SsManifest.ProtectionElement.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest.ProtectionElement</a> protectionElement</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Content protection information, or null if the content is not protected.</div>
 </li>
 </ul>
@@ -406,6 +433,7 @@ public final&nbsp;<a href="SsManifest.ProtectionElement.html" title="class in co
 <li class="blockList">
 <h4>streamElements</h4>
 <pre>public final&nbsp;<a href="SsManifest.StreamElement.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest.StreamElement</a>[] streamElements</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The contained stream elements.</div>
 </li>
 </ul>
@@ -416,6 +444,7 @@ public final&nbsp;<a href="SsManifest.ProtectionElement.html" title="class in co
 <li class="blockList">
 <h4>durationUs</h4>
 <pre>public final&nbsp;long durationUs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The overall presentation duration of the media in microseconds, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the
  duration is unknown.</div>
 </li>
@@ -427,6 +456,7 @@ public final&nbsp;<a href="SsManifest.ProtectionElement.html" title="class in co
 <li class="blockList">
 <h4>dvrWindowLengthUs</h4>
 <pre>public final&nbsp;long dvrWindowLengthUs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The length of the trailing window for a live broadcast in microseconds, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>
  if the stream is not live or if the window length is unspecified.</div>
 </li>
@@ -457,6 +487,7 @@ public final&nbsp;<a href="SsManifest.ProtectionElement.html" title="class in co
                   @Nullable
                   <a href="SsManifest.ProtectionElement.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest.ProtectionElement</a>&nbsp;protectionElement,
                   <a href="SsManifest.StreamElement.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest.StreamElement</a>[]&nbsp;streamElements)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>majorVersion</code> - The client manifest major version.</dd>
@@ -493,6 +524,7 @@ public final&nbsp;<a href="SsManifest.ProtectionElement.html" title="class in co
 <li class="blockList">
 <h4>copy</h4>
 <pre class="methodSignature">public final&nbsp;<a href="SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&nbsp;copy&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../offline/FilterableManifest.html#copy(java.util.List)">FilterableManifest</a></code></span></div>
 <div class="block">Returns a copy of the manifest including only the streams specified by the given keys. If the
  manifest is unchanged then the instance may return itself.</div>

@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":9,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":41,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">DataSpec</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">DataSpec</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Defines a region of data in a resource.</div>
 </li>
 </ul>
@@ -156,6 +162,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream">DataSpec.Builder</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builds <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> instances.</div>
 </td>
 </tr>
@@ -163,6 +170,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DataSpec.Flags.html" title="annotation in com.google.android.exoplayer2.upstream">DataSpec.Flags</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The flags that apply to any request for data.</div>
 </td>
 </tr>
@@ -170,6 +178,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DataSpec.HttpMethod.html" title="annotation in com.google.android.exoplayer2.upstream">DataSpec.HttpMethod</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">HTTP methods supported by ExoPlayer <a href="HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>HttpDataSource</code></a>s.</div>
 </td>
 </tr>
@@ -205,6 +214,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#customData">customData</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Application specific data.</div>
 </td>
 </tr>
@@ -212,6 +222,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FLAG_ALLOW_CACHE_FRAGMENTATION">FLAG_ALLOW_CACHE_FRAGMENTATION</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Allows fragmentation of this request into multiple cache files, meaning a cache eviction policy
  will be able to evict individual fragments of the data.</div>
 </td>
@@ -220,6 +231,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FLAG_ALLOW_GZIP">FLAG_ALLOW_GZIP</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Allows an underlying network stack to request that the server use gzip compression.</div>
 </td>
 </tr>
@@ -227,6 +239,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN">FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Prevents caching if the length cannot be resolved when the <a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> is opened.</div>
 </td>
 </tr>
@@ -234,6 +247,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED">FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Indicates there are known external factors that might prevent the data from being loaded at
  full network speed (e.g.</div>
 </td>
@@ -242,6 +256,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>@com.google.android.exoplayer2.upstream.DataSpec.Flags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#flags">flags</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Request <a href="DataSpec.Flags.html" title="annotation in com.google.android.exoplayer2.upstream"><code>flags</code></a>.</div>
 </td>
 </tr>
@@ -249,6 +264,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#HTTP_METHOD_GET">HTTP_METHOD_GET</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">HTTP GET method.</div>
 </td>
 </tr>
@@ -256,6 +272,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#HTTP_METHOD_HEAD">HTTP_METHOD_HEAD</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">HTTP HEAD method.</div>
 </td>
 </tr>
@@ -263,6 +280,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#HTTP_METHOD_POST">HTTP_METHOD_POST</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">HTTP POST method.</div>
 </td>
 </tr>
@@ -270,6 +288,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#httpBody">httpBody</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The HTTP request body, null otherwise.</div>
 </td>
 </tr>
@@ -277,6 +296,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>@com.google.android.exoplayer2.upstream.DataSpec.HttpMethod int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#httpMethod">httpMethod</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The HTTP method to use when requesting the data.</div>
 </td>
 </tr>
@@ -284,6 +304,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#httpRequestHeaders">httpRequestHeaders</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Additional HTTP headers to use when requesting the data.</div>
 </td>
 </tr>
@@ -291,6 +312,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#key">key</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A key that uniquely identifies the resource.</div>
 </td>
 </tr>
@@ -298,6 +320,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#length">length</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The length of the data, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>.</div>
 </td>
 </tr>
@@ -305,6 +328,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#position">position</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The position of the data when read from <a href="#uri"><code>uri</code></a>.</div>
 </td>
 </tr>
@@ -312,6 +336,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#uri">uri</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a> from which data belonging to the resource can be read.</div>
 </td>
 </tr>
@@ -319,6 +344,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#uriPositionOffset">uriPositionOffset</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The offset of the data located at <a href="#uri"><code>uri</code></a> within the resource.</div>
 </td>
 </tr>
@@ -342,6 +368,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.net.Uri)">DataSpec</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Constructs an instance.</div>
 </td>
 </tr>
@@ -404,6 +431,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
         long&nbsp;position,
         long&nbsp;length)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Constructs an instance.</div>
 </td>
 </tr>
@@ -468,7 +496,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -478,6 +506,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream">DataSpec.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildUpon()">buildUpon</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec.Builder</code></a> initialized with the values of this instance.</div>
 </td>
 </tr>
@@ -485,6 +514,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getHttpMethodString()">getHttpMethodString</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the uppercase HTTP method name (e.g., "GET", "POST", "HEAD") corresponding to the
  <a href="#httpMethod"><code>httpMethod</code></a>.</div>
 </td>
@@ -493,6 +523,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getStringForHttpMethod(@com.google.android.exoplayer2.upstream.DataSpec.HttpMethodint)">getStringForHttpMethod</a></span>&#8203;(@com.google.android.exoplayer2.upstream.DataSpec.HttpMethod int&nbsp;httpMethod)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an uppercase HTTP method name (e.g., "GET", "POST", "HEAD") corresponding to the given
  <a href="DataSpec.HttpMethod.html" title="annotation in com.google.android.exoplayer2.upstream"><code>DataSpec.HttpMethod</code></a>.</div>
 </td>
@@ -501,6 +532,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isFlagSet(@com.google.android.exoplayer2.upstream.DataSpec.Flagsint)">isFlagSet</a></span>&#8203;(@com.google.android.exoplayer2.upstream.DataSpec.Flags int&nbsp;flag)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the given flag is set.</div>
 </td>
 </tr>
@@ -508,6 +540,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#subrange(long)">subrange</a></span>&#8203;(long&nbsp;offset)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a data spec that represents a subrange of the data defined by this DataSpec.</div>
 </td>
 </tr>
@@ -516,18 +549,22 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#subrange(long,long)">subrange</a></span>&#8203;(long&nbsp;offset,
         long&nbsp;length)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a data spec that represents a subrange of the data defined by this DataSpec.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withAdditionalHeaders(java.util.Map)">withAdditionalHeaders</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;additionalHttpRequestHeaders)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy this data spec with additional HTTP request headers.</div>
 </td>
 </tr>
@@ -535,6 +572,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withRequestHeaders(java.util.Map)">withRequestHeaders</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;httpRequestHeaders)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy of this data spec with the specified HTTP request headers.</div>
 </td>
 </tr>
@@ -542,6 +580,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withUri(android.net.Uri)">withUri</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy of this data spec with the specified Uri.</div>
 </td>
 </tr>
@@ -576,6 +615,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>FLAG_ALLOW_GZIP</h4>
 <pre>public static final&nbsp;int FLAG_ALLOW_GZIP</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Allows an underlying network stack to request that the server use gzip compression.
 
  <p>Should not typically be set if the data being requested is already compressed (e.g. most
@@ -595,6 +635,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN</h4>
 <pre>public static final&nbsp;int FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Prevents caching if the length cannot be resolved when the <a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> is opened.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -609,6 +650,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>FLAG_ALLOW_CACHE_FRAGMENTATION</h4>
 <pre>public static final&nbsp;int FLAG_ALLOW_CACHE_FRAGMENTATION</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Allows fragmentation of this request into multiple cache files, meaning a cache eviction policy
  will be able to evict individual fragments of the data. Depending on the cache implementation,
  setting this flag may also enable more concurrent access to the data (e.g. reading one fragment
@@ -626,6 +668,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED</h4>
 <pre>public static final&nbsp;int FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Indicates there are known external factors that might prevent the data from being loaded at
  full network speed (e.g. server throttling or unfinished live media chunks).</div>
 <dl>
@@ -641,6 +684,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>HTTP_METHOD_GET</h4>
 <pre>public static final&nbsp;int HTTP_METHOD_GET</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">HTTP GET method.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -655,6 +699,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>HTTP_METHOD_POST</h4>
 <pre>public static final&nbsp;int HTTP_METHOD_POST</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">HTTP POST method.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -669,6 +714,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>HTTP_METHOD_HEAD</h4>
 <pre>public static final&nbsp;int HTTP_METHOD_HEAD</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">HTTP HEAD method.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -683,6 +729,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>uri</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a> uri</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a> from which data belonging to the resource can be read.</div>
 </li>
 </ul>
@@ -693,6 +740,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>uriPositionOffset</h4>
 <pre>public final&nbsp;long uriPositionOffset</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The offset of the data located at <a href="#uri"><code>uri</code></a> within the resource.
 
  <p>Equal to 0 unless <a href="#uri"><code>uri</code></a> provides access to a subset of the resource. As an example,
@@ -711,6 +759,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>httpMethod</h4>
 <pre>public final&nbsp;@com.google.android.exoplayer2.upstream.DataSpec.HttpMethod int httpMethod</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The HTTP method to use when requesting the data. This value will be ignored by non-HTTP <a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> implementations.</div>
 </li>
 </ul>
@@ -722,6 +771,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>httpBody</h4>
 <pre>@Nullable
 public final&nbsp;byte[] httpBody</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The HTTP request body, null otherwise. If the body is non-null, then <code>httpBody.length</code>
  will be non-zero.</div>
 </li>
@@ -733,6 +783,7 @@ public final&nbsp;byte[] httpBody</pre>
 <li class="blockList">
 <h4>httpRequestHeaders</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt; httpRequestHeaders</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Additional HTTP headers to use when requesting the data.
 
  <p>Note: This map is for additional headers specific to the data being requested. It does not
@@ -773,6 +824,7 @@ public final&nbsp;long absoluteStreamPosition</pre>
 <li class="blockList">
 <h4>position</h4>
 <pre>public final&nbsp;long position</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The position of the data when read from <a href="#uri"><code>uri</code></a>.</div>
 </li>
 </ul>
@@ -783,6 +835,7 @@ public final&nbsp;long absoluteStreamPosition</pre>
 <li class="blockList">
 <h4>length</h4>
 <pre>public final&nbsp;long length</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The length of the data, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>.</div>
 </li>
 </ul>
@@ -794,6 +847,7 @@ public final&nbsp;long absoluteStreamPosition</pre>
 <h4>key</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> key</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A key that uniquely identifies the resource. Used for cache indexing. May be null if the data
  spec is not intended to be used in conjunction with a cache.</div>
 </li>
@@ -805,6 +859,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <li class="blockList">
 <h4>flags</h4>
 <pre>public final&nbsp;@com.google.android.exoplayer2.upstream.DataSpec.Flags int flags</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Request <a href="DataSpec.Flags.html" title="annotation in com.google.android.exoplayer2.upstream"><code>flags</code></a>.</div>
 </li>
 </ul>
@@ -816,6 +871,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <h4>customData</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a> customData</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Application specific data.
 
  <p>This field is intended for advanced use cases in which applications require the ability to
@@ -839,6 +895,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <li class="blockList">
 <h4>DataSpec</h4>
 <pre>public&nbsp;DataSpec&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Constructs an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -855,6 +912,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <pre>public&nbsp;DataSpec&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
                 long&nbsp;position,
                 long&nbsp;length)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Constructs an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1118,6 +1176,7 @@ public&nbsp;DataSpec&#8203;(<a href="https://developer.android.com/reference/and
 <li class="blockList">
 <h4>getStringForHttpMethod</h4>
 <pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;getStringForHttpMethod&#8203;(@com.google.android.exoplayer2.upstream.DataSpec.HttpMethod int&nbsp;httpMethod)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an uppercase HTTP method name (e.g., "GET", "POST", "HEAD") corresponding to the given
  <a href="DataSpec.HttpMethod.html" title="annotation in com.google.android.exoplayer2.upstream"><code>DataSpec.HttpMethod</code></a>.</div>
 </li>
@@ -1129,6 +1188,7 @@ public&nbsp;DataSpec&#8203;(<a href="https://developer.android.com/reference/and
 <li class="blockList">
 <h4>isFlagSet</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isFlagSet&#8203;(@com.google.android.exoplayer2.upstream.DataSpec.Flags int&nbsp;flag)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the given flag is set.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1143,6 +1203,7 @@ public&nbsp;DataSpec&#8203;(<a href="https://developer.android.com/reference/and
 <li class="blockList">
 <h4>getHttpMethodString</h4>
 <pre class="methodSignature">public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;getHttpMethodString()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the uppercase HTTP method name (e.g., "GET", "POST", "HEAD") corresponding to the
  <a href="#httpMethod"><code>httpMethod</code></a>.</div>
 </li>
@@ -1154,6 +1215,7 @@ public&nbsp;DataSpec&#8203;(<a href="https://developer.android.com/reference/and
 <li class="blockList">
 <h4>buildUpon</h4>
 <pre class="methodSignature">public&nbsp;<a href="DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream">DataSpec.Builder</a>&nbsp;buildUpon()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="DataSpec.Builder.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec.Builder</code></a> initialized with the values of this instance.</div>
 </li>
 </ul>
@@ -1164,6 +1226,7 @@ public&nbsp;DataSpec&#8203;(<a href="https://developer.android.com/reference/and
 <li class="blockList">
 <h4>subrange</h4>
 <pre class="methodSignature">public&nbsp;<a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;subrange&#8203;(long&nbsp;offset)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a data spec that represents a subrange of the data defined by this DataSpec. The
  subrange includes data from the offset up to the end of this DataSpec.</div>
 <dl>
@@ -1182,6 +1245,7 @@ public&nbsp;DataSpec&#8203;(<a href="https://developer.android.com/reference/and
 <h4>subrange</h4>
 <pre class="methodSignature">public&nbsp;<a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;subrange&#8203;(long&nbsp;offset,
                          long&nbsp;length)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a data spec that represents a subrange of the data defined by this DataSpec.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1199,6 +1263,7 @@ public&nbsp;DataSpec&#8203;(<a href="https://developer.android.com/reference/and
 <li class="blockList">
 <h4>withUri</h4>
 <pre class="methodSignature">public&nbsp;<a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;withUri&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy of this data spec with the specified Uri.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1215,6 +1280,7 @@ public&nbsp;DataSpec&#8203;(<a href="https://developer.android.com/reference/and
 <li class="blockList">
 <h4>withRequestHeaders</h4>
 <pre class="methodSignature">public&nbsp;<a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;withRequestHeaders&#8203;(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;httpRequestHeaders)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy of this data spec with the specified HTTP request headers. Headers already in
  the data spec are not copied to the new instance.</div>
 <dl>
@@ -1232,6 +1298,7 @@ public&nbsp;DataSpec&#8203;(<a href="https://developer.android.com/reference/and
 <li class="blockList">
 <h4>withAdditionalHeaders</h4>
 <pre class="methodSignature">public&nbsp;<a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;withAdditionalHeaders&#8203;(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;additionalHttpRequestHeaders)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy this data spec with additional HTTP request headers. Headers in <code>
  additionalHttpRequestHeaders</code> will overwrite any headers already in the data spec that have the
  same keys.</div>
@@ -1250,6 +1317,7 @@ public&nbsp;DataSpec&#8203;(<a href="https://developer.android.com/reference/and
 <li class="blockList">
 <h4>toString</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;toString()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#toString()" title="class or interface in java.lang" class="externalLink">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>

@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -143,8 +143,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">SinglePeriodAdTimeline</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">SinglePeriodAdTimeline</span>
 extends <a href="../ForwardingTimeline.html" title="class in com.google.android.exoplayer2.source">ForwardingTimeline</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A <a href="../../Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> for sources that have ads.</div>
 </li>
 </ul>
@@ -217,6 +223,7 @@ extends <a href="../ForwardingTimeline.html" title="class in com.google.android.
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.Timeline,com.google.android.exoplayer2.source.ads.AdPlaybackState)">SinglePeriodAdTimeline</a></span>&#8203;(<a href="../../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;contentTimeline,
                       <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;adPlaybackState)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new timeline with a single period containing ads.</div>
 </td>
 </tr>
@@ -232,7 +239,7 @@ extends <a href="../ForwardingTimeline.html" title="class in com.google.android.
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -244,6 +251,7 @@ extends <a href="../ForwardingTimeline.html" title="class in com.google.android.
          <a href="../../Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a>&nbsp;period,
          boolean&nbsp;setIds)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Populates a <a href="../../Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a> with data for the period at the specified index.</div>
 </td>
 </tr>
@@ -293,6 +301,7 @@ extends <a href="../ForwardingTimeline.html" title="class in com.google.android.
 <h4>SinglePeriodAdTimeline</h4>
 <pre>public&nbsp;SinglePeriodAdTimeline&#8203;(<a href="../../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;contentTimeline,
                               <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;adPlaybackState)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new timeline with a single period containing ads.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -321,6 +330,7 @@ extends <a href="../ForwardingTimeline.html" title="class in com.google.android.
 <pre class="methodSignature">public&nbsp;<a href="../../Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a>&nbsp;getPeriod&#8203;(int&nbsp;periodIndex,
                                  <a href="../../Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a>&nbsp;period,
                                  boolean&nbsp;setIds)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../Timeline.html#getPeriod(int,com.google.android.exoplayer2.Timeline.Period,boolean)">Timeline</a></code></span></div>
 <div class="block">Populates a <a href="../../Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a> with data for the period at the specified index.</div>
 <dl>

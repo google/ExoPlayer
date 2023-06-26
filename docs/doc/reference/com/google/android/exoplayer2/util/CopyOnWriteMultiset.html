@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -137,9 +137,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="https://developer.android.com/reference/java/lang/Iterable.html" title="class or interface in java.lang" class="externalLink" target="_top">Iterable</a>&lt;E&gt;</code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">CopyOnWriteMultiset&lt;E&gt;</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">CopyOnWriteMultiset&lt;E&gt;</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="https://developer.android.com/reference/java/lang/Iterable.html" title="class or interface in java.lang" class="externalLink" target="_top">Iterable</a>&lt;E&gt;</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">An unordered collection of elements that allows duplicates, but also allows access to a set of
  unique elements.
 
@@ -170,7 +176,9 @@ implements <a href="https://developer.android.com/reference/java/lang/Iterable.h
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">CopyOnWriteMultiset</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -184,7 +192,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Iterable.h
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -194,6 +202,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Iterable.h
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#add(E)">add</a></span>&#8203;(<a href="CopyOnWriteMultiset.html" title="type parameter in CopyOnWriteMultiset">E</a>&nbsp;element)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds <code>element</code> to the multiset.</div>
 </td>
 </tr>
@@ -201,6 +210,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Iterable.h
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#count(E)">count</a></span>&#8203;(<a href="CopyOnWriteMultiset.html" title="type parameter in CopyOnWriteMultiset">E</a>&nbsp;element)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the number of occurrences of an element in this multiset.</div>
 </td>
 </tr>
@@ -208,6 +218,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Iterable.h
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/Set.html" title="class or interface in java.util" class="externalLink">Set</a>&lt;<a href="CopyOnWriteMultiset.html" title="type parameter in CopyOnWriteMultiset" target="_top">E</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#elementSet()">elementSet</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a snapshot of the unique elements currently in this multiset.</div>
 </td>
 </tr>
@@ -215,6 +226,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Iterable.h
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/Iterator.html" title="class or interface in java.util" class="externalLink">Iterator</a>&lt;<a href="CopyOnWriteMultiset.html" title="type parameter in CopyOnWriteMultiset" target="_top">E</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#iterator()">iterator</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an iterator over a snapshot of all the elements currently in this multiset (including
  duplicates).</div>
 </td>
@@ -223,6 +235,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Iterable.h
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#remove(E)">remove</a></span>&#8203;(<a href="CopyOnWriteMultiset.html" title="type parameter in CopyOnWriteMultiset">E</a>&nbsp;element)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Removes <code>element</code> from the multiset.</div>
 </td>
 </tr>
@@ -264,6 +277,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Iterable.h
 <li class="blockList">
 <h4>CopyOnWriteMultiset</h4>
 <pre>public&nbsp;CopyOnWriteMultiset()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -285,6 +299,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Iterable.h
 <li class="blockList">
 <h4>add</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;add&#8203;(<a href="CopyOnWriteMultiset.html" title="type parameter in CopyOnWriteMultiset">E</a>&nbsp;element)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds <code>element</code> to the multiset.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -301,6 +316,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Iterable.h
 <li class="blockList">
 <h4>remove</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;remove&#8203;(<a href="CopyOnWriteMultiset.html" title="type parameter in CopyOnWriteMultiset">E</a>&nbsp;element)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Removes <code>element</code> from the multiset.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -315,6 +331,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Iterable.h
 <li class="blockList">
 <h4>elementSet</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/util/Set.html" title="class or interface in java.util" class="externalLink">Set</a>&lt;<a href="CopyOnWriteMultiset.html" title="type parameter in CopyOnWriteMultiset" target="_top">E</a>&gt;&nbsp;elementSet()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a snapshot of the unique elements currently in this multiset.
 
  <p>Changes to the underlying multiset are not reflected in the returned value.</div>
@@ -331,6 +348,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Iterable.h
 <li class="blockList">
 <h4>iterator</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/util/Iterator.html" title="class or interface in java.util" class="externalLink">Iterator</a>&lt;<a href="CopyOnWriteMultiset.html" title="type parameter in CopyOnWriteMultiset" target="_top">E</a>&gt;&nbsp;iterator()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an iterator over a snapshot of all the elements currently in this multiset (including
  duplicates).
 
@@ -352,6 +370,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Iterable.h
 <li class="blockList">
 <h4>count</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;count&#8203;(<a href="CopyOnWriteMultiset.html" title="type parameter in CopyOnWriteMultiset">E</a>&nbsp;element)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the number of occurrences of an element in this multiset.</div>
 </li>
 </ul>

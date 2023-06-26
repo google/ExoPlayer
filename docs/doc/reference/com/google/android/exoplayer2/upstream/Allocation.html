@@ -123,8 +123,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">Allocation</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">Allocation</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">An allocation within a byte array.
 
  <p>The allocation's length is obtained by calling <a href="Allocator.html#getIndividualAllocationLength()"><code>Allocator.getIndividualAllocationLength()</code></a> on the <a href="Allocator.html" title="interface in com.google.android.exoplayer2.upstream"><code>Allocator</code></a> from which it was obtained.</div>
@@ -152,6 +158,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#data">data</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The array containing the allocated space.</div>
 </td>
 </tr>
@@ -159,6 +166,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#offset">offset</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The offset of the allocated space in <a href="#data"><code>data</code></a>.</div>
 </td>
 </tr>
@@ -182,7 +190,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(byte%5B%5D,int)">Allocation</a></span>&#8203;(byte[]&nbsp;data,
           int&nbsp;offset)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -225,6 +235,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>data</h4>
 <pre>public final&nbsp;byte[] data</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The array containing the allocated space. The allocated space might not be at the start of the
  array, and so <a href="#offset"><code>offset</code></a> must be used when indexing into it.</div>
 </li>
@@ -236,6 +247,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>offset</h4>
 <pre>public final&nbsp;int offset</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The offset of the allocated space in <a href="#data"><code>data</code></a>.</div>
 </li>
 </ul>
@@ -257,6 +269,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>Allocation</h4>
 <pre>public&nbsp;Allocation&#8203;(byte[]&nbsp;data,
                   int&nbsp;offset)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>data</code> - The array containing the allocated space.</dd>

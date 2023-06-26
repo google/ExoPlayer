@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -134,9 +134,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 <hr>
 <pre>@RequiresApi(30)
+<a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 public final class <span class="typeNameLabel">MediaParserExtractorAdapter</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="ProgressiveMediaExtractor.html" title="interface in com.google.android.exoplayer2.source">ProgressiveMediaExtractor</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block"><a href="ProgressiveMediaExtractor.html" title="interface in com.google.android.exoplayer2.source"><code>ProgressiveMediaExtractor</code></a> implemented on top of the platform's <a href="https://developer.android.com/reference/android/media/MediaParser.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaParser</code></a>.</div>
 </li>
 </ul>
@@ -179,6 +185,7 @@ implements <a href="ProgressiveMediaExtractor.html" title="interface in com.goog
 <td class="colFirst"><code>static <a href="ProgressiveMediaExtractor.Factory.html" title="interface in com.google.android.exoplayer2.source">ProgressiveMediaExtractor.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FACTORY">FACTORY</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A <a href="ProgressiveMediaExtractor.Factory.html" title="interface in com.google.android.exoplayer2.source"><code>ProgressiveMediaExtractor.Factory</code></a> for instances of this class, which rely on platform
  extractors through <a href="https://developer.android.com/reference/android/media/MediaParser.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaParser</code></a>.</div>
 </td>
@@ -202,7 +209,9 @@ implements <a href="ProgressiveMediaExtractor.html" title="interface in com.goog
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.analytics.PlayerId)">MediaParserExtractorAdapter</a></span>&#8203;(<a href="../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -216,7 +225,7 @@ implements <a href="ProgressiveMediaExtractor.html" title="interface in com.goog
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -226,6 +235,7 @@ implements <a href="ProgressiveMediaExtractor.html" title="interface in com.goog
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#disableSeekingOnMp3Streams()">disableSeekingOnMp3Streams</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Disables seeking in MP3 streams.</div>
 </td>
 </tr>
@@ -233,8 +243,9 @@ implements <a href="ProgressiveMediaExtractor.html" title="interface in com.goog
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCurrentInputPosition()">getCurrentInputPosition</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns the current read position in the input stream, or <a href="../C.html#POSITION_UNSET"><code>C.POSITION_UNSET</code></a> if no input
- is available.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns the current read position in the input stream, or <a href="../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if no input is
+ available.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
@@ -246,6 +257,7 @@ implements <a href="ProgressiveMediaExtractor.html" title="interface in com.goog
     long&nbsp;length,
     <a href="../extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;output)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Initializes the underlying infrastructure for reading from the input.</div>
 </td>
 </tr>
@@ -253,6 +265,7 @@ implements <a href="ProgressiveMediaExtractor.html" title="interface in com.goog
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#read(com.google.android.exoplayer2.extractor.PositionHolder)">read</a></span>&#8203;(<a href="../extractor/PositionHolder.html" title="class in com.google.android.exoplayer2.extractor">PositionHolder</a>&nbsp;positionHolder)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Extracts data starting at the current input stream position.</div>
 </td>
 </tr>
@@ -260,6 +273,7 @@ implements <a href="ProgressiveMediaExtractor.html" title="interface in com.goog
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases any held resources.</div>
 </td>
 </tr>
@@ -268,6 +282,7 @@ implements <a href="ProgressiveMediaExtractor.html" title="interface in com.goog
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seek(long,long)">seek</a></span>&#8203;(long&nbsp;position,
     long&nbsp;seekTimeUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Notifies the extracting infrastructure that a seek has occurred.</div>
 </td>
 </tr>
@@ -302,6 +317,7 @@ implements <a href="ProgressiveMediaExtractor.html" title="interface in com.goog
 <li class="blockList">
 <h4>FACTORY</h4>
 <pre>public static final&nbsp;<a href="ProgressiveMediaExtractor.Factory.html" title="interface in com.google.android.exoplayer2.source">ProgressiveMediaExtractor.Factory</a> FACTORY</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A <a href="ProgressiveMediaExtractor.Factory.html" title="interface in com.google.android.exoplayer2.source"><code>ProgressiveMediaExtractor.Factory</code></a> for instances of this class, which rely on platform
  extractors through <a href="https://developer.android.com/reference/android/media/MediaParser.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaParser</code></a>.</div>
 </li>
@@ -323,6 +339,7 @@ implements <a href="ProgressiveMediaExtractor.html" title="interface in com.goog
 <li class="blockList">
 <h4>MediaParserExtractorAdapter</h4>
 <pre>public&nbsp;MediaParserExtractorAdapter&#8203;(<a href="../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -348,6 +365,7 @@ implements <a href="ProgressiveMediaExtractor.html" title="interface in com.goog
                  long&nbsp;length,
                  <a href="../extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;output)
           throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ProgressiveMediaExtractor.html#init(com.google.android.exoplayer2.upstream.DataReader,android.net.Uri,java.util.Map,long,long,com.google.android.exoplayer2.extractor.ExtractorOutput)">ProgressiveMediaExtractor</a></code></span></div>
 <div class="block">Initializes the underlying infrastructure for reading from the input.</div>
 <dl>
@@ -374,6 +392,7 @@ implements <a href="ProgressiveMediaExtractor.html" title="interface in com.goog
 <li class="blockList">
 <h4>release</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;release()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ProgressiveMediaExtractor.html#release()">ProgressiveMediaExtractor</a></code></span></div>
 <div class="block">Releases any held resources.</div>
 <dl>
@@ -389,6 +408,7 @@ implements <a href="ProgressiveMediaExtractor.html" title="interface in com.goog
 <li class="blockList">
 <h4>disableSeekingOnMp3Streams</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;disableSeekingOnMp3Streams()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ProgressiveMediaExtractor.html#disableSeekingOnMp3Streams()">ProgressiveMediaExtractor</a></code></span></div>
 <div class="block">Disables seeking in MP3 streams.
 
@@ -406,9 +426,10 @@ implements <a href="ProgressiveMediaExtractor.html" title="interface in com.goog
 <li class="blockList">
 <h4>getCurrentInputPosition</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getCurrentInputPosition()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ProgressiveMediaExtractor.html#getCurrentInputPosition()">ProgressiveMediaExtractor</a></code></span></div>
-<div class="block">Returns the current read position in the input stream, or <a href="../C.html#POSITION_UNSET"><code>C.POSITION_UNSET</code></a> if no input
- is available.</div>
+<div class="block">Returns the current read position in the input stream, or <a href="../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if no input is
+ available.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="ProgressiveMediaExtractor.html#getCurrentInputPosition()">getCurrentInputPosition</a></code>&nbsp;in interface&nbsp;<code><a href="ProgressiveMediaExtractor.html" title="interface in com.google.android.exoplayer2.source">ProgressiveMediaExtractor</a></code></dd>
@@ -423,6 +444,7 @@ implements <a href="ProgressiveMediaExtractor.html" title="interface in com.goog
 <h4>seek</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;seek&#8203;(long&nbsp;position,
                  long&nbsp;seekTimeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ProgressiveMediaExtractor.html#seek(long,long)">ProgressiveMediaExtractor</a></code></span></div>
 <div class="block">Notifies the extracting infrastructure that a seek has occurred.</div>
 <dl>
@@ -442,6 +464,7 @@ implements <a href="ProgressiveMediaExtractor.html" title="interface in com.goog
 <h4>read</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;read&#8203;(<a href="../extractor/PositionHolder.html" title="class in com.google.android.exoplayer2.extractor">PositionHolder</a>&nbsp;positionHolder)
          throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ProgressiveMediaExtractor.html#read(com.google.android.exoplayer2.extractor.PositionHolder)">ProgressiveMediaExtractor</a></code></span></div>
 <div class="block">Extracts data starting at the current input stream position.</div>
 <dl>

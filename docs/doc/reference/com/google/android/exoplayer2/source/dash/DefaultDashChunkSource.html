@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkSource</a></code>, <code><a href="DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash">DashChunkSource</a></code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">DefaultDashChunkSource</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">DefaultDashChunkSource</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash">DashChunkSource</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A default <a href="DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash"><code>DashChunkSource</code></a> implementation.</div>
 </li>
 </ul>
@@ -160,12 +166,15 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DefaultDashChunkSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.Factory</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>protected static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DefaultDashChunkSource.RepresentationHolder.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationHolder</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Holds information about a snapshot of a single <a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>Representation</code></a>.</div>
 </td>
 </tr>
@@ -173,6 +182,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 <td class="colFirst"><code>protected static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DefaultDashChunkSource.RepresentationSegmentIterator.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationSegmentIterator</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>MediaChunkIterator</code></a> wrapping a <a href="DefaultDashChunkSource.RepresentationHolder.html" title="class in com.google.android.exoplayer2.source.dash"><code>DefaultDashChunkSource.RepresentationHolder</code></a>.</div>
 </td>
 </tr>
@@ -197,7 +207,9 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 <tr class="altColor">
 <td class="colFirst"><code>protected <a href="DefaultDashChunkSource.RepresentationHolder.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationHolder</a>[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#representationHolders">representationHolders</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -217,7 +229,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.chunk.ChunkExtractor.Factory,com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.dash.manifest.DashManifest,com.google.android.exoplayer2.source.dash.BaseUrlExclusionList,int,int%5B%5D,com.google.android.exoplayer2.trackselection.ExoTrackSelection,@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.upstream.DataSource,long,int,boolean,java.util.List,com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler,com.google.android.exoplayer2.analytics.PlayerId)">DefaultDashChunkSource</a></span>&#8203;(<a href="../chunk/ChunkExtractor.Factory.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractor.Factory</a>&nbsp;chunkExtractorFactory,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.chunk.ChunkExtractor.Factory,com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.dash.manifest.DashManifest,com.google.android.exoplayer2.source.dash.BaseUrlExclusionList,int,int%5B%5D,com.google.android.exoplayer2.trackselection.ExoTrackSelection,@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.upstream.DataSource,long,int,boolean,java.util.List,com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler,com.google.android.exoplayer2.analytics.PlayerId,com.google.android.exoplayer2.upstream.CmcdConfiguration)">DefaultDashChunkSource</a></span>&#8203;(<a href="../chunk/ChunkExtractor.Factory.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractor.Factory</a>&nbsp;chunkExtractorFactory,
                       <a href="../../upstream/LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream">LoaderErrorThrower</a>&nbsp;manifestLoaderErrorThrower,
                       <a href="manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;manifest,
                       <a href="BaseUrlExclusionList.html" title="class in com.google.android.exoplayer2.source.dash">BaseUrlExclusionList</a>&nbsp;baseUrlExclusionList,
@@ -231,8 +243,11 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
                       boolean&nbsp;enableEventMessageTrack,
                       <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;closedCaptionFormats,
                       <a href="PlayerEmsgHandler.PlayerTrackEmsgHandler.html" title="class in com.google.android.exoplayer2.source.dash">PlayerEmsgHandler.PlayerTrackEmsgHandler</a>&nbsp;playerTrackEmsgHandler,
-                      <a href="../../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</code></th>
-<td class="colLast">&nbsp;</td>
+                      <a href="../../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId,
+                      <a href="../../upstream/CmcdConfiguration.html" title="class in com.google.android.exoplayer2.upstream">CmcdConfiguration</a>&nbsp;cmcdConfiguration)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -246,7 +261,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -257,6 +272,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdjustedSeekPositionUs(long,com.google.android.exoplayer2.SeekParameters)">getAdjustedSeekPositionUs</a></span>&#8203;(long&nbsp;positionUs,
                          <a href="../../SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a>&nbsp;seekParameters)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adjusts a seek position given the specified <a href="../../SeekParameters.html" title="class in com.google.android.exoplayer2"><code>SeekParameters</code></a>.</div>
 </td>
 </tr>
@@ -267,6 +283,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
             <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue,
             <a href="../chunk/ChunkHolder.html" title="class in com.google.android.exoplayer2.source.chunk">ChunkHolder</a>&nbsp;out)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the next chunk to load.</div>
 </td>
 </tr>
@@ -275,6 +292,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPreferredQueueSize(long,java.util.List)">getPreferredQueueSize</a></span>&#8203;(long&nbsp;playbackPositionUs,
                      <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Evaluates whether <a href="../chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s should be removed from the back of the queue.</div>
 </td>
 </tr>
@@ -282,6 +300,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maybeThrowError()">maybeThrowError</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If the source is currently having difficulty providing chunks, then this method throws the
  underlying error.</div>
 </td>
@@ -295,11 +314,13 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
                       <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;trackSelectionData,
                       <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;initializationUri,
                       <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;indexUri)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>protected <a href="../chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newMediaChunk(com.google.android.exoplayer2.source.dash.DefaultDashChunkSource.RepresentationHolder,com.google.android.exoplayer2.upstream.DataSource,@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.C.SelectionReasonint,java.lang.Object,long,int,long,long)">newMediaChunk</a></span>&#8203;(<a href="DefaultDashChunkSource.RepresentationHolder.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationHolder</a>&nbsp;representationHolder,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newMediaChunk(com.google.android.exoplayer2.source.dash.DefaultDashChunkSource.RepresentationHolder,com.google.android.exoplayer2.upstream.DataSource,@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.C.SelectionReasonint,java.lang.Object,long,int,long,long,com.google.android.exoplayer2.upstream.CmcdLog)">newMediaChunk</a></span>&#8203;(<a href="DefaultDashChunkSource.RepresentationHolder.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationHolder</a>&nbsp;representationHolder,
              <a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
              @com.google.android.exoplayer2.C.TrackType int&nbsp;trackType,
              <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
@@ -308,13 +329,17 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
              long&nbsp;firstSegmentNum,
              int&nbsp;maxSegmentCount,
              long&nbsp;seekTimeUs,
-             long&nbsp;nowPeriodTimeUs)</code></th>
-<td class="colLast">&nbsp;</td>
+             long&nbsp;nowPeriodTimeUs,
+             <a href="../../upstream/CmcdLog.html" title="class in com.google.android.exoplayer2.upstream">CmcdLog</a>&nbsp;cmcdLog)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onChunkLoadCompleted(com.google.android.exoplayer2.source.chunk.Chunk)">onChunkLoadCompleted</a></span>&#8203;(<a href="../chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;chunk)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the <a href="../chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk"><code>ChunkSampleStream</code></a> has finished loading a chunk obtained from this
  source.</div>
 </td>
@@ -326,6 +351,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
                 <a href="../../upstream/LoadErrorHandlingPolicy.LoadErrorInfo.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.LoadErrorInfo</a>&nbsp;loadErrorInfo,
                 <a href="../../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the <a href="../chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk"><code>ChunkSampleStream</code></a> encounters an error loading a chunk obtained from
  this source.</div>
 </td>
@@ -334,6 +360,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases any held resources.</div>
 </td>
 </tr>
@@ -343,6 +370,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
                 <a href="../chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;loadingChunk,
                 <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether an ongoing load of a chunk should be canceled.</div>
 </td>
 </tr>
@@ -351,6 +379,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#updateManifest(com.google.android.exoplayer2.source.dash.manifest.DashManifest,int)">updateManifest</a></span>&#8203;(<a href="manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;newManifest,
               int&nbsp;newPeriodIndex)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates the manifest.</div>
 </td>
 </tr>
@@ -358,6 +387,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#updateTrackSelection(com.google.android.exoplayer2.trackselection.ExoTrackSelection)">updateTrackSelection</a></span>&#8203;(<a href="../../trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>&nbsp;trackSelection)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates the track selection.</div>
 </td>
 </tr>
@@ -392,6 +422,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 <li class="blockList">
 <h4>representationHolders</h4>
 <pre>protected final&nbsp;<a href="DefaultDashChunkSource.RepresentationHolder.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationHolder</a>[] representationHolders</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -404,7 +435,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(com.google.android.exoplayer2.source.chunk.ChunkExtractor.Factory,com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.dash.manifest.DashManifest,com.google.android.exoplayer2.source.dash.BaseUrlExclusionList,int,int[],com.google.android.exoplayer2.trackselection.ExoTrackSelection,@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.upstream.DataSource,long,int,boolean,java.util.List,com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler,com.google.android.exoplayer2.analytics.PlayerId)">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.source.chunk.ChunkExtractor.Factory,com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.dash.manifest.DashManifest,com.google.android.exoplayer2.source.dash.BaseUrlExclusionList,int,int[],com.google.android.exoplayer2.trackselection.ExoTrackSelection,@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.upstream.DataSource,long,int,boolean,java.util.List,com.google.android.exoplayer2.source.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler,com.google.android.exoplayer2.analytics.PlayerId,com.google.android.exoplayer2.upstream.CmcdConfiguration)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -425,7 +456,10 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
                               <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;closedCaptionFormats,
                               @Nullable
                               <a href="PlayerEmsgHandler.PlayerTrackEmsgHandler.html" title="class in com.google.android.exoplayer2.source.dash">PlayerEmsgHandler.PlayerTrackEmsgHandler</a>&nbsp;playerTrackEmsgHandler,
-                              <a href="../../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</pre>
+                              <a href="../../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId,
+                              @Nullable
+                              <a href="../../upstream/CmcdConfiguration.html" title="class in com.google.android.exoplayer2.upstream">CmcdConfiguration</a>&nbsp;cmcdConfiguration)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>chunkExtractorFactory</code> - Creates <a href="../chunk/ChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>ChunkExtractor</code></a> instances to use for extracting
@@ -449,6 +483,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 <dd><code>playerTrackEmsgHandler</code> - The <a href="PlayerEmsgHandler.PlayerTrackEmsgHandler.html" title="class in com.google.android.exoplayer2.source.dash"><code>PlayerEmsgHandler.PlayerTrackEmsgHandler</code></a> instance to handle emsg
      messages targeting the player. Maybe null if this is not necessary.</dd>
 <dd><code>playerId</code> - The <a href="../../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics"><code>PlayerId</code></a> of the player using this chunk source.</dd>
+<dd><code>cmcdConfiguration</code> - The <a href="../../upstream/CmcdConfiguration.html" title="class in com.google.android.exoplayer2.upstream"><code>CmcdConfiguration</code></a> for this chunk source.</dd>
 </dl>
 </li>
 </ul>
@@ -470,6 +505,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 <h4>getAdjustedSeekPositionUs</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getAdjustedSeekPositionUs&#8203;(long&nbsp;positionUs,
                                       <a href="../../SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a>&nbsp;seekParameters)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../chunk/ChunkSource.html#getAdjustedSeekPositionUs(long,com.google.android.exoplayer2.SeekParameters)">ChunkSource</a></code></span></div>
 <div class="block">Adjusts a seek position given the specified <a href="../../SeekParameters.html" title="class in com.google.android.exoplayer2"><code>SeekParameters</code></a>. Chunk boundaries are used
  as sync points.</div>
@@ -492,6 +528,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 <h4>updateManifest</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;updateManifest&#8203;(<a href="manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;newManifest,
                            int&nbsp;newPeriodIndex)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DashChunkSource.html#updateManifest(com.google.android.exoplayer2.source.dash.manifest.DashManifest,int)">DashChunkSource</a></code></span></div>
 <div class="block">Updates the manifest.</div>
 <dl>
@@ -510,6 +547,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 <li class="blockList">
 <h4>updateTrackSelection</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;updateTrackSelection&#8203;(<a href="../../trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>&nbsp;trackSelection)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DashChunkSource.html#updateTrackSelection(com.google.android.exoplayer2.trackselection.ExoTrackSelection)">DashChunkSource</a></code></span></div>
 <div class="block">Updates the track selection.</div>
 <dl>
@@ -528,6 +566,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 <h4>maybeThrowError</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;maybeThrowError()
                      throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../chunk/ChunkSource.html#maybeThrowError()">ChunkSource</a></code></span></div>
 <div class="block">If the source is currently having difficulty providing chunks, then this method throws the
  underlying error. Otherwise does nothing.</div>
@@ -547,6 +586,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 <h4>getPreferredQueueSize</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getPreferredQueueSize&#8203;(long&nbsp;playbackPositionUs,
                                  <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../chunk/ChunkSource.html#getPreferredQueueSize(long,java.util.List)">ChunkSource</a></code></span></div>
 <div class="block">Evaluates whether <a href="../chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s should be removed from the back of the queue.
 
@@ -575,6 +615,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 <pre class="methodSignature">public&nbsp;boolean&nbsp;shouldCancelLoad&#8203;(long&nbsp;playbackPositionUs,
                                 <a href="../chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;loadingChunk,
                                 <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../chunk/ChunkSource.html#shouldCancelLoad(long,com.google.android.exoplayer2.source.chunk.Chunk,java.util.List)">ChunkSource</a></code></span></div>
 <div class="block">Returns whether an ongoing load of a chunk should be canceled.</div>
 <dl>
@@ -599,6 +640,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
                          long&nbsp;loadPositionUs,
                          <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue,
                          <a href="../chunk/ChunkHolder.html" title="class in com.google.android.exoplayer2.source.chunk">ChunkHolder</a>&nbsp;out)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../chunk/ChunkSource.html#getNextChunk(long,long,java.util.List,com.google.android.exoplayer2.source.chunk.ChunkHolder)">ChunkSource</a></code></span></div>
 <div class="block">Returns the next chunk to load.
 
@@ -628,6 +670,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 <li class="blockList">
 <h4>onChunkLoadCompleted</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onChunkLoadCompleted&#8203;(<a href="../chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;chunk)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../chunk/ChunkSource.html#onChunkLoadCompleted(com.google.android.exoplayer2.source.chunk.Chunk)">ChunkSource</a></code></span></div>
 <div class="block">Called when the <a href="../chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk"><code>ChunkSampleStream</code></a> has finished loading a chunk obtained from this
  source.</div>
@@ -649,6 +692,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
                                 boolean&nbsp;cancelable,
                                 <a href="../../upstream/LoadErrorHandlingPolicy.LoadErrorInfo.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.LoadErrorInfo</a>&nbsp;loadErrorInfo,
                                 <a href="../../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../chunk/ChunkSource.html#onChunkLoadError(com.google.android.exoplayer2.source.chunk.Chunk,boolean,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">ChunkSource</a></code></span></div>
 <div class="block">Called when the <a href="../chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk"><code>ChunkSampleStream</code></a> encounters an error loading a chunk obtained from
  this source.</div>
@@ -675,6 +719,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 <li class="blockList">
 <h4>release</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;release()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../chunk/ChunkSource.html#release()">ChunkSource</a></code></span></div>
 <div class="block">Releases any held resources.</div>
 <dl>
@@ -699,9 +744,10 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
                                        <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;initializationUri,
                                        @Nullable
                                        <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;indexUri)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
-<a id="newMediaChunk(com.google.android.exoplayer2.source.dash.DefaultDashChunkSource.RepresentationHolder,com.google.android.exoplayer2.upstream.DataSource,@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.C.SelectionReasonint,java.lang.Object,long,int,long,long)">
+<a id="newMediaChunk(com.google.android.exoplayer2.source.dash.DefaultDashChunkSource.RepresentationHolder,com.google.android.exoplayer2.upstream.DataSource,@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.C.SelectionReasonint,java.lang.Object,long,int,long,long,com.google.android.exoplayer2.upstream.CmcdLog)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -716,7 +762,10 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
                               long&nbsp;firstSegmentNum,
                               int&nbsp;maxSegmentCount,
                               long&nbsp;seekTimeUs,
-                              long&nbsp;nowPeriodTimeUs)</pre>
+                              long&nbsp;nowPeriodTimeUs,
+                              @Nullable
+                              <a href="../../upstream/CmcdLog.html" title="class in com.google.android.exoplayer2.upstream">CmcdLog</a>&nbsp;cmcdLog)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>

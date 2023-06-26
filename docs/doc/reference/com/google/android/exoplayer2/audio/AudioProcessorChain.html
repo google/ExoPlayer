@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var data = {"i0":38,"i1":38,"i2":38,"i3":38,"i4":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,7 +129,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="DefaultAudioSink.DefaultAudioProcessorChain.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.DefaultAudioProcessorChain</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">AudioProcessorChain</span></pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">AudioProcessorChain</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Provides a chain of audio processors, which are used for any user-defined processing and applying
  playback parameters (if supported). Because applying playback parameters can skip and
  stretch/compress audio, the sink will query the chain for information on how to transform its
@@ -148,7 +154,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -158,6 +164,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#applyPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)">applyPlaybackParameters</a></span>&#8203;(<a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Configures audio processors to apply the specified playback parameters immediately, returning
  the new playback parameters, which may differ from those passed in.</div>
 </td>
@@ -166,6 +173,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#applySkipSilenceEnabled(boolean)">applySkipSilenceEnabled</a></span>&#8203;(boolean&nbsp;skipSilenceEnabled)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Configures audio processors to apply whether to skip silences immediately, returning the new
  value.</div>
 </td>
@@ -174,6 +182,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAudioProcessors()">getAudioProcessors</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the fixed chain of audio processors that will process audio.</div>
 </td>
 </tr>
@@ -181,6 +190,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMediaDuration(long)">getMediaDuration</a></span>&#8203;(long&nbsp;playoutDuration)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the media duration corresponding to the specified playout duration, taking speed
  adjustment due to audio processing into account.</div>
 </td>
@@ -189,6 +199,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSkippedOutputFrameCount()">getSkippedOutputFrameCount</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the number of output audio frames skipped since the audio processors were last flushed.</div>
 </td>
 </tr>
@@ -216,6 +227,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>getAudioProcessors</h4>
 <pre class="methodSignature"><a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>[]&nbsp;getAudioProcessors()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the fixed chain of audio processors that will process audio. This method is called once
  during initialization, but audio processors may change state to become active/inactive during
  playback.</div>
@@ -228,6 +240,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>applyPlaybackParameters</h4>
 <pre class="methodSignature"><a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;applyPlaybackParameters&#8203;(<a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Configures audio processors to apply the specified playback parameters immediately, returning
  the new playback parameters, which may differ from those passed in. Only called when processors
  have no input pending.</div>
@@ -246,6 +259,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>applySkipSilenceEnabled</h4>
 <pre class="methodSignature">boolean&nbsp;applySkipSilenceEnabled&#8203;(boolean&nbsp;skipSilenceEnabled)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Configures audio processors to apply whether to skip silences immediately, returning the new
  value. Only called when processors have no input pending.</div>
 <dl>
@@ -263,6 +277,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>getMediaDuration</h4>
 <pre class="methodSignature">long&nbsp;getMediaDuration&#8203;(long&nbsp;playoutDuration)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the media duration corresponding to the specified playout duration, taking speed
  adjustment due to audio processing into account.
 
@@ -284,6 +299,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>getSkippedOutputFrameCount</h4>
 <pre class="methodSignature">long&nbsp;getSkippedOutputFrameCount()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the number of output audio frames skipped since the audio processors were last flushed.</div>
 </li>
 </ul>

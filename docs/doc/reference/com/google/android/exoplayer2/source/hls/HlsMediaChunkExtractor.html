@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var data = {"i0":38,"i1":38,"i2":38,"i3":38,"i4":38,"i5":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -125,7 +125,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="BundledHlsMediaChunkExtractor.html" title="class in com.google.android.exoplayer2.source.hls">BundledHlsMediaChunkExtractor</a></code>, <code><a href="MediaParserHlsMediaChunkExtractor.html" title="class in com.google.android.exoplayer2.source.hls">MediaParserHlsMediaChunkExtractor</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">HlsMediaChunkExtractor</span></pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">HlsMediaChunkExtractor</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Extracts samples and track <a href="../../Format.html" title="class in com.google.android.exoplayer2"><code>Formats</code></a> from <code>HlsMediaChunks</code>.</div>
 </li>
 </ul>
@@ -141,7 +147,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -151,6 +157,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#init(com.google.android.exoplayer2.extractor.ExtractorOutput)">init</a></span>&#8203;(<a href="../../extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;extractorOutput)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Initializes the extractor with an <a href="../../extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorOutput</code></a>.</div>
 </td>
 </tr>
@@ -158,6 +165,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isPackedAudioExtractor()">isPackedAudioExtractor</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether this is a packed audio extractor, as defined in RFC 8216, Section 3.4.</div>
 </td>
 </tr>
@@ -165,6 +173,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isReusable()">isReusable</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether this instance can be used for extracting multiple continuous segments.</div>
 </td>
 </tr>
@@ -172,6 +181,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTruncatedSegmentParsed()">onTruncatedSegmentParsed</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Resets the sample parsing state.</div>
 </td>
 </tr>
@@ -179,6 +189,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#read(com.google.android.exoplayer2.extractor.ExtractorInput)">read</a></span>&#8203;(<a href="../../extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;extractorInput)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Extracts data read from a provided <a href="../../extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a>.</div>
 </td>
 </tr>
@@ -186,6 +197,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="HlsMediaChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.hls">HlsMediaChunkExtractor</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#recreate()">recreate</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a new instance for extracting the same type of media as this one.</div>
 </td>
 </tr>
@@ -213,6 +225,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>init</h4>
 <pre class="methodSignature">void&nbsp;init&#8203;(<a href="../../extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;extractorOutput)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Initializes the extractor with an <a href="../../extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorOutput</code></a>. Called at most once.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -228,6 +241,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>read</h4>
 <pre class="methodSignature">boolean&nbsp;read&#8203;(<a href="../../extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;extractorInput)
       throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Extracts data read from a provided <a href="../../extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a>. Must not be called before <a href="#init(com.google.android.exoplayer2.extractor.ExtractorOutput)"><code>init(ExtractorOutput)</code></a>.
 
  <p>A single call to this method will block until some progress has been made, but will not
@@ -254,6 +268,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>isPackedAudioExtractor</h4>
 <pre class="methodSignature">boolean&nbsp;isPackedAudioExtractor()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether this is a packed audio extractor, as defined in RFC 8216, Section 3.4.</div>
 </li>
 </ul>
@@ -264,6 +279,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>isReusable</h4>
 <pre class="methodSignature">boolean&nbsp;isReusable()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether this instance can be used for extracting multiple continuous segments.</div>
 </li>
 </ul>
@@ -274,6 +290,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>recreate</h4>
 <pre class="methodSignature"><a href="HlsMediaChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.hls">HlsMediaChunkExtractor</a>&nbsp;recreate()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a new instance for extracting the same type of media as this one. Can only be called on
  instances that are not <a href="#isReusable()"><code>reusable</code></a>.</div>
 </li>
@@ -285,6 +302,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>onTruncatedSegmentParsed</h4>
 <pre class="methodSignature">void&nbsp;onTruncatedSegmentParsed()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Resets the sample parsing state.
 
  <p>Resetting the parsing state allows support for Fragmented MP4 EXT-X-I-FRAME-STREAM-INF

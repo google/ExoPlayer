@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="https://developer.android.com/reference/android/os/Parcelable.html" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">DownloadRequest</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">DownloadRequest</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="https://developer.android.com/reference/android/os/Parcelable.html" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Defines content to be downloaded.</div>
 </li>
 </ul>
@@ -161,6 +167,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DownloadRequest.Builder.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest.Builder</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A builder for download requests.</div>
 </td>
 </tr>
@@ -168,6 +175,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DownloadRequest.UnsupportedRequestException.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest.UnsupportedRequestException</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Thrown when the encoded request data belongs to an unsupported request type.</div>
 </td>
 </tr>
@@ -199,12 +207,15 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/os/Parcelable.Creator.html" title="class or interface in android.os" class="externalLink">Parcelable.Creator</a>&lt;<a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadRequest</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#CREATOR">CREATOR</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#customCacheKey">customCacheKey</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Custom key for cache indexing, or null.</div>
 </td>
 </tr>
@@ -212,6 +223,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <td class="colFirst"><code>byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#data">data</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Application defined data associated with the download.</div>
 </td>
 </tr>
@@ -219,6 +231,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#id">id</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The unique content id.</div>
 </td>
 </tr>
@@ -226,6 +239,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <td class="colFirst"><code>byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#keySetId">keySetId</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The key set id of the offline licence if the content is protected with DRM.</div>
 </td>
 </tr>
@@ -233,6 +247,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#mimeType">mimeType</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The MIME type of this content.</div>
 </td>
 </tr>
@@ -240,6 +255,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#streamKeys">streamKeys</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Stream keys to be downloaded.</div>
 </td>
 </tr>
@@ -247,6 +263,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#uri">uri</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The uri being downloaded.</div>
 </td>
 </tr>
@@ -269,7 +286,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -279,6 +296,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <td class="colFirst"><code><a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyWithId(java.lang.String)">copyWithId</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy with the specified ID.</div>
 </td>
 </tr>
@@ -286,6 +304,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <td class="colFirst"><code><a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyWithKeySetId(byte%5B%5D)">copyWithKeySetId</a></span>&#8203;(byte[]&nbsp;keySetId)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy with the specified key set ID.</div>
 </td>
 </tr>
@@ -293,41 +312,53 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <td class="colFirst"><code><a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyWithMergedRequest(com.google.android.exoplayer2.offline.DownloadRequest)">copyWithMergedRequest</a></span>&#8203;(<a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a>&nbsp;newRequest)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the result of merging <code>newRequest</code> into this request.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#describeContents()">describeContents</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;o)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toMediaItem()">toMediaItem</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> for the content defined by the request.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#writeToParcel(android.os.Parcel,int)">writeToParcel</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Parcel.html" title="class or interface in android.os" class="externalLink" target="_top">Parcel</a>&nbsp;dest,
              int&nbsp;flags)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -360,6 +391,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <li class="blockList">
 <h4>id</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> id</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The unique content id.</div>
 </li>
 </ul>
@@ -370,6 +402,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <li class="blockList">
 <h4>uri</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a> uri</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The uri being downloaded.</div>
 </li>
 </ul>
@@ -381,6 +414,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <h4>mimeType</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> mimeType</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The MIME type of this content. Used as a hint to infer the content's type (DASH, HLS,
  SmoothStreaming). If null, a <code>DownloadService</code> will infer the content type from the
  <a href="#uri"><code>uri</code></a>.</div>
@@ -393,6 +427,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <li class="blockList">
 <h4>streamKeys</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt; streamKeys</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Stream keys to be downloaded. If empty, all streams will be downloaded.</div>
 </li>
 </ul>
@@ -404,6 +439,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <h4>keySetId</h4>
 <pre>@Nullable
 public final&nbsp;byte[] keySetId</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The key set id of the offline licence if the content is protected with DRM.</div>
 </li>
 </ul>
@@ -415,6 +451,7 @@ public final&nbsp;byte[] keySetId</pre>
 <h4>customCacheKey</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> customCacheKey</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Custom key for cache indexing, or null. Must be null for DASH, HLS and SmoothStreaming
  downloads.</div>
 </li>
@@ -426,6 +463,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <li class="blockList">
 <h4>data</h4>
 <pre>public final&nbsp;byte[] data</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Application defined data associated with the download. May be empty.</div>
 </li>
 </ul>
@@ -436,6 +474,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <li class="blockList">
 <h4>CREATOR</h4>
 <pre>public static final&nbsp;<a href="https://developer.android.com/reference/android/os/Parcelable.Creator.html" title="class or interface in android.os" class="externalLink">Parcelable.Creator</a>&lt;<a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadRequest</a>&gt; CREATOR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -455,6 +494,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <li class="blockList">
 <h4>copyWithId</h4>
 <pre class="methodSignature">public&nbsp;<a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a>&nbsp;copyWithId&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy with the specified ID.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -472,6 +512,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <h4>copyWithKeySetId</h4>
 <pre class="methodSignature">public&nbsp;<a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a>&nbsp;copyWithKeySetId&#8203;(@Nullable
                                         byte[]&nbsp;keySetId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy with the specified key set ID.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -488,6 +529,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <li class="blockList">
 <h4>copyWithMergedRequest</h4>
 <pre class="methodSignature">public&nbsp;<a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a>&nbsp;copyWithMergedRequest&#8203;(<a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a>&nbsp;newRequest)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the result of merging <code>newRequest</code> into this request. The requests must have the
  same <a href="#id"><code>id</code></a>.
 
@@ -510,6 +552,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <li class="blockList">
 <h4>toMediaItem</h4>
 <pre class="methodSignature">public&nbsp;<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;toMediaItem()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> for the content defined by the request.</div>
 </li>
 </ul>
@@ -520,6 +563,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <li class="blockList">
 <h4>toString</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;toString()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#toString()" title="class or interface in java.lang" class="externalLink">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
@@ -534,6 +578,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <h4>equals</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;equals&#8203;(@Nullable
                       <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;o)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
@@ -547,6 +592,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <li class="blockList">
 <h4>hashCode</h4>
 <pre class="methodSignature">public final&nbsp;int&nbsp;hashCode()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
@@ -560,6 +606,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <li class="blockList">
 <h4>describeContents</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;describeContents()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/os/Parcelable.html#describeContents()" title="class or interface in android.os" class="externalLink">describeContents</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/android/os/Parcelable.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a></code></dd>
@@ -574,6 +621,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <h4>writeToParcel</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;writeToParcel&#8203;(<a href="https://developer.android.com/reference/android/os/Parcel.html" title="class or interface in android.os" class="externalLink" target="_top">Parcel</a>&nbsp;dest,
                           int&nbsp;flags)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/os/Parcelable.html#writeToParcel(android.os.Parcel,int)" title="class or interface in android.os" class="externalLink">writeToParcel</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/android/os/Parcelable.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a></code></dd>

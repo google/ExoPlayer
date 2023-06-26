@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":41,"i1":41};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">MpegAudioUtil</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">MpegAudioUtil</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Utility methods for handling MPEG audio streams.</div>
 </li>
 </ul>
@@ -156,6 +162,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MpegAudioUtil.Header.html" title="class in com.google.android.exoplayer2.audio">MpegAudioUtil.Header</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Stores the metadata for an MPEG audio frame.</div>
 </td>
 </tr>
@@ -181,6 +188,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MAX_FRAME_SIZE_BYTES">MAX_FRAME_SIZE_BYTES</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Theoretical maximum frame size for an MPEG audio stream, which occurs when playing a Layer 2
  MPEG 2.5 audio stream at 16 kb/s (with padding).</div>
 </td>
@@ -189,6 +197,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MAX_RATE_BYTES_PER_SECOND">MAX_RATE_BYTES_PER_SECOND</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Maximum rate for an MPEG audio stream corresponding to MPEG-1 layer III (320 kbit/s), in bytes
  per second.</div>
 </td>
@@ -205,7 +214,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -215,6 +224,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFrameSize(int)">getFrameSize</a></span>&#8203;(int&nbsp;headerData)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the size of the frame associated with <code>header</code>, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if it
  is invalid.</div>
 </td>
@@ -223,6 +233,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseMpegAudioFrameSampleCount(int)">parseMpegAudioFrameSampleCount</a></span>&#8203;(int&nbsp;headerData)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the number of samples per frame associated with <code>headerData</code>, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if it is invalid.</div>
 </td>
 </tr>
@@ -257,6 +268,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>MAX_FRAME_SIZE_BYTES</h4>
 <pre>public static final&nbsp;int MAX_FRAME_SIZE_BYTES</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Theoretical maximum frame size for an MPEG audio stream, which occurs when playing a Layer 2
  MPEG 2.5 audio stream at 16 kb/s (with padding). The size is 1152 sample/frame * 160000 bit/s /
  (8000 sample/s * 8 bit/byte) + 1 padding byte/frame = 2881 byte/frame. The next power of two
@@ -274,6 +286,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>MAX_RATE_BYTES_PER_SECOND</h4>
 <pre>public static final&nbsp;int MAX_RATE_BYTES_PER_SECOND</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Maximum rate for an MPEG audio stream corresponding to MPEG-1 layer III (320 kbit/s), in bytes
  per second.</div>
 <dl>
@@ -299,6 +312,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>getFrameSize</h4>
 <pre class="methodSignature">public static&nbsp;int&nbsp;getFrameSize&#8203;(int&nbsp;headerData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the size of the frame associated with <code>header</code>, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if it
  is invalid.</div>
 </li>
@@ -310,6 +324,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>parseMpegAudioFrameSampleCount</h4>
 <pre class="methodSignature">public static&nbsp;int&nbsp;parseMpegAudioFrameSampleCount&#8203;(int&nbsp;headerData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the number of samples per frame associated with <code>headerData</code>, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if it is invalid.</div>
 </li>
 </ul>

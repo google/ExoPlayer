@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":9,"i7":9};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":41,"i7":41};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public class <span class="typeNameLabel">ContentMetadataMutations</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">ContentMetadataMutations</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Defines multiple mutations on metadata value which are applied atomically. This class isn't
  thread safe.</div>
 </li>
@@ -155,6 +161,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">ContentMetadataMutations</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Constructs a DefaultMetadataMutations.</div>
 </td>
 </tr>
@@ -170,7 +177,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -180,6 +187,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getEditedValues()">getEditedValues</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a map of metadata name, value pairs to be set.</div>
 </td>
 </tr>
@@ -187,6 +195,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getRemovedValues()">getRemovedValues</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a list of names of metadata values to be removed.</div>
 </td>
 </tr>
@@ -194,6 +203,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="ContentMetadataMutations.html" title="class in com.google.android.exoplayer2.upstream.cache">ContentMetadataMutations</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#remove(java.lang.String)">remove</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a mutation to remove a metadata value.</div>
 </td>
 </tr>
@@ -202,6 +212,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#set(java.lang.String,byte%5B%5D)">set</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
    byte[]&nbsp;value)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a mutation to set a metadata value.</div>
 </td>
 </tr>
@@ -210,6 +221,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#set(java.lang.String,long)">set</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
    long&nbsp;value)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a mutation to set a metadata value.</div>
 </td>
 </tr>
@@ -218,6 +230,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#set(java.lang.String,java.lang.String)">set</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a mutation to set a metadata value.</div>
 </td>
 </tr>
@@ -226,6 +239,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setContentLength(com.google.android.exoplayer2.upstream.cache.ContentMetadataMutations,long)">setContentLength</a></span>&#8203;(<a href="ContentMetadataMutations.html" title="class in com.google.android.exoplayer2.upstream.cache">ContentMetadataMutations</a>&nbsp;mutations,
                 long&nbsp;length)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a mutation to set the <a href="ContentMetadata.html#KEY_CONTENT_LENGTH"><code>ContentMetadata.KEY_CONTENT_LENGTH</code></a> value, or to remove any
  existing value if <a href="../../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> is passed.</div>
 </td>
@@ -235,6 +249,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRedirectedUri(com.google.android.exoplayer2.upstream.cache.ContentMetadataMutations,android.net.Uri)">setRedirectedUri</a></span>&#8203;(<a href="ContentMetadataMutations.html" title="class in com.google.android.exoplayer2.upstream.cache">ContentMetadataMutations</a>&nbsp;mutations,
                 <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a mutation to set the <a href="ContentMetadata.html#KEY_REDIRECTED_URI"><code>ContentMetadata.KEY_REDIRECTED_URI</code></a> value, or to remove any
  existing entry if <code>null</code> is passed.</div>
 </td>
@@ -270,6 +285,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>ContentMetadataMutations</h4>
 <pre>public&nbsp;ContentMetadataMutations()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Constructs a DefaultMetadataMutations.</div>
 </li>
 </ul>
@@ -291,6 +307,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>setContentLength</h4>
 <pre class="methodSignature">public static&nbsp;<a href="ContentMetadataMutations.html" title="class in com.google.android.exoplayer2.upstream.cache">ContentMetadataMutations</a>&nbsp;setContentLength&#8203;(<a href="ContentMetadataMutations.html" title="class in com.google.android.exoplayer2.upstream.cache">ContentMetadataMutations</a>&nbsp;mutations,
                                                         long&nbsp;length)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a mutation to set the <a href="ContentMetadata.html#KEY_CONTENT_LENGTH"><code>ContentMetadata.KEY_CONTENT_LENGTH</code></a> value, or to remove any
  existing value if <a href="../../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> is passed.</div>
 <dl>
@@ -311,6 +328,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">public static&nbsp;<a href="ContentMetadataMutations.html" title="class in com.google.android.exoplayer2.upstream.cache">ContentMetadataMutations</a>&nbsp;setRedirectedUri&#8203;(<a href="ContentMetadataMutations.html" title="class in com.google.android.exoplayer2.upstream.cache">ContentMetadataMutations</a>&nbsp;mutations,
                                                         @Nullable
                                                         <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a mutation to set the <a href="ContentMetadata.html#KEY_REDIRECTED_URI"><code>ContentMetadata.KEY_REDIRECTED_URI</code></a> value, or to remove any
  existing entry if <code>null</code> is passed.</div>
 <dl>
@@ -331,6 +349,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="ContentMetadataMutations.html" title="class in com.google.android.exoplayer2.upstream.cache">ContentMetadataMutations</a>&nbsp;set&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
                                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a mutation to set a metadata value.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -350,6 +369,7 @@ public&nbsp;<a href="ContentMetadataMutations.html" title="class in com.google.a
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="ContentMetadataMutations.html" title="class in com.google.android.exoplayer2.upstream.cache">ContentMetadataMutations</a>&nbsp;set&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
                                     long&nbsp;value)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a mutation to set a metadata value.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -369,6 +389,7 @@ public&nbsp;<a href="ContentMetadataMutations.html" title="class in com.google.a
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="ContentMetadataMutations.html" title="class in com.google.android.exoplayer2.upstream.cache">ContentMetadataMutations</a>&nbsp;set&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
                                     byte[]&nbsp;value)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a mutation to set a metadata value.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -387,6 +408,7 @@ public&nbsp;<a href="ContentMetadataMutations.html" title="class in com.google.a
 <h4>remove</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="ContentMetadataMutations.html" title="class in com.google.android.exoplayer2.upstream.cache">ContentMetadataMutations</a>&nbsp;remove&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a mutation to remove a metadata value.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -403,6 +425,7 @@ public&nbsp;<a href="ContentMetadataMutations.html" title="class in com.google.a
 <li class="blockList">
 <h4>getRemovedValues</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;getRemovedValues()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a list of names of metadata values to be removed.</div>
 </li>
 </ul>
@@ -413,6 +436,7 @@ public&nbsp;<a href="ContentMetadataMutations.html" title="class in com.google.a
 <li class="blockList">
 <h4>getEditedValues</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&gt;&nbsp;getEditedValues()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a map of metadata name, value pairs to be set. Values are copied.</div>
 </li>
 </ul>

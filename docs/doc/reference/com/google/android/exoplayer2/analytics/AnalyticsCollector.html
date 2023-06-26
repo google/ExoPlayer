@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6,"i15":6,"i16":6,"i17":6,"i18":6,"i19":6,"i20":6,"i21":6,"i22":6,"i23":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var data = {"i0":38,"i1":38,"i2":38,"i3":38,"i4":38,"i5":38,"i6":38,"i7":38,"i8":38,"i9":38,"i10":38,"i11":38,"i12":38,"i13":38,"i14":38,"i15":38,"i16":38,"i17":38,"i18":38,"i19":38,"i20":38,"i21":38,"i22":38,"i23":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="DefaultAnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">DefaultAnalyticsCollector</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">AnalyticsCollector</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">AnalyticsCollector</span>
 extends <a href="../Player.Listener.html" title="interface in com.google.android.exoplayer2">Player.Listener</a>, <a href="../source/MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a>, <a href="../upstream/BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter.EventListener</a>, <a href="../drm/DrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionEventListener</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Interface for data collectors that forward analytics events to <a href="AnalyticsListener.html" title="interface in com.google.android.exoplayer2.analytics"><code>AnalyticsListeners</code></a>.</div>
 </li>
 </ul>
@@ -177,7 +183,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -187,6 +193,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addListener(com.google.android.exoplayer2.analytics.AnalyticsListener)">addListener</a></span>&#8203;(<a href="AnalyticsListener.html" title="interface in com.google.android.exoplayer2.analytics">AnalyticsListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a listener for analytics events.</div>
 </td>
 </tr>
@@ -194,6 +201,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#notifySeekStarted()">notifySeekStarted</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Notify analytics collector that a seek operation will start.</div>
 </td>
 </tr>
@@ -201,6 +209,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioCodecError(java.lang.Exception)">onAudioCodecError</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;audioCodecError)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when an audio decoder encounters an error.</div>
 </td>
 </tr>
@@ -210,6 +219,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
                          long&nbsp;initializedTimestampMs,
                          long&nbsp;initializationDurationMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a audio decoder is created.</div>
 </td>
 </tr>
@@ -217,6 +227,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioDecoderReleased(java.lang.String)">onAudioDecoderReleased</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a audio decoder is released.</div>
 </td>
 </tr>
@@ -224,6 +235,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioDisabled(com.google.android.exoplayer2.decoder.DecoderCounters)">onAudioDisabled</a></span>&#8203;(<a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the audio renderer is disabled.</div>
 </td>
 </tr>
@@ -231,6 +243,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioEnabled(com.google.android.exoplayer2.decoder.DecoderCounters)">onAudioEnabled</a></span>&#8203;(<a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the audio renderer is enabled.</div>
 </td>
 </tr>
@@ -239,6 +252,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioInputFormatChanged(com.google.android.exoplayer2.Format,com.google.android.exoplayer2.decoder.DecoderReuseEvaluation)">onAudioInputFormatChanged</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                          <a href="../decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a>&nbsp;decoderReuseEvaluation)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the format of the media being consumed by the audio renderer changes.</div>
 </td>
 </tr>
@@ -246,6 +260,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioPositionAdvancing(long)">onAudioPositionAdvancing</a></span>&#8203;(long&nbsp;playoutStartSystemTimeMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the audio position has increased for the first time since the last pause or
  position reset.</div>
 </td>
@@ -254,6 +269,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioSinkError(java.lang.Exception)">onAudioSinkError</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;audioSinkError)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when <a href="../audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioSink</code></a> has encountered an error.</div>
 </td>
 </tr>
@@ -263,6 +279,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
                long&nbsp;bufferSizeMs,
                long&nbsp;elapsedSinceLastFeedMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when an audio underrun occurs.</div>
 </td>
 </tr>
@@ -271,6 +288,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDroppedFrames(int,long)">onDroppedFrames</a></span>&#8203;(int&nbsp;count,
                long&nbsp;elapsedMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called to report the number of frames dropped by the video renderer.</div>
 </td>
 </tr>
@@ -279,6 +297,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onRenderedFirstFrame(java.lang.Object,long)">onRenderedFirstFrame</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;output,
                     long&nbsp;renderTimeMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a frame is rendered for the first time since setting the output, or since the
  renderer was reset, or since the stream being rendered was changed.</div>
 </td>
@@ -287,6 +306,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoCodecError(java.lang.Exception)">onVideoCodecError</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;videoCodecError)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a video decoder encounters an error.</div>
 </td>
 </tr>
@@ -296,6 +316,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
                          long&nbsp;initializedTimestampMs,
                          long&nbsp;initializationDurationMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a video decoder is created.</div>
 </td>
 </tr>
@@ -303,6 +324,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoDecoderReleased(java.lang.String)">onVideoDecoderReleased</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a video decoder is released.</div>
 </td>
 </tr>
@@ -310,6 +332,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoDisabled(com.google.android.exoplayer2.decoder.DecoderCounters)">onVideoDisabled</a></span>&#8203;(<a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the video renderer is disabled.</div>
 </td>
 </tr>
@@ -317,6 +340,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoEnabled(com.google.android.exoplayer2.decoder.DecoderCounters)">onVideoEnabled</a></span>&#8203;(<a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the video renderer is enabled.</div>
 </td>
 </tr>
@@ -325,6 +349,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoFrameProcessingOffset(long,int)">onVideoFrameProcessingOffset</a></span>&#8203;(long&nbsp;totalProcessingOffsetUs,
                             int&nbsp;frameCount)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called to report the video processing offset of video frames processed by the video renderer.</div>
 </td>
 </tr>
@@ -333,6 +358,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoInputFormatChanged(com.google.android.exoplayer2.Format,com.google.android.exoplayer2.decoder.DecoderReuseEvaluation)">onVideoInputFormatChanged</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                          <a href="../decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a>&nbsp;decoderReuseEvaluation)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the format of the media being consumed by the video renderer changes.</div>
 </td>
 </tr>
@@ -340,6 +366,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases the collector.</div>
 </td>
 </tr>
@@ -347,6 +374,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeListener(com.google.android.exoplayer2.analytics.AnalyticsListener)">removeListener</a></span>&#8203;(<a href="AnalyticsListener.html" title="interface in com.google.android.exoplayer2.analytics">AnalyticsListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Removes a previously added analytics event listener.</div>
 </td>
 </tr>
@@ -355,6 +383,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlayer(com.google.android.exoplayer2.Player,android.os.Looper)">setPlayer</a></span>&#8203;(<a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
          <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;looper)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the player for which data will be collected.</div>
 </td>
 </tr>
@@ -363,6 +392,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#updateMediaPeriodQueueInfo(java.util.List,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">updateMediaPeriodQueueInfo</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source" target="_top">MediaSource.MediaPeriodId</a>&gt;&nbsp;queue,
                           <a href="../source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;readingPeriod)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates the playback queue information used for event association.</div>
 </td>
 </tr>
@@ -393,7 +423,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../Player.Listener.html" title="interface in com.google.android.exoplayer2">Player.Listener</a></h3>
-<code><a href="../Player.Listener.html#onAudioAttributesChanged(com.google.android.exoplayer2.audio.AudioAttributes)">onAudioAttributesChanged</a>, <a href="../Player.Listener.html#onAudioSessionIdChanged(int)">onAudioSessionIdChanged</a>, <a href="../Player.Listener.html#onAvailableCommandsChanged(com.google.android.exoplayer2.Player.Commands)">onAvailableCommandsChanged</a>, <a href="../Player.Listener.html#onCues(com.google.android.exoplayer2.text.CueGroup)">onCues</a>, <a href="../Player.Listener.html#onCues(java.util.List)">onCues</a>, <a href="../Player.Listener.html#onDeviceInfoChanged(com.google.android.exoplayer2.DeviceInfo)">onDeviceInfoChanged</a>, <a href="../Player.Listener.html#onDeviceVolumeChanged(int,boolean)">onDeviceVolumeChanged</a>, <a href="../Player.Listener.html#onEvents(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.Player.Events)">onEvents</a>, <a href="../Player.Listener.html#onIsLoadingChanged(boolean)">onIsLoadingChanged</a>, <a href="../Player.Listener.html#onIsPlayingChanged(boolean)">onIsPlayingChanged</a>, <a href="../Player.Listener.html#onLoadingChanged(boolean)">onLoadingChanged</a>, <a href="../Player.Listener.html#onMaxSeekToPreviousPositionChanged(long)">onMaxSeekToPreviousPositionChanged</a>, <a href="../Player.Listener.html#onMediaItemTransition(com.google.android.exoplayer2.MediaItem,@com.google.android.exoplayer2.Player.MediaItemTransitionReasonint)">onMediaItemTransition</a>, <a href="../Player.Listener.html#onMediaMetadataChanged(com.google.android.exoplayer2.MediaMetadata)">onMediaMetadataChanged</a>, <a href="../Player.Listener.html#onMetadata(com.google.android.exoplayer2.metadata.Metadata)">onMetadata</a>, <a href="../Player.Listener.html#onPlaybackParametersChanged(com.google.android.exoplayer2.PlaybackParameters)">onPlaybackParametersChanged</a>, <a href="../Player.Listener.html#onPlaybackStateChanged(@com.google.android.exoplayer2.Player.Stateint)">onPlaybackStateChanged</a>, <a href="../Player.Listener.html#onPlaybackSuppressionReasonChanged(@com.google.android.exoplayer2.Player.PlaybackSuppressionReasonint)">onPlaybackSuppressionReasonChanged</a>, <a href="../Player.Listener.html#onPlayerError(com.google.android.exoplayer2.PlaybackException)">onPlayerError</a>, <a href="../Player.Listener.html#onPlayerErrorChanged(com.google.android.exoplayer2.PlaybackException)">onPlayerErrorChanged</a>, <a href="../Player.Listener.html#onPlayerStateChanged(boolean,@com.google.android.exoplayer2.Player.Stateint)">onPlayerStateChanged</a>, <a href="../Player.Listener.html#onPlaylistMetadataChanged(com.google.android.exoplayer2.MediaMetadata)">onPlaylistMetadataChanged</a>, <a href="../Player.Listener.html#onPlayWhenReadyChanged(boolean,@com.google.android.exoplayer2.Player.PlayWhenReadyChangeReasonint)">onPlayWhenReadyChanged</a>, <a href="../Player.Listener.html#onPositionDiscontinuity(@com.google.android.exoplayer2.Player.DiscontinuityReasonint)">onPositionDiscontinuity</a>, <a href="../Player.Listener.html#onPositionDiscontinuity(com.google.android.exoplayer2.Player.PositionInfo,com.google.android.exoplayer2.Player.PositionInfo,@com.google.android.exoplayer2.Player.DiscontinuityReasonint)">onPositionDiscontinuity</a>, <a href="../Player.Listener.html#onRenderedFirstFrame()">onRenderedFirstFrame</a>, <a href="../Player.Listener.html#onRepeatModeChanged(@com.google.android.exoplayer2.Player.RepeatModeint)">onRepeatModeChanged</a>, <a href="../Player.Listener.html#onSeekBackIncrementChanged(long)">onSeekBackIncrementChanged</a>, <a href="../Player.Listener.html#onSeekForwardIncrementChanged(long)">onSeekForwardIncrementChanged</a>, <a href="../Player.Listener.html#onSeekProcessed()">onSeekProcessed</a>, <a href="../Player.Listener.html#onShuffleModeEnabledChanged(boolean)">onShuffleModeEnabledChanged</a>, <a href="../Player.Listener.html#onSkipSilenceEnabledChanged(boolean)">onSkipSilenceEnabledChanged</a>, <a href="../Player.Listener.html#onSurfaceSizeChanged(int,int)">onSurfaceSizeChanged</a>, <a href="../Player.Listener.html#onTimelineChanged(com.google.android.exoplayer2.Timeline,@com.google.android.exoplayer2.Player.TimelineChangeReasonint)">onTimelineChanged</a>, <a href="../Player.Listener.html#onTracksChanged(com.google.android.exoplayer2.Tracks)">onTracksChanged</a>, <a href="../Player.Listener.html#onTrackSelectionParametersChanged(com.google.android.exoplayer2.trackselection.TrackSelectionParameters)">onTrackSelectionParametersChanged</a>, <a href="../Player.Listener.html#onVideoSizeChanged(com.google.android.exoplayer2.video.VideoSize)">onVideoSizeChanged</a>, <a href="../Player.Listener.html#onVolumeChanged(float)">onVolumeChanged</a></code></li>
+<code><a href="../Player.Listener.html#onAudioAttributesChanged(com.google.android.exoplayer2.audio.AudioAttributes)">onAudioAttributesChanged</a>, <a href="../Player.Listener.html#onAudioSessionIdChanged(int)">onAudioSessionIdChanged</a>, <a href="../Player.Listener.html#onAvailableCommandsChanged(com.google.android.exoplayer2.Player.Commands)">onAvailableCommandsChanged</a>, <a href="../Player.Listener.html#onCues(com.google.android.exoplayer2.text.CueGroup)">onCues</a>, <a href="../Player.Listener.html#onCues(java.util.List)">onCues</a>, <a href="../Player.Listener.html#onDeviceInfoChanged(com.google.android.exoplayer2.DeviceInfo)">onDeviceInfoChanged</a>, <a href="../Player.Listener.html#onDeviceVolumeChanged(int,boolean)">onDeviceVolumeChanged</a>, <a href="../Player.Listener.html#onEvents(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.Player.Events)">onEvents</a>, <a href="../Player.Listener.html#onIsLoadingChanged(boolean)">onIsLoadingChanged</a>, <a href="../Player.Listener.html#onIsPlayingChanged(boolean)">onIsPlayingChanged</a>, <a href="../Player.Listener.html#onLoadingChanged(boolean)">onLoadingChanged</a>, <a href="../Player.Listener.html#onMaxSeekToPreviousPositionChanged(long)">onMaxSeekToPreviousPositionChanged</a>, <a href="../Player.Listener.html#onMediaItemTransition(com.google.android.exoplayer2.MediaItem,@com.google.android.exoplayer2.Player.MediaItemTransitionReasonint)">onMediaItemTransition</a>, <a href="../Player.Listener.html#onMediaMetadataChanged(com.google.android.exoplayer2.MediaMetadata)">onMediaMetadataChanged</a>, <a href="../Player.Listener.html#onMetadata(com.google.android.exoplayer2.metadata.Metadata)">onMetadata</a>, <a href="../Player.Listener.html#onPlaybackParametersChanged(com.google.android.exoplayer2.PlaybackParameters)">onPlaybackParametersChanged</a>, <a href="../Player.Listener.html#onPlaybackStateChanged(@com.google.android.exoplayer2.Player.Stateint)">onPlaybackStateChanged</a>, <a href="../Player.Listener.html#onPlaybackSuppressionReasonChanged(@com.google.android.exoplayer2.Player.PlaybackSuppressionReasonint)">onPlaybackSuppressionReasonChanged</a>, <a href="../Player.Listener.html#onPlayerError(com.google.android.exoplayer2.PlaybackException)">onPlayerError</a>, <a href="../Player.Listener.html#onPlayerErrorChanged(com.google.android.exoplayer2.PlaybackException)">onPlayerErrorChanged</a>, <a href="../Player.Listener.html#onPlayerStateChanged(boolean,@com.google.android.exoplayer2.Player.Stateint)">onPlayerStateChanged</a>, <a href="../Player.Listener.html#onPlaylistMetadataChanged(com.google.android.exoplayer2.MediaMetadata)">onPlaylistMetadataChanged</a>, <a href="../Player.Listener.html#onPlayWhenReadyChanged(boolean,@com.google.android.exoplayer2.Player.PlayWhenReadyChangeReasonint)">onPlayWhenReadyChanged</a>, <a href="../Player.Listener.html#onPositionDiscontinuity(@com.google.android.exoplayer2.Player.DiscontinuityReasonint)">onPositionDiscontinuity</a>, <a href="../Player.Listener.html#onPositionDiscontinuity(com.google.android.exoplayer2.Player.PositionInfo,com.google.android.exoplayer2.Player.PositionInfo,@com.google.android.exoplayer2.Player.DiscontinuityReasonint)">onPositionDiscontinuity</a>, <a href="../Player.Listener.html#onRenderedFirstFrame()">onRenderedFirstFrame</a>, <a href="../Player.Listener.html#onRepeatModeChanged(@com.google.android.exoplayer2.Player.RepeatModeint)">onRepeatModeChanged</a>, <a href="../Player.Listener.html#onSeekBackIncrementChanged(long)">onSeekBackIncrementChanged</a>, <a href="../Player.Listener.html#onSeekForwardIncrementChanged(long)">onSeekForwardIncrementChanged</a>, <a href="../Player.Listener.html#onShuffleModeEnabledChanged(boolean)">onShuffleModeEnabledChanged</a>, <a href="../Player.Listener.html#onSkipSilenceEnabledChanged(boolean)">onSkipSilenceEnabledChanged</a>, <a href="../Player.Listener.html#onSurfaceSizeChanged(int,int)">onSurfaceSizeChanged</a>, <a href="../Player.Listener.html#onTimelineChanged(com.google.android.exoplayer2.Timeline,@com.google.android.exoplayer2.Player.TimelineChangeReasonint)">onTimelineChanged</a>, <a href="../Player.Listener.html#onTracksChanged(com.google.android.exoplayer2.Tracks)">onTracksChanged</a>, <a href="../Player.Listener.html#onTrackSelectionParametersChanged(com.google.android.exoplayer2.trackselection.TrackSelectionParameters)">onTrackSelectionParametersChanged</a>, <a href="../Player.Listener.html#onVideoSizeChanged(com.google.android.exoplayer2.video.VideoSize)">onVideoSizeChanged</a>, <a href="../Player.Listener.html#onVolumeChanged(float)">onVolumeChanged</a></code></li>
 </ul>
 </li>
 </ul>
@@ -418,6 +448,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <li class="blockList">
 <h4>addListener</h4>
 <pre class="methodSignature">void&nbsp;addListener&#8203;(<a href="AnalyticsListener.html" title="interface in com.google.android.exoplayer2.analytics">AnalyticsListener</a>&nbsp;listener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a listener for analytics events.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -432,6 +463,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <li class="blockList">
 <h4>removeListener</h4>
 <pre class="methodSignature">void&nbsp;removeListener&#8203;(<a href="AnalyticsListener.html" title="interface in com.google.android.exoplayer2.analytics">AnalyticsListener</a>&nbsp;listener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Removes a previously added analytics event listener.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -447,6 +479,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <h4>setPlayer</h4>
 <pre class="methodSignature">void&nbsp;setPlayer&#8203;(<a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;looper)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the player for which data will be collected. Must only be called if no player has been set
  yet or the current player is idle.</div>
 <dl>
@@ -463,6 +496,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <li class="blockList">
 <h4>release</h4>
 <pre class="methodSignature">void&nbsp;release()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases the collector. Must be called after the player for which data is collected has been
  released.</div>
 </li>
@@ -476,6 +510,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <pre class="methodSignature">void&nbsp;updateMediaPeriodQueueInfo&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source" target="_top">MediaSource.MediaPeriodId</a>&gt;&nbsp;queue,
                                 @Nullable
                                 <a href="../source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;readingPeriod)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates the playback queue information used for event association.
 
  <p>Should only be called by the player controlling the queue and not from app code.</div>
@@ -494,6 +529,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <li class="blockList">
 <h4>notifySeekStarted</h4>
 <pre class="methodSignature">void&nbsp;notifySeekStarted()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Notify analytics collector that a seek operation will start. Should be called before the player
  adjusts its state and position to the seek.</div>
 </li>
@@ -505,6 +541,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <li class="blockList">
 <h4>onAudioEnabled</h4>
 <pre class="methodSignature">void&nbsp;onAudioEnabled&#8203;(<a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the audio renderer is enabled.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -522,6 +559,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <pre class="methodSignature">void&nbsp;onAudioDecoderInitialized&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName,
                                long&nbsp;initializedTimestampMs,
                                long&nbsp;initializationDurationMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a audio decoder is created.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -541,6 +579,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <pre class="methodSignature">void&nbsp;onAudioInputFormatChanged&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                @Nullable
                                <a href="../decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a>&nbsp;decoderReuseEvaluation)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the format of the media being consumed by the audio renderer changes.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -558,6 +597,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <li class="blockList">
 <h4>onAudioPositionAdvancing</h4>
 <pre class="methodSignature">void&nbsp;onAudioPositionAdvancing&#8203;(long&nbsp;playoutStartSystemTimeMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the audio position has increased for the first time since the last pause or
  position reset.</div>
 <dl>
@@ -576,6 +616,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <pre class="methodSignature">void&nbsp;onAudioUnderrun&#8203;(int&nbsp;bufferSize,
                      long&nbsp;bufferSizeMs,
                      long&nbsp;elapsedSinceLastFeedMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when an audio underrun occurs.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -593,6 +634,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <li class="blockList">
 <h4>onAudioDecoderReleased</h4>
 <pre class="methodSignature">void&nbsp;onAudioDecoderReleased&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a audio decoder is released.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -607,6 +649,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <li class="blockList">
 <h4>onAudioDisabled</h4>
 <pre class="methodSignature">void&nbsp;onAudioDisabled&#8203;(<a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the audio renderer is disabled.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -621,6 +664,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <li class="blockList">
 <h4>onAudioSinkError</h4>
 <pre class="methodSignature">void&nbsp;onAudioSinkError&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;audioSinkError)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when <a href="../audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioSink</code></a> has encountered an error.
 
  <p>If the sink writes to a platform <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" class="externalLink"><code>AudioTrack</code></a>, this will be called for all <a href="https://developer.android.com/reference/android/media/AudioTrack.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack</code></a> errors.</div>
@@ -637,6 +681,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <li class="blockList">
 <h4>onAudioCodecError</h4>
 <pre class="methodSignature">void&nbsp;onAudioCodecError&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;audioCodecError)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when an audio decoder encounters an error.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -652,6 +697,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <li class="blockList">
 <h4>onVideoEnabled</h4>
 <pre class="methodSignature">void&nbsp;onVideoEnabled&#8203;(<a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the video renderer is enabled.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -669,6 +715,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <pre class="methodSignature">void&nbsp;onVideoDecoderInitialized&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName,
                                long&nbsp;initializedTimestampMs,
                                long&nbsp;initializationDurationMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a video decoder is created.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -688,6 +735,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <pre class="methodSignature">void&nbsp;onVideoInputFormatChanged&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                @Nullable
                                <a href="../decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a>&nbsp;decoderReuseEvaluation)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the format of the media being consumed by the video renderer changes.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -706,6 +754,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <h4>onDroppedFrames</h4>
 <pre class="methodSignature">void&nbsp;onDroppedFrames&#8203;(int&nbsp;count,
                      long&nbsp;elapsedMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called to report the number of frames dropped by the video renderer. Dropped frames are
  reported whenever the renderer is stopped having dropped frames, and optionally, whenever the
  count reaches a specified threshold whilst the renderer is started.</div>
@@ -725,6 +774,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <li class="blockList">
 <h4>onVideoDecoderReleased</h4>
 <pre class="methodSignature">void&nbsp;onVideoDecoderReleased&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a video decoder is released.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -739,6 +789,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <li class="blockList">
 <h4>onVideoDisabled</h4>
 <pre class="methodSignature">void&nbsp;onVideoDisabled&#8203;(<a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the video renderer is disabled.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -754,6 +805,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <h4>onRenderedFirstFrame</h4>
 <pre class="methodSignature">void&nbsp;onRenderedFirstFrame&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;output,
                           long&nbsp;renderTimeMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a frame is rendered for the first time since setting the output, or since the
  renderer was reset, or since the stream being rendered was changed.</div>
 <dl>
@@ -772,6 +824,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <h4>onVideoFrameProcessingOffset</h4>
 <pre class="methodSignature">void&nbsp;onVideoFrameProcessingOffset&#8203;(long&nbsp;totalProcessingOffsetUs,
                                   int&nbsp;frameCount)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called to report the video processing offset of video frames processed by the video renderer.
 
  <p>Video processing offset represents how early a video frame is processed compared to the
@@ -799,6 +852,7 @@ extends <a href="../Player.Listener.html" title="interface in com.google.android
 <li class="blockList">
 <h4>onVideoCodecError</h4>
 <pre class="methodSignature">void&nbsp;onVideoCodecError&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;videoCodecError)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a video decoder encounters an error.
 
  <p>This method being called does not indicate that playback has failed, or that it will fail.

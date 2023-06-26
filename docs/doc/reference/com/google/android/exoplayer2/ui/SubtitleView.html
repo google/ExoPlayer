@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -148,8 +148,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="https://developer.android.com/reference/android/graphics/drawable/Drawable.Callback.html" title="class or interface in android.graphics.drawable" class="externalLink">Drawable.Callback</a></code>, <code><a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityEventSource.html?is-external=true" title="class or interface in android.view.accessibility" class="externalLink">AccessibilityEventSource</a></code>, <code><a href="https://developer.android.com/reference/android/view/KeyEvent.Callback.html?is-external=true" title="class or interface in android.view" class="externalLink">KeyEvent.Callback</a></code>, <code><a href="https://developer.android.com/reference/android/view/ViewManager.html?is-external=true" title="class or interface in android.view" class="externalLink">ViewManager</a></code>, <code><a href="https://developer.android.com/reference/android/view/ViewParent.html?is-external=true" title="class or interface in android.view" class="externalLink" target="_top">ViewParent</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">SubtitleView</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">SubtitleView</span>
 extends <a href="https://developer.android.com/reference/android/widget/FrameLayout.html" title="class or interface in android.widget" class="externalLink" target="_top">FrameLayout</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A view for displaying subtitle <a href="../text/Cue.html" title="class in com.google.android.exoplayer2.text"><code>Cue</code></a>s.</div>
 </li>
 </ul>
@@ -175,6 +181,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="SubtitleView.ViewType.html" title="annotation in com.google.android.exoplayer2.ui">SubtitleView.ViewType</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The type of <a href="https://developer.android.com/reference/android/view/View.html" title="class or interface in android.view" class="externalLink" target="_top"><code>View</code></a> to use to display subtitles.</div>
 </td>
 </tr>
@@ -221,6 +228,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>static float</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_BOTTOM_PADDING_FRACTION">DEFAULT_BOTTOM_PADDING_FRACTION</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default bottom padding to apply when <a href="../text/Cue.html#line"><code>Cue.line</code></a> is <a href="../text/Cue.html#DIMEN_UNSET"><code>Cue.DIMEN_UNSET</code></a>, as a
  fraction of the viewport height.</div>
 </td>
@@ -229,6 +237,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>static float</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_TEXT_SIZE_FRACTION">DEFAULT_TEXT_SIZE_FRACTION</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default fractional text size.</div>
 </td>
 </tr>
@@ -236,6 +245,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#VIEW_TYPE_CANVAS">VIEW_TYPE_CANVAS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Indicates subtitles should be displayed using a <a href="https://developer.android.com/reference/android/graphics/Canvas.html" title="class or interface in android.graphics" class="externalLink" target="_top"><code>Canvas</code></a>.</div>
 </td>
 </tr>
@@ -243,6 +253,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#VIEW_TYPE_WEB">VIEW_TYPE_WEB</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Indicates subtitles should be displayed using a <a href="https://developer.android.com/reference/android/webkit/WebView.html" title="class or interface in android.webkit" class="externalLink" target="_top"><code>WebView</code></a>.</div>
 </td>
 </tr>
@@ -279,12 +290,16 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context)">SubtitleView</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,android.util.AttributeSet)">SubtitleView</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
             <a href="https://developer.android.com/reference/android/util/AttributeSet.html" title="class or interface in android.util" class="externalLink" target="_top">AttributeSet</a>&nbsp;attrs)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -298,7 +313,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -308,6 +323,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setApplyEmbeddedFontSizes(boolean)">setApplyEmbeddedFontSizes</a></span>&#8203;(boolean&nbsp;applyEmbeddedFontSizes)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether font sizes embedded within the cues should be applied.</div>
 </td>
 </tr>
@@ -315,6 +331,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setApplyEmbeddedStyles(boolean)">setApplyEmbeddedStyles</a></span>&#8203;(boolean&nbsp;applyEmbeddedStyles)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether styling embedded within the cues should be applied.</div>
 </td>
 </tr>
@@ -322,6 +339,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setBottomPaddingFraction(float)">setBottomPaddingFraction</a></span>&#8203;(float&nbsp;bottomPaddingFraction)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the bottom padding fraction to apply when <a href="../text/Cue.html#line"><code>Cue.line</code></a> is <a href="../text/Cue.html#DIMEN_UNSET"><code>Cue.DIMEN_UNSET</code></a>, as
  a fraction of the view's remaining height after its top and bottom padding have been
  subtracted.</div>
@@ -331,6 +349,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setCues(java.util.List)">setCues</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../text/Cue.html" title="class in com.google.android.exoplayer2.text" target="_top">Cue</a>&gt;&nbsp;cues)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the cues to be displayed by the view.</div>
 </td>
 </tr>
@@ -339,6 +358,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFixedTextSize(int,float)">setFixedTextSize</a></span>&#8203;(int&nbsp;unit,
                 float&nbsp;size)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the text size to a given unit and value.</div>
 </td>
 </tr>
@@ -346,6 +366,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFractionalTextSize(float)">setFractionalTextSize</a></span>&#8203;(float&nbsp;fractionOfHeight)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the text size to be a fraction of the view's remaining height after its top and bottom
  padding have been subtracted.</div>
 </td>
@@ -355,6 +376,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFractionalTextSize(float,boolean)">setFractionalTextSize</a></span>&#8203;(float&nbsp;fractionOfHeight,
                      boolean&nbsp;ignorePadding)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the text size to be a fraction of the height of this view.</div>
 </td>
 </tr>
@@ -362,6 +384,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setStyle(com.google.android.exoplayer2.ui.CaptionStyleCompat)">setStyle</a></span>&#8203;(<a href="CaptionStyleCompat.html" title="class in com.google.android.exoplayer2.ui">CaptionStyleCompat</a>&nbsp;style)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the caption style.</div>
 </td>
 </tr>
@@ -369,6 +392,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUserDefaultStyle()">setUserDefaultStyle</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Styles the captions using <a href="https://developer.android.com/reference/android/view/accessibility/CaptioningManager.html#getUserStyle()" title="class or interface in android.view.accessibility" class="externalLink"><code>CaptioningManager.getUserStyle()</code></a> if <a href="https://developer.android.com/reference/android/view/accessibility/CaptioningManager.html?is-external=true" title="class or interface in android.view.accessibility" class="externalLink" target="_top"><code>CaptioningManager</code></a>
  is available and enabled.</div>
 </td>
@@ -377,6 +401,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUserDefaultTextSize()">setUserDefaultTextSize</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the text size based on <a href="https://developer.android.com/reference/android/view/accessibility/CaptioningManager.html#getFontScale()" title="class or interface in android.view.accessibility" class="externalLink"><code>CaptioningManager.getFontScale()</code></a> if <a href="https://developer.android.com/reference/android/view/accessibility/CaptioningManager.html?is-external=true" title="class or interface in android.view.accessibility" class="externalLink" target="_top"><code>CaptioningManager</code></a> is available and enabled.</div>
 </td>
 </tr>
@@ -384,6 +409,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setViewType(@com.google.android.exoplayer2.ui.SubtitleView.ViewTypeint)">setViewType</a></span>&#8203;(@com.google.android.exoplayer2.ui.SubtitleView.ViewType int&nbsp;viewType)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the type of <a href="https://developer.android.com/reference/android/view/View.html" title="class or interface in android.view" class="externalLink" target="_top"><code>View</code></a> used to display subtitles.</div>
 </td>
 </tr>
@@ -446,6 +472,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <li class="blockList">
 <h4>DEFAULT_TEXT_SIZE_FRACTION</h4>
 <pre>public static final&nbsp;float DEFAULT_TEXT_SIZE_FRACTION</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default fractional text size.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -461,6 +488,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <li class="blockList">
 <h4>DEFAULT_BOTTOM_PADDING_FRACTION</h4>
 <pre>public static final&nbsp;float DEFAULT_BOTTOM_PADDING_FRACTION</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default bottom padding to apply when <a href="../text/Cue.html#line"><code>Cue.line</code></a> is <a href="../text/Cue.html#DIMEN_UNSET"><code>Cue.DIMEN_UNSET</code></a>, as a
  fraction of the viewport height.</div>
 <dl>
@@ -477,6 +505,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <li class="blockList">
 <h4>VIEW_TYPE_CANVAS</h4>
 <pre>public static final&nbsp;int VIEW_TYPE_CANVAS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Indicates subtitles should be displayed using a <a href="https://developer.android.com/reference/android/graphics/Canvas.html" title="class or interface in android.graphics" class="externalLink" target="_top"><code>Canvas</code></a>. This is the default.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -491,6 +520,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <li class="blockList">
 <h4>VIEW_TYPE_WEB</h4>
 <pre>public static final&nbsp;int VIEW_TYPE_WEB</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Indicates subtitles should be displayed using a <a href="https://developer.android.com/reference/android/webkit/WebView.html" title="class or interface in android.webkit" class="externalLink" target="_top"><code>WebView</code></a>.
 
  <p>This will use CSS and HTML styling to render the subtitles. This supports some additional
@@ -518,6 +548,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <li class="blockList">
 <h4>SubtitleView</h4>
 <pre>public&nbsp;SubtitleView&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="&lt;init&gt;(android.content.Context,android.util.AttributeSet)">
@@ -529,6 +560,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <pre>public&nbsp;SubtitleView&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                     @Nullable
                     <a href="https://developer.android.com/reference/android/util/AttributeSet.html" title="class or interface in android.util" class="externalLink" target="_top">AttributeSet</a>&nbsp;attrs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -549,6 +581,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <h4>setCues</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setCues&#8203;(@Nullable
                     <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../text/Cue.html" title="class in com.google.android.exoplayer2.text" target="_top">Cue</a>&gt;&nbsp;cues)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the cues to be displayed by the view.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -563,6 +596,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <li class="blockList">
 <h4>setViewType</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setViewType&#8203;(@com.google.android.exoplayer2.ui.SubtitleView.ViewType int&nbsp;viewType)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the type of <a href="https://developer.android.com/reference/android/view/View.html" title="class or interface in android.view" class="externalLink" target="_top"><code>View</code></a> used to display subtitles.
 
  <p>NOTE: <a href="#VIEW_TYPE_WEB"><code>VIEW_TYPE_WEB</code></a> is currently very experimental, and doesn't support most
@@ -582,6 +616,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <pre class="methodSignature">public&nbsp;void&nbsp;setFixedTextSize&#8203;(@Dimension
                              int&nbsp;unit,
                              float&nbsp;size)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the text size to a given unit and value.
 
  <p>See <a href="https://developer.android.com/reference/android/util/TypedValue.html" title="class or interface in android.util" class="externalLink" target="_top"><code>TypedValue</code></a> for the possible dimension units.</div>
@@ -599,6 +634,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <li class="blockList">
 <h4>setUserDefaultTextSize</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setUserDefaultTextSize()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the text size based on <a href="https://developer.android.com/reference/android/view/accessibility/CaptioningManager.html#getFontScale()" title="class or interface in android.view.accessibility" class="externalLink"><code>CaptioningManager.getFontScale()</code></a> if <a href="https://developer.android.com/reference/android/view/accessibility/CaptioningManager.html?is-external=true" title="class or interface in android.view.accessibility" class="externalLink" target="_top"><code>CaptioningManager</code></a> is available and enabled.
 
  <p>Otherwise (and always before API level 19) uses a default font scale of 1.0.</div>
@@ -611,6 +647,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <li class="blockList">
 <h4>setFractionalTextSize</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setFractionalTextSize&#8203;(float&nbsp;fractionOfHeight)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the text size to be a fraction of the view's remaining height after its top and bottom
  padding have been subtracted.
 
@@ -629,6 +666,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <h4>setFractionalTextSize</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setFractionalTextSize&#8203;(float&nbsp;fractionOfHeight,
                                   boolean&nbsp;ignorePadding)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the text size to be a fraction of the height of this view.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -647,6 +685,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <li class="blockList">
 <h4>setApplyEmbeddedStyles</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setApplyEmbeddedStyles&#8203;(boolean&nbsp;applyEmbeddedStyles)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether styling embedded within the cues should be applied. Enabled by default. Overrides
  any setting made with <a href="#setApplyEmbeddedFontSizes(boolean)"><code>setApplyEmbeddedFontSizes(boolean)</code></a>.</div>
 <dl>
@@ -662,6 +701,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <li class="blockList">
 <h4>setApplyEmbeddedFontSizes</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setApplyEmbeddedFontSizes&#8203;(boolean&nbsp;applyEmbeddedFontSizes)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether font sizes embedded within the cues should be applied. Enabled by default. Only
  takes effect if <a href="#setApplyEmbeddedStyles(boolean)"><code>setApplyEmbeddedStyles(boolean)</code></a> is set to true.</div>
 <dl>
@@ -677,6 +717,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <li class="blockList">
 <h4>setUserDefaultStyle</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setUserDefaultStyle()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Styles the captions using <a href="https://developer.android.com/reference/android/view/accessibility/CaptioningManager.html#getUserStyle()" title="class or interface in android.view.accessibility" class="externalLink"><code>CaptioningManager.getUserStyle()</code></a> if <a href="https://developer.android.com/reference/android/view/accessibility/CaptioningManager.html?is-external=true" title="class or interface in android.view.accessibility" class="externalLink" target="_top"><code>CaptioningManager</code></a>
  is available and enabled.
 
@@ -690,6 +731,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <li class="blockList">
 <h4>setStyle</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setStyle&#8203;(<a href="CaptionStyleCompat.html" title="class in com.google.android.exoplayer2.ui">CaptionStyleCompat</a>&nbsp;style)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the caption style.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -704,6 +746,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <li class="blockList">
 <h4>setBottomPaddingFraction</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setBottomPaddingFraction&#8203;(float&nbsp;bottomPaddingFraction)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the bottom padding fraction to apply when <a href="../text/Cue.html#line"><code>Cue.line</code></a> is <a href="../text/Cue.html#DIMEN_UNSET"><code>Cue.DIMEN_UNSET</code></a>, as
  a fraction of the view's remaining height after its top and bottom padding have been
  subtracted.

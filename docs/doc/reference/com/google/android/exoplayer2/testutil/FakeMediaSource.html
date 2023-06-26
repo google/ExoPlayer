@@ -428,7 +428,7 @@ extends <a href="../source/BaseMediaSource.html" title="class in com.google.andr
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.source.<a href="../source/BaseMediaSource.html" title="class in com.google.android.exoplayer2.source">BaseMediaSource</a></h3>
-<code><a href="../source/BaseMediaSource.html#addDrmEventListener(android.os.Handler,com.google.android.exoplayer2.drm.DrmSessionEventListener)">addDrmEventListener</a>, <a href="../source/BaseMediaSource.html#addEventListener(android.os.Handler,com.google.android.exoplayer2.source.MediaSourceEventListener)">addEventListener</a>, <a href="../source/BaseMediaSource.html#createDrmEventDispatcher(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">createDrmEventDispatcher</a>, <a href="../source/BaseMediaSource.html#createDrmEventDispatcher(com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">createDrmEventDispatcher</a>, <a href="../source/BaseMediaSource.html#createEventDispatcher(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,long)">createEventDispatcher</a>, <a href="../source/BaseMediaSource.html#createEventDispatcher(com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">createEventDispatcher</a>, <a href="../source/BaseMediaSource.html#createEventDispatcher(com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,long)">createEventDispatcher</a>, <a href="../source/BaseMediaSource.html#disable(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)">disable</a>, <a href="../source/BaseMediaSource.html#disableInternal()">disableInternal</a>, <a href="../source/BaseMediaSource.html#enable(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)">enable</a>, <a href="../source/BaseMediaSource.html#enableInternal()">enableInternal</a>, <a href="../source/BaseMediaSource.html#getPlayerId()">getPlayerId</a>, <a href="../source/BaseMediaSource.html#isEnabled()">isEnabled</a>, <a href="../source/BaseMediaSource.html#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener)">prepareSource</a>, <a href="../source/BaseMediaSource.html#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.analytics.PlayerId)">prepareSource</a>, <a href="../source/BaseMediaSource.html#refreshSourceInfo(com.google.android.exoplayer2.Timeline)">refreshSourceInfo</a>, <a href="../source/BaseMediaSource.html#releaseSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)">releaseSource</a>, <a href="../source/BaseMediaSource.html#removeDrmEventListener(com.google.android.exoplayer2.drm.DrmSessionEventListener)">removeDrmEventListener</a>, <a href="../source/BaseMediaSource.html#removeEventListener(com.google.android.exoplayer2.source.MediaSourceEventListener)">removeEventListener</a></code></li>
+<code><a href="../source/BaseMediaSource.html#addDrmEventListener(android.os.Handler,com.google.android.exoplayer2.drm.DrmSessionEventListener)">addDrmEventListener</a>, <a href="../source/BaseMediaSource.html#addEventListener(android.os.Handler,com.google.android.exoplayer2.source.MediaSourceEventListener)">addEventListener</a>, <a href="../source/BaseMediaSource.html#createDrmEventDispatcher(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">createDrmEventDispatcher</a>, <a href="../source/BaseMediaSource.html#createDrmEventDispatcher(com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">createDrmEventDispatcher</a>, <a href="../source/BaseMediaSource.html#createEventDispatcher(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">createEventDispatcher</a>, <a href="../source/BaseMediaSource.html#createEventDispatcher(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,long)">createEventDispatcher</a>, <a href="../source/BaseMediaSource.html#createEventDispatcher(com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">createEventDispatcher</a>, <a href="../source/BaseMediaSource.html#createEventDispatcher(com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,long)">createEventDispatcher</a>, <a href="../source/BaseMediaSource.html#disable(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)">disable</a>, <a href="../source/BaseMediaSource.html#disableInternal()">disableInternal</a>, <a href="../source/BaseMediaSource.html#enable(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)">enable</a>, <a href="../source/BaseMediaSource.html#enableInternal()">enableInternal</a>, <a href="../source/BaseMediaSource.html#getPlayerId()">getPlayerId</a>, <a href="../source/BaseMediaSource.html#isEnabled()">isEnabled</a>, <a href="../source/BaseMediaSource.html#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener)">prepareSource</a>, <a href="../source/BaseMediaSource.html#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.analytics.PlayerId)">prepareSource</a>, <a href="../source/BaseMediaSource.html#refreshSourceInfo(com.google.android.exoplayer2.Timeline)">refreshSourceInfo</a>, <a href="../source/BaseMediaSource.html#releaseSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)">releaseSource</a>, <a href="../source/BaseMediaSource.html#removeDrmEventListener(com.google.android.exoplayer2.drm.DrmSessionEventListener)">removeDrmEventListener</a>, <a href="../source/BaseMediaSource.html#removeEventListener(com.google.android.exoplayer2.source.MediaSourceEventListener)">removeEventListener</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
@@ -606,7 +606,11 @@ protected&nbsp;<a href="../Timeline.html" title="class in com.google.android.exo
 <h4>getMediaItem</h4>
 <pre class="methodSignature">public&nbsp;<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;getMediaItem()</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../source/MediaSource.html#getMediaItem()">MediaSource</a></code></span></div>
-<div class="block">Returns the <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> whose media is provided by the source.</div>
+<div class="block">Returns the <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> whose media is provided by the source.
+
+ <p>Should not be called directly from application code.
+
+ <p>This method must be called on the application thread.</div>
 </li>
 </ul>
 <a id="getInitialTimeline()">
@@ -621,12 +625,16 @@ public&nbsp;<a href="../Timeline.html" title="class in com.google.android.exopla
 <div class="block">Returns the initial placeholder timeline that is returned immediately when the real timeline is
  not yet known, or null to let the player create an initial timeline.
 
+ <p>Should not be called directly from application code.
+
  <p>The initial timeline must use the same uids for windows and periods that the real timeline
  will use. It also must provide windows which are marked as dynamic to indicate that the window
  is expected to change when the real timeline arrives.
 
  <p>Any media source which has multiple windows should typically provide such an initial
- timeline to make sure the player reports the correct number of windows immediately.</div>
+ timeline to make sure the player reports the correct number of windows immediately.
+
+ <p>This method must be called on the application thread.</div>
 </li>
 </ul>
 <a id="isSingleWindow()">
@@ -639,7 +647,11 @@ public&nbsp;<a href="../Timeline.html" title="class in com.google.android.exopla
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../source/MediaSource.html#isSingleWindow()">MediaSource</a></code></span></div>
 <div class="block">Returns true if the media source is guaranteed to never have zero or more than one window.
 
- <p>The default implementation returns <code>true</code>.</div>
+ <p>Should not be called directly from application code.
+
+ <p>The default implementation returns <code>true</code>.
+
+ <p>This method must be called on the application thread.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>true if the source has exactly one window.</dd>
@@ -681,8 +693,7 @@ public&nbsp;<a href="../Timeline.html" title="class in com.google.android.exopla
 
  <p>Should not be called directly from application code.
 
- <p>Must only be called after <a href="../source/MediaSource.html#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.analytics.PlayerId)"><code>MediaSource.prepareSource(MediaSourceCaller, TransferListener,
- PlayerId)</code></a>.</div>
+ <p>This method must be called on the playback thread and only after <a href="../source/MediaSource.html#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.analytics.PlayerId)"><code>MediaSource.prepareSource(MediaSourceCaller, TransferListener, PlayerId)</code></a>.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code></dd>
@@ -703,7 +714,7 @@ public&nbsp;<a href="../Timeline.html" title="class in com.google.android.exopla
 
  <p>Should not be called directly from application code.
 
- <p>Must only be called if the source is enabled.</div>
+ <p>This method must be called on the playback thread and only if the source is enabled.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>id</code> - The identifier of the period.</dd>
@@ -724,7 +735,9 @@ public&nbsp;<a href="../Timeline.html" title="class in com.google.android.exopla
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../source/MediaSource.html#releasePeriod(com.google.android.exoplayer2.source.MediaPeriod)">MediaSource</a></code></span></div>
 <div class="block">Releases the period.
 
- <p>Should not be called directly from application code.</div>
+ <p>Should not be called directly from application code.
+
+ <p>This method must be called on the playback thread.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mediaPeriod</code> - The period to release.</dd>

@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -137,9 +137,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../dash/DefaultDashChunkSource.RepresentationSegmentIterator.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationSegmentIterator</a></code>, <code><a href="../../testutil/FakeAdaptiveDataSet.Iterator.html" title="class in com.google.android.exoplayer2.testutil">FakeAdaptiveDataSet.Iterator</a></code>, <code><a href="../../testutil/FakeMediaChunkIterator.html" title="class in com.google.android.exoplayer2.testutil">FakeMediaChunkIterator</a></code></dd>
 </dl>
 <hr>
-<pre>public abstract class <span class="typeNameLabel">BaseMediaChunkIterator</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public abstract class <span class="typeNameLabel">BaseMediaChunkIterator</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Base class for <a href="MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>MediaChunkIterator</code></a>s. Handles <a href="#next()"><code>next()</code></a> and <a href="#isEnded()"><code>isEnded()</code></a>, and
  provides a bounds check for child classes.</div>
 </li>
@@ -182,6 +188,7 @@ implements <a href="MediaChunkIterator.html" title="interface in com.google.andr
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(long,long)">BaseMediaChunkIterator</a></span>&#8203;(long&nbsp;fromIndex,
                       long&nbsp;toIndex)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates base iterator.</div>
 </td>
 </tr>
@@ -197,7 +204,7 @@ implements <a href="MediaChunkIterator.html" title="interface in com.google.andr
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -207,6 +214,7 @@ implements <a href="MediaChunkIterator.html" title="interface in com.google.andr
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#checkInBounds()">checkInBounds</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Verifies that the iterator points to a valid element.</div>
 </td>
 </tr>
@@ -214,6 +222,7 @@ implements <a href="MediaChunkIterator.html" title="interface in com.google.andr
 <td class="colFirst"><code>protected long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCurrentIndex()">getCurrentIndex</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current index this iterator is pointing to.</div>
 </td>
 </tr>
@@ -221,6 +230,7 @@ implements <a href="MediaChunkIterator.html" title="interface in com.google.andr
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isEnded()">isEnded</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the iteration has reached the end of the available data.</div>
 </td>
 </tr>
@@ -228,6 +238,7 @@ implements <a href="MediaChunkIterator.html" title="interface in com.google.andr
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#next()">next</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Moves the iterator to the next media chunk.</div>
 </td>
 </tr>
@@ -235,6 +246,7 @@ implements <a href="MediaChunkIterator.html" title="interface in com.google.andr
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset()">reset</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Resets the iterator to the initial position.</div>
 </td>
 </tr>
@@ -277,6 +289,7 @@ implements <a href="MediaChunkIterator.html" title="interface in com.google.andr
 <h4>BaseMediaChunkIterator</h4>
 <pre>public&nbsp;BaseMediaChunkIterator&#8203;(long&nbsp;fromIndex,
                               long&nbsp;toIndex)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates base iterator.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -302,6 +315,7 @@ implements <a href="MediaChunkIterator.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>isEnded</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isEnded()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaChunkIterator.html#isEnded()">MediaChunkIterator</a></code></span></div>
 <div class="block">Returns whether the iteration has reached the end of the available data.</div>
 <dl>
@@ -317,6 +331,7 @@ implements <a href="MediaChunkIterator.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>next</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;next()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaChunkIterator.html#next()">MediaChunkIterator</a></code></span></div>
 <div class="block">Moves the iterator to the next media chunk.
 
@@ -337,6 +352,7 @@ implements <a href="MediaChunkIterator.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>reset</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;reset()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaChunkIterator.html#reset()">MediaChunkIterator</a></code></span></div>
 <div class="block">Resets the iterator to the initial position.</div>
 <dl>
@@ -352,6 +368,7 @@ implements <a href="MediaChunkIterator.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>checkInBounds</h4>
 <pre class="methodSignature">protected final&nbsp;void&nbsp;checkInBounds()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Verifies that the iterator points to a valid element.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -366,6 +383,7 @@ implements <a href="MediaChunkIterator.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>getCurrentIndex</h4>
 <pre class="methodSignature">protected final&nbsp;long&nbsp;getCurrentIndex()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current index this iterator is pointing to.</div>
 </li>
 </ul>

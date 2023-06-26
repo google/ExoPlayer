@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">DefaultAllocator</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">DefaultAllocator</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Default implementation of <a href="Allocator.html" title="interface in com.google.android.exoplayer2.upstream"><code>Allocator</code></a>.</div>
 </li>
 </ul>
@@ -177,6 +183,7 @@ implements <a href="Allocator.html" title="interface in com.google.android.exopl
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(boolean,int)">DefaultAllocator</a></span>&#8203;(boolean&nbsp;trimOnReset,
                 int&nbsp;individualAllocationSize)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Constructs an instance without creating any <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>s up front.</div>
 </td>
 </tr>
@@ -185,6 +192,7 @@ implements <a href="Allocator.html" title="interface in com.google.android.exopl
                 int&nbsp;individualAllocationSize,
                 int&nbsp;initialAllocationCount)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Constructs an instance with some <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>s created up front.</div>
 </td>
 </tr>
@@ -200,7 +208,7 @@ implements <a href="Allocator.html" title="interface in com.google.android.exopl
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -210,6 +218,7 @@ implements <a href="Allocator.html" title="interface in com.google.android.exopl
 <td class="colFirst"><code><a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream">Allocation</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#allocate()">allocate</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Obtain an <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>.</div>
 </td>
 </tr>
@@ -217,6 +226,7 @@ implements <a href="Allocator.html" title="interface in com.google.android.exopl
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getIndividualAllocationLength()">getIndividualAllocationLength</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the length of each individual <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>.</div>
 </td>
 </tr>
@@ -224,6 +234,7 @@ implements <a href="Allocator.html" title="interface in com.google.android.exopl
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTotalBytesAllocated()">getTotalBytesAllocated</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the total number of bytes currently allocated.</div>
 </td>
 </tr>
@@ -231,6 +242,7 @@ implements <a href="Allocator.html" title="interface in com.google.android.exopl
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release(com.google.android.exoplayer2.upstream.Allocation)">release</a></span>&#8203;(<a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream">Allocation</a>&nbsp;allocation)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases an <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a> back to the allocator.</div>
 </td>
 </tr>
@@ -238,23 +250,29 @@ implements <a href="Allocator.html" title="interface in com.google.android.exopl
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release(com.google.android.exoplayer2.upstream.Allocator.AllocationNode)">release</a></span>&#8203;(<a href="Allocator.AllocationNode.html" title="interface in com.google.android.exoplayer2.upstream">Allocator.AllocationNode</a>&nbsp;allocationNode)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases all <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocations</code></a> in the chain starting at the given <a href="Allocator.AllocationNode.html" title="interface in com.google.android.exoplayer2.upstream"><code>Allocator.AllocationNode</code></a>.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset()">reset</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTargetBufferSize(int)">setTargetBufferSize</a></span>&#8203;(int&nbsp;targetBufferSize)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#trim()">trim</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Hints to the allocator that it should make a best effort to release any excess <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocations</code></a>.</div>
 </td>
 </tr>
@@ -290,6 +308,7 @@ implements <a href="Allocator.html" title="interface in com.google.android.exopl
 <h4>DefaultAllocator</h4>
 <pre>public&nbsp;DefaultAllocator&#8203;(boolean&nbsp;trimOnReset,
                         int&nbsp;individualAllocationSize)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Constructs an instance without creating any <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>s up front.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -308,6 +327,7 @@ implements <a href="Allocator.html" title="interface in com.google.android.exopl
 <pre>public&nbsp;DefaultAllocator&#8203;(boolean&nbsp;trimOnReset,
                         int&nbsp;individualAllocationSize,
                         int&nbsp;initialAllocationCount)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Constructs an instance with some <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>s created up front.
 
  <p>Note: <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>s created up front will never be discarded by <a href="#trim()"><code>trim()</code></a>.</div>
@@ -337,6 +357,7 @@ implements <a href="Allocator.html" title="interface in com.google.android.exopl
 <li class="blockList">
 <h4>reset</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;reset()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="setTargetBufferSize(int)">
@@ -346,6 +367,7 @@ implements <a href="Allocator.html" title="interface in com.google.android.exopl
 <li class="blockList">
 <h4>setTargetBufferSize</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setTargetBufferSize&#8203;(int&nbsp;targetBufferSize)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="allocate()">
@@ -355,6 +377,7 @@ implements <a href="Allocator.html" title="interface in com.google.android.exopl
 <li class="blockList">
 <h4>allocate</h4>
 <pre class="methodSignature">public&nbsp;<a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream">Allocation</a>&nbsp;allocate()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Allocator.html#allocate()">Allocator</a></code></span></div>
 <div class="block">Obtain an <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>.
 
@@ -375,6 +398,7 @@ implements <a href="Allocator.html" title="interface in com.google.android.exopl
 <li class="blockList">
 <h4>release</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;release&#8203;(<a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream">Allocation</a>&nbsp;allocation)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Allocator.html#release(com.google.android.exoplayer2.upstream.Allocation)">Allocator</a></code></span></div>
 <div class="block">Releases an <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a> back to the allocator.</div>
 <dl>
@@ -393,6 +417,7 @@ implements <a href="Allocator.html" title="interface in com.google.android.exopl
 <h4>release</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;release&#8203;(@Nullable
                     <a href="Allocator.AllocationNode.html" title="interface in com.google.android.exoplayer2.upstream">Allocator.AllocationNode</a>&nbsp;allocationNode)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Allocator.html#release(com.google.android.exoplayer2.upstream.Allocator.AllocationNode)">Allocator</a></code></span></div>
 <div class="block">Releases all <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocations</code></a> in the chain starting at the given <a href="Allocator.AllocationNode.html" title="interface in com.google.android.exoplayer2.upstream"><code>Allocator.AllocationNode</code></a>.
 
@@ -410,6 +435,7 @@ implements <a href="Allocator.html" title="interface in com.google.android.exopl
 <li class="blockList">
 <h4>trim</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;trim()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Allocator.html#trim()">Allocator</a></code></span></div>
 <div class="block">Hints to the allocator that it should make a best effort to release any excess <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocations</code></a>.</div>
 <dl>
@@ -425,6 +451,7 @@ implements <a href="Allocator.html" title="interface in com.google.android.exopl
 <li class="blockList">
 <h4>getTotalBytesAllocated</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getTotalBytesAllocated()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Allocator.html#getTotalBytesAllocated()">Allocator</a></code></span></div>
 <div class="block">Returns the total number of bytes currently allocated.</div>
 <dl>
@@ -440,6 +467,7 @@ implements <a href="Allocator.html" title="interface in com.google.android.exopl
 <li class="blockList">
 <h4>getIndividualAllocationLength</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getIndividualAllocationLength()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Allocator.html#getIndividualAllocationLength()">Allocator</a></code></span></div>
 <div class="block">Returns the length of each individual <a href="Allocation.html" title="class in com.google.android.exoplayer2.upstream"><code>Allocation</code></a>.</div>
 <dl>

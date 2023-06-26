@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":10,"i3":10,"i4":10,"i5":10};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":41,"i1":41,"i2":42,"i3":42,"i4":42,"i5":42};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="ColorLut.html" title="interface in com.google.android.exoplayer2.effect">ColorLut</a></code>, <code><a href="GlEffect.html" title="interface in com.google.android.exoplayer2.effect">GlEffect</a></code>, <code><a href="../util/Effect.html" title="interface in com.google.android.exoplayer2.util">Effect</a></code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">SingleColorLut</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">SingleColorLut</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="ColorLut.html" title="interface in com.google.android.exoplayer2.effect">ColorLut</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Transforms the colors of a frame by applying the same color lookup table to each frame.</div>
 </li>
 </ul>
@@ -151,7 +157,7 @@ implements <a href="ColorLut.html" title="interface in com.google.android.exopla
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -161,6 +167,7 @@ implements <a href="ColorLut.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>static <a href="SingleColorLut.html" title="class in com.google.android.exoplayer2.effect">SingleColorLut</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createFromBitmap(android.graphics.Bitmap)">createFromBitmap</a></span>&#8203;(<a href="https://developer.android.com/reference/android/graphics/Bitmap.html" title="class or interface in android.graphics" class="externalLink" target="_top">Bitmap</a>&nbsp;lut)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new instance.</div>
 </td>
 </tr>
@@ -168,6 +175,7 @@ implements <a href="ColorLut.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>static <a href="SingleColorLut.html" title="class in com.google.android.exoplayer2.effect">SingleColorLut</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createFromCube(int%5B%5D%5B%5D%5B%5D)">createFromCube</a></span>&#8203;(int[][][]&nbsp;lutCube)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new instance.</div>
 </td>
 </tr>
@@ -175,6 +183,7 @@ implements <a href="ColorLut.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLength(long)">getLength</a></span>&#8203;(long&nbsp;presentationTimeUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the length N of the 3D N x N x N LUT cube with the given timestamp.</div>
 </td>
 </tr>
@@ -182,22 +191,25 @@ implements <a href="ColorLut.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLutTextureId(long)">getLutTextureId</a></span>&#8203;(long&nbsp;presentationTimeUs)</code></th>
 <td class="colLast">
-<div class="block">Must be called after <a href="#toGlTextureProcessor(android.content.Context,boolean)"><code>toGlTextureProcessor(Context, boolean)</code></a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Must be called after <a href="#toGlShaderProgram(android.content.Context,boolean)"><code>toGlShaderProgram(Context, boolean)</code></a>.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases the OpenGL texture of the LUT.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code><a href="SingleFrameGlTextureProcessor.html" title="class in com.google.android.exoplayer2.effect">SingleFrameGlTextureProcessor</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toGlTextureProcessor(android.content.Context,boolean)">toGlTextureProcessor</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
-                    boolean&nbsp;useHdr)</code></th>
+<td class="colFirst"><code><a href="SingleFrameGlShaderProgram.html" title="class in com.google.android.exoplayer2.effect">SingleFrameGlShaderProgram</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toGlShaderProgram(android.content.Context,boolean)">toGlShaderProgram</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                 boolean&nbsp;useHdr)</code></th>
 <td class="colLast">
-<div class="block">This method must be executed on the same thread as other GL commands.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns a <a href="GlShaderProgram.html" title="interface in com.google.android.exoplayer2.effect"><code>GlShaderProgram</code></a> that applies the effect.</div>
 </td>
 </tr>
 </table>
@@ -207,6 +219,13 @@ implements <a href="ColorLut.html" title="interface in com.google.android.exopla
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
 <code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.effect.GlEffect">
+<!--   -->
+</a>
+<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.effect.<a href="GlEffect.html" title="interface in com.google.android.exoplayer2.effect">GlEffect</a></h3>
+<code><a href="GlEffect.html#isNoOp(int,int)">isNoOp</a></code></li>
 </ul>
 </li>
 </ul>
@@ -231,6 +250,7 @@ implements <a href="ColorLut.html" title="interface in com.google.android.exopla
 <li class="blockList">
 <h4>createFromCube</h4>
 <pre class="methodSignature">public static&nbsp;<a href="SingleColorLut.html" title="class in com.google.android.exoplayer2.effect">SingleColorLut</a>&nbsp;createFromCube&#8203;(int[][][]&nbsp;lutCube)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new instance.
 
  <p><code>lutCube</code> needs to be a <code>N x N x N</code> cube and each element is an integer
@@ -244,6 +264,7 @@ implements <a href="ColorLut.html" title="interface in com.google.android.exopla
 <li class="blockList">
 <h4>createFromBitmap</h4>
 <pre class="methodSignature">public static&nbsp;<a href="SingleColorLut.html" title="class in com.google.android.exoplayer2.effect">SingleColorLut</a>&nbsp;createFromBitmap&#8203;(<a href="https://developer.android.com/reference/android/graphics/Bitmap.html" title="class or interface in android.graphics" class="externalLink" target="_top">Bitmap</a>&nbsp;lut)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new instance.
 
  <p>LUT needs to be a Bitmap of a flattened HALD image of width <code>N</code> and height <code>
@@ -257,7 +278,8 @@ implements <a href="ColorLut.html" title="interface in com.google.android.exopla
 <li class="blockList">
 <h4>getLutTextureId</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getLutTextureId&#8203;(long&nbsp;presentationTimeUs)</pre>
-<div class="block">Must be called after <a href="#toGlTextureProcessor(android.content.Context,boolean)"><code>toGlTextureProcessor(Context, boolean)</code></a>.</div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Must be called after <a href="#toGlShaderProgram(android.content.Context,boolean)"><code>toGlShaderProgram(Context, boolean)</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="ColorLut.html#getLutTextureId(long)">getLutTextureId</a></code>&nbsp;in interface&nbsp;<code><a href="ColorLut.html" title="interface in com.google.android.exoplayer2.effect">ColorLut</a></code></dd>
@@ -271,6 +293,7 @@ implements <a href="ColorLut.html" title="interface in com.google.android.exopla
 <li class="blockList">
 <h4>getLength</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getLength&#8203;(long&nbsp;presentationTimeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ColorLut.html#getLength(long)">ColorLut</a></code></span></div>
 <div class="block">Returns the length N of the 3D N x N x N LUT cube with the given timestamp.</div>
 <dl>
@@ -287,6 +310,7 @@ implements <a href="ColorLut.html" title="interface in com.google.android.exopla
 <h4>release</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;release()
              throws <a href="../util/GlUtil.GlException.html" title="class in com.google.android.exoplayer2.util">GlUtil.GlException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ColorLut.html#release()">ColorLut</a></code></span></div>
 <div class="block">Releases the OpenGL texture of the LUT.</div>
 <dl>
@@ -297,28 +321,29 @@ implements <a href="ColorLut.html" title="interface in com.google.android.exopla
 </dl>
 </li>
 </ul>
-<a id="toGlTextureProcessor(android.content.Context,boolean)">
+<a id="toGlShaderProgram(android.content.Context,boolean)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>toGlTextureProcessor</h4>
-<pre class="methodSignature">public&nbsp;<a href="SingleFrameGlTextureProcessor.html" title="class in com.google.android.exoplayer2.effect">SingleFrameGlTextureProcessor</a>&nbsp;toGlTextureProcessor&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
-                                                          boolean&nbsp;useHdr)
-                                                   throws <a href="../util/FrameProcessingException.html" title="class in com.google.android.exoplayer2.util">FrameProcessingException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ColorLut.html#toGlTextureProcessor(android.content.Context,boolean)">ColorLut</a></code></span></div>
-<div class="block">This method must be executed on the same thread as other GL commands.</div>
+<h4>toGlShaderProgram</h4>
+<pre class="methodSignature">public&nbsp;<a href="SingleFrameGlShaderProgram.html" title="class in com.google.android.exoplayer2.effect">SingleFrameGlShaderProgram</a>&nbsp;toGlShaderProgram&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                                                    boolean&nbsp;useHdr)
+                                             throws <a href="../util/VideoFrameProcessingException.html" title="class in com.google.android.exoplayer2.util">VideoFrameProcessingException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="GlEffect.html#toGlShaderProgram(android.content.Context,boolean)">GlEffect</a></code></span></div>
+<div class="block">Returns a <a href="GlShaderProgram.html" title="interface in com.google.android.exoplayer2.effect"><code>GlShaderProgram</code></a> that applies the effect.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="ColorLut.html#toGlTextureProcessor(android.content.Context,boolean)">toGlTextureProcessor</a></code>&nbsp;in interface&nbsp;<code><a href="ColorLut.html" title="interface in com.google.android.exoplayer2.effect">ColorLut</a></code></dd>
+<dd><code><a href="ColorLut.html#toGlShaderProgram(android.content.Context,boolean)">toGlShaderProgram</a></code>&nbsp;in interface&nbsp;<code><a href="ColorLut.html" title="interface in com.google.android.exoplayer2.effect">ColorLut</a></code></dd>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="GlEffect.html#toGlTextureProcessor(android.content.Context,boolean)">toGlTextureProcessor</a></code>&nbsp;in interface&nbsp;<code><a href="GlEffect.html" title="interface in com.google.android.exoplayer2.effect">GlEffect</a></code></dd>
+<dd><code><a href="GlEffect.html#toGlShaderProgram(android.content.Context,boolean)">toGlShaderProgram</a></code>&nbsp;in interface&nbsp;<code><a href="GlEffect.html" title="interface in com.google.android.exoplayer2.effect">GlEffect</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - A <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a>.</dd>
 <dd><code>useHdr</code> - Whether input textures come from an HDR source. If <code>true</code>, colors will be
      in linear RGB BT.2020. If <code>false</code>, colors will be in linear RGB BT.709.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../util/FrameProcessingException.html" title="class in com.google.android.exoplayer2.util">FrameProcessingException</a></code></dd>
+<dd><code><a href="../util/VideoFrameProcessingException.html" title="class in com.google.android.exoplayer2.util">VideoFrameProcessingException</a></code> - If an error occurs while creating the <a href="GlShaderProgram.html" title="interface in com.google.android.exoplayer2.effect"><code>GlShaderProgram</code></a>.</dd>
 </dl>
 </li>
 </ul>

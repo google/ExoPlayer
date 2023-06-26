@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":9,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":41,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -88,13 +88,13 @@ loadScripts(document, 'script');</script>
 <li>Summary:&nbsp;</li>
 <li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
-<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
-<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a></code>, <code><a href="TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">DefaultBandwidthMeter</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">DefaultBandwidthMeter</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>, <a href="TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Estimates bandwidth by listening to data transfers.
 
  <p>The bandwidth estimate is calculated using a <a href="SlidingPercentile.html" title="class in com.google.android.exoplayer2.upstream"><code>SlidingPercentile</code></a> and is updated each
@@ -166,6 +172,7 @@ implements <a href="BandwidthMeter.html" title="interface in com.google.android.
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter.Builder</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builder for a bandwidth meter.</div>
 </td>
 </tr>
@@ -198,49 +205,56 @@ implements <a href="BandwidthMeter.html" title="interface in com.google.android.
 <td class="colFirst"><code>static long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_INITIAL_BITRATE_ESTIMATE">DEFAULT_INITIAL_BITRATE_ESTIMATE</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default initial bitrate estimate used when the device is offline or the network type cannot be
  determined, in bits per second.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>static <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt;</code></td>
+<td class="colFirst"><code>static <a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_INITIAL_BITRATE_ESTIMATES_2G">DEFAULT_INITIAL_BITRATE_ESTIMATES_2G</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default initial 2G bitrate estimates in bits per second.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>static <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt;</code></td>
+<td class="colFirst"><code>static <a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_INITIAL_BITRATE_ESTIMATES_3G">DEFAULT_INITIAL_BITRATE_ESTIMATES_3G</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default initial 3G bitrate estimates in bits per second.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>static <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt;</code></td>
+<td class="colFirst"><code>static <a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_INITIAL_BITRATE_ESTIMATES_4G">DEFAULT_INITIAL_BITRATE_ESTIMATES_4G</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default initial 4G bitrate estimates in bits per second.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>static <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt;</code></td>
+<td class="colFirst"><code>static <a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_INITIAL_BITRATE_ESTIMATES_5G_NSA">DEFAULT_INITIAL_BITRATE_ESTIMATES_5G_NSA</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default initial 5G-NSA bitrate estimates in bits per second.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>static <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt;</code></td>
+<td class="colFirst"><code>static <a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_INITIAL_BITRATE_ESTIMATES_5G_SA">DEFAULT_INITIAL_BITRATE_ESTIMATES_5G_SA</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default initial 5G-SA bitrate estimates in bits per second.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>static <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt;</code></td>
+<td class="colFirst"><code>static <a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_INITIAL_BITRATE_ESTIMATES_WIFI">DEFAULT_INITIAL_BITRATE_ESTIMATES_WIFI</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default initial Wifi bitrate estimate in bits per second.</div>
 </td>
 </tr>
@@ -248,32 +262,8 @@ implements <a href="BandwidthMeter.html" title="interface in com.google.android.
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_SLIDING_WINDOW_MAX_WEIGHT">DEFAULT_SLIDING_WINDOW_MAX_WEIGHT</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default maximum weight for the sliding window.</div>
-</td>
-</tr>
-</table>
-</li>
-</ul>
-</section>
-<!-- ======== CONSTRUCTOR SUMMARY ======== -->
-<section role="region">
-<ul class="blockList">
-<li class="blockList"><a id="constructor.summary">
-<!--   -->
-</a>
-<h3>Constructor Summary</h3>
-<table class="memberSummary">
-<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Constructor</th>
-<th class="colLast" scope="col">Description</th>
-</tr>
-<tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">DefaultBandwidthMeter</a></span>()</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultBandwidthMeter.Builder</code></a> instead.</div>
-</div>
 </td>
 </tr>
 </table>
@@ -288,7 +278,7 @@ implements <a href="BandwidthMeter.html" title="interface in com.google.android.
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -299,6 +289,7 @@ implements <a href="BandwidthMeter.html" title="interface in com.google.android.
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addEventListener(android.os.Handler,com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener)">addEventListener</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;eventHandler,
                 <a href="BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter.EventListener</a>&nbsp;eventListener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds an <a href="BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>BandwidthMeter.EventListener</code></a>.</div>
 </td>
 </tr>
@@ -306,6 +297,7 @@ implements <a href="BandwidthMeter.html" title="interface in com.google.android.
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getBitrateEstimate()">getBitrateEstimate</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the estimated bitrate.</div>
 </td>
 </tr>
@@ -313,6 +305,7 @@ implements <a href="BandwidthMeter.html" title="interface in com.google.android.
 <td class="colFirst"><code>static <a href="DefaultBandwidthMeter.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSingletonInstance(android.content.Context)">getSingletonInstance</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a singleton instance of a <a href="DefaultBandwidthMeter.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultBandwidthMeter</code></a> with default configuration.</div>
 </td>
 </tr>
@@ -320,6 +313,7 @@ implements <a href="BandwidthMeter.html" title="interface in com.google.android.
 <td class="colFirst"><code><a href="TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTransferListener()">getTransferListener</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="TransferListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>TransferListener</code></a> that this instance uses to gather bandwidth information
  from data transfers.</div>
 </td>
@@ -331,6 +325,7 @@ implements <a href="BandwidthMeter.html" title="interface in com.google.android.
                   boolean&nbsp;isNetwork,
                   int&nbsp;bytesTransferred)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called incrementally during a transfer.</div>
 </td>
 </tr>
@@ -340,6 +335,7 @@ implements <a href="BandwidthMeter.html" title="interface in com.google.android.
              <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
              boolean&nbsp;isNetwork)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a transfer ends.</div>
 </td>
 </tr>
@@ -349,6 +345,7 @@ implements <a href="BandwidthMeter.html" title="interface in com.google.android.
                       <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
                       boolean&nbsp;isNetwork)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a transfer is being initialized.</div>
 </td>
 </tr>
@@ -358,6 +355,7 @@ implements <a href="BandwidthMeter.html" title="interface in com.google.android.
                <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
                boolean&nbsp;isNetwork)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a transfer starts.</div>
 </td>
 </tr>
@@ -365,6 +363,7 @@ implements <a href="BandwidthMeter.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeEventListener(com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener)">removeEventListener</a></span>&#8203;(<a href="BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter.EventListener</a>&nbsp;eventListener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Removes an <a href="BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>BandwidthMeter.EventListener</code></a>.</div>
 </td>
 </tr>
@@ -372,6 +371,7 @@ implements <a href="BandwidthMeter.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setNetworkTypeOverride(@com.google.android.exoplayer2.C.NetworkTypeint)">setNetworkTypeOverride</a></span>&#8203;(@com.google.android.exoplayer2.C.NetworkType int&nbsp;networkType)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Overrides the network type.</div>
 </td>
 </tr>
@@ -412,7 +412,8 @@ implements <a href="BandwidthMeter.html" title="interface in com.google.android.
 <ul class="blockList">
 <li class="blockList">
 <h4>DEFAULT_INITIAL_BITRATE_ESTIMATES_WIFI</h4>
-<pre>public static final&nbsp;<a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt; DEFAULT_INITIAL_BITRATE_ESTIMATES_WIFI</pre>
+<pre>public static final&nbsp;<a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt; DEFAULT_INITIAL_BITRATE_ESTIMATES_WIFI</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default initial Wifi bitrate estimate in bits per second.</div>
 </li>
 </ul>
@@ -422,7 +423,8 @@ implements <a href="BandwidthMeter.html" title="interface in com.google.android.
 <ul class="blockList">
 <li class="blockList">
 <h4>DEFAULT_INITIAL_BITRATE_ESTIMATES_2G</h4>
-<pre>public static final&nbsp;<a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt; DEFAULT_INITIAL_BITRATE_ESTIMATES_2G</pre>
+<pre>public static final&nbsp;<a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt; DEFAULT_INITIAL_BITRATE_ESTIMATES_2G</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default initial 2G bitrate estimates in bits per second.</div>
 </li>
 </ul>
@@ -432,7 +434,8 @@ implements <a href="BandwidthMeter.html" title="interface in com.google.android.
 <ul class="blockList">
 <li class="blockList">
 <h4>DEFAULT_INITIAL_BITRATE_ESTIMATES_3G</h4>
-<pre>public static final&nbsp;<a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt; DEFAULT_INITIAL_BITRATE_ESTIMATES_3G</pre>
+<pre>public static final&nbsp;<a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt; DEFAULT_INITIAL_BITRATE_ESTIMATES_3G</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default initial 3G bitrate estimates in bits per second.</div>
 </li>
 </ul>
@@ -442,7 +445,8 @@ implements <a href="BandwidthMeter.html" title="interface in com.google.android.
 <ul class="blockList">
 <li class="blockList">
 <h4>DEFAULT_INITIAL_BITRATE_ESTIMATES_4G</h4>
-<pre>public static final&nbsp;<a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt; DEFAULT_INITIAL_BITRATE_ESTIMATES_4G</pre>
+<pre>public static final&nbsp;<a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt; DEFAULT_INITIAL_BITRATE_ESTIMATES_4G</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default initial 4G bitrate estimates in bits per second.</div>
 </li>
 </ul>
@@ -452,7 +456,8 @@ implements <a href="BandwidthMeter.html" title="interface in com.google.android.
 <ul class="blockList">
 <li class="blockList">
 <h4>DEFAULT_INITIAL_BITRATE_ESTIMATES_5G_NSA</h4>
-<pre>public static final&nbsp;<a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt; DEFAULT_INITIAL_BITRATE_ESTIMATES_5G_NSA</pre>
+<pre>public static final&nbsp;<a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt; DEFAULT_INITIAL_BITRATE_ESTIMATES_5G_NSA</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default initial 5G-NSA bitrate estimates in bits per second.</div>
 </li>
 </ul>
@@ -462,7 +467,8 @@ implements <a href="BandwidthMeter.html" title="interface in com.google.android.
 <ul class="blockList">
 <li class="blockList">
 <h4>DEFAULT_INITIAL_BITRATE_ESTIMATES_5G_SA</h4>
-<pre>public static final&nbsp;<a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt; DEFAULT_INITIAL_BITRATE_ESTIMATES_5G_SA</pre>
+<pre>public static final&nbsp;<a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt; DEFAULT_INITIAL_BITRATE_ESTIMATES_5G_SA</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default initial 5G-SA bitrate estimates in bits per second.</div>
 </li>
 </ul>
@@ -473,6 +479,7 @@ implements <a href="BandwidthMeter.html" title="interface in com.google.android.
 <li class="blockList">
 <h4>DEFAULT_INITIAL_BITRATE_ESTIMATE</h4>
 <pre>public static final&nbsp;long DEFAULT_INITIAL_BITRATE_ESTIMATE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default initial bitrate estimate used when the device is offline or the network type cannot be
  determined, in bits per second.</div>
 <dl>
@@ -488,34 +495,12 @@ implements <a href="BandwidthMeter.html" title="interface in com.google.android.
 <li class="blockList">
 <h4>DEFAULT_SLIDING_WINDOW_MAX_WEIGHT</h4>
 <pre>public static final&nbsp;int DEFAULT_SLIDING_WINDOW_MAX_WEIGHT</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default maximum weight for the sliding window.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.upstream.DefaultBandwidthMeter.DEFAULT_SLIDING_WINDOW_MAX_WEIGHT">Constant Field Values</a></dd>
 </dl>
-</li>
-</ul>
-</li>
-</ul>
-</section>
-<!-- ========= CONSTRUCTOR DETAIL ======== -->
-<section role="region">
-<ul class="blockList">
-<li class="blockList"><a id="constructor.detail">
-<!--   -->
-</a>
-<h3>Constructor Detail</h3>
-<a id="&lt;init&gt;()">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>DefaultBandwidthMeter</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public&nbsp;DefaultBandwidthMeter()</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="DefaultBandwidthMeter.Builder.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultBandwidthMeter.Builder</code></a> instead.</div>
-</div>
 </li>
 </ul>
 </li>
@@ -535,6 +520,7 @@ public&nbsp;DefaultBandwidthMeter()</pre>
 <li class="blockList">
 <h4>getSingletonInstance</h4>
 <pre class="methodSignature">public static&nbsp;<a href="DefaultBandwidthMeter.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter</a>&nbsp;getSingletonInstance&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a singleton instance of a <a href="DefaultBandwidthMeter.html" title="class in com.google.android.exoplayer2.upstream"><code>DefaultBandwidthMeter</code></a> with default configuration.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -552,6 +538,7 @@ public&nbsp;DefaultBandwidthMeter()</pre>
 <h4>setNetworkTypeOverride</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setNetworkTypeOverride&#8203;(<a href="../C.NetworkType.html" title="annotation in com.google.android.exoplayer2">@NetworkType</a>
                                    @com.google.android.exoplayer2.C.NetworkType int&nbsp;networkType)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Overrides the network type. Handled in the same way as if the meter had detected a change from
  the current network type to the specified network type internally.
 
@@ -569,6 +556,7 @@ public&nbsp;DefaultBandwidthMeter()</pre>
 <li class="blockList">
 <h4>getBitrateEstimate</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getBitrateEstimate()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="BandwidthMeter.html#getBitrateEstimate()">BandwidthMeter</a></code></span></div>
 <div class="block">Returns the estimated bitrate.</div>
 <dl>
@@ -584,6 +572,7 @@ public&nbsp;DefaultBandwidthMeter()</pre>
 <li class="blockList">
 <h4>getTransferListener</h4>
 <pre class="methodSignature">public&nbsp;<a href="TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;getTransferListener()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="BandwidthMeter.html#getTransferListener()">BandwidthMeter</a></code></span></div>
 <div class="block">Returns the <a href="TransferListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>TransferListener</code></a> that this instance uses to gather bandwidth information
  from data transfers. May be null if the implementation does not listen to data transfers.</div>
@@ -601,6 +590,7 @@ public&nbsp;DefaultBandwidthMeter()</pre>
 <h4>addEventListener</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;addEventListener&#8203;(<a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;eventHandler,
                              <a href="BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter.EventListener</a>&nbsp;eventListener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="BandwidthMeter.html#addEventListener(android.os.Handler,com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener)">BandwidthMeter</a></code></span></div>
 <div class="block">Adds an <a href="BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>BandwidthMeter.EventListener</code></a>.</div>
 <dl>
@@ -619,6 +609,7 @@ public&nbsp;DefaultBandwidthMeter()</pre>
 <li class="blockList">
 <h4>removeEventListener</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;removeEventListener&#8203;(<a href="BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter.EventListener</a>&nbsp;eventListener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="BandwidthMeter.html#removeEventListener(com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener)">BandwidthMeter</a></code></span></div>
 <div class="block">Removes an <a href="BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>BandwidthMeter.EventListener</code></a>.</div>
 <dl>
@@ -638,6 +629,7 @@ public&nbsp;DefaultBandwidthMeter()</pre>
 <pre class="methodSignature">public&nbsp;void&nbsp;onTransferInitializing&#8203;(<a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source,
                                    <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
                                    boolean&nbsp;isNetwork)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="TransferListener.html#onTransferInitializing(com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.upstream.DataSpec,boolean)">TransferListener</a></code></span></div>
 <div class="block">Called when a transfer is being initialized.</div>
 <dl>
@@ -659,6 +651,7 @@ public&nbsp;DefaultBandwidthMeter()</pre>
 <pre class="methodSignature">public&nbsp;void&nbsp;onTransferStart&#8203;(<a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source,
                             <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
                             boolean&nbsp;isNetwork)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="TransferListener.html#onTransferStart(com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.upstream.DataSpec,boolean)">TransferListener</a></code></span></div>
 <div class="block">Called when a transfer starts.</div>
 <dl>
@@ -681,6 +674,7 @@ public&nbsp;DefaultBandwidthMeter()</pre>
                                <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
                                boolean&nbsp;isNetwork,
                                int&nbsp;bytesTransferred)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="TransferListener.html#onBytesTransferred(com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.upstream.DataSpec,boolean,int)">TransferListener</a></code></span></div>
 <div class="block">Called incrementally during a transfer.</div>
 <dl>
@@ -703,6 +697,7 @@ public&nbsp;DefaultBandwidthMeter()</pre>
 <pre class="methodSignature">public&nbsp;void&nbsp;onTransferEnd&#8203;(<a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source,
                           <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
                           boolean&nbsp;isNetwork)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="TransferListener.html#onTransferEnd(com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.upstream.DataSpec,boolean)">TransferListener</a></code></span></div>
 <div class="block">Called when a transfer ends.</div>
 <dl>
@@ -768,13 +763,13 @@ public&nbsp;DefaultBandwidthMeter()</pre>
 <li>Summary:&nbsp;</li>
 <li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
-<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
-<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>

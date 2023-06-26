@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":42,"i3":10};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">DownloadNotificationHelper</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">DownloadNotificationHelper</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Helper for creating download notifications.</div>
 </li>
 </ul>
@@ -154,7 +160,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,java.lang.String)">DownloadNotificationHelper</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;channelId)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -181,6 +189,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                                   <a href="https://developer.android.com/reference/android/app/PendingIntent.html" title="class or interface in android.app" class="externalLink" target="_top">PendingIntent</a>&nbsp;contentIntent,
                                   <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a notification for a completed download.</div>
 </td>
 </tr>
@@ -191,6 +200,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                                <a href="https://developer.android.com/reference/android/app/PendingIntent.html" title="class or interface in android.app" class="externalLink" target="_top">PendingIntent</a>&nbsp;contentIntent,
                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a notification for a failed download.</div>
 </td>
 </tr>
@@ -217,6 +227,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                          <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../offline/Download.html" title="class in com.google.android.exoplayer2.offline" target="_top">Download</a>&gt;&nbsp;downloads,
                          @com.google.android.exoplayer2.scheduler.Requirements.RequirementFlags int&nbsp;notMetRequirements)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a progress notification for the given downloads.</div>
 </td>
 </tr>
@@ -252,6 +263,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>DownloadNotificationHelper</h4>
 <pre>public&nbsp;DownloadNotificationHelper&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                                   <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;channelId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - A context.</dd>
@@ -306,6 +318,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/app/Notific
                                               <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../offline/Download.html" title="class in com.google.android.exoplayer2.offline" target="_top">Download</a>&gt;&nbsp;downloads,
                                               <a href="../scheduler/Requirements.RequirementFlags.html" title="annotation in com.google.android.exoplayer2.scheduler">@RequirementFlags</a>
                                               @com.google.android.exoplayer2.scheduler.Requirements.RequirementFlags int&nbsp;notMetRequirements)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a progress notification for the given downloads.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -333,6 +346,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/app/Notific
                                                        <a href="https://developer.android.com/reference/android/app/PendingIntent.html" title="class or interface in android.app" class="externalLink" target="_top">PendingIntent</a>&nbsp;contentIntent,
                                                        @Nullable
                                                        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a notification for a completed download.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -358,6 +372,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/app/Notific
                                                     <a href="https://developer.android.com/reference/android/app/PendingIntent.html" title="class or interface in android.app" class="externalLink" target="_top">PendingIntent</a>&nbsp;contentIntent,
                                                     @Nullable
                                                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a notification for a failed download.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

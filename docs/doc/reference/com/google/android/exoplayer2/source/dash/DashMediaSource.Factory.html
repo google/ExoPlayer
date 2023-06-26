@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -242,13 +242,21 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setCmcdConfigurationFactory(com.google.android.exoplayer2.upstream.CmcdConfiguration.Factory)">setCmcdConfigurationFactory</a></span>&#8203;(<a href="../../upstream/CmcdConfiguration.Factory.html" title="interface in com.google.android.exoplayer2.upstream">CmcdConfiguration.Factory</a>&nbsp;cmcdConfigurationFactory)</code></th>
+<td class="colLast">
+<div class="block">Sets the <a href="../../upstream/CmcdConfiguration.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>CmcdConfiguration.Factory</code></a> used to obtain a <a href="../../upstream/CmcdConfiguration.html" title="class in com.google.android.exoplayer2.upstream"><code>CmcdConfiguration</code></a> for a
+ <a href="../../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code><a href="DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setCompositeSequenceableLoaderFactory(com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory)">setCompositeSequenceableLoaderFactory</a></span>&#8203;(<a href="../CompositeSequenceableLoaderFactory.html" title="interface in com.google.android.exoplayer2.source">CompositeSequenceableLoaderFactory</a>&nbsp;compositeSequenceableLoaderFactory)</code></th>
 <td class="colLast">
 <div class="block">Sets the factory to create composite <a href="../SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source"><code>SequenceableLoader</code></a>s for when this media source
  loads data from multiple streams (video, audio etc...).</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmSessionManagerProvider(com.google.android.exoplayer2.drm.DrmSessionManagerProvider)">setDrmSessionManagerProvider</a></span>&#8203;(<a href="../../drm/DrmSessionManagerProvider.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManagerProvider</a>&nbsp;drmSessionManagerProvider)</code></th>
 <td class="colLast">
@@ -256,7 +264,7 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
  <a href="../../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFallbackTargetLiveOffsetMs(long)">setFallbackTargetLiveOffsetMs</a></span>&#8203;(long&nbsp;fallbackTargetLiveOffsetMs)</code></th>
 <td class="colLast">
@@ -264,18 +272,26 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
  no value is defined in the <a href="../../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> or the manifest.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLoadErrorHandlingPolicy(com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">setLoadErrorHandlingPolicy</a></span>&#8203;(<a href="../../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</code></th>
 <td class="colLast">
 <div class="block">Sets an optional <a href="../../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setManifestParser(com.google.android.exoplayer2.upstream.ParsingLoadable.Parser)">setManifestParser</a></span>&#8203;(<a href="../../upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;? extends <a href="manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&gt;&nbsp;manifestParser)</code></th>
 <td class="colLast">
 <div class="block">Sets the manifest parser to parse loaded manifest data when loading a manifest URI.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code><a href="DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMinLiveStartPositionUs(long)">setMinLiveStartPositionUs</a></span>&#8203;(long&nbsp;minLiveStartPositionUs)</code></th>
+<td class="colLast">
+<div class="block">Sets the minimum position to start playback from in a live stream, in microseconds relative
+ to the start of the live window.</div>
 </td>
 </tr>
 </table>
@@ -349,7 +365,7 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 <dd><code>chunkSourceFactory</code> - A factory for <a href="DashChunkSource.html" title="interface in com.google.android.exoplayer2.source.dash"><code>DashChunkSource</code></a> instances.</dd>
 <dd><code>manifestDataSourceFactory</code> - A factory for <a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> instances that will be used
      to load (and refresh) the manifest. May be <code>null</code> if the factory will only ever be
-     used to create create media sources with sideloaded manifests via <a href="#createMediaSource(com.google.android.exoplayer2.source.dash.manifest.DashManifest,com.google.android.exoplayer2.MediaItem)"><code>createMediaSource(DashManifest, MediaItem)</code></a>.</dd>
+     used to create media sources with sideloaded manifests via <a href="#createMediaSource(com.google.android.exoplayer2.source.dash.manifest.DashManifest,com.google.android.exoplayer2.MediaItem)"><code>createMediaSource(DashManifest, MediaItem)</code></a>.</dd>
 </dl>
 </li>
 </ul>
@@ -363,6 +379,25 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a id="setCmcdConfigurationFactory(com.google.android.exoplayer2.upstream.CmcdConfiguration.Factory)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setCmcdConfigurationFactory</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a>&nbsp;setCmcdConfigurationFactory&#8203;(<a href="../../upstream/CmcdConfiguration.Factory.html" title="interface in com.google.android.exoplayer2.upstream">CmcdConfiguration.Factory</a>&nbsp;cmcdConfigurationFactory)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../MediaSource.Factory.html#setCmcdConfigurationFactory(com.google.android.exoplayer2.upstream.CmcdConfiguration.Factory)">MediaSource.Factory</a></code></span></div>
+<div class="block">Sets the <a href="../../upstream/CmcdConfiguration.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>CmcdConfiguration.Factory</code></a> used to obtain a <a href="../../upstream/CmcdConfiguration.html" title="class in com.google.android.exoplayer2.upstream"><code>CmcdConfiguration</code></a> for a
+ <a href="../../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../MediaSource.Factory.html#setCmcdConfigurationFactory(com.google.android.exoplayer2.upstream.CmcdConfiguration.Factory)">setCmcdConfigurationFactory</a></code>&nbsp;in interface&nbsp;<code><a href="../MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Factory</a></code></dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This factory, for convenience.</dd>
+</dl>
+</li>
+</ul>
 <a id="setDrmSessionManagerProvider(com.google.android.exoplayer2.drm.DrmSessionManagerProvider)">
 <!--   -->
 </a>
@@ -415,6 +450,29 @@ public&nbsp;<a href="DashMediaSource.Factory.html" title="class in com.google.an
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>fallbackTargetLiveOffsetMs</code> - The fallback live target offset in milliseconds.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This factory, for convenience.</dd>
+</dl>
+</li>
+</ul>
+<a id="setMinLiveStartPositionUs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setMinLiveStartPositionUs</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="DashMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource.Factory</a>&nbsp;setMinLiveStartPositionUs&#8203;(long&nbsp;minLiveStartPositionUs)</pre>
+<div class="block">Sets the minimum position to start playback from in a live stream, in microseconds relative
+ to the start of the live window.
+
+ <p>This value will override any suggested value from the manifest and helps to prevent <a href="../BehindLiveWindowException.html" title="class in com.google.android.exoplayer2.source"><code>BehindLiveWindowException</code></a> issues.
+
+ <p>The default value is <a href="DashMediaSource.html#MIN_LIVE_DEFAULT_START_POSITION_US"><code>DashMediaSource.MIN_LIVE_DEFAULT_START_POSITION_US</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>minLiveStartPositionUs</code> - The minimum live start position, in microseconds relative to
+     the start of the live window.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This factory, for convenience.</dd>
 </dl>

@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":18,"i1":18,"i2":18,"i3":18,"i4":18,"i5":18,"i6":18,"i7":18,"i8":50,"i9":18,"i10":18};
+var data = {"i0":50,"i1":50,"i2":50,"i3":50,"i4":50,"i5":50,"i6":50,"i7":50,"i8":50,"i9":50,"i10":50};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],16:["t5","Default Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -121,7 +121,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public interface <span class="typeNameLabel">VideoRendererEventListener</span></pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">VideoRendererEventListener</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Listener of video <a href="../Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> events. All methods have no-op default implementations to
  allow selective overrides.</div>
 </li>
@@ -148,6 +154,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="VideoRendererEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.video">VideoRendererEventListener.EventDispatcher</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dispatches events to a <a href="VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video"><code>VideoRendererEventListener</code></a>.</div>
 </td>
 </tr>
@@ -174,6 +181,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDroppedFrames(int,long)">onDroppedFrames</a></span>&#8203;(int&nbsp;count,
                long&nbsp;elapsedMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called to report the number of frames dropped by the renderer.</div>
 </td>
 </tr>
@@ -182,6 +190,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onRenderedFirstFrame(java.lang.Object,long)">onRenderedFirstFrame</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;output,
                     long&nbsp;renderTimeMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a frame is rendered for the first time since setting the output, or since the
  renderer was reset, or since the stream being rendered was changed.</div>
 </td>
@@ -190,6 +199,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoCodecError(java.lang.Exception)">onVideoCodecError</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;videoCodecError)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a video decoder encounters an error.</div>
 </td>
 </tr>
@@ -199,6 +209,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                          long&nbsp;initializedTimestampMs,
                          long&nbsp;initializationDurationMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a decoder is created.</div>
 </td>
 </tr>
@@ -206,6 +217,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoDecoderReleased(java.lang.String)">onVideoDecoderReleased</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a decoder is released.</div>
 </td>
 </tr>
@@ -213,6 +225,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoDisabled(com.google.android.exoplayer2.decoder.DecoderCounters)">onVideoDisabled</a></span>&#8203;(<a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer is disabled.</div>
 </td>
 </tr>
@@ -220,6 +233,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoEnabled(com.google.android.exoplayer2.decoder.DecoderCounters)">onVideoEnabled</a></span>&#8203;(<a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer is enabled.</div>
 </td>
 </tr>
@@ -228,6 +242,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoFrameProcessingOffset(long,int)">onVideoFrameProcessingOffset</a></span>&#8203;(long&nbsp;totalProcessingOffsetUs,
                             int&nbsp;frameCount)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called to report the video processing offset of video frames processed by the video renderer.</div>
 </td>
 </tr>
@@ -245,6 +260,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoInputFormatChanged(com.google.android.exoplayer2.Format,com.google.android.exoplayer2.decoder.DecoderReuseEvaluation)">onVideoInputFormatChanged</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                          <a href="../decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a>&nbsp;decoderReuseEvaluation)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the format of the media being consumed by the renderer changes.</div>
 </td>
 </tr>
@@ -252,6 +268,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoSizeChanged(com.google.android.exoplayer2.video.VideoSize)">onVideoSizeChanged</a></span>&#8203;(<a href="VideoSize.html" title="class in com.google.android.exoplayer2.video">VideoSize</a>&nbsp;videoSize)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called before a frame is rendered for the first time since setting the surface, and each time
  there's a change in the size, rotation or pixel aspect ratio of the video being rendered.</div>
 </td>
@@ -280,6 +297,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>onVideoEnabled</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onVideoEnabled&#8203;(<a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer is enabled.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -297,6 +315,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre class="methodSignature">default&nbsp;void&nbsp;onVideoDecoderInitialized&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName,
                                        long&nbsp;initializedTimestampMs,
                                        long&nbsp;initializationDurationMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a decoder is created.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -329,6 +348,7 @@ default&nbsp;void&nbsp;onVideoInputFormatChanged&#8203;(<a href="../Format.html"
 <pre class="methodSignature">default&nbsp;void&nbsp;onVideoInputFormatChanged&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                        @Nullable
                                        <a href="../decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a>&nbsp;decoderReuseEvaluation)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the format of the media being consumed by the renderer changes.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -347,6 +367,7 @@ default&nbsp;void&nbsp;onVideoInputFormatChanged&#8203;(<a href="../Format.html"
 <h4>onDroppedFrames</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onDroppedFrames&#8203;(int&nbsp;count,
                              long&nbsp;elapsedMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called to report the number of frames dropped by the renderer. Dropped frames are reported
  whenever the renderer is stopped having dropped frames, and optionally, whenever the count
  reaches a specified threshold whilst the renderer is started.</div>
@@ -367,6 +388,7 @@ default&nbsp;void&nbsp;onVideoInputFormatChanged&#8203;(<a href="../Format.html"
 <h4>onVideoFrameProcessingOffset</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onVideoFrameProcessingOffset&#8203;(long&nbsp;totalProcessingOffsetUs,
                                           int&nbsp;frameCount)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called to report the video processing offset of video frames processed by the video renderer.
 
  <p>Video processing offset represents how early a video frame is processed compared to the
@@ -394,6 +416,7 @@ default&nbsp;void&nbsp;onVideoInputFormatChanged&#8203;(<a href="../Format.html"
 <li class="blockList">
 <h4>onVideoSizeChanged</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onVideoSizeChanged&#8203;(<a href="VideoSize.html" title="class in com.google.android.exoplayer2.video">VideoSize</a>&nbsp;videoSize)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called before a frame is rendered for the first time since setting the surface, and each time
  there's a change in the size, rotation or pixel aspect ratio of the video being rendered.</div>
 <dl>
@@ -410,6 +433,7 @@ default&nbsp;void&nbsp;onVideoInputFormatChanged&#8203;(<a href="../Format.html"
 <h4>onRenderedFirstFrame</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onRenderedFirstFrame&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;output,
                                   long&nbsp;renderTimeMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a frame is rendered for the first time since setting the output, or since the
  renderer was reset, or since the stream being rendered was changed.</div>
 <dl>
@@ -427,6 +451,7 @@ default&nbsp;void&nbsp;onVideoInputFormatChanged&#8203;(<a href="../Format.html"
 <li class="blockList">
 <h4>onVideoDecoderReleased</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onVideoDecoderReleased&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a decoder is released.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -441,6 +466,7 @@ default&nbsp;void&nbsp;onVideoInputFormatChanged&#8203;(<a href="../Format.html"
 <li class="blockList">
 <h4>onVideoDisabled</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onVideoDisabled&#8203;(<a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer is disabled.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -455,6 +481,7 @@ default&nbsp;void&nbsp;onVideoInputFormatChanged&#8203;(<a href="../Format.html"
 <li class="blockList">
 <h4>onVideoCodecError</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onVideoCodecError&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;videoCodecError)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a video decoder encounters an error.
 
  <p>This method being called does not indicate that playback has failed, or that it will fail.

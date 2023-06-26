@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":6,"i6":10,"i7":6,"i8":10,"i9":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":38,"i8":42,"i9":38,"i10":42,"i11":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,8 +133,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="MappingTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection">MappingTrackSelector</a></code></dd>
 </dl>
 <hr>
-<pre>public abstract class <span class="typeNameLabel">TrackSelector</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public abstract class <span class="typeNameLabel">TrackSelector</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">The component of an <a href="../ExoPlayer.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer</code></a> responsible for selecting tracks to be consumed by each of
  the player's <a href="../Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a>s. The <a href="DefaultTrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector</code></a> implementation should be
  suitable for most use cases.
@@ -211,6 +217,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="TrackSelector.InvalidationListener.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelector.InvalidationListener</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Notified when selections previously made by a <a href="TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a> are no longer valid.</div>
 </td>
 </tr>
@@ -233,7 +240,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">TrackSelector</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -247,7 +256,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -257,6 +266,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>protected <a href="../upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getBandwidthMeter()">getBandwidthMeter</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a bandwidth meter which can be used by track selections to select tracks.</div>
 </td>
 </tr>
@@ -264,67 +274,94 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getParameters()">getParameters</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current parameters for track selection.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="../RendererCapabilities.Listener.html" title="interface in com.google.android.exoplayer2">RendererCapabilities.Listener</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getRendererCapabilitiesListener()">getRendererCapabilitiesListener</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns the <a href="../RendererCapabilities.Listener.html" title="interface in com.google.android.exoplayer2"><code>RendererCapabilities.Listener</code></a> that the concrete instance uses to listen to
+ the renderer capabilities changes.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#init(com.google.android.exoplayer2.trackselection.TrackSelector.InvalidationListener,com.google.android.exoplayer2.upstream.BandwidthMeter)">init</a></span>&#8203;(<a href="TrackSelector.InvalidationListener.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelector.InvalidationListener</a>&nbsp;listener,
     <a href="../upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called by the player to initialize the selector.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#invalidate()">invalidate</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Calls <a href="TrackSelector.InvalidationListener.html#onTrackSelectionsInvalidated()"><code>TrackSelector.InvalidationListener.onTrackSelectionsInvalidated()</code></a> to invalidate all previously
  generated track selections.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
-<td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isSetParametersSupported()">isSetParametersSupported</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Returns if this <code>TrackSelector</code> supports <a href="#setParameters(com.google.android.exoplayer2.trackselection.TrackSelectionParameters)"><code>setParameters(TrackSelectionParameters)</code></a>.</div>
-</td>
-</tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code>abstract void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSelectionActivated(java.lang.Object)">onSelectionActivated</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;info)</code></th>
+<td class="colFirst"><code>protected void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#invalidateForRendererCapabilitiesChange(com.google.android.exoplayer2.Renderer)">invalidateForRendererCapabilitiesChange</a></span>&#8203;(<a href="../Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>&nbsp;renderer)</code></th>
 <td class="colLast">
-<div class="block">Called by the player when a <a href="TrackSelectorResult.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectorResult</code></a> previously generated by <a href="#selectTracks(com.google.android.exoplayer2.RendererCapabilities%5B%5D,com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,com.google.android.exoplayer2.Timeline)"><code>selectTracks(RendererCapabilities[], TrackGroupArray, MediaPeriodId, Timeline)</code></a> is activated.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Calls <a href="TrackSelector.InvalidationListener.html#onRendererCapabilitiesChanged(com.google.android.exoplayer2.Renderer)"><code>TrackSelector.InvalidationListener.onRendererCapabilitiesChanged(Renderer)</code></a> to invalidate all
+ previously generated track selections because a renderer's capabilities have changed.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isSetParametersSupported()">isSetParametersSupported</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Called by the player to release the selector.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns if this <code>TrackSelector</code> supports <a href="#setParameters(com.google.android.exoplayer2.trackselection.TrackSelectionParameters)"><code>setParameters(TrackSelectionParameters)</code></a>.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
+<td class="colFirst"><code>abstract void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSelectionActivated(java.lang.Object)">onSelectionActivated</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;info)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Called by the player when a <a href="TrackSelectorResult.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectorResult</code></a> previously generated by <a href="#selectTracks(com.google.android.exoplayer2.RendererCapabilities%5B%5D,com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,com.google.android.exoplayer2.Timeline)"><code>selectTracks(RendererCapabilities[], TrackGroupArray, MediaPeriodId, Timeline)</code></a> is activated.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Called by the player to release the selector.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>abstract <a href="TrackSelectorResult.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectorResult</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#selectTracks(com.google.android.exoplayer2.RendererCapabilities%5B%5D,com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,com.google.android.exoplayer2.Timeline)">selectTracks</a></span>&#8203;(<a href="../RendererCapabilities.html" title="interface in com.google.android.exoplayer2">RendererCapabilities</a>[]&nbsp;rendererCapabilities,
             <a href="../source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;trackGroups,
             <a href="../source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;periodId,
             <a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called by the player to perform a track selection.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAudioAttributes(com.google.android.exoplayer2.audio.AudioAttributes)">setAudioAttributes</a></span>&#8203;(<a href="../audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called by the player to set the <a href="../audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio"><code>AudioAttributes</code></a> that will be used for playback.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setParameters(com.google.android.exoplayer2.trackselection.TrackSelectionParameters)">setParameters</a></span>&#8203;(<a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a>&nbsp;parameters)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called by the player to provide parameters for track selection.</div>
 </td>
 </tr>
@@ -359,6 +396,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>TrackSelector</h4>
 <pre>public&nbsp;TrackSelector()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -380,6 +418,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">@CallSuper
 public&nbsp;void&nbsp;init&#8203;(<a href="TrackSelector.InvalidationListener.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelector.InvalidationListener</a>&nbsp;listener,
                  <a href="../upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called by the player to initialize the selector.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -397,6 +436,7 @@ public&nbsp;void&nbsp;init&#8203;(<a href="TrackSelector.InvalidationListener.ht
 <h4>release</h4>
 <pre class="methodSignature">@CallSuper
 public&nbsp;void&nbsp;release()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called by the player to release the selector. The selector cannot be used until <a href="#init(com.google.android.exoplayer2.trackselection.TrackSelector.InvalidationListener,com.google.android.exoplayer2.upstream.BandwidthMeter)"><code>init(InvalidationListener, BandwidthMeter)</code></a> is called again.</div>
 </li>
 </ul>
@@ -411,6 +451,7 @@ public&nbsp;void&nbsp;release()</pre>
                                                  <a href="../source/MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;periodId,
                                                  <a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline)
                                           throws <a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called by the player to perform a track selection.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -434,6 +475,7 @@ public&nbsp;void&nbsp;release()</pre>
 <h4>onSelectionActivated</h4>
 <pre class="methodSignature">public abstract&nbsp;void&nbsp;onSelectionActivated&#8203;(@Nullable
                                           <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;info)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called by the player when a <a href="TrackSelectorResult.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectorResult</code></a> previously generated by <a href="#selectTracks(com.google.android.exoplayer2.RendererCapabilities%5B%5D,com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,com.google.android.exoplayer2.Timeline)"><code>selectTracks(RendererCapabilities[], TrackGroupArray, MediaPeriodId, Timeline)</code></a> is activated.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -448,6 +490,7 @@ public&nbsp;void&nbsp;release()</pre>
 <li class="blockList">
 <h4>getParameters</h4>
 <pre class="methodSignature">public&nbsp;<a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a>&nbsp;getParameters()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current parameters for track selection.</div>
 </li>
 </ul>
@@ -458,6 +501,7 @@ public&nbsp;void&nbsp;release()</pre>
 <li class="blockList">
 <h4>setParameters</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setParameters&#8203;(<a href="TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a>&nbsp;parameters)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called by the player to provide parameters for track selection.
 
  <p>Only supported if <a href="#isSetParametersSupported()"><code>isSetParametersSupported()</code></a> returns true.</div>
@@ -474,6 +518,7 @@ public&nbsp;void&nbsp;release()</pre>
 <li class="blockList">
 <h4>isSetParametersSupported</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isSetParametersSupported()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns if this <code>TrackSelector</code> supports <a href="#setParameters(com.google.android.exoplayer2.trackselection.TrackSelectionParameters)"><code>setParameters(TrackSelectionParameters)</code></a>.
 
  <p>The same value is always returned for a given <code>TrackSelector</code> instance.</div>
@@ -486,7 +531,22 @@ public&nbsp;void&nbsp;release()</pre>
 <li class="blockList">
 <h4>setAudioAttributes</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setAudioAttributes&#8203;(<a href="../audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called by the player to set the <a href="../audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio"><code>AudioAttributes</code></a> that will be used for playback.</div>
+</li>
+</ul>
+<a id="getRendererCapabilitiesListener()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getRendererCapabilitiesListener</h4>
+<pre class="methodSignature">@Nullable
+public&nbsp;<a href="../RendererCapabilities.Listener.html" title="interface in com.google.android.exoplayer2">RendererCapabilities.Listener</a>&nbsp;getRendererCapabilitiesListener()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns the <a href="../RendererCapabilities.Listener.html" title="interface in com.google.android.exoplayer2"><code>RendererCapabilities.Listener</code></a> that the concrete instance uses to listen to
+ the renderer capabilities changes. May be <code>null</code> if the implementation does not listen to
+ the renderer capabilities changes.</div>
 </li>
 </ul>
 <a id="invalidate()">
@@ -496,8 +556,25 @@ public&nbsp;void&nbsp;release()</pre>
 <li class="blockList">
 <h4>invalidate</h4>
 <pre class="methodSignature">protected final&nbsp;void&nbsp;invalidate()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Calls <a href="TrackSelector.InvalidationListener.html#onTrackSelectionsInvalidated()"><code>TrackSelector.InvalidationListener.onTrackSelectionsInvalidated()</code></a> to invalidate all previously
  generated track selections.</div>
+</li>
+</ul>
+<a id="invalidateForRendererCapabilitiesChange(com.google.android.exoplayer2.Renderer)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>invalidateForRendererCapabilitiesChange</h4>
+<pre class="methodSignature">protected final&nbsp;void&nbsp;invalidateForRendererCapabilitiesChange&#8203;(<a href="../Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>&nbsp;renderer)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Calls <a href="TrackSelector.InvalidationListener.html#onRendererCapabilitiesChanged(com.google.android.exoplayer2.Renderer)"><code>TrackSelector.InvalidationListener.onRendererCapabilitiesChanged(Renderer)</code></a> to invalidate all
+ previously generated track selections because a renderer's capabilities have changed.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>renderer</code> - The renderer whose capabilities changed.</dd>
+</dl>
 </li>
 </ul>
 <a id="getBandwidthMeter()">
@@ -507,6 +584,7 @@ public&nbsp;void&nbsp;release()</pre>
 <li class="blockList">
 <h4>getBandwidthMeter</h4>
 <pre class="methodSignature">protected final&nbsp;<a href="../upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;getBandwidthMeter()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a bandwidth meter which can be used by track selections to select tracks. Must only be
  called when the track selector is <a href="#init(com.google.android.exoplayer2.trackselection.TrackSelector.InvalidationListener,com.google.android.exoplayer2.upstream.BandwidthMeter)">initialized</a>.</div>
 </li>

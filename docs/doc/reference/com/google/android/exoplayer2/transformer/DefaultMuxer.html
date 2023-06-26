@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="Muxer.html" title="interface in com.google.android.exoplayer2.transformer">Muxer</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">DefaultMuxer</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">DefaultMuxer</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="Muxer.html" title="interface in com.google.android.exoplayer2.transformer">Muxer</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A default <a href="Muxer.html" title="interface in com.google.android.exoplayer2.transformer"><code>Muxer</code></a> implementation.</div>
 </li>
 </ul>
@@ -161,6 +167,7 @@ implements <a href="Muxer.html" title="interface in com.google.android.exoplayer
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DefaultMuxer.Factory.html" title="class in com.google.android.exoplayer2.transformer">DefaultMuxer.Factory</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A <a href="Muxer.Factory.html" title="interface in com.google.android.exoplayer2.transformer"><code>Muxer.Factory</code></a> for <a href="DefaultMuxer.html" title="class in com.google.android.exoplayer2.transformer"><code>DefaultMuxer</code></a>.</div>
 </td>
 </tr>
@@ -183,41 +190,52 @@ implements <a href="Muxer.html" title="interface in com.google.android.exoplayer
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addTrack(com.google.android.exoplayer2.Format)">addTrack</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addMetadata(com.google.android.exoplayer2.metadata.Metadata)">addMetadata</a></span>&#8203;(<a href="../metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata)</code></th>
 <td class="colLast">
-<div class="block">Adds a track with the specified format, and returns its index (to be passed in subsequent calls
- to <a href="Muxer.html#writeSampleData(int,java.nio.ByteBuffer,boolean,long)"><code>Muxer.writeSampleData(int, ByteBuffer, boolean, long)</code></a>).</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Adds <a href="../metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata"><code>Metadata</code></a> about the output file.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMaxDelayBetweenSamplesMs()">getMaxDelayBetweenSamplesMs</a></span>()</code></th>
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addTrack(com.google.android.exoplayer2.Format)">addTrack</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
-<div class="block">Returns the maximum delay allowed between output samples, in milliseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if there is no maximum.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Adds a track with the specified format.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release(boolean)">release</a></span>&#8203;(boolean&nbsp;forCancellation)</code></th>
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMaxDelayBetweenSamplesMs()">getMaxDelayBetweenSamplesMs</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Finishes writing the output and releases any resources associated with muxing.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns the maximum delay allowed between output samples, in milliseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if there is no maximum.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#writeSampleData(int,java.nio.ByteBuffer,boolean,long)">writeSampleData</a></span>&#8203;(int&nbsp;trackIndex,
-               <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;data,
-               boolean&nbsp;isKeyFrame,
-               long&nbsp;presentationTimeUs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release(boolean)">release</a></span>&#8203;(boolean&nbsp;forCancellation)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Finishes writing the output and releases any resources associated with muxing.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#writeSampleData(int,java.nio.ByteBuffer,long,@com.google.android.exoplayer2.C.BufferFlagsint)">writeSampleData</a></span>&#8203;(int&nbsp;trackIndex,
+               <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;data,
+               long&nbsp;presentationTimeUs,
+               @com.google.android.exoplayer2.C.BufferFlags int&nbsp;flags)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Writes the specified sample.</div>
 </td>
 </tr>
@@ -253,20 +271,22 @@ implements <a href="Muxer.html" title="interface in com.google.android.exoplayer
 <h4>addTrack</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;addTrack&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)
              throws <a href="Muxer.MuxerException.html" title="class in com.google.android.exoplayer2.transformer">Muxer.MuxerException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Muxer.html#addTrack(com.google.android.exoplayer2.Format)">Muxer</a></code></span></div>
-<div class="block">Adds a track with the specified format, and returns its index (to be passed in subsequent calls
- to <a href="Muxer.html#writeSampleData(int,java.nio.ByteBuffer,boolean,long)"><code>Muxer.writeSampleData(int, ByteBuffer, boolean, long)</code></a>).</div>
+<div class="block">Adds a track with the specified format.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Muxer.html#addTrack(com.google.android.exoplayer2.Format)">addTrack</a></code>&nbsp;in interface&nbsp;<code><a href="Muxer.html" title="interface in com.google.android.exoplayer2.transformer">Muxer</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>format</code> - The <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> of the track.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The index for this track, which should be passed to <a href="Muxer.html#writeSampleData(int,java.nio.ByteBuffer,long,@com.google.android.exoplayer2.C.BufferFlagsint)"><code>Muxer.writeSampleData(int, java.nio.ByteBuffer, long, @com.google.android.exoplayer2.C.BufferFlags int)</code></a>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="Muxer.MuxerException.html" title="class in com.google.android.exoplayer2.transformer">Muxer.MuxerException</a></code> - If the muxer encounters a problem while adding the track.</dd>
 </dl>
 </li>
 </ul>
-<a id="writeSampleData(int,java.nio.ByteBuffer,boolean,long)">
+<a id="writeSampleData(int,java.nio.ByteBuffer,long,@com.google.android.exoplayer2.C.BufferFlagsint)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -274,21 +294,38 @@ implements <a href="Muxer.html" title="interface in com.google.android.exoplayer
 <h4>writeSampleData</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;writeSampleData&#8203;(int&nbsp;trackIndex,
                             <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;data,
-                            boolean&nbsp;isKeyFrame,
-                            long&nbsp;presentationTimeUs)
+                            long&nbsp;presentationTimeUs,
+                            @com.google.android.exoplayer2.C.BufferFlags int&nbsp;flags)
                      throws <a href="Muxer.MuxerException.html" title="class in com.google.android.exoplayer2.transformer">Muxer.MuxerException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Muxer.html#writeSampleData(int,java.nio.ByteBuffer,boolean,long)">Muxer</a></code></span></div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Muxer.html#writeSampleData(int,java.nio.ByteBuffer,long,@com.google.android.exoplayer2.C.BufferFlagsint)">Muxer</a></code></span></div>
 <div class="block">Writes the specified sample.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="Muxer.html#writeSampleData(int,java.nio.ByteBuffer,boolean,long)">writeSampleData</a></code>&nbsp;in interface&nbsp;<code><a href="Muxer.html" title="interface in com.google.android.exoplayer2.transformer">Muxer</a></code></dd>
+<dd><code><a href="Muxer.html#writeSampleData(int,java.nio.ByteBuffer,long,@com.google.android.exoplayer2.C.BufferFlagsint)">writeSampleData</a></code>&nbsp;in interface&nbsp;<code><a href="Muxer.html" title="interface in com.google.android.exoplayer2.transformer">Muxer</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>trackIndex</code> - The index of the track, previously returned by <a href="Muxer.html#addTrack(com.google.android.exoplayer2.Format)"><code>Muxer.addTrack(Format)</code></a>.</dd>
 <dd><code>data</code> - A buffer containing the sample data to write to the container.</dd>
-<dd><code>isKeyFrame</code> - Whether the sample is a key frame.</dd>
 <dd><code>presentationTimeUs</code> - The presentation time of the sample in microseconds.</dd>
+<dd><code>flags</code> - The <a href="../C.BufferFlags.html" title="annotation in com.google.android.exoplayer2"><code>C.BufferFlags</code></a> associated with the data. Only <a href="../C.html#BUFFER_FLAG_KEY_FRAME"><code>C.BUFFER_FLAG_KEY_FRAME</code></a> and <a href="../C.html#BUFFER_FLAG_END_OF_STREAM"><code>C.BUFFER_FLAG_END_OF_STREAM</code></a> are supported.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="Muxer.MuxerException.html" title="class in com.google.android.exoplayer2.transformer">Muxer.MuxerException</a></code> - If the muxer fails to write the sample.</dd>
+</dl>
+</li>
+</ul>
+<a id="addMetadata(com.google.android.exoplayer2.metadata.Metadata)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addMetadata</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;addMetadata&#8203;(<a href="../metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Muxer.html#addMetadata(com.google.android.exoplayer2.metadata.Metadata)">Muxer</a></code></span></div>
+<div class="block">Adds <a href="../metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata"><code>Metadata</code></a> about the output file.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="Muxer.html#addMetadata(com.google.android.exoplayer2.metadata.Metadata)">addMetadata</a></code>&nbsp;in interface&nbsp;<code><a href="Muxer.html" title="interface in com.google.android.exoplayer2.transformer">Muxer</a></code></dd>
 </dl>
 </li>
 </ul>
@@ -300,6 +337,7 @@ implements <a href="Muxer.html" title="interface in com.google.android.exoplayer
 <h4>release</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;release&#8203;(boolean&nbsp;forCancellation)
              throws <a href="Muxer.MuxerException.html" title="class in com.google.android.exoplayer2.transformer">Muxer.MuxerException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Muxer.html#release(boolean)">Muxer</a></code></span></div>
 <div class="block">Finishes writing the output and releases any resources associated with muxing.
 
@@ -308,7 +346,7 @@ implements <a href="Muxer.html" title="interface in com.google.android.exoplayer
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Muxer.html#release(boolean)">release</a></code>&nbsp;in interface&nbsp;<code><a href="Muxer.html" title="interface in com.google.android.exoplayer2.transformer">Muxer</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>forCancellation</code> - Whether the reason for releasing the resources is the transformation
+<dd><code>forCancellation</code> - Whether the reason for releasing the resources is the export
      cancellation.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="Muxer.MuxerException.html" title="class in com.google.android.exoplayer2.transformer">Muxer.MuxerException</a></code> - If the muxer fails to finish writing the output and <code>
@@ -323,14 +361,15 @@ implements <a href="Muxer.html" title="interface in com.google.android.exoplayer
 <li class="blockList">
 <h4>getMaxDelayBetweenSamplesMs</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getMaxDelayBetweenSamplesMs()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Muxer.html#getMaxDelayBetweenSamplesMs()">Muxer</a></code></span></div>
 <div class="block">Returns the maximum delay allowed between output samples, in milliseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if there is no maximum.
 
  <p>This is the maximum delay between samples of any track. They can be of the same or of
  different track types.
 
- <p>This value is used to abort the transformation when the maximum delay is reached. Note that
- there is no guarantee that the transformation will be aborted exactly at that time.</div>
+ <p>This value is used to abort the export when the maximum delay is reached. Note that there is
+ no guarantee that the export will be aborted exactly at that time.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Muxer.html#getMaxDelayBetweenSamplesMs()">getMaxDelayBetweenSamplesMs</a></code>&nbsp;in interface&nbsp;<code><a href="Muxer.html" title="interface in com.google.android.exoplayer2.transformer">Muxer</a></code></dd>

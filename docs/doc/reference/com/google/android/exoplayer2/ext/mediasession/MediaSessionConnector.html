@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42,"i12":42,"i13":42,"i14":42,"i15":42,"i16":42,"i17":42,"i18":42,"i19":42,"i20":42,"i21":42,"i22":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">MediaSessionConnector</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">MediaSessionConnector</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Connects a <code>MediaSessionCompat</code> to a <a href="../../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>.
 
  <p>This connector does <em>not</em> call <code>MediaSessionCompat.setActive(boolean)</code>, and so
@@ -183,6 +189,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaSessionConnector.CaptionCallback.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CaptionCallback</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Handles requests for enabling or disabling captions.</div>
 </td>
 </tr>
@@ -190,6 +197,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaSessionConnector.CommandReceiver.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CommandReceiver</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Receiver of media commands sent by a media controller.</div>
 </td>
 </tr>
@@ -197,6 +205,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaSessionConnector.CustomActionProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CustomActionProvider</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Provides a <code>PlaybackStateCompat.CustomAction</code> to be published and handles the action when
  sent by a media controller.</div>
 </td>
@@ -205,6 +214,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaSessionConnector.DefaultMediaMetadataProvider.html" title="class in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.DefaultMediaMetadataProvider</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Provides a default <code>MediaMetadataCompat</code> with properties and extras taken from the <code>MediaDescriptionCompat</code> of the <code>MediaSessionCompat.QueueItem</code> of the active queue item.</div>
 </td>
 </tr>
@@ -212,6 +222,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaSessionConnector.MediaButtonEventHandler.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.MediaButtonEventHandler</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Handles a media button event.</div>
 </td>
 </tr>
@@ -219,6 +230,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaSessionConnector.MediaMetadataProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.MediaMetadataProvider</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Provides a <code>MediaMetadataCompat</code> for a given player state.</div>
 </td>
 </tr>
@@ -226,6 +238,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaSessionConnector.PlaybackActions.html" title="annotation in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.PlaybackActions</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Playback actions supported by the connector.</div>
 </td>
 </tr>
@@ -233,6 +246,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaSessionConnector.PlaybackPreparer.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.PlaybackPreparer</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Interface to which playback preparation and play actions are delegated.</div>
 </td>
 </tr>
@@ -240,6 +254,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaSessionConnector.QueueEditor.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueEditor</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Handles media session queue edits.</div>
 </td>
 </tr>
@@ -247,6 +262,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaSessionConnector.QueueNavigator.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueNavigator</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Handles queue navigation actions, and updates the media session queue by calling <code>
  MediaSessionCompat.setQueue()</code>.</div>
 </td>
@@ -255,6 +271,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaSessionConnector.RatingCallback.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.RatingCallback</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Callback receiving a user rating for the active media item.</div>
 </td>
 </tr>
@@ -279,12 +296,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="altColor">
 <td class="colFirst"><code>static long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ALL_PLAYBACK_ACTIONS">ALL_PLAYBACK_ACTIONS</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_PLAYBACK_ACTIONS">DEFAULT_PLAYBACK_ACTIONS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default playback actions.</div>
 </td>
 </tr>
@@ -292,6 +312,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EXTRAS_SPEED">EXTRAS_SPEED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The name of the <code>PlaybackStateCompat</code> float extra with the value of <code>
  Player.getPlaybackParameters().speed</code>.</div>
 </td>
@@ -300,6 +321,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>android.support.v4.media.session.MediaSessionCompat</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#mediaSession">mediaSession</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The wrapped <code>MediaSessionCompat</code>.</div>
 </td>
 </tr>
@@ -323,6 +345,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.support.v4.media.session.MediaSessionCompat)">MediaSessionConnector</a></span>&#8203;(android.support.v4.media.session.MediaSessionCompat&nbsp;mediaSession)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance.</div>
 </td>
 </tr>
@@ -338,7 +361,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -348,6 +371,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#invalidateMediaSessionMetadata()">invalidateMediaSessionMetadata</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates the metadata of the media session.</div>
 </td>
 </tr>
@@ -355,6 +379,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#invalidateMediaSessionPlaybackState()">invalidateMediaSessionPlaybackState</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates the playback state of the media session.</div>
 </td>
 </tr>
@@ -362,6 +387,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#invalidateMediaSessionQueue()">invalidateMediaSessionQueue</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates the queue of the media session by calling <a href="MediaSessionConnector.QueueNavigator.html#onTimelineChanged(com.google.android.exoplayer2.Player)"><code>MediaSessionConnector.QueueNavigator.onTimelineChanged(Player)</code></a>.</div>
 </td>
 </tr>
@@ -369,6 +395,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#registerCustomCommandReceiver(com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector.CommandReceiver)">registerCustomCommandReceiver</a></span>&#8203;(<a href="MediaSessionConnector.CommandReceiver.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CommandReceiver</a>&nbsp;commandReceiver)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Registers a custom command receiver for responding to commands delivered via <code>MediaSessionCompat.Callback.onCommand(String, Bundle, ResultReceiver)</code>.</div>
 </td>
 </tr>
@@ -376,6 +403,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setCaptionCallback(com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector.CaptionCallback)">setCaptionCallback</a></span>&#8203;(<a href="MediaSessionConnector.CaptionCallback.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CaptionCallback</a>&nbsp;captionCallback)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="MediaSessionConnector.CaptionCallback.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.CaptionCallback</code></a> to handle requests to enable or disable captions.</div>
 </td>
 </tr>
@@ -383,6 +411,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setClearMediaItemsOnStop(boolean)">setClearMediaItemsOnStop</a></span>&#8203;(boolean&nbsp;clearMediaItemsOnStop)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether media items are cleared from the playlist when a client sends a <code>MediaControllerCompat.TransportControls.stop()</code> command.</div>
 </td>
 </tr>
@@ -390,6 +419,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setCustomActionProviders(com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector.CustomActionProvider...)">setCustomActionProviders</a></span>&#8203;(<a href="MediaSessionConnector.CustomActionProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CustomActionProvider</a>...&nbsp;customActionProviders)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets custom action providers.</div>
 </td>
 </tr>
@@ -397,6 +427,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setCustomErrorMessage(java.lang.CharSequence)">setCustomErrorMessage</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a>&nbsp;message)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets a custom error on the session.</div>
 </td>
 </tr>
@@ -405,6 +436,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setCustomErrorMessage(java.lang.CharSequence,int)">setCustomErrorMessage</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a>&nbsp;message,
                      int&nbsp;code)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets a custom error on the session.</div>
 </td>
 </tr>
@@ -414,6 +446,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                      int&nbsp;code,
                      <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;extras)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets a custom error on the session.</div>
 </td>
 </tr>
@@ -421,6 +454,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDispatchUnsupportedActionsEnabled(boolean)">setDispatchUnsupportedActionsEnabled</a></span>&#8203;(boolean&nbsp;dispatchUnsupportedActionsEnabled)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether actions that are not advertised to the <code>MediaSessionCompat</code> will be
  dispatched either way.</div>
 </td>
@@ -429,6 +463,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setEnabledPlaybackActions(long)">setEnabledPlaybackActions</a></span>&#8203;(long&nbsp;enabledPlaybackActions)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the enabled playback actions.</div>
 </td>
 </tr>
@@ -436,6 +471,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setErrorMessageProvider(com.google.android.exoplayer2.util.ErrorMessageProvider)">setErrorMessageProvider</a></span>&#8203;(<a href="../../util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util">ErrorMessageProvider</a>&lt;? super <a href="../../PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a>&gt;&nbsp;errorMessageProvider)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the optional <a href="../../util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util"><code>ErrorMessageProvider</code></a>.</div>
 </td>
 </tr>
@@ -443,6 +479,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMapStateIdleToSessionStateStopped(boolean)">setMapStateIdleToSessionStateStopped</a></span>&#8203;(boolean&nbsp;mapIdleToStopped)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether <a href="../../Player.html#STATE_IDLE"><code>Player.STATE_IDLE</code></a> should be mapped to <code>PlaybackStateCompat.STATE_STOPPED</code>.</div>
 </td>
 </tr>
@@ -450,6 +487,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaButtonEventHandler(com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector.MediaButtonEventHandler)">setMediaButtonEventHandler</a></span>&#8203;(<a href="MediaSessionConnector.MediaButtonEventHandler.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.MediaButtonEventHandler</a>&nbsp;mediaButtonEventHandler)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="MediaSessionConnector.MediaButtonEventHandler.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.MediaButtonEventHandler</code></a>.</div>
 </td>
 </tr>
@@ -457,6 +495,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaMetadataProvider(com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector.MediaMetadataProvider)">setMediaMetadataProvider</a></span>&#8203;(<a href="MediaSessionConnector.MediaMetadataProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.MediaMetadataProvider</a>&nbsp;mediaMetadataProvider)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets a provider of metadata to be published to the media session.</div>
 </td>
 </tr>
@@ -464,6 +503,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMetadataDeduplicationEnabled(boolean)">setMetadataDeduplicationEnabled</a></span>&#8203;(boolean&nbsp;metadataDeduplicationEnabled)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether <a href="MediaSessionConnector.MediaMetadataProvider.html#sameAs(android.support.v4.media.MediaMetadataCompat,android.support.v4.media.MediaMetadataCompat)"><code>MediaSessionConnector.MediaMetadataProvider.sameAs(MediaMetadataCompat, MediaMetadataCompat)</code></a>
  should be consulted before calling <code>MediaSessionCompat.setMetadata(MediaMetadataCompat)</code>.</div>
 </td>
@@ -472,6 +512,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlaybackPreparer(com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector.PlaybackPreparer)">setPlaybackPreparer</a></span>&#8203;(<a href="MediaSessionConnector.PlaybackPreparer.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.PlaybackPreparer</a>&nbsp;playbackPreparer)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="MediaSessionConnector.PlaybackPreparer.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.PlaybackPreparer</code></a>.</div>
 </td>
 </tr>
@@ -479,6 +520,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlayer(com.google.android.exoplayer2.Player)">setPlayer</a></span>&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the player to be connected to the media session.</div>
 </td>
 </tr>
@@ -486,6 +528,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setQueueEditor(com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector.QueueEditor)">setQueueEditor</a></span>&#8203;(<a href="MediaSessionConnector.QueueEditor.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueEditor</a>&nbsp;queueEditor)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="MediaSessionConnector.QueueEditor.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.QueueEditor</code></a> to handle queue edits sent by the media controller.</div>
 </td>
 </tr>
@@ -493,6 +536,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setQueueNavigator(com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector.QueueNavigator)">setQueueNavigator</a></span>&#8203;(<a href="MediaSessionConnector.QueueNavigator.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueNavigator</a>&nbsp;queueNavigator)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="MediaSessionConnector.QueueNavigator.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.QueueNavigator</code></a> to handle queue navigation actions <code>ACTION_SKIP_TO_NEXT</code>,
  <code>ACTION_SKIP_TO_PREVIOUS</code> and <code>ACTION_SKIP_TO_QUEUE_ITEM</code>.</div>
 </td>
@@ -501,6 +545,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRatingCallback(com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector.RatingCallback)">setRatingCallback</a></span>&#8203;(<a href="MediaSessionConnector.RatingCallback.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.RatingCallback</a>&nbsp;ratingCallback)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="MediaSessionConnector.RatingCallback.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.RatingCallback</code></a> to handle user ratings.</div>
 </td>
 </tr>
@@ -508,6 +553,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#unregisterCustomCommandReceiver(com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector.CommandReceiver)">unregisterCustomCommandReceiver</a></span>&#8203;(<a href="MediaSessionConnector.CommandReceiver.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CommandReceiver</a>&nbsp;commandReceiver)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Unregisters a previously registered custom command receiver.</div>
 </td>
 </tr>
@@ -542,6 +588,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>ALL_PLAYBACK_ACTIONS</h4>
 <pre>public static final&nbsp;long ALL_PLAYBACK_ACTIONS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector.ALL_PLAYBACK_ACTIONS">Constant Field Values</a></dd>
@@ -555,6 +602,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>DEFAULT_PLAYBACK_ACTIONS</h4>
 <pre>public static final&nbsp;long DEFAULT_PLAYBACK_ACTIONS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default playback actions.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -569,6 +617,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>EXTRAS_SPEED</h4>
 <pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> EXTRAS_SPEED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The name of the <code>PlaybackStateCompat</code> float extra with the value of <code>
  Player.getPlaybackParameters().speed</code>.</div>
 <dl>
@@ -584,6 +633,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>mediaSession</h4>
 <pre>public final&nbsp;android.support.v4.media.session.MediaSessionCompat mediaSession</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The wrapped <code>MediaSessionCompat</code>.</div>
 </li>
 </ul>
@@ -604,6 +654,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>MediaSessionConnector</h4>
 <pre>public&nbsp;MediaSessionConnector&#8203;(android.support.v4.media.session.MediaSessionCompat&nbsp;mediaSession)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -629,6 +680,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>setPlayer</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setPlayer&#8203;(@Nullable
                       <a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the player to be connected to the media session. Must be called on the same thread that is
  used to access the player.</div>
 <dl>
@@ -646,6 +698,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>setPlaybackPreparer</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setPlaybackPreparer&#8203;(@Nullable
                                 <a href="MediaSessionConnector.PlaybackPreparer.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.PlaybackPreparer</a>&nbsp;playbackPreparer)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="MediaSessionConnector.PlaybackPreparer.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.PlaybackPreparer</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -661,6 +714,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>setMediaButtonEventHandler</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setMediaButtonEventHandler&#8203;(@Nullable
                                        <a href="MediaSessionConnector.MediaButtonEventHandler.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.MediaButtonEventHandler</a>&nbsp;mediaButtonEventHandler)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="MediaSessionConnector.MediaButtonEventHandler.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.MediaButtonEventHandler</code></a>. Pass <code>null</code> if the media button event should be
  handled by <code>MediaSessionCompat.Callback.onMediaButtonEvent(Intent)</code>.
 
@@ -685,6 +739,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>setEnabledPlaybackActions</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setEnabledPlaybackActions&#8203;(long&nbsp;enabledPlaybackActions)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the enabled playback actions.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -700,6 +755,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>setErrorMessageProvider</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setErrorMessageProvider&#8203;(@Nullable
                                     <a href="../../util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util">ErrorMessageProvider</a>&lt;? super <a href="../../PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a>&gt;&nbsp;errorMessageProvider)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the optional <a href="../../util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util"><code>ErrorMessageProvider</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -715,6 +771,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>setQueueNavigator</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setQueueNavigator&#8203;(@Nullable
                               <a href="MediaSessionConnector.QueueNavigator.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueNavigator</a>&nbsp;queueNavigator)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="MediaSessionConnector.QueueNavigator.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.QueueNavigator</code></a> to handle queue navigation actions <code>ACTION_SKIP_TO_NEXT</code>,
  <code>ACTION_SKIP_TO_PREVIOUS</code> and <code>ACTION_SKIP_TO_QUEUE_ITEM</code>.</div>
 <dl>
@@ -731,6 +788,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>setQueueEditor</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setQueueEditor&#8203;(@Nullable
                            <a href="MediaSessionConnector.QueueEditor.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueEditor</a>&nbsp;queueEditor)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="MediaSessionConnector.QueueEditor.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.QueueEditor</code></a> to handle queue edits sent by the media controller.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -746,6 +804,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>setRatingCallback</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setRatingCallback&#8203;(@Nullable
                               <a href="MediaSessionConnector.RatingCallback.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.RatingCallback</a>&nbsp;ratingCallback)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="MediaSessionConnector.RatingCallback.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.RatingCallback</code></a> to handle user ratings.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -761,6 +820,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>setCaptionCallback</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setCaptionCallback&#8203;(@Nullable
                                <a href="MediaSessionConnector.CaptionCallback.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CaptionCallback</a>&nbsp;captionCallback)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="MediaSessionConnector.CaptionCallback.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.CaptionCallback</code></a> to handle requests to enable or disable captions.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -776,6 +836,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>setCustomErrorMessage</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setCustomErrorMessage&#8203;(@Nullable
                                   <a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a>&nbsp;message)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets a custom error on the session.
 
  <p>This sets the error code via <code>PlaybackStateCompat.Builder.setErrorMessage(int,
@@ -795,6 +856,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">public&nbsp;void&nbsp;setCustomErrorMessage&#8203;(@Nullable
                                   <a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a>&nbsp;message,
                                   int&nbsp;code)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets a custom error on the session.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -814,6 +876,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                                   int&nbsp;code,
                                   @Nullable
                                   <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;extras)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets a custom error on the session.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -831,6 +894,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>setCustomActionProviders</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setCustomActionProviders&#8203;(@Nullable
                                      <a href="MediaSessionConnector.CustomActionProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CustomActionProvider</a>...&nbsp;customActionProviders)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets custom action providers. The order of the <a href="MediaSessionConnector.CustomActionProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.CustomActionProvider</code></a>s determines the
  order in which the actions are published.</div>
 <dl>
@@ -848,6 +912,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>setMediaMetadataProvider</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setMediaMetadataProvider&#8203;(@Nullable
                                      <a href="MediaSessionConnector.MediaMetadataProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.MediaMetadataProvider</a>&nbsp;mediaMetadataProvider)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets a provider of metadata to be published to the media session. Pass <code>null</code> if no
  metadata should be published.</div>
 <dl>
@@ -864,6 +929,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>setDispatchUnsupportedActionsEnabled</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setDispatchUnsupportedActionsEnabled&#8203;(boolean&nbsp;dispatchUnsupportedActionsEnabled)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether actions that are not advertised to the <code>MediaSessionCompat</code> will be
  dispatched either way. Default value is false.</div>
 </li>
@@ -875,6 +941,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>setClearMediaItemsOnStop</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setClearMediaItemsOnStop&#8203;(boolean&nbsp;clearMediaItemsOnStop)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether media items are cleared from the playlist when a client sends a <code>MediaControllerCompat.TransportControls.stop()</code> command.</div>
 </li>
 </ul>
@@ -885,6 +952,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>setMapStateIdleToSessionStateStopped</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setMapStateIdleToSessionStateStopped&#8203;(boolean&nbsp;mapIdleToStopped)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether <a href="../../Player.html#STATE_IDLE"><code>Player.STATE_IDLE</code></a> should be mapped to <code>PlaybackStateCompat.STATE_STOPPED</code>. The default is false <a href="../../Player.html#STATE_IDLE"><code>Player.STATE_IDLE</code></a> which maps
  to <code>PlaybackStateCompat.STATE_NONE</code>.</div>
 </li>
@@ -896,6 +964,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>setMetadataDeduplicationEnabled</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setMetadataDeduplicationEnabled&#8203;(boolean&nbsp;metadataDeduplicationEnabled)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether <a href="MediaSessionConnector.MediaMetadataProvider.html#sameAs(android.support.v4.media.MediaMetadataCompat,android.support.v4.media.MediaMetadataCompat)"><code>MediaSessionConnector.MediaMetadataProvider.sameAs(MediaMetadataCompat, MediaMetadataCompat)</code></a>
  should be consulted before calling <code>MediaSessionCompat.setMetadata(MediaMetadataCompat)</code>.
 
@@ -914,6 +983,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>invalidateMediaSessionMetadata</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;invalidateMediaSessionMetadata()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates the metadata of the media session.
 
  <p>Apps normally only need to call this method when the backing data for a given media item has
@@ -930,6 +1000,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>invalidateMediaSessionPlaybackState</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;invalidateMediaSessionPlaybackState()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates the playback state of the media session.
 
  <p>Apps normally only need to call this method when the custom actions provided by a <a href="MediaSessionConnector.CustomActionProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.CustomActionProvider</code></a> changed and the playback state needs to be updated immediately.</div>
@@ -942,6 +1013,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>invalidateMediaSessionQueue</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;invalidateMediaSessionQueue()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates the queue of the media session by calling <a href="MediaSessionConnector.QueueNavigator.html#onTimelineChanged(com.google.android.exoplayer2.Player)"><code>MediaSessionConnector.QueueNavigator.onTimelineChanged(Player)</code></a>.
 
  <p>Apps normally only need to call this method when the backing data for a given queue item has
@@ -956,6 +1028,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>registerCustomCommandReceiver</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;registerCustomCommandReceiver&#8203;(@Nullable
                                           <a href="MediaSessionConnector.CommandReceiver.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CommandReceiver</a>&nbsp;commandReceiver)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Registers a custom command receiver for responding to commands delivered via <code>MediaSessionCompat.Callback.onCommand(String, Bundle, ResultReceiver)</code>.
 
  <p>Commands are only dispatched to this receiver when a player is connected.</div>
@@ -973,6 +1046,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>unregisterCustomCommandReceiver</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;unregisterCustomCommandReceiver&#8203;(@Nullable
                                             <a href="MediaSessionConnector.CommandReceiver.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CommandReceiver</a>&nbsp;commandReceiver)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Unregisters a previously registered custom command receiver.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

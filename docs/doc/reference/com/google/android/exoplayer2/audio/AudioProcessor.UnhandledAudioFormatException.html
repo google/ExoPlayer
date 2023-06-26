@@ -143,7 +143,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <hr>
 <pre>public static final class <span class="typeNameLabel">AudioProcessor.UnhandledAudioFormatException</span>
 extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a></pre>
-<div class="block">Exception thrown when a processor can't be configured for a given input audio format.</div>
+<div class="block">Exception thrown when the given <a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio"><code>AudioProcessor.AudioFormat</code></a> can not be handled.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../serialized-form.html#com.google.android.exoplayer2.audio.AudioProcessor.UnhandledAudioFormatException">Serialized Form</a></dd>
@@ -169,6 +169,11 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat)">UnhandledAudioFormatException</a></span>&#8203;(<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;inputAudioFormat)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr class="rowColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat)">UnhandledAudioFormatException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
+                             <a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;audioFormat)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -215,10 +220,20 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <a id="&lt;init&gt;(com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>UnhandledAudioFormatException</h4>
 <pre>public&nbsp;UnhandledAudioFormatException&#8203;(<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;inputAudioFormat)</pre>
+</li>
+</ul>
+<a id="&lt;init&gt;(java.lang.String,com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>UnhandledAudioFormatException</h4>
+<pre>public&nbsp;UnhandledAudioFormatException&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
+                                     <a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;audioFormat)</pre>
 </li>
 </ul>
 </li>

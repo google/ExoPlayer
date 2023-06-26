@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="GlEffect.html" title="interface in com.google.android.exoplayer2.effect">GlEffect</a></code>, <code><a href="GlMatrixTransformation.html" title="interface in com.google.android.exoplayer2.effect">GlMatrixTransformation</a></code>, <code><a href="MatrixTransformation.html" title="interface in com.google.android.exoplayer2.effect">MatrixTransformation</a></code>, <code><a href="../util/Effect.html" title="interface in com.google.android.exoplayer2.util">Effect</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">Crop</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">Crop</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="MatrixTransformation.html" title="interface in com.google.android.exoplayer2.effect">MatrixTransformation</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Specifies a crop to apply in the vertex shader.
 
  <p>The background color of the output frame will be black, with alpha = 0 if applicable.</div>
@@ -164,6 +170,7 @@ implements <a href="MatrixTransformation.html" title="interface in com.google.an
     float&nbsp;bottom,
     float&nbsp;top)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Crops a smaller (or larger) frame, per normalized device coordinates (NDC), where the input
  frame corresponds to the square ranging from -1 to 1 on the x and y axes.</div>
 </td>
@@ -180,17 +187,18 @@ implements <a href="MatrixTransformation.html" title="interface in com.google.an
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;</code></td>
+<td class="colFirst"><code><a href="../util/Size.html" title="class in com.google.android.exoplayer2.util">Size</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#configure(int,int)">configure</a></span>&#8203;(int&nbsp;inputWidth,
          int&nbsp;inputHeight)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Configures the input and output dimensions.</div>
 </td>
 </tr>
@@ -198,7 +206,17 @@ implements <a href="MatrixTransformation.html" title="interface in com.google.an
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/graphics/Matrix.html" title="class or interface in android.graphics" class="externalLink" target="_top">Matrix</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMatrix(long)">getMatrix</a></span>&#8203;(long&nbsp;presentationTimeUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the 3x3 transformation <a href="https://developer.android.com/reference/android/graphics/Matrix.html" title="class or interface in android.graphics" class="externalLink" target="_top"><code>Matrix</code></a> to apply to the frame with the given timestamp.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isNoOp(int,int)">isNoOp</a></span>&#8203;(int&nbsp;inputWidth,
+      int&nbsp;inputHeight)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns whether a <a href="GlEffect.html" title="interface in com.google.android.exoplayer2.effect"><code>GlEffect</code></a> applies no change at every timestamp.</div>
 </td>
 </tr>
 </table>
@@ -214,7 +232,7 @@ implements <a href="MatrixTransformation.html" title="interface in com.google.an
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.effect.<a href="GlMatrixTransformation.html" title="interface in com.google.android.exoplayer2.effect">GlMatrixTransformation</a></h3>
-<code><a href="GlMatrixTransformation.html#toGlTextureProcessor(android.content.Context,boolean)">toGlTextureProcessor</a></code></li>
+<code><a href="GlMatrixTransformation.html#toGlShaderProgram(android.content.Context,boolean)">toGlShaderProgram</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.effect.MatrixTransformation">
@@ -249,6 +267,7 @@ implements <a href="MatrixTransformation.html" title="interface in com.google.an
             float&nbsp;right,
             float&nbsp;bottom,
             float&nbsp;top)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Crops a smaller (or larger) frame, per normalized device coordinates (NDC), where the input
  frame corresponds to the square ranging from -1 to 1 on the x and y axes.
 
@@ -280,8 +299,9 @@ implements <a href="MatrixTransformation.html" title="interface in com.google.an
 <ul class="blockList">
 <li class="blockList">
 <h4>configure</h4>
-<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;&nbsp;configure&#8203;(int&nbsp;inputWidth,
-                                             int&nbsp;inputHeight)</pre>
+<pre class="methodSignature">public&nbsp;<a href="../util/Size.html" title="class in com.google.android.exoplayer2.util">Size</a>&nbsp;configure&#8203;(int&nbsp;inputWidth,
+                      int&nbsp;inputHeight)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="GlMatrixTransformation.html#configure(int,int)">GlMatrixTransformation</a></code></span></div>
 <div class="block">Configures the input and output dimensions.
 
@@ -300,15 +320,38 @@ implements <a href="MatrixTransformation.html" title="interface in com.google.an
 <a id="getMatrix(long)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>getMatrix</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/graphics/Matrix.html" title="class or interface in android.graphics" class="externalLink" target="_top">Matrix</a>&nbsp;getMatrix&#8203;(long&nbsp;presentationTimeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MatrixTransformation.html#getMatrix(long)">MatrixTransformation</a></code></span></div>
 <div class="block">Returns the 3x3 transformation <a href="https://developer.android.com/reference/android/graphics/Matrix.html" title="class or interface in android.graphics" class="externalLink" target="_top"><code>Matrix</code></a> to apply to the frame with the given timestamp.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="MatrixTransformation.html#getMatrix(long)">getMatrix</a></code>&nbsp;in interface&nbsp;<code><a href="MatrixTransformation.html" title="interface in com.google.android.exoplayer2.effect">MatrixTransformation</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="isNoOp(int,int)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>isNoOp</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isNoOp&#8203;(int&nbsp;inputWidth,
+                      int&nbsp;inputHeight)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="GlEffect.html#isNoOp(int,int)">GlEffect</a></code></span></div>
+<div class="block">Returns whether a <a href="GlEffect.html" title="interface in com.google.android.exoplayer2.effect"><code>GlEffect</code></a> applies no change at every timestamp.
+
+ <p>This can be used as a hint to skip this instance.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="GlEffect.html#isNoOp(int,int)">isNoOp</a></code>&nbsp;in interface&nbsp;<code><a href="GlEffect.html" title="interface in com.google.android.exoplayer2.effect">GlEffect</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>inputWidth</code> - The input frame width, in pixels.</dd>
+<dd><code>inputHeight</code> - The input frame height, in pixels.</dd>
 </dl>
 </li>
 </ul>

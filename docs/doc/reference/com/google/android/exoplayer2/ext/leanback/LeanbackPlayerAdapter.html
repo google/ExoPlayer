@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42,"i12":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -138,9 +138,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="https://developer.android.com/reference/java/lang/Runnable.html" title="class or interface in java.lang" class="externalLink" target="_top">Runnable</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">LeanbackPlayerAdapter</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">LeanbackPlayerAdapter</span>
 extends androidx.leanback.media.PlayerAdapter
 implements <a href="https://developer.android.com/reference/java/lang/Runnable.html" title="class or interface in java.lang" class="externalLink" target="_top">Runnable</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Leanback <code>PlayerAdapter</code> implementation for <a href="../../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>.</div>
 </li>
 </ul>
@@ -183,6 +189,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Runnable.h
                      <a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                      int&nbsp;updatePeriodMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builds an instance.</div>
 </td>
 </tr>
@@ -198,7 +205,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Runnable.h
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -207,69 +214,94 @@ implements <a href="https://developer.android.com/reference/java/lang/Runnable.h
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getBufferedPosition()">getBufferedPosition</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCurrentPosition()">getCurrentPosition</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDuration()">getDuration</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isPlaying()">isPlaying</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isPrepared()">isPrepared</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAttachedToHost(androidx.leanback.media.PlaybackGlueHost)">onAttachedToHost</a></span>&#8203;(androidx.leanback.media.PlaybackGlueHost&nbsp;host)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDetachedFromHost()">onDetachedFromHost</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#pause()">pause</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#play()">play</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#run()">run</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekTo(long)">seekTo</a></span>&#8203;(long&nbsp;positionInMs)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setErrorMessageProvider(com.google.android.exoplayer2.util.ErrorMessageProvider)">setErrorMessageProvider</a></span>&#8203;(<a href="../../util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util">ErrorMessageProvider</a>&lt;? super <a href="../../PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a>&gt;&nbsp;errorMessageProvider)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the optional <a href="../../util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util"><code>ErrorMessageProvider</code></a>.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setProgressUpdatingEnabled(boolean)">setProgressUpdatingEnabled</a></span>&#8203;(boolean&nbsp;enable)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -311,6 +343,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Runnable.h
 <pre>public&nbsp;LeanbackPlayerAdapter&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                              <a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                              int&nbsp;updatePeriodMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builds an instance. Note that the <code>PlayerAdapter</code> does not manage the lifecycle of the
  <a href="../../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> instance. The caller remains responsible for releasing the player when it's no
  longer required.</div>
@@ -340,6 +373,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Runnable.h
 <h4>setErrorMessageProvider</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setErrorMessageProvider&#8203;(@Nullable
                                     <a href="../../util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util">ErrorMessageProvider</a>&lt;? super <a href="../../PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a>&gt;&nbsp;errorMessageProvider)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the optional <a href="../../util/ErrorMessageProvider.html" title="interface in com.google.android.exoplayer2.util"><code>ErrorMessageProvider</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -354,6 +388,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Runnable.h
 <li class="blockList">
 <h4>onAttachedToHost</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onAttachedToHost&#8203;(androidx.leanback.media.PlaybackGlueHost&nbsp;host)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code>onAttachedToHost</code>&nbsp;in class&nbsp;<code>androidx.leanback.media.PlayerAdapter</code></dd>
@@ -367,6 +402,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Runnable.h
 <li class="blockList">
 <h4>onDetachedFromHost</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onDetachedFromHost()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code>onDetachedFromHost</code>&nbsp;in class&nbsp;<code>androidx.leanback.media.PlayerAdapter</code></dd>
@@ -380,6 +416,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Runnable.h
 <li class="blockList">
 <h4>setProgressUpdatingEnabled</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setProgressUpdatingEnabled&#8203;(boolean&nbsp;enable)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code>setProgressUpdatingEnabled</code>&nbsp;in class&nbsp;<code>androidx.leanback.media.PlayerAdapter</code></dd>
@@ -393,6 +430,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Runnable.h
 <li class="blockList">
 <h4>isPlaying</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isPlaying()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code>isPlaying</code>&nbsp;in class&nbsp;<code>androidx.leanback.media.PlayerAdapter</code></dd>
@@ -406,6 +444,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Runnable.h
 <li class="blockList">
 <h4>getDuration</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getDuration()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code>getDuration</code>&nbsp;in class&nbsp;<code>androidx.leanback.media.PlayerAdapter</code></dd>
@@ -419,6 +458,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Runnable.h
 <li class="blockList">
 <h4>getCurrentPosition</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getCurrentPosition()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code>getCurrentPosition</code>&nbsp;in class&nbsp;<code>androidx.leanback.media.PlayerAdapter</code></dd>
@@ -432,6 +472,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Runnable.h
 <li class="blockList">
 <h4>play</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;play()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code>play</code>&nbsp;in class&nbsp;<code>androidx.leanback.media.PlayerAdapter</code></dd>
@@ -445,6 +486,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Runnable.h
 <li class="blockList">
 <h4>pause</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;pause()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code>pause</code>&nbsp;in class&nbsp;<code>androidx.leanback.media.PlayerAdapter</code></dd>
@@ -458,6 +500,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Runnable.h
 <li class="blockList">
 <h4>seekTo</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;seekTo&#8203;(long&nbsp;positionInMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code>seekTo</code>&nbsp;in class&nbsp;<code>androidx.leanback.media.PlayerAdapter</code></dd>
@@ -471,6 +514,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Runnable.h
 <li class="blockList">
 <h4>getBufferedPosition</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getBufferedPosition()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code>getBufferedPosition</code>&nbsp;in class&nbsp;<code>androidx.leanback.media.PlayerAdapter</code></dd>
@@ -484,6 +528,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Runnable.h
 <li class="blockList">
 <h4>isPrepared</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isPrepared()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code>isPrepared</code>&nbsp;in class&nbsp;<code>androidx.leanback.media.PlayerAdapter</code></dd>
@@ -497,6 +542,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Runnable.h
 <li class="blockList">
 <h4>run</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;run()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Runnable.html#run()" title="class or interface in java.lang" class="externalLink">run</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Runnable.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Runnable</a></code></dd>

@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":6,"i2":10,"i3":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":38,"i2":42,"i3":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -138,8 +138,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../../upstream/Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream">Loader.Loadable</a></code></dd>
 </dl>
 <hr>
-<pre>public abstract class <span class="typeNameLabel">DataChunk</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public abstract class <span class="typeNameLabel">DataChunk</span>
 extends <a href="Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A base class for <a href="Chunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>Chunk</code></a> implementations where the data should be loaded into a <code>
  byte[]</code> before being consumed.</div>
 </li>
@@ -186,7 +192,9 @@ extends <a href="Chunk.html" title="class in com.google.android.exoplayer2.sourc
          @com.google.android.exoplayer2.C.SelectionReason int&nbsp;trackSelectionReason,
          <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;trackSelectionData,
          byte[]&nbsp;data)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -200,7 +208,7 @@ extends <a href="Chunk.html" title="class in com.google.android.exoplayer2.sourc
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -210,6 +218,7 @@ extends <a href="Chunk.html" title="class in com.google.android.exoplayer2.sourc
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#cancelLoad()">cancelLoad</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Cancels the load.</div>
 </td>
 </tr>
@@ -218,6 +227,7 @@ extends <a href="Chunk.html" title="class in com.google.android.exoplayer2.sourc
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#consume(byte%5B%5D,int)">consume</a></span>&#8203;(byte[]&nbsp;data,
        int&nbsp;limit)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called by <a href="#load()"><code>load()</code></a>.</div>
 </td>
 </tr>
@@ -225,6 +235,7 @@ extends <a href="Chunk.html" title="class in com.google.android.exoplayer2.sourc
 <td class="colFirst"><code>byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDataHolder()">getDataHolder</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the array in which the data is held.</div>
 </td>
 </tr>
@@ -232,6 +243,7 @@ extends <a href="Chunk.html" title="class in com.google.android.exoplayer2.sourc
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#load()">load</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Performs the load, returning on completion or cancellation.</div>
 </td>
 </tr>
@@ -281,6 +293,7 @@ extends <a href="Chunk.html" title="class in com.google.android.exoplayer2.sourc
                  <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;trackSelectionData,
                  @Nullable
                  byte[]&nbsp;data)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>dataSource</code> - The source from which the data should be loaded.</dd>
@@ -310,6 +323,7 @@ extends <a href="Chunk.html" title="class in com.google.android.exoplayer2.sourc
 <li class="blockList">
 <h4>getDataHolder</h4>
 <pre class="methodSignature">public&nbsp;byte[]&nbsp;getDataHolder()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the array in which the data is held.
 
  <p>This method should be used for recycling the holder only, and not for reading the data.</div>
@@ -326,6 +340,7 @@ extends <a href="Chunk.html" title="class in com.google.android.exoplayer2.sourc
 <li class="blockList">
 <h4>cancelLoad</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;cancelLoad()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../upstream/Loader.Loadable.html#cancelLoad()">Loader.Loadable</a></code></span></div>
 <div class="block">Cancels the load.
 
@@ -352,6 +367,7 @@ extends <a href="Chunk.html" title="class in com.google.android.exoplayer2.sourc
 <h4>load</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;load()
                 throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../upstream/Loader.Loadable.html#load()">Loader.Loadable</a></code></span></div>
 <div class="block">Performs the load, returning on completion or cancellation.</div>
 <dl>
@@ -369,6 +385,7 @@ extends <a href="Chunk.html" title="class in com.google.android.exoplayer2.sourc
 <pre class="methodSignature">protected abstract&nbsp;void&nbsp;consume&#8203;(byte[]&nbsp;data,
                                 int&nbsp;limit)
                          throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called by <a href="#load()"><code>load()</code></a>. Implementations should override this method to consume the loaded
  data.</div>
 <dl>

@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42,"i12":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -134,12 +134,18 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 <dl>
 <dt>Direct Known Subclasses:</dt>
-<dd><code><a href="SilenceSkippingAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">SilenceSkippingAudioProcessor</a></code>, <code><a href="TeeAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">TeeAudioProcessor</a></code></dd>
+<dd><code><a href="ChannelMixingAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">ChannelMixingAudioProcessor</a></code>, <code><a href="SilenceSkippingAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">SilenceSkippingAudioProcessor</a></code>, <code><a href="TeeAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">TeeAudioProcessor</a></code>, <code><a href="ToInt16PcmAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">ToInt16PcmAudioProcessor</a></code></dd>
 </dl>
 <hr>
-<pre>public abstract class <span class="typeNameLabel">BaseAudioProcessor</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public abstract class <span class="typeNameLabel">BaseAudioProcessor</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Base class for audio processors that keep an output buffer and an internal buffer that is reused
  whenever input is queued. Subclasses should override <a href="#onConfigure(com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat)"><code>onConfigure(AudioFormat)</code></a> to return
  the output audio format for the processor if it's active.</div>
@@ -184,6 +190,7 @@ implements <a href="AudioProcessor.html" title="interface in com.google.android.
 <td class="colFirst"><code>protected <a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#inputAudioFormat">inputAudioFormat</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The current input audio format.</div>
 </td>
 </tr>
@@ -191,6 +198,7 @@ implements <a href="AudioProcessor.html" title="interface in com.google.android.
 <td class="colFirst"><code>protected <a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#outputAudioFormat">outputAudioFormat</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The current output audio format.</div>
 </td>
 </tr>
@@ -220,7 +228,9 @@ implements <a href="AudioProcessor.html" title="interface in com.google.android.
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">BaseAudioProcessor</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -234,7 +244,7 @@ implements <a href="AudioProcessor.html" title="interface in com.google.android.
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -244,6 +254,7 @@ implements <a href="AudioProcessor.html" title="interface in com.google.android.
 <td class="colFirst"><code><a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#configure(com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat)">configure</a></span>&#8203;(<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;inputAudioFormat)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Configures the processor to process input audio with the specified format.</div>
 </td>
 </tr>
@@ -251,6 +262,7 @@ implements <a href="AudioProcessor.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#flush()">flush</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Clears any buffered data and pending output.</div>
 </td>
 </tr>
@@ -258,6 +270,7 @@ implements <a href="AudioProcessor.html" title="interface in com.google.android.
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getOutput()">getOutput</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a buffer containing processed output data between its position and limit.</div>
 </td>
 </tr>
@@ -265,6 +278,7 @@ implements <a href="AudioProcessor.html" title="interface in com.google.android.
 <td class="colFirst"><code>protected boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hasPendingOutput()">hasPendingOutput</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the current output buffer has any data remaining.</div>
 </td>
 </tr>
@@ -272,6 +286,7 @@ implements <a href="AudioProcessor.html" title="interface in com.google.android.
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isActive()">isActive</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the processor is configured and will process input buffers.</div>
 </td>
 </tr>
@@ -279,6 +294,7 @@ implements <a href="AudioProcessor.html" title="interface in com.google.android.
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isEnded()">isEnded</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether this processor will return no more output from <a href="AudioProcessor.html#getOutput()"><code>AudioProcessor.getOutput()</code></a> until
  <a href="AudioProcessor.html#flush()"><code>AudioProcessor.flush()</code></a> has been called and more input has been queued.</div>
 </td>
@@ -287,6 +303,7 @@ implements <a href="AudioProcessor.html" title="interface in com.google.android.
 <td class="colFirst"><code>protected <a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onConfigure(com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat)">onConfigure</a></span>&#8203;(<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;inputAudioFormat)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the processor is configured for a new input format.</div>
 </td>
 </tr>
@@ -294,6 +311,7 @@ implements <a href="AudioProcessor.html" title="interface in com.google.android.
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onFlush()">onFlush</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the processor is flushed, directly or as part of resetting.</div>
 </td>
 </tr>
@@ -301,6 +319,7 @@ implements <a href="AudioProcessor.html" title="interface in com.google.android.
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onQueueEndOfStream()">onQueueEndOfStream</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the end-of-stream is queued to the processor.</div>
 </td>
 </tr>
@@ -308,6 +327,7 @@ implements <a href="AudioProcessor.html" title="interface in com.google.android.
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onReset()">onReset</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the processor is reset.</div>
 </td>
 </tr>
@@ -315,6 +335,7 @@ implements <a href="AudioProcessor.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#queueEndOfStream()">queueEndOfStream</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Queues an end of stream signal.</div>
 </td>
 </tr>
@@ -322,6 +343,7 @@ implements <a href="AudioProcessor.html" title="interface in com.google.android.
 <td class="colFirst"><code>protected <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#replaceOutputBuffer(int)">replaceOutputBuffer</a></span>&#8203;(int&nbsp;size)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Replaces the current output buffer with a buffer of at least <code>size</code> bytes and returns it.</div>
 </td>
 </tr>
@@ -329,6 +351,7 @@ implements <a href="AudioProcessor.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset()">reset</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Resets the processor to its unconfigured state, releasing any resources.</div>
 </td>
 </tr>
@@ -370,6 +393,7 @@ implements <a href="AudioProcessor.html" title="interface in com.google.android.
 <li class="blockList">
 <h4>inputAudioFormat</h4>
 <pre>protected&nbsp;<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a> inputAudioFormat</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The current input audio format.</div>
 </li>
 </ul>
@@ -380,6 +404,7 @@ implements <a href="AudioProcessor.html" title="interface in com.google.android.
 <li class="blockList">
 <h4>outputAudioFormat</h4>
 <pre>protected&nbsp;<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a> outputAudioFormat</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The current output audio format.</div>
 </li>
 </ul>
@@ -400,6 +425,7 @@ implements <a href="AudioProcessor.html" title="interface in com.google.android.
 <li class="blockList">
 <h4>BaseAudioProcessor</h4>
 <pre>public&nbsp;BaseAudioProcessor()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -421,6 +447,7 @@ implements <a href="AudioProcessor.html" title="interface in com.google.android.
 <pre class="methodSignature">@CanIgnoreReturnValue
 public final&nbsp;<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;configure&#8203;(<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;inputAudioFormat)
                                            throws <a href="AudioProcessor.UnhandledAudioFormatException.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.UnhandledAudioFormatException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AudioProcessor.html#configure(com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat)">AudioProcessor</a></code></span></div>
 <div class="block">Configures the processor to process input audio with the specified format. After calling this
  method, call <a href="AudioProcessor.html#isActive()"><code>AudioProcessor.isActive()</code></a> to determine whether the audio processor is active. Returns
@@ -449,6 +476,7 @@ public final&nbsp;<a href="AudioProcessor.AudioFormat.html" title="class in com.
 <li class="blockList">
 <h4>isActive</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isActive()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AudioProcessor.html#isActive()">AudioProcessor</a></code></span></div>
 <div class="block">Returns whether the processor is configured and will process input buffers.</div>
 <dl>
@@ -464,6 +492,7 @@ public final&nbsp;<a href="AudioProcessor.AudioFormat.html" title="class in com.
 <li class="blockList">
 <h4>queueEndOfStream</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;queueEndOfStream()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AudioProcessor.html#queueEndOfStream()">AudioProcessor</a></code></span></div>
 <div class="block">Queues an end of stream signal. After this method has been called, <a href="AudioProcessor.html#queueInput(java.nio.ByteBuffer)"><code>AudioProcessor.queueInput(ByteBuffer)</code></a> may not be called until after the next call to <a href="AudioProcessor.html#flush()"><code>AudioProcessor.flush()</code></a>.
  Calling <a href="AudioProcessor.html#getOutput()"><code>AudioProcessor.getOutput()</code></a> will return any remaining output data. Multiple calls may be
@@ -483,6 +512,7 @@ public final&nbsp;<a href="AudioProcessor.AudioFormat.html" title="class in com.
 <h4>getOutput</h4>
 <pre class="methodSignature">@CallSuper
 public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;getOutput()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AudioProcessor.html#getOutput()">AudioProcessor</a></code></span></div>
 <div class="block">Returns a buffer containing processed output data between its position and limit. The buffer
  will always be a direct byte buffer with native byte order. Calling this method invalidates any
@@ -503,6 +533,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <h4>isEnded</h4>
 <pre class="methodSignature">@CallSuper
 public&nbsp;boolean&nbsp;isEnded()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AudioProcessor.html#isEnded()">AudioProcessor</a></code></span></div>
 <div class="block">Returns whether this processor will return no more output from <a href="AudioProcessor.html#getOutput()"><code>AudioProcessor.getOutput()</code></a> until
  <a href="AudioProcessor.html#flush()"><code>AudioProcessor.flush()</code></a> has been called and more input has been queued.</div>
@@ -519,6 +550,7 @@ public&nbsp;boolean&nbsp;isEnded()</pre>
 <li class="blockList">
 <h4>flush</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;flush()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AudioProcessor.html#flush()">AudioProcessor</a></code></span></div>
 <div class="block">Clears any buffered data and pending output. If the audio processor is active, also prepares
  the audio processor to receive a new stream of input in the last configured (pending) format.</div>
@@ -535,6 +567,7 @@ public&nbsp;boolean&nbsp;isEnded()</pre>
 <li class="blockList">
 <h4>reset</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;reset()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AudioProcessor.html#reset()">AudioProcessor</a></code></span></div>
 <div class="block">Resets the processor to its unconfigured state, releasing any resources.</div>
 <dl>
@@ -550,6 +583,7 @@ public&nbsp;boolean&nbsp;isEnded()</pre>
 <li class="blockList">
 <h4>replaceOutputBuffer</h4>
 <pre class="methodSignature">protected final&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;replaceOutputBuffer&#8203;(int&nbsp;size)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Replaces the current output buffer with a buffer of at least <code>size</code> bytes and returns it.
  Callers should write to the returned buffer then <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html#flip()" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer.flip()</code></a> it so it can be read
  via <a href="#getOutput()"><code>getOutput()</code></a>.</div>
@@ -562,6 +596,7 @@ public&nbsp;boolean&nbsp;isEnded()</pre>
 <li class="blockList">
 <h4>hasPendingOutput</h4>
 <pre class="methodSignature">protected final&nbsp;boolean&nbsp;hasPendingOutput()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the current output buffer has any data remaining.</div>
 </li>
 </ul>
@@ -574,6 +609,7 @@ public&nbsp;boolean&nbsp;isEnded()</pre>
 <pre class="methodSignature">@CanIgnoreReturnValue
 protected&nbsp;<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;onConfigure&#8203;(<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;inputAudioFormat)
                                           throws <a href="AudioProcessor.UnhandledAudioFormatException.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.UnhandledAudioFormatException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the processor is configured for a new input format.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -588,6 +624,7 @@ protected&nbsp;<a href="AudioProcessor.AudioFormat.html" title="class in com.goo
 <li class="blockList">
 <h4>onQueueEndOfStream</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onQueueEndOfStream()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the end-of-stream is queued to the processor.</div>
 </li>
 </ul>
@@ -598,6 +635,7 @@ protected&nbsp;<a href="AudioProcessor.AudioFormat.html" title="class in com.goo
 <li class="blockList">
 <h4>onFlush</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onFlush()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the processor is flushed, directly or as part of resetting.</div>
 </li>
 </ul>
@@ -608,6 +646,7 @@ protected&nbsp;<a href="AudioProcessor.AudioFormat.html" title="class in com.goo
 <li class="blockList">
 <h4>onReset</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onReset()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the processor is reset.</div>
 </li>
 </ul>

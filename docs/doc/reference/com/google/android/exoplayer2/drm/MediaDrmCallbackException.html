@@ -142,8 +142,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="https://developer.android.com/reference/java/io/Serializable.html" title="class or interface in java.io" class="externalLink" target="_top">Serializable</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">MediaDrmCallbackException</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">MediaDrmCallbackException</span>
 extends <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Thrown when an error occurs while executing a DRM <a href="MediaDrmCallback.html#executeKeyRequest(java.util.UUID,com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest)"><code>key</code></a>
  or <a href="MediaDrmCallback.html#executeProvisionRequest(java.util.UUID,com.google.android.exoplayer2.drm.ExoMediaDrm.ProvisionRequest)"><code>provisioning</code></a> request.</div>
 <dl>
@@ -174,6 +180,7 @@ extends <a href="https://developer.android.com/reference/java/io/IOException.htm
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#bytesLoaded">bytesLoaded</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of bytes obtained from the server.</div>
 </td>
 </tr>
@@ -181,6 +188,7 @@ extends <a href="https://developer.android.com/reference/java/io/IOException.htm
 <td class="colFirst"><code><a href="../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dataSpec">dataSpec</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> associated with the request.</div>
 </td>
 </tr>
@@ -188,6 +196,7 @@ extends <a href="https://developer.android.com/reference/java/io/IOException.htm
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#responseHeaders">responseHeaders</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The HTTP request headers included in the response.</div>
 </td>
 </tr>
@@ -195,6 +204,7 @@ extends <a href="https://developer.android.com/reference/java/io/IOException.htm
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#uriAfterRedirects">uriAfterRedirects</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink"><code>Uri</code></a> after redirections, or <a href="#dataSpec" target="_top"><code>dataSpec.uri</code></a> if no redirection
  occurred.</div>
 </td>
@@ -223,6 +233,7 @@ extends <a href="https://developer.android.com/reference/java/io/IOException.htm
                          long&nbsp;bytesLoaded,
                          <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new instance with the given values.</div>
 </td>
 </tr>
@@ -274,6 +285,7 @@ extends <a href="https://developer.android.com/reference/java/io/IOException.htm
 <li class="blockList">
 <h4>dataSpec</h4>
 <pre>public final&nbsp;<a href="../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a> dataSpec</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> associated with the request.</div>
 </li>
 </ul>
@@ -284,6 +296,7 @@ extends <a href="https://developer.android.com/reference/java/io/IOException.htm
 <li class="blockList">
 <h4>uriAfterRedirects</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a> uriAfterRedirects</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink"><code>Uri</code></a> after redirections, or <a href="#dataSpec" target="_top"><code>dataSpec.uri</code></a> if no redirection
  occurred.</div>
 </li>
@@ -295,6 +308,7 @@ extends <a href="https://developer.android.com/reference/java/io/IOException.htm
 <li class="blockList">
 <h4>responseHeaders</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt; responseHeaders</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The HTTP request headers included in the response.</div>
 </li>
 </ul>
@@ -305,6 +319,7 @@ extends <a href="https://developer.android.com/reference/java/io/IOException.htm
 <li class="blockList">
 <h4>bytesLoaded</h4>
 <pre>public final&nbsp;long bytesLoaded</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of bytes obtained from the server.</div>
 </li>
 </ul>
@@ -329,6 +344,7 @@ extends <a href="https://developer.android.com/reference/java/io/IOException.htm
                                  <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;&nbsp;responseHeaders,
                                  long&nbsp;bytesLoaded,
                                  <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new instance with the given values.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

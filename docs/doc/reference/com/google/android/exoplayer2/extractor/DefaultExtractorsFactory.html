@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42,"i12":42,"i13":42,"i14":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="ExtractorsFactory.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorsFactory</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">DefaultExtractorsFactory</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">DefaultExtractorsFactory</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="ExtractorsFactory.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorsFactory</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">An <a href="ExtractorsFactory.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorsFactory</code></a> that provides an array of extractors for the following formats:
 
  <ul>
@@ -202,7 +208,9 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">DefaultExtractorsFactory</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -216,7 +224,7 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -226,6 +234,7 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 <td class="colFirst"><code><a href="Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createExtractors()">createExtractors</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an array of new <a href="Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> instances.</div>
 </td>
 </tr>
@@ -234,6 +243,7 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createExtractors(android.net.Uri,java.util.Map)">createExtractors</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
                 <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;&nbsp;responseHeaders)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an array of new <a href="Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> instances.</div>
 </td>
 </tr>
@@ -241,6 +251,7 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 <td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAdtsExtractorFlags(@com.google.android.exoplayer2.extractor.ts.AdtsExtractor.Flagsint)">setAdtsExtractorFlags</a></span>&#8203;(@com.google.android.exoplayer2.extractor.ts.AdtsExtractor.Flags int&nbsp;flags)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets flags for <a href="ts/AdtsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>AdtsExtractor</code></a> instances created by the factory.</div>
 </td>
 </tr>
@@ -248,6 +259,7 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 <td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAmrExtractorFlags(@com.google.android.exoplayer2.extractor.amr.AmrExtractor.Flagsint)">setAmrExtractorFlags</a></span>&#8203;(@com.google.android.exoplayer2.extractor.amr.AmrExtractor.Flags int&nbsp;flags)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets flags for <a href="amr/AmrExtractor.html" title="class in com.google.android.exoplayer2.extractor.amr"><code>AmrExtractor</code></a> instances created by the factory.</div>
 </td>
 </tr>
@@ -255,6 +267,7 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 <td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setConstantBitrateSeekingAlwaysEnabled(boolean)">setConstantBitrateSeekingAlwaysEnabled</a></span>&#8203;(boolean&nbsp;constantBitrateSeekingAlwaysEnabled)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Convenience method to set whether approximate seeking using constant bitrate assumptions should
  be enabled for all extractors that support it, and if it should be enabled even if the content
  length (and hence the duration of the media) is unknown.</div>
@@ -264,6 +277,7 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 <td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setConstantBitrateSeekingEnabled(boolean)">setConstantBitrateSeekingEnabled</a></span>&#8203;(boolean&nbsp;constantBitrateSeekingEnabled)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Convenience method to set whether approximate seeking using constant bitrate assumptions should
  be enabled for all extractors that support it.</div>
 </td>
@@ -272,6 +286,7 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 <td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFlacExtractorFlags(@com.google.android.exoplayer2.extractor.flac.FlacExtractor.Flagsint)">setFlacExtractorFlags</a></span>&#8203;(@com.google.android.exoplayer2.extractor.flac.FlacExtractor.Flags int&nbsp;flags)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets flags for <a href="flac/FlacExtractor.html" title="class in com.google.android.exoplayer2.extractor.flac"><code>FlacExtractor</code></a> instances created by the factory.</div>
 </td>
 </tr>
@@ -279,6 +294,7 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 <td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFragmentedMp4ExtractorFlags(@com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor.Flagsint)">setFragmentedMp4ExtractorFlags</a></span>&#8203;(@com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor.Flags int&nbsp;flags)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets flags for <a href="mp4/FragmentedMp4Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp4"><code>FragmentedMp4Extractor</code></a> instances created by the factory.</div>
 </td>
 </tr>
@@ -286,6 +302,7 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 <td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMatroskaExtractorFlags(@com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor.Flagsint)">setMatroskaExtractorFlags</a></span>&#8203;(@com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor.Flags int&nbsp;flags)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets flags for <a href="mkv/MatroskaExtractor.html" title="class in com.google.android.exoplayer2.extractor.mkv"><code>MatroskaExtractor</code></a> instances created by the factory.</div>
 </td>
 </tr>
@@ -293,6 +310,7 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 <td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMp3ExtractorFlags(@com.google.android.exoplayer2.extractor.mp3.Mp3Extractor.Flagsint)">setMp3ExtractorFlags</a></span>&#8203;(@com.google.android.exoplayer2.extractor.mp3.Mp3Extractor.Flags int&nbsp;flags)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets flags for <a href="mp3/Mp3Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp3"><code>Mp3Extractor</code></a> instances created by the factory.</div>
 </td>
 </tr>
@@ -300,6 +318,7 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 <td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMp4ExtractorFlags(@com.google.android.exoplayer2.extractor.mp4.Mp4Extractor.Flagsint)">setMp4ExtractorFlags</a></span>&#8203;(@com.google.android.exoplayer2.extractor.mp4.Mp4Extractor.Flags int&nbsp;flags)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets flags for <a href="mp4/Mp4Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp4"><code>Mp4Extractor</code></a> instances created by the factory.</div>
 </td>
 </tr>
@@ -307,6 +326,7 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 <td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTsExtractorFlags(@com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flagsint)">setTsExtractorFlags</a></span>&#8203;(@com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flags int&nbsp;flags)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets flags for <a href="ts/DefaultTsPayloadReaderFactory.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>DefaultTsPayloadReaderFactory</code></a>s used by <a href="ts/TsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>TsExtractor</code></a> instances
  created by the factory.</div>
 </td>
@@ -315,6 +335,7 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 <td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTsExtractorMode(@com.google.android.exoplayer2.extractor.ts.TsExtractor.Modeint)">setTsExtractorMode</a></span>&#8203;(@com.google.android.exoplayer2.extractor.ts.TsExtractor.Mode int&nbsp;mode)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the mode for <a href="ts/TsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>TsExtractor</code></a> instances created by the factory.</div>
 </td>
 </tr>
@@ -322,6 +343,7 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 <td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTsExtractorTimestampSearchBytes(int)">setTsExtractorTimestampSearchBytes</a></span>&#8203;(int&nbsp;timestampSearchBytes)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the number of bytes searched to find a timestamp for <a href="ts/TsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>TsExtractor</code></a> instances created
  by the factory.</div>
 </td>
@@ -330,6 +352,7 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 <td class="colFirst"><code><a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTsSubtitleFormats(java.util.List)">setTsSubtitleFormats</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;subtitleFormats)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets a list of subtitle formats to pass to the <a href="ts/DefaultTsPayloadReaderFactory.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>DefaultTsPayloadReaderFactory</code></a> used by
  <a href="ts/TsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>TsExtractor</code></a> instances created by the factory.</div>
 </td>
@@ -365,6 +388,7 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 <li class="blockList">
 <h4>DefaultExtractorsFactory</h4>
 <pre>public&nbsp;DefaultExtractorsFactory()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -385,6 +409,7 @@ implements <a href="ExtractorsFactory.html" title="interface in com.google.andro
 <h4>setConstantBitrateSeekingEnabled</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setConstantBitrateSeekingEnabled&#8203;(boolean&nbsp;constantBitrateSeekingEnabled)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Convenience method to set whether approximate seeking using constant bitrate assumptions should
  be enabled for all extractors that support it. If set to true, the flags required to enable
  this functionality will be OR'd with those passed to the setters when creating extractor
@@ -407,6 +432,7 @@ public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.a
 <h4>setConstantBitrateSeekingAlwaysEnabled</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setConstantBitrateSeekingAlwaysEnabled&#8203;(boolean&nbsp;constantBitrateSeekingAlwaysEnabled)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Convenience method to set whether approximate seeking using constant bitrate assumptions should
  be enabled for all extractors that support it, and if it should be enabled even if the content
  length (and hence the duration of the media) is unknown. If set to true, the flags required to
@@ -436,6 +462,7 @@ public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.a
 <h4>setAdtsExtractorFlags</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setAdtsExtractorFlags&#8203;(@com.google.android.exoplayer2.extractor.ts.AdtsExtractor.Flags int&nbsp;flags)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets flags for <a href="ts/AdtsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>AdtsExtractor</code></a> instances created by the factory.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -455,6 +482,7 @@ public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.a
 <h4>setAmrExtractorFlags</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setAmrExtractorFlags&#8203;(@com.google.android.exoplayer2.extractor.amr.AmrExtractor.Flags int&nbsp;flags)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets flags for <a href="amr/AmrExtractor.html" title="class in com.google.android.exoplayer2.extractor.amr"><code>AmrExtractor</code></a> instances created by the factory.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -474,6 +502,7 @@ public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.a
 <h4>setFlacExtractorFlags</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setFlacExtractorFlags&#8203;(@com.google.android.exoplayer2.extractor.flac.FlacExtractor.Flags int&nbsp;flags)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets flags for <a href="flac/FlacExtractor.html" title="class in com.google.android.exoplayer2.extractor.flac"><code>FlacExtractor</code></a> instances created by the factory. The flags are also used
  by <code>com.google.android.exoplayer2.ext.flac.FlacExtractor</code> instances if the FLAC extension
  is being used.</div>
@@ -495,6 +524,7 @@ public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.a
 <h4>setMatroskaExtractorFlags</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setMatroskaExtractorFlags&#8203;(@com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor.Flags int&nbsp;flags)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets flags for <a href="mkv/MatroskaExtractor.html" title="class in com.google.android.exoplayer2.extractor.mkv"><code>MatroskaExtractor</code></a> instances created by the factory.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -514,6 +544,7 @@ public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.a
 <h4>setMp4ExtractorFlags</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setMp4ExtractorFlags&#8203;(@com.google.android.exoplayer2.extractor.mp4.Mp4Extractor.Flags int&nbsp;flags)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets flags for <a href="mp4/Mp4Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp4"><code>Mp4Extractor</code></a> instances created by the factory.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -533,6 +564,7 @@ public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.a
 <h4>setFragmentedMp4ExtractorFlags</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setFragmentedMp4ExtractorFlags&#8203;(@com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor.Flags int&nbsp;flags)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets flags for <a href="mp4/FragmentedMp4Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp4"><code>FragmentedMp4Extractor</code></a> instances created by the factory.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -552,6 +584,7 @@ public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.a
 <h4>setMp3ExtractorFlags</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setMp3ExtractorFlags&#8203;(@com.google.android.exoplayer2.extractor.mp3.Mp3Extractor.Flags int&nbsp;flags)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets flags for <a href="mp3/Mp3Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp3"><code>Mp3Extractor</code></a> instances created by the factory.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -571,6 +604,7 @@ public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.a
 <h4>setTsExtractorMode</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setTsExtractorMode&#8203;(@com.google.android.exoplayer2.extractor.ts.TsExtractor.Mode int&nbsp;mode)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the mode for <a href="ts/TsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>TsExtractor</code></a> instances created by the factory.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -590,6 +624,7 @@ public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.a
 <h4>setTsExtractorFlags</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setTsExtractorFlags&#8203;(@com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flags int&nbsp;flags)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets flags for <a href="ts/DefaultTsPayloadReaderFactory.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>DefaultTsPayloadReaderFactory</code></a>s used by <a href="ts/TsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>TsExtractor</code></a> instances
  created by the factory.</div>
 <dl>
@@ -610,6 +645,7 @@ public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.a
 <h4>setTsSubtitleFormats</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setTsSubtitleFormats&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;subtitleFormats)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets a list of subtitle formats to pass to the <a href="ts/DefaultTsPayloadReaderFactory.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>DefaultTsPayloadReaderFactory</code></a> used by
  <a href="ts/TsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>TsExtractor</code></a> instances created by the factory.</div>
 <dl>
@@ -630,6 +666,7 @@ public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.a
 <h4>setTsExtractorTimestampSearchBytes</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.android.exoplayer2.extractor">DefaultExtractorsFactory</a>&nbsp;setTsExtractorTimestampSearchBytes&#8203;(int&nbsp;timestampSearchBytes)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the number of bytes searched to find a timestamp for <a href="ts/TsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>TsExtractor</code></a> instances created
  by the factory.</div>
 <dl>
@@ -649,6 +686,7 @@ public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.a
 <li class="blockList">
 <h4>createExtractors</h4>
 <pre class="methodSignature">public&nbsp;<a href="Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>[]&nbsp;createExtractors()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorsFactory.html#createExtractors()">ExtractorsFactory</a></code></span></div>
 <div class="block">Returns an array of new <a href="Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> instances.</div>
 <dl>
@@ -665,6 +703,7 @@ public&nbsp;<a href="DefaultExtractorsFactory.html" title="class in com.google.a
 <h4>createExtractors</h4>
 <pre class="methodSignature">public&nbsp;<a href="Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>[]&nbsp;createExtractors&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
                                     <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;&nbsp;responseHeaders)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorsFactory.html#createExtractors(android.net.Uri,java.util.Map)">ExtractorsFactory</a></code></span></div>
 <div class="block">Returns an array of new <a href="Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> instances.</div>
 <dl>

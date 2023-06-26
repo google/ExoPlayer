@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var data = {"i0":38,"i1":38,"i2":38,"i3":38,"i4":38,"i5":38,"i6":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -125,7 +125,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../../ext/ima/ImaAdsLoader.html" title="class in com.google.android.exoplayer2.ext.ima">ImaAdsLoader</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">AdsLoader</span></pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">AdsLoader</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Interface for loaders of ads, which can be used with <a href="AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource</code></a>.
 
  <p>Ads loaders notify the <a href="AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource</code></a> about events via <a href="AdsLoader.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads"><code>AdsLoader.EventListener</code></a>. In
@@ -167,6 +173,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="AdsLoader.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.EventListener</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Listener for ads loader events.</div>
 </td>
 </tr>
@@ -174,6 +181,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="AdsLoader.Provider.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.Provider</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Provides <a href="AdsLoader.html" title="interface in com.google.android.exoplayer2.source.ads"><code>AdsLoader</code></a> instances for media items that have <a href="../../MediaItem.LocalConfiguration.html#adsConfiguration"><code>ad tag URIs</code></a>.</div>
 </td>
 </tr>
@@ -189,7 +197,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -201,6 +209,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                      int&nbsp;adGroupIndex,
                      int&nbsp;adIndexInAdGroup)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Notifies the ads loader that preparation of an ad media period is complete.</div>
 </td>
 </tr>
@@ -211,6 +220,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                   int&nbsp;adIndexInAdGroup,
                   <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;exception)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Notifies the ads loader that the player was not able to prepare media for a given ad.</div>
 </td>
 </tr>
@@ -218,6 +228,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases the loader.</div>
 </td>
 </tr>
@@ -225,6 +236,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlayer(com.google.android.exoplayer2.Player)">setPlayer</a></span>&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the player that will play the loaded ads.</div>
 </td>
 </tr>
@@ -232,6 +244,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSupportedContentTypes(@com.google.android.exoplayer2.C.ContentTypeint...)">setSupportedContentTypes</a></span>&#8203;(@com.google.android.exoplayer2.C.ContentType int...&nbsp;contentTypes)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the supported content types for ad media.</div>
 </td>
 </tr>
@@ -243,6 +256,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
      <a href="../../ui/AdViewProvider.html" title="interface in com.google.android.exoplayer2.ui">AdViewProvider</a>&nbsp;adViewProvider,
      <a href="AdsLoader.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.EventListener</a>&nbsp;eventListener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts using the ads loader for playback.</div>
 </td>
 </tr>
@@ -251,6 +265,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#stop(com.google.android.exoplayer2.source.ads.AdsMediaSource,com.google.android.exoplayer2.source.ads.AdsLoader.EventListener)">stop</a></span>&#8203;(<a href="AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads">AdsMediaSource</a>&nbsp;adsMediaSource,
     <a href="AdsLoader.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.EventListener</a>&nbsp;eventListener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Stops using the ads loader for playback and deregisters the event listener.</div>
 </td>
 </tr>
@@ -279,6 +294,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>setPlayer</h4>
 <pre class="methodSignature">void&nbsp;setPlayer&#8203;(@Nullable
                <a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the player that will play the loaded ads.
 
  <p>This method must be called before the player is prepared with media using this ads loader.
@@ -300,6 +316,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>release</h4>
 <pre class="methodSignature">void&nbsp;release()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases the loader. Must be called by the application on the main thread when the instance is
  no longer needed.</div>
 </li>
@@ -312,6 +329,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>setSupportedContentTypes</h4>
 <pre class="methodSignature">void&nbsp;setSupportedContentTypes&#8203;(<a href="../../C.ContentType.html" title="annotation in com.google.android.exoplayer2">@ContentType</a>
                               @com.google.android.exoplayer2.C.ContentType int...&nbsp;contentTypes)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the supported content types for ad media. Must be called before the first call to <a href="#start(com.google.android.exoplayer2.source.ads.AdsMediaSource,com.google.android.exoplayer2.upstream.DataSpec,java.lang.Object,com.google.android.exoplayer2.ui.AdViewProvider,com.google.android.exoplayer2.source.ads.AdsLoader.EventListener)"><code>start(AdsMediaSource, DataSpec, Object, AdViewProvider, EventListener)</code></a>. Subsequent calls may
  be ignored. Called on the main thread by <a href="AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource</code></a>.</div>
 <dl>
@@ -333,6 +351,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
            <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;adsId,
            <a href="../../ui/AdViewProvider.html" title="interface in com.google.android.exoplayer2.ui">AdViewProvider</a>&nbsp;adViewProvider,
            <a href="AdsLoader.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.EventListener</a>&nbsp;eventListener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts using the ads loader for playback. Called on the main thread by <a href="AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -352,6 +371,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>stop</h4>
 <pre class="methodSignature">void&nbsp;stop&#8203;(<a href="AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads">AdsMediaSource</a>&nbsp;adsMediaSource,
           <a href="AdsLoader.EventListener.html" title="interface in com.google.android.exoplayer2.source.ads">AdsLoader.EventListener</a>&nbsp;eventListener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Stops using the ads loader for playback and deregisters the event listener. Called on the main
  thread by <a href="AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource</code></a>.</div>
 <dl>
@@ -370,6 +390,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre class="methodSignature">void&nbsp;handlePrepareComplete&#8203;(<a href="AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads">AdsMediaSource</a>&nbsp;adsMediaSource,
                            int&nbsp;adGroupIndex,
                            int&nbsp;adIndexInAdGroup)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Notifies the ads loader that preparation of an ad media period is complete. Called on the main
  thread by <a href="AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource</code></a>.</div>
 <dl>
@@ -390,6 +411,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                         int&nbsp;adGroupIndex,
                         int&nbsp;adIndexInAdGroup,
                         <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;exception)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Notifies the ads loader that the player was not able to prepare media for a given ad.
  Implementations should update the ad playback state as the specified ad has failed to load.
  Called on the main thread by <a href="AdsMediaSource.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdsMediaSource</code></a>.</div>

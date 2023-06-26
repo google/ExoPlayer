@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="DownloaderFactory.html" title="interface in com.google.android.exoplayer2.offline">DownloaderFactory</a></code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">DefaultDownloaderFactory</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">DefaultDownloaderFactory</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="DownloaderFactory.html" title="interface in com.google.android.exoplayer2.offline">DownloaderFactory</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Default <a href="DownloaderFactory.html" title="interface in com.google.android.exoplayer2.offline"><code>DownloaderFactory</code></a>, supporting creation of progressive, DASH, HLS and
  SmoothStreaming downloaders. Note that for the latter three, the corresponding library module
  must be built into the application.</div>
@@ -170,6 +176,7 @@ implements <a href="DownloaderFactory.html" title="interface in com.google.andro
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.upstream.cache.CacheDataSource.Factory,java.util.concurrent.Executor)">DefaultDownloaderFactory</a></span>&#8203;(<a href="../upstream/cache/CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;cacheDataSourceFactory,
                         <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance.</div>
 </td>
 </tr>
@@ -185,7 +192,7 @@ implements <a href="DownloaderFactory.html" title="interface in com.google.andro
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -195,6 +202,7 @@ implements <a href="DownloaderFactory.html" title="interface in com.google.andro
 <td class="colFirst"><code><a href="Downloader.html" title="interface in com.google.android.exoplayer2.offline">Downloader</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createDownloader(com.google.android.exoplayer2.offline.DownloadRequest)">createDownloader</a></span>&#8203;(<a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a>&nbsp;request)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a <a href="Downloader.html" title="interface in com.google.android.exoplayer2.offline"><code>Downloader</code></a> to perform the given <a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadRequest</code></a>.</div>
 </td>
 </tr>
@@ -249,6 +257,7 @@ public&nbsp;DefaultDownloaderFactory&#8203;(<a href="../upstream/cache/CacheData
 <h4>DefaultDownloaderFactory</h4>
 <pre>public&nbsp;DefaultDownloaderFactory&#8203;(<a href="../upstream/cache/CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a>&nbsp;cacheDataSourceFactory,
                                 <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;executor)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -278,6 +287,7 @@ public&nbsp;DefaultDownloaderFactory&#8203;(<a href="../upstream/cache/CacheData
 <li class="blockList">
 <h4>createDownloader</h4>
 <pre class="methodSignature">public&nbsp;<a href="Downloader.html" title="interface in com.google.android.exoplayer2.offline">Downloader</a>&nbsp;createDownloader&#8203;(<a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a>&nbsp;request)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DownloaderFactory.html#createDownloader(com.google.android.exoplayer2.offline.DownloadRequest)">DownloaderFactory</a></code></span></div>
 <div class="block">Creates a <a href="Downloader.html" title="interface in com.google.android.exoplayer2.offline"><code>Downloader</code></a> to perform the given <a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadRequest</code></a>.</div>
 <dl>

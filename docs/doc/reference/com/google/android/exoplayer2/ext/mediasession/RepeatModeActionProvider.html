@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="MediaSessionConnector.CustomActionProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CustomActionProvider</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">RepeatModeActionProvider</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">RepeatModeActionProvider</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="MediaSessionConnector.CustomActionProvider.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CustomActionProvider</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Provides a custom action for toggling repeat modes.</div>
 </li>
 </ul>
@@ -161,6 +167,7 @@ implements <a href="MediaSessionConnector.CustomActionProvider.html" title="inte
 <td class="colFirst"><code>static @com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_REPEAT_TOGGLE_MODES">DEFAULT_REPEAT_TOGGLE_MODES</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default repeat toggle modes.</div>
 </td>
 </tr>
@@ -184,6 +191,7 @@ implements <a href="MediaSessionConnector.CustomActionProvider.html" title="inte
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context)">RepeatModeActionProvider</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new instance.</div>
 </td>
 </tr>
@@ -191,6 +199,7 @@ implements <a href="MediaSessionConnector.CustomActionProvider.html" title="inte
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModesint)">RepeatModeActionProvider</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                         @com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes int&nbsp;repeatToggleModes)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new instance enabling the given repeat toggle modes.</div>
 </td>
 </tr>
@@ -206,7 +215,7 @@ implements <a href="MediaSessionConnector.CustomActionProvider.html" title="inte
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -216,6 +225,7 @@ implements <a href="MediaSessionConnector.CustomActionProvider.html" title="inte
 <td class="colFirst"><code>android.support.v4.media.session.PlaybackStateCompat.CustomAction</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCustomAction(com.google.android.exoplayer2.Player)">getCustomAction</a></span>&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <code>PlaybackStateCompat.CustomAction</code> which will be published to the media
  session by the connector or <code>null</code> if this action should not be published at the given
  player state.</div>
@@ -227,6 +237,7 @@ implements <a href="MediaSessionConnector.CustomActionProvider.html" title="inte
               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;action,
               <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;extras)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a custom action provided by this provider is sent to the media session.</div>
 </td>
 </tr>
@@ -262,6 +273,7 @@ implements <a href="MediaSessionConnector.CustomActionProvider.html" title="inte
 <h4>DEFAULT_REPEAT_TOGGLE_MODES</h4>
 <pre><a href="../../util/RepeatModeUtil.RepeatToggleModes.html" title="annotation in com.google.android.exoplayer2.util">@RepeatToggleModes</a>
 public static final&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes int DEFAULT_REPEAT_TOGGLE_MODES</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default repeat toggle modes.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -286,6 +298,7 @@ public static final&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.Repe
 <li class="blockList">
 <h4>RepeatModeActionProvider</h4>
 <pre>public&nbsp;RepeatModeActionProvider&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new instance.
 
  <p>Equivalent to <code>RepeatModeActionProvider(context, DEFAULT_REPEAT_TOGGLE_MODES)</code>.</div>
@@ -304,6 +317,7 @@ public static final&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.Repe
 <pre>public&nbsp;RepeatModeActionProvider&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                                 <a href="../../util/RepeatModeUtil.RepeatToggleModes.html" title="annotation in com.google.android.exoplayer2.util">@RepeatToggleModes</a>
                                 @com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes int&nbsp;repeatToggleModes)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new instance enabling the given repeat toggle modes.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -332,6 +346,7 @@ public static final&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.Repe
                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;action,
                            @Nullable
                            <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;extras)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSessionConnector.CustomActionProvider.html#onCustomAction(com.google.android.exoplayer2.Player,java.lang.String,android.os.Bundle)">MediaSessionConnector.CustomActionProvider</a></code></span></div>
 <div class="block">Called when a custom action provided by this provider is sent to the media session.</div>
 <dl>
@@ -351,6 +366,7 @@ public static final&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.Repe
 <li class="blockList">
 <h4>getCustomAction</h4>
 <pre class="methodSignature">public&nbsp;android.support.v4.media.session.PlaybackStateCompat.CustomAction&nbsp;getCustomAction&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSessionConnector.CustomActionProvider.html#getCustomAction(com.google.android.exoplayer2.Player)">MediaSessionConnector.CustomActionProvider</a></code></span></div>
 <div class="block">Returns a <code>PlaybackStateCompat.CustomAction</code> which will be published to the media
  session by the connector or <code>null</code> if this action should not be published at the given

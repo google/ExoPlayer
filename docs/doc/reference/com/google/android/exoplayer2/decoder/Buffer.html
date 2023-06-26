@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,8 +133,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a></code>, <code><a href="DecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderOutputBuffer</a></code></dd>
 </dl>
 <hr>
-<pre>public abstract class <span class="typeNameLabel">Buffer</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public abstract class <span class="typeNameLabel">Buffer</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Base class for buffers with flags.</div>
 </li>
 </ul>
@@ -157,7 +163,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">Buffer</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -171,7 +179,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -181,6 +189,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addFlag(@com.google.android.exoplayer2.C.BufferFlagsint)">addFlag</a></span>&#8203;(@com.google.android.exoplayer2.C.BufferFlags int&nbsp;flag)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds the <code>flag</code> to this buffer's flags.</div>
 </td>
 </tr>
@@ -188,6 +197,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clear()">clear</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Clears the buffer.</div>
 </td>
 </tr>
@@ -195,6 +205,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearFlag(@com.google.android.exoplayer2.C.BufferFlagsint)">clearFlag</a></span>&#8203;(@com.google.android.exoplayer2.C.BufferFlags int&nbsp;flag)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Removes the <code>flag</code> from this buffer's flags, if it is set.</div>
 </td>
 </tr>
@@ -202,6 +213,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>protected boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFlag(@com.google.android.exoplayer2.C.BufferFlagsint)">getFlag</a></span>&#8203;(@com.google.android.exoplayer2.C.BufferFlags int&nbsp;flag)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the specified flag has been set on this buffer.</div>
 </td>
 </tr>
@@ -209,6 +221,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hasSupplementalData()">hasSupplementalData</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the <a href="../C.html#BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA"><code>C.BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA</code></a> flag is set.</div>
 </td>
 </tr>
@@ -216,6 +229,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isDecodeOnly()">isDecodeOnly</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the <a href="../C.html#BUFFER_FLAG_DECODE_ONLY"><code>C.BUFFER_FLAG_DECODE_ONLY</code></a> flag is set.</div>
 </td>
 </tr>
@@ -223,6 +237,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isEndOfStream()">isEndOfStream</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the <a href="../C.html#BUFFER_FLAG_END_OF_STREAM"><code>C.BUFFER_FLAG_END_OF_STREAM</code></a> flag is set.</div>
 </td>
 </tr>
@@ -230,6 +245,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isFirstSample()">isFirstSample</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the <a href="../C.html#BUFFER_FLAG_FIRST_SAMPLE"><code>C.BUFFER_FLAG_FIRST_SAMPLE</code></a> flag is set.</div>
 </td>
 </tr>
@@ -237,6 +253,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isKeyFrame()">isKeyFrame</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the <a href="../C.html#BUFFER_FLAG_KEY_FRAME"><code>C.BUFFER_FLAG_KEY_FRAME</code></a> flag is set.</div>
 </td>
 </tr>
@@ -244,6 +261,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isLastSample()">isLastSample</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the <a href="../C.html#BUFFER_FLAG_LAST_SAMPLE"><code>C.BUFFER_FLAG_LAST_SAMPLE</code></a> flag is set.</div>
 </td>
 </tr>
@@ -251,6 +269,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFlags(@com.google.android.exoplayer2.C.BufferFlagsint)">setFlags</a></span>&#8203;(@com.google.android.exoplayer2.C.BufferFlags int&nbsp;flags)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Replaces this buffer's flags with <code>flags</code>.</div>
 </td>
 </tr>
@@ -285,6 +304,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>Buffer</h4>
 <pre>public&nbsp;Buffer()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -304,6 +324,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>clear</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;clear()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Clears the buffer.</div>
 </li>
 </ul>
@@ -314,6 +335,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>isDecodeOnly</h4>
 <pre class="methodSignature">public final&nbsp;boolean&nbsp;isDecodeOnly()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the <a href="../C.html#BUFFER_FLAG_DECODE_ONLY"><code>C.BUFFER_FLAG_DECODE_ONLY</code></a> flag is set.</div>
 </li>
 </ul>
@@ -324,6 +346,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>isFirstSample</h4>
 <pre class="methodSignature">public final&nbsp;boolean&nbsp;isFirstSample()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the <a href="../C.html#BUFFER_FLAG_FIRST_SAMPLE"><code>C.BUFFER_FLAG_FIRST_SAMPLE</code></a> flag is set.</div>
 </li>
 </ul>
@@ -334,6 +357,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>isEndOfStream</h4>
 <pre class="methodSignature">public final&nbsp;boolean&nbsp;isEndOfStream()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the <a href="../C.html#BUFFER_FLAG_END_OF_STREAM"><code>C.BUFFER_FLAG_END_OF_STREAM</code></a> flag is set.</div>
 </li>
 </ul>
@@ -344,6 +368,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>isKeyFrame</h4>
 <pre class="methodSignature">public final&nbsp;boolean&nbsp;isKeyFrame()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the <a href="../C.html#BUFFER_FLAG_KEY_FRAME"><code>C.BUFFER_FLAG_KEY_FRAME</code></a> flag is set.</div>
 </li>
 </ul>
@@ -354,6 +379,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>isLastSample</h4>
 <pre class="methodSignature">public final&nbsp;boolean&nbsp;isLastSample()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the <a href="../C.html#BUFFER_FLAG_LAST_SAMPLE"><code>C.BUFFER_FLAG_LAST_SAMPLE</code></a> flag is set.</div>
 </li>
 </ul>
@@ -364,6 +390,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>hasSupplementalData</h4>
 <pre class="methodSignature">public final&nbsp;boolean&nbsp;hasSupplementalData()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the <a href="../C.html#BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA"><code>C.BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA</code></a> flag is set.</div>
 </li>
 </ul>
@@ -374,6 +401,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>setFlags</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;setFlags&#8203;(@com.google.android.exoplayer2.C.BufferFlags int&nbsp;flags)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Replaces this buffer's flags with <code>flags</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -389,6 +417,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>addFlag</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;addFlag&#8203;(@com.google.android.exoplayer2.C.BufferFlags int&nbsp;flag)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds the <code>flag</code> to this buffer's flags.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -404,6 +433,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>clearFlag</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;clearFlag&#8203;(@com.google.android.exoplayer2.C.BufferFlags int&nbsp;flag)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Removes the <code>flag</code> from this buffer's flags, if it is set.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -418,6 +448,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>getFlag</h4>
 <pre class="methodSignature">protected final&nbsp;boolean&nbsp;getFlag&#8203;(@com.google.android.exoplayer2.C.BufferFlags int&nbsp;flag)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the specified flag has been set on this buffer.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

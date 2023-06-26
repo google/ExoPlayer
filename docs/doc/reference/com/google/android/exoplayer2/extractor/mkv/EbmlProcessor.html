@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var data = {"i0":38,"i1":38,"i2":38,"i3":38,"i4":38,"i5":38,"i6":38,"i7":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -121,7 +121,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public interface <span class="typeNameLabel">EbmlProcessor</span></pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">EbmlProcessor</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Defines EBML element IDs/types and processes events.</div>
 </li>
 </ul>
@@ -147,6 +153,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="EbmlProcessor.ElementType.html" title="annotation in com.google.android.exoplayer2.extractor.mkv">EbmlProcessor.ElementType</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">EBML element types.</div>
 </td>
 </tr>
@@ -172,6 +179,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ELEMENT_TYPE_BINARY">ELEMENT_TYPE_BINARY</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Type for binary elements.</div>
 </td>
 </tr>
@@ -179,6 +187,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ELEMENT_TYPE_FLOAT">ELEMENT_TYPE_FLOAT</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Type for IEEE floating point value elements of either 4 or 8 bytes.</div>
 </td>
 </tr>
@@ -186,6 +195,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ELEMENT_TYPE_MASTER">ELEMENT_TYPE_MASTER</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Type for elements that contain child elements.</div>
 </td>
 </tr>
@@ -193,6 +203,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ELEMENT_TYPE_STRING">ELEMENT_TYPE_STRING</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Type for string elements.</div>
 </td>
 </tr>
@@ -200,6 +211,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ELEMENT_TYPE_UNKNOWN">ELEMENT_TYPE_UNKNOWN</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Type for unknown elements.</div>
 </td>
 </tr>
@@ -207,6 +219,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ELEMENT_TYPE_UNSIGNED_INT">ELEMENT_TYPE_UNSIGNED_INT</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Type for integer value elements of up to 8 bytes.</div>
 </td>
 </tr>
@@ -222,7 +235,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -234,6 +247,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
              int&nbsp;contentsSize,
              <a href="../ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a binary element is encountered.</div>
 </td>
 </tr>
@@ -241,6 +255,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#endMasterElement(int)">endMasterElement</a></span>&#8203;(int&nbsp;id)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the end of a master element is encountered.</div>
 </td>
 </tr>
@@ -249,6 +264,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#floatElement(int,double)">floatElement</a></span>&#8203;(int&nbsp;id,
             double&nbsp;value)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a float element is encountered.</div>
 </td>
 </tr>
@@ -256,6 +272,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>@com.google.android.exoplayer2.extractor.mkv.EbmlProcessor.ElementType int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getElementType(int)">getElementType</a></span>&#8203;(int&nbsp;id)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Maps an element ID to a corresponding type.</div>
 </td>
 </tr>
@@ -264,6 +281,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#integerElement(int,long)">integerElement</a></span>&#8203;(int&nbsp;id,
               long&nbsp;value)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when an integer element is encountered.</div>
 </td>
 </tr>
@@ -271,6 +289,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isLevel1Element(int)">isLevel1Element</a></span>&#8203;(int&nbsp;id)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Checks if the given id is that of a level 1 element.</div>
 </td>
 </tr>
@@ -280,6 +299,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                   long&nbsp;contentPosition,
                   long&nbsp;contentSize)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the start of a master element is encountered.</div>
 </td>
 </tr>
@@ -288,6 +308,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#stringElement(int,java.lang.String)">stringElement</a></span>&#8203;(int&nbsp;id,
              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a string element is encountered.</div>
 </td>
 </tr>
@@ -315,6 +336,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>ELEMENT_TYPE_UNKNOWN</h4>
 <pre>static final&nbsp;int ELEMENT_TYPE_UNKNOWN</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Type for unknown elements.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -329,6 +351,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>ELEMENT_TYPE_MASTER</h4>
 <pre>static final&nbsp;int ELEMENT_TYPE_MASTER</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Type for elements that contain child elements.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -343,6 +366,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>ELEMENT_TYPE_UNSIGNED_INT</h4>
 <pre>static final&nbsp;int ELEMENT_TYPE_UNSIGNED_INT</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Type for integer value elements of up to 8 bytes.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -357,6 +381,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>ELEMENT_TYPE_STRING</h4>
 <pre>static final&nbsp;int ELEMENT_TYPE_STRING</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Type for string elements.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -371,6 +396,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>ELEMENT_TYPE_BINARY</h4>
 <pre>static final&nbsp;int ELEMENT_TYPE_BINARY</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Type for binary elements.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -385,6 +411,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>ELEMENT_TYPE_FLOAT</h4>
 <pre>static final&nbsp;int ELEMENT_TYPE_FLOAT</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Type for IEEE floating point value elements of either 4 or 8 bytes.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -409,6 +436,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>getElementType</h4>
 <pre class="methodSignature">@com.google.android.exoplayer2.extractor.mkv.EbmlProcessor.ElementType int&nbsp;getElementType&#8203;(int&nbsp;id)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Maps an element ID to a corresponding type.
 
  <p>If <a href="#ELEMENT_TYPE_UNKNOWN"><code>ELEMENT_TYPE_UNKNOWN</code></a> is returned then the element is skipped. Note that all
@@ -429,6 +457,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>isLevel1Element</h4>
 <pre class="methodSignature">boolean&nbsp;isLevel1Element&#8203;(int&nbsp;id)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Checks if the given id is that of a level 1 element.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -448,6 +477,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                         long&nbsp;contentPosition,
                         long&nbsp;contentSize)
                  throws <a href="../../ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the start of a master element is encountered.
 
  <p>Following events should be considered as taking place within this element until a matching
@@ -473,6 +503,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>endMasterElement</h4>
 <pre class="methodSignature">void&nbsp;endMasterElement&#8203;(int&nbsp;id)
                throws <a href="../../ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the end of a master element is encountered.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -491,6 +522,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre class="methodSignature">void&nbsp;integerElement&#8203;(int&nbsp;id,
                     long&nbsp;value)
              throws <a href="../../ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when an integer element is encountered.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -510,6 +542,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre class="methodSignature">void&nbsp;floatElement&#8203;(int&nbsp;id,
                   double&nbsp;value)
            throws <a href="../../ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a float element is encountered.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -529,6 +562,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre class="methodSignature">void&nbsp;stringElement&#8203;(int&nbsp;id,
                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)
             throws <a href="../../ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a string element is encountered.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -549,6 +583,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                    int&nbsp;contentsSize,
                    <a href="../ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input)
             throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a binary element is encountered.
 
  <p>The element header (containing the element ID and content size) will already have been read.

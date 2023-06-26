@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var data = {"i0":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -125,7 +125,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="DefaultCompositeSequenceableLoaderFactory.html" title="class in com.google.android.exoplayer2.source">DefaultCompositeSequenceableLoaderFactory</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">CompositeSequenceableLoaderFactory</span></pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">CompositeSequenceableLoaderFactory</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A factory to create composite <a href="SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source"><code>SequenceableLoader</code></a>s.</div>
 </li>
 </ul>
@@ -141,7 +147,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -151,6 +157,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createCompositeSequenceableLoader(com.google.android.exoplayer2.source.SequenceableLoader...)">createCompositeSequenceableLoader</a></span>&#8203;(<a href="SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader</a>...&nbsp;loaders)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a composite <a href="SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source"><code>SequenceableLoader</code></a>.</div>
 </td>
 </tr>
@@ -178,6 +185,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>createCompositeSequenceableLoader</h4>
 <pre class="methodSignature"><a href="SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader</a>&nbsp;createCompositeSequenceableLoader&#8203;(<a href="SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader</a>...&nbsp;loaders)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a composite <a href="SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source"><code>SequenceableLoader</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

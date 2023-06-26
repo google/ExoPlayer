@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9,"i9":9,"i10":9,"i11":9,"i12":9,"i13":9,"i14":9,"i15":9,"i16":9,"i17":9,"i18":9,"i19":9,"i20":9,"i21":9,"i22":9,"i23":9,"i24":9,"i25":9};
+var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9,"i9":9,"i10":9,"i11":9,"i12":9,"i13":9,"i14":9,"i15":9,"i16":9,"i17":9,"i18":9,"i19":9,"i20":9,"i21":9,"i22":9,"i23":9,"i24":9,"i25":9,"i26":9,"i27":9,"i28":9,"i29":9,"i30":9};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -233,20 +233,41 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </td>
 </tr>
 <tr id="i10" class="altColor">
-<td class="colFirst"><code>static <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Byte.html" title="class or interface in java.lang" class="externalLink" target="_top">Byte</a>&gt;</code></td>
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createByteBuffer(float%5B%5D)">createByteBuffer</a></span>&#8203;(float[]&nbsp;data)</code></th>
+<td class="colLast">
+<div class="block">Creates a <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer</code></a> containing the <code>data</code>.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createByteBuffer(short%5B%5D)">createByteBuffer</a></span>&#8203;(short[]&nbsp;data)</code></th>
+<td class="colLast">
+<div class="block">Creates a <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer</code></a> containing the <code>data</code>.</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code>static <a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Byte.html" title="class or interface in java.lang" class="externalLink" target="_top">Byte</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createByteList(int...)">createByteList</a></span>&#8203;(int...&nbsp;bytes)</code></th>
 <td class="colLast">
 <div class="block">Converts an array of integers in the range [0, 255] into an equivalent byte list.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code>static float[]</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createFloatArray(java.nio.ByteBuffer)">createFloatArray</a></span>&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;byteBuffer)</code></th>
+<td class="colLast">
+<div class="block">Gets the underlying data of the <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer</code></a> as a <code>float[]</code>.</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>static <a href="../metadata/MetadataInputBuffer.html" title="class in com.google.android.exoplayer2.metadata">MetadataInputBuffer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createMetadataInputBuffer(byte%5B%5D)">createMetadataInputBuffer</a></span>&#8203;(byte[]&nbsp;data)</code></th>
 <td class="colLast">
 <div class="block">Create a new <a href="../metadata/MetadataInputBuffer.html" title="class in com.google.android.exoplayer2.metadata"><code>MetadataInputBuffer</code></a> and copy <code>data</code> into the backing <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer</code></a>.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createTestFile(java.io.File,long)">createTestFile</a></span>&#8203;(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a>&nbsp;file,
               long&nbsp;length)</code></th>
@@ -254,7 +275,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Writes test data with the specified length to the file and returns it.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createTestFile(java.io.File,java.lang.String)">createTestFile</a></span>&#8203;(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a>&nbsp;directory,
               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name)</code></th>
@@ -262,7 +283,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Writes one byte long test data to the file and returns it.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createTestFile(java.io.File,java.lang.String,long)">createTestFile</a></span>&#8203;(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a>&nbsp;directory,
               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
@@ -271,7 +292,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Writes test data with the specified length to the file and returns it.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>static <a href="FakeExtractorOutput.html" title="class in com.google.android.exoplayer2.testutil">FakeExtractorOutput</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#extractAllSamplesFromFile(com.google.android.exoplayer2.extractor.Extractor,android.content.Context,java.lang.String)">extractAllSamplesFromFile</a></span>&#8203;(<a href="../extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>&nbsp;extractor,
                          <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
@@ -280,7 +301,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Extracts all samples from the given file into a <a href="FakeTrackOutput.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeTrackOutput</code></a>.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i19" class="rowColor">
+<td class="colFirst"><code>static <a href="FakeExtractorOutput.html" title="class in com.google.android.exoplayer2.testutil">FakeExtractorOutput</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#extractAllSamplesFromFilePath(com.google.android.exoplayer2.extractor.Extractor,java.lang.String)">extractAllSamplesFromFilePath</a></span>&#8203;(<a href="../extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>&nbsp;extractor,
+                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;filePath)</code></th>
+<td class="colLast">
+<div class="block">Extracts all samples from the given file into a <a href="FakeTrackOutput.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeTrackOutput</code></a>.</div>
+</td>
+</tr>
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>static <a href="../extractor/SeekMap.html" title="interface in com.google.android.exoplayer2.extractor">SeekMap</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#extractSeekMap(com.google.android.exoplayer2.extractor.Extractor,com.google.android.exoplayer2.testutil.FakeExtractorOutput,com.google.android.exoplayer2.upstream.DataSource,android.net.Uri)">extractSeekMap</a></span>&#8203;(<a href="../extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>&nbsp;extractor,
               <a href="FakeExtractorOutput.html" title="class in com.google.android.exoplayer2.testutil">FakeExtractorOutput</a>&nbsp;output,
@@ -291,7 +320,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  EOF.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/graphics/Bitmap.html" title="class or interface in android.graphics" class="externalLink" target="_top">Bitmap</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getBitmap(android.content.Context,java.lang.String)">getBitmap</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;fileName)</code></th>
@@ -299,7 +328,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Returns a <a href="https://developer.android.com/reference/android/graphics/Bitmap.html" title="class or interface in android.graphics" class="externalLink" target="_top"><code>Bitmap</code></a> read from an asset file.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>static byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getByteArray(android.content.Context,java.lang.String)">getByteArray</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;fileName)</code></th>
@@ -307,7 +336,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Returns the bytes of an asset file.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i23" class="rowColor">
+<td class="colFirst"><code>static byte[]</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getByteArrayFromFilePath(java.lang.String)">getByteArrayFromFilePath</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;filePath)</code></th>
+<td class="colLast">
+<div class="block">Returns the bytes of a file using its file path.</div>
+</td>
+</tr>
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>static <a href="../extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getExtractorInputFromPosition(com.google.android.exoplayer2.upstream.DataSource,long,android.net.Uri)">getExtractorInputFromPosition</a></span>&#8203;(<a href="../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
                              long&nbsp;position,
@@ -316,14 +352,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Returns an <a href="../extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> to read from the given input at given position.</div>
 </td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code>static <a href="../database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database">DatabaseProvider</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getInMemoryDatabaseProvider()">getInMemoryDatabaseProvider</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Returns a <a href="../database/DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database"><code>DatabaseProvider</code></a> that provides an in-memory database.</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i26" class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/io/InputStream.html" title="class or interface in java.io" class="externalLink" target="_top">InputStream</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getInputStream(android.content.Context,java.lang.String)">getInputStream</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;fileName)</code></th>
@@ -331,14 +367,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Returns an <a href="https://developer.android.com/reference/java/io/InputStream.html" title="class or interface in java.io" class="externalLink" target="_top"><code>InputStream</code></a> for reading from an asset file.</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i27" class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/reflect/Method.html?is-external=true" title="class or interface in java.lang.reflect" class="externalLink" target="_top">Method</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPublicMethods(java.lang.Class)">getPublicMethods</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink" target="_top">Class</a>&lt;?&gt;&nbsp;clazz)</code></th>
 <td class="colLast">
 <div class="block">Returns all the public methods of a Java class (except those defined by <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>Object</code></a>).</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i28" class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getString(android.content.Context,java.lang.String)">getString</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;fileName)</code></th>
@@ -346,7 +382,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Returns a <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>String</code></a> read from an asset file.</div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i29" class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekToTimeUs(com.google.android.exoplayer2.extractor.Extractor,com.google.android.exoplayer2.extractor.SeekMap,long,com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.testutil.FakeTrackOutput,android.net.Uri)">seekToTimeUs</a></span>&#8203;(<a href="../extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>&nbsp;extractor,
             <a href="../extractor/SeekMap.html" title="interface in com.google.android.exoplayer2.extractor">SeekMap</a>&nbsp;seekMap,
@@ -360,7 +396,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
  end-of-input is reached.</div>
 </td>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i30" class="altColor">
 <td class="colFirst"><code>static boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#timelinesAreSame(com.google.android.exoplayer2.Timeline,com.google.android.exoplayer2.Timeline)">timelinesAreSame</a></span>&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;thisTimeline,
                 <a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;thatTimeline)</code></th>
@@ -478,13 +514,43 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </dl>
 </li>
 </ul>
+<a id="createFloatArray(java.nio.ByteBuffer)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createFloatArray</h4>
+<pre class="methodSignature">public static&nbsp;float[]&nbsp;createFloatArray&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;byteBuffer)</pre>
+<div class="block">Gets the underlying data of the <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer</code></a> as a <code>float[]</code>.</div>
+</li>
+</ul>
+<a id="createByteBuffer(float[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createByteBuffer</h4>
+<pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;createByteBuffer&#8203;(float[]&nbsp;data)</pre>
+<div class="block">Creates a <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer</code></a> containing the <code>data</code>.</div>
+</li>
+</ul>
+<a id="createByteBuffer(short[])">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createByteBuffer</h4>
+<pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;createByteBuffer&#8203;(short[]&nbsp;data)</pre>
+<div class="block">Creates a <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer</code></a> containing the <code>data</code>.</div>
+</li>
+</ul>
 <a id="createByteList(int...)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>createByteList</h4>
-<pre class="methodSignature">public static&nbsp;<a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Byte.html" title="class or interface in java.lang" class="externalLink" target="_top">Byte</a>&gt;&nbsp;createByteList&#8203;(int...&nbsp;bytes)</pre>
+<pre class="methodSignature">public static&nbsp;<a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Byte.html" title="class or interface in java.lang" class="externalLink" target="_top">Byte</a>&gt;&nbsp;createByteList&#8203;(int...&nbsp;bytes)</pre>
 <div class="block">Converts an array of integers in the range [0, 255] into an equivalent byte list.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -553,6 +619,21 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                                   <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;fileName)
                            throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
 <div class="block">Returns the bytes of an asset file.</div>
+<dl>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="getByteArrayFromFilePath(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getByteArrayFromFilePath</h4>
+<pre class="methodSignature">public static&nbsp;byte[]&nbsp;getByteArrayFromFilePath&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;filePath)
+                                       throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="block">Returns the bytes of a file using its file path.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code></dd>
@@ -757,9 +838,31 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <div class="block">Extracts all samples from the given file into a <a href="FakeTrackOutput.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeTrackOutput</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>extractor</code> - The <a href="../extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> to extractor from input.</dd>
+<dd><code>extractor</code> - The <a href="../extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> to be used.</dd>
 <dd><code>context</code> - A <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a>.</dd>
 <dd><code>fileName</code> - The name of the input file.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The <a href="FakeTrackOutput.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeTrackOutput</code></a> containing the extracted samples.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code> - If an error occurred reading from the input, or if the extractor finishes
+     reading from input without extracting any <a href="../extractor/SeekMap.html" title="interface in com.google.android.exoplayer2.extractor"><code>SeekMap</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="extractAllSamplesFromFilePath(com.google.android.exoplayer2.extractor.Extractor,java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>extractAllSamplesFromFilePath</h4>
+<pre class="methodSignature">public static&nbsp;<a href="FakeExtractorOutput.html" title="class in com.google.android.exoplayer2.testutil">FakeExtractorOutput</a>&nbsp;extractAllSamplesFromFilePath&#8203;(<a href="../extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a>&nbsp;extractor,
+                                                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;filePath)
+                                                         throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="block">Extracts all samples from the given file into a <a href="FakeTrackOutput.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeTrackOutput</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>extractor</code> - The <a href="../extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a> to be used.</dd>
+<dd><code>filePath</code> - The file path.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The <a href="FakeTrackOutput.html" title="class in com.google.android.exoplayer2.testutil"><code>FakeTrackOutput</code></a> containing the extracted samples.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>

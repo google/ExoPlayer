@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":10};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":41,"i1":41,"i2":42};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -139,8 +139,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 <hr>
 <pre>@RequiresApi(17)
+<a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 public final class <span class="typeNameLabel">PlaceholderSurface</span>
 extends <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A placeholder <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a>.</div>
 </li>
 </ul>
@@ -190,6 +196,7 @@ extends <a href="https://developer.android.com/reference/android/view/Surface.ht
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#secure">secure</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the surface is secure.</div>
 </td>
 </tr>
@@ -219,7 +226,7 @@ extends <a href="https://developer.android.com/reference/android/view/Surface.ht
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -229,6 +236,7 @@ extends <a href="https://developer.android.com/reference/android/view/Surface.ht
 <td class="colFirst"><code>static boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isSecureSupported(android.content.Context)">isSecureSupported</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the device supports secure placeholder surfaces.</div>
 </td>
 </tr>
@@ -237,13 +245,16 @@ extends <a href="https://developer.android.com/reference/android/view/Surface.ht
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newInstanceV17(android.content.Context,boolean)">newInstanceV17</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
               boolean&nbsp;secure)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a newly created placeholder surface.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -283,6 +294,7 @@ extends <a href="https://developer.android.com/reference/android/view/Surface.ht
 <li class="blockList">
 <h4>secure</h4>
 <pre>public final&nbsp;boolean secure</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the surface is secure.</div>
 </li>
 </ul>
@@ -303,6 +315,7 @@ extends <a href="https://developer.android.com/reference/android/view/Surface.ht
 <li class="blockList">
 <h4>isSecureSupported</h4>
 <pre class="methodSignature">public static&nbsp;boolean&nbsp;isSecureSupported&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the device supports secure placeholder surfaces.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -320,6 +333,7 @@ extends <a href="https://developer.android.com/reference/android/view/Surface.ht
 <h4>newInstanceV17</h4>
 <pre class="methodSignature">public static&nbsp;<a href="PlaceholderSurface.html" title="class in com.google.android.exoplayer2.video">PlaceholderSurface</a>&nbsp;newInstanceV17&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                                                 boolean&nbsp;secure)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a newly created placeholder surface. The surface must be released by calling <a href="#release()"><code>release()</code></a> when it's no longer required.
 
  <p>Must only be called if <a href="../util/Util.html#SDK_INT"><code>Util.SDK_INT</code></a> is 17 or higher.</div>
@@ -339,6 +353,7 @@ extends <a href="https://developer.android.com/reference/android/view/Surface.ht
 <li class="blockList">
 <h4>release</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;release()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/view/Surface.html#release()" title="class or interface in android.view" class="externalLink">release</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/view/Surface.html?is-external=true" title="class or interface in android.view" class="externalLink" target="_top">Surface</a></code></dd>

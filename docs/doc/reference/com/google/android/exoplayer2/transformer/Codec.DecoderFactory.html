@@ -158,7 +158,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer">Codec</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createForVideoDecoding(com.google.android.exoplayer2.Format,android.view.Surface,boolean)">createForVideoDecoding</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                       <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;outputSurface,
-                      boolean&nbsp;enableRequestSdrToneMapping)</code></th>
+                      boolean&nbsp;requestSdrToneMapping)</code></th>
 <td class="colLast">
 <div class="block">Returns a <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a> for video decoding.</div>
 </td>
@@ -187,7 +187,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>createForAudioDecoding</h4>
 <pre class="methodSignature"><a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer">Codec</a>&nbsp;createForAudioDecoding&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)
-                      throws <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></pre>
+                      throws <a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></pre>
 <div class="block">Returns a <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a> for audio decoding.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -196,7 +196,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>A <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a> for audio decoding.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></code> - If no suitable <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a> can be created.</dd>
+<dd><code><a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></code> - If no suitable <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a> can be created.</dd>
 </dl>
 </li>
 </ul>
@@ -208,19 +208,19 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>createForVideoDecoding</h4>
 <pre class="methodSignature"><a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer">Codec</a>&nbsp;createForVideoDecoding&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                              <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;outputSurface,
-                             boolean&nbsp;enableRequestSdrToneMapping)
-                      throws <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></pre>
+                             boolean&nbsp;requestSdrToneMapping)
+                      throws <a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></pre>
 <div class="block">Returns a <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a> for video decoding.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>format</code> - The <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> (of the input data) used to determine the underlying decoder
      and its configuration values.</dd>
 <dd><code>outputSurface</code> - The <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a> to which the decoder output is rendered.</dd>
-<dd><code>enableRequestSdrToneMapping</code> - Whether to request tone-mapping to SDR.</dd>
+<dd><code>requestSdrToneMapping</code> - Whether to request tone-mapping to SDR.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>A <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a> for video decoding.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></code> - If no suitable <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a> can be created.</dd>
+<dd><code><a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></code> - If no suitable <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a> can be created.</dd>
 </dl>
 </li>
 </ul>

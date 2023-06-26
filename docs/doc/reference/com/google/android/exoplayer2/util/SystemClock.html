@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a></code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">SystemClock</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">SystemClock</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">The standard implementation of <a href="Clock.html" title="interface in com.google.android.exoplayer2.util"><code>Clock</code></a>, an instance of which is available via <a href="Clock.html#DEFAULT"><code>Clock.DEFAULT</code></a>.</div>
 </li>
 </ul>
@@ -177,7 +183,9 @@ implements <a href="Clock.html" title="interface in com.google.android.exoplayer
 <tr class="altColor">
 <td class="colFirst"><code>protected </code></td>
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">SystemClock</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -191,7 +199,7 @@ implements <a href="Clock.html" title="interface in com.google.android.exoplayer
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -202,6 +210,7 @@ implements <a href="Clock.html" title="interface in com.google.android.exoplayer
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createHandler(android.os.Looper,android.os.Handler.Callback)">createHandler</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;looper,
              <a href="https://developer.android.com/reference/android/os/Handler.Callback.html" title="class or interface in android.os" class="externalLink" target="_top">Handler.Callback</a>&nbsp;callback)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a <a href="HandlerWrapper.html" title="interface in com.google.android.exoplayer2.util"><code>HandlerWrapper</code></a> using a specified looper and a specified callback for handling
  messages.</div>
 </td>
@@ -210,18 +219,22 @@ implements <a href="Clock.html" title="interface in com.google.android.exoplayer
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#currentTimeMillis()">currentTimeMillis</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current time in milliseconds since the Unix Epoch.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#elapsedRealtime()">elapsedRealtime</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onThreadBlocked()">onThreadBlocked</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Notifies the clock that the current thread is about to be blocked and won't return until a
  condition on another thread becomes true.</div>
 </td>
@@ -229,7 +242,9 @@ implements <a href="Clock.html" title="interface in com.google.android.exoplayer
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#uptimeMillis()">uptimeMillis</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -262,6 +277,7 @@ implements <a href="Clock.html" title="interface in com.google.android.exoplayer
 <li class="blockList">
 <h4>SystemClock</h4>
 <pre>protected&nbsp;SystemClock()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -281,6 +297,7 @@ implements <a href="Clock.html" title="interface in com.google.android.exoplayer
 <li class="blockList">
 <h4>currentTimeMillis</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;currentTimeMillis()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Clock.html#currentTimeMillis()">Clock</a></code></span></div>
 <div class="block">Returns the current time in milliseconds since the Unix Epoch.</div>
 <dl>
@@ -298,6 +315,7 @@ implements <a href="Clock.html" title="interface in com.google.android.exoplayer
 <li class="blockList">
 <h4>elapsedRealtime</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;elapsedRealtime()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Clock.html#elapsedRealtime()">elapsedRealtime</a></code>&nbsp;in interface&nbsp;<code><a href="Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a></code></dd>
@@ -313,6 +331,7 @@ implements <a href="Clock.html" title="interface in com.google.android.exoplayer
 <li class="blockList">
 <h4>uptimeMillis</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;uptimeMillis()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Clock.html#uptimeMillis()">uptimeMillis</a></code>&nbsp;in interface&nbsp;<code><a href="Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a></code></dd>
@@ -330,6 +349,7 @@ implements <a href="Clock.html" title="interface in com.google.android.exoplayer
 <pre class="methodSignature">public&nbsp;<a href="HandlerWrapper.html" title="interface in com.google.android.exoplayer2.util">HandlerWrapper</a>&nbsp;createHandler&#8203;(<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;looper,
                                     @Nullable
                                     <a href="https://developer.android.com/reference/android/os/Handler.Callback.html" title="class or interface in android.os" class="externalLink" target="_top">Handler.Callback</a>&nbsp;callback)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Clock.html#createHandler(android.os.Looper,android.os.Handler.Callback)">Clock</a></code></span></div>
 <div class="block">Creates a <a href="HandlerWrapper.html" title="interface in com.google.android.exoplayer2.util"><code>HandlerWrapper</code></a> using a specified looper and a specified callback for handling
  messages.</div>
@@ -348,6 +368,7 @@ implements <a href="Clock.html" title="interface in com.google.android.exoplayer
 <li class="blockList">
 <h4>onThreadBlocked</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onThreadBlocked()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Clock.html#onThreadBlocked()">Clock</a></code></span></div>
 <div class="block">Notifies the clock that the current thread is about to be blocked and won't return until a
  condition on another thread becomes true.

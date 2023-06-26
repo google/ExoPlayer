@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="ContentMetadata.html" title="interface in com.google.android.exoplayer2.upstream.cache">ContentMetadata</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">DefaultContentMetadata</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">DefaultContentMetadata</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="ContentMetadata.html" title="interface in com.google.android.exoplayer2.upstream.cache">ContentMetadata</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Default implementation of <a href="ContentMetadata.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>ContentMetadata</code></a>. Values are stored as byte arrays.</div>
 </li>
 </ul>
@@ -161,6 +167,7 @@ implements <a href="ContentMetadata.html" title="interface in com.google.android
 <td class="colFirst"><code>static <a href="DefaultContentMetadata.html" title="class in com.google.android.exoplayer2.upstream.cache">DefaultContentMetadata</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EMPTY">EMPTY</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">An empty DefaultContentMetadata.</div>
 </td>
 </tr>
@@ -190,11 +197,15 @@ implements <a href="ContentMetadata.html" title="interface in com.google.android
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">DefaultContentMetadata</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.util.Map)">DefaultContentMetadata</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>,&#8203;byte[]&gt;&nbsp;metadata)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -208,7 +219,7 @@ implements <a href="ContentMetadata.html" title="interface in com.google.android
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -218,6 +229,7 @@ implements <a href="ContentMetadata.html" title="interface in com.google.android
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#contains(java.lang.String)">contains</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the metadata is available.</div>
 </td>
 </tr>
@@ -225,6 +237,7 @@ implements <a href="ContentMetadata.html" title="interface in com.google.android
 <td class="colFirst"><code><a href="DefaultContentMetadata.html" title="class in com.google.android.exoplayer2.upstream.cache">DefaultContentMetadata</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyWithMutationsApplied(com.google.android.exoplayer2.upstream.cache.ContentMetadataMutations)">copyWithMutationsApplied</a></span>&#8203;(<a href="ContentMetadataMutations.html" title="class in com.google.android.exoplayer2.upstream.cache">ContentMetadataMutations</a>&nbsp;mutations)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy <a href="DefaultContentMetadata.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>DefaultContentMetadata</code></a> with <code>mutations</code> applied.</div>
 </td>
 </tr>
@@ -232,19 +245,23 @@ implements <a href="ContentMetadata.html" title="interface in com.google.android
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/Set.html" title="class or interface in java.util" class="externalLink">Set</a>&lt;<a href="https://developer.android.com/reference/java/util/Map.Entry.html?is-external=true" title="class or interface in java.util" class="externalLink">Map.Entry</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>,&#8203;byte[]&gt;&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#entrySet()">entrySet</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the set of metadata entries in their raw byte array form.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;o)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#get(java.lang.String,byte%5B%5D)">get</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
    byte[]&nbsp;defaultValue)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a metadata value.</div>
 </td>
 </tr>
@@ -253,6 +270,7 @@ implements <a href="ContentMetadata.html" title="interface in com.google.android
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#get(java.lang.String,long)">get</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
    long&nbsp;defaultValue)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a metadata value.</div>
 </td>
 </tr>
@@ -261,13 +279,16 @@ implements <a href="ContentMetadata.html" title="interface in com.google.android
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#get(java.lang.String,java.lang.String)">get</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;defaultValue)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a metadata value.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -300,6 +321,7 @@ implements <a href="ContentMetadata.html" title="interface in com.google.android
 <li class="blockList">
 <h4>EMPTY</h4>
 <pre>public static final&nbsp;<a href="DefaultContentMetadata.html" title="class in com.google.android.exoplayer2.upstream.cache">DefaultContentMetadata</a> EMPTY</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">An empty DefaultContentMetadata.</div>
 </li>
 </ul>
@@ -320,6 +342,7 @@ implements <a href="ContentMetadata.html" title="interface in com.google.android
 <li class="blockList">
 <h4>DefaultContentMetadata</h4>
 <pre>public&nbsp;DefaultContentMetadata()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="&lt;init&gt;(java.util.Map)">
@@ -329,6 +352,7 @@ implements <a href="ContentMetadata.html" title="interface in com.google.android
 <li class="blockList">
 <h4>DefaultContentMetadata</h4>
 <pre>public&nbsp;DefaultContentMetadata&#8203;(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>,&#8203;byte[]&gt;&nbsp;metadata)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>metadata</code> - The metadata entries in their raw byte array form.</dd>
@@ -352,6 +376,7 @@ implements <a href="ContentMetadata.html" title="interface in com.google.android
 <li class="blockList">
 <h4>copyWithMutationsApplied</h4>
 <pre class="methodSignature">public&nbsp;<a href="DefaultContentMetadata.html" title="class in com.google.android.exoplayer2.upstream.cache">DefaultContentMetadata</a>&nbsp;copyWithMutationsApplied&#8203;(<a href="ContentMetadataMutations.html" title="class in com.google.android.exoplayer2.upstream.cache">ContentMetadataMutations</a>&nbsp;mutations)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy <a href="DefaultContentMetadata.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>DefaultContentMetadata</code></a> with <code>mutations</code> applied. If <code>
  mutations</code> don't change anything, returns this instance.</div>
 </li>
@@ -363,6 +388,7 @@ implements <a href="ContentMetadata.html" title="interface in com.google.android
 <li class="blockList">
 <h4>entrySet</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/util/Set.html" title="class or interface in java.util" class="externalLink">Set</a>&lt;<a href="https://developer.android.com/reference/java/util/Map.Entry.html?is-external=true" title="class or interface in java.util" class="externalLink">Map.Entry</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>,&#8203;byte[]&gt;&gt;&nbsp;entrySet()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the set of metadata entries in their raw byte array form.</div>
 </li>
 </ul>
@@ -376,6 +402,7 @@ implements <a href="ContentMetadata.html" title="interface in com.google.android
 public final&nbsp;byte[]&nbsp;get&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
                         @Nullable
                         byte[]&nbsp;defaultValue)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ContentMetadata.html#get(java.lang.String,byte%5B%5D)">ContentMetadata</a></code></span></div>
 <div class="block">Returns a metadata value.</div>
 <dl>
@@ -399,6 +426,7 @@ public final&nbsp;byte[]&nbsp;get&#8203;(<a href="https://developer.android.com/
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;get&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
                         @Nullable
                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;defaultValue)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ContentMetadata.html#get(java.lang.String,java.lang.String)">ContentMetadata</a></code></span></div>
 <div class="block">Returns a metadata value.</div>
 <dl>
@@ -420,6 +448,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <h4>get</h4>
 <pre class="methodSignature">public final&nbsp;long&nbsp;get&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
                       long&nbsp;defaultValue)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ContentMetadata.html#get(java.lang.String,long)">ContentMetadata</a></code></span></div>
 <div class="block">Returns a metadata value.</div>
 <dl>
@@ -440,6 +469,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <li class="blockList">
 <h4>contains</h4>
 <pre class="methodSignature">public final&nbsp;boolean&nbsp;contains&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ContentMetadata.html#contains(java.lang.String)">ContentMetadata</a></code></span></div>
 <div class="block">Returns whether the metadata is available.</div>
 <dl>
@@ -456,6 +486,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <h4>equals</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;equals&#8203;(@Nullable
                       <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;o)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
@@ -469,6 +500,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <li class="blockList">
 <h4>hashCode</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;hashCode()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>

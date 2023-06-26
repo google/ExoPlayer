@@ -188,23 +188,23 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="VideoEncoderSettings.Builder.html" title="class in com.google.android.exoplayer2.transformer">VideoEncoderSettings.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#experimentalSetEnableHighQualityTargeting(boolean)">experimentalSetEnableHighQualityTargeting</a></span>&#8203;(boolean&nbsp;enableHighQualityTargeting)</code></th>
+<td class="colLast">
+<div class="block">Sets whether to enable automatic adjustment of the bitrate to target a high quality encoding.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code><a href="VideoEncoderSettings.Builder.html" title="class in com.google.android.exoplayer2.transformer">VideoEncoderSettings.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setBitrate(int)">setBitrate</a></span>&#8203;(int&nbsp;bitrate)</code></th>
 <td class="colLast">
 <div class="block">Sets <a href="VideoEncoderSettings.html#bitrate"><code>VideoEncoderSettings.bitrate</code></a>.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="VideoEncoderSettings.Builder.html" title="class in com.google.android.exoplayer2.transformer">VideoEncoderSettings.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setBitrateMode(@com.google.android.exoplayer2.transformer.VideoEncoderSettings.BitrateModeint)">setBitrateMode</a></span>&#8203;(@com.google.android.exoplayer2.transformer.VideoEncoderSettings.BitrateMode int&nbsp;bitrateMode)</code></th>
 <td class="colLast">
 <div class="block">Sets <a href="VideoEncoderSettings.html#bitrateMode"><code>VideoEncoderSettings.bitrateMode</code></a>.</div>
-</td>
-</tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code><a href="VideoEncoderSettings.Builder.html" title="class in com.google.android.exoplayer2.transformer">VideoEncoderSettings.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setEnableHighQualityTargeting(boolean)">setEnableHighQualityTargeting</a></span>&#8203;(boolean&nbsp;enableHighQualityTargeting)</code></th>
-<td class="colLast">
-<div class="block">Sets whether to enable automatic adjustment of the bitrate to target a high quality encoding.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
@@ -284,10 +284,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 public&nbsp;<a href="VideoEncoderSettings.Builder.html" title="class in com.google.android.exoplayer2.transformer">VideoEncoderSettings.Builder</a>&nbsp;setBitrate&#8203;(int&nbsp;bitrate)</pre>
 <div class="block">Sets <a href="VideoEncoderSettings.html#bitrate"><code>VideoEncoderSettings.bitrate</code></a>. The default value is <a href="VideoEncoderSettings.html#NO_VALUE"><code>VideoEncoderSettings.NO_VALUE</code></a>.
 
- <p>Can not be set if enabling <a href="#setEnableHighQualityTargeting(boolean)"><code>setEnableHighQualityTargeting(boolean)</code></a>.</div>
+ <p>Can not be set if enabling <a href="#experimentalSetEnableHighQualityTargeting(boolean)"><code>experimentalSetEnableHighQualityTargeting(boolean)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>bitrate</code> - The <a href="VideoEncoderSettings.html#bitrate"><code>VideoEncoderSettings.bitrate</code></a>.</dd>
+<dd><code>bitrate</code> - The <a href="VideoEncoderSettings.html#bitrate"><code>VideoEncoderSettings.bitrate</code></a> in bits per second.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
 </dl>
@@ -369,22 +369,25 @@ public&nbsp;<a href="VideoEncoderSettings.Builder.html" title="class in com.goog
  treated as configuring the encoder for maximum throughput.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>operatingRate</code> - The <a href="https://developer.android.com/reference/android/media/MediaFormat.html#KEY_OPERATING_RATE" title="class or interface in android.media" class="externalLink" target="_top"><code>operating rate</code></a>.</dd>
+<dd><code>operatingRate</code> - The <a href="https://developer.android.com/reference/android/media/MediaFormat.html#KEY_OPERATING_RATE" title="class or interface in android.media" class="externalLink" target="_top"><code>operating rate</code></a> in frames per
+     second.</dd>
 <dd><code>priority</code> - The <a href="https://developer.android.com/reference/android/media/MediaFormat.html#KEY_PRIORITY" title="class or interface in android.media" class="externalLink" target="_top"><code>priority</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
 </dl>
 </li>
 </ul>
-<a id="setEnableHighQualityTargeting(boolean)">
+<a id="experimentalSetEnableHighQualityTargeting(boolean)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setEnableHighQualityTargeting</h4>
+<h4>experimentalSetEnableHighQualityTargeting</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
-public&nbsp;<a href="VideoEncoderSettings.Builder.html" title="class in com.google.android.exoplayer2.transformer">VideoEncoderSettings.Builder</a>&nbsp;setEnableHighQualityTargeting&#8203;(boolean&nbsp;enableHighQualityTargeting)</pre>
+public&nbsp;<a href="VideoEncoderSettings.Builder.html" title="class in com.google.android.exoplayer2.transformer">VideoEncoderSettings.Builder</a>&nbsp;experimentalSetEnableHighQualityTargeting&#8203;(boolean&nbsp;enableHighQualityTargeting)</pre>
 <div class="block">Sets whether to enable automatic adjustment of the bitrate to target a high quality encoding.
+
+ <p>This method is experimental and may be removed or changed without warning.
 
  <p>Default value is <code>false</code>.
 

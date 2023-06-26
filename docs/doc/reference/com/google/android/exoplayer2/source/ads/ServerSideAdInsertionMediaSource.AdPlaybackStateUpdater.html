@@ -181,8 +181,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre class="methodSignature">boolean&nbsp;onAdPlaybackStateUpdateRequested&#8203;(<a href="../../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;contentTimeline)</pre>
 <div class="block">Called when the content source has refreshed the timeline.
 
- <p>If true is returned the source refresh publication is deferred, to wait for an <a href="ServerSideAdInsertionMediaSource.html#setAdPlaybackStates(com.google.common.collect.ImmutableMap)"><code>ServerSideAdInsertionMediaSource.setAdPlaybackStates(ImmutableMap)</code></a> ad playback state update}. If false is returned, the
- source refresh is immediately published.
+ <p>If true is returned the source refresh publication is deferred, to wait for an <a href="ServerSideAdInsertionMediaSource.html#setAdPlaybackStates(com.google.common.collect.ImmutableMap,com.google.android.exoplayer2.Timeline)"><code>ServerSideAdInsertionMediaSource.setAdPlaybackStates(ImmutableMap, Timeline)</code></a> ad playback state update}. If false is
+ returned, the source refresh is immediately published.
 
  <p>Called on the playback thread.</div>
 <dl>

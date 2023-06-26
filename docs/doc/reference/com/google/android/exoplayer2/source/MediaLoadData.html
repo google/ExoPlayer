@@ -123,8 +123,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">MediaLoadData</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">MediaLoadData</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Descriptor for data being loaded or selected by a <a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>.</div>
 </li>
 </ul>
@@ -150,6 +156,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>@com.google.android.exoplayer2.C.DataType int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dataType">dataType</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="../C.DataType.html" title="annotation in com.google.android.exoplayer2"><code>data type</code></a>.</div>
 </td>
 </tr>
@@ -157,6 +164,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#mediaEndTimeMs">mediaEndTimeMs</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The end time of the media in the <a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a>, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the data does
  not belong to a specific <a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a> or the end time is unknown.</div>
 </td>
@@ -165,6 +173,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#mediaStartTimeMs">mediaStartTimeMs</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The start time of the media in the <a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a>, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the data
  does not belong to a specific <a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a>.</div>
 </td>
@@ -173,6 +182,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#trackFormat">trackFormat</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The format of the track to which the data belongs.</div>
 </td>
 </tr>
@@ -180,6 +190,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#trackSelectionData">trackSelectionData</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional data associated with the selection of the track to which the data belongs.</div>
 </td>
 </tr>
@@ -187,6 +198,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>@com.google.android.exoplayer2.C.SelectionReason int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#trackSelectionReason">trackSelectionReason</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">One of the <a href="../C.SelectionReason.html" title="annotation in com.google.android.exoplayer2"><code>selection reasons</code></a> if the data belongs to a track.</div>
 </td>
 </tr>
@@ -194,6 +206,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>@com.google.android.exoplayer2.C.TrackType int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#trackType">trackType</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">One of the <a href="../C.TrackType.html" title="annotation in com.google.android.exoplayer2"><code>track types</code></a>, which is a media track type if the data corresponds
  to media of a specific type, or <a href="../C.html#TRACK_TYPE_UNKNOWN"><code>C.TRACK_TYPE_UNKNOWN</code></a> otherwise.</div>
 </td>
@@ -218,6 +231,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(@com.google.android.exoplayer2.C.DataTypeint)">MediaLoadData</a></span>&#8203;(@com.google.android.exoplayer2.C.DataType int&nbsp;dataType)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance with the given <a href="#dataType"><code>dataType</code></a>.</div>
 </td>
 </tr>
@@ -230,6 +244,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
              long&nbsp;mediaStartTimeMs,
              long&nbsp;mediaEndTimeMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates media load data.</div>
 </td>
 </tr>
@@ -274,6 +289,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>dataType</h4>
 <pre>public final&nbsp;@com.google.android.exoplayer2.C.DataType int dataType</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="../C.DataType.html" title="annotation in com.google.android.exoplayer2"><code>data type</code></a>.</div>
 </li>
 </ul>
@@ -284,6 +300,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>trackType</h4>
 <pre>public final&nbsp;@com.google.android.exoplayer2.C.TrackType int trackType</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">One of the <a href="../C.TrackType.html" title="annotation in com.google.android.exoplayer2"><code>track types</code></a>, which is a media track type if the data corresponds
  to media of a specific type, or <a href="../C.html#TRACK_TYPE_UNKNOWN"><code>C.TRACK_TYPE_UNKNOWN</code></a> otherwise.</div>
 </li>
@@ -296,6 +313,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>trackFormat</h4>
 <pre>@Nullable
 public final&nbsp;<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a> trackFormat</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The format of the track to which the data belongs. Null if the data does not belong to a
  specific track.</div>
 </li>
@@ -307,6 +325,7 @@ public final&nbsp;<a href="../Format.html" title="class in com.google.android.ex
 <li class="blockList">
 <h4>trackSelectionReason</h4>
 <pre>public final&nbsp;@com.google.android.exoplayer2.C.SelectionReason int trackSelectionReason</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">One of the <a href="../C.SelectionReason.html" title="annotation in com.google.android.exoplayer2"><code>selection reasons</code></a> if the data belongs to a track. <a href="../C.html#SELECTION_REASON_UNKNOWN"><code>C.SELECTION_REASON_UNKNOWN</code></a> otherwise.</div>
 </li>
 </ul>
@@ -318,6 +337,7 @@ public final&nbsp;<a href="../Format.html" title="class in com.google.android.ex
 <h4>trackSelectionData</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a> trackSelectionData</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional data associated with the selection of the track to which the data belongs. Null if the
  data does not belong to a track.</div>
 </li>
@@ -329,6 +349,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <li class="blockList">
 <h4>mediaStartTimeMs</h4>
 <pre>public final&nbsp;long mediaStartTimeMs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The start time of the media in the <a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a>, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the data
  does not belong to a specific <a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a>.</div>
 </li>
@@ -340,6 +361,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <li class="blockList">
 <h4>mediaEndTimeMs</h4>
 <pre>public final&nbsp;long mediaEndTimeMs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The end time of the media in the <a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a>, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the data does
  not belong to a specific <a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a> or the end time is unknown.</div>
 </li>
@@ -361,6 +383,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <li class="blockList">
 <h4>MediaLoadData</h4>
 <pre>public&nbsp;MediaLoadData&#8203;(@com.google.android.exoplayer2.C.DataType int&nbsp;dataType)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance with the given <a href="#dataType"><code>dataType</code></a>.</div>
 </li>
 </ul>
@@ -379,6 +402,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
                      <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;trackSelectionData,
                      long&nbsp;mediaStartTimeMs,
                      long&nbsp;mediaEndTimeMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates media load data.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

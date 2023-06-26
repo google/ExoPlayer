@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -147,8 +147,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="ContainerMediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">ContainerMediaChunk</a></code>, <code><a href="SingleSampleMediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">SingleSampleMediaChunk</a></code></dd>
 </dl>
 <hr>
-<pre>public abstract class <span class="typeNameLabel">BaseMediaChunk</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public abstract class <span class="typeNameLabel">BaseMediaChunk</span>
 extends <a href="MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">MediaChunk</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A base implementation of <a href="MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a> that outputs to a <a href="BaseMediaChunkOutput.html" title="class in com.google.android.exoplayer2.source.chunk"><code>BaseMediaChunkOutput</code></a>.</div>
 </li>
 </ul>
@@ -174,6 +180,7 @@ extends <a href="MediaChunk.html" title="class in com.google.android.exoplayer2.
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clippedEndTimeUs">clippedEndTimeUs</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The time from which output will end, or <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if output will end at the end of
  the chunk.</div>
 </td>
@@ -182,6 +189,7 @@ extends <a href="MediaChunk.html" title="class in com.google.android.exoplayer2.
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clippedStartTimeUs">clippedStartTimeUs</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The time from which output will begin, or <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if output will begin from the
  start of the chunk.</div>
 </td>
@@ -228,7 +236,9 @@ extends <a href="MediaChunk.html" title="class in com.google.android.exoplayer2.
               long&nbsp;clippedStartTimeUs,
               long&nbsp;clippedEndTimeUs,
               long&nbsp;chunkIndex)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -242,7 +252,7 @@ extends <a href="MediaChunk.html" title="class in com.google.android.exoplayer2.
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -252,6 +262,7 @@ extends <a href="MediaChunk.html" title="class in com.google.android.exoplayer2.
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFirstSampleIndex(int)">getFirstSampleIndex</a></span>&#8203;(int&nbsp;trackIndex)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the index of the first sample in the specified track of the output that will originate
  from this chunk.</div>
 </td>
@@ -260,6 +271,7 @@ extends <a href="MediaChunk.html" title="class in com.google.android.exoplayer2.
 <td class="colFirst"><code>protected <a href="BaseMediaChunkOutput.html" title="class in com.google.android.exoplayer2.source.chunk">BaseMediaChunkOutput</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getOutput()">getOutput</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the output most recently passed to <a href="#init(com.google.android.exoplayer2.source.chunk.BaseMediaChunkOutput)"><code>init(BaseMediaChunkOutput)</code></a>.</div>
 </td>
 </tr>
@@ -267,6 +279,7 @@ extends <a href="MediaChunk.html" title="class in com.google.android.exoplayer2.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#init(com.google.android.exoplayer2.source.chunk.BaseMediaChunkOutput)">init</a></span>&#8203;(<a href="BaseMediaChunkOutput.html" title="class in com.google.android.exoplayer2.source.chunk">BaseMediaChunkOutput</a>&nbsp;output)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Initializes the chunk for loading, setting the <a href="BaseMediaChunkOutput.html" title="class in com.google.android.exoplayer2.source.chunk"><code>BaseMediaChunkOutput</code></a> that will receive
  samples as they are loaded.</div>
 </td>
@@ -323,6 +336,7 @@ extends <a href="MediaChunk.html" title="class in com.google.android.exoplayer2.
 <li class="blockList">
 <h4>clippedStartTimeUs</h4>
 <pre>public final&nbsp;long clippedStartTimeUs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The time from which output will begin, or <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if output will begin from the
  start of the chunk.</div>
 </li>
@@ -334,6 +348,7 @@ extends <a href="MediaChunk.html" title="class in com.google.android.exoplayer2.
 <li class="blockList">
 <h4>clippedEndTimeUs</h4>
 <pre>public final&nbsp;long clippedEndTimeUs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The time from which output will end, or <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if output will end at the end of
  the chunk.</div>
 </li>
@@ -365,6 +380,7 @@ extends <a href="MediaChunk.html" title="class in com.google.android.exoplayer2.
                       long&nbsp;clippedStartTimeUs,
                       long&nbsp;clippedEndTimeUs,
                       long&nbsp;chunkIndex)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>dataSource</code> - The source from which the data should be loaded.</dd>
@@ -397,6 +413,7 @@ extends <a href="MediaChunk.html" title="class in com.google.android.exoplayer2.
 <li class="blockList">
 <h4>init</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;init&#8203;(<a href="BaseMediaChunkOutput.html" title="class in com.google.android.exoplayer2.source.chunk">BaseMediaChunkOutput</a>&nbsp;output)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Initializes the chunk for loading, setting the <a href="BaseMediaChunkOutput.html" title="class in com.google.android.exoplayer2.source.chunk"><code>BaseMediaChunkOutput</code></a> that will receive
  samples as they are loaded.</div>
 <dl>
@@ -412,6 +429,7 @@ extends <a href="MediaChunk.html" title="class in com.google.android.exoplayer2.
 <li class="blockList">
 <h4>getFirstSampleIndex</h4>
 <pre class="methodSignature">public final&nbsp;int&nbsp;getFirstSampleIndex&#8203;(int&nbsp;trackIndex)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the index of the first sample in the specified track of the output that will originate
  from this chunk.</div>
 </li>
@@ -423,6 +441,7 @@ extends <a href="MediaChunk.html" title="class in com.google.android.exoplayer2.
 <li class="blockList">
 <h4>getOutput</h4>
 <pre class="methodSignature">protected final&nbsp;<a href="BaseMediaChunkOutput.html" title="class in com.google.android.exoplayer2.source.chunk">BaseMediaChunkOutput</a>&nbsp;getOutput()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the output most recently passed to <a href="#init(com.google.android.exoplayer2.source.chunk.BaseMediaChunkOutput)"><code>init(BaseMediaChunkOutput)</code></a>.</div>
 </li>
 </ul>

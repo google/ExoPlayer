@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,8 +133,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a></code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">MediaPeriodId</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">MediaPeriodId</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Identifies a specific playback of a <a href="../Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a>.
 
  <p>A <a href="../Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a> can be played multiple times, for example if it is repeated. Each
@@ -165,6 +171,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#adGroupIndex">adGroupIndex</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If the media period is in an ad group, the index of the ad group in the period.</div>
 </td>
 </tr>
@@ -172,6 +179,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#adIndexInAdGroup">adIndexInAdGroup</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If the media period is in an ad group, the index of the ad in its ad group in the period.</div>
 </td>
 </tr>
@@ -179,6 +187,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#nextAdGroupIndex">nextAdGroupIndex</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The index of the next ad group to which the media period's content is clipped, or <a href="../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if there is no following ad group or if this media period is an ad.</div>
 </td>
 </tr>
@@ -186,6 +195,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#periodUid">periodUid</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The unique id of the timeline period.</div>
 </td>
 </tr>
@@ -193,6 +203,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#windowSequenceNumber">windowSequenceNumber</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The sequence number of the window in the buffered sequence of windows this media period is part
  of.</div>
 </td>
@@ -219,6 +230,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>protected </code></td>
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.MediaPeriodId)">MediaPeriodId</a></span>&#8203;(<a href="MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaPeriodId</a>&nbsp;mediaPeriodId)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Copy constructor for inheritance.</div>
 </td>
 </tr>
@@ -226,6 +238,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>&nbsp;</code></td>
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.Object)">MediaPeriodId</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;periodUid)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a media period identifier for a period which is not part of a buffered sequence of
  windows.</div>
 </td>
@@ -237,6 +250,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
              int&nbsp;adIndexInAdGroup,
              long&nbsp;windowSequenceNumber)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a media period identifier that identifies an ad within an ad group at the specified
  timeline period.</div>
 </td>
@@ -246,6 +260,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.Object,long)">MediaPeriodId</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;periodUid,
              long&nbsp;windowSequenceNumber)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a media period identifier for the specified period in the timeline.</div>
 </td>
 </tr>
@@ -255,6 +270,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
              long&nbsp;windowSequenceNumber,
              int&nbsp;nextAdGroupIndex)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a media period identifier for the specified clipped period in the timeline.</div>
 </td>
 </tr>
@@ -270,7 +286,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -280,6 +296,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaPeriodId</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyWithPeriodUid(java.lang.Object)">copyWithPeriodUid</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;newPeriodUid)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy of this period identifier but with <code>newPeriodUid</code> as its period uid.</div>
 </td>
 </tr>
@@ -287,23 +304,29 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaPeriodId</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyWithWindowSequenceNumber(long)">copyWithWindowSequenceNumber</a></span>&#8203;(long&nbsp;windowSequenceNumber)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy of this period identifier with a new <code>windowSequenceNumber</code>.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isAd()">isAd</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether this period identifier identifies an ad in an ad group in a period.</div>
 </td>
 </tr>
@@ -338,6 +361,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>periodUid</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a> periodUid</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The unique id of the timeline period.</div>
 </li>
 </ul>
@@ -348,6 +372,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>adGroupIndex</h4>
 <pre>public final&nbsp;int adGroupIndex</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If the media period is in an ad group, the index of the ad group in the period. <a href="../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> otherwise.</div>
 </li>
 </ul>
@@ -358,6 +383,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>adIndexInAdGroup</h4>
 <pre>public final&nbsp;int adIndexInAdGroup</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If the media period is in an ad group, the index of the ad in its ad group in the period.
  <a href="../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> otherwise.</div>
 </li>
@@ -369,6 +395,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>windowSequenceNumber</h4>
 <pre>public final&nbsp;long windowSequenceNumber</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The sequence number of the window in the buffered sequence of windows this media period is part
  of. <a href="../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the media period id is not part of a buffered sequence of windows.</div>
 </li>
@@ -380,6 +407,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>nextAdGroupIndex</h4>
 <pre>public final&nbsp;int nextAdGroupIndex</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The index of the next ad group to which the media period's content is clipped, or <a href="../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if there is no following ad group or if this media period is an ad.</div>
 </li>
 </ul>
@@ -400,6 +428,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>MediaPeriodId</h4>
 <pre>public&nbsp;MediaPeriodId&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;periodUid)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a media period identifier for a period which is not part of a buffered sequence of
  windows.</div>
 <dl>
@@ -416,6 +445,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>MediaPeriodId</h4>
 <pre>public&nbsp;MediaPeriodId&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;periodUid,
                      long&nbsp;windowSequenceNumber)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a media period identifier for the specified period in the timeline.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -434,6 +464,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre>public&nbsp;MediaPeriodId&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;periodUid,
                      long&nbsp;windowSequenceNumber,
                      int&nbsp;nextAdGroupIndex)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a media period identifier for the specified clipped period in the timeline.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -455,6 +486,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                      int&nbsp;adGroupIndex,
                      int&nbsp;adIndexInAdGroup,
                      long&nbsp;windowSequenceNumber)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a media period identifier that identifies an ad within an ad group at the specified
  timeline period.</div>
 <dl>
@@ -474,6 +506,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>MediaPeriodId</h4>
 <pre>protected&nbsp;MediaPeriodId&#8203;(<a href="MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaPeriodId</a>&nbsp;mediaPeriodId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Copy constructor for inheritance.</div>
 </li>
 </ul>
@@ -494,6 +527,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>copyWithPeriodUid</h4>
 <pre class="methodSignature">public&nbsp;<a href="MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaPeriodId</a>&nbsp;copyWithPeriodUid&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;newPeriodUid)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy of this period identifier but with <code>newPeriodUid</code> as its period uid.</div>
 </li>
 </ul>
@@ -504,6 +538,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>copyWithWindowSequenceNumber</h4>
 <pre class="methodSignature">public&nbsp;<a href="MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaPeriodId</a>&nbsp;copyWithWindowSequenceNumber&#8203;(long&nbsp;windowSequenceNumber)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy of this period identifier with a new <code>windowSequenceNumber</code>.</div>
 </li>
 </ul>
@@ -514,6 +549,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>isAd</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isAd()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether this period identifier identifies an ad in an ad group in a period.</div>
 </li>
 </ul>
@@ -525,6 +561,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>equals</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;equals&#8203;(@Nullable
                       <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
@@ -538,6 +575,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>hashCode</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;hashCode()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>

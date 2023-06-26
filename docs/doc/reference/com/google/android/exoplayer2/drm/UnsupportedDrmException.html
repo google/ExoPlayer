@@ -137,8 +137,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="https://developer.android.com/reference/java/io/Serializable.html" title="class or interface in java.io" class="externalLink" target="_top">Serializable</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">UnsupportedDrmException</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">UnsupportedDrmException</span>
 extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Thrown when the requested DRM scheme is not supported.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -168,6 +174,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="UnsupportedDrmException.Reason.html" title="annotation in com.google.android.exoplayer2.drm">UnsupportedDrmException.Reason</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The reason for the exception.</div>
 </td>
 </tr>
@@ -193,6 +200,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <td class="colFirst"><code>@com.google.android.exoplayer2.drm.UnsupportedDrmException.Reason int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reason">reason</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Either <a href="#REASON_UNSUPPORTED_SCHEME"><code>REASON_UNSUPPORTED_SCHEME</code></a> or <a href="#REASON_INSTANTIATION_ERROR"><code>REASON_INSTANTIATION_ERROR</code></a>.</div>
 </td>
 </tr>
@@ -200,6 +208,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#REASON_INSTANTIATION_ERROR">REASON_INSTANTIATION_ERROR</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">There device advertises support for the requested DRM scheme, but there was an error
  instantiating it.</div>
 </td>
@@ -208,6 +217,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#REASON_UNSUPPORTED_SCHEME">REASON_UNSUPPORTED_SCHEME</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The requested DRM scheme is unsupported by the device.</div>
 </td>
 </tr>
@@ -230,12 +240,16 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(@com.google.android.exoplayer2.drm.UnsupportedDrmException.Reasonint)">UnsupportedDrmException</a></span>&#8203;(@com.google.android.exoplayer2.drm.UnsupportedDrmException.Reason int&nbsp;reason)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(@com.google.android.exoplayer2.drm.UnsupportedDrmException.Reasonint,java.lang.Exception)">UnsupportedDrmException</a></span>&#8203;(@com.google.android.exoplayer2.drm.UnsupportedDrmException.Reason int&nbsp;reason,
                        <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;cause)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -285,6 +299,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <li class="blockList">
 <h4>REASON_UNSUPPORTED_SCHEME</h4>
 <pre>public static final&nbsp;int REASON_UNSUPPORTED_SCHEME</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The requested DRM scheme is unsupported by the device.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -299,6 +314,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <li class="blockList">
 <h4>REASON_INSTANTIATION_ERROR</h4>
 <pre>public static final&nbsp;int REASON_INSTANTIATION_ERROR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">There device advertises support for the requested DRM scheme, but there was an error
  instantiating it. The cause can be retrieved using <a href="https://developer.android.com/reference/java/lang/Throwable.html#getCause()" title="class or interface in java.lang" class="externalLink" target="_top"><code>Throwable.getCause()</code></a>.</div>
 <dl>
@@ -315,6 +331,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Exception.htm
 <h4>reason</h4>
 <pre><a href="UnsupportedDrmException.Reason.html" title="annotation in com.google.android.exoplayer2.drm">@Reason</a>
 public final&nbsp;@com.google.android.exoplayer2.drm.UnsupportedDrmException.Reason int reason</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Either <a href="#REASON_UNSUPPORTED_SCHEME"><code>REASON_UNSUPPORTED_SCHEME</code></a> or <a href="#REASON_INSTANTIATION_ERROR"><code>REASON_INSTANTIATION_ERROR</code></a>.</div>
 </li>
 </ul>
@@ -336,6 +353,7 @@ public final&nbsp;@com.google.android.exoplayer2.drm.UnsupportedDrmException.Rea
 <h4>UnsupportedDrmException</h4>
 <pre>public&nbsp;UnsupportedDrmException&#8203;(<a href="UnsupportedDrmException.Reason.html" title="annotation in com.google.android.exoplayer2.drm">@Reason</a>
                                @com.google.android.exoplayer2.drm.UnsupportedDrmException.Reason int&nbsp;reason)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>reason</code> - <a href="#REASON_UNSUPPORTED_SCHEME"><code>REASON_UNSUPPORTED_SCHEME</code></a> or <a href="#REASON_INSTANTIATION_ERROR"><code>REASON_INSTANTIATION_ERROR</code></a>.</dd>
@@ -351,6 +369,7 @@ public final&nbsp;@com.google.android.exoplayer2.drm.UnsupportedDrmException.Rea
 <pre>public&nbsp;UnsupportedDrmException&#8203;(<a href="UnsupportedDrmException.Reason.html" title="annotation in com.google.android.exoplayer2.drm">@Reason</a>
                                @com.google.android.exoplayer2.drm.UnsupportedDrmException.Reason int&nbsp;reason,
                                <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;cause)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>reason</code> - <a href="#REASON_UNSUPPORTED_SCHEME"><code>REASON_UNSUPPORTED_SCHEME</code></a> or <a href="#REASON_INSTANTIATION_ERROR"><code>REASON_INSTANTIATION_ERROR</code></a>.</dd>

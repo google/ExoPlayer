@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var data = {"i0":38,"i1":38,"i2":38,"i3":38,"i4":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -125,7 +125,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="Ac3Reader.html" title="class in com.google.android.exoplayer2.extractor.ts">Ac3Reader</a></code>, <code><a href="Ac4Reader.html" title="class in com.google.android.exoplayer2.extractor.ts">Ac4Reader</a></code>, <code><a href="AdtsReader.html" title="class in com.google.android.exoplayer2.extractor.ts">AdtsReader</a></code>, <code><a href="DtsReader.html" title="class in com.google.android.exoplayer2.extractor.ts">DtsReader</a></code>, <code><a href="DvbSubtitleReader.html" title="class in com.google.android.exoplayer2.extractor.ts">DvbSubtitleReader</a></code>, <code><a href="H262Reader.html" title="class in com.google.android.exoplayer2.extractor.ts">H262Reader</a></code>, <code><a href="H263Reader.html" title="class in com.google.android.exoplayer2.extractor.ts">H263Reader</a></code>, <code><a href="H264Reader.html" title="class in com.google.android.exoplayer2.extractor.ts">H264Reader</a></code>, <code><a href="H265Reader.html" title="class in com.google.android.exoplayer2.extractor.ts">H265Reader</a></code>, <code><a href="Id3Reader.html" title="class in com.google.android.exoplayer2.extractor.ts">Id3Reader</a></code>, <code><a href="LatmReader.html" title="class in com.google.android.exoplayer2.extractor.ts">LatmReader</a></code>, <code><a href="MpegAudioReader.html" title="class in com.google.android.exoplayer2.extractor.ts">MpegAudioReader</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">ElementaryStreamReader</span></pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">ElementaryStreamReader</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Extracts individual samples from an elementary media stream, preserving original order.</div>
 </li>
 </ul>
@@ -141,7 +147,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -151,6 +157,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#consume(com.google.android.exoplayer2.util.ParsableByteArray)">consume</a></span>&#8203;(<a href="../../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Consumes (possibly partial) data from the current packet.</div>
 </td>
 </tr>
@@ -159,6 +166,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createTracks(com.google.android.exoplayer2.extractor.ExtractorOutput,com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator)">createTracks</a></span>&#8203;(<a href="../ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;extractorOutput,
             <a href="TsPayloadReader.TrackIdGenerator.html" title="class in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.TrackIdGenerator</a>&nbsp;idGenerator)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Initializes the reader by providing outputs and ids for the tracks.</div>
 </td>
 </tr>
@@ -166,6 +174,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#packetFinished()">packetFinished</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a packet ends.</div>
 </td>
 </tr>
@@ -174,6 +183,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#packetStarted(long,@com.google.android.exoplayer2.extractor.ts.TsPayloadReader.Flagsint)">packetStarted</a></span>&#8203;(long&nbsp;pesTimeUs,
              @com.google.android.exoplayer2.extractor.ts.TsPayloadReader.Flags int&nbsp;flags)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a packet starts.</div>
 </td>
 </tr>
@@ -181,6 +191,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seek()">seek</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Notifies the reader that a seek has occurred.</div>
 </td>
 </tr>
@@ -208,6 +219,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>seek</h4>
 <pre class="methodSignature">void&nbsp;seek()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Notifies the reader that a seek has occurred.</div>
 </li>
 </ul>
@@ -219,6 +231,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>createTracks</h4>
 <pre class="methodSignature">void&nbsp;createTracks&#8203;(<a href="../ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;extractorOutput,
                   <a href="TsPayloadReader.TrackIdGenerator.html" title="class in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.TrackIdGenerator</a>&nbsp;idGenerator)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Initializes the reader by providing outputs and ids for the tracks.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -236,6 +249,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>packetStarted</h4>
 <pre class="methodSignature">void&nbsp;packetStarted&#8203;(long&nbsp;pesTimeUs,
                    @com.google.android.exoplayer2.extractor.ts.TsPayloadReader.Flags int&nbsp;flags)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a packet starts.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -252,6 +266,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>consume</h4>
 <pre class="methodSignature">void&nbsp;consume&#8203;(<a href="../../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data)
       throws <a href="../../ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Consumes (possibly partial) data from the current packet.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -268,6 +283,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>packetFinished</h4>
 <pre class="methodSignature">void&nbsp;packetFinished()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a packet ends.</div>
 </li>
 </ul>

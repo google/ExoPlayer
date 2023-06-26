@@ -1,0 +1,546 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>DebugTraceUtil (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="DebugTraceUtil (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":41,"i1":41,"i2":41,"i3":41,"i4":41,"i5":41,"i6":41,"i7":41,"i8":41,"i9":41,"i10":41,"i11":41,"i12":41,"i13":41,"i14":41,"i15":41,"i16":41};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.effect</a></div>
+<h2 title="Class DebugTraceUtil" class="title">Class DebugTraceUtil</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.effect.DebugTraceUtil</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<hr>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">DebugTraceUtil</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
+<div class="block">A debugging tracing utility.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#generateTrace()">generateTrace</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#recordDecodedFrame()">recordDecodedFrame</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#recordDecoderReceiveEos()">recordDecoderReceiveEos</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#recordDecoderSignalEos()">recordDecoderSignalEos</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#recordEncodedFrame()">recordEncodedFrame</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#recordEncoderReceiveEos()">recordEncoderReceiveEos</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#recordExternalInputManagerSignalEndOfCurrentInputStream()">recordExternalInputManagerSignalEndOfCurrentInputStream</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#recordFrameDequeuedFromVideoFrameProcessorInput()">recordFrameDequeuedFromVideoFrameProcessorInput</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#recordFrameRenderedToVideoFrameProcessorInput()">recordFrameRenderedToVideoFrameProcessorInput</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#recordFrameRenderedToVideoFrameProcessorOutput()">recordFrameRenderedToVideoFrameProcessorOutput</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#recordLatestVideoInputFormat(com.google.android.exoplayer2.Format)">recordLatestVideoInputFormat</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#recordMuxerCanAddSample(@com.google.android.exoplayer2.C.TrackTypeint,boolean)">recordMuxerCanAddSample</a></span>&#8203;(@com.google.android.exoplayer2.C.TrackType int&nbsp;trackType,
+                       boolean&nbsp;canAddSample)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#recordMuxerInput(@com.google.android.exoplayer2.C.TrackTypeint)">recordMuxerInput</a></span>&#8203;(@com.google.android.exoplayer2.C.TrackType int&nbsp;trackType)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#recordMuxerTrackEnded(@com.google.android.exoplayer2.C.TrackTypeint)">recordMuxerTrackEnded</a></span>&#8203;(@com.google.android.exoplayer2.C.TrackType int&nbsp;trackType)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
+</tr>
+<tr id="i14" class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#recordVideoFrameProcessorReceiveDecoderEos()">recordVideoFrameProcessorReceiveDecoderEos</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
+</tr>
+<tr id="i15" class="rowColor">
+<td class="colFirst"><code>static void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#recordVideoFrameProcessorSignalEos()">recordVideoFrameProcessorSignalEos</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
+</tr>
+<tr id="i16" class="altColor">
+<td class="colFirst"><code>static void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset()">reset</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="reset()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>reset</h4>
+<pre class="methodSignature">public static&nbsp;void&nbsp;reset()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+</li>
+</ul>
+<a id="recordLatestVideoInputFormat(com.google.android.exoplayer2.Format)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>recordLatestVideoInputFormat</h4>
+<pre class="methodSignature">public static&nbsp;void&nbsp;recordLatestVideoInputFormat&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+</li>
+</ul>
+<a id="recordDecodedFrame()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>recordDecodedFrame</h4>
+<pre class="methodSignature">public static&nbsp;void&nbsp;recordDecodedFrame()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+</li>
+</ul>
+<a id="recordFrameRenderedToVideoFrameProcessorInput()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>recordFrameRenderedToVideoFrameProcessorInput</h4>
+<pre class="methodSignature">public static&nbsp;void&nbsp;recordFrameRenderedToVideoFrameProcessorInput()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+</li>
+</ul>
+<a id="recordFrameDequeuedFromVideoFrameProcessorInput()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>recordFrameDequeuedFromVideoFrameProcessorInput</h4>
+<pre class="methodSignature">public static&nbsp;void&nbsp;recordFrameDequeuedFromVideoFrameProcessorInput()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+</li>
+</ul>
+<a id="recordFrameRenderedToVideoFrameProcessorOutput()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>recordFrameRenderedToVideoFrameProcessorOutput</h4>
+<pre class="methodSignature">public static&nbsp;void&nbsp;recordFrameRenderedToVideoFrameProcessorOutput()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+</li>
+</ul>
+<a id="recordEncodedFrame()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>recordEncodedFrame</h4>
+<pre class="methodSignature">public static&nbsp;void&nbsp;recordEncodedFrame()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+</li>
+</ul>
+<a id="recordMuxerInput(@com.google.android.exoplayer2.C.TrackTypeint)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>recordMuxerInput</h4>
+<pre class="methodSignature">public static&nbsp;void&nbsp;recordMuxerInput&#8203;(@com.google.android.exoplayer2.C.TrackType int&nbsp;trackType)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+</li>
+</ul>
+<a id="recordDecoderReceiveEos()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>recordDecoderReceiveEos</h4>
+<pre class="methodSignature">public static&nbsp;void&nbsp;recordDecoderReceiveEos()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+</li>
+</ul>
+<a id="recordDecoderSignalEos()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>recordDecoderSignalEos</h4>
+<pre class="methodSignature">public static&nbsp;void&nbsp;recordDecoderSignalEos()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+</li>
+</ul>
+<a id="recordVideoFrameProcessorReceiveDecoderEos()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>recordVideoFrameProcessorReceiveDecoderEos</h4>
+<pre class="methodSignature">public static&nbsp;void&nbsp;recordVideoFrameProcessorReceiveDecoderEos()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+</li>
+</ul>
+<a id="recordExternalInputManagerSignalEndOfCurrentInputStream()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>recordExternalInputManagerSignalEndOfCurrentInputStream</h4>
+<pre class="methodSignature">public static&nbsp;void&nbsp;recordExternalInputManagerSignalEndOfCurrentInputStream()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+</li>
+</ul>
+<a id="recordVideoFrameProcessorSignalEos()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>recordVideoFrameProcessorSignalEos</h4>
+<pre class="methodSignature">public static&nbsp;void&nbsp;recordVideoFrameProcessorSignalEos()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+</li>
+</ul>
+<a id="recordEncoderReceiveEos()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>recordEncoderReceiveEos</h4>
+<pre class="methodSignature">public static&nbsp;void&nbsp;recordEncoderReceiveEos()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+</li>
+</ul>
+<a id="recordMuxerCanAddSample(@com.google.android.exoplayer2.C.TrackTypeint,boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>recordMuxerCanAddSample</h4>
+<pre class="methodSignature">public static&nbsp;void&nbsp;recordMuxerCanAddSample&#8203;(@com.google.android.exoplayer2.C.TrackType int&nbsp;trackType,
+                                           boolean&nbsp;canAddSample)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+</li>
+</ul>
+<a id="recordMuxerTrackEnded(@com.google.android.exoplayer2.C.TrackTypeint)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>recordMuxerTrackEnded</h4>
+<pre class="methodSignature">public static&nbsp;void&nbsp;recordMuxerTrackEnded&#8203;(@com.google.android.exoplayer2.C.TrackType int&nbsp;trackType)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+</li>
+</ul>
+<a id="generateTrace()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>generateTrace</h4>
+<pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;generateTrace()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

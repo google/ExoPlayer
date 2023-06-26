@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts">TsPayloadReader</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">PesReader</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">PesReader</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts">TsPayloadReader</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Parses PES packet data and extracts samples.</div>
 </li>
 </ul>
@@ -192,7 +198,9 @@ implements <a href="TsPayloadReader.html" title="interface in com.google.android
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.extractor.ts.ElementaryStreamReader)">PesReader</a></span>&#8203;(<a href="ElementaryStreamReader.html" title="interface in com.google.android.exoplayer2.extractor.ts">ElementaryStreamReader</a>&nbsp;reader)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -206,7 +214,7 @@ implements <a href="TsPayloadReader.html" title="interface in com.google.android
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -217,6 +225,7 @@ implements <a href="TsPayloadReader.html" title="interface in com.google.android
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#consume(com.google.android.exoplayer2.util.ParsableByteArray,@com.google.android.exoplayer2.extractor.ts.TsPayloadReader.Flagsint)">consume</a></span>&#8203;(<a href="../../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
        @com.google.android.exoplayer2.extractor.ts.TsPayloadReader.Flags int&nbsp;flags)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Consumes the payload of a TS packet.</div>
 </td>
 </tr>
@@ -226,6 +235,7 @@ implements <a href="TsPayloadReader.html" title="interface in com.google.android
     <a href="../ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;extractorOutput,
     <a href="TsPayloadReader.TrackIdGenerator.html" title="class in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.TrackIdGenerator</a>&nbsp;idGenerator)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Initializes the payload reader.</div>
 </td>
 </tr>
@@ -233,6 +243,7 @@ implements <a href="TsPayloadReader.html" title="interface in com.google.android
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seek()">seek</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Notifies the reader that a seek has occurred.</div>
 </td>
 </tr>
@@ -267,6 +278,7 @@ implements <a href="TsPayloadReader.html" title="interface in com.google.android
 <li class="blockList">
 <h4>PesReader</h4>
 <pre>public&nbsp;PesReader&#8203;(<a href="ElementaryStreamReader.html" title="interface in com.google.android.exoplayer2.extractor.ts">ElementaryStreamReader</a>&nbsp;reader)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -288,6 +300,7 @@ implements <a href="TsPayloadReader.html" title="interface in com.google.android
 <pre class="methodSignature">public&nbsp;void&nbsp;init&#8203;(<a href="../../util/TimestampAdjuster.html" title="class in com.google.android.exoplayer2.util">TimestampAdjuster</a>&nbsp;timestampAdjuster,
                  <a href="../ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;extractorOutput,
                  <a href="TsPayloadReader.TrackIdGenerator.html" title="class in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.TrackIdGenerator</a>&nbsp;idGenerator)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="TsPayloadReader.html#init(com.google.android.exoplayer2.util.TimestampAdjuster,com.google.android.exoplayer2.extractor.ExtractorOutput,com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator)">TsPayloadReader</a></code></span></div>
 <div class="block">Initializes the payload reader.</div>
 <dl>
@@ -308,6 +321,7 @@ implements <a href="TsPayloadReader.html" title="interface in com.google.android
 <li class="blockList">
 <h4>seek</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;seek()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="TsPayloadReader.html#seek()">TsPayloadReader</a></code></span></div>
 <div class="block">Notifies the reader that a seek has occurred.
 
@@ -329,6 +343,7 @@ implements <a href="TsPayloadReader.html" title="interface in com.google.android
 <pre class="methodSignature">public final&nbsp;void&nbsp;consume&#8203;(<a href="../../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
                           @com.google.android.exoplayer2.extractor.ts.TsPayloadReader.Flags int&nbsp;flags)
                    throws <a href="../../ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="TsPayloadReader.html#consume(com.google.android.exoplayer2.util.ParsableByteArray,@com.google.android.exoplayer2.extractor.ts.TsPayloadReader.Flagsint)">TsPayloadReader</a></code></span></div>
 <div class="block">Consumes the payload of a TS packet.</div>
 <dl>

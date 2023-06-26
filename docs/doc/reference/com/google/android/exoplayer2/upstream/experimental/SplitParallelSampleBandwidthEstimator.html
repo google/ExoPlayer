@@ -1,0 +1,519 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>SplitParallelSampleBandwidthEstimator (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="SplitParallelSampleBandwidthEstimator (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.upstream.experimental</a></div>
+<h2 title="Class SplitParallelSampleBandwidthEstimator" class="title">Class SplitParallelSampleBandwidthEstimator</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.upstream.experimental.SplitParallelSampleBandwidthEstimator</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><code><a href="BandwidthEstimator.html" title="interface in com.google.android.exoplayer2.upstream.experimental">BandwidthEstimator</a></code></dd>
+</dl>
+<hr>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">SplitParallelSampleBandwidthEstimator</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
+implements <a href="BandwidthEstimator.html" title="interface in com.google.android.exoplayer2.upstream.experimental">BandwidthEstimator</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
+<div class="block">A <a href="BandwidthEstimator.html" title="interface in com.google.android.exoplayer2.upstream.experimental"><code>BandwidthEstimator</code></a> that captures a transfer sample each time a transfer ends. When
+ parallel transfers are happening at the same time, the transferred bytes are aggregated in a
+ single sample.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="SplitParallelSampleBandwidthEstimator.Builder.html" title="class in com.google.android.exoplayer2.upstream.experimental">SplitParallelSampleBandwidthEstimator.Builder</a></span></code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">A builder to create <a href="SplitParallelSampleBandwidthEstimator.html" title="class in com.google.android.exoplayer2.upstream.experimental"><code>SplitParallelSampleBandwidthEstimator</code></a> instances.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.upstream.experimental.BandwidthEstimator">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.upstream.experimental.<a href="BandwidthEstimator.html" title="interface in com.google.android.exoplayer2.upstream.experimental">BandwidthEstimator</a></h3>
+<code><a href="BandwidthEstimator.html#ESTIMATE_NOT_AVAILABLE">ESTIMATE_NOT_AVAILABLE</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addEventListener(android.os.Handler,com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener)">addEventListener</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;eventHandler,
+                <a href="../BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter.EventListener</a>&nbsp;eventListener)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Adds an <a href="../BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>BandwidthMeter.EventListener</code></a>.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getBandwidthEstimate()">getBandwidthEstimate</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns the bandwidth estimate in bits per second, or <a href="BandwidthEstimator.html#ESTIMATE_NOT_AVAILABLE"><code>BandwidthEstimator.ESTIMATE_NOT_AVAILABLE</code></a> if there
+ is no estimate available yet.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onBytesTransferred(com.google.android.exoplayer2.upstream.DataSource,int)">onBytesTransferred</a></span>&#8203;(<a href="../DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source,
+                  int&nbsp;bytesTransferred)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Called incrementally during a transfer.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onNetworkTypeChange(long)">onNetworkTypeChange</a></span>&#8203;(long&nbsp;newBandwidthEstimate)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Notifies this estimator that a network change has been detected.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTransferEnd(com.google.android.exoplayer2.upstream.DataSource)">onTransferEnd</a></span>&#8203;(<a href="../DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Called when a transfer ends.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTransferInitializing(com.google.android.exoplayer2.upstream.DataSource)">onTransferInitializing</a></span>&#8203;(<a href="../DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Called when a transfer is being initialized.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTransferStart(com.google.android.exoplayer2.upstream.DataSource)">onTransferStart</a></span>&#8203;(<a href="../DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Called when a transfer starts.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeEventListener(com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener)">removeEventListener</a></span>&#8203;(<a href="../BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter.EventListener</a>&nbsp;eventListener)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Removes an <a href="../BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>BandwidthMeter.EventListener</code></a>.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="addEventListener(android.os.Handler,com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>addEventListener</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;addEventListener&#8203;(<a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;eventHandler,
+                             <a href="../BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter.EventListener</a>&nbsp;eventListener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="BandwidthEstimator.html#addEventListener(android.os.Handler,com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener)">BandwidthEstimator</a></code></span></div>
+<div class="block">Adds an <a href="../BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>BandwidthMeter.EventListener</code></a>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="BandwidthEstimator.html#addEventListener(android.os.Handler,com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener)">addEventListener</a></code>&nbsp;in interface&nbsp;<code><a href="BandwidthEstimator.html" title="interface in com.google.android.exoplayer2.upstream.experimental">BandwidthEstimator</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>eventHandler</code> - A handler for events.</dd>
+<dd><code>eventListener</code> - A listener of events.</dd>
+</dl>
+</li>
+</ul>
+<a id="removeEventListener(com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>removeEventListener</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;removeEventListener&#8203;(<a href="../BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter.EventListener</a>&nbsp;eventListener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="BandwidthEstimator.html#removeEventListener(com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener)">BandwidthEstimator</a></code></span></div>
+<div class="block">Removes an <a href="../BandwidthMeter.EventListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>BandwidthMeter.EventListener</code></a>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="BandwidthEstimator.html#removeEventListener(com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener)">removeEventListener</a></code>&nbsp;in interface&nbsp;<code><a href="BandwidthEstimator.html" title="interface in com.google.android.exoplayer2.upstream.experimental">BandwidthEstimator</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>eventListener</code> - The listener to be removed.</dd>
+</dl>
+</li>
+</ul>
+<a id="onTransferInitializing(com.google.android.exoplayer2.upstream.DataSource)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onTransferInitializing</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;onTransferInitializing&#8203;(<a href="../DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="BandwidthEstimator.html#onTransferInitializing(com.google.android.exoplayer2.upstream.DataSource)">BandwidthEstimator</a></code></span></div>
+<div class="block">Called when a transfer is being initialized.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="BandwidthEstimator.html#onTransferInitializing(com.google.android.exoplayer2.upstream.DataSource)">onTransferInitializing</a></code>&nbsp;in interface&nbsp;<code><a href="BandwidthEstimator.html" title="interface in com.google.android.exoplayer2.upstream.experimental">BandwidthEstimator</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>source</code> - The <a href="../DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> performing the transfer.</dd>
+</dl>
+</li>
+</ul>
+<a id="onTransferStart(com.google.android.exoplayer2.upstream.DataSource)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onTransferStart</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;onTransferStart&#8203;(<a href="../DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="BandwidthEstimator.html#onTransferStart(com.google.android.exoplayer2.upstream.DataSource)">BandwidthEstimator</a></code></span></div>
+<div class="block">Called when a transfer starts.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="BandwidthEstimator.html#onTransferStart(com.google.android.exoplayer2.upstream.DataSource)">onTransferStart</a></code>&nbsp;in interface&nbsp;<code><a href="BandwidthEstimator.html" title="interface in com.google.android.exoplayer2.upstream.experimental">BandwidthEstimator</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>source</code> - The <a href="../DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> performing the transfer.</dd>
+</dl>
+</li>
+</ul>
+<a id="onBytesTransferred(com.google.android.exoplayer2.upstream.DataSource,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onBytesTransferred</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;onBytesTransferred&#8203;(<a href="../DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source,
+                               int&nbsp;bytesTransferred)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="BandwidthEstimator.html#onBytesTransferred(com.google.android.exoplayer2.upstream.DataSource,int)">BandwidthEstimator</a></code></span></div>
+<div class="block">Called incrementally during a transfer.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="BandwidthEstimator.html#onBytesTransferred(com.google.android.exoplayer2.upstream.DataSource,int)">onBytesTransferred</a></code>&nbsp;in interface&nbsp;<code><a href="BandwidthEstimator.html" title="interface in com.google.android.exoplayer2.upstream.experimental">BandwidthEstimator</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>source</code> - The <a href="../DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> performing the transfer.</dd>
+<dd><code>bytesTransferred</code> - The number of bytes transferred since the previous call to this method</dd>
+</dl>
+</li>
+</ul>
+<a id="onTransferEnd(com.google.android.exoplayer2.upstream.DataSource)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onTransferEnd</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;onTransferEnd&#8203;(<a href="../DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="BandwidthEstimator.html#onTransferEnd(com.google.android.exoplayer2.upstream.DataSource)">BandwidthEstimator</a></code></span></div>
+<div class="block">Called when a transfer ends.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="BandwidthEstimator.html#onTransferEnd(com.google.android.exoplayer2.upstream.DataSource)">onTransferEnd</a></code>&nbsp;in interface&nbsp;<code><a href="BandwidthEstimator.html" title="interface in com.google.android.exoplayer2.upstream.experimental">BandwidthEstimator</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>source</code> - The <a href="../DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> performing the transfer.</dd>
+</dl>
+</li>
+</ul>
+<a id="getBandwidthEstimate()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getBandwidthEstimate</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getBandwidthEstimate()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="BandwidthEstimator.html#getBandwidthEstimate()">BandwidthEstimator</a></code></span></div>
+<div class="block">Returns the bandwidth estimate in bits per second, or <a href="BandwidthEstimator.html#ESTIMATE_NOT_AVAILABLE"><code>BandwidthEstimator.ESTIMATE_NOT_AVAILABLE</code></a> if there
+ is no estimate available yet.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="BandwidthEstimator.html#getBandwidthEstimate()">getBandwidthEstimate</a></code>&nbsp;in interface&nbsp;<code><a href="BandwidthEstimator.html" title="interface in com.google.android.exoplayer2.upstream.experimental">BandwidthEstimator</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="onNetworkTypeChange(long)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>onNetworkTypeChange</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;onNetworkTypeChange&#8203;(long&nbsp;newBandwidthEstimate)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="BandwidthEstimator.html#onNetworkTypeChange(long)">BandwidthEstimator</a></code></span></div>
+<div class="block">Notifies this estimator that a network change has been detected.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="BandwidthEstimator.html#onNetworkTypeChange(long)">onNetworkTypeChange</a></code>&nbsp;in interface&nbsp;<code><a href="BandwidthEstimator.html" title="interface in com.google.android.exoplayer2.upstream.experimental">BandwidthEstimator</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>newBandwidthEstimate</code> - The new initial bandwidth estimate based on network type.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

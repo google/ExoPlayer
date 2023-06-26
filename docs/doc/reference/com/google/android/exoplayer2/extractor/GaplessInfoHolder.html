@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">GaplessInfoHolder</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">GaplessInfoHolder</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Holder for gapless playback information.</div>
 </li>
 </ul>
@@ -156,6 +162,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#encoderDelay">encoderDelay</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of samples to trim from the start of the decoded audio stream, or <a href="../Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if not set.</div>
 </td>
 </tr>
@@ -163,6 +170,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#encoderPadding">encoderPadding</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of samples to trim from the end of the decoded audio stream, or <a href="../Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if not set.</div>
 </td>
 </tr>
@@ -186,6 +194,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">GaplessInfoHolder</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new holder for gapless playback information.</div>
 </td>
 </tr>
@@ -201,7 +210,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -211,6 +220,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hasGaplessInfo()">hasGaplessInfo</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether <a href="#encoderDelay"><code>encoderDelay</code></a> and <a href="#encoderPadding"><code>encoderPadding</code></a> have been set.</div>
 </td>
 </tr>
@@ -218,6 +228,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFromMetadata(com.google.android.exoplayer2.metadata.Metadata)">setFromMetadata</a></span>&#8203;(<a href="../metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Populates the holder with data parsed from ID3 <a href="../metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata"><code>Metadata</code></a>.</div>
 </td>
 </tr>
@@ -225,6 +236,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFromXingHeaderValue(int)">setFromXingHeaderValue</a></span>&#8203;(int&nbsp;value)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Populates the holder with data from an MP3 Xing header, if valid and non-zero.</div>
 </td>
 </tr>
@@ -259,6 +271,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>encoderDelay</h4>
 <pre>public&nbsp;int encoderDelay</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of samples to trim from the start of the decoded audio stream, or <a href="../Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if not set.</div>
 </li>
 </ul>
@@ -269,6 +282,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>encoderPadding</h4>
 <pre>public&nbsp;int encoderPadding</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of samples to trim from the end of the decoded audio stream, or <a href="../Format.html#NO_VALUE"><code>Format.NO_VALUE</code></a> if not set.</div>
 </li>
 </ul>
@@ -289,6 +303,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>GaplessInfoHolder</h4>
 <pre>public&nbsp;GaplessInfoHolder()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new holder for gapless playback information.</div>
 </li>
 </ul>
@@ -309,6 +324,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>setFromXingHeaderValue</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;setFromXingHeaderValue&#8203;(int&nbsp;value)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Populates the holder with data from an MP3 Xing header, if valid and non-zero.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -325,6 +341,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>setFromMetadata</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;setFromMetadata&#8203;(<a href="../metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Populates the holder with data parsed from ID3 <a href="../metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata"><code>Metadata</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -341,6 +358,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>hasGaplessInfo</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;hasGaplessInfo()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether <a href="#encoderDelay"><code>encoderDelay</code></a> and <a href="#encoderPadding"><code>encoderPadding</code></a> have been set.</div>
 </li>
 </ul>

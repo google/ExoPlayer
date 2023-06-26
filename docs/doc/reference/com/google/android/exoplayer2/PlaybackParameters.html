@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">PlaybackParameters</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">PlaybackParameters</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Parameters that apply to playback, including speed setting.</div>
 </li>
 </ul>
@@ -178,6 +184,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static <a href="Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#CREATOR">CREATOR</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Object that can restore <a href="PlaybackParameters.html" title="class in com.google.android.exoplayer2"><code>PlaybackParameters</code></a> from a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.</div>
 </td>
 </tr>
@@ -185,6 +192,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static <a href="PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT">DEFAULT</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default playback parameters: real-time playback with no silence skipping.</div>
 </td>
 </tr>
@@ -192,6 +200,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>float</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#pitch">pitch</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The factor by which pitch will be shifted.</div>
 </td>
 </tr>
@@ -199,6 +208,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>float</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#speed">speed</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The factor by which playback will be sped up.</div>
 </td>
 </tr>
@@ -222,6 +232,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(float)">PlaybackParameters</a></span>&#8203;(float&nbsp;speed)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates new playback parameters that set the playback speed.</div>
 </td>
 </tr>
@@ -229,6 +240,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(float,float)">PlaybackParameters</a></span>&#8203;(float&nbsp;speed,
                   float&nbsp;pitch)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates new playback parameters that set the playback speed/pitch.</div>
 </td>
 </tr>
@@ -244,7 +256,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -253,12 +265,15 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMediaTimeUsForPlayoutTimeMs(long)">getMediaTimeUsForPlayoutTimeMs</a></span>&#8203;(long&nbsp;timeMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the media time in microseconds that will elapse in <code>timeMs</code> milliseconds of
  wallclock time.</div>
 </td>
@@ -266,24 +281,30 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundle()">toBundle</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representing the information stored in this object.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withSpeed(float)">withSpeed</a></span>&#8203;(float&nbsp;speed)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy with the given speed.</div>
 </td>
 </tr>
@@ -318,6 +339,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>DEFAULT</h4>
 <pre>public static final&nbsp;<a href="PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a> DEFAULT</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default playback parameters: real-time playback with no silence skipping.</div>
 </li>
 </ul>
@@ -328,6 +350,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>speed</h4>
 <pre>public final&nbsp;float speed</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The factor by which playback will be sped up.</div>
 </li>
 </ul>
@@ -338,6 +361,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>pitch</h4>
 <pre>public final&nbsp;float pitch</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The factor by which pitch will be shifted.</div>
 </li>
 </ul>
@@ -348,6 +372,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>CREATOR</h4>
 <pre>public static final&nbsp;<a href="Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&gt; CREATOR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Object that can restore <a href="PlaybackParameters.html" title="class in com.google.android.exoplayer2"><code>PlaybackParameters</code></a> from a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.</div>
 </li>
 </ul>
@@ -367,7 +392,9 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <ul class="blockList">
 <li class="blockList">
 <h4>PlaybackParameters</h4>
-<pre>public&nbsp;PlaybackParameters&#8203;(float&nbsp;speed)</pre>
+<pre>public&nbsp;PlaybackParameters&#8203;(@FloatRange(from=0.0,fromInclusive=false)
+                          float&nbsp;speed)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates new playback parameters that set the playback speed. The pitch of audio will not be
  adjusted, so the effect is to time-stretch the audio.</div>
 <dl>
@@ -386,6 +413,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
                           float&nbsp;speed,
                           @FloatRange(from=0.0,fromInclusive=false)
                           float&nbsp;pitch)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates new playback parameters that set the playback speed/pitch.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -413,6 +441,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>getMediaTimeUsForPlayoutTimeMs</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getMediaTimeUsForPlayoutTimeMs&#8203;(long&nbsp;timeMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the media time in microseconds that will elapse in <code>timeMs</code> milliseconds of
  wallclock time.</div>
 <dl>
@@ -432,6 +461,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <pre class="methodSignature">@CheckResult
 public&nbsp;<a href="PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;withSpeed&#8203;(@FloatRange(from=0.0,fromInclusive=false)
                                     float&nbsp;speed)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy with the given speed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -449,6 +479,7 @@ public&nbsp;<a href="PlaybackParameters.html" title="class in com.google.android
 <h4>equals</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;equals&#8203;(@Nullable
                       <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
@@ -462,6 +493,7 @@ public&nbsp;<a href="PlaybackParameters.html" title="class in com.google.android
 <li class="blockList">
 <h4>hashCode</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;hashCode()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
@@ -475,6 +507,7 @@ public&nbsp;<a href="PlaybackParameters.html" title="class in com.google.android
 <li class="blockList">
 <h4>toString</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;toString()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#toString()" title="class or interface in java.lang" class="externalLink">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
@@ -488,6 +521,7 @@ public&nbsp;<a href="PlaybackParameters.html" title="class in com.google.android
 <li class="blockList">
 <h4>toBundle</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;toBundle()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Bundleable.html#toBundle()">Bundleable</a></code></span></div>
 <div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representing the information stored in this object.</div>
 <dl>

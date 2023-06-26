@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -137,9 +137,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="DataChunk.html" title="class in com.google.android.exoplayer2.source.chunk">DataChunk</a></code>, <code><a href="InitializationChunk.html" title="class in com.google.android.exoplayer2.source.chunk">InitializationChunk</a></code>, <code><a href="MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">MediaChunk</a></code></dd>
 </dl>
 <hr>
-<pre>public abstract class <span class="typeNameLabel">Chunk</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public abstract class <span class="typeNameLabel">Chunk</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="../../upstream/Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream">Loader.Loadable</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">An abstract base class for <a href="../../upstream/Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream"><code>Loader.Loadable</code></a> implementations that load chunks of data required for
  the playback of streams.</div>
 </li>
@@ -165,12 +171,15 @@ implements <a href="../../upstream/Loader.Loadable.html" title="interface in com
 <tr class="altColor">
 <td class="colFirst"><code>protected <a href="../../upstream/StatsDataSource.html" title="class in com.google.android.exoplayer2.upstream">StatsDataSource</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dataSource">dataSource</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dataSpec">dataSpec</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> that defines the data to be loaded.</div>
 </td>
 </tr>
@@ -178,6 +187,7 @@ implements <a href="../../upstream/Loader.Loadable.html" title="interface in com
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#endTimeUs">endTimeUs</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The end time of the media contained by the chunk, or <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the data being
  loaded does not contain media samples.</div>
 </td>
@@ -186,6 +196,7 @@ implements <a href="../../upstream/Loader.Loadable.html" title="interface in com
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#loadTaskId">loadTaskId</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Identifies the load task for this loadable.</div>
 </td>
 </tr>
@@ -193,6 +204,7 @@ implements <a href="../../upstream/Loader.Loadable.html" title="interface in com
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#startTimeUs">startTimeUs</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The start time of the media contained by the chunk, or <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the data being
  loaded does not contain media samples.</div>
 </td>
@@ -201,6 +213,7 @@ implements <a href="../../upstream/Loader.Loadable.html" title="interface in com
 <td class="colFirst"><code><a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#trackFormat">trackFormat</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The format of the track to which this chunk belongs.</div>
 </td>
 </tr>
@@ -208,6 +221,7 @@ implements <a href="../../upstream/Loader.Loadable.html" title="interface in com
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#trackSelectionData">trackSelectionData</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional data associated with the selection of the track to which this chunk belongs.</div>
 </td>
 </tr>
@@ -215,6 +229,7 @@ implements <a href="../../upstream/Loader.Loadable.html" title="interface in com
 <td class="colFirst"><code>@com.google.android.exoplayer2.C.SelectionReason int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#trackSelectionReason">trackSelectionReason</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">One of the <a href="../../C.SelectionReason.html" title="annotation in com.google.android.exoplayer2"><code>selection reasons</code></a> if the chunk belongs to a track.</div>
 </td>
 </tr>
@@ -222,6 +237,7 @@ implements <a href="../../upstream/Loader.Loadable.html" title="interface in com
 <td class="colFirst"><code>@com.google.android.exoplayer2.C.DataType int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#type">type</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="../../C.DataType.html" title="annotation in com.google.android.exoplayer2"><code>data type</code></a> of the chunk.</div>
 </td>
 </tr>
@@ -251,7 +267,9 @@ implements <a href="../../upstream/Loader.Loadable.html" title="interface in com
      <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;trackSelectionData,
      long&nbsp;startTimeUs,
      long&nbsp;endTimeUs)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -265,7 +283,7 @@ implements <a href="../../upstream/Loader.Loadable.html" title="interface in com
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -275,6 +293,7 @@ implements <a href="../../upstream/Loader.Loadable.html" title="interface in com
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#bytesLoaded()">bytesLoaded</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the number of bytes that have been loaded.</div>
 </td>
 </tr>
@@ -282,6 +301,7 @@ implements <a href="../../upstream/Loader.Loadable.html" title="interface in com
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDurationUs()">getDurationUs</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the duration of the chunk in microseconds.</div>
 </td>
 </tr>
@@ -289,6 +309,7 @@ implements <a href="../../upstream/Loader.Loadable.html" title="interface in com
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getResponseHeaders()">getResponseHeaders</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the response headers associated with the last <a href="../../upstream/DataSource.html#open(com.google.android.exoplayer2.upstream.DataSpec)"><code>DataSource.open(com.google.android.exoplayer2.upstream.DataSpec)</code></a> call.</div>
 </td>
 </tr>
@@ -296,6 +317,7 @@ implements <a href="../../upstream/Loader.Loadable.html" title="interface in com
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getUri()">getUri</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink"><code>Uri</code></a> associated with the last <a href="../../upstream/DataSource.html#open(com.google.android.exoplayer2.upstream.DataSpec)" target="_top"><code>DataSource.open(com.google.android.exoplayer2.upstream.DataSpec)</code></a> call.</div>
 </td>
 </tr>
@@ -337,6 +359,7 @@ implements <a href="../../upstream/Loader.Loadable.html" title="interface in com
 <li class="blockList">
 <h4>loadTaskId</h4>
 <pre>public final&nbsp;long loadTaskId</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Identifies the load task for this loadable.</div>
 </li>
 </ul>
@@ -347,6 +370,7 @@ implements <a href="../../upstream/Loader.Loadable.html" title="interface in com
 <li class="blockList">
 <h4>dataSpec</h4>
 <pre>public final&nbsp;<a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a> dataSpec</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> that defines the data to be loaded.</div>
 </li>
 </ul>
@@ -357,6 +381,7 @@ implements <a href="../../upstream/Loader.Loadable.html" title="interface in com
 <li class="blockList">
 <h4>type</h4>
 <pre>public final&nbsp;@com.google.android.exoplayer2.C.DataType int type</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="../../C.DataType.html" title="annotation in com.google.android.exoplayer2"><code>data type</code></a> of the chunk. For reporting only.</div>
 </li>
 </ul>
@@ -367,6 +392,7 @@ implements <a href="../../upstream/Loader.Loadable.html" title="interface in com
 <li class="blockList">
 <h4>trackFormat</h4>
 <pre>public final&nbsp;<a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a> trackFormat</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The format of the track to which this chunk belongs.</div>
 </li>
 </ul>
@@ -377,6 +403,7 @@ implements <a href="../../upstream/Loader.Loadable.html" title="interface in com
 <li class="blockList">
 <h4>trackSelectionReason</h4>
 <pre>public final&nbsp;@com.google.android.exoplayer2.C.SelectionReason int trackSelectionReason</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">One of the <a href="../../C.SelectionReason.html" title="annotation in com.google.android.exoplayer2"><code>selection reasons</code></a> if the chunk belongs to a track. <a href="../../C.html#SELECTION_REASON_UNKNOWN"><code>C.SELECTION_REASON_UNKNOWN</code></a> if the chunk does not belong to a track, or if the selection reason
  is unknown.</div>
 </li>
@@ -389,6 +416,7 @@ implements <a href="../../upstream/Loader.Loadable.html" title="interface in com
 <h4>trackSelectionData</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a> trackSelectionData</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional data associated with the selection of the track to which this chunk belongs. Null if
  the chunk does not belong to a track, or if there is no associated track selection data.</div>
 </li>
@@ -400,6 +428,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <li class="blockList">
 <h4>startTimeUs</h4>
 <pre>public final&nbsp;long startTimeUs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The start time of the media contained by the chunk, or <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the data being
  loaded does not contain media samples.</div>
 </li>
@@ -411,6 +440,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <li class="blockList">
 <h4>endTimeUs</h4>
 <pre>public final&nbsp;long endTimeUs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The end time of the media contained by the chunk, or <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the data being
  loaded does not contain media samples.</div>
 </li>
@@ -422,6 +452,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <li class="blockList">
 <h4>dataSource</h4>
 <pre>protected final&nbsp;<a href="../../upstream/StatsDataSource.html" title="class in com.google.android.exoplayer2.upstream">StatsDataSource</a> dataSource</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -449,6 +480,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
              <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;trackSelectionData,
              long&nbsp;startTimeUs,
              long&nbsp;endTimeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>dataSource</code> - The source from which the data should be loaded.</dd>
@@ -479,6 +511,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <li class="blockList">
 <h4>getDurationUs</h4>
 <pre class="methodSignature">public final&nbsp;long&nbsp;getDurationUs()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the duration of the chunk in microseconds.</div>
 </li>
 </ul>
@@ -489,6 +522,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <li class="blockList">
 <h4>bytesLoaded</h4>
 <pre class="methodSignature">public final&nbsp;long&nbsp;bytesLoaded()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the number of bytes that have been loaded. Must only be called after the load
  completed, failed, or was canceled.</div>
 </li>
@@ -500,6 +534,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <li class="blockList">
 <h4>getUri</h4>
 <pre class="methodSignature">public final&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;getUri()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink"><code>Uri</code></a> associated with the last <a href="../../upstream/DataSource.html#open(com.google.android.exoplayer2.upstream.DataSpec)" target="_top"><code>DataSource.open(com.google.android.exoplayer2.upstream.DataSpec)</code></a> call. If redirection
  occurred, this is the redirected uri. Must only be called after the load completed, failed, or
  was canceled.</div>
@@ -516,6 +551,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <li class="blockList">
 <h4>getResponseHeaders</h4>
 <pre class="methodSignature">public final&nbsp;<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;&nbsp;getResponseHeaders()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the response headers associated with the last <a href="../../upstream/DataSource.html#open(com.google.android.exoplayer2.upstream.DataSpec)"><code>DataSource.open(com.google.android.exoplayer2.upstream.DataSpec)</code></a> call. Must only
  be called after the load completed, failed, or was canceled.</div>
 <dl>

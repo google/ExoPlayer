@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -137,9 +137,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="ApicFrame.html" title="class in com.google.android.exoplayer2.metadata.id3">ApicFrame</a></code>, <code><a href="BinaryFrame.html" title="class in com.google.android.exoplayer2.metadata.id3">BinaryFrame</a></code>, <code><a href="ChapterFrame.html" title="class in com.google.android.exoplayer2.metadata.id3">ChapterFrame</a></code>, <code><a href="ChapterTocFrame.html" title="class in com.google.android.exoplayer2.metadata.id3">ChapterTocFrame</a></code>, <code><a href="CommentFrame.html" title="class in com.google.android.exoplayer2.metadata.id3">CommentFrame</a></code>, <code><a href="GeobFrame.html" title="class in com.google.android.exoplayer2.metadata.id3">GeobFrame</a></code>, <code><a href="InternalFrame.html" title="class in com.google.android.exoplayer2.metadata.id3">InternalFrame</a></code>, <code><a href="MlltFrame.html" title="class in com.google.android.exoplayer2.metadata.id3">MlltFrame</a></code>, <code><a href="PrivFrame.html" title="class in com.google.android.exoplayer2.metadata.id3">PrivFrame</a></code>, <code><a href="TextInformationFrame.html" title="class in com.google.android.exoplayer2.metadata.id3">TextInformationFrame</a></code>, <code><a href="UrlLinkFrame.html" title="class in com.google.android.exoplayer2.metadata.id3">UrlLinkFrame</a></code></dd>
 </dl>
 <hr>
-<pre>public abstract class <span class="typeNameLabel">Id3Frame</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public abstract class <span class="typeNameLabel">Id3Frame</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="../Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata">Metadata.Entry</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Base class for ID3 frames.</div>
 </li>
 </ul>
@@ -182,6 +188,7 @@ implements <a href="../Metadata.Entry.html" title="interface in com.google.andro
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#id">id</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The frame ID.</div>
 </td>
 </tr>
@@ -211,7 +218,9 @@ implements <a href="../Metadata.Entry.html" title="interface in com.google.andro
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String)">Id3Frame</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -225,7 +234,7 @@ implements <a href="../Metadata.Entry.html" title="interface in com.google.andro
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -234,12 +243,16 @@ implements <a href="../Metadata.Entry.html" title="interface in com.google.andro
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#describeContents()">describeContents</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -286,6 +299,7 @@ implements <a href="../Metadata.Entry.html" title="interface in com.google.andro
 <li class="blockList">
 <h4>id</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> id</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The frame ID.</div>
 </li>
 </ul>
@@ -306,6 +320,7 @@ implements <a href="../Metadata.Entry.html" title="interface in com.google.andro
 <li class="blockList">
 <h4>Id3Frame</h4>
 <pre>public&nbsp;Id3Frame&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -325,6 +340,7 @@ implements <a href="../Metadata.Entry.html" title="interface in com.google.andro
 <li class="blockList">
 <h4>toString</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;toString()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#toString()" title="class or interface in java.lang" class="externalLink">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
@@ -338,6 +354,7 @@ implements <a href="../Metadata.Entry.html" title="interface in com.google.andro
 <li class="blockList">
 <h4>describeContents</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;describeContents()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/os/Parcelable.html#describeContents()" title="class or interface in android.os" class="externalLink">describeContents</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/android/os/Parcelable.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a></code></dd>

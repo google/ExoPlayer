@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader</a></code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">CompositeSequenceableLoader</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">CompositeSequenceableLoader</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A <a href="SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source"><code>SequenceableLoader</code></a> that encapsulates multiple other <a href="SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source"><code>SequenceableLoader</code></a>s.</div>
 </li>
 </ul>
@@ -177,7 +183,9 @@ implements <a href="SequenceableLoader.html" title="interface in com.google.andr
 <tr class="altColor">
 <td class="colFirst"><code>protected <a href="SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader</a>[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#loaders">loaders</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -198,7 +206,9 @@ implements <a href="SequenceableLoader.html" title="interface in com.google.andr
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.SequenceableLoader%5B%5D)">CompositeSequenceableLoader</a></span>&#8203;(<a href="SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader</a>[]&nbsp;loaders)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -212,7 +222,7 @@ implements <a href="SequenceableLoader.html" title="interface in com.google.andr
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -222,6 +232,7 @@ implements <a href="SequenceableLoader.html" title="interface in com.google.andr
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#continueLoading(long)">continueLoading</a></span>&#8203;(long&nbsp;positionUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Attempts to continue loading.</div>
 </td>
 </tr>
@@ -229,6 +240,7 @@ implements <a href="SequenceableLoader.html" title="interface in com.google.andr
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getBufferedPositionUs()">getBufferedPositionUs</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an estimate of the position up to which data is buffered.</div>
 </td>
 </tr>
@@ -236,6 +248,7 @@ implements <a href="SequenceableLoader.html" title="interface in com.google.andr
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getNextLoadPositionUs()">getNextLoadPositionUs</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the next load time, or <a href="../C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> if loading has finished.</div>
 </td>
 </tr>
@@ -243,6 +256,7 @@ implements <a href="SequenceableLoader.html" title="interface in com.google.andr
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isLoading()">isLoading</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the loader is currently loading.</div>
 </td>
 </tr>
@@ -250,6 +264,7 @@ implements <a href="SequenceableLoader.html" title="interface in com.google.andr
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reevaluateBuffer(long)">reevaluateBuffer</a></span>&#8203;(long&nbsp;positionUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Re-evaluates the buffer given the playback position.</div>
 </td>
 </tr>
@@ -284,6 +299,7 @@ implements <a href="SequenceableLoader.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>loaders</h4>
 <pre>protected final&nbsp;<a href="SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader</a>[] loaders</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -303,6 +319,7 @@ implements <a href="SequenceableLoader.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>CompositeSequenceableLoader</h4>
 <pre>public&nbsp;CompositeSequenceableLoader&#8203;(<a href="SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader</a>[]&nbsp;loaders)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -322,6 +339,7 @@ implements <a href="SequenceableLoader.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>getBufferedPositionUs</h4>
 <pre class="methodSignature">public final&nbsp;long&nbsp;getBufferedPositionUs()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="SequenceableLoader.html#getBufferedPositionUs()">SequenceableLoader</a></code></span></div>
 <div class="block">Returns an estimate of the position up to which data is buffered.</div>
 <dl>
@@ -340,6 +358,7 @@ implements <a href="SequenceableLoader.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>getNextLoadPositionUs</h4>
 <pre class="methodSignature">public final&nbsp;long&nbsp;getNextLoadPositionUs()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="SequenceableLoader.html#getNextLoadPositionUs()">SequenceableLoader</a></code></span></div>
 <div class="block">Returns the next load time, or <a href="../C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> if loading has finished.</div>
 <dl>
@@ -355,6 +374,7 @@ implements <a href="SequenceableLoader.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>reevaluateBuffer</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;reevaluateBuffer&#8203;(long&nbsp;positionUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="SequenceableLoader.html#reevaluateBuffer(long)">SequenceableLoader</a></code></span></div>
 <div class="block">Re-evaluates the buffer given the playback position.
 
@@ -377,6 +397,7 @@ implements <a href="SequenceableLoader.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>continueLoading</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;continueLoading&#8203;(long&nbsp;positionUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="SequenceableLoader.html#continueLoading(long)">SequenceableLoader</a></code></span></div>
 <div class="block">Attempts to continue loading.</div>
 <dl>
@@ -399,6 +420,7 @@ implements <a href="SequenceableLoader.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>isLoading</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isLoading()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="SequenceableLoader.html#isLoading()">SequenceableLoader</a></code></span></div>
 <div class="block">Returns whether the loader is currently loading.</div>
 <dl>

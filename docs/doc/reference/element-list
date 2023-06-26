@@ -1,6 +1,7 @@
 com.google.android.exoplayer2
 com.google.android.exoplayer2.analytics
 com.google.android.exoplayer2.audio
+com.google.android.exoplayer2.container
 com.google.android.exoplayer2.database
 com.google.android.exoplayer2.decoder
 com.google.android.exoplayer2.drm
@@ -41,6 +42,7 @@ com.google.android.exoplayer2.metadata.id3
 com.google.android.exoplayer2.metadata.mp4
 com.google.android.exoplayer2.metadata.scte35
 com.google.android.exoplayer2.metadata.vorbis
+com.google.android.exoplayer2.muxer
 com.google.android.exoplayer2.offline
 com.google.android.exoplayer2.robolectric
 com.google.android.exoplayer2.scheduler
@@ -77,6 +79,7 @@ com.google.android.exoplayer2.ui
 com.google.android.exoplayer2.upstream
 com.google.android.exoplayer2.upstream.cache
 com.google.android.exoplayer2.upstream.crypto
+com.google.android.exoplayer2.upstream.experimental
 com.google.android.exoplayer2.util
 com.google.android.exoplayer2.video
 com.google.android.exoplayer2.video.spherical

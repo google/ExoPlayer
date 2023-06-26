@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="LivePlaybackSpeedControl.html" title="interface in com.google.android.exoplayer2">LivePlaybackSpeedControl</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">DefaultLivePlaybackSpeedControl</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">DefaultLivePlaybackSpeedControl</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="LivePlaybackSpeedControl.html" title="interface in com.google.android.exoplayer2">LivePlaybackSpeedControl</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A <a href="LivePlaybackSpeedControl.html" title="interface in com.google.android.exoplayer2"><code>LivePlaybackSpeedControl</code></a> that adjusts the playback speed using a proportional
  controller.
 
@@ -174,6 +180,7 @@ implements <a href="LivePlaybackSpeedControl.html" title="interface in com.googl
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DefaultLivePlaybackSpeedControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLivePlaybackSpeedControl.Builder</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builder for a <a href="DefaultLivePlaybackSpeedControl.html" title="class in com.google.android.exoplayer2"><code>DefaultLivePlaybackSpeedControl</code></a>.</div>
 </td>
 </tr>
@@ -199,6 +206,7 @@ implements <a href="LivePlaybackSpeedControl.html" title="interface in com.googl
 <td class="colFirst"><code>static float</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_FALLBACK_MAX_PLAYBACK_SPEED">DEFAULT_FALLBACK_MAX_PLAYBACK_SPEED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default maximum factor by which playback can be sped up that should be used if no maximum
  playback speed is defined by the media.</div>
 </td>
@@ -207,6 +215,7 @@ implements <a href="LivePlaybackSpeedControl.html" title="interface in com.googl
 <td class="colFirst"><code>static float</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_FALLBACK_MIN_PLAYBACK_SPEED">DEFAULT_FALLBACK_MIN_PLAYBACK_SPEED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default minimum factor by which playback can be sped up that should be used if no minimum
  playback speed is defined by the media.</div>
 </td>
@@ -215,6 +224,7 @@ implements <a href="LivePlaybackSpeedControl.html" title="interface in com.googl
 <td class="colFirst"><code>static long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_MAX_LIVE_OFFSET_ERROR_MS_FOR_UNIT_SPEED">DEFAULT_MAX_LIVE_OFFSET_ERROR_MS_FOR_UNIT_SPEED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default maximum difference between the current live offset and the target live offset, in
  milliseconds, for which unit speed (1.0f) is used.</div>
 </td>
@@ -223,6 +233,7 @@ implements <a href="LivePlaybackSpeedControl.html" title="interface in com.googl
 <td class="colFirst"><code>static float</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_MIN_POSSIBLE_LIVE_OFFSET_SMOOTHING_FACTOR">DEFAULT_MIN_POSSIBLE_LIVE_OFFSET_SMOOTHING_FACTOR</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default smoothing factor when smoothing the minimum possible live offset that can be
  achieved during playback.</div>
 </td>
@@ -231,6 +242,7 @@ implements <a href="LivePlaybackSpeedControl.html" title="interface in com.googl
 <td class="colFirst"><code>static long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_MIN_UPDATE_INTERVAL_MS">DEFAULT_MIN_UPDATE_INTERVAL_MS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default <a href="DefaultLivePlaybackSpeedControl.Builder.html#setMinUpdateIntervalMs(long)"><code>minimum interval</code></a> between playback
  speed changes, in milliseconds.</div>
 </td>
@@ -239,6 +251,7 @@ implements <a href="LivePlaybackSpeedControl.html" title="interface in com.googl
 <td class="colFirst"><code>static float</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_PROPORTIONAL_CONTROL_FACTOR">DEFAULT_PROPORTIONAL_CONTROL_FACTOR</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default <a href="DefaultLivePlaybackSpeedControl.Builder.html#setProportionalControlFactor(float)"><code>proportional control factor</code></a>
  used to adjust the playback speed.</div>
 </td>
@@ -247,6 +260,7 @@ implements <a href="LivePlaybackSpeedControl.html" title="interface in com.googl
 <td class="colFirst"><code>static long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_TARGET_LIVE_OFFSET_INCREMENT_ON_REBUFFER_MS">DEFAULT_TARGET_LIVE_OFFSET_INCREMENT_ON_REBUFFER_MS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default increment applied to the target live offset each time the player is rebuffering, in
  milliseconds</div>
 </td>
@@ -263,7 +277,7 @@ implements <a href="LivePlaybackSpeedControl.html" title="interface in com.googl
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -274,6 +288,7 @@ implements <a href="LivePlaybackSpeedControl.html" title="interface in com.googl
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdjustedPlaybackSpeed(long,long)">getAdjustedPlaybackSpeed</a></span>&#8203;(long&nbsp;liveOffsetUs,
                         long&nbsp;bufferedDurationUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the adjusted playback speed in order get closer towards the <a href="LivePlaybackSpeedControl.html#getTargetLiveOffsetUs()"><code>target live offset</code></a>.</div>
 </td>
 </tr>
@@ -281,6 +296,7 @@ implements <a href="LivePlaybackSpeedControl.html" title="interface in com.googl
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTargetLiveOffsetUs()">getTargetLiveOffsetUs</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current target live offset, in microseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no target
  live offset is defined for the current media.</div>
 </td>
@@ -289,6 +305,7 @@ implements <a href="LivePlaybackSpeedControl.html" title="interface in com.googl
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#notifyRebuffer()">notifyRebuffer</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Notifies the live playback speed control that a rebuffer occurred.</div>
 </td>
 </tr>
@@ -296,6 +313,7 @@ implements <a href="LivePlaybackSpeedControl.html" title="interface in com.googl
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLiveConfiguration(com.google.android.exoplayer2.MediaItem.LiveConfiguration)">setLiveConfiguration</a></span>&#8203;(<a href="MediaItem.LiveConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.LiveConfiguration</a>&nbsp;liveConfiguration)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the live configuration defined by the media.</div>
 </td>
 </tr>
@@ -303,6 +321,7 @@ implements <a href="LivePlaybackSpeedControl.html" title="interface in com.googl
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTargetLiveOffsetOverrideUs(long)">setTargetLiveOffsetOverrideUs</a></span>&#8203;(long&nbsp;liveOffsetUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the target live offset in microseconds that overrides the live offset <a href="LivePlaybackSpeedControl.html#setLiveConfiguration(com.google.android.exoplayer2.MediaItem.LiveConfiguration)"><code>configured</code></a> by the media.</div>
 </td>
 </tr>
@@ -337,6 +356,7 @@ implements <a href="LivePlaybackSpeedControl.html" title="interface in com.googl
 <li class="blockList">
 <h4>DEFAULT_FALLBACK_MIN_PLAYBACK_SPEED</h4>
 <pre>public static final&nbsp;float DEFAULT_FALLBACK_MIN_PLAYBACK_SPEED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default minimum factor by which playback can be sped up that should be used if no minimum
  playback speed is defined by the media.</div>
 <dl>
@@ -352,6 +372,7 @@ implements <a href="LivePlaybackSpeedControl.html" title="interface in com.googl
 <li class="blockList">
 <h4>DEFAULT_FALLBACK_MAX_PLAYBACK_SPEED</h4>
 <pre>public static final&nbsp;float DEFAULT_FALLBACK_MAX_PLAYBACK_SPEED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default maximum factor by which playback can be sped up that should be used if no maximum
  playback speed is defined by the media.</div>
 <dl>
@@ -367,6 +388,7 @@ implements <a href="LivePlaybackSpeedControl.html" title="interface in com.googl
 <li class="blockList">
 <h4>DEFAULT_MIN_UPDATE_INTERVAL_MS</h4>
 <pre>public static final&nbsp;long DEFAULT_MIN_UPDATE_INTERVAL_MS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default <a href="DefaultLivePlaybackSpeedControl.Builder.html#setMinUpdateIntervalMs(long)"><code>minimum interval</code></a> between playback
  speed changes, in milliseconds.</div>
 <dl>
@@ -382,6 +404,7 @@ implements <a href="LivePlaybackSpeedControl.html" title="interface in com.googl
 <li class="blockList">
 <h4>DEFAULT_PROPORTIONAL_CONTROL_FACTOR</h4>
 <pre>public static final&nbsp;float DEFAULT_PROPORTIONAL_CONTROL_FACTOR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default <a href="DefaultLivePlaybackSpeedControl.Builder.html#setProportionalControlFactor(float)"><code>proportional control factor</code></a>
  used to adjust the playback speed.</div>
 <dl>
@@ -397,6 +420,7 @@ implements <a href="LivePlaybackSpeedControl.html" title="interface in com.googl
 <li class="blockList">
 <h4>DEFAULT_TARGET_LIVE_OFFSET_INCREMENT_ON_REBUFFER_MS</h4>
 <pre>public static final&nbsp;long DEFAULT_TARGET_LIVE_OFFSET_INCREMENT_ON_REBUFFER_MS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default increment applied to the target live offset each time the player is rebuffering, in
  milliseconds</div>
 <dl>
@@ -412,6 +436,7 @@ implements <a href="LivePlaybackSpeedControl.html" title="interface in com.googl
 <li class="blockList">
 <h4>DEFAULT_MIN_POSSIBLE_LIVE_OFFSET_SMOOTHING_FACTOR</h4>
 <pre>public static final&nbsp;float DEFAULT_MIN_POSSIBLE_LIVE_OFFSET_SMOOTHING_FACTOR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default smoothing factor when smoothing the minimum possible live offset that can be
  achieved during playback.</div>
 <dl>
@@ -427,6 +452,7 @@ implements <a href="LivePlaybackSpeedControl.html" title="interface in com.googl
 <li class="blockList">
 <h4>DEFAULT_MAX_LIVE_OFFSET_ERROR_MS_FOR_UNIT_SPEED</h4>
 <pre>public static final&nbsp;long DEFAULT_MAX_LIVE_OFFSET_ERROR_MS_FOR_UNIT_SPEED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default maximum difference between the current live offset and the target live offset, in
  milliseconds, for which unit speed (1.0f) is used.</div>
 <dl>
@@ -452,6 +478,7 @@ implements <a href="LivePlaybackSpeedControl.html" title="interface in com.googl
 <li class="blockList">
 <h4>setLiveConfiguration</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setLiveConfiguration&#8203;(<a href="MediaItem.LiveConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.LiveConfiguration</a>&nbsp;liveConfiguration)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="LivePlaybackSpeedControl.html#setLiveConfiguration(com.google.android.exoplayer2.MediaItem.LiveConfiguration)">LivePlaybackSpeedControl</a></code></span></div>
 <div class="block">Sets the live configuration defined by the media.</div>
 <dl>
@@ -469,6 +496,7 @@ implements <a href="LivePlaybackSpeedControl.html" title="interface in com.googl
 <li class="blockList">
 <h4>setTargetLiveOffsetOverrideUs</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setTargetLiveOffsetOverrideUs&#8203;(long&nbsp;liveOffsetUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="LivePlaybackSpeedControl.html#setTargetLiveOffsetOverrideUs(long)">LivePlaybackSpeedControl</a></code></span></div>
 <div class="block">Sets the target live offset in microseconds that overrides the live offset <a href="LivePlaybackSpeedControl.html#setLiveConfiguration(com.google.android.exoplayer2.MediaItem.LiveConfiguration)"><code>configured</code></a> by the media. Passing <code>C.TIME_UNSET</code> deletes a previous
  override.
@@ -488,6 +516,7 @@ implements <a href="LivePlaybackSpeedControl.html" title="interface in com.googl
 <li class="blockList">
 <h4>notifyRebuffer</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;notifyRebuffer()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="LivePlaybackSpeedControl.html#notifyRebuffer()">LivePlaybackSpeedControl</a></code></span></div>
 <div class="block">Notifies the live playback speed control that a rebuffer occurred.
 
@@ -508,6 +537,7 @@ implements <a href="LivePlaybackSpeedControl.html" title="interface in com.googl
 <h4>getAdjustedPlaybackSpeed</h4>
 <pre class="methodSignature">public&nbsp;float&nbsp;getAdjustedPlaybackSpeed&#8203;(long&nbsp;liveOffsetUs,
                                       long&nbsp;bufferedDurationUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="LivePlaybackSpeedControl.html#getAdjustedPlaybackSpeed(long,long)">LivePlaybackSpeedControl</a></code></span></div>
 <div class="block">Returns the adjusted playback speed in order get closer towards the <a href="LivePlaybackSpeedControl.html#getTargetLiveOffsetUs()"><code>target live offset</code></a>.</div>
 <dl>
@@ -528,6 +558,7 @@ implements <a href="LivePlaybackSpeedControl.html" title="interface in com.googl
 <li class="blockList">
 <h4>getTargetLiveOffsetUs</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getTargetLiveOffsetUs()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="LivePlaybackSpeedControl.html#getTargetLiveOffsetUs()">LivePlaybackSpeedControl</a></code></span></div>
 <div class="block">Returns the current target live offset, in microseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no target
  live offset is defined for the current media.</div>

@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">TrackSelectorResult</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">TrackSelectorResult</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">The result of a <a href="TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a> operation.</div>
 </li>
 </ul>
@@ -156,6 +162,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#info">info</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">An opaque object that will be returned to <a href="TrackSelector.html#onSelectionActivated(java.lang.Object)"><code>TrackSelector.onSelectionActivated(Object)</code></a>
  should the selections be activated.</div>
 </td>
@@ -164,6 +171,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#length">length</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of selections in the result.</div>
 </td>
 </tr>
@@ -171,6 +179,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>@NullableType <a href="../RendererConfiguration.html" title="class in com.google.android.exoplayer2">RendererConfiguration</a>[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#rendererConfigurations">rendererConfigurations</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A <a href="../RendererConfiguration.html" title="class in com.google.android.exoplayer2"><code>RendererConfiguration</code></a> for each renderer.</div>
 </td>
 </tr>
@@ -178,6 +187,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>@NullableType <a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#selections">selections</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A <a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>ExoTrackSelection</code></a> array containing the track selection for each renderer.</div>
 </td>
 </tr>
@@ -185,6 +195,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="../Tracks.html" title="class in com.google.android.exoplayer2">Tracks</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#tracks">tracks</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Describe the tracks and which one were selected.</div>
 </td>
 </tr>
@@ -210,7 +221,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                    @NullableType <a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>[]&nbsp;selections,
                    <a href="../Tracks.html" title="class in com.google.android.exoplayer2">Tracks</a>&nbsp;tracks,
                    <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;info)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.RendererConfiguration%5B%5D,com.google.android.exoplayer2.trackselection.ExoTrackSelection%5B%5D,java.lang.Object)">TrackSelectorResult</a></span>&#8203;(@NullableType <a href="../RendererConfiguration.html" title="class in com.google.android.exoplayer2">RendererConfiguration</a>[]&nbsp;rendererConfigurations,
@@ -235,7 +248,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -245,6 +258,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isEquivalent(com.google.android.exoplayer2.trackselection.TrackSelectorResult)">isEquivalent</a></span>&#8203;(<a href="TrackSelectorResult.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectorResult</a>&nbsp;other)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether this result is equivalent to <code>other</code> for all renderers.</div>
 </td>
 </tr>
@@ -253,6 +267,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isEquivalent(com.google.android.exoplayer2.trackselection.TrackSelectorResult,int)">isEquivalent</a></span>&#8203;(<a href="TrackSelectorResult.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectorResult</a>&nbsp;other,
             int&nbsp;index)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether this result is equivalent to <code>other</code> for the renderer at the given index.</div>
 </td>
 </tr>
@@ -260,6 +275,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isRendererEnabled(int)">isRendererEnabled</a></span>&#8203;(int&nbsp;index)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the renderer at the specified index is enabled.</div>
 </td>
 </tr>
@@ -294,6 +310,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>length</h4>
 <pre>public final&nbsp;int length</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of selections in the result. Greater than or equal to zero.</div>
 </li>
 </ul>
@@ -304,6 +321,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>rendererConfigurations</h4>
 <pre>public final&nbsp;@NullableType <a href="../RendererConfiguration.html" title="class in com.google.android.exoplayer2">RendererConfiguration</a>[] rendererConfigurations</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A <a href="../RendererConfiguration.html" title="class in com.google.android.exoplayer2"><code>RendererConfiguration</code></a> for each renderer. A null entry indicates the corresponding
  renderer should be disabled.</div>
 </li>
@@ -315,6 +333,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>selections</h4>
 <pre>public final&nbsp;@NullableType <a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>[] selections</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A <a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>ExoTrackSelection</code></a> array containing the track selection for each renderer.</div>
 </li>
 </ul>
@@ -325,6 +344,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>tracks</h4>
 <pre>public final&nbsp;<a href="../Tracks.html" title="class in com.google.android.exoplayer2">Tracks</a> tracks</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Describe the tracks and which one were selected.</div>
 </li>
 </ul>
@@ -336,6 +356,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>info</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a> info</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">An opaque object that will be returned to <a href="TrackSelector.html#onSelectionActivated(java.lang.Object)"><code>TrackSelector.onSelectionActivated(Object)</code></a>
  should the selections be activated.</div>
 </li>
@@ -386,6 +407,7 @@ public&nbsp;TrackSelectorResult&#8203;(@NullableType <a href="../RendererConfigu
                            <a href="../Tracks.html" title="class in com.google.android.exoplayer2">Tracks</a>&nbsp;tracks,
                            @Nullable
                            <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;info)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>rendererConfigurations</code> - A <a href="../RendererConfiguration.html" title="class in com.google.android.exoplayer2"><code>RendererConfiguration</code></a> for each renderer. A null entry
@@ -414,6 +436,7 @@ public&nbsp;TrackSelectorResult&#8203;(@NullableType <a href="../RendererConfigu
 <li class="blockList">
 <h4>isRendererEnabled</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isRendererEnabled&#8203;(int&nbsp;index)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the renderer at the specified index is enabled.</div>
 </li>
 </ul>
@@ -425,6 +448,7 @@ public&nbsp;TrackSelectorResult&#8203;(@NullableType <a href="../RendererConfigu
 <h4>isEquivalent</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isEquivalent&#8203;(@Nullable
                             <a href="TrackSelectorResult.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectorResult</a>&nbsp;other)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether this result is equivalent to <code>other</code> for all renderers.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -444,6 +468,7 @@ public&nbsp;TrackSelectorResult&#8203;(@NullableType <a href="../RendererConfigu
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isEquivalent&#8203;(@Nullable
                             <a href="TrackSelectorResult.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectorResult</a>&nbsp;other,
                             int&nbsp;index)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether this result is equivalent to <code>other</code> for the renderer at the given index.
  The results are equivalent if they have equal track selections and configurations for the
  renderer.</div>

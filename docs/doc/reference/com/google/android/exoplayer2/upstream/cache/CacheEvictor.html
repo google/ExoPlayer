@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var data = {"i0":38,"i1":38,"i2":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="LeastRecentlyUsedCacheEvictor.html" title="class in com.google.android.exoplayer2.upstream.cache">LeastRecentlyUsedCacheEvictor</a></code>, <code><a href="NoOpCacheEvictor.html" title="class in com.google.android.exoplayer2.upstream.cache">NoOpCacheEvictor</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">CacheEvictor</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">CacheEvictor</span>
 extends <a href="Cache.Listener.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache.Listener</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Evicts data from a <a href="Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>Cache</code></a>. Implementations should call <a href="Cache.html#removeSpan(com.google.android.exoplayer2.upstream.cache.CacheSpan)"><code>Cache.removeSpan(CacheSpan)</code></a>
  to evict cache entries based on their eviction policies.</div>
 </li>
@@ -147,7 +153,7 @@ extends <a href="Cache.Listener.html" title="interface in com.google.android.exo
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -157,6 +163,7 @@ extends <a href="Cache.Listener.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onCacheInitialized()">onCacheInitialized</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when cache has been initialized.</div>
 </td>
 </tr>
@@ -167,6 +174,7 @@ extends <a href="Cache.Listener.html" title="interface in com.google.android.exo
            long&nbsp;position,
            long&nbsp;length)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a writer starts writing to the cache.</div>
 </td>
 </tr>
@@ -174,6 +182,7 @@ extends <a href="Cache.Listener.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#requiresCacheSpanTouches()">requiresCacheSpanTouches</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the evictor requires the <a href="Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>Cache</code></a> to touch <a href="CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpans</code></a>
  when it accesses them.</div>
 </td>
@@ -209,6 +218,7 @@ extends <a href="Cache.Listener.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>requiresCacheSpanTouches</h4>
 <pre class="methodSignature">boolean&nbsp;requiresCacheSpanTouches()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the evictor requires the <a href="Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>Cache</code></a> to touch <a href="CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpans</code></a>
  when it accesses them. Implementations that do not use <a href="CacheSpan.html#lastTouchTimestamp"><code>CacheSpan.lastTouchTimestamp</code></a>
  should return <code>false</code>.</div>
@@ -221,6 +231,7 @@ extends <a href="Cache.Listener.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>onCacheInitialized</h4>
 <pre class="methodSignature">void&nbsp;onCacheInitialized()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when cache has been initialized.</div>
 </li>
 </ul>
@@ -234,6 +245,7 @@ extends <a href="Cache.Listener.html" title="interface in com.google.android.exo
                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
                  long&nbsp;position,
                  long&nbsp;length)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a writer starts writing to the cache.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

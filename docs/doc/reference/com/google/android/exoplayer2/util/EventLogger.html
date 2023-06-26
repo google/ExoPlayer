@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":10,"i45":10,"i46":10,"i47":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42,"i12":42,"i13":42,"i14":42,"i15":42,"i16":42,"i17":42,"i18":42,"i19":42,"i20":42,"i21":42,"i22":42,"i23":42,"i24":42,"i25":42,"i26":42,"i27":42,"i28":42,"i29":42,"i30":42,"i31":42,"i32":42,"i33":42,"i34":42,"i35":42,"i36":42,"i37":42,"i38":42,"i39":42,"i40":42,"i41":42,"i42":42,"i43":42,"i44":42,"i45":42,"i46":42,"i47":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../analytics/AnalyticsListener.html" title="interface in com.google.android.exoplayer2.analytics">AnalyticsListener</a></code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">EventLogger</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">EventLogger</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="../analytics/AnalyticsListener.html" title="interface in com.google.android.exoplayer2.analytics">AnalyticsListener</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Logs events from <a href="../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> and other core components using <a href="Log.html" title="class in com.google.android.exoplayer2.util"><code>Log</code></a>.</div>
 </li>
 </ul>
@@ -193,6 +199,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">EventLogger</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance.</div>
 </td>
 </tr>
@@ -216,6 +223,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String)">EventLogger</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance.</div>
 </td>
 </tr>
@@ -231,7 +239,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -241,6 +249,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#logd(java.lang.String)">logd</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;msg)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Logs a debug message.</div>
 </td>
 </tr>
@@ -248,6 +257,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#loge(java.lang.String)">loge</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;msg)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Logs an error message.</div>
 </td>
 </tr>
@@ -256,6 +266,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioAttributesChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.audio.AudioAttributes)">onAudioAttributesChanged</a></span>&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                         <a href="../audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the audio attributes change.</div>
 </td>
 </tr>
@@ -264,13 +275,16 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioDecoderInitialized(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.String,long)">onAudioDecoderInitialized</a></span>&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName,
                          long&nbsp;initializationDurationMs)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioDecoderReleased(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.String)">onAudioDecoderReleased</a></span>&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when an audio renderer releases a decoder.</div>
 </td>
 </tr>
@@ -279,6 +293,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioDisabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.decoder.DecoderCounters)">onAudioDisabled</a></span>&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                <a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;decoderCounters)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when an audio renderer is disabled.</div>
 </td>
 </tr>
@@ -287,6 +302,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioEnabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.decoder.DecoderCounters)">onAudioEnabled</a></span>&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
               <a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;decoderCounters)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when an audio renderer is enabled.</div>
 </td>
 </tr>
@@ -296,6 +312,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
                          <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                          <a href="../decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a>&nbsp;decoderReuseEvaluation)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the format of the media being consumed by an audio renderer changes.</div>
 </td>
 </tr>
@@ -304,6 +321,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioSessionIdChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int)">onAudioSessionIdChanged</a></span>&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                        int&nbsp;audioSessionId)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the audio session ID changes.</div>
 </td>
 </tr>
@@ -314,6 +332,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
                long&nbsp;bufferSizeMs,
                long&nbsp;elapsedSinceLastFeedMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when an audio underrun occurs.</div>
 </td>
 </tr>
@@ -324,6 +343,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
                    long&nbsp;totalBytesLoaded,
                    long&nbsp;bitrateEstimate)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the bandwidth estimate for the current data source has been updated.</div>
 </td>
 </tr>
@@ -332,6 +352,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDownstreamFormatChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.source.MediaLoadData)">onDownstreamFormatChanged</a></span>&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                          <a href="../source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the downstream format sent to the renderers changed.</div>
 </td>
 </tr>
@@ -339,6 +360,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDrmKeysLoaded(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">onDrmKeysLoaded</a></span>&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called each time drm keys are loaded.</div>
 </td>
 </tr>
@@ -346,6 +368,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDrmKeysRemoved(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">onDrmKeysRemoved</a></span>&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called each time offline drm keys are removed.</div>
 </td>
 </tr>
@@ -353,6 +376,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDrmKeysRestored(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">onDrmKeysRestored</a></span>&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called each time offline drm keys are restored.</div>
 </td>
 </tr>
@@ -361,6 +385,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDrmSessionAcquired(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.drm.DrmSession.Stateint)">onDrmSessionAcquired</a></span>&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                     @com.google.android.exoplayer2.drm.DrmSession.State int&nbsp;state)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called each time a drm session is acquired.</div>
 </td>
 </tr>
@@ -369,6 +394,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDrmSessionManagerError(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.Exception)">onDrmSessionManagerError</a></span>&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                         <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;error)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a drm error occurs.</div>
 </td>
 </tr>
@@ -376,6 +402,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDrmSessionReleased(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">onDrmSessionReleased</a></span>&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called each time a drm session is released.</div>
 </td>
 </tr>
@@ -385,6 +412,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
                     int&nbsp;droppedFrames,
                     long&nbsp;elapsedMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called after video frames have been dropped.</div>
 </td>
 </tr>
@@ -393,6 +421,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onIsLoadingChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,boolean)">onIsLoadingChanged</a></span>&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                   boolean&nbsp;isLoading)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the player starts or stops loading data from a source.</div>
 </td>
 </tr>
@@ -401,6 +430,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onIsPlayingChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,boolean)">onIsPlayingChanged</a></span>&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                   boolean&nbsp;isPlaying)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the player starts or stops playing.</div>
 </td>
 </tr>
@@ -410,6 +440,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
               <a href="../source/LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
               <a href="../source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a media source canceled loading data.</div>
 </td>
 </tr>
@@ -419,6 +450,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
                <a href="../source/LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
                <a href="../source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a media source completed loading data.</div>
 </td>
 </tr>
@@ -430,6 +462,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
            <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;error,
            boolean&nbsp;wasCanceled)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a media source loading error occurred.</div>
 </td>
 </tr>
@@ -439,6 +472,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
              <a href="../source/LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
              <a href="../source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a media source started loading data.</div>
 </td>
 </tr>
@@ -448,6 +482,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
                      <a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
                      int&nbsp;reason)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when playback transitions to a different media item.</div>
 </td>
 </tr>
@@ -456,6 +491,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onMetadata(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.metadata.Metadata)">onMetadata</a></span>&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
           <a href="../metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when there is <a href="../metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata"><code>Metadata</code></a> associated with the current playback time.</div>
 </td>
 </tr>
@@ -464,6 +500,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlaybackParametersChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.PlaybackParameters)">onPlaybackParametersChanged</a></span>&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                            <a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the playback parameters changed.</div>
 </td>
 </tr>
@@ -472,6 +509,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlaybackStateChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.Player.Stateint)">onPlaybackStateChanged</a></span>&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                       @com.google.android.exoplayer2.Player.State int&nbsp;state)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the playback state changed.</div>
 </td>
 </tr>
@@ -480,6 +518,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlaybackSuppressionReasonChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.Player.PlaybackSuppressionReasonint)">onPlaybackSuppressionReasonChanged</a></span>&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                   @com.google.android.exoplayer2.Player.PlaybackSuppressionReason int&nbsp;playbackSuppressionReason)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when playback suppression reason changed.</div>
 </td>
 </tr>
@@ -488,6 +527,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlayerError(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.PlaybackException)">onPlayerError</a></span>&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
              <a href="../PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a>&nbsp;error)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a fatal player error occurred.</div>
 </td>
 </tr>
@@ -497,6 +537,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
                       boolean&nbsp;playWhenReady,
                       @com.google.android.exoplayer2.Player.PlayWhenReadyChangeReason int&nbsp;reason)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the value changed that indicates whether playback will proceed when ready.</div>
 </td>
 </tr>
@@ -507,6 +548,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
                        <a href="../Player.PositionInfo.html" title="class in com.google.android.exoplayer2">Player.PositionInfo</a>&nbsp;newPosition,
                        @com.google.android.exoplayer2.Player.DiscontinuityReason int&nbsp;reason)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a position discontinuity occurred.</div>
 </td>
 </tr>
@@ -516,6 +558,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
                     <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;output,
                     long&nbsp;renderTimeMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a frame is rendered for the first time since setting the surface, or since the
  renderer was reset, or since the stream being rendered was changed.</div>
 </td>
@@ -525,6 +568,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onRepeatModeChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.Player.RepeatModeint)">onRepeatModeChanged</a></span>&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                    @com.google.android.exoplayer2.Player.RepeatMode int&nbsp;repeatMode)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the repeat mode changed.</div>
 </td>
 </tr>
@@ -533,6 +577,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onShuffleModeChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,boolean)">onShuffleModeChanged</a></span>&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                     boolean&nbsp;shuffleModeEnabled)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the shuffle mode changed.</div>
 </td>
 </tr>
@@ -541,6 +586,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSkipSilenceEnabledChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,boolean)">onSkipSilenceEnabledChanged</a></span>&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                            boolean&nbsp;skipSilenceEnabled)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when skipping silences is enabled or disabled in the audio stream.</div>
 </td>
 </tr>
@@ -550,6 +596,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
                     int&nbsp;width,
                     int&nbsp;height)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the output surface size changed.</div>
 </td>
 </tr>
@@ -558,6 +605,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTimelineChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.Player.TimelineChangeReasonint)">onTimelineChanged</a></span>&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                  @com.google.android.exoplayer2.Player.TimelineChangeReason int&nbsp;reason)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the timeline changed.</div>
 </td>
 </tr>
@@ -566,6 +614,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTracksChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.Tracks)">onTracksChanged</a></span>&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                <a href="../Tracks.html" title="class in com.google.android.exoplayer2">Tracks</a>&nbsp;tracks)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the tracks change.</div>
 </td>
 </tr>
@@ -574,6 +623,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onUpstreamDiscarded(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.source.MediaLoadData)">onUpstreamDiscarded</a></span>&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                    <a href="../source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when data is removed from the back of a media buffer, typically so that it can be
  re-buffered in a different format.</div>
 </td>
@@ -583,13 +633,16 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoDecoderInitialized(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.String,long)">onVideoDecoderInitialized</a></span>&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName,
                          long&nbsp;initializationDurationMs)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i42" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoDecoderReleased(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.String)">onVideoDecoderReleased</a></span>&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a video renderer releases a decoder.</div>
 </td>
 </tr>
@@ -598,6 +651,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoDisabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.decoder.DecoderCounters)">onVideoDisabled</a></span>&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                <a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;decoderCounters)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a video renderer is disabled.</div>
 </td>
 </tr>
@@ -606,6 +660,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoEnabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.decoder.DecoderCounters)">onVideoEnabled</a></span>&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
               <a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;decoderCounters)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a video renderer is enabled.</div>
 </td>
 </tr>
@@ -615,6 +670,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
                          <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                          <a href="../decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a>&nbsp;decoderReuseEvaluation)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the format of the media being consumed by a video renderer changes.</div>
 </td>
 </tr>
@@ -623,6 +679,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoSizeChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.video.VideoSize)">onVideoSizeChanged</a></span>&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                   <a href="../video/VideoSize.html" title="class in com.google.android.exoplayer2.video">VideoSize</a>&nbsp;videoSize)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called before a frame is rendered for the first time since setting the surface, and each time
  there's a change in the size or pixel aspect ratio of the video being rendered.</div>
 </td>
@@ -632,6 +689,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVolumeChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,float)">onVolumeChanged</a></span>&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                float&nbsp;volume)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the volume changes.</div>
 </td>
 </tr>
@@ -648,7 +706,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.analytics.<a href="../analytics/AnalyticsListener.html" title="interface in com.google.android.exoplayer2.analytics">AnalyticsListener</a></h3>
-<code><a href="../analytics/AnalyticsListener.html#onAudioCodecError(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.Exception)">onAudioCodecError</a>, <a href="../analytics/AnalyticsListener.html#onAudioDecoderInitialized(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.String,long,long)">onAudioDecoderInitialized</a>, <a href="../analytics/AnalyticsListener.html#onAudioInputFormatChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.Format)">onAudioInputFormatChanged</a>, <a href="../analytics/AnalyticsListener.html#onAudioPositionAdvancing(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,long)">onAudioPositionAdvancing</a>, <a href="../analytics/AnalyticsListener.html#onAudioSinkError(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.Exception)">onAudioSinkError</a>, <a href="../analytics/AnalyticsListener.html#onAvailableCommandsChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.Player.Commands)">onAvailableCommandsChanged</a>, <a href="../analytics/AnalyticsListener.html#onCues(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.text.CueGroup)">onCues</a>, <a href="../analytics/AnalyticsListener.html#onCues(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.util.List)">onCues</a>, <a href="../analytics/AnalyticsListener.html#onDecoderDisabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,com.google.android.exoplayer2.decoder.DecoderCounters)">onDecoderDisabled</a>, <a href="../analytics/AnalyticsListener.html#onDecoderEnabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,com.google.android.exoplayer2.decoder.DecoderCounters)">onDecoderEnabled</a>, <a href="../analytics/AnalyticsListener.html#onDecoderInitialized(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,java.lang.String,long)">onDecoderInitialized</a>, <a href="../analytics/AnalyticsListener.html#onDecoderInputFormatChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,com.google.android.exoplayer2.Format)">onDecoderInputFormatChanged</a>, <a href="../analytics/AnalyticsListener.html#onDeviceInfoChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.DeviceInfo)">onDeviceInfoChanged</a>, <a href="../analytics/AnalyticsListener.html#onDeviceVolumeChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,boolean)">onDeviceVolumeChanged</a>, <a href="../analytics/AnalyticsListener.html#onDrmSessionAcquired(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">onDrmSessionAcquired</a>, <a href="../analytics/AnalyticsListener.html#onEvents(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.analytics.AnalyticsListener.Events)">onEvents</a>, <a href="../analytics/AnalyticsListener.html#onLoadingChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,boolean)">onLoadingChanged</a>, <a href="../analytics/AnalyticsListener.html#onMaxSeekToPreviousPositionChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,long)">onMaxSeekToPreviousPositionChanged</a>, <a href="../analytics/AnalyticsListener.html#onMediaMetadataChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.MediaMetadata)">onMediaMetadataChanged</a>, <a href="../analytics/AnalyticsListener.html#onPlayerErrorChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.PlaybackException)">onPlayerErrorChanged</a>, <a href="../analytics/AnalyticsListener.html#onPlayerReleased(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">onPlayerReleased</a>, <a href="../analytics/AnalyticsListener.html#onPlayerStateChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,boolean,@com.google.android.exoplayer2.Player.Stateint)">onPlayerStateChanged</a>, <a href="../analytics/AnalyticsListener.html#onPlaylistMetadataChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.MediaMetadata)">onPlaylistMetadataChanged</a>, <a href="../analytics/AnalyticsListener.html#onPositionDiscontinuity(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.Player.DiscontinuityReasonint)">onPositionDiscontinuity</a>, <a href="../analytics/AnalyticsListener.html#onSeekBackIncrementChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,long)">onSeekBackIncrementChanged</a>, <a href="../analytics/AnalyticsListener.html#onSeekForwardIncrementChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,long)">onSeekForwardIncrementChanged</a>, <a href="../analytics/AnalyticsListener.html#onSeekProcessed(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">onSeekProcessed</a>, <a href="../analytics/AnalyticsListener.html#onSeekStarted(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">onSeekStarted</a>, <a href="../analytics/AnalyticsListener.html#onTrackSelectionParametersChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.trackselection.TrackSelectionParameters)">onTrackSelectionParametersChanged</a>, <a href="../analytics/AnalyticsListener.html#onVideoCodecError(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.Exception)">onVideoCodecError</a>, <a href="../analytics/AnalyticsListener.html#onVideoDecoderInitialized(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.String,long,long)">onVideoDecoderInitialized</a>, <a href="../analytics/AnalyticsListener.html#onVideoFrameProcessingOffset(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,long,int)">onVideoFrameProcessingOffset</a>, <a href="../analytics/AnalyticsListener.html#onVideoInputFormatChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.Format)">onVideoInputFormatChanged</a>, <a href="../analytics/AnalyticsListener.html#onVideoSizeChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,int,int,float)">onVideoSizeChanged</a></code></li>
+<code><a href="../analytics/AnalyticsListener.html#onAudioCodecError(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.Exception)">onAudioCodecError</a>, <a href="../analytics/AnalyticsListener.html#onAudioDecoderInitialized(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.String,long,long)">onAudioDecoderInitialized</a>, <a href="../analytics/AnalyticsListener.html#onAudioInputFormatChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.Format)">onAudioInputFormatChanged</a>, <a href="../analytics/AnalyticsListener.html#onAudioPositionAdvancing(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,long)">onAudioPositionAdvancing</a>, <a href="../analytics/AnalyticsListener.html#onAudioSinkError(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.Exception)">onAudioSinkError</a>, <a href="../analytics/AnalyticsListener.html#onAvailableCommandsChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.Player.Commands)">onAvailableCommandsChanged</a>, <a href="../analytics/AnalyticsListener.html#onCues(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.text.CueGroup)">onCues</a>, <a href="../analytics/AnalyticsListener.html#onCues(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.util.List)">onCues</a>, <a href="../analytics/AnalyticsListener.html#onDeviceInfoChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.DeviceInfo)">onDeviceInfoChanged</a>, <a href="../analytics/AnalyticsListener.html#onDeviceVolumeChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,boolean)">onDeviceVolumeChanged</a>, <a href="../analytics/AnalyticsListener.html#onDrmSessionAcquired(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">onDrmSessionAcquired</a>, <a href="../analytics/AnalyticsListener.html#onEvents(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.analytics.AnalyticsListener.Events)">onEvents</a>, <a href="../analytics/AnalyticsListener.html#onLoadingChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,boolean)">onLoadingChanged</a>, <a href="../analytics/AnalyticsListener.html#onMaxSeekToPreviousPositionChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,long)">onMaxSeekToPreviousPositionChanged</a>, <a href="../analytics/AnalyticsListener.html#onMediaMetadataChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.MediaMetadata)">onMediaMetadataChanged</a>, <a href="../analytics/AnalyticsListener.html#onPlayerErrorChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.PlaybackException)">onPlayerErrorChanged</a>, <a href="../analytics/AnalyticsListener.html#onPlayerReleased(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">onPlayerReleased</a>, <a href="../analytics/AnalyticsListener.html#onPlayerStateChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,boolean,@com.google.android.exoplayer2.Player.Stateint)">onPlayerStateChanged</a>, <a href="../analytics/AnalyticsListener.html#onPlaylistMetadataChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.MediaMetadata)">onPlaylistMetadataChanged</a>, <a href="../analytics/AnalyticsListener.html#onPositionDiscontinuity(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.Player.DiscontinuityReasonint)">onPositionDiscontinuity</a>, <a href="../analytics/AnalyticsListener.html#onSeekBackIncrementChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,long)">onSeekBackIncrementChanged</a>, <a href="../analytics/AnalyticsListener.html#onSeekForwardIncrementChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,long)">onSeekForwardIncrementChanged</a>, <a href="../analytics/AnalyticsListener.html#onSeekStarted(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">onSeekStarted</a>, <a href="../analytics/AnalyticsListener.html#onTrackSelectionParametersChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.trackselection.TrackSelectionParameters)">onTrackSelectionParametersChanged</a>, <a href="../analytics/AnalyticsListener.html#onVideoCodecError(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.Exception)">onVideoCodecError</a>, <a href="../analytics/AnalyticsListener.html#onVideoDecoderInitialized(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.String,long,long)">onVideoDecoderInitialized</a>, <a href="../analytics/AnalyticsListener.html#onVideoFrameProcessingOffset(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,long,int)">onVideoFrameProcessingOffset</a>, <a href="../analytics/AnalyticsListener.html#onVideoInputFormatChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.Format)">onVideoInputFormatChanged</a>, <a href="../analytics/AnalyticsListener.html#onVideoSizeChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,int,int,float)">onVideoSizeChanged</a></code></li>
 </ul>
 </li>
 </ul>
@@ -673,6 +731,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <li class="blockList">
 <h4>EventLogger</h4>
 <pre>public&nbsp;EventLogger()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance.</div>
 </li>
 </ul>
@@ -683,6 +742,7 @@ implements <a href="../analytics/AnalyticsListener.html" title="interface in com
 <li class="blockList">
 <h4>EventLogger</h4>
 <pre>public&nbsp;EventLogger&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -748,6 +808,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <h4>onIsLoadingChanged</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onIsLoadingChanged&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                boolean&nbsp;isLoading)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onIsLoadingChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,boolean)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when the player starts or stops loading data from a source.</div>
 <dl>
@@ -768,6 +829,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <pre class="methodSignature">public&nbsp;void&nbsp;onPlaybackStateChanged&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                    <a href="../Player.State.html" title="annotation in com.google.android.exoplayer2">@State</a>
                                    @com.google.android.exoplayer2.Player.State int&nbsp;state)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onPlaybackStateChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.Player.Stateint)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when the playback state changed.</div>
 <dl>
@@ -789,6 +851,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
                                    boolean&nbsp;playWhenReady,
                                    <a href="../Player.PlayWhenReadyChangeReason.html" title="annotation in com.google.android.exoplayer2">@PlayWhenReadyChangeReason</a>
                                    @com.google.android.exoplayer2.Player.PlayWhenReadyChangeReason int&nbsp;reason)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onPlayWhenReadyChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,boolean,@com.google.android.exoplayer2.Player.PlayWhenReadyChangeReasonint)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when the value changed that indicates whether playback will proceed when ready.</div>
 <dl>
@@ -810,6 +873,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <pre class="methodSignature">public&nbsp;void&nbsp;onPlaybackSuppressionReasonChanged&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                                <a href="../Player.PlaybackSuppressionReason.html" title="annotation in com.google.android.exoplayer2">@PlaybackSuppressionReason</a>
                                                @com.google.android.exoplayer2.Player.PlaybackSuppressionReason int&nbsp;playbackSuppressionReason)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onPlaybackSuppressionReasonChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.Player.PlaybackSuppressionReasonint)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when playback suppression reason changed.</div>
 <dl>
@@ -829,6 +893,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <h4>onIsPlayingChanged</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onIsPlayingChanged&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                boolean&nbsp;isPlaying)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onIsPlayingChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,boolean)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when the player starts or stops playing.</div>
 <dl>
@@ -849,6 +914,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <pre class="methodSignature">public&nbsp;void&nbsp;onRepeatModeChanged&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                 <a href="../Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@RepeatMode</a>
                                 @com.google.android.exoplayer2.Player.RepeatMode int&nbsp;repeatMode)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onRepeatModeChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.Player.RepeatModeint)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when the repeat mode changed.</div>
 <dl>
@@ -868,6 +934,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <h4>onShuffleModeChanged</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onShuffleModeChanged&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                  boolean&nbsp;shuffleModeEnabled)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onShuffleModeChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,boolean)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when the shuffle mode changed.</div>
 <dl>
@@ -890,6 +957,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
                                     <a href="../Player.PositionInfo.html" title="class in com.google.android.exoplayer2">Player.PositionInfo</a>&nbsp;newPosition,
                                     <a href="../Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2">@DiscontinuityReason</a>
                                     @com.google.android.exoplayer2.Player.DiscontinuityReason int&nbsp;reason)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onPositionDiscontinuity(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.Player.PositionInfo,com.google.android.exoplayer2.Player.PositionInfo,@com.google.android.exoplayer2.Player.DiscontinuityReasonint)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when a position discontinuity occurred.</div>
 <dl>
@@ -911,6 +979,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <h4>onPlaybackParametersChanged</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onPlaybackParametersChanged&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                         <a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onPlaybackParametersChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.PlaybackParameters)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when the playback parameters changed.</div>
 <dl>
@@ -931,6 +1000,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <pre class="methodSignature">public&nbsp;void&nbsp;onTimelineChanged&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                               <a href="../Player.TimelineChangeReason.html" title="annotation in com.google.android.exoplayer2">@TimelineChangeReason</a>
                               @com.google.android.exoplayer2.Player.TimelineChangeReason int&nbsp;reason)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onTimelineChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.Player.TimelineChangeReasonint)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when the timeline changed.</div>
 <dl>
@@ -952,6 +1022,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
                                   @Nullable
                                   <a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
                                   int&nbsp;reason)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onMediaItemTransition(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.MediaItem,@com.google.android.exoplayer2.Player.MediaItemTransitionReasonint)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when playback transitions to a different media item.</div>
 <dl>
@@ -972,6 +1043,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <h4>onPlayerError</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onPlayerError&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                           <a href="../PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a>&nbsp;error)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onPlayerError(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.PlaybackException)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when a fatal player error occurred.
 
@@ -993,6 +1065,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <h4>onTracksChanged</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onTracksChanged&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                             <a href="../Tracks.html" title="class in com.google.android.exoplayer2">Tracks</a>&nbsp;tracks)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onTracksChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.Tracks)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when the tracks change.</div>
 <dl>
@@ -1012,6 +1085,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <h4>onMetadata</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onMetadata&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                        <a href="../metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onMetadata(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.metadata.Metadata)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when there is <a href="../metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata"><code>Metadata</code></a> associated with the current playback time.</div>
 <dl>
@@ -1031,6 +1105,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <h4>onAudioEnabled</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onAudioEnabled&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                            <a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;decoderCounters)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onAudioEnabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.decoder.DecoderCounters)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when an audio renderer is enabled.</div>
 <dl>
@@ -1052,6 +1127,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <pre class="methodSignature">public&nbsp;void&nbsp;onAudioDecoderInitialized&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName,
                                       long&nbsp;initializationDurationMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../analytics/AnalyticsListener.html#onAudioDecoderInitialized(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.String,long)">onAudioDecoderInitialized</a></code>&nbsp;in interface&nbsp;<code><a href="../analytics/AnalyticsListener.html" title="interface in com.google.android.exoplayer2.analytics">AnalyticsListener</a></code></dd>
@@ -1068,6 +1144,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
                                       <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                       @Nullable
                                       <a href="../decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a>&nbsp;decoderReuseEvaluation)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onAudioInputFormatChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.Format,com.google.android.exoplayer2.decoder.DecoderReuseEvaluation)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when the format of the media being consumed by an audio renderer changes.</div>
 <dl>
@@ -1092,6 +1169,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
                             int&nbsp;bufferSize,
                             long&nbsp;bufferSizeMs,
                             long&nbsp;elapsedSinceLastFeedMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onAudioUnderrun(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,long,long)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when an audio underrun occurs.</div>
 <dl>
@@ -1114,6 +1192,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <h4>onAudioDecoderReleased</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onAudioDecoderReleased&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onAudioDecoderReleased(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.String)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when an audio renderer releases a decoder.</div>
 <dl>
@@ -1133,6 +1212,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <h4>onAudioDisabled</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onAudioDisabled&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                             <a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;decoderCounters)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onAudioDisabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.decoder.DecoderCounters)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when an audio renderer is disabled.</div>
 <dl>
@@ -1152,6 +1232,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <h4>onAudioSessionIdChanged</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onAudioSessionIdChanged&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                     int&nbsp;audioSessionId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onAudioSessionIdChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when the audio session ID changes.</div>
 <dl>
@@ -1171,6 +1252,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <h4>onAudioAttributesChanged</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onAudioAttributesChanged&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                      <a href="../audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onAudioAttributesChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.audio.AudioAttributes)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when the audio attributes change.</div>
 <dl>
@@ -1190,6 +1272,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <h4>onSkipSilenceEnabledChanged</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onSkipSilenceEnabledChanged&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                         boolean&nbsp;skipSilenceEnabled)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onSkipSilenceEnabledChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,boolean)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when skipping silences is enabled or disabled in the audio stream.</div>
 <dl>
@@ -1209,6 +1292,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <h4>onVolumeChanged</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onVolumeChanged&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                             float&nbsp;volume)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onVolumeChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,float)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when the volume changes.</div>
 <dl>
@@ -1228,6 +1312,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <h4>onVideoEnabled</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onVideoEnabled&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                            <a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;decoderCounters)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onVideoEnabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.decoder.DecoderCounters)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when a video renderer is enabled.</div>
 <dl>
@@ -1249,6 +1334,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <pre class="methodSignature">public&nbsp;void&nbsp;onVideoDecoderInitialized&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName,
                                       long&nbsp;initializationDurationMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../analytics/AnalyticsListener.html#onVideoDecoderInitialized(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.String,long)">onVideoDecoderInitialized</a></code>&nbsp;in interface&nbsp;<code><a href="../analytics/AnalyticsListener.html" title="interface in com.google.android.exoplayer2.analytics">AnalyticsListener</a></code></dd>
@@ -1265,6 +1351,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
                                       <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                       @Nullable
                                       <a href="../decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a>&nbsp;decoderReuseEvaluation)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onVideoInputFormatChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.Format,com.google.android.exoplayer2.decoder.DecoderReuseEvaluation)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when the format of the media being consumed by a video renderer changes.</div>
 <dl>
@@ -1288,6 +1375,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <pre class="methodSignature">public&nbsp;void&nbsp;onDroppedVideoFrames&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                  int&nbsp;droppedFrames,
                                  long&nbsp;elapsedMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onDroppedVideoFrames(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,long)">AnalyticsListener</a></code></span></div>
 <div class="block">Called after video frames have been dropped.</div>
 <dl>
@@ -1310,6 +1398,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <h4>onVideoDecoderReleased</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onVideoDecoderReleased&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onVideoDecoderReleased(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.String)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when a video renderer releases a decoder.</div>
 <dl>
@@ -1329,6 +1418,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <h4>onVideoDisabled</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onVideoDisabled&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                             <a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;decoderCounters)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onVideoDisabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.decoder.DecoderCounters)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when a video renderer is disabled.</div>
 <dl>
@@ -1349,6 +1439,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <pre class="methodSignature">public&nbsp;void&nbsp;onRenderedFirstFrame&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                  <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;output,
                                  long&nbsp;renderTimeMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onRenderedFirstFrame(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.Object,long)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when a frame is rendered for the first time since setting the surface, or since the
  renderer was reset, or since the stream being rendered was changed.</div>
@@ -1371,6 +1462,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <h4>onVideoSizeChanged</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onVideoSizeChanged&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                <a href="../video/VideoSize.html" title="class in com.google.android.exoplayer2.video">VideoSize</a>&nbsp;videoSize)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onVideoSizeChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.video.VideoSize)">AnalyticsListener</a></code></span></div>
 <div class="block">Called before a frame is rendered for the first time since setting the surface, and each time
  there's a change in the size or pixel aspect ratio of the video being rendered.</div>
@@ -1392,6 +1484,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <pre class="methodSignature">public&nbsp;void&nbsp;onLoadStarted&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                           <a href="../source/LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
                           <a href="../source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onLoadStarted(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.source.LoadEventInfo,com.google.android.exoplayer2.source.MediaLoadData)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when a media source started loading data.</div>
 <dl>
@@ -1415,6 +1508,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
                         <a href="../source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData,
                         <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;error,
                         boolean&nbsp;wasCanceled)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onLoadError(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.source.LoadEventInfo,com.google.android.exoplayer2.source.MediaLoadData,java.io.IOException,boolean)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when a media source loading error occurred.
 
@@ -1445,6 +1539,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <pre class="methodSignature">public&nbsp;void&nbsp;onLoadCanceled&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                            <a href="../source/LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
                            <a href="../source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onLoadCanceled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.source.LoadEventInfo,com.google.android.exoplayer2.source.MediaLoadData)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when a media source canceled loading data.</div>
 <dl>
@@ -1466,6 +1561,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <pre class="methodSignature">public&nbsp;void&nbsp;onLoadCompleted&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                             <a href="../source/LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
                             <a href="../source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onLoadCompleted(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.source.LoadEventInfo,com.google.android.exoplayer2.source.MediaLoadData)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when a media source completed loading data.</div>
 <dl>
@@ -1488,6 +1584,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
                                 int&nbsp;totalLoadTimeMs,
                                 long&nbsp;totalBytesLoaded,
                                 long&nbsp;bitrateEstimate)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onBandwidthEstimate(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,long,long)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when the bandwidth estimate for the current data source has been updated.</div>
 <dl>
@@ -1510,6 +1607,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <pre class="methodSignature">public&nbsp;void&nbsp;onSurfaceSizeChanged&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                  int&nbsp;width,
                                  int&nbsp;height)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onSurfaceSizeChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,int)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when the output surface size changed.</div>
 <dl>
@@ -1532,6 +1630,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <h4>onUpstreamDiscarded</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onUpstreamDiscarded&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                 <a href="../source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onUpstreamDiscarded(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.source.MediaLoadData)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when data is removed from the back of a media buffer, typically so that it can be
  re-buffered in a different format.</div>
@@ -1552,6 +1651,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <h4>onDownstreamFormatChanged</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onDownstreamFormatChanged&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                       <a href="../source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onDownstreamFormatChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.source.MediaLoadData)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when the downstream format sent to the renderers changed.</div>
 <dl>
@@ -1572,6 +1672,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <pre class="methodSignature">public&nbsp;void&nbsp;onDrmSessionAcquired&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                  <a href="../drm/DrmSession.State.html" title="annotation in com.google.android.exoplayer2.drm">@State</a>
                                  @com.google.android.exoplayer2.drm.DrmSession.State int&nbsp;state)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onDrmSessionAcquired(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.drm.DrmSession.Stateint)">AnalyticsListener</a></code></span></div>
 <div class="block">Called each time a drm session is acquired.</div>
 <dl>
@@ -1591,6 +1692,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <h4>onDrmSessionManagerError</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onDrmSessionManagerError&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                      <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;error)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onDrmSessionManagerError(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.Exception)">AnalyticsListener</a></code></span></div>
 <div class="block">Called when a drm error occurs.
 
@@ -1616,6 +1718,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <li class="blockList">
 <h4>onDrmKeysRestored</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onDrmKeysRestored&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onDrmKeysRestored(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">AnalyticsListener</a></code></span></div>
 <div class="block">Called each time offline drm keys are restored.</div>
 <dl>
@@ -1633,6 +1736,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <li class="blockList">
 <h4>onDrmKeysRemoved</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onDrmKeysRemoved&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onDrmKeysRemoved(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">AnalyticsListener</a></code></span></div>
 <div class="block">Called each time offline drm keys are removed.</div>
 <dl>
@@ -1650,6 +1754,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <li class="blockList">
 <h4>onDrmKeysLoaded</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onDrmKeysLoaded&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onDrmKeysLoaded(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">AnalyticsListener</a></code></span></div>
 <div class="block">Called each time drm keys are loaded.</div>
 <dl>
@@ -1667,6 +1772,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <li class="blockList">
 <h4>onDrmSessionReleased</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onDrmSessionReleased&#8203;(<a href="../analytics/AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../analytics/AnalyticsListener.html#onDrmSessionReleased(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">AnalyticsListener</a></code></span></div>
 <div class="block">Called each time a drm session is released.</div>
 <dl>
@@ -1684,6 +1790,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <li class="blockList">
 <h4>logd</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;logd&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;msg)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Logs a debug message.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1698,6 +1805,7 @@ public&nbsp;EventLogger&#8203;(@Nullable
 <li class="blockList">
 <h4>loge</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;loge&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;msg)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Logs an error message.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
