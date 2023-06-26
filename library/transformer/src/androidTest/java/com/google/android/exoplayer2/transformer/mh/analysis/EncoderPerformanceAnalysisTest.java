@@ -16,8 +16,8 @@
 
 package com.google.android.exoplayer2.transformer.mh.analysis;
 
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MEDIA_CODEC_PRIORITY_NON_REALTIME;
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MEDIA_CODEC_PRIORITY_REALTIME;
+import static com.google.android.exoplayer2.C.MEDIA_CODEC_PRIORITY_NON_REALTIME;
+import static com.google.android.exoplayer2.C.MEDIA_CODEC_PRIORITY_REALTIME;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 

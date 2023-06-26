@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.exoplayer2.transformer;
+package com.google.android.exoplayer2.testutil;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertThat;
@@ -24,6 +24,7 @@ import android.content.Context;
 import android.media.Image;
 import android.media.MediaCodec;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -40,6 +41,7 @@ import java.nio.ByteBuffer;
  * <p>SSIM is traditionally computed with the luminance channel (Y), this class uses the luma
  * channel (Y') because the {@linkplain MediaCodec decoder} decodes to luma.
  */
+@RequiresApi(21)
 public final class SsimHelper {
 
   /** The default comparison interval. */

@@ -40,6 +40,7 @@ import com.google.android.exoplayer2.effect.Presentation;
 import com.google.android.exoplayer2.effect.RgbFilter;
 import com.google.android.exoplayer2.effect.ScaleAndRotateTransformation;
 import com.google.android.exoplayer2.testutil.BitmapPixelTestUtil;
+import com.google.android.exoplayer2.testutil.VideoDecodingWrapper;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;

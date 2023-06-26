@@ -16,6 +16,10 @@
 android {
     namespace 'com.google.android.exoplayer2.testutil'
 
+    sourceSets {
+ test.assets.srcDir '../../testdata/src/test/assets/'
+    }
+
     publishing {
         singleVariant('release') {
             withSourcesJar()

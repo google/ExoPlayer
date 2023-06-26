@@ -643,6 +643,12 @@ public final class C {
   /** Indicates that a buffer should be decoded but not rendered. */
   public static final int BUFFER_FLAG_DECODE_ONLY = 1 << 31; // 0x80000000
 
+  /** A realtime {@linkplain MediaFormat#KEY_PRIORITY codec priority}. */
+  public static final int MEDIA_CODEC_PRIORITY_REALTIME = 0;
+
+  /** A non-realtime (as fast as possible) {@linkplain MediaFormat#KEY_PRIORITY codec priority}. */
+  public static final int MEDIA_CODEC_PRIORITY_NON_REALTIME = 1;
+
   /**
    * Video decoder output modes. Possible modes are {@link #VIDEO_OUTPUT_MODE_NONE}, {@link
    * #VIDEO_OUTPUT_MODE_YUV} and {@link #VIDEO_OUTPUT_MODE_SURFACE_YUV}.

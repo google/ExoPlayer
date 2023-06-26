@@ -57,14 +57,6 @@ import org.json.JSONObject;
 public final class AndroidTestUtil {
   private static final String TAG = "AndroidTestUtil";
 
-  /** A realtime {@linkplain MediaFormat#KEY_PRIORITY encoder priority}. */
-  public static final int MEDIA_CODEC_PRIORITY_REALTIME = 0;
-
-  /**
-   * A non-realtime (as fast as possible) {@linkplain MediaFormat#KEY_PRIORITY encoder priority}.
-   */
-  public static final int MEDIA_CODEC_PRIORITY_NON_REALTIME = 1;
-
   /** An {@link Effects} instance that forces video transcoding. */
   public static final Effects FORCE_TRANSCODE_VIDEO_EFFECTS =
       new Effects(

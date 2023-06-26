@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.google.android.exoplayer2.transformer;
+package com.google.android.exoplayer2.testutil;
 
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MEDIA_CODEC_PRIORITY_NON_REALTIME;
+import static com.google.android.exoplayer2.C.MEDIA_CODEC_PRIORITY_NON_REALTIME;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
@@ -33,6 +33,7 @@ import android.media.MediaExtractor;
 import android.media.MediaFormat;
 import android.os.Handler;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -40,7 +41,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /** A wrapper for decoding a video using {@link MediaCodec}. */
-/* package */ final class VideoDecodingWrapper implements AutoCloseable {
+@RequiresApi(21)
+public final class VideoDecodingWrapper implements AutoCloseable {
 
   private static final int IMAGE_AVAILABLE_TIMEOUT_MS = 10_000;
 
