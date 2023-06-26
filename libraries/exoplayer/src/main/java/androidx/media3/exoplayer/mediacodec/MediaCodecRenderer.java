@@ -187,9 +187,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
     private static String buildCustomDiagnosticInfo(int errorCode) {
       String sign = errorCode < 0 ? "neg_" : "";
-      return "com.google.android.exoplayer2.mediacodec.MediaCodecRenderer_"
-          + sign
-          + Math.abs(errorCode);
+      String packageName = "androidx.media3.exoplayer.mediacodec";
+      return packageName + ".MediaCodecRenderer_" + sign + Math.abs(errorCode);
     }
   }
 
