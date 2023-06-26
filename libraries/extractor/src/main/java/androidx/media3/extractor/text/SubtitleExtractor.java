@@ -64,14 +64,19 @@ public class SubtitleExtractor implements Extractor {
 
   /** The extractor has been created. */
   private static final int STATE_CREATED = 0;
+
   /** The extractor has been initialized. */
   private static final int STATE_INITIALIZED = 1;
+
   /** The extractor is reading from the input and writing to the output. */
   private static final int STATE_EXTRACTING = 2;
+
   /** The extractor has received a seek() operation after it has already finished extracting. */
   private static final int STATE_SEEKING = 3;
+
   /** The extractor has finished extracting the input. */
   private static final int STATE_FINISHED = 4;
+
   /** The extractor has been released. */
   private static final int STATE_RELEASED = 5;
 

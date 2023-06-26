@@ -41,11 +41,13 @@ public class LibvpxVideoRenderer extends DecoderVideoRenderer {
 
   /** The number of input buffers. */
   private final int numInputBuffers;
+
   /**
    * The number of output buffers. The renderer may limit the minimum possible value due to
    * requiring multiple output buffers to be dequeued at a time for it to make progress.
    */
   private final int numOutputBuffers;
+
   /**
    * The default input buffer size. The value is based on <a
    * href="https://android.googlesource.com/platform/frameworks/av/+/d42b90c5183fbd9d6a28d9baee613fddbf8131d6/media/libstagefright/codecs/on2/dec/SoftVPX.cpp">SoftVPX.cpp</a>.

@@ -201,10 +201,12 @@ public interface TsPayloadReader {
 
   /** Indicates the presence of the payload_unit_start_indicator in the TS packet header. */
   int FLAG_PAYLOAD_UNIT_START_INDICATOR = 1;
+
   /**
    * Indicates the presence of the random_access_indicator in the TS packet header adaptation field.
    */
   int FLAG_RANDOM_ACCESS_INDICATOR = 1 << 1;
+
   /** Indicates the presence of the data_alignment_indicator in the PES header. */
   int FLAG_DATA_ALIGNMENT_INDICATOR = 1 << 2;
 

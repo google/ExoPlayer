@@ -63,6 +63,7 @@ public final class MidiRenderer extends DecoderAudioRenderer<MidiDecoder> {
       throws MidiDecoderException {
     return new MidiDecoder(context);
   }
+
   /**
    * {@inheritDoc}
    *

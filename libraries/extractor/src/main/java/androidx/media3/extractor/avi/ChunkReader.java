@@ -55,6 +55,7 @@ import java.util.Arrays;
 
   /** The chunk id fourCC (example: `01wb`), as defined in the index and the movi. */
   private final int chunkId;
+
   /** Secondary chunk id. Bad muxers sometimes use an uncompressed video id (db) for key frames */
   private final int alternativeChunkId;
 

@@ -463,12 +463,15 @@ import java.util.Arrays;
 
     /** The absolute position of the start of the data (inclusive). */
     public long startPosition;
+
     /** The absolute position of the end of the data (exclusive). */
     public long endPosition;
+
     /**
      * The {@link Allocation}, or {@code null} if the node is not {@link #initialize initialized}.
      */
     @Nullable public Allocation allocation;
+
     /**
      * The next {@link AllocationNode} in the list, or {@code null} if the node is not {@link
      * #initialize initialized}.

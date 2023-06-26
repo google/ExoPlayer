@@ -34,6 +34,7 @@ public final class DtsUtil {
    * <p>DTS allows an 'open' bitrate, but we assume the maximum listed value: 1536 kbit/s.
    */
   public static final int DTS_MAX_RATE_BYTES_PER_SECOND = 1536 * 1000 / 8;
+
   /** Maximum rate for a DTS-HD audio stream, in bytes per second. */
   public static final int DTS_HD_MAX_RATE_BYTES_PER_SECOND = 18000 * 1000 / 8;
 
@@ -41,11 +42,13 @@ public final class DtsUtil {
   private static final int SYNC_VALUE_14B_BE = 0x1FFFE800;
   private static final int SYNC_VALUE_LE = 0xFE7F0180;
   private static final int SYNC_VALUE_14B_LE = 0xFF1F00E8;
+
   /**
    * DTS Extension Substream Syncword (in different Endianness). See ETSI TS 102 114 (V1.6.1)
    * Section 7.4.1.
    */
   private static final int SYNC_EXT_SUB_LE = 0x25205864;
+
   /**
    * DTS FTOC Sync words (in different Endianness). See ETSI TS 103 491 (V1.2.1) Section 6.4.4.1.
    */

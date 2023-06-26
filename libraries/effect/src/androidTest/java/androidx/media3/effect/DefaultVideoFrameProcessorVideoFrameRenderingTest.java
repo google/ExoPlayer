@@ -60,11 +60,13 @@ public final class DefaultVideoFrameProcessorVideoFrameRenderingTest {
 
   private static final int WIDTH = 200;
   private static final int HEIGHT = 100;
+
   /**
    * Time to wait between rendering frames to avoid frame drops between GL and the {@link
    * ImageReader}.
    */
   private static final long PER_FRAME_RENDERING_WAIT_TIME_MS = 1000L;
+
   /** Maximum time to wait for each rendered frame to be notified. */
   private static final long PER_FRAME_TIMEOUT_MS = 5000L;
 

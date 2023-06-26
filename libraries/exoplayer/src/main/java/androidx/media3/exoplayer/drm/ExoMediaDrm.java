@@ -97,10 +97,12 @@ public interface ExoMediaDrm {
   @UnstableApi
   @SuppressWarnings("InlinedApi")
   int EVENT_KEY_REQUIRED = MediaDrm.EVENT_KEY_REQUIRED;
+
   /** Event indicating that keys have expired, and are no longer usable. */
   @UnstableApi
   @SuppressWarnings("InlinedApi")
   int EVENT_KEY_EXPIRED = MediaDrm.EVENT_KEY_EXPIRED;
+
   /** Event indicating that a certificate needs to be requested from the provisioning server. */
   @UnstableApi
   @SuppressWarnings("InlinedApi")
@@ -113,6 +115,7 @@ public interface ExoMediaDrm {
   @UnstableApi
   @SuppressWarnings("InlinedApi")
   int KEY_TYPE_STREAMING = MediaDrm.KEY_TYPE_STREAMING;
+
   /**
    * Key request type for keys that will be used for offline use. They will be saved to the device
    * for subsequent use when the device is not connected to a network.
@@ -120,6 +123,7 @@ public interface ExoMediaDrm {
   @UnstableApi
   @SuppressWarnings("InlinedApi")
   int KEY_TYPE_OFFLINE = MediaDrm.KEY_TYPE_OFFLINE;
+
   /** Key request type indicating that saved offline keys should be released. */
   @UnstableApi
   @SuppressWarnings("InlinedApi")
@@ -256,15 +260,19 @@ public interface ExoMediaDrm {
 
     /** Key request type for an initial license request. */
     public static final int REQUEST_TYPE_INITIAL = MediaDrm.KeyRequest.REQUEST_TYPE_INITIAL;
+
     /** Key request type for license renewal. */
     public static final int REQUEST_TYPE_RENEWAL = MediaDrm.KeyRequest.REQUEST_TYPE_RENEWAL;
+
     /** Key request type for license release. */
     public static final int REQUEST_TYPE_RELEASE = MediaDrm.KeyRequest.REQUEST_TYPE_RELEASE;
+
     /**
      * Key request type if keys are already loaded and available for use. No license request is
      * necessary, and no key request data is returned.
      */
     public static final int REQUEST_TYPE_NONE = MediaDrm.KeyRequest.REQUEST_TYPE_NONE;
+
     /**
      * Key request type if keys have been loaded, but an additional license request is needed to
      * update their values.

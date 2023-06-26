@@ -65,6 +65,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private boolean isOutputFormatSet;
   private long startTimeOffsetUs;
   private long fragmentedSampleTimeUs;
+
   /**
    * Whether the first packet of a H263 frame is received, it mark the start of a H263 partition. A
    * H263 frame can be split into multiple RTP packets.

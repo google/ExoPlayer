@@ -184,10 +184,13 @@ public final class EditedMediaItem {
 
   /** The {@link MediaItem} on which transformations are applied. */
   public final MediaItem mediaItem;
+
   /** Whether to remove the audio from the {@link #mediaItem}. */
   public final boolean removeAudio;
+
   /** Whether to remove the video from the {@link #mediaItem}. */
   public final boolean removeVideo;
+
   /**
    * Whether to flatten the {@link #mediaItem} if it contains slow motion markers.
    *
@@ -206,11 +209,14 @@ public final class EditedMediaItem {
    * </ul>
    */
   public final boolean flattenForSlowMotion;
+
   /** The duration of the image in the output video, in microseconds. */
   public final long durationUs;
+
   /** The frame rate of the image in the output video, in frames per second. */
   @IntRange(from = 0)
   public final int frameRate;
+
   /** The {@link Effects} to apply to the {@link #mediaItem}. */
   public final Effects effects;
 

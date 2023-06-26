@@ -123,6 +123,7 @@ public final class SampleQueueTest {
   private static final long[] ENCRYPTED_SAMPLE_TIMESTAMPS = new long[] {0, 1000, 2000, 3000};
   private static final Format[] ENCRYPTED_SAMPLE_FORMATS =
       new Format[] {FORMAT_ENCRYPTED, FORMAT_ENCRYPTED, FORMAT_1, FORMAT_ENCRYPTED};
+
   /** Encrypted samples require the encryption preamble. */
   private static final int[] ENCRYPTED_SAMPLE_SIZES = new int[] {1, 3, 1, 3};
 

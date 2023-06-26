@@ -40,12 +40,16 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private static final String TAG = "RtpH265Reader";
   private static final int MEDIA_CLOCK_FREQUENCY = 90_000;
+
   /** Offset of payload data within a FU payload. */
   private static final int FU_PAYLOAD_OFFSET = 3;
+
   /** Aggregation Packet. RFC7798 Section 4.4.2. */
   private static final int RTP_PACKET_TYPE_AP = 48;
+
   /** Fragmentation Unit. RFC7798 Section 4.4.3. */
   private static final int RTP_PACKET_TYPE_FU = 49;
+
   /** IDR NAL unit types. */
   private static final int NAL_IDR_W_RADL = 19;
 
@@ -61,6 +65,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private @C.BufferFlags int bufferFlags;
   private long firstReceivedTimestamp;
   private int previousSequenceNumber;
+
   /** The combined size of a sample that is fragmented into multiple RTP packets. */
   private int fragmentedSampleSizeBytes;
 

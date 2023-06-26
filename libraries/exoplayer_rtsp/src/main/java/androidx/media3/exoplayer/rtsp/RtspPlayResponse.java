@@ -24,8 +24,10 @@ import java.util.List;
 /* package */ final class RtspPlayResponse {
   /** The response's status code. */
   public final int status;
+
   /** The playback start timing, {@link RtspSessionTiming#DEFAULT} if not present. */
   public final RtspSessionTiming sessionTiming;
+
   /** The list of {@link RtspTrackTiming} representing the {@link RtspHeaders#RTP_INFO} header. */
   public final ImmutableList<RtspTrackTiming> trackTimingList;
 

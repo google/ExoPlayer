@@ -43,8 +43,10 @@ public final class UnsupportedDrmException extends Exception {
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({REASON_UNSUPPORTED_SCHEME, REASON_INSTANTIATION_ERROR})
   public @interface Reason {}
+
   /** The requested DRM scheme is unsupported by the device. */
   public static final int REASON_UNSUPPORTED_SCHEME = 1;
+
   /**
    * There device advertises support for the requested DRM scheme, but there was an error
    * instantiating it. The cause can be retrieved using {@link #getCause()}.

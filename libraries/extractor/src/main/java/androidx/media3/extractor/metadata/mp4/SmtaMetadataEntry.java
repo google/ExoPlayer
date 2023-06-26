@@ -37,6 +37,7 @@ public final class SmtaMetadataEntry implements Metadata.Entry {
    * <p>If known, the capture frame rate should always be an integer value.
    */
   public final float captureFrameRate;
+
   /** The number of layers in the SVC extended frames. */
   public final int svcTemporalLayerCount;
 

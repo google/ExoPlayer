@@ -131,38 +131,52 @@ public class DefaultTimeBar extends View implements TimeBar {
 
   /** Default height for the time bar, in dp. */
   public static final int DEFAULT_BAR_HEIGHT_DP = 4;
+
   /** Default height for the touch target, in dp. */
   public static final int DEFAULT_TOUCH_TARGET_HEIGHT_DP = 26;
+
   /** Default width for ad markers, in dp. */
   public static final int DEFAULT_AD_MARKER_WIDTH_DP = 4;
+
   /** Default diameter for the scrubber when enabled, in dp. */
   public static final int DEFAULT_SCRUBBER_ENABLED_SIZE_DP = 12;
+
   /** Default diameter for the scrubber when disabled, in dp. */
   public static final int DEFAULT_SCRUBBER_DISABLED_SIZE_DP = 0;
+
   /** Default diameter for the scrubber when dragged, in dp. */
   public static final int DEFAULT_SCRUBBER_DRAGGED_SIZE_DP = 16;
+
   /** Default color for the played portion of the time bar. */
   public static final int DEFAULT_PLAYED_COLOR = 0xFFFFFFFF;
+
   /** Default color for the unplayed portion of the time bar. */
   public static final int DEFAULT_UNPLAYED_COLOR = 0x33FFFFFF;
+
   /** Default color for the buffered portion of the time bar. */
   public static final int DEFAULT_BUFFERED_COLOR = 0xCCFFFFFF;
+
   /** Default color for the scrubber handle. */
   public static final int DEFAULT_SCRUBBER_COLOR = 0xFFFFFFFF;
+
   /** Default color for ad markers. */
   public static final int DEFAULT_AD_MARKER_COLOR = 0xB2FFFF00;
+
   /** Default color for played ad markers. */
   public static final int DEFAULT_PLAYED_AD_MARKER_COLOR = 0x33FFFF00;
 
   /** Vertical gravity for progress bar to be located at the center in the view. */
   public static final int BAR_GRAVITY_CENTER = 0;
+
   /** Vertical gravity for progress bar to be located at the bottom in the view. */
   public static final int BAR_GRAVITY_BOTTOM = 1;
 
   /** The threshold in dps above the bar at which touch events trigger fine scrub mode. */
   private static final int FINE_SCRUB_Y_THRESHOLD_DP = -50;
+
   /** The ratio by which times are reduced in fine scrub mode. */
   private static final int FINE_SCRUB_RATIO = 3;
+
   /**
    * The time after which the scrubbing listener is notified that scrubbing has stopped after
    * performing an incremental scrub using key input.

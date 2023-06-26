@@ -43,8 +43,10 @@ public interface ExoTrackSelection extends TrackSelection {
   final class Definition {
     /** The {@link TrackGroup} which tracks belong to. */
     public final TrackGroup group;
+
     /** The indices of the selected tracks in {@link #group}. */
     public final int[] tracks;
+
     /** The type that will be returned from {@link TrackSelection#getType()}. */
     public final @Type int type;
 

@@ -26,16 +26,21 @@ public class CacheSpan implements Comparable<CacheSpan> {
 
   /** The cache key that uniquely identifies the resource. */
   public final String key;
+
   /** The position of the {@link CacheSpan} in the resource. */
   public final long position;
+
   /**
    * The length of the {@link CacheSpan}, or {@link C#LENGTH_UNSET} if this is an open-ended hole.
    */
   public final long length;
+
   /** Whether the {@link CacheSpan} is cached. */
   public final boolean isCached;
+
   /** The file corresponding to this {@link CacheSpan}, or null if {@link #isCached} is false. */
   @Nullable public final File file;
+
   /** The last touch timestamp, or {@link C#TIME_UNSET} if {@link #isCached} is false. */
   public final long lastTouchTimestamp;
 

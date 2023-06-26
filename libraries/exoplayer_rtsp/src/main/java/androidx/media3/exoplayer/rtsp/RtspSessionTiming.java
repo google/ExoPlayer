@@ -86,6 +86,7 @@ import java.util.regex.Pattern;
    * always zero.
    */
   public final long startTimeMs;
+
   /**
    * The stop time of the session, in milliseconds, or {@link C#TIME_UNSET} when the stop time is
    * not set, for example when playing a live session.

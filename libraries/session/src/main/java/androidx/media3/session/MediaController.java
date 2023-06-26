@@ -1689,6 +1689,7 @@ public class MediaController implements Player {
     }
     impl.setDeviceVolume(volume, flags);
   }
+
   /**
    * @deprecated Use {@link #increaseDeviceVolume(int)} instead.
    */
@@ -1712,6 +1713,7 @@ public class MediaController implements Player {
     }
     impl.increaseDeviceVolume(flags);
   }
+
   /**
    * @deprecated Use {@link #decreaseDeviceVolume(int)} instead.
    */
@@ -1735,6 +1737,7 @@ public class MediaController implements Player {
     }
     impl.decreaseDeviceVolume(flags);
   }
+
   /**
    * @deprecated Use {@link #setDeviceMuted(boolean, int)} instead.
    */

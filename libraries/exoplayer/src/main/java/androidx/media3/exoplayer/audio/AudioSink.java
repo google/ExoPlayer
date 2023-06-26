@@ -163,8 +163,10 @@ public interface AudioSink {
 
     /** The underlying {@link AudioTrack}'s state. */
     public final int audioTrackState;
+
     /** If the exception can be recovered by recreating the sink. */
     public final boolean isRecoverable;
+
     /** The input {@link Format} of the sink when the error occurs. */
     public final Format format;
 
@@ -212,8 +214,10 @@ public interface AudioSink {
      * Otherwise, the meaning of the error code depends on the sink implementation.
      */
     public final int errorCode;
+
     /** If the exception can be recovered by recreating the sink. */
     public final boolean isRecoverable;
+
     /** The input {@link Format} of the sink when the error occurs. */
     public final Format format;
 
@@ -236,6 +240,7 @@ public interface AudioSink {
   final class UnexpectedDiscontinuityException extends Exception {
     /** The actual presentation time of a sample, in microseconds. */
     public final long actualPresentationTimeUs;
+
     /** The expected presentation time of a sample, in microseconds. */
     public final long expectedPresentationTimeUs;
 
@@ -272,13 +277,16 @@ public interface AudioSink {
     SINK_FORMAT_UNSUPPORTED
   })
   @interface SinkFormatSupport {}
+
   /** The sink supports the format directly, without the need for internal transcoding. */
   int SINK_FORMAT_SUPPORTED_DIRECTLY = 2;
+
   /**
    * The sink supports the format, but needs to transcode it internally to do so. Internal
    * transcoding may result in lower quality and higher CPU load in some cases.
    */
   int SINK_FORMAT_SUPPORTED_WITH_TRANSCODING = 1;
+
   /** The sink does not support the format. */
   int SINK_FORMAT_UNSUPPORTED = 0;
 
@@ -301,6 +309,7 @@ public interface AudioSink {
 
   /** The audio sink will never play in offload mode. */
   int OFFLOAD_MODE_DISABLED = 0;
+
   /**
    * The audio sink will prefer offload playback except in the case where both the track is gapless
    * and the device does support gapless offload playback.
@@ -309,6 +318,7 @@ public interface AudioSink {
    * savings.
    */
   int OFFLOAD_MODE_ENABLED_GAPLESS_REQUIRED = 1;
+
   /**
    * The audio sink will prefer offload playback even if this might result in silence gaps between
    * tracks.

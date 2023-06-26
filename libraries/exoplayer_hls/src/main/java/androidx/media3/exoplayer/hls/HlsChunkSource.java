@@ -107,8 +107,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   /** Indicates that the chunk is based on a preload hint. */
   public static final int CHUNK_PUBLICATION_STATE_PRELOAD = 0;
+
   /** Indicates that the chunk is definitely published. */
   public static final int CHUNK_PUBLICATION_STATE_PUBLISHED = 1;
+
   /**
    * Indicates that the chunk has been removed from the playlist.
    *

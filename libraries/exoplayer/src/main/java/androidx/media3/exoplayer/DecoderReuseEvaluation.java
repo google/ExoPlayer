@@ -47,15 +47,19 @@ public final class DecoderReuseEvaluation {
     REUSE_RESULT_YES_WITHOUT_RECONFIGURATION
   })
   public @interface DecoderReuseResult {}
+
   /** The decoder cannot be reused. */
   public static final int REUSE_RESULT_NO = 0;
+
   /** The decoder can be reused, but must be flushed. */
   public static final int REUSE_RESULT_YES_WITH_FLUSH = 1;
+
   /**
    * The decoder can be reused. It does not need to be flushed, but must be reconfigured by
    * prefixing the next input buffer with the new format's configuration data.
    */
   public static final int REUSE_RESULT_YES_WITH_RECONFIGURATION = 2;
+
   /** The decoder can be kept. It does not need to be flushed and no reconfiguration is required. */
   public static final int REUSE_RESULT_YES_WITHOUT_RECONFIGURATION = 3;
 
@@ -87,34 +91,49 @@ public final class DecoderReuseEvaluation {
 
   /** Decoder reuse is not implemented. */
   public static final int DISCARD_REASON_REUSE_NOT_IMPLEMENTED = 1 << 0;
+
   /** Decoder reuse is disabled by a workaround. */
   public static final int DISCARD_REASON_WORKAROUND = 1 << 1;
+
   /** Decoder reuse is disabled by overriding behavior in application code. */
   public static final int DISCARD_REASON_APP_OVERRIDE = 1 << 2;
+
   /** The sample MIME type is changing. */
   public static final int DISCARD_REASON_MIME_TYPE_CHANGED = 1 << 3;
+
   /** The codec's operating rate is changing. */
   public static final int DISCARD_REASON_OPERATING_RATE_CHANGED = 1 << 4;
+
   /** The format initialization data is changing. */
   public static final int DISCARD_REASON_INITIALIZATION_DATA_CHANGED = 1 << 5;
+
   /** The new format may exceed the decoder's configured maximum sample size, in bytes. */
   public static final int DISCARD_REASON_MAX_INPUT_SIZE_EXCEEDED = 1 << 6;
+
   /** The DRM session is changing. */
   public static final int DISCARD_REASON_DRM_SESSION_CHANGED = 1 << 7;
+
   /** The new format may exceed the decoder's configured maximum resolution. */
   public static final int DISCARD_REASON_VIDEO_MAX_RESOLUTION_EXCEEDED = 1 << 8;
+
   /** The video resolution is changing. */
   public static final int DISCARD_REASON_VIDEO_RESOLUTION_CHANGED = 1 << 9;
+
   /** The video rotation is changing. */
   public static final int DISCARD_REASON_VIDEO_ROTATION_CHANGED = 1 << 10;
+
   /** The video {@link ColorInfo} is changing. */
   public static final int DISCARD_REASON_VIDEO_COLOR_INFO_CHANGED = 1 << 11;
+
   /** The audio channel count is changing. */
   public static final int DISCARD_REASON_AUDIO_CHANNEL_COUNT_CHANGED = 1 << 12;
+
   /** The audio sample rate is changing. */
   public static final int DISCARD_REASON_AUDIO_SAMPLE_RATE_CHANGED = 1 << 13;
+
   /** The audio encoding is changing. */
   public static final int DISCARD_REASON_AUDIO_ENCODING_CHANGED = 1 << 14;
+
   /** The audio bypass mode is possible. */
   public static final int DISCARD_REASON_AUDIO_BYPASS_POSSIBLE = 1 << 15;
 

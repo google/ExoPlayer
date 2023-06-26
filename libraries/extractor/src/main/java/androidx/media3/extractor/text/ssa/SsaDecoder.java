@@ -73,6 +73,7 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
    * <p>Parsed from the {@code PlayResX} value in the {@code [Script Info]} section.
    */
   private float screenWidth;
+
   /**
    * The vertical resolution used by the subtitle author - all cue positions are relative to this.
    *

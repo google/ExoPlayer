@@ -47,8 +47,10 @@ public interface TrackSelection {
       open = true,
       value = {TYPE_UNSET})
   @interface Type {}
+
   /** An unspecified track selection type. */
   int TYPE_UNSET = 0;
+
   /** The first value that can be used for application specific track selection types. */
   int TYPE_CUSTOM_BASE = 10000;
 

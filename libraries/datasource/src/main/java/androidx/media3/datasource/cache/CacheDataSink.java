@@ -122,6 +122,7 @@ public final class CacheDataSink implements DataSink {
 
   /** Default {@code fragmentSize} recommended for caching use cases. */
   public static final long DEFAULT_FRAGMENT_SIZE = 5 * 1024 * 1024;
+
   /** Default buffer size in bytes. */
   public static final int DEFAULT_BUFFER_SIZE = 20 * 1024;
 

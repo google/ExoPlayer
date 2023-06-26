@@ -33,6 +33,7 @@ public abstract class BaseMediaChunk extends MediaChunk {
    * start of the chunk.
    */
   public final long clippedStartTimeUs;
+
   /**
    * The time from which output will end, or {@link C#TIME_UNSET} if output will end at the end of
    * the chunk.

@@ -66,6 +66,7 @@ public final class RtspServer implements Closeable {
   }
 
   private final Thread listenerThread;
+
   /** Runs on the thread on which the constructor was called. */
   private final Handler mainHandler;
 

@@ -24,15 +24,19 @@ public final class ServiceDescriptionElement {
 
   /** The target live offset in milliseconds, or {@link C#TIME_UNSET} if undefined. */
   public final long targetOffsetMs;
+
   /** The minimum live offset in milliseconds, or {@link C#TIME_UNSET} if undefined. */
   public final long minOffsetMs;
+
   /** The maximum live offset in milliseconds, or {@link C#TIME_UNSET} if undefined. */
   public final long maxOffsetMs;
+
   /**
    * The minimum factor by which playback can be sped up for live speed adjustment, or {@link
    * C#RATE_UNSET} if undefined.
    */
   public final float minPlaybackSpeed;
+
   /**
    * The maximum factor by which playback can be sped up for live speed adjustment, or {@link
    * C#RATE_UNSET} if undefined.

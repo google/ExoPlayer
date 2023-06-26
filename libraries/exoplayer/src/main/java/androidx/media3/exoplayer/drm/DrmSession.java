@@ -84,17 +84,22 @@ public interface DrmSession {
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({STATE_RELEASED, STATE_ERROR, STATE_OPENING, STATE_OPENED, STATE_OPENED_WITH_KEYS})
   @interface State {}
+
   /** The session has been released. This is a terminal state. */
   int STATE_RELEASED = 0;
+
   /**
    * The session has encountered an error. {@link #getError()} can be used to retrieve the cause.
    * This is a terminal state.
    */
   int STATE_ERROR = 1;
+
   /** The session is being opened. */
   int STATE_OPENING = 2;
+
   /** The session is open, but does not have keys required for decryption. */
   int STATE_OPENED = 3;
+
   /** The session is open and has keys required for decryption. */
   int STATE_OPENED_WITH_KEYS = 4;
 

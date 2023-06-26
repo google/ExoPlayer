@@ -53,12 +53,16 @@ public final class Ac3Util {
     @Target(TYPE_USE)
     @IntDef({STREAM_TYPE_UNDEFINED, STREAM_TYPE_TYPE0, STREAM_TYPE_TYPE1, STREAM_TYPE_TYPE2})
     public @interface StreamType {}
+
     /** Undefined AC3 stream type. */
     public static final int STREAM_TYPE_UNDEFINED = -1;
+
     /** Type 0 AC3 stream type. */
     public static final int STREAM_TYPE_TYPE0 = 0;
+
     /** Type 1 AC3 stream type. */
     public static final int STREAM_TYPE_TYPE1 = 1;
+
     /** Type 2 AC3 stream type. */
     public static final int STREAM_TYPE_TYPE2 = 2;
 
@@ -67,19 +71,25 @@ public final class Ac3Util {
      * MimeTypes#AUDIO_E_AC3}.
      */
     @Nullable public final String mimeType;
+
     /**
      * The type of the stream if {@link #mimeType} is {@link MimeTypes#AUDIO_E_AC3}, or {@link
      * #STREAM_TYPE_UNDEFINED} otherwise.
      */
     public final @StreamType int streamType;
+
     /** The audio sampling rate in Hz. */
     public final int sampleRate;
+
     /** The number of audio channels */
     public final int channelCount;
+
     /** The size of the frame. */
     public final int frameSize;
+
     /** Number of audio samples in the frame. */
     public final int sampleCount;
+
     /** The bitrate of audio samples. */
     public final int bitrate;
 
@@ -103,8 +113,10 @@ public final class Ac3Util {
 
   /** Maximum rate for an AC-3 audio stream, in bytes per second. */
   public static final int AC3_MAX_RATE_BYTES_PER_SECOND = 640 * 1000 / 8;
+
   /** Maximum rate for an E-AC-3 audio stream, in bytes per second. */
   public static final int E_AC3_MAX_RATE_BYTES_PER_SECOND = 6144 * 1000 / 8;
+
   /** Maximum rate for a TrueHD audio stream, in bytes per second. */
   public static final int TRUEHD_MAX_RATE_BYTES_PER_SECOND = 24500 * 1000 / 8;
 
@@ -114,6 +126,7 @@ public final class Ac3Util {
    * multiple of this value.
    */
   public static final int TRUEHD_RECHUNK_SAMPLE_COUNT = 16;
+
   /**
    * The number of bytes that must be parsed from a TrueHD syncframe to calculate the sample count.
    */
@@ -121,21 +134,28 @@ public final class Ac3Util {
 
   /** The number of new samples per (E-)AC-3 audio block. */
   private static final int AUDIO_SAMPLES_PER_AUDIO_BLOCK = 256;
+
   /** Each syncframe has 6 blocks that provide 256 new audio samples. See subsection 4.1. */
   private static final int AC3_SYNCFRAME_AUDIO_SAMPLE_COUNT = 6 * AUDIO_SAMPLES_PER_AUDIO_BLOCK;
+
   /** Number of audio blocks per E-AC-3 syncframe, indexed by numblkscod. */
   private static final int[] BLOCKS_PER_SYNCFRAME_BY_NUMBLKSCOD = new int[] {1, 2, 3, 6};
+
   /** Sample rates, indexed by fscod. */
   private static final int[] SAMPLE_RATE_BY_FSCOD = new int[] {48000, 44100, 32000};
+
   /** Sample rates, indexed by fscod2 (E-AC-3). */
   private static final int[] SAMPLE_RATE_BY_FSCOD2 = new int[] {24000, 22050, 16000};
+
   /** Channel counts, indexed by acmod. */
   private static final int[] CHANNEL_COUNT_BY_ACMOD = new int[] {2, 1, 2, 3, 3, 4, 4, 5};
+
   /** Nominal bitrates in kbps, indexed by frmsizecod / 2. (See table 4.13.) */
   private static final int[] BITRATE_BY_HALF_FRMSIZECOD =
       new int[] {
         32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 384, 448, 512, 576, 640
       };
+
   /** 16-bit words per syncframe, indexed by frmsizecod / 2. (See table 4.13.) */
   private static final int[] SYNCFRAME_SIZE_WORDS_BY_HALF_FRMSIZECOD_44_1 =
       new int[] {

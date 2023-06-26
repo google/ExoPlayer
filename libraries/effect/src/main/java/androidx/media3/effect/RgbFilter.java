@@ -48,6 +48,7 @@ public class RgbFilter implements RgbMatrix {
   };
 
   private final int colorFilter;
+
   /**
    * Ensures that the usage of HDR is consistent. {@code null} indicates that HDR has not yet been
    * set.

@@ -215,8 +215,10 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
 
   /** No artwork is shown. */
   @UnstableApi public static final int ARTWORK_DISPLAY_MODE_OFF = 0;
+
   /** The artwork is fit into the player view and centered creating a letterbox style. */
   @UnstableApi public static final int ARTWORK_DISPLAY_MODE_FIT = 1;
+
   /**
    * The artwork covers the entire space of the player view. If the aspect ratio of the image is
    * different than the player view some areas of the image are cropped.
@@ -233,13 +235,16 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
   @Target(TYPE_USE)
   @IntDef({SHOW_BUFFERING_NEVER, SHOW_BUFFERING_WHEN_PLAYING, SHOW_BUFFERING_ALWAYS})
   public @interface ShowBuffering {}
+
   /** The buffering view is never shown. */
   @UnstableApi public static final int SHOW_BUFFERING_NEVER = 0;
+
   /**
    * The buffering view is shown when the player is in the {@link Player#STATE_BUFFERING buffering}
    * state and {@link Player#getPlayWhenReady() playWhenReady} is {@code true}.
    */
   @UnstableApi public static final int SHOW_BUFFERING_WHEN_PLAYING = 1;
+
   /**
    * The buffering view is always shown when the player is in the {@link Player#STATE_BUFFERING
    * buffering} state.

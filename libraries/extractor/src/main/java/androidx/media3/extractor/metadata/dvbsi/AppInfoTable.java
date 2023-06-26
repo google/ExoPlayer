@@ -35,6 +35,7 @@ public final class AppInfoTable implements Metadata.Entry {
    * already running.
    */
   public static final int CONTROL_CODE_AUTOSTART = 0x01;
+
   /**
    * The application is allowed to run while the service is selected, however it shall not start
    * automatically when the service becomes selected.

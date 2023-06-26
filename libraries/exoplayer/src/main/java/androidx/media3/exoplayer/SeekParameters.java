@@ -40,13 +40,17 @@ public final class SeekParameters {
 
   /** Parameters for exact seeking. */
   public static final SeekParameters EXACT = new SeekParameters(0, 0);
+
   /** Parameters for seeking to the closest sync point. */
   public static final SeekParameters CLOSEST_SYNC =
       new SeekParameters(Long.MAX_VALUE, Long.MAX_VALUE);
+
   /** Parameters for seeking to the sync point immediately before a requested seek position. */
   public static final SeekParameters PREVIOUS_SYNC = new SeekParameters(Long.MAX_VALUE, 0);
+
   /** Parameters for seeking to the sync point immediately after a requested seek position. */
   public static final SeekParameters NEXT_SYNC = new SeekParameters(0, Long.MAX_VALUE);
+
   /** Default parameters. */
   public static final SeekParameters DEFAULT = EXACT;
 
@@ -55,6 +59,7 @@ public final class SeekParameters {
    * microseconds.
    */
   public final long toleranceBeforeUs;
+
   /**
    * The maximum time that the actual position seeked to may exceed the requested seek position, in
    * microseconds.

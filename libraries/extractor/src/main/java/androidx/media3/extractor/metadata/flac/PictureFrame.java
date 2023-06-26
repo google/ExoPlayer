@@ -33,18 +33,25 @@ public final class PictureFrame implements Metadata.Entry {
 
   /** The type of the picture. */
   public final int pictureType;
+
   /** The MIME type of the picture. */
   public final String mimeType;
+
   /** A description of the picture. */
   public final String description;
+
   /** The width of the picture in pixels. */
   public final int width;
+
   /** The height of the picture in pixels. */
   public final int height;
+
   /** The color depth of the picture in bits-per-pixel. */
   public final int depth;
+
   /** For indexed-color pictures (e.g. GIF), the number of colors used. 0 otherwise. */
   public final int colors;
+
   /** The encoded picture data. */
   public final byte[] pictureData;
 

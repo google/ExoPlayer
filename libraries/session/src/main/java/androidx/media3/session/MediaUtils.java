@@ -110,6 +110,7 @@ import java.util.concurrent.TimeoutException;
 
   public static final String TAG = "MediaUtils";
   public static final int TRANSACTION_SIZE_LIMIT_IN_BYTES = 256 * 1024; // 256KB
+
   /** Constant to identify whether two calculated positions are considered as same */
   public static final long POSITION_DIFF_TOLERANCE_MS = 100;
 

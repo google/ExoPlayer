@@ -45,12 +45,16 @@ public final class AdOverlayInfo {
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({PURPOSE_CONTROLS, PURPOSE_CLOSE_AD, PURPOSE_OTHER, PURPOSE_NOT_VISIBLE})
   public @interface Purpose {}
+
   /** Purpose for playback controls overlaying the player. */
   public static final int PURPOSE_CONTROLS = 1;
+
   /** Purpose for ad close buttons overlaying the player. */
   public static final int PURPOSE_CLOSE_AD = 2;
+
   /** Purpose for other overlays. */
   public static final int PURPOSE_OTHER = 3;
+
   /** Purpose for overlays that are not visible. */
   public static final int PURPOSE_NOT_VISIBLE = 4;
 
@@ -94,8 +98,10 @@ public final class AdOverlayInfo {
 
   /** The overlay view. */
   public final View view;
+
   /** The purpose of the overlay view. */
   public final @Purpose int purpose;
+
   /** An optional, detailed reason that the overlay view is needed. */
   @Nullable public final String reasonDetail;
 

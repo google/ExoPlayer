@@ -78,6 +78,7 @@ public final class Mp3Extractor implements Extractor {
         FLAG_DISABLE_ID3_METADATA
       })
   public @interface Flags {}
+
   /**
    * Flag to force enable seeking using a constant bitrate assumption in cases where seeking would
    * otherwise not be possible.
@@ -85,6 +86,7 @@ public final class Mp3Extractor implements Extractor {
    * <p>This flag is ignored if {@link #FLAG_ENABLE_INDEX_SEEKING} is set.
    */
   public static final int FLAG_ENABLE_CONSTANT_BITRATE_SEEKING = 1;
+
   /**
    * Like {@link #FLAG_ENABLE_CONSTANT_BITRATE_SEEKING}, except that seeking is also enabled in
    * cases where the content length (and hence the duration of the media) is unknown. Application
@@ -113,6 +115,7 @@ public final class Mp3Extractor implements Extractor {
    * </ul>
    */
   public static final int FLAG_ENABLE_INDEX_SEEKING = 1 << 2;
+
   /**
    * Flag to disable parsing of ID3 metadata. Can be set to save memory if ID3 metadata is not
    * required.
@@ -127,10 +130,12 @@ public final class Mp3Extractor implements Extractor {
 
   /** The maximum number of bytes to search when synchronizing, before giving up. */
   private static final int MAX_SYNC_BYTES = 128 * 1024;
+
   /**
    * The maximum number of bytes to peek when sniffing, excluding the ID3 header, before giving up.
    */
   private static final int MAX_SNIFF_BYTES = 32 * 1024;
+
   /** Maximum length of data read into {@link #scratch}. */
   private static final int SCRATCH_LENGTH = 10;
 

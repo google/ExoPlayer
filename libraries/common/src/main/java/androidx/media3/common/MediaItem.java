@@ -818,6 +818,7 @@ public final class MediaItem implements Bundleable {
      * @deprecated Use {@link #forcedSessionTrackTypes}.
      */
     @UnstableApi @Deprecated public final ImmutableList<@C.TrackType Integer> sessionForClearTypes;
+
     /**
      * The types of tracks for which to always use a DRM session even if the content is unencrypted.
      */
@@ -1114,6 +1115,7 @@ public final class MediaItem implements Bundleable {
 
     /** Optional subtitles to be sideloaded. */
     public final ImmutableList<SubtitleConfiguration> subtitleConfigurations;
+
     /**
      * @deprecated Use {@link #subtitleConfigurations} instead.
      */
@@ -1593,16 +1595,22 @@ public final class MediaItem implements Bundleable {
 
     /** The {@link Uri} to the subtitle file. */
     public final Uri uri;
+
     /** The optional MIME type of the subtitle file, or {@code null} if unspecified. */
     @Nullable public final String mimeType;
+
     /** The language. */
     @Nullable public final String language;
+
     /** The selection flags. */
     public final @C.SelectionFlags int selectionFlags;
+
     /** The role flags. */
     public final @C.RoleFlags int roleFlags;
+
     /** The label. */
     @Nullable public final String label;
+
     /**
      * The ID of the subtitles. This will be propagated to the {@link Format#id} of the subtitle
      * track created from this configuration.
@@ -2165,6 +2173,7 @@ public final class MediaItem implements Bundleable {
    * boundaries.
    */
   @Nullable public final LocalConfiguration localConfiguration;
+
   /**
    * @deprecated Use {@link #localConfiguration} instead.
    */
@@ -2178,6 +2187,7 @@ public final class MediaItem implements Bundleable {
 
   /** The clipping properties. */
   public final ClippingConfiguration clippingConfiguration;
+
   /**
    * @deprecated Use {@link #clippingConfiguration} instead.
    */

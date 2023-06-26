@@ -95,6 +95,7 @@ public class ParserException extends IOException {
    * false when a parser encounters a legal condition which it does not support.
    */
   public final boolean contentIsMalformed;
+
   /** The {@link DataType data type} of the parsed bitstream. */
   public final int dataType;
 

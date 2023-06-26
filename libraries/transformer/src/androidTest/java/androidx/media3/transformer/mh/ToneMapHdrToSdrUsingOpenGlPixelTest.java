@@ -54,6 +54,7 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
   private static final String TAG = "ToneMapHdrToSdrGl";
+
   /**
    * Maximum allowed average pixel difference between the expected and actual edited images in
    * on-device pixel difference-based tests. The value is chosen so that differences in behavior
@@ -73,6 +74,7 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
 
   /** Input HLG video of which we only use the first frame. */
   private static final String INPUT_HLG_MP4_ASSET_STRING = "media/mp4/hlg-1080p.mp4";
+
   /** Input PQ video of which we only use the first frame. */
   private static final String INPUT_PQ_MP4_ASSET_STRING = "media/mp4/hdr10-720p.mp4";
 

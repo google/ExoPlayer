@@ -48,6 +48,7 @@ public final class TrackSelectionOverride implements Bundleable {
 
   /** The media {@link TrackGroup} whose {@link #trackIndices} are forced to be selected. */
   public final TrackGroup mediaTrackGroup;
+
   /** The indices of tracks in a {@link TrackGroup} to be selected. */
   public final ImmutableList<Integer> trackIndices;
 

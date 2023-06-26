@@ -43,8 +43,10 @@ import java.util.List;
 
   /** The current {@link Timeline}. */
   public final Timeline timeline;
+
   /** The {@link MediaPeriodId} of the currently playing media period in the {@link #timeline}. */
   public final MediaPeriodId periodId;
+
   /**
    * The requested next start position for the current period in the {@link #timeline}, in
    * microseconds, or {@link C#TIME_UNSET} if the period was requested to start at its default
@@ -54,28 +56,40 @@ import java.util.List;
    * suspended content.
    */
   public final long requestedContentPositionUs;
+
   /** The start position after a reported position discontinuity, in microseconds. */
   public final long discontinuityStartPositionUs;
+
   /** The current playback state. One of the {@link Player}.STATE_ constants. */
   public final @Player.State int playbackState;
+
   /** The current playback error, or null if this is not an error state. */
   @Nullable public final ExoPlaybackException playbackError;
+
   /** Whether the player is currently loading. */
   public final boolean isLoading;
+
   /** The currently available track groups. */
   public final TrackGroupArray trackGroups;
+
   /** The result of the current track selection. */
   public final TrackSelectorResult trackSelectorResult;
+
   /** The current static metadata of the track selections. */
   public final List<Metadata> staticMetadata;
+
   /** The {@link MediaPeriodId} of the currently loading media period in the {@link #timeline}. */
   public final MediaPeriodId loadingMediaPeriodId;
+
   /** Whether playback should proceed when {@link #playbackState} == {@link Player#STATE_READY}. */
   public final boolean playWhenReady;
+
   /** Reason why playback is suppressed even though {@link #playWhenReady} is {@code true}. */
   public final @PlaybackSuppressionReason int playbackSuppressionReason;
+
   /** The playback parameters. */
   public final PlaybackParameters playbackParameters;
+
   /** Whether the main player loop is sleeping, while using offload scheduling. */
   public final boolean sleepingForOffload;
 
@@ -84,16 +98,19 @@ import java.util.List;
    * of the associated period in the {@link #timeline}, in microseconds.
    */
   public volatile long bufferedPositionUs;
+
   /**
    * Total duration of buffered media from {@link #positionUs} to {@link #bufferedPositionUs}
    * including all ads.
    */
   public volatile long totalBufferedDurationUs;
+
   /**
    * Current playback position in {@link #periodId} relative to the start of the associated period
    * in the {@link #timeline}, in microseconds.
    */
   public volatile long positionUs;
+
   /**
    * The value of {@link SystemClock#elapsedRealtime()} when {@link #positionUs} was updated, in
    * milliseconds.

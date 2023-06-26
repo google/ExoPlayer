@@ -42,6 +42,7 @@ public final class DefaultAssetLoaderFactory implements AssetLoader.Factory {
 
   private AssetLoader.@MonotonicNonNull Factory imageAssetLoaderFactory;
   private AssetLoader.@MonotonicNonNull Factory exoPlayerAssetLoaderFactory;
+
   /**
    * Creates an instance.
    *

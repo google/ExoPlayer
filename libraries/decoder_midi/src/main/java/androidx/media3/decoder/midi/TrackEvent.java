@@ -32,6 +32,7 @@ import androidx.media3.common.util.UnstableApi;
 
   /** The length of a MIDI event message in bytes. */
   public static final int MIDI_MESSAGE_LENGTH_BYTES = 3;
+
   /** A default or unset data value. */
   public static final int DATA_FIELD_UNSET = Integer.MIN_VALUE;
 

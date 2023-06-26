@@ -164,11 +164,13 @@ public final class HlsTrackMetadataEntry implements Metadata.Entry {
    * track is not derived from an EXT-X-MEDIA TAG.
    */
   @Nullable public final String groupId;
+
   /**
    * The NAME value of this track, if the track is derived from an EXT-X-MEDIA tag. Null if the
    * track is not derived from an EXT-X-MEDIA TAG.
    */
   @Nullable public final String name;
+
   /**
    * The EXT-X-STREAM-INF tags attributes associated with this track. This field is non-applicable
    * (and therefore empty) if this track is derived from an EXT-X-MEDIA tag.

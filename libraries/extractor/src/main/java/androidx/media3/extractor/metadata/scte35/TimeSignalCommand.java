@@ -27,6 +27,7 @@ public final class TimeSignalCommand extends SpliceCommand {
 
   /** A PTS value, as defined in SCTE35, Section 9.3.4. */
   public final long ptsTime;
+
   /** Equivalent to {@link #ptsTime} but in the playback timebase. */
   public final long playbackPositionUs;
 

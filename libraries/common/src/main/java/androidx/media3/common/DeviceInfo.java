@@ -43,8 +43,10 @@ public final class DeviceInfo implements Bundleable {
     PLAYBACK_TYPE_REMOTE,
   })
   public @interface PlaybackType {}
+
   /** Playback happens on the local device (e.g. phone). */
   public static final int PLAYBACK_TYPE_LOCAL = 0;
+
   /** Playback happens outside of the device (e.g. a cast device). */
   public static final int PLAYBACK_TYPE_REMOTE = 1;
 
@@ -126,12 +128,15 @@ public final class DeviceInfo implements Bundleable {
 
   /** The type of playback. */
   public final @PlaybackType int playbackType;
+
   /** The minimum volume that the device supports. */
   @IntRange(from = 0)
   public final int minVolume;
+
   /** The maximum volume that the device supports, or {@code 0} if unspecified. */
   @IntRange(from = 0)
   public final int maxVolume;
+
   /**
    * The {@linkplain MediaRouter2.RoutingController#getId() routing controller id} of the associated
    * {@link MediaRouter2.RoutingController}, or null if unset or {@link #playbackType} is {@link

@@ -92,6 +92,7 @@ public class FragmentedMp4Extractor implements Extractor {
         FLAG_WORKAROUND_IGNORE_EDIT_LISTS
       })
   public @interface Flags {}
+
   /**
    * Flag to work around an issue in some video streams where every frame is marked as a sync frame.
    * The workaround overrides the sync frame flags in the stream, forcing them to false except for
@@ -100,8 +101,10 @@ public class FragmentedMp4Extractor implements Extractor {
    * <p>This flag does nothing if the stream is not a video stream.
    */
   public static final int FLAG_WORKAROUND_EVERY_VIDEO_FRAME_IS_SYNC_FRAME = 1;
+
   /** Flag to ignore any tfdt boxes in the stream. */
   public static final int FLAG_WORKAROUND_IGNORE_TFDT_BOX = 1 << 1; // 2
+
   /**
    * Flag to indicate that the extractor should output an event message metadata track. Any event
    * messages in the stream will be delivered as samples to this track.

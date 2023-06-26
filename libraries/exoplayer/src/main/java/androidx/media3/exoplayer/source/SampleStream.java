@@ -44,8 +44,10 @@ public interface SampleStream {
       flag = true,
       value = {FLAG_PEEK, FLAG_REQUIRE_FORMAT, FLAG_OMIT_SAMPLE_DATA})
   @interface ReadFlags {}
+
   /** Specifies that the read position should not be advanced if a sample buffer is read. */
   int FLAG_PEEK = 1;
+
   /**
    * Specifies that if a sample buffer would normally be read next, the format of the stream should
    * be read instead. In detail, the effect of this flag is as follows:
@@ -60,6 +62,7 @@ public interface SampleStream {
    * </ul>
    */
   int FLAG_REQUIRE_FORMAT = 1 << 1;
+
   /**
    * Specifies that {@link DecoderInputBuffer#data}, {@link DecoderInputBuffer#supplementalData} and
    * {@link DecoderInputBuffer#cryptoInfo} should not be populated when reading a sample buffer.

@@ -23,8 +23,10 @@ import androidx.media3.common.util.UnstableApi;
 
   /** The response's status code. */
   public final int status;
+
   /** The Session header (RFC2326 Section 12.37). */
   public final RtspMessageUtil.RtspSessionHeader sessionHeader;
+
   /** The Transport header (RFC2326 Section 12.39). */
   public final String transport;
 

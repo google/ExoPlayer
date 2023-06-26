@@ -115,98 +115,145 @@ public class MockPlayer implements Player {
 
   /** Maps to {@link Player#addMediaItem(MediaItem)}. */
   public static final int METHOD_ADD_MEDIA_ITEM = 0;
+
   /** Maps to {@link Player#addMediaItems(List)}. */
   public static final int METHOD_ADD_MEDIA_ITEMS = 1;
+
   /** Maps to {@link Player#addMediaItem(int, MediaItem)}. */
   public static final int METHOD_ADD_MEDIA_ITEM_WITH_INDEX = 2;
+
   /** Maps to {@link Player#addMediaItems(int, List)}. */
   public static final int METHOD_ADD_MEDIA_ITEMS_WITH_INDEX = 3;
+
   /** Maps to {@link Player#clearMediaItems()}. */
   public static final int METHOD_CLEAR_MEDIA_ITEMS = 4;
+
   /** Maps to {@link Player#decreaseDeviceVolume()}. */
   public static final int METHOD_DECREASE_DEVICE_VOLUME = 5;
+
   /** Maps to {@link Player#increaseDeviceVolume()}. */
   public static final int METHOD_INCREASE_DEVICE_VOLUME = 6;
+
   /** Maps to {@link Player#moveMediaItem(int, int)}. */
   public static final int METHOD_MOVE_MEDIA_ITEM = 7;
+
   /** Maps to {@link Player#moveMediaItems(int, int, int)}. */
   public static final int METHOD_MOVE_MEDIA_ITEMS = 8;
+
   /** Maps to {@link Player#pause()}. */
   public static final int METHOD_PAUSE = 9;
+
   /** Maps to {@link Player#play()}. */
   public static final int METHOD_PLAY = 10;
+
   /** Maps to {@link Player#prepare()}. */
   public static final int METHOD_PREPARE = 11;
+
   /** Maps to {@link Player#release()}. */
   public static final int METHOD_RELEASE = 12;
+
   /** Maps to {@link Player#removeMediaItem(int)}. */
   public static final int METHOD_REMOVE_MEDIA_ITEM = 13;
+
   /** Maps to {@link Player#removeMediaItems(int, int)}. */
   public static final int METHOD_REMOVE_MEDIA_ITEMS = 14;
+
   /** Maps to {@link Player#seekBack()}. */
   public static final int METHOD_SEEK_BACK = 15;
+
   /** Maps to {@link Player#seekForward()}. */
   public static final int METHOD_SEEK_FORWARD = 16;
+
   /** Maps to {@link Player#seekTo(long)}. */
   public static final int METHOD_SEEK_TO = 17;
+
   /** Maps to {@link Player#seekToDefaultPosition()}. */
   public static final int METHOD_SEEK_TO_DEFAULT_POSITION = 18;
+
   /** Maps to {@link Player#seekToDefaultPosition(int)}. */
   public static final int METHOD_SEEK_TO_DEFAULT_POSITION_WITH_MEDIA_ITEM_INDEX = 19;
+
   /** Maps to {@link Player#seekToNext()}. */
   public static final int METHOD_SEEK_TO_NEXT = 20;
+
   /** Maps to {@link Player#seekToNextMediaItem()}. */
   public static final int METHOD_SEEK_TO_NEXT_MEDIA_ITEM = 21;
+
   /** Maps to {@link Player#seekToPrevious()}. */
   public static final int METHOD_SEEK_TO_PREVIOUS = 22;
+
   /** Maps to {@link Player#seekToPreviousMediaItem()}. */
   public static final int METHOD_SEEK_TO_PREVIOUS_MEDIA_ITEM = 23;
+
   /** Maps to {@link Player#seekTo(int, long)}. */
   public static final int METHOD_SEEK_TO_WITH_MEDIA_ITEM_INDEX = 24;
+
   /** Maps to {@link Player#setDeviceMuted(boolean)}. */
   public static final int METHOD_SET_DEVICE_MUTED = 25;
+
   /** Maps to {@link Player#setDeviceVolume(int)}. */
   public static final int METHOD_SET_DEVICE_VOLUME = 26;
+
   /** Maps to {@link Player#setMediaItem(MediaItem)}. */
   public static final int METHOD_SET_MEDIA_ITEM = 27;
+
   /** Maps to {@link Player#setMediaItem(MediaItem, boolean)}. */
   public static final int METHOD_SET_MEDIA_ITEM_WITH_RESET_POSITION = 28;
+
   /** Maps to {@link Player#setMediaItem(MediaItem, long)}. */
   public static final int METHOD_SET_MEDIA_ITEM_WITH_START_POSITION = 29;
+
   /** Maps to {@link Player#setMediaItems(List)}. */
   public static final int METHOD_SET_MEDIA_ITEMS = 30;
+
   /** Maps to {@link Player#setMediaItems(List, boolean)}. */
   public static final int METHOD_SET_MEDIA_ITEMS_WITH_RESET_POSITION = 31;
+
   /** Maps to {@link Player#setMediaItems(List, int, long)}. */
   public static final int METHOD_SET_MEDIA_ITEMS_WITH_START_INDEX = 32;
+
   /** Maps to {@link Player#setPlayWhenReady(boolean)}. */
   public static final int METHOD_SET_PLAY_WHEN_READY = 33;
+
   /** Maps to {@link Player#setPlaybackParameters(PlaybackParameters)}. */
   public static final int METHOD_SET_PLAYBACK_PARAMETERS = 34;
+
   /** Maps to {@link Player#setPlaybackSpeed(float)}. */
   public static final int METHOD_SET_PLAYBACK_SPEED = 35;
+
   /** Maps to {@link Player#setPlaylistMetadata(MediaMetadata)}. */
   public static final int METHOD_SET_PLAYLIST_METADATA = 36;
+
   /** Maps to {@link Player#setRepeatMode(int)}. */
   public static final int METHOD_SET_REPEAT_MODE = 37;
+
   /** Maps to {@link Player#setShuffleModeEnabled(boolean)}. */
   public static final int METHOD_SET_SHUFFLE_MODE = 38;
+
   /** Maps to {@link Player#setTrackSelectionParameters(TrackSelectionParameters)}. */
   public static final int METHOD_SET_TRACK_SELECTION_PARAMETERS = 39;
+
   /** Maps to {@link Player#setVolume(float)}. */
   public static final int METHOD_SET_VOLUME = 40;
+
   /** Maps to {@link Player#stop()}. */
   public static final int METHOD_STOP = 41;
+
   /** Maps to {@link Player#decreaseDeviceVolume(int)}. */
   public static final int METHOD_DECREASE_DEVICE_VOLUME_WITH_FLAGS = 42;
+
   /** Maps to {@link Player#increaseDeviceVolume(int)}. */
   public static final int METHOD_INCREASE_DEVICE_VOLUME_WITH_FLAGS = 43;
+
   /** Maps to {@link Player#setDeviceMuted(boolean, int)}. */
   public static final int METHOD_SET_DEVICE_MUTED_WITH_FLAGS = 44;
+
   /** Maps to {@link Player#setDeviceVolume(int, int)}. */
   public static final int METHOD_SET_DEVICE_VOLUME_WITH_FLAGS = 45;
+
   /** Maps to {@link Player#replaceMediaItem(int, MediaItem)}. */
   public static final int METHOD_REPLACE_MEDIA_ITEM = 46;
+
   /** Maps to {@link Player#replaceMediaItems(int, int, List)} . */
   public static final int METHOD_REPLACE_MEDIA_ITEMS = 47;
 

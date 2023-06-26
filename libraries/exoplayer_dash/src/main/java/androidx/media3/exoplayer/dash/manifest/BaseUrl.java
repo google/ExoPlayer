@@ -25,17 +25,22 @@ public final class BaseUrl {
 
   /** The default weight. */
   public static final int DEFAULT_WEIGHT = 1;
+
   /** The default priority. */
   public static final int DEFAULT_DVB_PRIORITY = 1;
+
   /** Constant representing an unset priority in a manifest that does not declare a DVB profile. */
   public static final int PRIORITY_UNSET = Integer.MIN_VALUE;
 
   /** The URL. */
   public final String url;
+
   /** The service location. */
   public final String serviceLocation;
+
   /** The priority. */
   public final int priority;
+
   /** The weight. */
   public final int weight;
 

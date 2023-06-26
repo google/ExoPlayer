@@ -83,9 +83,11 @@ import java.util.concurrent.Executors;
 public class MockMediaLibraryService extends MediaLibraryService {
   /** ID of the session that this service will create. */
   public static final String ID = "TestLibrary";
+
   /** Key used in connection hints to instruct the mock service to use a given library root. */
   public static final String CONNECTION_HINTS_CUSTOM_LIBRARY_ROOT =
       "CONNECTION_HINTS_CUSTOM_LIBRARY_ROOT";
+
   /**
    * Key used in connection hints to instruct the mock service to remove {@link
    * SessionCommand#COMMAND_CODE_LIBRARY_SEARCH} from the available commands in {@link

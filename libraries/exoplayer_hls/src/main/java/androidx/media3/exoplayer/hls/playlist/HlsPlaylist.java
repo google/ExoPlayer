@@ -26,8 +26,10 @@ public abstract class HlsPlaylist implements FilterableManifest<HlsPlaylist> {
 
   /** The base uri. Used to resolve relative paths. */
   public final String baseUri;
+
   /** The list of tags in the playlist. */
   public final List<String> tags;
+
   /**
    * Whether the media is formed of independent segments, as defined by the
    * #EXT-X-INDEPENDENT-SEGMENTS tag.

@@ -182,8 +182,10 @@ public final class CachedRegionTracker implements Cache.Listener {
 
     /** The first byte of the region (inclusive). */
     public long startOffset;
+
     /** End offset of the region (exclusive). */
     public long endOffset;
+
     /**
      * The index in chunkIndex that contains the end offset. May be -1 if the end offset comes
      * before the start of the first media chunk (i.e. if the end offset is within the stream

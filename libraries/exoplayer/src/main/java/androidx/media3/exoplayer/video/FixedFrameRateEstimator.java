@@ -27,6 +27,7 @@ import java.util.Arrays;
 
   /** The number of consecutive matching frame durations required to detect a fixed frame rate. */
   public static final int CONSECUTIVE_MATCHING_FRAME_DURATIONS_FOR_SYNC = 15;
+
   /**
    * The maximum amount frame durations can differ for them to be considered matching, in
    * nanoseconds.
@@ -140,10 +141,13 @@ import java.util.Arrays;
 
     /** The total number of frames that have matched the frame duration being tracked. */
     private long matchingFrameCount;
+
     /** The sum of the frame durations of all matching frames. */
     private long matchingFrameDurationSumNs;
+
     /** Cyclic buffer of flags indicating whether the most recent frame durations were outliers. */
     private final boolean[] recentFrameOutlierFlags;
+
     /**
      * The number of recent frame durations that were outliers. Equal to the number of {@code true}
      * values in {@link #recentFrameOutlierFlags}.

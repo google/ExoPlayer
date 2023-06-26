@@ -686,14 +686,19 @@ public final class Format implements Bundleable {
 
   /** An identifier for the format, or null if unknown or not applicable. */
   @Nullable public final String id;
+
   /** The human readable label, or null if unknown or not applicable. */
   @Nullable public final String label;
+
   /** The language as an IETF BCP 47 conformant tag, or null if unknown or not applicable. */
   @Nullable public final String language;
+
   /** Track selection flags. */
   public final @C.SelectionFlags int selectionFlags;
+
   /** Track role flags. */
   public final @C.RoleFlags int roleFlags;
+
   /**
    * The average bitrate in bits per second, or {@link #NO_VALUE} if unknown or not applicable. The
    * way in which this field is populated depends on the type of media to which the format
@@ -716,6 +721,7 @@ public final class Format implements Bundleable {
    * </ul>
    */
   @UnstableApi public final int averageBitrate;
+
   /**
    * The peak bitrate in bits per second, or {@link #NO_VALUE} if unknown or not applicable. The way
    * in which this field is populated depends on the type of media to which the format corresponds:
@@ -735,14 +741,17 @@ public final class Format implements Bundleable {
    * </ul>
    */
   @UnstableApi public final int peakBitrate;
+
   /**
    * The bitrate in bits per second. This is the peak bitrate if known, or else the average bitrate
    * if known, or else {@link Format#NO_VALUE}. Equivalent to: {@code peakBitrate != NO_VALUE ?
    * peakBitrate : averageBitrate}.
    */
   @UnstableApi public final int bitrate;
+
   /** Codecs of the format as described in RFC 6381, or null if unknown or not applicable. */
   @Nullable public final String codecs;
+
   /** Metadata, or null if unknown or not applicable. */
   @UnstableApi @Nullable public final Metadata metadata;
 
@@ -755,16 +764,19 @@ public final class Format implements Bundleable {
 
   /** The sample MIME type, or null if unknown or not applicable. */
   @Nullable public final String sampleMimeType;
+
   /**
    * The maximum size of a buffer of data (typically one sample), or {@link #NO_VALUE} if unknown or
    * not applicable.
    */
   @UnstableApi public final int maxInputSize;
+
   /**
    * Initialization data that must be provided to the decoder. Will not be null, but may be empty if
    * initialization data is not required.
    */
   @UnstableApi public final List<byte[]> initializationData;
+
   /** DRM initialization data if the stream is protected, or null otherwise. */
   @UnstableApi @Nullable public final DrmInitData drmInitData;
 
@@ -779,25 +791,32 @@ public final class Format implements Bundleable {
 
   /** The width of the video in pixels, or {@link #NO_VALUE} if unknown or not applicable. */
   public final int width;
+
   /** The height of the video in pixels, or {@link #NO_VALUE} if unknown or not applicable. */
   public final int height;
+
   /** The frame rate in frames per second, or {@link #NO_VALUE} if unknown or not applicable. */
   public final float frameRate;
+
   /**
    * The clockwise rotation that should be applied to the video for it to be rendered in the correct
    * orientation, or 0 if unknown or not applicable. Only 0, 90, 180 and 270 are supported.
    */
   @UnstableApi public final int rotationDegrees;
+
   /** The width to height ratio of pixels in the video, or 1.0 if unknown or not applicable. */
   public final float pixelWidthHeightRatio;
+
   /** The projection data for 360/VR video, or null if not applicable. */
   @UnstableApi @Nullable public final byte[] projectionData;
+
   /**
    * The stereo layout for 360/3D/VR video, or {@link #NO_VALUE} if not applicable. Valid stereo
    * modes are {@link C#STEREO_MODE_MONO}, {@link C#STEREO_MODE_TOP_BOTTOM}, {@link
    * C#STEREO_MODE_LEFT_RIGHT}, {@link C#STEREO_MODE_STEREO_MESH}.
    */
   @UnstableApi public final @C.StereoMode int stereoMode;
+
   /** The color metadata associated with the video, or null if not applicable. */
   @UnstableApi @Nullable public final ColorInfo colorInfo;
 
@@ -805,15 +824,19 @@ public final class Format implements Bundleable {
 
   /** The number of audio channels, or {@link #NO_VALUE} if unknown or not applicable. */
   public final int channelCount;
+
   /** The audio sampling rate in Hz, or {@link #NO_VALUE} if unknown or not applicable. */
   public final int sampleRate;
+
   /** The {@link C.PcmEncoding} for PCM audio. Set to {@link #NO_VALUE} for other media types. */
   @UnstableApi public final @C.PcmEncoding int pcmEncoding;
+
   /**
    * The number of frames to trim from the start of the decoded audio stream, or 0 if not
    * applicable.
    */
   @UnstableApi public final int encoderDelay;
+
   /**
    * The number of frames to trim from the end of the decoded audio stream, or 0 if not applicable.
    */
@@ -830,6 +853,7 @@ public final class Format implements Bundleable {
    * The number of horizontal tiles in an image, or {@link #NO_VALUE} if not known or applicable.
    */
   @UnstableApi public final int tileCountHorizontal;
+
   /** The number of vertical tiles in an image, or {@link #NO_VALUE} if not known or applicable. */
   @UnstableApi public final int tileCountVertical;
 

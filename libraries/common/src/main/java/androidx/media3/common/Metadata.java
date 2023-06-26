@@ -59,6 +59,7 @@ public final class Metadata implements Parcelable {
   }
 
   private final Entry[] entries;
+
   /**
    * The presentation time of the metadata, in microseconds.
    *

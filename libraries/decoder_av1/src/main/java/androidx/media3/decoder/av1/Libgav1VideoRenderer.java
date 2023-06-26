@@ -47,6 +47,7 @@ public class Libgav1VideoRenderer extends DecoderVideoRenderer {
   private static final String TAG = "Libgav1VideoRenderer";
   private static final int DEFAULT_NUM_OF_INPUT_BUFFERS = 4;
   private static final int DEFAULT_NUM_OF_OUTPUT_BUFFERS = 4;
+
   /**
    * Default input buffer size in bytes, based on 720p resolution video compressed by a factor of
    * two.
@@ -56,6 +57,7 @@ public class Libgav1VideoRenderer extends DecoderVideoRenderer {
 
   /** The number of input buffers. */
   private final int numInputBuffers;
+
   /**
    * The number of output buffers. The renderer may limit the minimum possible value due to
    * requiring multiple output buffers to be dequeued at a time for it to make progress.

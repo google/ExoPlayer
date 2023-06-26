@@ -51,6 +51,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 public final class SimpleCache implements Cache {
 
   private static final String TAG = "SimpleCache";
+
   /**
    * Cache files are distributed between a number of subdirectories. This helps to avoid poor
    * performance in cases where the performance of the underlying file system (e.g. FAT32) scales

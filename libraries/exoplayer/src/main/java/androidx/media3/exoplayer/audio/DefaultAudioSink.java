@@ -194,6 +194,7 @@ public final class DefaultAudioSink implements AudioSink {
     /** Default instance. */
     AudioTrackBufferSizeProvider DEFAULT =
         new DefaultAudioTrackBufferSizeProvider.Builder().build();
+
     /**
      * Returns the buffer size to use when creating an {@link AudioTrack} for a specific format and
      * output mode.
@@ -404,12 +405,16 @@ public final class DefaultAudioSink implements AudioSink {
 
   /** The default playback speed. */
   public static final float DEFAULT_PLAYBACK_SPEED = 1f;
+
   /** The minimum allowed playback speed. Lower values will be constrained to fall in range. */
   public static final float MIN_PLAYBACK_SPEED = 0.1f;
+
   /** The maximum allowed playback speed. Higher values will be constrained to fall in range. */
   public static final float MAX_PLAYBACK_SPEED = 8f;
+
   /** The minimum allowed pitch factor. Lower values will be constrained to fall in range. */
   public static final float MIN_PITCH = 0.1f;
+
   /** The maximum allowed pitch factor. Higher values will be constrained to fall in range. */
   public static final float MAX_PITCH = 8f;
 
@@ -425,8 +430,10 @@ public final class DefaultAudioSink implements AudioSink {
 
   /** The audio sink plays PCM audio. */
   public static final int OUTPUT_MODE_PCM = 0;
+
   /** The audio sink plays encoded audio in offload. */
   public static final int OUTPUT_MODE_OFFLOAD = 1;
+
   /** The audio sink plays encoded audio in passthrough. */
   public static final int OUTPUT_MODE_PASSTHROUGH = 2;
 
@@ -1874,8 +1881,10 @@ public final class DefaultAudioSink implements AudioSink {
 
     /** The playback parameters. */
     public final PlaybackParameters playbackParameters;
+
     /** The media time from which the playback parameters apply, in microseconds. */
     public final long mediaTimeUs;
+
     /** The audio track position from which the playback parameters apply, in microseconds. */
     public final long audioTrackPositionUs;
 

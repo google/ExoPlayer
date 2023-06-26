@@ -37,6 +37,7 @@ public final class Effects {
    * AudioProcessor} if it {@link AudioProcessor#isActive()} based on the current configuration.
    */
   public final ImmutableList<AudioProcessor> audioProcessors;
+
   /**
    * The list of {@linkplain Effect video effects} to apply to each frame. They are applied in the
    * order of the list.

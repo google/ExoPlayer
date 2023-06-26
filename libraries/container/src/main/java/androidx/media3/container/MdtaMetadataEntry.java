@@ -35,17 +35,22 @@ public final class MdtaMetadataEntry implements Metadata.Entry {
 
   /** The type indicator for UTF-8 string. */
   public static final int TYPE_INDICATOR_STRING = 1;
+
   /** The type indicator for Float32. */
   public static final int TYPE_INDICATOR_FLOAT32 = 23;
+
   /** The type indicator for 32-bit signed integer. */
   public static final int TYPE_INDICATOR_INT32 = 67;
 
   /** The metadata key name. */
   public final String key;
+
   /** The payload. The interpretation of the value depends on {@link #typeIndicator}. */
   public final byte[] value;
+
   /** The four byte locale indicator. */
   public final int localeIndicator;
+
   /** The four byte type indicator. */
   public final int typeIndicator;
 

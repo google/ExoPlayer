@@ -71,6 +71,7 @@ public final class AudioProcessingPipeline {
 
   /** The {@link AudioProcessor} instances passed to {@link AudioProcessingPipeline}. */
   private final ImmutableList<AudioProcessor> audioProcessors;
+
   /**
    * The processors that are {@linkplain AudioProcessor#isActive() active} based on the current
    * configuration.
@@ -82,10 +83,13 @@ public final class AudioProcessingPipeline {
    * as {@link #activeAudioProcessors}.
    */
   private ByteBuffer[] outputBuffers;
+
   /** The {@link AudioFormat} currently being output by the pipeline. */
   private AudioFormat outputAudioFormat;
+
   /** The {@link AudioFormat} that will be output following a {@link #flush()}. */
   private AudioFormat pendingOutputAudioFormat;
+
   /** Whether input has ended, either due to configuration change or end of stream. */
   private boolean inputEnded;
 

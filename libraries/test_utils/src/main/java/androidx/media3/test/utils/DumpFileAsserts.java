@@ -60,8 +60,10 @@ public class DumpFileAsserts {
       flag = true,
       value = {COMPARE_WITH_EXISTING, WRITE_TO_LOCAL, WRITE_TO_DEVICE})
   private @interface DumpFilesAction {}
+
   /** Compare output with existing dump file. */
   private static final int COMPARE_WITH_EXISTING = 0;
+
   /**
    * Write output to the project folder {@code testdata/src/test}.
    *
@@ -69,6 +71,7 @@ public class DumpFileAsserts {
    * tests are run in another environment.
    */
   private static final int WRITE_TO_LOCAL = 1;
+
   /** Write output to folder {@code /storage/emulated/0/Android/data} of device. */
   private static final int WRITE_TO_DEVICE = 1 << 1;
 

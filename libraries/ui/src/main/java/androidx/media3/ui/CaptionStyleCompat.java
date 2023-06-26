@@ -51,14 +51,19 @@ public final class CaptionStyleCompat {
     EDGE_TYPE_DEPRESSED
   })
   public @interface EdgeType {}
+
   /** Edge type value specifying no character edges. */
   public static final int EDGE_TYPE_NONE = 0;
+
   /** Edge type value specifying uniformly outlined character edges. */
   public static final int EDGE_TYPE_OUTLINE = 1;
+
   /** Edge type value specifying drop-shadowed character edges. */
   public static final int EDGE_TYPE_DROP_SHADOW = 2;
+
   /** Edge type value specifying raised bevel character edges. */
   public static final int EDGE_TYPE_RAISED = 3;
+
   /** Edge type value specifying depressed bevel character edges. */
   public static final int EDGE_TYPE_DEPRESSED = 4;
 

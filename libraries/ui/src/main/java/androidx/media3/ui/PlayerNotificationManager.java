@@ -613,20 +613,28 @@ public class PlayerNotificationManager {
 
   /** The action which starts playback. */
   public static final String ACTION_PLAY = "androidx.media3.ui.notification.play";
+
   /** The action which pauses playback. */
   public static final String ACTION_PAUSE = "androidx.media3.ui.notification.pause";
+
   /** The action which skips to the previous media item. */
   public static final String ACTION_PREVIOUS = "androidx.media3.ui.notification.prev";
+
   /** The action which skips to the next media item. */
   public static final String ACTION_NEXT = "androidx.media3.ui.notification.next";
+
   /** The action which fast forwards. */
   public static final String ACTION_FAST_FORWARD = "androidx.media3.ui.notification.ffwd";
+
   /** The action which rewinds. */
   public static final String ACTION_REWIND = "androidx.media3.ui.notification.rewind";
+
   /** The action which stops playback. */
   public static final String ACTION_STOP = "androidx.media3.ui.notification.stop";
+
   /** The extra key of the instance id of the player notification manager. */
   public static final String EXTRA_INSTANCE_ID = "INSTANCE_ID";
+
   /**
    * The action which is executed when the notification is dismissed. It cancels the notification
    * and calls {@link NotificationListener#onNotificationCancelled(int, boolean)}.

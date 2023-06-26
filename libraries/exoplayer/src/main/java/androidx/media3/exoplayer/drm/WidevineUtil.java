@@ -27,6 +27,7 @@ public final class WidevineUtil {
 
   /** Widevine specific key status field name for the remaining license duration, in seconds. */
   public static final String PROPERTY_LICENSE_DURATION_REMAINING = "LicenseDurationRemaining";
+
   /** Widevine specific key status field name for the remaining playback duration, in seconds. */
   public static final String PROPERTY_PLAYBACK_DURATION_REMAINING = "PlaybackDurationRemaining";
 

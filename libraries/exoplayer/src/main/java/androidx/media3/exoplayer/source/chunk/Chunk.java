@@ -39,28 +39,35 @@ public abstract class Chunk implements Loadable {
 
   /** Identifies the load task for this loadable. */
   public final long loadTaskId;
+
   /** The {@link DataSpec} that defines the data to be loaded. */
   public final DataSpec dataSpec;
+
   /** The {@link DataType data type} of the chunk. For reporting only. */
   public final @DataType int type;
+
   /** The format of the track to which this chunk belongs. */
   public final Format trackFormat;
+
   /**
    * One of the {@link C.SelectionReason selection reasons} if the chunk belongs to a track. {@link
    * C#SELECTION_REASON_UNKNOWN} if the chunk does not belong to a track, or if the selection reason
    * is unknown.
    */
   public final @C.SelectionReason int trackSelectionReason;
+
   /**
    * Optional data associated with the selection of the track to which this chunk belongs. Null if
    * the chunk does not belong to a track, or if there is no associated track selection data.
    */
   @Nullable public final Object trackSelectionData;
+
   /**
    * The start time of the media contained by the chunk, or {@link C#TIME_UNSET} if the data being
    * loaded does not contain media samples.
    */
   public final long startTimeUs;
+
   /**
    * The end time of the media contained by the chunk, or {@link C#TIME_UNSET} if the data being
    * loaded does not contain media samples.

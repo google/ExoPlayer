@@ -158,15 +158,19 @@ public final class RtpPacket {
 
   /** The RTP version field (Word 0, bits 0-1), should always be 2. */
   public final byte version = RTP_VERSION;
+
   /** The RTP padding bit (Word 0, bit 2). */
   public final boolean padding;
+
   /** The RTP extension bit (Word 0, bit 3). */
   public final boolean extension;
+
   /** The RTP CSRC count field (Word 0, bits 4-7). */
   public final byte csrcCount;
 
   /** The RTP marker bit (Word 0, bit 8). */
   public final boolean marker;
+
   /** The RTP CSRC count field (Word 0, bits 9-15). */
   public final byte payloadType;
 

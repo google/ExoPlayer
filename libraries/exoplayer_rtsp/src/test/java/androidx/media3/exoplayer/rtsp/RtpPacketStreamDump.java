@@ -27,14 +27,19 @@ import org.json.JSONObject;
 /* package */ class RtpPacketStreamDump {
   /** The name of the RTP track. */
   public final String trackName;
+
   /** The sequence number of the first RTP packet in the dump file. */
   public final int firstSequenceNumber;
+
   /** The timestamp of the first RTP packet in the dump file. */
   public final long firstTimestamp;
+
   /** The interval between transmitting two consecutive RTP packets, in milliseconds. */
   public final long transmissionIntervalMs;
+
   /** The description of the dumped media in SDP(RFC2327) format. */
   public final String mediaDescription;
+
   /** A list of hex strings. Each hex string represents a binary RTP packet. */
   public final ImmutableList<String> packets;
 

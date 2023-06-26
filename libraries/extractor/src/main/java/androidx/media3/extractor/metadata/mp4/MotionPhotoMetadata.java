@@ -30,14 +30,18 @@ public final class MotionPhotoMetadata implements Metadata.Entry {
 
   /** The start offset of the photo data, in bytes. */
   public final long photoStartPosition;
+
   /** The size of the photo data, in bytes. */
   public final long photoSize;
+
   /**
    * The presentation timestamp of the photo, in microseconds, or {@link C#TIME_UNSET} if unknown.
    */
   public final long photoPresentationTimestampUs;
+
   /** The start offset of the video data, in bytes. */
   public final long videoStartPosition;
+
   /** The size of the video data, in bytes. */
   public final long videoSize;
 

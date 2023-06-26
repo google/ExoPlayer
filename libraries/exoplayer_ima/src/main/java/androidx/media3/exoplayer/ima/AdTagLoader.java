@@ -103,11 +103,13 @@ import java.util.Map;
    * player buffers, in milliseconds.
    */
   private static final long THRESHOLD_END_OF_CONTENT_MS = 5000;
+
   /**
    * Threshold before the start of an ad at which IMA is expected to be able to preload the ad, in
    * milliseconds.
    */
   private static final long THRESHOLD_AD_PRELOAD_MS = 4000;
+
   /** The threshold below which ad cue points are treated as matching, in microseconds. */
   private static final long THRESHOLD_AD_MATCH_US = 1000;
 
@@ -120,11 +122,13 @@ import java.util.Map;
 
   /** The ad playback state when IMA is not playing an ad. */
   private static final int IMA_AD_STATE_NONE = 0;
+
   /**
    * The ad playback state when IMA has called {@link ComponentListener#playAd(AdMediaInfo)} and not
    * {@link ComponentListener##pauseAd(AdMediaInfo)}.
    */
   private static final int IMA_AD_STATE_PLAYING = 1;
+
   /**
    * The ad playback state when IMA has called {@link ComponentListener#pauseAd(AdMediaInfo)} while
    * playing an ad.
@@ -166,12 +170,16 @@ import java.util.Map;
 
   /** Whether IMA has sent an ad event to pause content since the last resume content event. */
   private boolean imaPausedContent;
+
   /** The current ad playback state. */
   private @ImaAdState int imaAdState;
+
   /** The current ad media info, or {@code null} if in state {@link #IMA_AD_STATE_NONE}. */
   @Nullable private AdMediaInfo imaAdMediaInfo;
+
   /** The current ad info, or {@code null} if in state {@link #IMA_AD_STATE_NONE}. */
   @Nullable private AdInfo imaAdInfo;
+
   /** Whether IMA has been notified that playback of content has finished. */
   private boolean sentContentComplete;
 
@@ -179,18 +187,22 @@ import java.util.Map;
 
   /** Whether the player is playing an ad. */
   private boolean playingAd;
+
   /** Whether the player is buffering an ad. */
   private boolean bufferingAd;
+
   /**
    * If the player is playing an ad, stores the ad index in its ad group. {@link C#INDEX_UNSET}
    * otherwise.
    */
   private int playingAdIndexInAdGroup;
+
   /**
    * The ad info for a pending ad for which the media failed preparation, or {@code null} if no
    * pending ads have failed to prepare.
    */
   @Nullable private AdInfo pendingAdPrepareErrorAdInfo;
+
   /**
    * If a content period has finished but IMA has not yet called {@link
    * ComponentListener#playAd(AdMediaInfo)}, stores the value of {@link
@@ -198,18 +210,22 @@ import java.util.Map;
    * a fake, increasing content position. {@link C#TIME_UNSET} otherwise.
    */
   private long fakeContentProgressElapsedRealtimeMs;
+
   /**
    * If {@link #fakeContentProgressElapsedRealtimeMs} is set, stores the offset from which the
    * content progress should increase. {@link C#TIME_UNSET} otherwise.
    */
   private long fakeContentProgressOffsetMs;
+
   /** Stores the pending content position when a seek operation was intercepted to play an ad. */
   private long pendingContentPositionMs;
+
   /**
    * Whether {@link ComponentListener#getContentProgress()} has sent {@link
    * #pendingContentPositionMs} to IMA.
    */
   private boolean sentPendingContentPositionMs;
+
   /**
    * Stores the real time in milliseconds at which the player started buffering, possibly due to not
    * having preloaded an ad, or {@link C#TIME_UNSET} if not applicable.

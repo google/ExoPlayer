@@ -43,14 +43,18 @@ import java.util.Arrays;
 
     /** The duration of the item in microseconds, or {@link C#TIME_UNSET} if unknown. */
     public final long durationUs;
+
     /**
      * The default start position of the item in microseconds, or {@link C#TIME_UNSET} if unknown.
      */
     public final long defaultPositionUs;
+
     /** Whether the item is live content, or {@code false} if unknown. */
     public final boolean isLive;
+
     /** The original media item that has been set or added to the playlist. */
     public final MediaItem mediaItem;
+
     /** The {@linkplain MediaInfo#getContentId() content ID} of the cast media queue item. */
     public final String contentId;
 

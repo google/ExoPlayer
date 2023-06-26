@@ -62,10 +62,13 @@ import java.util.HashMap;
 
     /** The assigned RTP payload type. */
     public final int payloadType;
+
     /** The encoding method used in the RTP stream. */
     public final String mediaEncoding;
+
     /** The clock rate used in the RTP stream. */
     public final int clockRate;
+
     /** The optional encoding parameter. */
     public final int encodingParameters;
 
@@ -271,31 +274,43 @@ import java.util.HashMap;
   @StringDef({MEDIA_TYPE_VIDEO, MEDIA_TYPE_AUDIO})
   @Documented
   public @interface MediaType {}
+
   /** Audio media type. */
   public static final String MEDIA_TYPE_AUDIO = "audio";
+
   /** Video media type. */
   public static final String MEDIA_TYPE_VIDEO = "video";
+
   /** Default RTP/AVP profile. */
   public static final String RTP_AVP_PROFILE = "RTP/AVP";
 
   /** The {@link MediaType}. */
   @MediaType public final String mediaType;
+
   /** The associated port number. */
   public final int port;
+
   /** The protocol used for data transport. */
   public final String transportProtocol;
+
   /** The assigned RTP payload type. */
   public final int payloadType;
+
   /** The estimated connection bitrate in bits per second. */
   public final int bitrate;
+
   /** The assigned media title. */
   @Nullable public final String mediaTitle;
+
   /** The connection parameters. */
   @Nullable public final String connection;
+
   /** The encryption parameter. */
   @Nullable public final String key;
+
   /** The media-specific attributes. */
   public final ImmutableMap<String, String> attributes;
+
   /** The mandatory rtpmap attribute in the media description (RFC2327 Page 22). */
   public final RtpMapAttribute rtpMapAttribute;
 

@@ -24,18 +24,25 @@ import androidx.media3.common.util.Util;
 
   /** The track corresponding to this sample table. */
   public final Track track;
+
   /** Number of samples. */
   public final int sampleCount;
+
   /** Sample offsets in bytes. */
   public final long[] offsets;
+
   /** Sample sizes in bytes. */
   public final int[] sizes;
+
   /** Maximum sample size in {@link #sizes}. */
   public final int maximumSize;
+
   /** Sample timestamps in microseconds. */
   public final long[] timestampsUs;
+
   /** Sample flags. */
   public final int[] flags;
+
   /** The duration of the track sample table in microseconds. */
   public final long durationUs;
 

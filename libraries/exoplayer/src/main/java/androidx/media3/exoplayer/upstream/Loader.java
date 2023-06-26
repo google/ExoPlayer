@@ -164,12 +164,15 @@ public final class Loader implements LoaderErrorThrower {
   /** Retries the load using the default delay. */
   public static final LoadErrorAction RETRY =
       createRetryAction(/* resetErrorCount= */ false, C.TIME_UNSET);
+
   /** Retries the load using the default delay and resets the error count. */
   public static final LoadErrorAction RETRY_RESET_ERROR_COUNT =
       createRetryAction(/* resetErrorCount= */ true, C.TIME_UNSET);
+
   /** Discards the failed {@link Loadable} and ignores any errors that have occurred. */
   public static final LoadErrorAction DONT_RETRY =
       new LoadErrorAction(ACTION_TYPE_DONT_RETRY, C.TIME_UNSET);
+
   /**
    * Discards the failed {@link Loadable}. The next call to {@link #maybeThrowError()} will throw
    * the last load error.

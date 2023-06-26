@@ -101,8 +101,10 @@ public class HslAdjustment implements GlEffect {
 
   /** Indicates the hue adjustment in degrees. */
   public final float hueAdjustmentDegrees;
+
   /** Indicates the saturation adjustment. */
   public final float saturationAdjustment;
+
   /** Indicates the lightness adjustment. */
   public final float lightnessAdjustment;
 

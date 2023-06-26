@@ -399,6 +399,7 @@ public final class LibraryResult<V> implements Bundleable {
   private static final int VALUE_TYPE_VOID = 1;
   private static final int VALUE_TYPE_ITEM = 2;
   private static final int VALUE_TYPE_ITEM_LIST = 3;
+
   /** The value type isn't known because the result is carrying an error. */
   private static final int VALUE_TYPE_ERROR = 4;
 }

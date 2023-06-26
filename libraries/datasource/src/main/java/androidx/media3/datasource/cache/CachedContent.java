@@ -35,10 +35,13 @@ import java.util.TreeSet;
 
   /** The cache id that uniquely identifies the resource. */
   public final int id;
+
   /** The cache key that uniquely identifies the resource. */
   public final String key;
+
   /** The cached spans of this content. */
   private final TreeSet<SimpleCacheSpan> cachedSpans;
+
   /** Currently locked ranges. */
   private final ArrayList<Range> lockedRanges;
 
@@ -280,6 +283,7 @@ import java.util.TreeSet;
 
     /** The starting position of the range. */
     public final long position;
+
     /** The length of the range, or {@link C#LENGTH_UNSET} if unbounded. */
     public final long length;
 

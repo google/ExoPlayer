@@ -79,12 +79,16 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
     @Target(TYPE_USE)
     @IntDef({TYPE_AD, TYPE_AD_GROUP, TYPE_ALL_ADS, TYPE_UNEXPECTED})
     public @interface Type {}
+
     /** Type for when an ad failed to load. The ad will be skipped. */
     public static final int TYPE_AD = 0;
+
     /** Type for when an ad group failed to load. The ad group will be skipped. */
     public static final int TYPE_AD_GROUP = 1;
+
     /** Type for when all ad groups failed to load. All ads will be skipped. */
     public static final int TYPE_ALL_ADS = 2;
+
     /** Type for when an unexpected error occurred while loading ads. All ads will be skipped. */
     public static final int TYPE_UNEXPECTED = 3;
 

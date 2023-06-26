@@ -59,6 +59,7 @@ public final class AndroidTestUtil {
 
   /** A realtime {@linkplain MediaFormat#KEY_PRIORITY encoder priority}. */
   public static final int MEDIA_CODEC_PRIORITY_REALTIME = 0;
+
   /**
    * A non-realtime (as fast as possible) {@linkplain MediaFormat#KEY_PRIORITY encoder priority}.
    */

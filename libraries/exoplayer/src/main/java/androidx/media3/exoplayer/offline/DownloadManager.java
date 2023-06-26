@@ -148,8 +148,10 @@ public final class DownloadManager {
 
   /** The default maximum number of parallel downloads. */
   public static final int DEFAULT_MAX_PARALLEL_DOWNLOADS = 3;
+
   /** The default minimum number of times a download must be retried before failing. */
   public static final int DEFAULT_MIN_RETRY_COUNT = 5;
+
   /** The default requirement is that the device has network connectivity. */
   public static final Requirements DEFAULT_REQUIREMENTS = new Requirements(Requirements.NETWORK);
 

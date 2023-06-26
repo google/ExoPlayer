@@ -31,13 +31,16 @@ public final class MediaDrmCallbackException extends IOException {
 
   /** The {@link DataSpec} associated with the request. */
   public final DataSpec dataSpec;
+
   /**
    * The {@link Uri} after redirections, or {@link #dataSpec dataSpec.uri} if no redirection
    * occurred.
    */
   public final Uri uriAfterRedirects;
+
   /** The HTTP request headers included in the response. */
   public final Map<String, List<String>> responseHeaders;
+
   /** The number of bytes obtained from the server. */
   public final long bytesLoaded;
 

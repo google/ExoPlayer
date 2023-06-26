@@ -259,6 +259,7 @@ public final class DataSpec {
         FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED
       })
   public @interface Flags {}
+
   /**
    * Allows an underlying network stack to request that the server use gzip compression.
    *
@@ -271,8 +272,10 @@ public final class DataSpec {
    * DataSource#read(byte[], int, int)} will be the decompressed data.
    */
   public static final int FLAG_ALLOW_GZIP = 1;
+
   /** Prevents caching if the length cannot be resolved when the {@link DataSource} is opened. */
   public static final int FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN = 1 << 1;
+
   /**
    * Allows fragmentation of this request into multiple cache files, meaning a cache eviction policy
    * will be able to evict individual fragments of the data. Depending on the cache implementation,
@@ -280,6 +283,7 @@ public final class DataSpec {
    * whilst writing another).
    */
   public static final int FLAG_ALLOW_CACHE_FRAGMENTATION = 1 << 2;
+
   /**
    * Indicates there are known external factors that might prevent the data from being loaded at
    * full network speed (e.g. server throttling or unfinished live media chunks).
@@ -295,10 +299,13 @@ public final class DataSpec {
   @Target(TYPE_USE)
   @IntDef({HTTP_METHOD_GET, HTTP_METHOD_POST, HTTP_METHOD_HEAD})
   public @interface HttpMethod {}
+
   /** HTTP GET method. */
   public static final int HTTP_METHOD_GET = 1;
+
   /** HTTP POST method. */
   public static final int HTTP_METHOD_POST = 2;
+
   /** HTTP HEAD method. */
   public static final int HTTP_METHOD_HEAD = 3;
 

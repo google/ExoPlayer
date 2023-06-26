@@ -28,13 +28,16 @@ import java.util.List;
   public static final class ContainerItem {
     /** The MIME type of the media item. */
     public final String mime;
+
     /** The application-specific meaning of the media item. */
     public final String semantic;
+
     /**
      * The positive integer length in bytes of the media item, or 0 for primary media items and
      * secondary media items that share their resource with the preceding media item.
      */
     public final long length;
+
     /**
      * The number of bytes of additional padding between the end of the primary media item and the
      * start of the next media item. 0 for secondary media items.
@@ -54,6 +57,7 @@ import java.util.List;
    * if unknown.
    */
   public final long photoPresentationTimestampUs;
+
   /**
    * The media items represented by the motion photo file, in order. The primary media item is
    * listed first, followed by any secondary media items.

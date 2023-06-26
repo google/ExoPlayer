@@ -66,6 +66,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private static final int TARGET_OUTPUT_FRAME_RATE = 30;
 
   private static final int NAL_START_CODE_LENGTH = NAL_START_CODE.length;
+
   /**
    * The nal_unit_type corresponding to a prefix NAL unit (see ITU-T Recommendation H.264 (2016)
    * table 7-1).
@@ -73,17 +74,22 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private static final int NAL_UNIT_TYPE_PREFIX = 0x0E;
 
   private final byte[] scratch;
+
   /** The SEF slow motion configuration of the input. */
   @Nullable private final SlowMotionData slowMotionData;
+
   /**
    * An iterator iterating over the slow motion segments, pointing at the segment following {@code
    * nextSegmentInfo}, if any.
    */
   private final Iterator<SlowMotionData.Segment> segmentIterator;
+
   /** The frame rate at which the input has been captured, in fps. */
   private final float captureFrameRate;
+
   /** The maximum SVC temporal layer present in the input. */
   private final int inputMaxLayer;
+
   /**
    * The maximum SVC temporal layer value of the frames that should be kept in the input (or a part
    * of it) so that it is played at normal speed.
@@ -95,16 +101,19 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * frame is not in such a segment.
    */
   @Nullable private SegmentInfo currentSegmentInfo;
+
   /**
    * The {@link SegmentInfo} describing the slow motion segment following (not including) the
    * current frame, or null if there is no such segment.
    */
   @Nullable private SegmentInfo nextSegmentInfo;
+
   /**
    * The time delta to be added to the output timestamps before scaling to take the slow motion
    * segments into account, in microseconds.
    */
   private long frameTimeDeltaUs;
+
   /**
    * The presentation time for the last {@linkplain #dropOrTransformSample(ByteBuffer, long)
    * processed sample}.
@@ -332,15 +341,18 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
      * C#RATE_UNSET} if it is unknown or invalid.
      */
     public float captureFrameRate;
+
     /**
      * The maximum SVC layer value of the input frames, or {@link C#INDEX_UNSET} if it is unknown.
      */
     public int inputMaxLayer;
+
     /**
      * The maximum SVC layer value of the frames to keep in order to play the video at normal speed
      * at {@link #TARGET_OUTPUT_FRAME_RATE}, or {@link C#INDEX_UNSET} if it is unknown.
      */
     public int normalSpeedMaxLayer;
+
     /** The input {@link SlowMotionData}. */
     @Nullable public SlowMotionData slowMotionData;
 
@@ -355,14 +367,17 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private static final class SegmentInfo {
     /** The segment start time, in microseconds. */
     public final long startTimeUs;
+
     /** The segment end time, in microseconds. */
     public final long endTimeUs;
+
     /**
      * The segment speedDivisor.
      *
      * @see SlowMotionData.Segment#speedDivisor
      */
     public final int speedDivisor;
+
     /**
      * The maximum SVC layer value of the frames to keep in the segment in order to slow down the
      * segment by {@code speedDivisor}.

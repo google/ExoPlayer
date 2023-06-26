@@ -51,10 +51,13 @@ public class DownloadManagerTest {
 
   /** Timeout to use when blocking on conditions that we expect to become unblocked. */
   private static final int TIMEOUT_MS = 10_000;
+
   /** An application provided stop reason. */
   private static final int APP_STOP_REASON = 1;
+
   /** The minimum number of times a download must be retried before failing. */
   private static final int MIN_RETRY_COUNT = 3;
+
   /** Test value for the current time. */
   private static final long NOW_MS = 1234;
 

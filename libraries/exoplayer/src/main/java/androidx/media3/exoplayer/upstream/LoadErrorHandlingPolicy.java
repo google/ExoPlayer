@@ -65,6 +65,7 @@ public interface LoadErrorHandlingPolicy {
    * exact same data can be requested).
    */
   int FALLBACK_TYPE_LOCATION = 1;
+
   /**
    * Fallback to a different track (i.e., a different representation of the same content; for
    * example the same video encoded at a different bitrate or resolution).
@@ -76,10 +77,13 @@ public interface LoadErrorHandlingPolicy {
 
     /** The {@link LoadEventInfo} associated with the load that encountered an error. */
     public final LoadEventInfo loadEventInfo;
+
     /** {@link MediaLoadData} associated with the load that encountered an error. */
     public final MediaLoadData mediaLoadData;
+
     /** The exception associated to the load error. */
     public final IOException exception;
+
     /** The number of errors this load task has encountered, including this one. */
     public final int errorCount;
 
@@ -100,10 +104,13 @@ public interface LoadErrorHandlingPolicy {
   final class FallbackOptions {
     /** The number of available locations. */
     public final int numberOfLocations;
+
     /** The number of locations that are already excluded. */
     public final int numberOfExcludedLocations;
+
     /** The number of tracks. */
     public final int numberOfTracks;
+
     /** The number of tracks that are already excluded. */
     public final int numberOfExcludedTracks;
 
@@ -131,6 +138,7 @@ public interface LoadErrorHandlingPolicy {
   final class FallbackSelection {
     /** The type of fallback. */
     public final @FallbackType int type;
+
     /** The duration for which the failing resource should be excluded, in milliseconds. */
     public final long exclusionDurationMs;
 

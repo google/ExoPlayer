@@ -35,6 +35,7 @@ public final class EditedMediaItemSequence {
    * <p>This list must not be empty.
    */
   public final ImmutableList<EditedMediaItem> editedMediaItems;
+
   /**
    * Whether this sequence is looping.
    *

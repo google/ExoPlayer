@@ -266,11 +266,13 @@ public final class TransformationResult {
   public static final class ProcessedInput {
     /** The processed {@link MediaItem}. */
     public final MediaItem mediaItem;
+
     /**
      * The name of the audio decoder used to process {@code mediaItem}. This field is {@code null}
      * if no audio decoder was used.
      */
     public final @MonotonicNonNull String audioDecoderName;
+
     /**
      * The name of the video decoder used to process {@code mediaItem}. This field is {@code null}
      * if no video decoder was used.
@@ -291,6 +293,7 @@ public final class TransformationResult {
 
   /** The duration of the file in milliseconds, or {@link C#TIME_UNSET} if unset or unknown. */
   public final long durationMs;
+
   /** The size of the file in bytes, or {@link C#LENGTH_UNSET} if unset or unknown. */
   public final long fileSizeBytes;
 
@@ -298,10 +301,13 @@ public final class TransformationResult {
    * The average bitrate of the audio track data, or {@link C#RATE_UNSET_INT} if unset or unknown.
    */
   public final int averageAudioBitrate;
+
   /** The channel count of the audio, or {@link C#LENGTH_UNSET} if unset or unknown. */
   public final int channelCount;
+
   /** The sample rate of the audio, or {@link C#RATE_UNSET_INT} if unset or unknown. */
   public final int sampleRate;
+
   /** The name of the audio encoder used, or {@code null} if none were used. */
   @Nullable public final String audioEncoderName;
 
@@ -309,14 +315,19 @@ public final class TransformationResult {
    * The average bitrate of the video track data, or {@link C#RATE_UNSET_INT} if unset or unknown.
    */
   public final int averageVideoBitrate;
+
   /** The {@link ColorInfo} of the video, or {@code null} if unset or unknown. */
   @Nullable public final ColorInfo colorInfo;
+
   /** The height of the video, or {@link C#LENGTH_UNSET} if unset or unknown. */
   public final int height;
+
   /** The width of the video, or {@link C#LENGTH_UNSET} if unset or unknown. */
   public final int width;
+
   /** The number of video frames. */
   public final int videoFrameCount;
+
   /** The name of the video encoder used, or {@code null} if none were used. */
   @Nullable public final String videoEncoderName;
 

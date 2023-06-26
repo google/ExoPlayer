@@ -441,6 +441,7 @@ import java.util.regex.Pattern;
     /** Matches "\pos(x,y)" and returns "x" in group 1 and "y" in group 2 */
     private static final Pattern POSITION_PATTERN =
         Pattern.compile(Util.formatInvariant("\\\\pos\\((%1$s),(%1$s)\\)", PADDED_DECIMAL_PATTERN));
+
     /** Matches "\move(x1,y1,x2,y2[,t1,t2])" and returns "x2" in group 1 and "y2" in group 2 */
     private static final Pattern MOVE_PATTERN =
         Pattern.compile(

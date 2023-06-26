@@ -42,8 +42,10 @@ public final class FrameworkCryptoConfig implements CryptoConfig {
 
   /** The DRM scheme UUID. */
   public final UUID uuid;
+
   /** The DRM session id. */
   public final byte[] sessionId;
+
   /**
    * Whether to allow use of insecure decoder components even if the underlying platform says
    * otherwise.

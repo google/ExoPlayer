@@ -26,48 +26,65 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   /** The default values for samples from the track fragment header. */
   public @MonotonicNonNull DefaultSampleValues header;
+
   /** The position (byte offset) of the start of fragment. */
   public long atomPosition;
+
   /** The position (byte offset) of the start of data contained in the fragment. */
   public long dataPosition;
+
   /** The position (byte offset) of the start of auxiliary data. */
   public long auxiliaryDataPosition;
+
   /** The number of track runs of the fragment. */
   public int trunCount;
+
   /** The total number of samples in the fragment. */
   public int sampleCount;
+
   /** The position (byte offset) of the start of sample data of each track run in the fragment. */
   public long[] trunDataPosition;
+
   /** The number of samples contained by each track run in the fragment. */
   public int[] trunLength;
+
   /** The size of each sample in the fragment. */
   public int[] sampleSizeTable;
+
   /** The presentation time of each sample in the fragment, in microseconds. */
   public long[] samplePresentationTimesUs;
+
   /** Indicates which samples are sync frames. */
   public boolean[] sampleIsSyncFrameTable;
+
   /** Whether the fragment defines encryption data. */
   public boolean definesEncryptionData;
+
   /**
    * If {@link #definesEncryptionData} is true, indicates which samples use sub-sample encryption.
    * Undefined otherwise.
    */
   public boolean[] sampleHasSubsampleEncryptionTable;
+
   /** Fragment specific track encryption. May be null. */
   @Nullable public TrackEncryptionBox trackEncryptionBox;
+
   /**
    * If {@link #definesEncryptionData} is true, contains binary sample encryption data. Undefined
    * otherwise.
    */
   public final ParsableByteArray sampleEncryptionData;
+
   /** Whether {@link #sampleEncryptionData} needs populating with the actual encryption data. */
   public boolean sampleEncryptionDataNeedsFill;
+
   /**
    * The duration of all the samples defined in the fragments up to and including this one, plus the
    * duration of the samples defined in the moov atom if {@link #nextFragmentDecodeTimeIncludesMoov}
    * is {@code true}.
    */
   public long nextFragmentDecodeTime;
+
   /**
    * Whether {@link #nextFragmentDecodeTime} includes the duration of the samples referred to by the
    * moov atom.

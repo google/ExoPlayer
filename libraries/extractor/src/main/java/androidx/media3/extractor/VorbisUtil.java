@@ -59,22 +59,31 @@ public final class VorbisUtil {
 
     /** The {@code vorbis_version} field. */
     public final int version;
+
     /** The {@code audio_channels} field. */
     public final int channels;
+
     /** The {@code audio_sample_rate} field. */
     public final int sampleRate;
+
     /** The {@code bitrate_maximum} field, or {@link Format#NO_VALUE} if not greater than zero. */
     public final int bitrateMaximum;
+
     /** The {@code bitrate_nominal} field, or {@link Format#NO_VALUE} if not greater than zero. */
     public final int bitrateNominal;
+
     /** The {@code bitrate_minimum} field, or {@link Format#NO_VALUE} if not greater than zero. */
     public final int bitrateMinimum;
+
     /** The {@code blocksize_0} field. */
     public final int blockSize0;
+
     /** The {@code blocksize_1} field. */
     public final int blockSize1;
+
     /** The {@code framing_flag} field. */
     public final boolean framingFlag;
+
     /** The raw header data. */
     public final byte[] data;
 

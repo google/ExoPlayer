@@ -54,26 +54,32 @@ public final class NotificationUtil {
     IMPORTANCE_HIGH
   })
   public @interface Importance {}
+
   /**
    * @see NotificationManager#IMPORTANCE_UNSPECIFIED
    */
   public static final int IMPORTANCE_UNSPECIFIED = NotificationManager.IMPORTANCE_UNSPECIFIED;
+
   /**
    * @see NotificationManager#IMPORTANCE_NONE
    */
   public static final int IMPORTANCE_NONE = NotificationManager.IMPORTANCE_NONE;
+
   /**
    * @see NotificationManager#IMPORTANCE_MIN
    */
   public static final int IMPORTANCE_MIN = NotificationManager.IMPORTANCE_MIN;
+
   /**
    * @see NotificationManager#IMPORTANCE_LOW
    */
   public static final int IMPORTANCE_LOW = NotificationManager.IMPORTANCE_LOW;
+
   /**
    * @see NotificationManager#IMPORTANCE_DEFAULT
    */
   public static final int IMPORTANCE_DEFAULT = NotificationManager.IMPORTANCE_DEFAULT;
+
   /**
    * @see NotificationManager#IMPORTANCE_HIGH
    */

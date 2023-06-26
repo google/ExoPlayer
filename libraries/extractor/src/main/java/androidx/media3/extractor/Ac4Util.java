@@ -34,12 +34,16 @@ public final class Ac4Util {
 
     /** The bitstream version. */
     public final int bitstreamVersion;
+
     /** The audio sampling rate in Hz. */
     public final int sampleRate;
+
     /** The number of audio channels */
     public final int channelCount;
+
     /** The size of the frame. */
     public final int frameSize;
+
     /** Number of audio samples in the frame. */
     public final int sampleCount;
 
@@ -62,16 +66,19 @@ public final class Ac4Util {
   /** The channel count of AC-4 stream. */
   // TODO: Parse AC-4 stream channel count.
   private static final int CHANNEL_COUNT_2 = 2;
+
   /**
    * The AC-4 sync frame header size for extractor. The seven bytes are 0xAC, 0x40, 0xFF, 0xFF,
    * sizeByte1, sizeByte2, sizeByte3. See ETSI TS 103 190-1 V1.3.1, Annex G
    */
   public static final int SAMPLE_HEADER_SIZE = 7;
+
   /**
    * The header size for AC-4 parser. Only needs to be as big as we need to read, not the full
    * header size.
    */
   public static final int HEADER_SIZE_FOR_PARSER = 16;
+
   /**
    * Number of audio samples in the frame. Defined in IEC61937-14:2017 table 5 and 6. This table
    * provides the number of samples per frame at the playback sampling frequency of 48 kHz. For 44.1

@@ -154,8 +154,10 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
 
   /** Key for use with the Map returned from {@link FakeExoMediaDrm#queryKeyStatus(byte[])}. */
   public static final String KEY_STATUS_KEY = "KEY_STATUS";
+
   /** Value for use with the Map returned from {@link FakeExoMediaDrm#queryKeyStatus(byte[])}. */
   public static final String KEY_STATUS_AVAILABLE = "AVAILABLE";
+
   /** Value for use with the Map returned from {@link FakeExoMediaDrm#queryKeyStatus(byte[])}. */
   public static final String KEY_STATUS_UNAVAILABLE = "UNAVAILABLE";
 

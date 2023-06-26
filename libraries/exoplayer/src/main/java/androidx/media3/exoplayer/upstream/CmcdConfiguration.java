@@ -177,6 +177,7 @@ public final class CmcdConfiguration {
    * Maximum length is 64 characters.
    */
   @Nullable public final String sessionId;
+
   /**
    * A GUID identifying the current content, or {@code null} if unset.
    *
@@ -184,6 +185,7 @@ public final class CmcdConfiguration {
    * updated at the discretion of the service provider. Maximum length is 64 characters.
    */
   @Nullable public final String contentId;
+
   /** Dynamic request specific configuration. */
   public final RequestConfig requestConfig;
 

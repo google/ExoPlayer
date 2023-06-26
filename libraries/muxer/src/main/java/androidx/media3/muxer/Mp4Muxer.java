@@ -76,8 +76,10 @@ public final class Mp4Muxer {
     LAST_FRAME_DURATION_BEHAVIOR_INSERT_SHORT_FRAME
   })
   public @interface LastFrameDurationBehavior {}
+
   /** Insert a zero-length last sample. */
   public static final int LAST_FRAME_DURATION_BEHAVIOR_INSERT_SHORT_FRAME = 0;
+
   /**
    * Use the difference between the last timestamp and the one before that as the duration of the
    * last sample.

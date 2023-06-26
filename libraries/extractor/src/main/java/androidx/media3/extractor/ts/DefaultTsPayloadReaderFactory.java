@@ -66,29 +66,34 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
    * synchronization samples (key-frames).
    */
   public static final int FLAG_ALLOW_NON_IDR_KEYFRAMES = 1;
+
   /**
    * Prevents the creation of {@link AdtsReader} and {@link LatmReader} instances. This flag should
    * be enabled if the transport stream contains no packets for an AAC elementary stream that is
    * declared in the PMT.
    */
   public static final int FLAG_IGNORE_AAC_STREAM = 1 << 1;
+
   /**
    * Prevents the creation of {@link H264Reader} instances. This flag should be enabled if the
    * transport stream contains no packets for an H.264 elementary stream that is declared in the
    * PMT.
    */
   public static final int FLAG_IGNORE_H264_STREAM = 1 << 2;
+
   /**
    * When extracting H.264 samples, whether to split the input stream into access units (samples)
    * based on slice headers. This flag should be disabled if the stream contains access unit
    * delimiters (AUDs).
    */
   public static final int FLAG_DETECT_ACCESS_UNITS = 1 << 3;
+
   /**
    * Prevents the creation of {@link SectionPayloadReader}s for splice information sections
    * (SCTE-35).
    */
   public static final int FLAG_IGNORE_SPLICE_INFO_STREAM = 1 << 4;
+
   /**
    * Whether the list of {@code closedCaptionFormats} passed to {@link
    * DefaultTsPayloadReaderFactory#DefaultTsPayloadReaderFactory(int, List)} should be used in spite
@@ -96,6 +101,7 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
    * closedCaptionFormats} will be ignored if the PMT contains closed captions service descriptors.
    */
   public static final int FLAG_OVERRIDE_CAPTION_DESCRIPTORS = 1 << 5;
+
   /**
    * Sets whether HDMV DTS audio streams will be handled. If this flag is set, SCTE subtitles will
    * not be detected, as they share the same elementary stream type as HDMV DTS.

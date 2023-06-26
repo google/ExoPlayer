@@ -82,6 +82,7 @@ import androidx.media3.common.util.Util;
   private static final String FIELD_TOKEN_EXTRAS = Util.intToStringMaxRadix(6);
   private static final String FIELD_PLAYER_INFO = Util.intToStringMaxRadix(7);
   private static final String FIELD_SESSION_INTERFACE_VERSION = Util.intToStringMaxRadix(8);
+
   // Next field key = 9
 
   @Override

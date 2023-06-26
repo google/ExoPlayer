@@ -193,6 +193,7 @@ public final class VideoFrameProcessorTestRunner {
       this.outputColorInfo = outputColorInfo;
       return this;
     }
+
     /**
      * Sets whether input comes from an external texture. See {@link
      * VideoFrameProcessor.Factory#create}.

@@ -72,6 +72,7 @@ public interface SeekMap {
 
     /** The first seek point. */
     public final SeekPoint first;
+
     /** The second seek point, or {@link #first} if there's only one seek point. */
     public final SeekPoint second;
 

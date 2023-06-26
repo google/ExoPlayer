@@ -44,6 +44,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   /** Single Time Aggregation Packet type A. */
   private static final int RTP_PACKET_TYPE_STAP_A = 24;
+
   /** Fragmentation Unit type A. */
   private static final int RTP_PACKET_TYPE_FU_A = 28;
 
@@ -63,6 +64,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private long firstReceivedTimestamp;
   private int previousSequenceNumber;
+
   /** The combined size of a sample that is fragmented into multiple RTP packets. */
   private int fragmentedSampleSizeBytes;
 

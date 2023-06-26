@@ -93,8 +93,10 @@ public final class ParsingLoadable<T> implements Loadable {
 
   /** Identifies the load task for this loadable. */
   public final long loadTaskId;
+
   /** The {@link DataSpec} that defines the data to be loaded. */
   public final DataSpec dataSpec;
+
   /**
    * The type of the data. One of the {@code DATA_TYPE_*} constants defined in {@link C}. For
    * reporting only.

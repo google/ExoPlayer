@@ -41,6 +41,7 @@ public final class PlaybackStats {
   public static final class EventTimeAndPlaybackState {
     /** The event time at which the playback state became active. */
     public final EventTime eventTime;
+
     /** The playback state that became active. */
     public final @PlaybackState int playbackState;
 
@@ -85,6 +86,7 @@ public final class PlaybackStats {
   public static final class EventTimeAndFormat {
     /** The event time associated with {@link #format}. */
     public final EventTime eventTime;
+
     /** The format that started being used, or {@code null} if no format was used. */
     @Nullable public final Format format;
 
@@ -126,6 +128,7 @@ public final class PlaybackStats {
   public static final class EventTimeAndException {
     /** The event time at which the exception occurred. */
     public final EventTime eventTime;
+
     /** The exception that was thrown. */
     public final Exception exception;
 
@@ -193,36 +196,52 @@ public final class PlaybackStats {
     PLAYBACK_STATE_ABANDONED
   })
   @interface PlaybackState {}
+
   /** Playback has not started (initial state). */
   public static final int PLAYBACK_STATE_NOT_STARTED = 0;
+
   /** Playback is buffering in the background for initial playback start. */
   public static final int PLAYBACK_STATE_JOINING_BACKGROUND = 1;
+
   /** Playback is buffering in the foreground for initial playback start. */
   public static final int PLAYBACK_STATE_JOINING_FOREGROUND = 2;
+
   /** Playback is actively playing. */
   public static final int PLAYBACK_STATE_PLAYING = 3;
+
   /** Playback is paused but ready to play. */
   public static final int PLAYBACK_STATE_PAUSED = 4;
+
   /** Playback is handling a seek. */
   public static final int PLAYBACK_STATE_SEEKING = 5;
+
   /** Playback is buffering to resume active playback. */
   public static final int PLAYBACK_STATE_BUFFERING = 6;
+
   /** Playback is buffering while paused. */
   public static final int PLAYBACK_STATE_PAUSED_BUFFERING = 7;
+
   /** Playback is suppressed (e.g. due to audio focus loss). */
   public static final int PLAYBACK_STATE_SUPPRESSED = 9;
+
   /** Playback is suppressed (e.g. due to audio focus loss) while buffering to resume a playback. */
   public static final int PLAYBACK_STATE_SUPPRESSED_BUFFERING = 10;
+
   /** Playback has reached the end of the media. */
   public static final int PLAYBACK_STATE_ENDED = 11;
+
   /** Playback is stopped and can be restarted. */
   public static final int PLAYBACK_STATE_STOPPED = 12;
+
   /** Playback is stopped due a fatal error and can be retried. */
   public static final int PLAYBACK_STATE_FAILED = 13;
+
   /** Playback is interrupted by an ad. */
   public static final int PLAYBACK_STATE_INTERRUPTED_BY_AD = 14;
+
   /** Playback is abandoned before reaching the end of the media. */
   public static final int PLAYBACK_STATE_ABANDONED = 15;
+
   /** Total number of playback states. */
   /* package */ static final int PLAYBACK_STATE_COUNT = 16;
 
@@ -388,25 +407,32 @@ public final class PlaybackStats {
    * ordered by {@code EventTime.realTimeMs}.
    */
   public final List<EventTimeAndPlaybackState> playbackStateHistory;
+
   /**
    * The media time history as an ordered list of long[2] arrays with [0] being the realtime as
    * returned by {@code SystemClock.elapsedRealtime()} and [1] being the media time at this
    * realtime, in milliseconds.
    */
   public final List<long[]> mediaTimeHistory;
+
   /**
    * The elapsed real-time as returned by {@code SystemClock.elapsedRealtime()} of the first
    * reported playback event, or {@link C#TIME_UNSET} if no event has been reported.
    */
   public final long firstReportedTimeMs;
+
   /** The number of playbacks which were the active foreground playback at some point. */
   public final int foregroundPlaybackCount;
+
   /** The number of playbacks which were abandoned before they were ready to play. */
   public final int abandonedBeforeReadyCount;
+
   /** The number of playbacks which reached the ended state at least once. */
   public final int endedCount;
+
   /** The number of playbacks which were pre-buffered in the background. */
   public final int backgroundJoiningCount;
+
   /**
    * The total time spent joining the playback, in milliseconds, or {@link C#TIME_UNSET} if no valid
    * join time could be determined.
@@ -416,29 +442,36 @@ public final class PlaybackStats {
    * joining was interrupted by a seek, stop, or error state.
    */
   public final long totalValidJoinTimeMs;
+
   /**
    * The number of playbacks with a valid join time as documented in {@link #totalValidJoinTimeMs}.
    */
   public final int validJoinTimeCount;
+
   /** The total number of times a playback has been paused. */
   public final int totalPauseCount;
+
   /** The total number of times a playback has been paused while rebuffering. */
   public final int totalPauseBufferCount;
+
   /**
    * The total number of times a seek occurred. This includes seeks happening before playback
    * resumed after another seek.
    */
   public final int totalSeekCount;
+
   /**
    * The total number of times a rebuffer occurred. This excludes initial joining and buffering
    * after seek.
    */
   public final int totalRebufferCount;
+
   /**
    * The maximum time spent during a single rebuffer, in milliseconds, or {@link C#TIME_UNSET} if no
    * rebuffer occurred.
    */
   public final long maxRebufferTimeMs;
+
   /** The number of ad playbacks. */
   public final int adPlaybackCount;
 
@@ -449,48 +482,61 @@ public final class PlaybackStats {
    * EventTime.realTimeMs}. The {@link Format} may be null if no video format was used.
    */
   public final List<EventTimeAndFormat> videoFormatHistory;
+
   /**
    * The audio format history as {@link EventTimeAndFormat EventTimeAndFormats} ordered by {@code
    * EventTime.realTimeMs}. The {@link Format} may be null if no audio format was used.
    */
   public final List<EventTimeAndFormat> audioFormatHistory;
+
   /** The total media time for which video format height data is available, in milliseconds. */
   public final long totalVideoFormatHeightTimeMs;
+
   /**
    * The accumulated sum of all video format heights, in pixels, times the time the format was used
    * for playback, in milliseconds.
    */
   public final long totalVideoFormatHeightTimeProduct;
+
   /** The total media time for which video format bitrate data is available, in milliseconds. */
   public final long totalVideoFormatBitrateTimeMs;
+
   /**
    * The accumulated sum of all video format bitrates, in bits per second, times the time the format
    * was used for playback, in milliseconds.
    */
   public final long totalVideoFormatBitrateTimeProduct;
+
   /** The total media time for which audio format data is available, in milliseconds. */
   public final long totalAudioFormatTimeMs;
+
   /**
    * The accumulated sum of all audio format bitrates, in bits per second, times the time the format
    * was used for playback, in milliseconds.
    */
   public final long totalAudioFormatBitrateTimeProduct;
+
   /** The number of playbacks with initial video format height data. */
   public final int initialVideoFormatHeightCount;
+
   /** The number of playbacks with initial video format bitrate data. */
   public final int initialVideoFormatBitrateCount;
+
   /**
    * The total initial video format height for all playbacks, in pixels, or {@link C#LENGTH_UNSET}
    * if no initial video format data is available.
    */
   public final int totalInitialVideoFormatHeight;
+
   /**
    * The total initial video format bitrate for all playbacks, in bits per second, or {@link
    * C#LENGTH_UNSET} if no initial video format data is available.
    */
   public final long totalInitialVideoFormatBitrate;
+
   /** The number of playbacks with initial audio format bitrate data. */
   public final int initialAudioFormatBitrateCount;
+
   /**
    * The total initial audio format bitrate for all playbacks, in bits per second, or {@link
    * C#LENGTH_UNSET} if no initial audio format data is available.
@@ -501,6 +547,7 @@ public final class PlaybackStats {
 
   /** The total time for which bandwidth measurement data is available, in milliseconds. */
   public final long totalBandwidthTimeMs;
+
   /** The total bytes transferred during {@link #totalBandwidthTimeMs}. */
   public final long totalBandwidthBytes;
 
@@ -508,6 +555,7 @@ public final class PlaybackStats {
 
   /** The total number of dropped video frames. */
   public final long totalDroppedFrames;
+
   /** The total number of audio underruns. */
   public final long totalAudioUnderruns;
 
@@ -518,18 +566,22 @@ public final class PlaybackStats {
    * stopped due to this error.
    */
   public final int fatalErrorPlaybackCount;
+
   /** The total number of fatal errors. Errors are fatal if playback stopped due to this error. */
   public final int fatalErrorCount;
+
   /**
    * The total number of non-fatal errors. Error are non-fatal if playback can recover from the
    * error without stopping.
    */
   public final int nonFatalErrorCount;
+
   /**
    * The history of fatal errors as {@link EventTimeAndException EventTimeAndExceptions} ordered by
    * {@code EventTime.realTimeMs}. Errors are fatal if playback stopped due to this error.
    */
   public final List<EventTimeAndException> fatalErrorHistory;
+
   /**
    * The history of non-fatal errors as {@link EventTimeAndException EventTimeAndExceptions} ordered
    * by {@code EventTime.realTimeMs}. Errors are non-fatal if playback can recover from the error

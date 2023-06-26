@@ -35,15 +35,19 @@ public abstract class BaseTrackSelection implements ExoTrackSelection {
 
   /** The selected {@link TrackGroup}. */
   protected final TrackGroup group;
+
   /** The number of selected tracks within the {@link TrackGroup}. Always greater than zero. */
   protected final int length;
+
   /** The indices of the selected tracks in {@link #group}, in order of decreasing bandwidth. */
   protected final int[] tracks;
 
   /** The type of the selection. */
   private final @Type int type;
+
   /** The {@link Format}s of the selected tracks, in order of decreasing bandwidth. */
   private final Format[] formats;
+
   /** Selected track exclusion timestamps, in order of decreasing bandwidth. */
   private final long[] excludeUntilTimes;
 

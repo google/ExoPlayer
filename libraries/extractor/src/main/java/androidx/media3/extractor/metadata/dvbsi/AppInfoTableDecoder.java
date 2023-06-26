@@ -37,6 +37,7 @@ public final class AppInfoTableDecoder extends SimpleMetadataDecoder {
 
   /** See section 5.3.6. */
   private static final int DESCRIPTOR_TRANSPORT_PROTOCOL = 0x02;
+
   /** See section 5.3.7. */
   private static final int DESCRIPTOR_SIMPLE_APPLICATION_LOCATION = 0x15;
 

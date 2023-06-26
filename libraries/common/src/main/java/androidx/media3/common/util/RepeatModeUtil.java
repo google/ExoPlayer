@@ -46,10 +46,13 @@ public final class RepeatModeUtil {
       flag = true,
       value = {REPEAT_TOGGLE_MODE_NONE, REPEAT_TOGGLE_MODE_ONE, REPEAT_TOGGLE_MODE_ALL})
   public @interface RepeatToggleModes {}
+
   /** All repeat mode buttons disabled. */
   public static final int REPEAT_TOGGLE_MODE_NONE = 0;
+
   /** "Repeat One" button enabled. */
   public static final int REPEAT_TOGGLE_MODE_ONE = 1;
+
   /** "Repeat All" button enabled. */
   public static final int REPEAT_TOGGLE_MODE_ALL = 1 << 1; // 2
 

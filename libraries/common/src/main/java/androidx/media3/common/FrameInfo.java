@@ -97,10 +97,13 @@ public class FrameInfo {
 
   /** The width of the frame, in pixels. */
   public final int width;
+
   /** The height of the frame, in pixels. */
   public final int height;
+
   /** The ratio of width over height for each pixel. */
   public final float pixelWidthHeightRatio;
+
   /**
    * The offset that must be added to the frame presentation timestamp, in microseconds.
    *

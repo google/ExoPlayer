@@ -276,19 +276,25 @@ public class DefaultDrmSessionManager implements DrmSessionManager {
   @Target(TYPE_USE)
   @IntDef({MODE_PLAYBACK, MODE_QUERY, MODE_DOWNLOAD, MODE_RELEASE})
   public @interface Mode {}
+
   /**
    * Loads and refreshes (if necessary) a license for playback. Supports streaming and offline
    * licenses.
    */
   public static final int MODE_PLAYBACK = 0;
+
   /** Restores an offline license to allow its status to be queried. */
   public static final int MODE_QUERY = 1;
+
   /** Downloads an offline license or renews an existing one. */
   public static final int MODE_DOWNLOAD = 2;
+
   /** Releases an existing offline license. */
   public static final int MODE_RELEASE = 3;
+
   /** Number of times to retry for initial provisioning and key request for reporting error. */
   public static final int INITIAL_DRM_REQUEST_RETRY_COUNT = 3;
+
   /** Default value for {@link Builder#setSessionKeepaliveMs(long)}. */
   public static final long DEFAULT_SESSION_KEEPALIVE_MS = 5 * 60 * C.MILLIS_PER_SECOND;
 

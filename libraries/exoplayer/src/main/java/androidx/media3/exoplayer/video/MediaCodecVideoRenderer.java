@@ -1930,6 +1930,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     @Nullable private VideoFrameProcessor videoFrameProcessor;
     @Nullable private CopyOnWriteArrayList<Effect> videoEffects;
     @Nullable private Format inputFormat;
+
     /**
      * The current frame {@link Format} and the earliest presentationTimeUs that associates to it.
      */
@@ -1957,6 +1958,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     private long lastCodecBufferPresentationTimestampUs;
     private VideoSize processedFrameSize;
     private boolean pendingOutputSizeChange;
+
     /** The presentation time, after which the listener should be notified about the size change. */
     private long pendingOutputSizeChangeNotificationTimeUs;
 
@@ -2461,6 +2463,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
               listener);
     }
   }
+
   /**
    * Returns a maximum video size to use when configuring a codec for {@code format} in a way that
    * will allow possible adaptation to other compatible formats that are expected to have the same

@@ -34,8 +34,10 @@ public class SlidingWeightedAverageBandwidthStatistic implements BandwidthStatis
   public static class Sample {
     /** The sample bitrate. */
     public final long bitrate;
+
     /** The sample weight. */
     public final double weight;
+
     /**
      * The time this sample was added, in milliseconds. Timestamps should come from the same source,
      * so that samples can reliably be ordered in time. It is suggested to use {@link

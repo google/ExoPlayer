@@ -30,8 +30,10 @@ public interface ContentMetadata {
    */
   @SuppressWarnings("unused")
   String KEY_CUSTOM_PREFIX = "custom_";
+
   /** Key for redirected uri (type: String). */
   String KEY_REDIRECTED_URI = "exo_redir";
+
   /** Key for content length in bytes (type: long). */
   String KEY_CONTENT_LENGTH = "exo_len";
 

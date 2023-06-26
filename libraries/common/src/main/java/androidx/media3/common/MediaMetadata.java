@@ -643,108 +643,143 @@ public final class MediaMetadata implements Bundleable {
 
   /** Media of undetermined type or a mix of multiple {@linkplain MediaType media types}. */
   public static final int MEDIA_TYPE_MIXED = 0;
+
   /** {@link MediaType} for music. */
   public static final int MEDIA_TYPE_MUSIC = 1;
+
   /** {@link MediaType} for an audio book chapter. */
   public static final int MEDIA_TYPE_AUDIO_BOOK_CHAPTER = 2;
+
   /** {@link MediaType} for a podcast episode. */
   public static final int MEDIA_TYPE_PODCAST_EPISODE = 3;
+
   /** {@link MediaType} for a radio station. */
   public static final int MEDIA_TYPE_RADIO_STATION = 4;
+
   /** {@link MediaType} for news. */
   public static final int MEDIA_TYPE_NEWS = 5;
+
   /** {@link MediaType} for a video. */
   public static final int MEDIA_TYPE_VIDEO = 6;
+
   /** {@link MediaType} for a movie trailer. */
   public static final int MEDIA_TYPE_TRAILER = 7;
+
   /** {@link MediaType} for a movie. */
   public static final int MEDIA_TYPE_MOVIE = 8;
+
   /** {@link MediaType} for a TV show. */
   public static final int MEDIA_TYPE_TV_SHOW = 9;
+
   /**
    * {@link MediaType} for a group of items (e.g., {@link #MEDIA_TYPE_MUSIC music}) belonging to an
    * album.
    */
   public static final int MEDIA_TYPE_ALBUM = 10;
+
   /**
    * {@link MediaType} for a group of items (e.g., {@link #MEDIA_TYPE_MUSIC music}) from the same
    * artist.
    */
   public static final int MEDIA_TYPE_ARTIST = 11;
+
   /**
    * {@link MediaType} for a group of items (e.g., {@link #MEDIA_TYPE_MUSIC music}) of the same
    * genre.
    */
   public static final int MEDIA_TYPE_GENRE = 12;
+
   /**
    * {@link MediaType} for a group of items (e.g., {@link #MEDIA_TYPE_MUSIC music}) forming a
    * playlist.
    */
   public static final int MEDIA_TYPE_PLAYLIST = 13;
+
   /**
    * {@link MediaType} for a group of items (e.g., {@link #MEDIA_TYPE_MUSIC music}) from the same
    * year.
    */
   public static final int MEDIA_TYPE_YEAR = 14;
+
   /**
    * {@link MediaType} for a group of items forming an audio book. Items in this group are typically
    * of type {@link #MEDIA_TYPE_AUDIO_BOOK_CHAPTER}.
    */
   public static final int MEDIA_TYPE_AUDIO_BOOK = 15;
+
   /**
    * {@link MediaType} for a group of items belonging to a podcast. Items in this group are
    * typically of type {@link #MEDIA_TYPE_PODCAST_EPISODE}.
    */
   public static final int MEDIA_TYPE_PODCAST = 16;
+
   /**
    * {@link MediaType} for a group of items that are part of a TV channel. Items in this group are
    * typically of type {@link #MEDIA_TYPE_TV_SHOW}, {@link #MEDIA_TYPE_TV_SERIES} or {@link
    * #MEDIA_TYPE_MOVIE}.
    */
   public static final int MEDIA_TYPE_TV_CHANNEL = 17;
+
   /**
    * {@link MediaType} for a group of items that are part of a TV series. Items in this group are
    * typically of type {@link #MEDIA_TYPE_TV_SHOW} or {@link #MEDIA_TYPE_TV_SEASON}.
    */
   public static final int MEDIA_TYPE_TV_SERIES = 18;
+
   /**
    * {@link MediaType} for a group of items that are part of a TV series. Items in this group are
    * typically of type {@link #MEDIA_TYPE_TV_SHOW}.
    */
   public static final int MEDIA_TYPE_TV_SEASON = 19;
+
   /** {@link MediaType} for a folder with mixed or undetermined content. */
   public static final int MEDIA_TYPE_FOLDER_MIXED = 20;
+
   /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_ALBUM albums}. */
   public static final int MEDIA_TYPE_FOLDER_ALBUMS = 21;
+
   /** {@link MediaType} for a folder containing {@linkplain #FIELD_ARTIST artists}. */
   public static final int MEDIA_TYPE_FOLDER_ARTISTS = 22;
+
   /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_GENRE genres}. */
   public static final int MEDIA_TYPE_FOLDER_GENRES = 23;
+
   /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_PLAYLIST playlists}. */
   public static final int MEDIA_TYPE_FOLDER_PLAYLISTS = 24;
+
   /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_YEAR years}. */
   public static final int MEDIA_TYPE_FOLDER_YEARS = 25;
+
   /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_AUDIO_BOOK audio books}. */
   public static final int MEDIA_TYPE_FOLDER_AUDIO_BOOKS = 26;
+
   /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_PODCAST podcasts}. */
   public static final int MEDIA_TYPE_FOLDER_PODCASTS = 27;
+
   /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_TV_CHANNEL TV channels}. */
   public static final int MEDIA_TYPE_FOLDER_TV_CHANNELS = 28;
+
   /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_TV_SERIES TV series}. */
   public static final int MEDIA_TYPE_FOLDER_TV_SERIES = 29;
+
   /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_TV_SHOW TV shows}. */
   public static final int MEDIA_TYPE_FOLDER_TV_SHOWS = 30;
+
   /**
    * {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_RADIO_STATION radio
    * stations}.
    */
   public static final int MEDIA_TYPE_FOLDER_RADIO_STATIONS = 31;
+
   /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_NEWS news}. */
   public static final int MEDIA_TYPE_FOLDER_NEWS = 32;
+
   /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_VIDEO videos}. */
   public static final int MEDIA_TYPE_FOLDER_VIDEOS = 33;
+
   /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_TRAILER movie trailers}. */
   public static final int MEDIA_TYPE_FOLDER_TRAILERS = 34;
+
   /** {@link MediaType} for a folder containing {@linkplain #MEDIA_TYPE_MOVIE movies}. */
   public static final int MEDIA_TYPE_FOLDER_MOVIES = 35;
 
@@ -787,6 +822,7 @@ public final class MediaMetadata implements Bundleable {
    * @deprecated Use {@link #isBrowsable} set to false instead.
    */
   @Deprecated public static final int FOLDER_TYPE_NONE = -1;
+
   /**
    * Type for a folder containing media of mixed types.
    *
@@ -794,12 +830,14 @@ public final class MediaMetadata implements Bundleable {
    *     #MEDIA_TYPE_FOLDER_MIXED} instead.
    */
   @Deprecated public static final int FOLDER_TYPE_MIXED = 0;
+
   /**
    * Type for a folder containing only playable media.
    *
    * @deprecated Use {@link #isBrowsable} set to true instead.
    */
   @Deprecated public static final int FOLDER_TYPE_TITLES = 1;
+
   /**
    * Type for a folder containing media categorized by album.
    *
@@ -807,6 +845,7 @@ public final class MediaMetadata implements Bundleable {
    *     #MEDIA_TYPE_FOLDER_ALBUMS} instead.
    */
   @Deprecated public static final int FOLDER_TYPE_ALBUMS = 2;
+
   /**
    * Type for a folder containing media categorized by artist.
    *
@@ -814,6 +853,7 @@ public final class MediaMetadata implements Bundleable {
    *     #MEDIA_TYPE_FOLDER_ARTISTS} instead.
    */
   @Deprecated public static final int FOLDER_TYPE_ARTISTS = 3;
+
   /**
    * Type for a folder containing media categorized by genre.
    *
@@ -821,6 +861,7 @@ public final class MediaMetadata implements Bundleable {
    *     #MEDIA_TYPE_FOLDER_GENRES} instead.
    */
   @Deprecated public static final int FOLDER_TYPE_GENRES = 4;
+
   /**
    * Type for a folder containing a playlist.
    *
@@ -828,6 +869,7 @@ public final class MediaMetadata implements Bundleable {
    *     #MEDIA_TYPE_FOLDER_PLAYLISTS} instead.
    */
   @Deprecated public static final int FOLDER_TYPE_PLAYLISTS = 5;
+
   /**
    * Type for a folder containing media categorized by year.
    *
@@ -910,36 +952,50 @@ public final class MediaMetadata implements Bundleable {
 
   /** Optional title. */
   @Nullable public final CharSequence title;
+
   /** Optional artist. */
   @Nullable public final CharSequence artist;
+
   /** Optional album title. */
   @Nullable public final CharSequence albumTitle;
+
   /** Optional album artist. */
   @Nullable public final CharSequence albumArtist;
+
   /** Optional display title. */
   @Nullable public final CharSequence displayTitle;
+
   /**
    * Optional subtitle.
    *
    * <p>This is the secondary title of the media, unrelated to closed captions.
    */
   @Nullable public final CharSequence subtitle;
+
   /** Optional description. */
   @Nullable public final CharSequence description;
+
   /** Optional user {@link Rating}. */
   @Nullable public final Rating userRating;
+
   /** Optional overall {@link Rating}. */
   @Nullable public final Rating overallRating;
+
   /** Optional artwork data as a compressed byte array. */
   @Nullable public final byte[] artworkData;
+
   /** Optional {@link PictureType} of the artwork data. */
   @Nullable public final @PictureType Integer artworkDataType;
+
   /** Optional artwork {@link Uri}. */
   @Nullable public final Uri artworkUri;
+
   /** Optional track number. */
   @Nullable public final Integer trackNumber;
+
   /** Optional total number of tracks. */
   @Nullable public final Integer totalTrackCount;
+
   /**
    * Optional {@link FolderType}.
    *
@@ -950,22 +1006,28 @@ public final class MediaMetadata implements Bundleable {
   @Deprecated
   @Nullable
   public final @FolderType Integer folderType;
+
   /** Optional boolean to indicate that the media is a browsable folder. */
   @Nullable public final Boolean isBrowsable;
+
   /** Optional boolean to indicate that the media is playable. */
   @Nullable public final Boolean isPlayable;
+
   /**
    * @deprecated Use {@link #recordingYear} instead.
    */
   @UnstableApi @Deprecated @Nullable public final Integer year;
+
   /** Optional year of the recording date. */
   @Nullable public final Integer recordingYear;
+
   /**
    * Optional month of the recording date.
    *
    * <p>Note that there is no guarantee that the month and day are a valid combination.
    */
   @Nullable public final Integer recordingMonth;
+
   /**
    * Optional day of the recording date.
    *
@@ -975,34 +1037,45 @@ public final class MediaMetadata implements Bundleable {
 
   /** Optional year of the release date. */
   @Nullable public final Integer releaseYear;
+
   /**
    * Optional month of the release date.
    *
    * <p>Note that there is no guarantee that the month and day are a valid combination.
    */
   @Nullable public final Integer releaseMonth;
+
   /**
    * Optional day of the release date.
    *
    * <p>Note that there is no guarantee that the month and day are a valid combination.
    */
   @Nullable public final Integer releaseDay;
+
   /** Optional writer. */
   @Nullable public final CharSequence writer;
+
   /** Optional composer. */
   @Nullable public final CharSequence composer;
+
   /** Optional conductor. */
   @Nullable public final CharSequence conductor;
+
   /** Optional disc number. */
   @Nullable public final Integer discNumber;
+
   /** Optional total number of discs. */
   @Nullable public final Integer totalDiscCount;
+
   /** Optional genre. */
   @Nullable public final CharSequence genre;
+
   /** Optional compilation. */
   @Nullable public final CharSequence compilation;
+
   /** Optional name of the station streaming the media. */
   @Nullable public final CharSequence station;
+
   /** Optional {@link MediaType}. */
   @Nullable public final @MediaType Integer mediaType;
 

@@ -139,12 +139,16 @@ public final class RtpPayloadFormat {
 
   /** The payload type associated with this format. */
   public final int rtpPayloadType;
+
   /** The clock rate in Hertz, associated with the format. */
   public final int clockRate;
+
   /** The {@link Format} of this RTP payload. */
   public final Format format;
+
   /** The format parameters, mapped from the SDP FMTP attribute (RFC2327 Page 22). */
   public final ImmutableMap<String, String> fmtpParameters;
+
   /** The RTP media encoding. */
   public final String mediaEncoding;
 

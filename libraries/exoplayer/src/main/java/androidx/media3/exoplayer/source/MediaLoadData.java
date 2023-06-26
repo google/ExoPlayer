@@ -29,31 +29,37 @@ public final class MediaLoadData {
 
   /** The {@link DataType data type}. */
   public final @DataType int dataType;
+
   /**
    * One of the {@link TrackType track types}, which is a media track type if the data corresponds
    * to media of a specific type, or {@link C#TRACK_TYPE_UNKNOWN} otherwise.
    */
   public final @TrackType int trackType;
+
   /**
    * The format of the track to which the data belongs. Null if the data does not belong to a
    * specific track.
    */
   @Nullable public final Format trackFormat;
+
   /**
    * One of the {@link SelectionReason selection reasons} if the data belongs to a track. {@link
    * C#SELECTION_REASON_UNKNOWN} otherwise.
    */
   public final @C.SelectionReason int trackSelectionReason;
+
   /**
    * Optional data associated with the selection of the track to which the data belongs. Null if the
    * data does not belong to a track.
    */
   @Nullable public final Object trackSelectionData;
+
   /**
    * The start time of the media in the {@link MediaPeriod}, or {@link C#TIME_UNSET} if the data
    * does not belong to a specific {@link MediaPeriod}.
    */
   public final long mediaStartTimeMs;
+
   /**
    * The end time of the media in the {@link MediaPeriod}, or {@link C#TIME_UNSET} if the data does
    * not belong to a specific {@link MediaPeriod} or the end time is unknown.

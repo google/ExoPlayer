@@ -151,14 +151,19 @@ public final class HlsMultivariantPlaylist extends HlsPlaylist {
 
   /** All of the media playlist URLs referenced by the playlist. */
   public final List<Uri> mediaPlaylistUrls;
+
   /** The variants declared by the playlist. */
   public final List<Variant> variants;
+
   /** The video renditions declared by the playlist. */
   public final List<Rendition> videos;
+
   /** The audio renditions declared by the playlist. */
   public final List<Rendition> audios;
+
   /** The subtitle renditions declared by the playlist. */
   public final List<Rendition> subtitles;
+
   /** The closed caption renditions declared by the playlist. */
   public final List<Rendition> closedCaptions;
 
@@ -167,14 +172,17 @@ public final class HlsMultivariantPlaylist extends HlsPlaylist {
    * muxed audio.
    */
   @Nullable public final Format muxedAudioFormat;
+
   /**
    * The format of the closed captions declared by the playlist. May be empty if the playlist
    * explicitly declares no captions are available, or null if the playlist does not declare any
    * captions information.
    */
   @Nullable public final List<Format> muxedCaptionFormats;
+
   /** Contains variable definitions, as defined by the #EXT-X-DEFINE tag. */
   public final Map<String, String> variableDefinitions;
+
   /** DRM initialization data derived from #EXT-X-SESSION-KEY tags. */
   public final List<DrmInitData> sessionKeyDrmInitData;
 

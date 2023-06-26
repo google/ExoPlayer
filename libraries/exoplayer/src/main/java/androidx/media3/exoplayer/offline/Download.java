@@ -54,6 +54,7 @@ public final class Download {
     STATE_RESTARTING
   })
   public @interface State {}
+
   // Important: These constants are persisted into DownloadIndex. Do not change them.
   /**
    * The download is waiting to be started. A download may be queued because the {@code
@@ -67,16 +68,22 @@ public final class Download {
    * </ul>
    */
   public static final int STATE_QUEUED = 0;
+
   /** The download is stopped for a specified {@link #stopReason}. */
   public static final int STATE_STOPPED = 1;
+
   /** The download is currently started. */
   public static final int STATE_DOWNLOADING = 2;
+
   /** The download completed. */
   public static final int STATE_COMPLETED = 3;
+
   /** The download failed. */
   public static final int STATE_FAILED = 4;
+
   /** The download is being removed. */
   public static final int STATE_REMOVING = 5;
+
   /** The download will restart after all downloaded data is removed. */
   public static final int STATE_RESTARTING = 7;
 
@@ -88,8 +95,10 @@ public final class Download {
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({FAILURE_REASON_NONE, FAILURE_REASON_UNKNOWN})
   public @interface FailureReason {}
+
   /** The download isn't failed. */
   public static final int FAILURE_REASON_NONE = 0;
+
   /** The download is failed because of unknown reason. */
   public static final int FAILURE_REASON_UNKNOWN = 1;
 
@@ -98,16 +107,22 @@ public final class Download {
 
   /** The download request. */
   public final DownloadRequest request;
+
   /** The state of the download. */
   public final @State int state;
+
   /** The first time when download entry is created. */
   public final long startTimeMs;
+
   /** The last update time. */
   public final long updateTimeMs;
+
   /** The total size of the content in bytes, or {@link C#LENGTH_UNSET} if unknown. */
   public final long contentLength;
+
   /** The reason the download is stopped, or {@link #STOP_REASON_NONE}. */
   public final int stopReason;
+
   /**
    * If {@link #state} is {@link #STATE_FAILED} then this is the cause, otherwise {@link
    * #FAILURE_REASON_NONE}.

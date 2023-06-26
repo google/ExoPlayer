@@ -42,6 +42,7 @@ public final class VideoEncoderSettings {
 
   /** A value for various fields to indicate that the field's value is unknown or not applicable. */
   public static final int NO_VALUE = Format.NO_VALUE;
+
   /** The default I-frame interval in seconds. */
   public static final float DEFAULT_I_FRAME_INTERVAL_SECONDS = 1.0f;
 
@@ -219,18 +220,25 @@ public final class VideoEncoderSettings {
 
   /** The encoding bitrate in bits per second. */
   public final int bitrate;
+
   /** One of {@linkplain BitrateMode}. */
   public final @BitrateMode int bitrateMode;
+
   /** The encoding profile. */
   public final int profile;
+
   /** The encoding level. */
   public final int level;
+
   /** The encoding I-Frame interval in seconds. */
   public final float iFrameIntervalSeconds;
+
   /** The encoder {@link MediaFormat#KEY_OPERATING_RATE operating rate} in frames per second. */
   public final int operatingRate;
+
   /** The encoder {@link MediaFormat#KEY_PRIORITY priority}. */
   public final int priority;
+
   /** Whether the encoder should automatically set the bitrate to target a high quality encoding. */
   public final boolean enableHighQualityTargeting;
 

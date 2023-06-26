@@ -31,6 +31,7 @@ public abstract class BaseAudioProcessor implements AudioProcessor {
 
   /** The current input audio format. */
   protected AudioFormat inputAudioFormat;
+
   /** The current output audio format. */
   protected AudioFormat outputAudioFormat;
 

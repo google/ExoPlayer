@@ -896,11 +896,13 @@ public final class MediaCodecInfo {
 
   /** The decoder has a PerformancePoint that covers the resolution and frame rate */
   private static final int COVERAGE_RESULT_YES = 2;
+
   /**
    * The decoder has at least one PerformancePoint, but none of them cover the resolution and frame
    * rate
    */
   private static final int COVERAGE_RESULT_NO = 1;
+
   /** The VideoCapabilities does not contain any PerformancePoints */
   private static final int COVERAGE_RESULT_NO_EMPTY_LIST = 0;
 

@@ -44,6 +44,7 @@ public final class CueGroup implements Bundleable {
    * <p>This list may be empty if the group represents a state with no cues.
    */
   public final ImmutableList<Cue> cues;
+
   /**
    * The presentation time of the {@link #cues}, in microseconds.
    *

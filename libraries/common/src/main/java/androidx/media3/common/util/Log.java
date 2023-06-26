@@ -45,14 +45,19 @@ public final class Log {
   @Target(TYPE_USE)
   @IntDef({LOG_LEVEL_ALL, LOG_LEVEL_INFO, LOG_LEVEL_WARNING, LOG_LEVEL_ERROR, LOG_LEVEL_OFF})
   public @interface LogLevel {}
+
   /** Log level to log all messages. */
   public static final int LOG_LEVEL_ALL = 0;
+
   /** Log level to only log informative, warning and error messages. */
   public static final int LOG_LEVEL_INFO = 1;
+
   /** Log level to only log warning and error messages. */
   public static final int LOG_LEVEL_WARNING = 2;
+
   /** Log level to only log error messages. */
   public static final int LOG_LEVEL_ERROR = 3;
+
   /** Log level to disable all logging. */
   public static final int LOG_LEVEL_OFF = Integer.MAX_VALUE;
 

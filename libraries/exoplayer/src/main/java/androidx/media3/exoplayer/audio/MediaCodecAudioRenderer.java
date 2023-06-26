@@ -93,6 +93,7 @@ import java.util.List;
 public class MediaCodecAudioRenderer extends MediaCodecRenderer implements MediaClock {
 
   private static final String TAG = "MediaCodecAudioRenderer";
+
   /**
    * Custom key used to indicate bits per sample by some decoders on Vivo devices. For example
    * OMX.vivo.alac.decoder on the Vivo Z1 Pro.
@@ -106,6 +107,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   private int codecMaxInputSize;
   private boolean codecNeedsDiscardChannelsWorkaround;
   @Nullable private Format inputFormat;
+
   /** Codec used for DRM decryption only in passthrough and offload. */
   @Nullable private Format decryptOnlyCodecFormat;
 

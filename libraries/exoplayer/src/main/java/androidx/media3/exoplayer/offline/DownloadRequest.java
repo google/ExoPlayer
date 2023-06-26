@@ -107,23 +107,29 @@ public final class DownloadRequest implements Parcelable {
 
   /** The unique content id. */
   public final String id;
+
   /** The uri being downloaded. */
   public final Uri uri;
+
   /**
    * The MIME type of this content. Used as a hint to infer the content's type (DASH, HLS,
    * SmoothStreaming). If null, a {@code DownloadService} will infer the content type from the
    * {@link #uri}.
    */
   @Nullable public final String mimeType;
+
   /** Stream keys to be downloaded. If empty, all streams will be downloaded. */
   public final List<StreamKey> streamKeys;
+
   /** The key set id of the offline licence if the content is protected with DRM. */
   @Nullable public final byte[] keySetId;
+
   /**
    * Custom key for cache indexing, or null. Must be null for DASH, HLS and SmoothStreaming
    * downloads.
    */
   @Nullable public final String customCacheKey;
+
   /** Application defined data associated with the download. May be empty. */
   public final byte[] data;
 

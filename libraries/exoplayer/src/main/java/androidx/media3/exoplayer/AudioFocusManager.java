@@ -71,10 +71,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     PLAYER_COMMAND_PLAY_WHEN_READY,
   })
   public @interface PlayerCommand {}
+
   /** Do not play. */
   public static final int PLAYER_COMMAND_DO_NOT_PLAY = -1;
+
   /** Do not play now. Wait for callback to play. */
   public static final int PLAYER_COMMAND_WAIT_FOR_CALLBACK = 0;
+
   /** Play freely. */
   public static final int PLAYER_COMMAND_PLAY_WHEN_READY = 1;
 
@@ -89,12 +92,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     AUDIO_FOCUS_STATE_LOSS_TRANSIENT_DUCK
   })
   private @interface AudioFocusState {}
+
   /** No audio focus is currently being held. */
   private static final int AUDIO_FOCUS_STATE_NO_FOCUS = 0;
+
   /** The requested audio focus is currently held. */
   private static final int AUDIO_FOCUS_STATE_HAVE_FOCUS = 1;
+
   /** Audio focus has been temporarily lost. */
   private static final int AUDIO_FOCUS_STATE_LOSS_TRANSIENT = 2;
+
   /** Audio focus has been temporarily lost, but playback may continue with reduced volume. */
   private static final int AUDIO_FOCUS_STATE_LOSS_TRANSIENT_DUCK = 3;
 
@@ -114,24 +121,29 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE
   })
   private @interface AudioFocusGain {}
+
   /**
    * @see AudioManager#AUDIOFOCUS_NONE
    */
   @SuppressWarnings("InlinedApi")
   private static final int AUDIOFOCUS_NONE = AudioManager.AUDIOFOCUS_NONE;
+
   /**
    * @see AudioManager#AUDIOFOCUS_GAIN
    */
   private static final int AUDIOFOCUS_GAIN = AudioManager.AUDIOFOCUS_GAIN;
+
   /**
    * @see AudioManager#AUDIOFOCUS_GAIN_TRANSIENT
    */
   private static final int AUDIOFOCUS_GAIN_TRANSIENT = AudioManager.AUDIOFOCUS_GAIN_TRANSIENT;
+
   /**
    * @see AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK
    */
   private static final int AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK =
       AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK;
+
   /**
    * @see AudioManager#AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE
    */

@@ -121,12 +121,16 @@ public final class IcyHeaders implements Metadata.Entry {
    * was not present.
    */
   public final int bitrate;
+
   /** The genre ({@code icy-genre}). */
   @Nullable public final String genre;
+
   /** The stream name ({@code icy-name}). */
   @Nullable public final String name;
+
   /** The URL of the radio station ({@code icy-url}). */
   @Nullable public final String url;
+
   /**
    * Whether the radio station is listed ({@code icy-pub}), or {@code false} if the header was not
    * present.

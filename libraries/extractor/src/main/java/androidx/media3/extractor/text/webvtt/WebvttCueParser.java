@@ -971,6 +971,7 @@ public final class WebvttCueParser {
         (e1, e2) -> Integer.compare(e1.startTag.position, e2.startTag.position);
 
     private final StartTag startTag;
+
     /**
      * The position of the end of this element's text in the un-marked-up cue text (i.e. the
      * corollary to {@link StartTag#position}).

@@ -37,6 +37,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  */
 /* package */ final class RtpAmrReader implements RtpPayloadReader {
   private static final String TAG = "RtpAmrReader";
+
   /**
    * The frame size in bytes, including header (1 byte), for each of the 16 frame types for AMR-NB
    * (narrow band). AMR-NB supports eight narrow band speech encoding modes with bit rates between

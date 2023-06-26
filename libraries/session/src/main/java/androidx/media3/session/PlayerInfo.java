@@ -66,8 +66,10 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
     public static final BundlingExclusions NONE =
         new BundlingExclusions(
             /* isTimelineExcluded= */ false, /* areCurrentTracksExcluded= */ false);
+
     /** Whether the {@linkplain PlayerInfo#timeline timeline} is excluded. */
     public final boolean isTimelineExcluded;
+
     /** Whether the {@linkplain PlayerInfo#currentTracks current tracks} are excluded. */
     public final boolean areCurrentTracksExcluded;
 
@@ -81,6 +83,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
     private static final String FIELD_IS_TIMELINE_EXCLUDED = Util.intToStringMaxRadix(0);
     private static final String FIELD_ARE_CURRENT_TRACKS_EXCLUDED = Util.intToStringMaxRadix(1);
+
     // Next field key = 2
 
     @UnstableApi
@@ -822,6 +825,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
   private static final String FIELD_TRACK_SELECTION_PARAMETERS = Util.intToStringMaxRadix(29);
   private static final String FIELD_CURRENT_TRACKS = Util.intToStringMaxRadix(30);
   private static final String FIELD_TIMELINE_CHANGE_REASON = Util.intToStringMaxRadix(31);
+
   // Next field key = 32
 
   public Bundle toBundle(

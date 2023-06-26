@@ -27,10 +27,13 @@ public final class SurfaceInfo {
 
   /** The {@link Surface}. */
   public final Surface surface;
+
   /** The width of frames rendered to the {@link #surface}, in pixels. */
   public final int width;
+
   /** The height of frames rendered to the {@link #surface}, in pixels. */
   public final int height;
+
   /**
    * A counter-clockwise rotation to apply to frames before rendering them to the {@link #surface}.
    *

@@ -54,10 +54,13 @@ public final class ExoTimeoutException extends RuntimeException {
 
   /** The operation where this error occurred is not defined. */
   public static final int TIMEOUT_OPERATION_UNDEFINED = 0;
+
   /** The error occurred in {@link Player#release}. */
   public static final int TIMEOUT_OPERATION_RELEASE = 1;
+
   /** The error occurred in {@link ExoPlayer#setForegroundMode}. */
   public static final int TIMEOUT_OPERATION_SET_FOREGROUND_MODE = 2;
+
   /** The error occurred while detaching a surface from the player. */
   public static final int TIMEOUT_OPERATION_DETACH_SURFACE = 3;
 

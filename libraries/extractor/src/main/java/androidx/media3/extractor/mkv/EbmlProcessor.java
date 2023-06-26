@@ -48,16 +48,22 @@ public interface EbmlProcessor {
     ELEMENT_TYPE_FLOAT
   })
   @interface ElementType {}
+
   /** Type for unknown elements. */
   int ELEMENT_TYPE_UNKNOWN = 0;
+
   /** Type for elements that contain child elements. */
   int ELEMENT_TYPE_MASTER = 1;
+
   /** Type for integer value elements of up to 8 bytes. */
   int ELEMENT_TYPE_UNSIGNED_INT = 2;
+
   /** Type for string elements. */
   int ELEMENT_TYPE_STRING = 3;
+
   /** Type for binary elements. */
   int ELEMENT_TYPE_BINARY = 4;
+
   /** Type for IEEE floating point value elements of either 4 or 8 bytes. */
   int ELEMENT_TYPE_FLOAT = 5;
 

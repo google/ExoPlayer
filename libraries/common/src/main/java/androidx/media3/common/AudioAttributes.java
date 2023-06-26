@@ -131,12 +131,16 @@ public final class AudioAttributes implements Bundleable {
 
   /** The {@link C.AudioContentType}. */
   public final @C.AudioContentType int contentType;
+
   /** The {@link C.AudioFlags}. */
   public final @C.AudioFlags int flags;
+
   /** The {@link C.AudioUsage}. */
   public final @C.AudioUsage int usage;
+
   /** The {@link C.AudioAllowedCapturePolicy}. */
   public final @C.AudioAllowedCapturePolicy int allowedCapturePolicy;
+
   /** The {@link C.SpatializationBehavior}. */
   public final @C.SpatializationBehavior int spatializationBehavior;
 

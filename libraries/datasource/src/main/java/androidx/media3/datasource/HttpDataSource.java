@@ -204,8 +204,10 @@ public interface HttpDataSource extends DataSource {
 
     /** The error occurred reading data from a {@code HttpDataSource}. */
     public static final int TYPE_OPEN = 1;
+
     /** The error occurred in opening a {@code HttpDataSource}. */
     public static final int TYPE_READ = 2;
+
     /** The error occurred in closing a {@code HttpDataSource}. */
     public static final int TYPE_CLOSE = 3;
 

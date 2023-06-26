@@ -42,8 +42,10 @@ import androidx.media3.exoplayer.upstream.Allocator;
 
   /** The {@link MediaPeriod} wrapped by this class. */
   public final MediaPeriod mediaPeriod;
+
   /** The unique timeline period identifier the media period belongs to. */
   public final Object uid;
+
   /**
    * The sample streams for each renderer associated with this period. May contain null elements.
    */
@@ -51,10 +53,13 @@ import androidx.media3.exoplayer.upstream.Allocator;
 
   /** Whether the media period has finished preparing. */
   public boolean prepared;
+
   /** Whether any of the tracks of this media period are enabled. */
   public boolean hasEnabledTracks;
+
   /** {@link MediaPeriodInfo} about this media period. */
   public MediaPeriodInfo info;
+
   /**
    * Whether all renderers are in the correct state for this {@link #mediaPeriod}.
    *

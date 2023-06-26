@@ -265,10 +265,13 @@ public final class DrmInitData implements Comparator<SchemeData>, Parcelable {
      * applies to all schemes).
      */
     public final UUID uuid;
+
     /** The URL of the server to which license requests should be made. May be null if unknown. */
     @Nullable public final String licenseServerUrl;
+
     /** The mimeType of {@link #data}. */
     public final String mimeType;
+
     /** The initialization data. May be null for scheme support checks only. */
     @Nullable public final byte[] data;
 

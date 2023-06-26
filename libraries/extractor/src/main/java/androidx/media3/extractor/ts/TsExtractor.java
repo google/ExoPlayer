@@ -73,8 +73,10 @@ public final class TsExtractor implements Extractor {
 
   /** Behave as defined in ISO/IEC 13818-1. */
   public static final int MODE_MULTI_PMT = 0;
+
   /** Assume only one PMT will be contained in the stream, even if more are declared by the PAT. */
   public static final int MODE_SINGLE_PMT = 1;
+
   /**
    * Enable single PMT mode, map {@link TrackOutput}s by their type (instead of PID) and ignore
    * continuity counters.

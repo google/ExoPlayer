@@ -43,12 +43,16 @@ public final class VersionTable {
 
   /** Returned by {@link #getVersion(SQLiteDatabase, int, String)} if the version is unset. */
   public static final int VERSION_UNSET = -1;
+
   /** Version of tables used for offline functionality. */
   public static final int FEATURE_OFFLINE = 0;
+
   /** Version of tables used for cache content metadata. */
   public static final int FEATURE_CACHE_CONTENT_METADATA = 1;
+
   /** Version of tables used for cache file metadata. */
   public static final int FEATURE_CACHE_FILE_METADATA = 2;
+
   /** Version of tables used from external features. */
   public static final int FEATURE_EXTERNAL = 1000;
 

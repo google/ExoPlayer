@@ -214,6 +214,7 @@ import com.google.common.base.Objects;
   private static final String FIELD_ISESSION = Util.intToStringMaxRadix(6);
   private static final String FIELD_EXTRAS = Util.intToStringMaxRadix(7);
   private static final String FIELD_INTERFACE_VERSION = Util.intToStringMaxRadix(8);
+
   // Next field key = 9
 
   @Override

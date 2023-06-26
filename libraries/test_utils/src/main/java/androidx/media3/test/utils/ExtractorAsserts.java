@@ -90,10 +90,13 @@ public final class ExtractorAsserts {
      * consuming it.
      */
     public final boolean sniffFirst;
+
     /** Whether to simulate IO errors. */
     public final boolean simulateIOErrors;
+
     /** Whether to simulate unknown input length. */
     public final boolean simulateUnknownLength;
+
     /** Whether to simulate partial reads. */
     public final boolean simulatePartialReads;
 
@@ -409,6 +412,7 @@ public final class ExtractorAsserts {
         simulationConfig.simulateUnknownLength,
         simulationConfig.simulatePartialReads);
   }
+
   /**
    * Asserts that an extractor consumes valid input data successfully under the specified
    * conditions.

@@ -69,6 +69,7 @@ public class DefaultMediaNotificationProviderTest {
   private static final String TEST_CHANNEL_ID = "test_channel_id";
   private static final NotificationCompat.Action fakeAction =
       new NotificationCompat.Action(0, null, null);
+
   /**
    * The key string is defined as <a
    * href=https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:core/core/src/main/java/androidx/core/app/NotificationCompatJellybean.java?q=EXTRA_ALLOW_GENERATED_REPLIES>
@@ -76,6 +77,7 @@ public class DefaultMediaNotificationProviderTest {
    */
   private static final String EXTRA_ALLOW_GENERATED_REPLIES =
       "android.support.allowGeneratedReplies";
+
   /**
    * The key string is defined as <a
    * href=https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:core/core/src/main/java/androidx/core/app/NotificationCompat.java?q=EXTRA_SHOWS_USER_INTERFACE>
@@ -83,6 +85,7 @@ public class DefaultMediaNotificationProviderTest {
    */
   private static final String EXTRA_SHOWS_USER_INTERFACE =
       "android.support.action.showsUserInterface";
+
   /**
    * The key string is defined as <a
    * href=https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:core/core/src/main/java/androidx/core/app/NotificationCompat.java?q=EXTRA_SEMANTIC_ACTION>

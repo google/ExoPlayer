@@ -79,6 +79,7 @@ public final class TransformationException extends Exception {
 
   /** Caused by an error whose cause could not be identified. */
   public static final int ERROR_CODE_UNSPECIFIED = 1000;
+
   /**
    * Caused by a failed runtime check.
    *
@@ -90,6 +91,7 @@ public final class TransformationException extends Exception {
 
   /** Caused by an Input/Output error which could not be identified. */
   public static final int ERROR_CODE_IO_UNSPECIFIED = 2000;
+
   /**
    * Caused by a network connection failure.
    *
@@ -103,8 +105,10 @@ public final class TransformationException extends Exception {
    * </ul>
    */
   public static final int ERROR_CODE_IO_NETWORK_CONNECTION_FAILED = 2001;
+
   /** Caused by a network timeout, meaning the server is taking too long to fulfill a request. */
   public static final int ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT = 2002;
+
   /**
    * Caused by a server returning a resource with an invalid "Content-Type" HTTP header value.
    *
@@ -112,20 +116,25 @@ public final class TransformationException extends Exception {
    * the server returns a paywall HTML page, with content type "text/html".
    */
   public static final int ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE = 2003;
+
   /** Caused by an HTTP server returning an unexpected HTTP response status code. */
   public static final int ERROR_CODE_IO_BAD_HTTP_STATUS = 2004;
+
   /** Caused by a non-existent file. */
   public static final int ERROR_CODE_IO_FILE_NOT_FOUND = 2005;
+
   /**
    * Caused by lack of permission to perform an IO operation. For example, lack of permission to
    * access internet or external storage.
    */
   public static final int ERROR_CODE_IO_NO_PERMISSION = 2006;
+
   /**
    * Caused by the {@link AssetLoader} trying to access cleartext HTTP traffic (meaning http://
    * rather than https://) when the app's Network Security Configuration does not permit it.
    */
   public static final int ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED = 2007;
+
   /** Caused by reading data out of the data bound. */
   public static final int ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE = 2008;
 
@@ -133,8 +142,10 @@ public final class TransformationException extends Exception {
 
   /** Caused by a decoder initialization failure. */
   public static final int ERROR_CODE_DECODER_INIT_FAILED = 3001;
+
   /** Caused by a failure while trying to decode media samples. */
   public static final int ERROR_CODE_DECODING_FAILED = 3002;
+
   /** Caused by trying to decode content whose format is not supported. */
   public static final int ERROR_CODE_DECODING_FORMAT_UNSUPPORTED = 3003;
 
@@ -142,8 +153,10 @@ public final class TransformationException extends Exception {
 
   /** Caused by an encoder initialization failure. */
   public static final int ERROR_CODE_ENCODER_INIT_FAILED = 4001;
+
   /** Caused by a failure while trying to encode media samples. */
   public static final int ERROR_CODE_ENCODING_FAILED = 4002;
+
   /**
    * Caused by trying to encode content whose format is not supported. *
    *

@@ -69,6 +69,7 @@ import androidx.media3.common.util.Util;
   private static final String FIELD_PID = Util.intToStringMaxRadix(2);
   private static final String FIELD_CONNECTION_HINTS = Util.intToStringMaxRadix(3);
   private static final String FIELD_CONTROLLER_INTERFACE_VERSION = Util.intToStringMaxRadix(4);
+
   // Next id: 5
 
   @Override

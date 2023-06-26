@@ -24,6 +24,7 @@ import java.util.List;
 /* package */ final class RtspOptionsResponse {
   /** The response's status code. */
   public final int status;
+
   /**
    * A list of methods supported by the RTSP server, encoded as {@link RtspRequest.Method}; or an
    * empty list if the server does not disclose the supported methods.

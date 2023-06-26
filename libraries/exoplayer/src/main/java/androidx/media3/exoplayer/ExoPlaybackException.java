@@ -58,24 +58,28 @@ public final class ExoPlaybackException extends PlaybackException {
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({TYPE_SOURCE, TYPE_RENDERER, TYPE_UNEXPECTED, TYPE_REMOTE})
   public @interface Type {}
+
   /**
    * The error occurred loading data from a {@link MediaSource}.
    *
    * <p>Call {@link #getSourceException()} to retrieve the underlying cause.
    */
   @UnstableApi public static final int TYPE_SOURCE = 0;
+
   /**
    * The error occurred in a {@link Renderer}.
    *
    * <p>Call {@link #getRendererException()} to retrieve the underlying cause.
    */
   @UnstableApi public static final int TYPE_RENDERER = 1;
+
   /**
    * The error was an unexpected {@link RuntimeException}.
    *
    * <p>Call {@link #getUnexpectedException()} to retrieve the underlying cause.
    */
   @UnstableApi public static final int TYPE_UNEXPECTED = 2;
+
   /**
    * The error occurred in a remote component.
    *

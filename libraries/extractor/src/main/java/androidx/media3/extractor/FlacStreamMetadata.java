@@ -53,6 +53,7 @@ public final class FlacStreamMetadata {
   public static class SeekTable {
     /** Seek points sample numbers. */
     public final long[] pointSampleNumbers;
+
     /** Seek points byte offsets from the first frame. */
     public final long[] pointOffsets;
 
@@ -69,14 +70,19 @@ public final class FlacStreamMetadata {
 
   /** Minimum number of samples per block. */
   public final int minBlockSizeSamples;
+
   /** Maximum number of samples per block. */
   public final int maxBlockSizeSamples;
+
   /** Minimum frame size in bytes, or 0 if the value is unknown. */
   public final int minFrameSize;
+
   /** Maximum frame size in bytes, or 0 if the value is unknown. */
   public final int maxFrameSize;
+
   /** Sample rate in Hertz. */
   public final int sampleRate;
+
   /**
    * Lookup key corresponding to the stream sample rate, or {@link #NOT_IN_LOOKUP_TABLE} if it is
    * not in the lookup table.
@@ -86,10 +92,13 @@ public final class FlacStreamMetadata {
    * <p>The sample rate lookup table is described in https://xiph.org/flac/format.html#frame_header.
    */
   public final int sampleRateLookupKey;
+
   /** Number of audio channels. */
   public final int channels;
+
   /** Number of bits per sample. */
   public final int bitsPerSample;
+
   /**
    * Lookup key corresponding to the number of bits per sample of the stream, or {@link
    * #NOT_IN_LOOKUP_TABLE} if it is not in the lookup table.
@@ -100,10 +109,13 @@ public final class FlacStreamMetadata {
    * <p>The sample size lookup table is described in https://xiph.org/flac/format.html#frame_header.
    */
   public final int bitsPerSampleLookupKey;
+
   /** Total number of samples, or 0 if the value is unknown. */
   public final long totalSamples;
+
   /** Seek table, or {@code null} if it is not provided. */
   @Nullable public final SeekTable seekTable;
+
   /** Content metadata, or {@code null} if it is not provided. */
   @Nullable private final Metadata metadata;
 

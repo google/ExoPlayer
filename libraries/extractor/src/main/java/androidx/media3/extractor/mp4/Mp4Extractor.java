@@ -83,8 +83,10 @@ public final class Mp4Extractor implements Extractor, SeekMap {
         FLAG_READ_SEF_DATA
       })
   public @interface Flags {}
+
   /** Flag to ignore any edit lists in the stream. */
   public static final int FLAG_WORKAROUND_IGNORE_EDIT_LISTS = 1;
+
   /**
    * Flag to extract {@link MotionPhotoMetadata} from HEIC motion photos following the Google Photos
    * Motion Photo File Format V1.1.
@@ -93,6 +95,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
    * retrieval use cases.
    */
   public static final int FLAG_READ_MOTION_PHOTO_METADATA = 1 << 1;
+
   /**
    * Flag to extract {@link SlowMotionData} metadata from Samsung Extension Format (SEF) slow motion
    * videos.

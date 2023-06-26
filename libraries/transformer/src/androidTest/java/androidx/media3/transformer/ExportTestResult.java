@@ -127,25 +127,31 @@ public class ExportTestResult {
 
   /** The {@link ExportResult} of the export. */
   public final ExportResult exportResult;
+
   /** The path to the file created in the export, or {@code null} if unset. */
   @Nullable public final String filePath;
+
   /**
    * The amount of time taken to perform the export in milliseconds, or {@link C#TIME_UNSET} if
    * unset.
    */
   public final long elapsedTimeMs;
+
   /**
    * The average rate (per second) at which frames were processed by the transformer, or {@link
    * C#RATE_UNSET} if unset.
    */
   public final float throughputFps;
+
   /** The SSIM score of the export, or {@link #SSIM_UNSET} if unset. */
   public final double ssim;
+
   /**
    * The {@link FallbackDetails} describing the fallbacks that occurred doing export, or {@code
    * null} if no fallback occurred.
    */
   @Nullable public final FallbackDetails fallbackDetails;
+
   /**
    * The {@link Exception} thrown during post-export analysis, or {@code null} if nothing was
    * thrown.

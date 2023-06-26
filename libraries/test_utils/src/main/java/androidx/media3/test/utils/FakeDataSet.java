@@ -132,6 +132,7 @@ public class FakeDataSet {
     }
 
     private final FakeDataSet dataSet;
+
     /** Uri of the data or null if this is the default FakeData. */
     @Nullable public final Uri uri;
 

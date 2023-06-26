@@ -29,16 +29,22 @@ public final class MpegAudioUtil {
 
     /** MPEG audio header version. */
     public int version;
+
     /** The MIME type. */
     @Nullable public String mimeType;
+
     /** Size of the frame associated with this header, in bytes. */
     public int frameSize;
+
     /** Sample rate in samples per second. */
     public int sampleRate;
+
     /** Number of audio channels in the frame. */
     public int channels;
+
     /** Bitrate of the frame in bit/s. */
     public int bitrate;
+
     /** Number of samples stored in the frame. */
     public int samplesPerFrame;
 

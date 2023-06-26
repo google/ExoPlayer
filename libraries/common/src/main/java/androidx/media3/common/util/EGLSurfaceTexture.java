@@ -56,8 +56,10 @@ public final class EGLSurfaceTexture implements SurfaceTexture.OnFrameAvailableL
 
   /** No secure EGL surface and context required. */
   public static final int SECURE_MODE_NONE = 0;
+
   /** Creating a surfaceless, secured EGL context. */
   public static final int SECURE_MODE_SURFACELESS_CONTEXT = 1;
+
   /** Creating a secure surface backed by a pixel buffer. */
   public static final int SECURE_MODE_PROTECTED_PBUFFER = 2;
 

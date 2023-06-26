@@ -169,6 +169,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   private static final int ACTIVE_INTERVAL_MS = 10;
   private static final int IDLE_INTERVAL_MS = 1000;
+
   /**
    * Duration for which the player needs to appear stuck before the playback is failed on the
    * assumption that no further progress will be made. To appear stuck, the player's renderers must
@@ -176,6 +177,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
    * to load it.
    */
   private static final long PLAYBACK_STUCK_AFTER_MS = 4000;
+
   /**
    * Threshold under which a buffered duration is assumed to be empty. We cannot use zero to account
    * for buffers currently hold but not played by the renderer.

@@ -247,22 +247,29 @@ public interface Player {
      * The UID of the window, or {@code null} if the timeline is {@link Timeline#isEmpty() empty}.
      */
     @Nullable public final Object windowUid;
+
     /**
      * @deprecated Use {@link #mediaItemIndex} instead.
      */
     @UnstableApi @Deprecated public final int windowIndex;
+
     /** The media item index. */
     public final int mediaItemIndex;
+
     /** The media item, or {@code null} if the timeline is {@link Timeline#isEmpty() empty}. */
     @UnstableApi @Nullable public final MediaItem mediaItem;
+
     /**
      * The UID of the period, or {@code null} if the timeline is {@link Timeline#isEmpty() empty}.
      */
     @Nullable public final Object periodUid;
+
     /** The period index. */
     public final int periodIndex;
+
     /** The playback position, in milliseconds. */
     public final long positionMs;
+
     /**
      * The content position, in milliseconds.
      *
@@ -270,10 +277,12 @@ public interface Player {
      * #positionMs}.
      */
     public final long contentPositionMs;
+
     /**
      * The ad group index if the playback position is within an ad, {@link C#INDEX_UNSET} otherwise.
      */
     public final int adGroupIndex;
+
     /**
      * The index of the ad within the ad group if the playback position is within an ad, {@link
      * C#INDEX_UNSET} otherwise.
@@ -1160,22 +1169,26 @@ public interface Player {
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({STATE_IDLE, STATE_BUFFERING, STATE_READY, STATE_ENDED})
   @interface State {}
+
   /**
    * The player is idle, meaning it holds only limited resources. The player must be {@link
    * #prepare() prepared} before it will play the media.
    */
   int STATE_IDLE = 1;
+
   /**
    * The player is not able to immediately play the media, but is doing work toward being able to do
    * so. This state typically occurs when the player needs to buffer more data before playback can
    * start.
    */
   int STATE_BUFFERING = 2;
+
   /**
    * The player is able to immediately play from its current position. The player will be playing if
    * {@link #getPlayWhenReady()} is true, and paused otherwise.
    */
   int STATE_READY = 3;
+
   /** The player has finished playing the media. */
   int STATE_ENDED = 4;
 
@@ -1202,16 +1215,22 @@ public interface Player {
     PLAY_WHEN_READY_CHANGE_REASON_SUPPRESSED_TOO_LONG
   })
   @interface PlayWhenReadyChangeReason {}
+
   /** Playback has been started or paused by a call to {@link #setPlayWhenReady(boolean)}. */
   int PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST = 1;
+
   /** Playback has been paused because of a loss of audio focus. */
   int PLAY_WHEN_READY_CHANGE_REASON_AUDIO_FOCUS_LOSS = 2;
+
   /** Playback has been paused to avoid becoming noisy. */
   int PLAY_WHEN_READY_CHANGE_REASON_AUDIO_BECOMING_NOISY = 3;
+
   /** Playback has been started or paused because of a remote change. */
   int PLAY_WHEN_READY_CHANGE_REASON_REMOTE = 4;
+
   /** Playback has been paused at the end of a media item. */
   int PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM = 5;
+
   /**
    * Playback has been paused because playback has been {@linkplain #getPlaybackSuppressionReason()
    * suppressed} too long.
@@ -1237,14 +1256,18 @@ public interface Player {
     PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT
   })
   @interface PlaybackSuppressionReason {}
+
   /** Playback is not suppressed. */
   int PLAYBACK_SUPPRESSION_REASON_NONE = 0;
+
   /** Playback is suppressed due to transient audio focus loss. */
   int PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS = 1;
+
   /**
    * @deprecated Use {@link #PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT} instead.
    */
   @Deprecated int PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_ROUTE = 2;
+
   /**
    * Playback is suppressed due to attempt to play on an unsuitable audio output (e.g. attempt to
    * play on built-in speaker on a Wear OS device).
@@ -1262,12 +1285,14 @@ public interface Player {
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({REPEAT_MODE_OFF, REPEAT_MODE_ONE, REPEAT_MODE_ALL})
   @interface RepeatMode {}
+
   /**
    * Normal playback without repetition. "Previous" and "Next" actions move to the previous and next
    * {@link MediaItem} respectively, and do nothing when there is no previous or next {@link
    * MediaItem} to move to.
    */
   int REPEAT_MODE_OFF = 0;
+
   /**
    * Repeats the currently playing {@link MediaItem} infinitely during ongoing playback. "Previous"
    * and "Next" actions behave as they do in {@link #REPEAT_MODE_OFF}, moving to the previous and
@@ -1275,6 +1300,7 @@ public interface Player {
    * MediaItem} to move to.
    */
   int REPEAT_MODE_ONE = 1;
+
   /**
    * Repeats the entire timeline infinitely. "Previous" and "Next" actions behave as they do in
    * {@link #REPEAT_MODE_OFF}, but with looping at the ends so that "Previous" when playing the
@@ -1303,6 +1329,7 @@ public interface Player {
     DISCONTINUITY_REASON_INTERNAL
   })
   @interface DiscontinuityReason {}
+
   /**
    * Automatic playback transition from one period in the timeline to the next. The period index may
    * be the same as it was before the discontinuity in case the current period is repeated.
@@ -1312,17 +1339,22 @@ public interface Player {
    * control the same playback on a remote device).
    */
   int DISCONTINUITY_REASON_AUTO_TRANSITION = 0;
+
   /** Seek within the current period or to another period. */
   int DISCONTINUITY_REASON_SEEK = 1;
+
   /**
    * Seek adjustment due to being unable to seek to the requested position or because the seek was
    * permitted to be inexact.
    */
   int DISCONTINUITY_REASON_SEEK_ADJUSTMENT = 2;
+
   /** Discontinuity introduced by a skipped period (for instance a skipped ad). */
   int DISCONTINUITY_REASON_SKIP = 3;
+
   /** Discontinuity caused by the removal of the current period from the {@link Timeline}. */
   int DISCONTINUITY_REASON_REMOVE = 4;
+
   /** Discontinuity introduced internally (e.g. by the source). */
   int DISCONTINUITY_REASON_INTERNAL = 5;
 
@@ -1337,8 +1369,10 @@ public interface Player {
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED, TIMELINE_CHANGE_REASON_SOURCE_UPDATE})
   @interface TimelineChangeReason {}
+
   /** Timeline changed as a result of a change of the playlist items or the order of the items. */
   int TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED = 0;
+
   /**
    * Timeline changed as a result of a source update (e.g. result of a dynamic update by the played
    * media).
@@ -1365,8 +1399,10 @@ public interface Player {
     MEDIA_ITEM_TRANSITION_REASON_PLAYLIST_CHANGED
   })
   @interface MediaItemTransitionReason {}
+
   /** The media item has been repeated. */
   int MEDIA_ITEM_TRANSITION_REASON_REPEAT = 0;
+
   /**
    * Playback has automatically transitioned to the next media item.
    *
@@ -1374,8 +1410,10 @@ public interface Player {
    * can control the same playback on a remote device).
    */
   int MEDIA_ITEM_TRANSITION_REASON_AUTO = 1;
+
   /** A seek to another media item has occurred. */
   int MEDIA_ITEM_TRANSITION_REASON_SEEK = 2;
+
   /**
    * The current media item has changed because of a change in the playlist. This can either be if
    * the media item previously being played has been removed, or when the playlist becomes non-empty
@@ -1427,72 +1465,103 @@ public interface Player {
     EVENT_DEVICE_VOLUME_CHANGED
   })
   @interface Event {}
+
   /** {@link #getCurrentTimeline()} changed. */
   int EVENT_TIMELINE_CHANGED = 0;
+
   /** {@link #getCurrentMediaItem()} changed or the player started repeating the current item. */
   int EVENT_MEDIA_ITEM_TRANSITION = 1;
+
   /** {@link #getCurrentTracks()} changed. */
   int EVENT_TRACKS_CHANGED = 2;
+
   /** {@link #isLoading()} ()} changed. */
   int EVENT_IS_LOADING_CHANGED = 3;
+
   /** {@link #getPlaybackState()} changed. */
   int EVENT_PLAYBACK_STATE_CHANGED = 4;
+
   /** {@link #getPlayWhenReady()} changed. */
   int EVENT_PLAY_WHEN_READY_CHANGED = 5;
+
   /** {@link #getPlaybackSuppressionReason()} changed. */
   int EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED = 6;
+
   /** {@link #isPlaying()} changed. */
   int EVENT_IS_PLAYING_CHANGED = 7;
+
   /** {@link #getRepeatMode()} changed. */
   int EVENT_REPEAT_MODE_CHANGED = 8;
+
   /** {@link #getShuffleModeEnabled()} changed. */
   int EVENT_SHUFFLE_MODE_ENABLED_CHANGED = 9;
+
   /** {@link #getPlayerError()} changed. */
   int EVENT_PLAYER_ERROR = 10;
+
   /**
    * A position discontinuity occurred. See {@link Listener#onPositionDiscontinuity(PositionInfo,
    * PositionInfo, int)}.
    */
   int EVENT_POSITION_DISCONTINUITY = 11;
+
   /** {@link #getPlaybackParameters()} changed. */
   int EVENT_PLAYBACK_PARAMETERS_CHANGED = 12;
+
   /** {@link #isCommandAvailable(int)} changed for at least one {@link Command}. */
   int EVENT_AVAILABLE_COMMANDS_CHANGED = 13;
+
   /** {@link #getMediaMetadata()} changed. */
   int EVENT_MEDIA_METADATA_CHANGED = 14;
+
   /** {@link #getPlaylistMetadata()} changed. */
   int EVENT_PLAYLIST_METADATA_CHANGED = 15;
+
   /** {@link #getSeekBackIncrement()} changed. */
   int EVENT_SEEK_BACK_INCREMENT_CHANGED = 16;
+
   /** {@link #getSeekForwardIncrement()} changed. */
   int EVENT_SEEK_FORWARD_INCREMENT_CHANGED = 17;
+
   /** {@link #getMaxSeekToPreviousPosition()} changed. */
   int EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED = 18;
+
   /** {@link #getTrackSelectionParameters()} changed. */
   int EVENT_TRACK_SELECTION_PARAMETERS_CHANGED = 19;
+
   /** {@link #getAudioAttributes()} changed. */
   int EVENT_AUDIO_ATTRIBUTES_CHANGED = 20;
+
   /** The audio session id was set. */
   int EVENT_AUDIO_SESSION_ID = 21;
+
   /** {@link #getVolume()} changed. */
   int EVENT_VOLUME_CHANGED = 22;
+
   /** Skipping silences in the audio stream is enabled or disabled. */
   int EVENT_SKIP_SILENCE_ENABLED_CHANGED = 23;
+
   /** The size of the surface onto which the video is being rendered changed. */
   int EVENT_SURFACE_SIZE_CHANGED = 24;
+
   /** {@link #getVideoSize()} changed. */
   int EVENT_VIDEO_SIZE_CHANGED = 25;
+
   /**
    * A frame is rendered for the first time since setting the surface, or since the renderer was
    * reset, or since the stream being rendered was changed.
    */
   int EVENT_RENDERED_FIRST_FRAME = 26;
+
   /** {@link #getCurrentCues()} changed. */
   int EVENT_CUES = 27;
+
   /** Metadata associated with the current playback time changed. */
   int EVENT_METADATA = 28;
+
   /** {@link #getDeviceInfo()} changed. */
   int EVENT_DEVICE_INFO_CHANGED = 29;
+
   /** {@link #getDeviceVolume()} changed. */
   int EVENT_DEVICE_VOLUME_CHANGED = 30;
 
@@ -1591,6 +1660,7 @@ public interface Player {
     COMMAND_RELEASE,
   })
   @interface Command {}
+
   /**
    * Command to start, pause or resume playback.
    *
@@ -1636,6 +1706,7 @@ public interface Player {
    * #isCommandAvailable(int) available}.
    */
   int COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM = 5;
+
   /**
    * @deprecated Use {@link #COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM} instead.
    */
@@ -1648,11 +1719,13 @@ public interface Player {
    * {@linkplain #isCommandAvailable(int) available}.
    */
   int COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM = 6;
+
   /**
    * @deprecated Use {@link #COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM} instead.
    */
   @UnstableApi @Deprecated
   int COMMAND_SEEK_TO_PREVIOUS_WINDOW = COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
+
   /**
    * Command to seek to an earlier position in the current {@link MediaItem} or the default position
    * of the previous {@link MediaItem}.
@@ -1661,6 +1734,7 @@ public interface Player {
    * #isCommandAvailable(int) available}.
    */
   int COMMAND_SEEK_TO_PREVIOUS = 7;
+
   /**
    * Command to seek to the default position of the next {@link MediaItem}.
    *
@@ -1668,10 +1742,12 @@ public interface Player {
    * #isCommandAvailable(int) available}.
    */
   int COMMAND_SEEK_TO_NEXT_MEDIA_ITEM = 8;
+
   /**
    * @deprecated Use {@link #COMMAND_SEEK_TO_NEXT_MEDIA_ITEM} instead.
    */
   @UnstableApi @Deprecated int COMMAND_SEEK_TO_NEXT_WINDOW = COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
+
   /**
    * Command to seek to a later position in the current {@link MediaItem} or the default position of
    * the next {@link MediaItem}.
@@ -1693,10 +1769,12 @@ public interface Player {
    * </ul>
    */
   int COMMAND_SEEK_TO_MEDIA_ITEM = 10;
+
   /**
    * @deprecated Use {@link #COMMAND_SEEK_TO_MEDIA_ITEM} instead.
    */
   @UnstableApi @Deprecated int COMMAND_SEEK_TO_WINDOW = COMMAND_SEEK_TO_MEDIA_ITEM;
+
   /**
    * Command to seek back by a fixed increment inside the current {@link MediaItem}.
    *
@@ -1704,6 +1782,7 @@ public interface Player {
    * #isCommandAvailable(int) available}.
    */
   int COMMAND_SEEK_BACK = 11;
+
   /**
    * Command to seek forward by a fixed increment inside the current {@link MediaItem}.
    *
@@ -1831,6 +1910,7 @@ public interface Player {
    * </ul>
    */
   int COMMAND_SET_MEDIA_ITEM = 31;
+
   /**
    * Command to change the {@linkplain MediaItem media items} in the playlist.
    *
@@ -1897,6 +1977,7 @@ public interface Player {
    * @deprecated Use {@link #COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS} instead.
    */
   @Deprecated int COMMAND_SET_DEVICE_VOLUME = 25;
+
   /**
    * Command to set the device volume with volume flags.
    *
@@ -1909,6 +1990,7 @@ public interface Player {
    * @deprecated Use {@link #COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS} instead.
    */
   @Deprecated int COMMAND_ADJUST_DEVICE_VOLUME = 26;
+
   /**
    * Command to increase and decrease the device volume and mute it with volume flags.
    *
@@ -1964,6 +2046,7 @@ public interface Player {
    * #isCommandAvailable(int) available}.
    */
   int COMMAND_GET_TRACKS = 30;
+
   /**
    * Command to release the player.
    *

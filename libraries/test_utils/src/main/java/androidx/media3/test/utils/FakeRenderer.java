@@ -44,6 +44,7 @@ import java.util.List;
 public class FakeRenderer extends BaseRenderer {
 
   private static final String TAG = "FakeRenderer";
+
   /**
    * The amount of time ahead of the current playback position that the renderer reads from the
    * source. A real renderer will typically read ahead by a small amount due to pipelining through

@@ -232,6 +232,7 @@ public class MediaSession {
   // It's better to have private static lock instead of using MediaSession.class because the
   // private lock object isn't exposed.
   private static final Object STATIC_LOCK = new Object();
+
   // Note: This checks the uniqueness of a session ID only in single process.
   // When the framework becomes able to check the uniqueness, this logic should be removed.
   @GuardedBy("STATIC_LOCK")
@@ -369,6 +370,7 @@ public class MediaSession {
 
     /** The {@linkplain #getControllerVersion() controller version} of legacy controllers. */
     public static final int LEGACY_CONTROLLER_VERSION = 0;
+
     /** The {@linkplain #getInterfaceVersion()} interface version} of legacy controllers. */
     @UnstableApi public static final int LEGACY_CONTROLLER_INTERFACE_VERSION = 0;
 
@@ -1282,6 +1284,7 @@ public class MediaSession {
   public static final class MediaItemsWithStartPosition {
     /** List of {@linkplain MediaItem media items}. */
     public final ImmutableList<MediaItem> mediaItems;
+
     /**
      * Index to start playing at in {@link #mediaItems}.
      *
@@ -1289,6 +1292,7 @@ public class MediaSession {
      * C#INDEX_UNSET} to start playing from the default index in the playlist.
      */
     public final int startIndex;
+
     /**
      * Position in milliseconds to start playing from in the starting media item.
      *

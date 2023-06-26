@@ -49,20 +49,24 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
      * are not supported.
      */
     public final long skipUntilUs;
+
     /**
      * Whether the playlist can produce delta updates that skip older #EXT-X-DATERANGE tags in
      * addition to media segments.
      */
     public final boolean canSkipDateRanges;
+
     /**
      * The server-recommended live offset in microseconds, or {@link C#TIME_UNSET} if none defined.
      */
     public final long holdBackUs;
+
     /**
      * The server-recommended live offset in microseconds in low-latency mode, or {@link
      * C#TIME_UNSET} if none defined.
      */
     public final long partHoldBackUs;
+
     /** Whether the server supports blocking playlist reload. */
     public final boolean canBlockReload;
 
@@ -95,6 +99,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
 
     /** The human readable title of the segment. */
     public final String title;
+
     /** The parts belonging to this segment. */
     public final List<Part> parts;
 
@@ -206,6 +211,7 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
 
     /** Whether the part is independent. */
     public final boolean isIndependent;
+
     /** Whether the part is a preloading part. */
     public final boolean isPreload;
 
@@ -279,44 +285,54 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   public static class SegmentBase implements Comparable<Long> {
     /** The url of the segment. */
     public final String url;
+
     /**
      * The media initialization section for this segment, as defined by #EXT-X-MAP. May be null if
      * the media playlist does not define a media initialization section for this segment. The same
      * instance is used for all segments that share an EXT-X-MAP tag.
      */
     @Nullable public final Segment initializationSegment;
+
     /** The duration of the segment in microseconds, as defined by #EXTINF or #EXT-X-PART. */
     public final long durationUs;
+
     /** The number of #EXT-X-DISCONTINUITY tags in the playlist before the segment. */
     public final int relativeDiscontinuitySequence;
+
     /** The start time of the segment in microseconds, relative to the start of the playlist. */
     public final long relativeStartTimeUs;
+
     /**
      * DRM initialization data for sample decryption, or null if the segment does not use CDM-DRM
      * protection.
      */
     @Nullable public final DrmInitData drmInitData;
+
     /**
      * The encryption identity key uri as defined by #EXT-X-KEY, or null if the segment does not use
      * full segment encryption with identity key.
      */
     @Nullable public final String fullSegmentEncryptionKeyUri;
+
     /**
      * The encryption initialization vector as defined by #EXT-X-KEY, or null if the segment is not
      * encrypted.
      */
     @Nullable public final String encryptionIV;
+
     /**
      * The segment's byte range offset, as defined by #EXT-X-BYTERANGE, #EXT-X-PART or
      * #EXT-X-PRELOAD-HINT.
      */
     public final long byteRangeOffset;
+
     /**
      * The segment's byte range length, as defined by #EXT-X-BYTERANGE, #EXT-X-PART or
      * #EXT-X-PRELOAD-HINT, or {@link C#LENGTH_UNSET} if no byte range is specified or the byte
      * range is open-ended.
      */
     public final long byteRangeLength;
+
     /** Whether the segment is marked as a gap. */
     public final boolean hasGapTag;
 
@@ -361,8 +377,10 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
   public static final class RenditionReport {
     /** The URI of the media playlist of the reported rendition. */
     public final Uri playlistUri;
+
     /** The last media sequence that is in the playlist of the reported rendition. */
     public final long lastMediaSequence;
+
     /**
      * The last part index that is in the playlist of the reported rendition, or {@link
      * C#INDEX_UNSET} if the rendition does not contain partial segments.
@@ -399,65 +417,83 @@ public final class HlsMediaPlaylist extends HlsPlaylist {
 
   /** The type of the playlist. See {@link PlaylistType}. */
   public final @PlaylistType int playlistType;
+
   /**
    * The start offset in microseconds from the beginning of the playlist, as defined by
    * #EXT-X-START, or {@link C#TIME_UNSET} if undefined. The value is guaranteed to be between 0 and
    * {@link #durationUs}, inclusive.
    */
   public final long startOffsetUs;
+
   /**
    * Whether the {@link #startOffsetUs} was explicitly defined by #EXT-X-START as a positive value
    * or zero.
    */
   public final boolean hasPositiveStartOffset;
+
   /** Whether the start position should be precise, as defined by #EXT-X-START. */
   public final boolean preciseStart;
+
   /**
    * If {@link #hasProgramDateTime} is true, contains the datetime as microseconds since epoch.
    * Otherwise, contains the aggregated duration of removed segments up to this snapshot of the
    * playlist.
    */
   public final long startTimeUs;
+
   /** Whether the playlist contains the #EXT-X-DISCONTINUITY-SEQUENCE tag. */
   public final boolean hasDiscontinuitySequence;
+
   /**
    * The discontinuity sequence number of the first media segment in the playlist, as defined by
    * #EXT-X-DISCONTINUITY-SEQUENCE.
    */
   public final int discontinuitySequence;
+
   /**
    * The media sequence number of the first media segment in the playlist, as defined by
    * #EXT-X-MEDIA-SEQUENCE.
    */
   public final long mediaSequence;
+
   /** The compatibility version, as defined by #EXT-X-VERSION. */
   public final int version;
+
   /** The target duration in microseconds, as defined by #EXT-X-TARGETDURATION. */
   public final long targetDurationUs;
+
   /**
    * The target duration for segment parts, as defined by #EXT-X-PART-INF, or {@link C#TIME_UNSET}
    * if undefined.
    */
   public final long partTargetDurationUs;
+
   /** Whether the playlist contains the #EXT-X-ENDLIST tag. */
   public final boolean hasEndTag;
+
   /** Whether the playlist contains a #EXT-X-PROGRAM-DATE-TIME tag. */
   public final boolean hasProgramDateTime;
+
   /**
    * Contains the CDM protection schemes used by segments in this playlist. Does not contain any key
    * acquisition data. Null if none of the segments in the playlist is CDM-encrypted.
    */
   @Nullable public final DrmInitData protectionSchemes;
+
   /** The list of segments in the playlist. */
   public final List<Segment> segments;
+
   /**
    * The list of parts at the end of the playlist for which the segment is not in the playlist yet.
    */
   public final List<Part> trailingParts;
+
   /** The rendition reports of alternative rendition playlists. */
   public final Map<Uri, RenditionReport> renditionReports;
+
   /** The total duration of the playlist in microseconds. */
   public final long durationUs;
+
   /** The attributes of the #EXT-X-SERVER-CONTROL header. */
   public final ServerControl serverControl;
 

@@ -25,6 +25,7 @@ public final class UriUtil {
 
   /** The length of arrays returned by {@link #getUriIndices(String)}. */
   private static final int INDEX_COUNT = 4;
+
   /**
    * An index into an array returned by {@link #getUriIndices(String)}.
    *
@@ -33,6 +34,7 @@ public final class UriUtil {
    * including when the URI has no scheme.
    */
   private static final int SCHEME_COLON = 0;
+
   /**
    * An index into an array returned by {@link #getUriIndices(String)}.
    *
@@ -42,6 +44,7 @@ public final class UriUtil {
    * authority part is non-empty (in this case the double-slash means the first segment is empty).
    */
   private static final int PATH = 1;
+
   /**
    * An index into an array returned by {@link #getUriIndices(String)}.
    *
@@ -50,6 +53,7 @@ public final class UriUtil {
    * single '?' with no data.
    */
   private static final int QUERY = 2;
+
   /**
    * An index into an array returned by {@link #getUriIndices(String)}.
    *

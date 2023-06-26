@@ -63,6 +63,7 @@ public final class Id3Decoder extends SimpleMetadataDecoder {
 
   /** The first three bytes of a well formed ID3 tag header. */
   public static final int ID3_TAG = 0x00494433;
+
   /** Length of an ID3 tag header. */
   public static final int ID3_HEADER_LENGTH = 10;
 

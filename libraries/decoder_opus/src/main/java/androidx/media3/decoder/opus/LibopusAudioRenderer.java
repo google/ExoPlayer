@@ -35,8 +35,10 @@ import androidx.media3.exoplayer.audio.DecoderAudioRenderer;
 public class LibopusAudioRenderer extends DecoderAudioRenderer<OpusDecoder> {
 
   private static final String TAG = "LibopusAudioRenderer";
+
   /** The number of input and output buffers. */
   private static final int NUM_BUFFERS = 16;
+
   /** The default input buffer size. */
   private static final int DEFAULT_INPUT_BUFFER_SIZE = 960 * 6;
 

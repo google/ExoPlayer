@@ -101,27 +101,34 @@ import java.util.List;
 
   /** The {@link MatrixTransformation MatrixTransformations} to apply. */
   private final ImmutableList<GlMatrixTransformation> matrixTransformations;
+
   /** The {@link RgbMatrix RgbMatrices} to apply. */
   private final ImmutableList<RgbMatrix> rgbMatrices;
+
   /** Whether the frame is in HDR or not. */
   private final boolean useHdr;
+
   /**
    * The transformation matrices provided by the {@link MatrixTransformation MatrixTransformations}
    * for the most recent frame.
    */
   private final float[][] transformationMatrixCache;
+
   /** The RGB matrices provided by the {@link RgbMatrix RgbMatrices} for the most recent frame. */
   private final float[][] rgbMatrixCache;
+
   /**
    * The product of the {@link #transformationMatrixCache} for the most recent frame, to be applied
    * in the vertex shader.
    */
   private final float[] compositeTransformationMatrixArray;
+
   /**
    * The product of the {@link #rgbMatrixCache} for the most recent frame, to be applied in the
    * fragment shader.
    */
   private final float[] compositeRgbMatrixArray;
+
   /** Matrix for storing an intermediate calculation result. */
   private final float[] tempResultMatrix;
 

@@ -35,11 +35,13 @@ public class VideoDecoderOutputBuffer extends DecoderOutputBuffer {
 
   /** Output mode. */
   public @C.VideoOutputMode int mode;
+
   /** RGB buffer for RGB mode. */
   @Nullable public ByteBuffer data;
 
   public int width;
   public int height;
+
   /** The format of the input from which this output buffer was decoded. */
   @Nullable public Format format;
 

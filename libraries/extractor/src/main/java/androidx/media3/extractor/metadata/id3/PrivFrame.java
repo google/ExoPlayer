@@ -69,6 +69,7 @@ public final class PrivFrame extends Id3Frame {
   public String toString() {
     return id + ": owner=" + owner;
   }
+
   // Parcelable implementation.
 
   @Override

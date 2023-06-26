@@ -39,8 +39,10 @@ public final class AacUtil {
 
     /** The sample rate in Hertz. */
     public final int sampleRateHz;
+
     /** The number of channels. */
     public final int channelCount;
+
     /** The RFC 6381 codecs string. */
     public final String codecs;
 
@@ -56,14 +58,17 @@ public final class AacUtil {
    * Number of raw audio samples that are produced per channel when decoding an AAC LC access unit.
    */
   public static final int AAC_LC_AUDIO_SAMPLE_COUNT = 1024;
+
   /**
    * Number of raw audio samples that are produced per channel when decoding an AAC XHE access unit.
    */
   public static final int AAC_XHE_AUDIO_SAMPLE_COUNT = AAC_LC_AUDIO_SAMPLE_COUNT;
+
   /**
    * Number of raw audio samples that are produced per channel when decoding an AAC HE access unit.
    */
   public static final int AAC_HE_AUDIO_SAMPLE_COUNT = 2048;
+
   /**
    * Number of raw audio samples that are produced per channel when decoding an AAC LD access unit.
    */
@@ -73,10 +78,13 @@ public final class AacUtil {
   // https://cs.android.com/android/platform/superproject/+/android-9.0.0_r8:external/aac/libAACenc/include/aacenc_lib.h;l=718
   /** Maximum rate for an AAC LC audio stream, in bytes per second. */
   public static final int AAC_LC_MAX_RATE_BYTES_PER_SECOND = 800 * 1000 / 8;
+
   /** Maximum rate for an AAC HE V1 audio stream, in bytes per second. */
   public static final int AAC_HE_V1_MAX_RATE_BYTES_PER_SECOND = 128 * 1000 / 8;
+
   /** Maximum rate for an AAC HE V2 audio stream, in bytes per second. */
   public static final int AAC_HE_V2_MAX_RATE_BYTES_PER_SECOND = 56 * 1000 / 8;
+
   /**
    * Maximum rate for an AAC XHE audio stream, in bytes per second.
    *
@@ -84,6 +92,7 @@ public final class AacUtil {
    * above the 500 kbit/s level.
    */
   public static final int AAC_XHE_MAX_RATE_BYTES_PER_SECOND = 2048 * 1000 / 8;
+
   /**
    * Maximum rate for an AAC ELD audio stream, in bytes per second.
    *
@@ -97,6 +106,7 @@ public final class AacUtil {
         96000, 88200, 64000, 48000, 44100, 32000, 24000, 22050, 16000, 12000, 11025, 8000, 7350
       };
   private static final int AUDIO_SPECIFIC_CONFIG_CHANNEL_CONFIGURATION_INVALID = -1;
+
   /**
    * In the channel configurations below, &lt;A&gt; indicates a single channel element; (A, B)
    * indicates a channel pair element; and [A] indicates a low-frequency effects element. The

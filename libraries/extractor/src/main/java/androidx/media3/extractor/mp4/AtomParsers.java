@@ -736,7 +736,10 @@ import java.util.List;
         long ptsUs = Util.scaleLargeTimestamp(pts, C.MICROS_PER_SECOND, track.movieTimescale);
         long timeInSegmentUs =
             Util.scaleLargeTimestamp(
-                max(0, timestamps[j] - editMediaTime), C.MICROS_PER_SECOND, track.timescale);
+                timestamps[j] - editMediaTime, C.MICROS_PER_SECOND, track.timescale);
+        if (canTrimSamplesWithTimestampChange(track.type)) {
+          timeInSegmentUs = max(0, timeInSegmentUs);
+        }
         editedTimestamps[sampleIndex] = ptsUs + timeInSegmentUs;
         if (copyMetadata && editedSizes[sampleIndex] > editedMaximumSize) {
           editedMaximumSize = sizes[j];
@@ -755,6 +758,12 @@ import java.util.List;
         editedTimestamps,
         editedFlags,
         editedDurationUs);
+  }
+
+  private static boolean canTrimSamplesWithTimestampChange(@C.TrackType int trackType) {
+    // Audio samples have an inherent duration and we can't trim data by changing the sample
+    // timestamp alone.
+    return trackType != C.TRACK_TYPE_AUDIO;
   }
 
   @Nullable

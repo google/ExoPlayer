@@ -276,17 +276,20 @@ public final class WavExtractor implements Extractor {
     private final TrackOutput trackOutput;
     private final WavFormat wavFormat;
     private final Format format;
+
     /** The target size of each output sample, in bytes. */
     private final int targetSampleSizeBytes;
 
     /** The time at which the writer was last {@link #reset}. */
     private long startTimeUs;
+
     /**
      * The number of bytes that have been written to {@link #trackOutput} but have yet to be
      * included as part of a sample (i.e. the corresponding call to {@link
      * TrackOutput#sampleMetadata} has yet to be made).
      */
     private int pendingOutputBytes;
+
     /**
      * The total number of frames in samples that have been written to the trackOutput since the
      * last call to {@link #reset}.
@@ -398,25 +401,32 @@ public final class WavExtractor implements Extractor {
 
     /** Number of frames per block of the input (yet to be decoded) data. */
     private final int framesPerBlock;
+
     /** Target for the input (yet to be decoded) data. */
     private final byte[] inputData;
+
     /** Target for decoded (yet to be output) data. */
     private final ParsableByteArray decodedData;
+
     /** The target size of each output sample, in frames. */
     private final int targetSampleSizeFrames;
+
     /** The output format. */
     private final Format format;
 
     /** The number of pending bytes in {@link #inputData}. */
     private int pendingInputBytes;
+
     /** The time at which the writer was last {@link #reset}. */
     private long startTimeUs;
+
     /**
      * The number of bytes that have been written to {@link #trackOutput} but have yet to be
      * included as part of a sample (i.e. the corresponding call to {@link
      * TrackOutput#sampleMetadata} has yet to be made).
      */
     private int pendingOutputBytes;
+
     /**
      * The total number of frames in samples that have been written to the trackOutput since the
      * last call to {@link #reset}.

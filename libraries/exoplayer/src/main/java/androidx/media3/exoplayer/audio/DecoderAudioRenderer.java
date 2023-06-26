@@ -110,20 +110,24 @@ public abstract class DecoderAudioRenderer<
     REINITIALIZATION_STATE_WAIT_END_OF_STREAM
   })
   private @interface ReinitializationState {}
+
   /** The decoder does not need to be re-initialized. */
   private static final int REINITIALIZATION_STATE_NONE = 0;
+
   /**
    * The input format has changed in a way that requires the decoder to be re-initialized, but we
    * haven't yet signaled an end of stream to the existing decoder. We need to do so in order to
    * ensure that it outputs any remaining buffers before we release it.
    */
   private static final int REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM = 1;
+
   /**
    * The input format has changed in a way that requires the decoder to be re-initialized, and we've
    * signaled an end of stream to the existing decoder. We're waiting for the decoder to output an
    * end of stream signal to indicate that it has output any remaining buffers before we release it.
    */
   private static final int REINITIALIZATION_STATE_WAIT_END_OF_STREAM = 2;
+
   /**
    * Generally there is zero or one pending output stream offset. We track more offsets to allow for
    * pending output streams that have fewer frames than the codec latency.

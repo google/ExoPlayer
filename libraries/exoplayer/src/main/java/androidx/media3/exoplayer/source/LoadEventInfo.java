@@ -38,20 +38,26 @@ public final class LoadEventInfo {
 
   /** Identifies the load task to which this event corresponds. */
   public final long loadTaskId;
+
   /** Defines the requested data. */
   public final DataSpec dataSpec;
+
   /**
    * The {@link Uri} from which data is being read. The uri will be identical to the one in {@link
    * #dataSpec}.uri unless redirection has occurred. If redirection has occurred, this is the uri
    * after redirection.
    */
   public final Uri uri;
+
   /** The response headers associated with the load, or an empty map if unavailable. */
   public final Map<String, List<String>> responseHeaders;
+
   /** The value of {@link SystemClock#elapsedRealtime} at the time of the load event. */
   public final long elapsedRealtimeMs;
+
   /** The duration of the load up to the event time. */
   public final long loadDurationMs;
+
   /** The number of bytes that were loaded up to the event time. */
   public final long bytesLoaded;
 

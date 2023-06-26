@@ -223,11 +223,13 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
 
   /** The default ID used for the {@link MediaNotification#notificationId}. */
   public static final int DEFAULT_NOTIFICATION_ID = 1001;
+
   /**
    * The default ID used for the {@link NotificationChannel} on which created notifications are
    * posted on.
    */
   public static final String DEFAULT_CHANNEL_ID = "default_channel_id";
+
   /**
    * The default name used for the {@link NotificationChannel} on which created notifications are
    * posted on.

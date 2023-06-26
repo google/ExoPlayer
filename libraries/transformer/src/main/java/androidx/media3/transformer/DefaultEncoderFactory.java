@@ -47,6 +47,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 @UnstableApi
 public final class DefaultEncoderFactory implements Codec.EncoderFactory {
   private static final int DEFAULT_FRAME_RATE = 30;
+
   /** Best effort, or as-fast-as-possible priority setting for {@link MediaFormat#KEY_PRIORITY}. */
   private static final int PRIORITY_BEST_EFFORT = 1;
 

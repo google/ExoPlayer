@@ -38,6 +38,7 @@ import java.io.IOException;
 
   public int revision;
   public int type;
+
   /**
    * The absolute granule position of the page. This is the total number of samples from the start
    * of the file up to the <em>end</em> of the page. Samples partially in the page that continue on
@@ -51,6 +52,7 @@ import java.io.IOException;
   public int pageSegmentCount;
   public int headerSize;
   public int bodySize;
+
   /**
    * Be aware that {@code laces.length} is always {@link #MAX_SEGMENT_COUNT}. Instead use {@link
    * #pageSegmentCount} to iterate.

@@ -36,8 +36,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   /** AC3 frame types defined in RFC4184 Section 4.1.1. */
   private static final int AC3_FRAME_TYPE_COMPLETE_FRAME = 0;
+
   /** Initial fragment of frame which includes the first 5/8ths of the frame. */
   private static final int AC3_FRAME_TYPE_INITIAL_FRAGMENT_A = 1;
+
   /** Initial fragment of frame which does not include the first 5/8ths of the frame. */
   private static final int AC3_FRAME_TYPE_INITIAL_FRAGMENT_B = 2;
 

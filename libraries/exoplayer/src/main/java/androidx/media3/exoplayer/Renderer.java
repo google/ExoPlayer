@@ -115,6 +115,7 @@ public interface Renderer extends PlayerMessage.Target {
         MSG_SET_VIDEO_OUTPUT_RESOLUTION
       })
   public @interface MessageType {}
+
   /**
    * The type of a message that can be passed to a video renderer via {@link
    * ExoPlayer#createMessage(PlayerMessage.Target)}. The message payload is normally a {@link
@@ -125,12 +126,14 @@ public interface Renderer extends PlayerMessage.Target {
    * any existing output that it has.
    */
   int MSG_SET_VIDEO_OUTPUT = 1;
+
   /**
    * A type of a message that can be passed to an audio renderer via {@link
    * ExoPlayer#createMessage(PlayerMessage.Target)}. The message payload should be a {@link Float}
    * with 0 being silence and 1 being unity gain.
    */
   int MSG_SET_VOLUME = 2;
+
   /**
    * A type of a message that can be passed to an audio renderer via {@link
    * ExoPlayer#createMessage(PlayerMessage.Target)}. The message payload should be an {@link
@@ -152,6 +155,7 @@ public interface Renderer extends PlayerMessage.Target {
    * an audio attributes instance.
    */
   int MSG_SET_AUDIO_ATTRIBUTES = 3;
+
   /**
    * The type of a message that can be passed to a {@link MediaCodec}-based video renderer via
    * {@link ExoPlayer#createMessage(PlayerMessage.Target)}. The message payload should be one of the
@@ -161,36 +165,42 @@ public interface Renderer extends PlayerMessage.Target {
    * owned by a {@link android.view.SurfaceView}.
    */
   int MSG_SET_SCALING_MODE = 4;
+
   /**
    * The type of a message that can be passed to a video renderer via {@link
    * ExoPlayer#createMessage(PlayerMessage.Target)}. The message payload should be one of the
    * integer strategy constants in {@link C.VideoChangeFrameRateStrategy}.
    */
   int MSG_SET_CHANGE_FRAME_RATE_STRATEGY = 5;
+
   /**
    * A type of a message that can be passed to an audio renderer via {@link
    * ExoPlayer#createMessage(PlayerMessage.Target)}. The message payload should be an {@link
    * AuxEffectInfo} instance representing an auxiliary audio effect for the underlying audio track.
    */
   int MSG_SET_AUX_EFFECT_INFO = 6;
+
   /**
    * The type of a message that can be passed to a video renderer via {@link
    * ExoPlayer#createMessage(PlayerMessage.Target)}. The message payload should be a {@link
    * VideoFrameMetadataListener} instance, or null.
    */
   int MSG_SET_VIDEO_FRAME_METADATA_LISTENER = 7;
+
   /**
    * The type of a message that can be passed to a camera motion renderer via {@link
    * ExoPlayer#createMessage(PlayerMessage.Target)}. The message payload should be a {@link
    * CameraMotionListener} instance, or null.
    */
   int MSG_SET_CAMERA_MOTION_LISTENER = 8;
+
   /**
    * The type of a message that can be passed to an audio renderer via {@link
    * ExoPlayer#createMessage(PlayerMessage.Target)}. The message payload should be a {@link Boolean}
    * instance telling whether to enable or disable skipping silences in the audio stream.
    */
   int MSG_SET_SKIP_SILENCE_ENABLED = 9;
+
   /**
    * The type of a message that can be passed to audio and video renderers via {@link
    * ExoPlayer#createMessage(PlayerMessage.Target)}. The message payload should be an {@link
@@ -199,6 +209,7 @@ public interface Renderer extends PlayerMessage.Target {
    * tunneling is enabled.
    */
   int MSG_SET_AUDIO_SESSION_ID = 10;
+
   /**
    * The type of a message that can be passed to a {@link Renderer} via {@link
    * ExoPlayer#createMessage(PlayerMessage.Target)}, to inform the renderer that it can schedule
@@ -207,6 +218,7 @@ public interface Renderer extends PlayerMessage.Target {
    * <p>The message payload must be a {@link WakeupListener} instance.
    */
   int MSG_SET_WAKEUP_LISTENER = 11;
+
   /**
    * The type of a message that can be passed to audio renderers via {@link
    * ExoPlayer#createMessage(PlayerMessage.Target)}. The message payload should be an {@link
@@ -214,17 +226,20 @@ public interface Renderer extends PlayerMessage.Target {
    * restore the default.
    */
   int MSG_SET_PREFERRED_AUDIO_DEVICE = 12;
+
   /**
    * The type of a message that can be passed to a video renderer. The message payload should be a
    * {@link List} containing {@linkplain Effect video effects}.
    */
   int MSG_SET_VIDEO_EFFECTS = 13;
+
   /**
    * The type of a message that can be passed to a video renderer to set the desired output
    * resolution. The message payload should be a {@link Size} of the desired output width and
    * height. Use this method only when playing with video {@linkplain Effect effects}.
    */
   int MSG_SET_VIDEO_OUTPUT_RESOLUTION = 14;
+
   /**
    * Applications or extensions may define custom {@code MSG_*} constants that can be passed to
    * renderers. These custom constants must be greater than or equal to this value.
@@ -240,12 +255,14 @@ public interface Renderer extends PlayerMessage.Target {
   @Target(TYPE_USE)
   @IntDef({STATE_DISABLED, STATE_ENABLED, STATE_STARTED})
   @interface State {}
+
   /**
    * The renderer is disabled. A renderer in this state will not proactively acquire resources that
    * it requires for rendering (e.g., media decoders), but may continue to hold any that it already
    * has. {@link #reset()} can be called to force the renderer to release such resources.
    */
   int STATE_DISABLED = 0;
+
   /**
    * The renderer is enabled but not started. A renderer in this state may render media at the
    * current position (e.g. an initial video frame), but the position will not advance. A renderer
@@ -253,6 +270,7 @@ public interface Renderer extends PlayerMessage.Target {
    * decoders).
    */
   int STATE_ENABLED = 1;
+
   /**
    * The renderer is started. Calls to {@link #render(long, long)} will cause media to be rendered.
    */

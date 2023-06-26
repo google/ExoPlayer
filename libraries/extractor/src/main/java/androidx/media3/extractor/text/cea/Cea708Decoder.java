@@ -147,6 +147,7 @@ public final class Cea708Decoder extends CeaDecoder {
   private final ParsableByteArray ccData;
   private final ParsableBitArray captionChannelPacketData;
   private int previousSequenceNumber;
+
   // TODO: Use isWideAspectRatio in decoding.
   @SuppressWarnings({"unused", "FieldCanBeLocal"})
   private final boolean isWideAspectRatio;

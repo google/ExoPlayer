@@ -28,6 +28,7 @@ import java.io.IOException;
 
   /** Brand stored in the ftyp atom for QuickTime media. */
   public static final int BRAND_QUICKTIME = 0x71742020;
+
   /** Brand stored in the ftyp atom for HEIC media. */
   public static final int BRAND_HEIC = 0x68656963;
 

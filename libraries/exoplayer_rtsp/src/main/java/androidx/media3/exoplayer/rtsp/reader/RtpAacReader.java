@@ -36,6 +36,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   /** AAC low bit rate mode, RFC3640 Section 3.3.5. */
   private static final String AAC_LOW_BITRATE_MODE = "AAC-lbr";
+
   /** AAC high bit rate mode, RFC3640 Section 3.3.6. */
   private static final String AAC_HIGH_BITRATE_MODE = "AAC-hbr";
 

@@ -51,12 +51,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private long firstReceivedTimestamp;
 
   private int previousSequenceNumber;
+
   /** The combined size of a sample that is fragmented into multiple RTP packets. */
   private int fragmentedSampleSizeBytes;
 
   private long fragmentedSampleTimeUs;
 
   private long startTimeOffsetUs;
+
   /**
    * Whether the first packet of one VP8 frame is received. A VP8 frame can be split into two RTP
    * packets.

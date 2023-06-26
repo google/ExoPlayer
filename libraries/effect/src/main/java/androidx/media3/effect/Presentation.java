@@ -55,6 +55,7 @@ public final class Presentation implements MatrixTransformation {
   @Target(TYPE_USE)
   @IntDef({LAYOUT_SCALE_TO_FIT, LAYOUT_SCALE_TO_FIT_WITH_CROP, LAYOUT_STRETCH_TO_FIT})
   public @interface Layout {}
+
   /**
    * Empty pixels added above and below the input frame (for letterboxing), or to the left and right
    * of the input frame (for pillarboxing), until the desired aspect ratio is achieved. All input
@@ -70,6 +71,7 @@ public final class Presentation implements MatrixTransformation {
    * </ul>
    */
   public static final int LAYOUT_SCALE_TO_FIT = 0;
+
   /**
    * Pixels cropped from the input frame, until the desired aspect ratio is achieved. Pixels may be
    * cropped either from the bottom and top, or from the left and right sides, of the input frame.
@@ -84,6 +86,7 @@ public final class Presentation implements MatrixTransformation {
    * </ul>
    */
   public static final int LAYOUT_SCALE_TO_FIT_WITH_CROP = 1;
+
   /**
    * Frame stretched larger on the x or y axes to fit the desired aspect ratio.
    *

@@ -41,6 +41,7 @@ public final class AuxEffectInfo {
    * @see android.media.AudioTrack#attachAuxEffect(int)
    */
   public final int effectId;
+
   /**
    * The send level for the effect.
    *

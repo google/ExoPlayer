@@ -44,6 +44,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
   private static final String TAG = "ExtTexMgr";
   private static final String TIMER_THREAD_NAME = "ExtTexMgr:Timer";
+
   /**
    * The time out in milliseconds after calling signalEndOfCurrentInputStream after which the input
    * stream is considered to have ended, even if not all expected frames have been received from the

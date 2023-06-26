@@ -1663,6 +1663,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
      */
     @SuppressWarnings("deprecation")
     public static final Parameters DEFAULT_WITHOUT_CONTEXT = new Builder().build();
+
     /**
      * @deprecated This instance is not configured using {@link Context} constraints. Use {@link
      *     #getDefaults(Context)} instead.
@@ -1682,6 +1683,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
      * {@code true}.
      */
     public final boolean exceedVideoConstraintsIfNecessary;
+
     /**
      * Whether to allow adaptive video selections containing mixed MIME types. Adaptations between
      * different MIME types may not be completely seamless, in which case {@link
@@ -1689,11 +1691,13 @@ public class DefaultTrackSelector extends MappingTrackSelector
      * selections to be made. The default value is {@code false}.
      */
     public final boolean allowVideoMixedMimeTypeAdaptiveness;
+
     /**
      * Whether to allow adaptive video selections where adaptation may not be completely seamless.
      * The default value is {@code true}.
      */
     public final boolean allowVideoNonSeamlessAdaptiveness;
+
     /**
      * Whether to allow adaptive video selections with mixed levels of {@link
      * RendererCapabilities.DecoderSupport} and {@link
@@ -1708,28 +1712,33 @@ public class DefaultTrackSelector extends MappingTrackSelector
      * when no selection can be made otherwise. The default value is {@code true}.
      */
     public final boolean exceedAudioConstraintsIfNecessary;
+
     /**
      * Whether to allow adaptive audio selections containing mixed MIME types. Adaptations between
      * different MIME types may not be completely seamless. The default value is {@code false}.
      */
     public final boolean allowAudioMixedMimeTypeAdaptiveness;
+
     /**
      * Whether to allow adaptive audio selections containing mixed sample rates. Adaptations between
      * different sample rates may not be completely seamless. The default value is {@code false}.
      */
     public final boolean allowAudioMixedSampleRateAdaptiveness;
+
     /**
      * Whether to allow adaptive audio selections containing mixed channel counts. Adaptations
      * between different channel counts may not be completely seamless. The default value is {@code
      * false}.
      */
     public final boolean allowAudioMixedChannelCountAdaptiveness;
+
     /**
      * Whether to allow adaptive audio selections with mixed levels of {@link
      * RendererCapabilities.DecoderSupport} and {@link
      * RendererCapabilities.HardwareAccelerationSupport}.
      */
     public final boolean allowAudioMixedDecoderSupportAdaptiveness;
+
     /**
      * Whether to constrain audio track selection so that the selected track's channel count does
      * not exceed the device's output capabilities. The default value is {@code true}.
@@ -1748,8 +1757,10 @@ public class DefaultTrackSelector extends MappingTrackSelector
      * {@code true}.
      */
     public final boolean exceedRendererCapabilitiesIfNecessary;
+
     /** Whether to enable tunneling if possible. */
     public final boolean tunnelingEnabled;
+
     /**
      * Whether multiple adaptive selections with more than one track are allowed. The default value
      * is {@code true}.
@@ -2202,8 +2213,10 @@ public class DefaultTrackSelector extends MappingTrackSelector
 
   /** Track is not eligible for selection. */
   protected static final int SELECTION_ELIGIBILITY_NO = 0;
+
   /** Track is eligible for a fixed selection with one track. */
   protected static final int SELECTION_ELIGIBILITY_FIXED = 1;
+
   /**
    * Track is eligible for both a fixed selection and as part of an adaptive selection with multiple
    * tracks.
@@ -2224,6 +2237,7 @@ public class DefaultTrackSelector extends MappingTrackSelector
               first == Format.NO_VALUE
                   ? (second == Format.NO_VALUE ? 0 : -1)
                   : (second == Format.NO_VALUE ? 1 : (first - second)));
+
   /** Ordering where all elements are equal. */
   private static final Ordering<Integer> NO_ORDER = Ordering.from((first, second) -> 0);
 

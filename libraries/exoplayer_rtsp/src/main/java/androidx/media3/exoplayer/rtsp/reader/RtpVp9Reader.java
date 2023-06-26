@@ -55,6 +55,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private long startTimeOffsetUs;
   private int previousSequenceNumber;
+
   /** The combined size of a sample that is fragmented into multiple RTP packets. */
   private int fragmentedSampleSizeBytes;
 
@@ -62,6 +63,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private int width;
   private int height;
+
   /**
    * Whether the first packet of a VP9 frame is received, it mark the start of a VP9 partition. A
    * VP9 frame can be split into multiple RTP packets.

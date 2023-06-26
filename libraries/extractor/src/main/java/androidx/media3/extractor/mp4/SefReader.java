@@ -87,8 +87,10 @@ import java.util.List;
    * <p>This is the last 4 bytes of a file that has Samsung Extension Format (SEF) data.
    */
   private static final int SAMSUNG_TAIL_SIGNATURE = 0x53454654;
+
   /** Start signature (4 bytes), SEF version (4 bytes), SDR count (4 bytes). */
   private static final int TAIL_HEADER_LENGTH = 12;
+
   /** Tail offset (4 bytes), tail signature (4 bytes). */
   private static final int TAIL_FOOTER_LENGTH = 8;
 

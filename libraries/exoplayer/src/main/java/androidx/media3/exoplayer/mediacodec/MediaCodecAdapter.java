@@ -81,18 +81,23 @@ public interface MediaCodecAdapter {
 
     /** Information about the {@link MediaCodec} being configured. */
     public final MediaCodecInfo codecInfo;
+
     /** The {@link MediaFormat} for which the codec is being configured. */
     public final MediaFormat mediaFormat;
+
     /** The {@link Format} for which the codec is being configured. */
     public final Format format;
+
     /**
      * For video decoding, the output where the object will render the decoded frames. This must be
      * null if the codec is not a video decoder, or if it is configured for {@link ByteBuffer}
      * output.
      */
     @Nullable public final Surface surface;
+
     /** For DRM protected playbacks, a {@link MediaCrypto} to use for decryption. */
     @Nullable public final MediaCrypto crypto;
+
     /** See {@link MediaCodec#configure}. */
     public final int flags;
 

@@ -52,6 +52,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private @MonotonicNonNull TrackOutput trackOutput;
   private long firstReceivedTimestamp;
   private int previousSequenceNumber;
+
   /** The combined size of a sample that is fragmented into multiple subFrames. */
   private int fragmentedSampleSizeBytes;
 

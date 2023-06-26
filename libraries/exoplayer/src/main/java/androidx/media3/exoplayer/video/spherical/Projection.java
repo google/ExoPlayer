@@ -35,15 +35,19 @@ import java.lang.annotation.Target;
   @Target(TYPE_USE)
   @IntDef({DRAW_MODE_TRIANGLES, DRAW_MODE_TRIANGLES_STRIP, DRAW_MODE_TRIANGLES_FAN})
   public @interface DrawMode {}
+
   /** Triangle draw mode. */
   public static final int DRAW_MODE_TRIANGLES = 0;
+
   /** Triangle strip draw mode. */
   public static final int DRAW_MODE_TRIANGLES_STRIP = 1;
+
   /** Triangle fan draw mode. */
   public static final int DRAW_MODE_TRIANGLES_FAN = 2;
 
   /** Number of position coordinates per vertex. */
   public static final int TEXTURE_COORDS_PER_VERTEX = 2;
+
   /** Number of texture coordinates per vertex. */
   public static final int POSITION_COORDS_PER_VERTEX = 3;
 
@@ -154,13 +158,16 @@ import java.lang.annotation.Target;
 
   /** The Mesh corresponding to the left eye. */
   public final Mesh leftMesh;
+
   /**
    * The Mesh corresponding to the right eye. If {@code singleMesh} is true then this mesh is
    * identical to {@link #leftMesh}.
    */
   public final Mesh rightMesh;
+
   /** The stereo mode. */
   public final @StereoMode int stereoMode;
+
   /** Whether the left and right mesh are identical. */
   public final boolean singleMesh;
 
@@ -196,10 +203,13 @@ import java.lang.annotation.Target;
 
     /** Texture ID. */
     public final int textureId;
+
     /** The drawing mode. One of {@link DrawMode}. */
     public final @DrawMode int mode;
+
     /** The SubMesh vertices. */
     public final float[] vertices;
+
     /** The SubMesh texture coordinates. */
     public final float[] textureCoords;
 

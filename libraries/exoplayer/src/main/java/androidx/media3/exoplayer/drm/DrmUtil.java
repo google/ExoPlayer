@@ -57,8 +57,10 @@ public final class DrmUtil {
 
   /** Corresponds to failures caused by an {@link ExoMediaDrm} method call. */
   public static final int ERROR_SOURCE_EXO_MEDIA_DRM = 1;
+
   /** Corresponds to failures caused by an operation related to obtaining DRM licenses. */
   public static final int ERROR_SOURCE_LICENSE_ACQUISITION = 2;
+
   /** Corresponds to failures caused by an operation related to provisioning the device. */
   public static final int ERROR_SOURCE_PROVISIONING = 3;
 

@@ -62,8 +62,10 @@ public final class AdPlaybackState implements Bundleable {
      * C#TIME_END_OF_SOURCE} to indicate a postroll ad.
      */
     public final long timeUs;
+
     /** The number of ads in the ad group, or {@link C#LENGTH_UNSET} if unknown. */
     public final int count;
+
     /**
      * The original number of ads in the ad group in case the ad group is only partially available,
      * or {@link C#LENGTH_UNSET} if unknown. An ad can be partially available when a server side
@@ -71,17 +73,22 @@ public final class AdPlaybackState implements Bundleable {
      * missing.
      */
     public final int originalCount;
+
     /** The URI of each ad in the ad group. */
     public final @NullableType Uri[] uris;
+
     /** The state of each ad in the ad group. */
     public final @AdState int[] states;
+
     /** The durations of each ad in the ad group, in microseconds. */
     public final long[] durationsUs;
+
     /**
      * The offset in microseconds which should be added to the content stream when resuming playback
      * after the ad group.
      */
     public final long contentResumeOffsetUs;
+
     /** Whether this ad group is server-side inserted and part of the content stream. */
     public final boolean isServerSideInserted;
 
@@ -535,14 +542,19 @@ public final class AdPlaybackState implements Bundleable {
     AD_STATE_ERROR,
   })
   public @interface AdState {}
+
   /** State for an ad that does not yet have a URL. */
   public static final int AD_STATE_UNAVAILABLE = 0;
+
   /** State for an ad that has a URL but has not yet been played. */
   public static final int AD_STATE_AVAILABLE = 1;
+
   /** State for an ad that was skipped. */
   public static final int AD_STATE_SKIPPED = 2;
+
   /** State for an ad that was played in full. */
   public static final int AD_STATE_PLAYED = 3;
+
   /** State for an ad that could not be loaded. */
   public static final int AD_STATE_ERROR = 4;
 
@@ -564,12 +576,15 @@ public final class AdPlaybackState implements Bundleable {
 
   /** The number of ad groups. */
   public final int adGroupCount;
+
   /** The position offset in the first unplayed ad at which to begin playback, in microseconds. */
   public final long adResumePositionUs;
+
   /**
    * The duration of the content period in microseconds, if known. {@link C#TIME_UNSET} otherwise.
    */
   public final long contentDurationUs;
+
   /**
    * The number of ad groups that have been removed. Ad groups with indices between {@code 0}
    * (inclusive) and {@code removedAdGroupCount} (exclusive) will be empty and must not be modified
