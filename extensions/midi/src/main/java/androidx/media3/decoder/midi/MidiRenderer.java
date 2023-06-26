@@ -65,6 +65,7 @@ public final class MidiRenderer extends DecoderAudioRenderer<MidiDecoder> {
       throws MidiDecoderException {
     return new MidiDecoder(context);
   }
+
   /** {@inheritDoc} */
   @Override
   protected Format getOutputFormat(MidiDecoder decoder) {

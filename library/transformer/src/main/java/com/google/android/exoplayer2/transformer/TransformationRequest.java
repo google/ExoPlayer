@@ -60,6 +60,7 @@ public final class TransformationRequest {
     HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR,
   })
   public @interface HdrMode {}
+
   /**
    * Processes HDR input as HDR, to generate HDR output.
    *
@@ -71,6 +72,7 @@ public final class TransformationRequest {
    * #HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC}.
    */
   public static final int HDR_MODE_KEEP_HDR = 0;
+
   /**
    * Tone map HDR input to SDR before processing, to generate SDR output, using the {@link
    * android.media.MediaCodec} decoder tone-mapper.
@@ -81,6 +83,7 @@ public final class TransformationRequest {
    * <p>If not supported, {@link Transformer} throws an {@link ExportException}.
    */
   public static final int HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC = 1;
+
   /**
    * Tone map HDR input to SDR before processing, to generate SDR output, using an OpenGL
    * tone-mapper.
@@ -95,6 +98,7 @@ public final class TransformationRequest {
    * <p>If not supported, {@link Transformer} throws an {@link ExportException}.
    */
   public static final int HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL = 2;
+
   /**
    * Interpret HDR input as SDR, likely with a washed out look.
    *
@@ -260,6 +264,7 @@ public final class TransformationRequest {
    * </ul>
    */
   public final int outputHeight;
+
   /**
    * The requested output audio sample {@linkplain MimeTypes MIME type}, or {@code null} if inferred
    * from the input.
@@ -267,6 +272,7 @@ public final class TransformationRequest {
    * @see Builder#setAudioMimeType(String)
    */
   @Nullable public final String audioMimeType;
+
   /**
    * The requested output video sample {@linkplain MimeTypes MIME type}, or {@code null} if inferred
    * from the input.
@@ -274,6 +280,7 @@ public final class TransformationRequest {
    * @see Builder#setVideoMimeType(String)
    */
   @Nullable public final String videoMimeType;
+
   /**
    * The {@link HdrMode} specifying how to handle HDR input video.
    *

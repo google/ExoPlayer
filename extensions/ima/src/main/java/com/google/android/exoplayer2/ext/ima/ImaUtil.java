@@ -91,18 +91,22 @@ import java.util.Set;
   public interface ImaFactory {
     /** Creates {@link ImaSdkSettings} for configuring the IMA SDK. */
     ImaSdkSettings createImaSdkSettings();
+
     /**
      * Creates {@link AdsRenderingSettings} for giving the {@link AdsManager} parameters that
      * control rendering of ads.
      */
     AdsRenderingSettings createAdsRenderingSettings();
+
     /**
      * Creates an {@link AdDisplayContainer} to hold the player for video ads, a container for
      * non-linear ads, and slots for companion ads.
      */
     AdDisplayContainer createAdDisplayContainer(ViewGroup container, VideoAdPlayer player);
+
     /** Creates an {@link AdDisplayContainer} to hold the player for audio ads. */
     AdDisplayContainer createAudioAdDisplayContainer(Context context, VideoAdPlayer player);
+
     /**
      * Creates a {@link FriendlyObstruction} to describe an obstruction considered "friendly" for
      * viewability measurement purposes.
@@ -111,8 +115,10 @@ import java.util.Set;
         View view,
         FriendlyObstructionPurpose friendlyObstructionPurpose,
         @Nullable String reasonDetail);
+
     /** Creates an {@link AdsRequest} to contain the data used to request ads. */
     AdsRequest createAdsRequest();
+
     /** Creates an {@link AdsLoader} for requesting ads using the specified settings. */
     AdsLoader createAdsLoader(
         Context context, ImaSdkSettings imaSdkSettings, AdDisplayContainer adDisplayContainer);

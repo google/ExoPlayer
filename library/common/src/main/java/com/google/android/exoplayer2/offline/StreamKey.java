@@ -46,8 +46,10 @@ public final class StreamKey implements Comparable<StreamKey>, Parcelable, Bundl
 
   /** The period index. */
   public final int periodIndex;
+
   /** The group index. */
   public final int groupIndex;
+
   /** The stream index. */
   public final int streamIndex;
 

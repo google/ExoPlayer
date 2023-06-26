@@ -332,6 +332,7 @@ public final class SsMediaSource extends BaseMediaSource
 
   /** The minimum period between manifest refreshes. */
   private static final int MINIMUM_MANIFEST_REFRESH_PERIOD_MS = 5000;
+
   /**
    * The minimum default start position for live streams, relative to the start of the live window.
    */

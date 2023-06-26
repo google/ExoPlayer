@@ -81,8 +81,10 @@ public abstract class MappingTrackSelector extends TrackSelector {
       RENDERER_SUPPORT_PLAYABLE_TRACKS
     })
     public @interface RendererSupport {}
+
     /** The renderer does not have any associated tracks. */
     public static final int RENDERER_SUPPORT_NO_TRACKS = 0;
+
     /**
      * The renderer has tracks mapped to it, but all are unsupported. In other words, {@link
      * #getTrackSupport(int, int, int)} returns {@link C#FORMAT_UNSUPPORTED_DRM}, {@link
@@ -90,6 +92,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
      * the renderer.
      */
     public static final int RENDERER_SUPPORT_UNSUPPORTED_TRACKS = 1;
+
     /**
      * The renderer has tracks mapped to it and at least one is of a supported type, but all such
      * tracks exceed the renderer's capabilities. In other words, {@link #getTrackSupport(int, int,
@@ -97,6 +100,7 @@ public abstract class MappingTrackSelector extends TrackSelector {
      * renderer, but does not return {@link C#FORMAT_HANDLED} for any tracks mapped to the renderer.
      */
     public static final int RENDERER_SUPPORT_EXCEEDS_CAPABILITIES_TRACKS = 2;
+
     /**
      * The renderer has tracks mapped to it, and at least one such track is playable. In other
      * words, {@link #getTrackSupport(int, int, int)} returns {@link C#FORMAT_HANDLED} for at least

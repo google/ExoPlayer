@@ -74,8 +74,10 @@ public class DefaultRenderersFactory implements RenderersFactory {
   @Target(TYPE_USE)
   @IntDef({EXTENSION_RENDERER_MODE_OFF, EXTENSION_RENDERER_MODE_ON, EXTENSION_RENDERER_MODE_PREFER})
   public @interface ExtensionRendererMode {}
+
   /** Do not allow use of extension renderers. */
   public static final int EXTENSION_RENDERER_MODE_OFF = 0;
+
   /**
    * Allow use of extension renderers. Extension renderers are indexed after core renderers of the
    * same type. A {@link TrackSelector} that prefers the first suitable renderer will therefore
@@ -83,6 +85,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
    * given track.
    */
   public static final int EXTENSION_RENDERER_MODE_ON = 1;
+
   /**
    * Allow use of extension renderers. Extension renderers are indexed before core renderers of the
    * same type. A {@link TrackSelector} that prefers the first suitable renderer will therefore

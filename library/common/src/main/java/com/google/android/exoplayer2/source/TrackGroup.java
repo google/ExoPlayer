@@ -64,8 +64,10 @@ public final class TrackGroup implements Bundleable {
 
   /** The number of tracks in the group. */
   public final int length;
+
   /** An identifier for the track group. */
   public final String id;
+
   /** The type of tracks in the group. */
   public final @C.TrackType int type;
 

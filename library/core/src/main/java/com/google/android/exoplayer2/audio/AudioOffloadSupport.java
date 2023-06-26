@@ -37,8 +37,10 @@ public final class AudioOffloadSupport {
   public static final class Builder {
     /** Whether the format is supported with offload playback. */
     private boolean isFormatSupported;
+
     /** Whether playback of the format is supported with gapless transitions. */
     private boolean isGaplessSupported;
+
     /** Whether playback of the format is supported with speed changes. */
     private boolean isSpeedChangeSupported;
 
@@ -100,8 +102,10 @@ public final class AudioOffloadSupport {
 
   /** Whether the format is supported with offload playback. */
   public final boolean isFormatSupported;
+
   /** Whether playback of the format is supported with gapless transitions. */
   public final boolean isGaplessSupported;
+
   /** Whether playback of the format is supported with speed changes. */
   public final boolean isSpeedChangeSupported;
 

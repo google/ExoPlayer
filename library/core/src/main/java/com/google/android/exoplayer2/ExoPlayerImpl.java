@@ -140,6 +140,7 @@ import java.util.concurrent.TimeoutException;
    * operation.
    */
   /* package */ final TrackSelectorResult emptyTrackSelectorResult;
+
   /* package */ final Commands permanentAvailableCommands;
 
   private final ConditionVariable constructorFinished;

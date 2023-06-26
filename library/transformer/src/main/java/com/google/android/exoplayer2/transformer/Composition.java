@@ -179,20 +179,24 @@ public final class Composition {
    * <p>For more information, see {@link Builder#Builder(List)}.
    */
   public final ImmutableList<EditedMediaItemSequence> sequences;
+
   /** The {@link Effects} to apply to the composition. */
   public final Effects effects;
+
   /**
    * Whether the output file should always contain an audio track.
    *
    * <p>For more information, see {@link Builder#experimentalSetForceAudioTrack(boolean)}.
    */
   public final boolean forceAudioTrack;
+
   /**
    * Whether to transmux the {@linkplain MediaItem media items'} audio tracks.
    *
    * <p>For more information, see {@link Builder#setTransmuxAudio(boolean)}.
    */
   public final boolean transmuxAudio;
+
   /**
    * Whether to transmux the {@linkplain MediaItem media items'} video tracks.
    *

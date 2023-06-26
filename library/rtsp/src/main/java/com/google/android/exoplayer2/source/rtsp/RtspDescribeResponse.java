@@ -27,8 +27,10 @@ package com.google.android.exoplayer2.source.rtsp;
 /* package */ final class RtspDescribeResponse {
   /** The response's headers. */
   public final RtspHeaders headers;
+
   /** The response's status code. */
   public final int status;
+
   /** The {@link SessionDescription} (see RFC2327) in the DESCRIBE response. */
   public final SessionDescription sessionDescription;
 

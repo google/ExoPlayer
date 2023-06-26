@@ -1183,6 +1183,7 @@ public abstract class Timeline implements Bundleable {
       Window window, Period period, int windowIndex, long windowPositionUs) {
     return getPeriodPositionUs(window, period, windowIndex, windowPositionUs);
   }
+
   /**
    * @deprecated Use {@link #getPeriodPositionUs(Window, Period, int, long, long)} instead.
    */

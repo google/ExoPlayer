@@ -159,6 +159,7 @@ public final class CmcdLog {
      * values, the peak value should be transmitted.
      */
     public final int bitrateKbps;
+
     /**
      * Custom data where the values of the keys vary with the object being requested, or {@code
      * null} if unset.
@@ -243,6 +244,7 @@ public final class CmcdLog {
      * <p>This value MUST be rounded to the nearest 100 ms.
      */
     public final long bufferLengthMs;
+
     /**
      * Custom data where the values of the keys vary with each request, or {@code null} if unset.
      *
@@ -335,6 +337,7 @@ public final class CmcdLog {
      * updated at the discretion of the service provider. Maximum length is 64 characters.
      */
     @Nullable public final String contentId;
+
     /**
      * A GUID identifying the current playback session, or {@code null} if unset.
      *
@@ -342,6 +345,7 @@ public final class CmcdLog {
      * Maximum length is 64 characters.
      */
     @Nullable public final String sessionId;
+
     /**
      * Custom data where the values of the keys are expected to be invariant over the life of the
      * session, or {@code null} if unset.
@@ -438,6 +442,7 @@ public final class CmcdLog {
      * 100kbps.
      */
     public final int maximumRequestedThroughputKbps;
+
     /**
      * Custom data where the values of the keys do not vary with every request or object, or {@code
      * null} if unset.

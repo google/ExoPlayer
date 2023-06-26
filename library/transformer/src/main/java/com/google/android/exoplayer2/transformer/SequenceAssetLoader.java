@@ -68,6 +68,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final AssetLoader.Factory assetLoaderFactory;
   private final HandlerWrapper handler;
   private final Listener sequenceAssetLoaderListener;
+
   /**
    * A mapping from track types to {@link SampleConsumer} instances.
    *
@@ -75,6 +76,7 @@ import java.util.concurrent.atomic.AtomicInteger;
    * video.
    */
   private final Map<Integer, SampleConsumer> sampleConsumersByTrackType;
+
   /**
    * A mapping from track types to {@link OnMediaItemChangedListener} instances.
    *

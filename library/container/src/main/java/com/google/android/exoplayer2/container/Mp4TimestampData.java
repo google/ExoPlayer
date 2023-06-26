@@ -37,8 +37,10 @@ public final class Mp4TimestampData implements Metadata.Entry {
 
   /** The creation timestamp. */
   public final long creationTimestampSeconds;
+
   /** The modification timestamp. */
   public final long modificationTimestampSeconds;
+
   /** The timescale of the movie. */
   public final long timescale;
 

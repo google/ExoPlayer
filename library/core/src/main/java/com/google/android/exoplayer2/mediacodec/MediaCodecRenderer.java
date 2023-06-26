@@ -224,10 +224,13 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     RECONFIGURATION_STATE_QUEUE_PENDING
   })
   private @interface ReconfigurationState {}
+
   /** There is no pending adaptive reconfiguration work. */
   private static final int RECONFIGURATION_STATE_NONE = 0;
+
   /** Codec configuration data needs to be written into the next buffer. */
   private static final int RECONFIGURATION_STATE_WRITE_PENDING = 1;
+
   /**
    * Codec configuration data has been written into the next buffer, but that buffer still needs to
    * be returned to the codec.
@@ -239,10 +242,13 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   @Target(TYPE_USE)
   @IntDef({DRAIN_STATE_NONE, DRAIN_STATE_SIGNAL_END_OF_STREAM, DRAIN_STATE_WAIT_END_OF_STREAM})
   private @interface DrainState {}
+
   /** The codec is not being drained. */
   private static final int DRAIN_STATE_NONE = 0;
+
   /** The codec needs to be drained, but we haven't signaled an end of stream to it yet. */
   private static final int DRAIN_STATE_SIGNAL_END_OF_STREAM = 1;
+
   /** The codec needs to be drained, and we're waiting for it to output an end of stream. */
   private static final int DRAIN_STATE_WAIT_END_OF_STREAM = 2;
 
@@ -256,12 +262,16 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     DRAIN_ACTION_REINITIALIZE
   })
   private @interface DrainAction {}
+
   /** No special action should be taken. */
   private static final int DRAIN_ACTION_NONE = 0;
+
   /** The codec should be flushed. */
   private static final int DRAIN_ACTION_FLUSH = 1;
+
   /** The codec should be flushed and updated to use the pending DRM session. */
   private static final int DRAIN_ACTION_FLUSH_AND_UPDATE_DRM_SESSION = 2;
+
   /** The codec should be reinitialized. */
   private static final int DRAIN_ACTION_REINITIALIZE = 3;
 
@@ -277,10 +287,12 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   /** The adaptation workaround is never used. */
   private static final int ADAPTATION_WORKAROUND_MODE_NEVER = 0;
+
   /**
    * The adaptation workaround is used when adapting between formats of the same resolution only.
    */
   private static final int ADAPTATION_WORKAROUND_MODE_SAME_RESOLUTION = 1;
+
   /** The adaptation workaround is always used when adapting between formats. */
   private static final int ADAPTATION_WORKAROUND_MODE_ALWAYS = 2;
 

@@ -29,8 +29,10 @@ package com.google.android.exoplayer2.source.rtsp;
 
   /** The status code of this response, as defined in RFC 2326 section 11. */
   public final int status;
+
   /** The headers of this response. */
   public final RtspHeaders headers;
+
   /** The body of this RTSP message, or empty string if absent. */
   public final String messageBody;
 

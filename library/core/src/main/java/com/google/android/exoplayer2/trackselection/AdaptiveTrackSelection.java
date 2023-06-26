@@ -830,6 +830,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
 
     /** Total bandwidth in bits per second at which this checkpoint applies. */
     public final long totalBandwidth;
+
     /** Allocated bandwidth at this checkpoint in bits per second. */
     public final long allocatedBandwidth;
 

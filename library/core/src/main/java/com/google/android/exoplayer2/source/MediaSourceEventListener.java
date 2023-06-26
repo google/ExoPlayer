@@ -154,6 +154,7 @@ public interface MediaSourceEventListener {
 
     /** The timeline window index reported with the events. */
     public final int windowIndex;
+
     /** The {@link MediaPeriodId} reported with the events. */
     @Nullable public final MediaPeriodId mediaPeriodId;
 

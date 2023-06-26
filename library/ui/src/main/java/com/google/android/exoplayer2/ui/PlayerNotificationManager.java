@@ -617,20 +617,28 @@ public class PlayerNotificationManager {
 
   /** The action which starts playback. */
   public static final String ACTION_PLAY = "com.google.android.exoplayer.play";
+
   /** The action which pauses playback. */
   public static final String ACTION_PAUSE = "com.google.android.exoplayer.pause";
+
   /** The action which skips to the previous media item. */
   public static final String ACTION_PREVIOUS = "com.google.android.exoplayer.prev";
+
   /** The action which skips to the next media item. */
   public static final String ACTION_NEXT = "com.google.android.exoplayer.next";
+
   /** The action which fast forwards. */
   public static final String ACTION_FAST_FORWARD = "com.google.android.exoplayer.ffwd";
+
   /** The action which rewinds. */
   public static final String ACTION_REWIND = "com.google.android.exoplayer.rewind";
+
   /** The action which stops playback. */
   public static final String ACTION_STOP = "com.google.android.exoplayer.stop";
+
   /** The extra key of the instance id of the player notification manager. */
   public static final String EXTRA_INSTANCE_ID = "INSTANCE_ID";
+
   /**
    * The action which is executed when the notification is dismissed. It cancels the notification
    * and calls {@link NotificationListener#onNotificationCancelled(int, boolean)}.

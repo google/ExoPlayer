@@ -61,6 +61,7 @@ public final class MergingMediaSource extends CompositeMediaSource<Integer> {
     @Target(TYPE_USE)
     @IntDef({REASON_PERIOD_COUNT_MISMATCH})
     public @interface Reason {}
+
     /** The sources have different period counts. */
     public static final int REASON_PERIOD_COUNT_MISMATCH = 0;
 

@@ -135,6 +135,7 @@ public final class MimeTypes {
   public static final String APPLICATION_TX3G = BASE_TYPE_APPLICATION + "/x-quicktime-tx3g";
   public static final String APPLICATION_MP4VTT = BASE_TYPE_APPLICATION + "/x-mp4-vtt";
   public static final String APPLICATION_MP4CEA608 = BASE_TYPE_APPLICATION + "/x-mp4-cea-608";
+
   /**
    * @deprecated RawCC is a Google-internal subtitle format that isn't supported by this version of
    *     Media3. There is no replacement for this value.
@@ -722,6 +723,7 @@ public final class MimeTypes {
   /* package */ static final class Mp4aObjectType {
     /** The Object Type Indication of the MP4A codec. */
     public final int objectTypeIndication;
+
     /** The Audio Object Type Indication of the MP4A codec, or 0 if it is absent. */
     public final int audioObjectTypeIndication;
 

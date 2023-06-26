@@ -60,6 +60,7 @@ import java.util.regex.Pattern;
   public static final class RtspSessionHeader {
     /** The session ID. */
     public final String sessionId;
+
     /**
      * The session timeout, measured in milliseconds, {@link #DEFAULT_RTSP_TIMEOUT_MS} if not
      * specified in the Session header.
@@ -77,6 +78,7 @@ import java.util.regex.Pattern;
   public static final class RtspAuthUserInfo {
     /** The username. */
     public final String username;
+
     /** The password. */
     public final String password;
 

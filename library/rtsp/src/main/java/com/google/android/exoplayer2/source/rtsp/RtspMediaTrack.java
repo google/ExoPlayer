@@ -68,12 +68,15 @@ import com.google.common.collect.ImmutableMap;
 
   /** Prefix for the RFC6381 codecs string for AAC formats. */
   private static final String AAC_CODECS_PREFIX = "mp4a.40.";
+
   /** Prefix for the RFC6381 codecs string for AVC formats. */
   private static final String H264_CODECS_PREFIX = "avc1.";
+
   /** Prefix for the RFC6416 codecs string for MPEG4V-ES formats. */
   private static final String MPEG4_CODECS_PREFIX = "mp4v.";
 
   private static final String GENERIC_CONTROL_ATTR = "*";
+
   /**
    * Default height for MP4V.
    *
@@ -103,6 +106,7 @@ import com.google.common.collect.ImmutableMap;
    * software VP8 decoder</a>.
    */
   private static final int DEFAULT_VP8_WIDTH = 320;
+
   /**
    * Default height for VP8.
    *
@@ -126,6 +130,7 @@ import com.google.common.collect.ImmutableMap;
    * software VP9 decoder</a>.
    */
   private static final int DEFAULT_VP9_WIDTH = 320;
+
   /**
    * Default height for VP9.
    *
@@ -146,6 +151,7 @@ import com.google.common.collect.ImmutableMap;
    * >Android's software H263 decoder</a>.
    */
   private static final int DEFAULT_H263_WIDTH = 352;
+
   /**
    * Default height for H263.
    *
@@ -158,6 +164,7 @@ import com.google.common.collect.ImmutableMap;
 
   /** The track's associated {@link RtpPayloadFormat}. */
   public final RtpPayloadFormat payloadFormat;
+
   /** The track's URI. */
   public final Uri uri;
 

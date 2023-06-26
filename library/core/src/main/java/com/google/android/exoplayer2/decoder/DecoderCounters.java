@@ -36,18 +36,23 @@ public final class DecoderCounters {
 
   /** The number of times a decoder has been initialized. */
   public int decoderInitCount;
+
   /** The number of times a decoder has been released. */
   public int decoderReleaseCount;
+
   /** The number of input buffers queued to the decoder. */
   public int queuedInputBufferCount;
+
   /**
    * The number of skipped input buffers.
    *
    * <p>A skipped input buffer is an input buffer that was deliberately not queued to the decoder.
    */
   public int skippedInputBufferCount;
+
   /** The number of rendered output buffers. */
   public int renderedOutputBufferCount;
+
   /**
    * The number of skipped output buffers.
    *
@@ -56,6 +61,7 @@ public final class DecoderCounters {
    * the codec due to a flush.
    */
   public int skippedOutputBufferCount;
+
   /**
    * The number of dropped buffers.
    *
@@ -66,6 +72,7 @@ public final class DecoderCounters {
    * being queued to the decoder.
    */
   public int droppedBufferCount;
+
   /**
    * The number of input buffers dropped.
    *
@@ -73,12 +80,14 @@ public final class DecoderCounters {
    * be rendered in time.
    */
   public int droppedInputBufferCount;
+
   /**
    * The maximum number of dropped buffers without an interleaving rendered output buffer.
    *
    * <p>Skipped buffers are ignored for the purposes of calculating this value.
    */
   public int maxConsecutiveDroppedBufferCount;
+
   /**
    * The number of times all buffers to a keyframe were dropped.
    *
@@ -94,6 +103,7 @@ public final class DecoderCounters {
    * </ul>
    */
   public int droppedToKeyframeCount;
+
   /**
    * The sum of the video frame processing offsets in microseconds.
    *
@@ -107,6 +117,7 @@ public final class DecoderCounters {
    * updating it directly.
    */
   public long totalVideoFrameProcessingOffsetUs;
+
   /**
    * The number of video frame processing offsets added.
    *

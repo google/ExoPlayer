@@ -50,6 +50,7 @@ import java.security.NoSuchAlgorithmException;
 
   /** HTTP basic authentication (RFC2068 Section 11.1). */
   public static final int BASIC = 1;
+
   /** HTTP digest authentication (RFC2069). */
   public static final int DIGEST = 2;
 
@@ -68,10 +69,13 @@ import java.security.NoSuchAlgorithmException;
 
   /** The authentication mechanism. */
   public final @AuthenticationMechanism int authenticationMechanism;
+
   /** The authentication realm. */
   public final String realm;
+
   /** The nonce used in digest authentication; empty if using {@link #BASIC} authentication. */
   public final String nonce;
+
   /** The opaque used in digest authentication; empty if using {@link #BASIC} authentication. */
   public final String opaque;
 

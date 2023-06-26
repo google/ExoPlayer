@@ -49,12 +49,16 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 
   /** The number of channels output by the decoder. */
   public static final int NUM_OUTPUT_CHANNELS = 2;
+
   /** The default input buffer count. */
   public static final int DEFAULT_INPUT_BUFFER_COUNT = 16;
+
   /** The default output buffer count. */
   public static final int DEFAULT_OUTPUT_BUFFER_COUNT = 16;
+
   /** The standard number of MIDI channels. */
   public static final int CHANNEL_COUNT = 16;
+
   /** The default sample rate, measured in Hertz. */
   public static final int DEFAULT_SAMPLE_RATE = 44100;
 

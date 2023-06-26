@@ -186,6 +186,7 @@ public class TransformerMixedInputEndToEndTest {
         .setFrameRate(frameCount)
         .build();
   }
+
   /**
    * Creates an {@link EditedMediaItem} with video, with audio removed and a {@link Presentation} of
    * specified {@code height}.

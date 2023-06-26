@@ -81,10 +81,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Target(TYPE_USE)
   @IntDef({END_REASON_COMPLETED, END_REASON_CANCELLED, END_REASON_ERROR})
   private @interface EndReason {}
+
   /** The export completed successfully. */
   private static final int END_REASON_COMPLETED = 0;
+
   /** The export was cancelled. */
   private static final int END_REASON_CANCELLED = 1;
+
   /** An error occurred during the export. */
   private static final int END_REASON_ERROR = 2;
 

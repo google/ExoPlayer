@@ -547,16 +547,21 @@ public final class Transformer {
     PROGRESS_STATE_UNAVAILABLE
   })
   public @interface ProgressState {}
+
   /** Indicates that the corresponding operation hasn't been started. */
   public static final int PROGRESS_STATE_NOT_STARTED = 0;
+
   /**
    * @deprecated Use {@link #PROGRESS_STATE_NOT_STARTED} instead.
    */
   @Deprecated public static final int PROGRESS_STATE_NO_TRANSFORMATION = PROGRESS_STATE_NOT_STARTED;
+
   /** Indicates that the progress is currently unavailable, but might become available. */
   public static final int PROGRESS_STATE_WAITING_FOR_AVAILABILITY = 1;
+
   /** Indicates that the progress is available. */
   public static final int PROGRESS_STATE_AVAILABLE = 2;
+
   /** Indicates that the progress is permanently unavailable. */
   public static final int PROGRESS_STATE_UNAVAILABLE = 3;
 

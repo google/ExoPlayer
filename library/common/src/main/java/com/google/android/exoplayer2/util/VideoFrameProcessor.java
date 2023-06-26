@@ -61,10 +61,13 @@ public interface VideoFrameProcessor {
   @Target(TYPE_USE)
   @IntDef({INPUT_TYPE_SURFACE, INPUT_TYPE_BITMAP, INPUT_TYPE_TEXTURE_ID})
   @interface InputType {}
+
   /** Input frames come from a {@link #getInputSurface surface}. */
   int INPUT_TYPE_SURFACE = 1;
+
   /** Input frames come from a {@link Bitmap}. */
   int INPUT_TYPE_BITMAP = 2;
+
   /**
    * Input frames come from a {@linkplain android.opengl.GLES10#GL_TEXTURE_2D traditional GLES
    * texture}.

@@ -100,6 +100,7 @@ public class MatroskaExtractor implements Extractor {
       flag = true,
       value = {FLAG_DISABLE_SEEK_FOR_CUES})
   public @interface Flags {}
+
   /**
    * Flag to disable seeking for cues.
    *
@@ -264,6 +265,7 @@ public class MatroskaExtractor implements Extractor {
    * https://www.matroska.org/technical/codec_specs.html.
    */
   private static final int BLOCK_ADD_ID_TYPE_DVCC = 0x64766343;
+
   /**
    * BlockAddIdType value for Dolby Vision configuration with profile > 7. See also
    * https://www.matroska.org/technical/codec_specs.html.
@@ -295,13 +297,16 @@ public class MatroskaExtractor implements Extractor {
         49, 10, 48, 48, 58, 48, 48, 58, 48, 48, 44, 48, 48, 48, 32, 45, 45, 62, 32, 48, 48, 58, 48,
         48, 58, 48, 48, 44, 48, 48, 48, 10
       };
+
   /** The byte offset of the end timecode in {@link #SUBRIP_PREFIX}. */
   private static final int SUBRIP_PREFIX_END_TIMECODE_OFFSET = 19;
+
   /**
    * The value by which to divide a time in microseconds to convert it to the unit of the last value
    * in a subrip timecode (milliseconds).
    */
   private static final long SUBRIP_TIMECODE_LAST_VALUE_SCALING_FACTOR = 1000;
+
   /** The format of a subrip timecode. */
   private static final String SUBRIP_TIMECODE_FORMAT = "%02d:%02d:%02d,%03d";
 
@@ -310,6 +315,7 @@ public class MatroskaExtractor implements Extractor {
       Util.getUtf8Bytes(
           "Format: Start, End, "
               + "ReadOrder, Layer, Style, Name, MarginL, MarginR, MarginV, Effect, Text");
+
   /**
    * A template for the prefix that must be added to each SSA sample.
    *
@@ -326,13 +332,16 @@ public class MatroskaExtractor implements Extractor {
         68, 105, 97, 108, 111, 103, 117, 101, 58, 32, 48, 58, 48, 48, 58, 48, 48, 58, 48, 48, 44,
         48, 58, 48, 48, 58, 48, 48, 58, 48, 48, 44
       };
+
   /** The byte offset of the end timecode in {@link #SSA_PREFIX}. */
   private static final int SSA_PREFIX_END_TIMECODE_OFFSET = 21;
+
   /**
    * The value by which to divide a time in microseconds to convert it to the unit of the last value
    * in an SSA timecode (1/100ths of a second).
    */
   private static final long SSA_TIMECODE_LAST_VALUE_SCALING_FACTOR = 10_000;
+
   /** The format of an SSA timecode. */
   private static final String SSA_TIMECODE_FORMAT = "%01d:%02d:%02d:%02d";
 
@@ -352,22 +361,28 @@ public class MatroskaExtractor implements Extractor {
         87, 69, 66, 86, 84, 84, 10, 10, 48, 48, 58, 48, 48, 58, 48, 48, 46, 48, 48, 48, 32, 45, 45,
         62, 32, 48, 48, 58, 48, 48, 58, 48, 48, 46, 48, 48, 48, 10
       };
+
   /** The byte offset of the end timecode in {@link #VTT_PREFIX}. */
   private static final int VTT_PREFIX_END_TIMECODE_OFFSET = 25;
+
   /**
    * The value by which to divide a time in microseconds to convert it to the unit of the last value
    * in a VTT timecode (milliseconds).
    */
   private static final long VTT_TIMECODE_LAST_VALUE_SCALING_FACTOR = 1000;
+
   /** The format of a VTT timecode. */
   private static final String VTT_TIMECODE_FORMAT = "%02d:%02d:%02d.%03d";
 
   /** The length in bytes of a WAVEFORMATEX structure. */
   private static final int WAVE_FORMAT_SIZE = 18;
+
   /** Format tag indicating a WAVEFORMATEXTENSIBLE structure. */
   private static final int WAVE_FORMAT_EXTENSIBLE = 0xFFFE;
+
   /** Format tag for PCM. */
   private static final int WAVE_FORMAT_PCM = 1;
+
   /** Sub format for PCM. */
   private static final UUID WAVE_SUBFORMAT_PCM = new UUID(0x0100000000001000L, 0x800000AA00389B71L);
 
@@ -1980,6 +1995,7 @@ public class MatroskaExtractor implements Extractor {
 
     private static final int DISPLAY_UNIT_PIXELS = 0;
     private static final int MAX_CHROMATICITY = 50_000; // Defined in CTA-861.3.
+
     /** Default max content light level (CLL) that should be encoded into hdrStaticInfo. */
     private static final int DEFAULT_MAX_CLL = 1000; // nits.
 

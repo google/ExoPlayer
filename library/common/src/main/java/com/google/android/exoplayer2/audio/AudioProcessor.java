@@ -56,10 +56,13 @@ public interface AudioProcessor {
 
     /** The sample rate in Hertz. */
     public final int sampleRate;
+
     /** The number of interleaved channels. */
     public final int channelCount;
+
     /** The type of linear PCM encoding. */
     public final @C.PcmEncoding int encoding;
+
     /** The number of bytes used to represent one audio frame. */
     public final int bytesPerFrame;
 

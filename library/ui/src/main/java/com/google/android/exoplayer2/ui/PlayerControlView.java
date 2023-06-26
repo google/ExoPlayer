@@ -279,11 +279,14 @@ public class PlayerControlView extends FrameLayout {
 
   /** The default show timeout, in milliseconds. */
   public static final int DEFAULT_SHOW_TIMEOUT_MS = 5000;
+
   /** The default repeat toggle modes. */
   public static final @RepeatModeUtil.RepeatToggleModes int DEFAULT_REPEAT_TOGGLE_MODES =
       RepeatModeUtil.REPEAT_TOGGLE_MODE_NONE;
+
   /** The default minimum interval between time bar position updates. */
   public static final int DEFAULT_TIME_BAR_MIN_UPDATE_INTERVAL_MS = 200;
+
   /** The maximum number of windows that can be shown in a multi-window time bar. */
   public static final int MAX_WINDOWS_FOR_MULTI_WINDOW_TIME_BAR = 100;
 

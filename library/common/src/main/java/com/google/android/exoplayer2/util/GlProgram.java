@@ -43,6 +43,7 @@ public final class GlProgram {
 
   // https://www.khronos.org/registry/OpenGL/extensions/EXT/EXT_YUV_target.txt
   private static final int GL_SAMPLER_EXTERNAL_2D_Y2Y_EXT = 0x8BE7;
+
   /** The identifier of a compiled and linked GLSL shader program. */
   private final int programId;
 
@@ -372,6 +373,7 @@ public final class GlProgram {
       this.texIdValue = texId;
       this.texUnitIndex = texUnitIndex;
     }
+
     /** Configures {@link #bind()} to use the specified {@code int} {@code value}. */
     public void setInt(int value) {
       this.intValue = value;

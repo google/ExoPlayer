@@ -59,8 +59,10 @@ public final class DolbyVisionConfig {
 
   /** The profile number. */
   public final int profile;
+
   /** The level number. */
   public final int level;
+
   /** The RFC 6381 codecs string. */
   public final String codecs;
 

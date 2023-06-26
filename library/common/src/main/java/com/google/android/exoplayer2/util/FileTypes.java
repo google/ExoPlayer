@@ -53,40 +53,58 @@ public final class FileTypes {
     MIDI, AVI
   })
   public @interface Type {}
+
   /** Unknown file type. */
   public static final int UNKNOWN = -1;
+
   /** File type for the AC-3 and E-AC-3 formats. */
   public static final int AC3 = 0;
+
   /** File type for the AC-4 format. */
   public static final int AC4 = 1;
+
   /** File type for the ADTS format. */
   public static final int ADTS = 2;
+
   /** File type for the AMR format. */
   public static final int AMR = 3;
+
   /** File type for the FLAC format. */
   public static final int FLAC = 4;
+
   /** File type for the FLV format. */
   public static final int FLV = 5;
+
   /** File type for the Matroska and WebM formats. */
   public static final int MATROSKA = 6;
+
   /** File type for the MP3 format. */
   public static final int MP3 = 7;
+
   /** File type for the MP4 format. */
   public static final int MP4 = 8;
+
   /** File type for the Ogg format. */
   public static final int OGG = 9;
+
   /** File type for the MPEG-PS format. */
   public static final int PS = 10;
+
   /** File type for the MPEG-TS format. */
   public static final int TS = 11;
+
   /** File type for the WAV format. */
   public static final int WAV = 12;
+
   /** File type for the WebVTT format. */
   public static final int WEBVTT = 13;
+
   /** File type for the JPEG format. */
   public static final int JPEG = 14;
+
   /** File type for the MIDI format. */
   public static final int MIDI = 15;
+
   /** File type for the AVI format. */
   public static final int AVI = 16;
 

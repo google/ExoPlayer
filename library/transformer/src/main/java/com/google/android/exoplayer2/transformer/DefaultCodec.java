@@ -65,6 +65,7 @@ public class DefaultCodec implements Codec {
   private static final String TAG = "DefaultCodec";
 
   private final BufferInfo outputBufferInfo;
+
   /** The {@link MediaFormat} used to configure the underlying {@link MediaCodec}. */
   private final MediaFormat configurationMediaFormat;
 

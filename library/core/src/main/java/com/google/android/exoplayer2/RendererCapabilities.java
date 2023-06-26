@@ -64,24 +64,30 @@ public interface RendererCapabilities {
   })
   @Deprecated
   @interface FormatSupport {}
+
   /** A mask to apply to {@link Capabilities} to obtain the {@link C.FormatSupport} only. */
   int FORMAT_SUPPORT_MASK = 0b111;
+
   /**
    * @deprecated Use {@link C#FORMAT_HANDLED} instead.
    */
   @Deprecated int FORMAT_HANDLED = C.FORMAT_HANDLED;
+
   /**
    * @deprecated Use {@link C#FORMAT_EXCEEDS_CAPABILITIES} instead.
    */
   @Deprecated int FORMAT_EXCEEDS_CAPABILITIES = C.FORMAT_EXCEEDS_CAPABILITIES;
+
   /**
    * @deprecated Use {@link C#FORMAT_UNSUPPORTED_DRM} instead.
    */
   @Deprecated int FORMAT_UNSUPPORTED_DRM = C.FORMAT_UNSUPPORTED_DRM;
+
   /**
    * @deprecated Use {@link C#FORMAT_UNSUPPORTED_SUBTYPE} instead.
    */
   @Deprecated int FORMAT_UNSUPPORTED_SUBTYPE = C.FORMAT_UNSUPPORTED_SUBTYPE;
+
   /**
    * @deprecated Use {@link C#FORMAT_UNSUPPORTED_TYPE} instead.
    */
@@ -99,13 +105,16 @@ public interface RendererCapabilities {
 
   /** A mask to apply to {@link Capabilities} to obtain the {@link AdaptiveSupport} only. */
   int ADAPTIVE_SUPPORT_MASK = 0b11 << 3;
+
   /** The {@link Renderer} can seamlessly adapt between formats. */
   int ADAPTIVE_SEAMLESS = 0b10 << 3;
+
   /**
    * The {@link Renderer} can adapt between formats, but may suffer a brief discontinuity
    * (~50-100ms) when adaptation occurs.
    */
   int ADAPTIVE_NOT_SEAMLESS = 0b01 << 3;
+
   /** The {@link Renderer} does not support adaptation between formats. */
   int ADAPTIVE_NOT_SUPPORTED = 0;
 
@@ -121,8 +130,10 @@ public interface RendererCapabilities {
 
   /** A mask to apply to {@link Capabilities} to obtain {@link TunnelingSupport} only. */
   int TUNNELING_SUPPORT_MASK = 0b1 << 5;
+
   /** The {@link Renderer} supports tunneled output. */
   int TUNNELING_SUPPORTED = 0b1 << 5;
+
   /** The {@link Renderer} does not support tunneled output. */
   int TUNNELING_NOT_SUPPORTED = 0;
 
@@ -140,10 +151,13 @@ public interface RendererCapabilities {
     HARDWARE_ACCELERATION_NOT_SUPPORTED,
   })
   @interface HardwareAccelerationSupport {}
+
   /** A mask to apply to {@link Capabilities} to obtain {@link HardwareAccelerationSupport} only. */
   int HARDWARE_ACCELERATION_SUPPORT_MASK = 0b1 << 6;
+
   /** The renderer is able to use hardware acceleration. */
   int HARDWARE_ACCELERATION_SUPPORTED = 0b1 << 6;
+
   /** The renderer is not able to use hardware acceleration. */
   int HARDWARE_ACCELERATION_NOT_SUPPORTED = 0;
 
@@ -158,15 +172,19 @@ public interface RendererCapabilities {
   @Target(TYPE_USE)
   @IntDef({DECODER_SUPPORT_FALLBACK_MIMETYPE, DECODER_SUPPORT_PRIMARY, DECODER_SUPPORT_FALLBACK})
   @interface DecoderSupport {}
+
   /** A mask to apply to {@link Capabilities} to obtain {@link DecoderSupport} only. */
   int DECODER_SUPPORT_MASK = 0b11 << 7;
+
   /**
    * The format's MIME type is unsupported and the renderer may use a decoder for a fallback MIME
    * type.
    */
   int DECODER_SUPPORT_FALLBACK_MIMETYPE = 0b10 << 7;
+
   /** The renderer is able to use the primary decoder for the format's MIME type. */
   int DECODER_SUPPORT_PRIMARY = 0b1 << 7;
+
   /** The format exceeds the primary decoder's capabilities but is supported by fallback decoder */
   int DECODER_SUPPORT_FALLBACK = 0;
 
@@ -191,15 +209,19 @@ public interface RendererCapabilities {
     AUDIO_OFFLOAD_NOT_SUPPORTED
   })
   @interface AudioOffloadSupport {}
+
   /** A mask to apply to {@link Capabilities} to obtain {@link AudioOffloadSupport} only. */
   int AUDIO_OFFLOAD_SUPPORT_MASK = 0b111 << 9;
 
   /** The renderer supports audio offload and speed changes with this format. */
   int AUDIO_OFFLOAD_SPEED_CHANGE_SUPPORTED = 0b100 << 9;
+
   /** The renderer supports audio offload and gapless transitions with this format. */
   int AUDIO_OFFLOAD_GAPLESS_SUPPORTED = 0b10 << 9;
+
   /** The renderer supports audio offload with this format. */
   int AUDIO_OFFLOAD_SUPPORTED = 0b1 << 9;
+
   /** Audio offload is not supported with this format. */
   int AUDIO_OFFLOAD_NOT_SUPPORTED = 0;
 

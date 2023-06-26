@@ -1,4 +1,5 @@
 package com.google.android.exoplayer2.effect;
+
 /*
  * Copyright 2022 The Android Open Source Project
  *

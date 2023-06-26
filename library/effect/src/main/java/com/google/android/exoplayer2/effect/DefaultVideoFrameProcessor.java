@@ -301,6 +301,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
   // Shader programs that apply Effects.
   private final List<GlShaderProgram> intermediateGlShaderPrograms;
+
   // Whether DefaultVideoFrameProcessor is currently processing an input stream.
   @GuardedBy("lock")
   private boolean processingInput;

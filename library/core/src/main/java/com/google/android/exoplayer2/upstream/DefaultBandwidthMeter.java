@@ -85,26 +85,31 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
    * #getInitialBitrateCountryGroupAssignment}.
    */
   private static final int COUNTRY_GROUP_INDEX_WIFI = 0;
+
   /**
    * Index for the 2G group index in the array returned by {@link
    * #getInitialBitrateCountryGroupAssignment}.
    */
   private static final int COUNTRY_GROUP_INDEX_2G = 1;
+
   /**
    * Index for the 3G group index in the array returned by {@link
    * #getInitialBitrateCountryGroupAssignment}.
    */
   private static final int COUNTRY_GROUP_INDEX_3G = 2;
+
   /**
    * Index for the 4G group index in the array returned by {@link
    * #getInitialBitrateCountryGroupAssignment}.
    */
   private static final int COUNTRY_GROUP_INDEX_4G = 3;
+
   /**
    * Index for the 5G-NSA group index in the array returned by {@link
    * #getInitialBitrateCountryGroupAssignment}.
    */
   private static final int COUNTRY_GROUP_INDEX_5G_NSA = 4;
+
   /**
    * Index for the 5G-SA group index in the array returned by {@link
    * #getInitialBitrateCountryGroupAssignment}.

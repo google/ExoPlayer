@@ -210,12 +210,14 @@ public final class MediaSessionConnector {
      * @return The bitmask of the supported media actions.
      */
     long getSupportedPrepareActions();
+
     /**
      * See {@link MediaSessionCompat.Callback#onPrepare()}.
      *
      * @param playWhenReady Whether playback should be started after preparation.
      */
     void onPrepare(boolean playWhenReady);
+
     /**
      * See {@link MediaSessionCompat.Callback#onPrepareFromMediaId(String, Bundle)}.
      *
@@ -224,6 +226,7 @@ public final class MediaSessionConnector {
      * @param extras A {@link Bundle} of extras passed by the media controller, may be null.
      */
     void onPrepareFromMediaId(String mediaId, boolean playWhenReady, @Nullable Bundle extras);
+
     /**
      * See {@link MediaSessionCompat.Callback#onPrepareFromSearch(String, Bundle)}.
      *
@@ -232,6 +235,7 @@ public final class MediaSessionConnector {
      * @param extras A {@link Bundle} of extras passed by the media controller, may be null.
      */
     void onPrepareFromSearch(String query, boolean playWhenReady, @Nullable Bundle extras);
+
     /**
      * See {@link MediaSessionCompat.Callback#onPrepareFromUri(Uri, Bundle)}.
      *
@@ -263,6 +267,7 @@ public final class MediaSessionConnector {
      * @return The bitmask of the supported media actions.
      */
     long getSupportedQueueNavigatorActions(Player player);
+
     /**
      * Called when the timeline of the player has changed.
      *
@@ -276,6 +281,7 @@ public final class MediaSessionConnector {
      * @param player The player connected to the media session.
      */
     default void onCurrentMediaItemIndexChanged(Player player) {}
+
     /**
      * Gets the id of the currently active queue item, or {@link
      * MediaSessionCompat.QueueItem#UNKNOWN_ID} if the active item is unknown.
@@ -288,18 +294,21 @@ public final class MediaSessionConnector {
      * @return The id of the active queue item.
      */
     long getActiveQueueItemId(@Nullable Player player);
+
     /**
      * See {@link MediaSessionCompat.Callback#onSkipToPrevious()}.
      *
      * @param player The player connected to the media session.
      */
     void onSkipToPrevious(Player player);
+
     /**
      * See {@link MediaSessionCompat.Callback#onSkipToQueueItem(long)}.
      *
      * @param player The player connected to the media session.
      */
     void onSkipToQueueItem(Player player, long id);
+
     /**
      * See {@link MediaSessionCompat.Callback#onSkipToNext()}.
      *
@@ -315,11 +324,13 @@ public final class MediaSessionConnector {
      * See {@link MediaSessionCompat.Callback#onAddQueueItem(MediaDescriptionCompat description)}.
      */
     void onAddQueueItem(Player player, MediaDescriptionCompat description);
+
     /**
      * See {@link MediaSessionCompat.Callback#onAddQueueItem(MediaDescriptionCompat description, int
      * index)}.
      */
     void onAddQueueItem(Player player, MediaDescriptionCompat description, int index);
+
     /**
      * See {@link MediaSessionCompat.Callback#onRemoveQueueItem(MediaDescriptionCompat
      * description)}.

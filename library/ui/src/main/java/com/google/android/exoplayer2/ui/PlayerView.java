@@ -267,13 +267,16 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
   @Target(TYPE_USE)
   @IntDef({SHOW_BUFFERING_NEVER, SHOW_BUFFERING_WHEN_PLAYING, SHOW_BUFFERING_ALWAYS})
   public @interface ShowBuffering {}
+
   /** The buffering view is never shown. */
   public static final int SHOW_BUFFERING_NEVER = 0;
+
   /**
    * The buffering view is shown when the player is in the {@link Player#STATE_BUFFERING buffering}
    * state and {@link Player#getPlayWhenReady() playWhenReady} is {@code true}.
    */
   public static final int SHOW_BUFFERING_WHEN_PLAYING = 1;
+
   /**
    * The buffering view is always shown when the player is in the {@link Player#STATE_BUFFERING
    * buffering} state.

@@ -730,6 +730,7 @@ public final class CastPlayer extends BasePlayer {
   /** This method is not supported and does nothing. */
   @Override
   public void setVideoTextureView(@Nullable TextureView textureView) {}
+
   /** This method is not supported and does nothing. */
   @Override
   public void clearVideoTextureView(@Nullable TextureView textureView) {}

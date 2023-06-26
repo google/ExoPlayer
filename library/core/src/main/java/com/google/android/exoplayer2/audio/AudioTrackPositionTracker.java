@@ -122,14 +122,17 @@ import java.lang.reflect.Method;
   @Target(TYPE_USE)
   @IntDef({PLAYSTATE_STOPPED, PLAYSTATE_PAUSED, PLAYSTATE_PLAYING})
   private @interface PlayState {}
+
   /**
    * @see AudioTrack#PLAYSTATE_STOPPED
    */
   private static final int PLAYSTATE_STOPPED = AudioTrack.PLAYSTATE_STOPPED;
+
   /**
    * @see AudioTrack#PLAYSTATE_PAUSED
    */
   private static final int PLAYSTATE_PAUSED = AudioTrack.PLAYSTATE_PAUSED;
+
   /**
    * @see AudioTrack#PLAYSTATE_PLAYING
    */
@@ -149,6 +152,7 @@ import java.lang.reflect.Method;
    * <p>This is a fail safe that should not be required on correctly functioning devices.
    */
   private static final long MAX_LATENCY_US = 5 * C.MICROS_PER_SECOND;
+
   /** The duration of time used to smooth over an adjustment between position sampling modes. */
   private static final long MODE_SWITCH_SMOOTHING_DURATION_US = C.MICROS_PER_SECOND;
 

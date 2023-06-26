@@ -112,11 +112,13 @@ public final class Cea608Decoder extends CeaDecoder {
    * simultaneously.
    */
   private static final byte CTRL_ROLL_UP_CAPTIONS_2_ROWS = 0x25;
+
   /**
    * Command initiating roll-up style captioning, with the maximum of 3 rows displayed
    * simultaneously.
    */
   private static final byte CTRL_ROLL_UP_CAPTIONS_3_ROWS = 0x26;
+
   /**
    * Command initiating roll-up style captioning, with the maximum of 4 rows displayed
    * simultaneously.
@@ -128,6 +130,7 @@ public final class Cea608Decoder extends CeaDecoder {
    * to displayed memory without need for the {@link #CTRL_RESUME_CAPTION_LOADING} command.
    */
   private static final byte CTRL_RESUME_DIRECT_CAPTIONING = 0x29;
+
   /**
    * TEXT commands are switching to TEXT service. All consecutive incoming data must be filtered out
    * until a command is received that switches back to the CAPTION service.

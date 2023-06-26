@@ -101,11 +101,13 @@ public class TrackSelectionParameters implements Bundleable {
    * selection, then no tracks will be selected.
    */
   public static final int AUDIO_OFFLOAD_MODE_PREFERENCE_REQUIRED = 2;
+
   /**
    * The track selector will enable audio offload if the selected tracks and renderer capabilities
    * are compatible.
    */
   public static final int AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED = 1;
+
   /**
    * The track selector will disable audio offload on the audio sink. Track selection will not take
    * into consideration whether or not a track is offload compatible.
@@ -889,6 +891,7 @@ public class TrackSelectionParameters implements Bundleable {
    */
   @SuppressWarnings("deprecation")
   public static final TrackSelectionParameters DEFAULT_WITHOUT_CONTEXT = new Builder().build();
+
   /**
    * @deprecated This instance is not configured using {@link Context} constraints. Use {@link
    *     #getDefaults(Context)} instead.
@@ -910,6 +913,7 @@ public class TrackSelectionParameters implements Bundleable {
    * #viewportHeight} and {@link #viewportOrientationMayChange}) instead.
    */
   public final int maxVideoWidth;
+
   /**
    * Maximum allowed video height in pixels. The default value is {@link Integer#MAX_VALUE} (i.e. no
    * constraint).
@@ -919,54 +923,66 @@ public class TrackSelectionParameters implements Bundleable {
    * #viewportHeight} and {@link #viewportOrientationMayChange}) instead.
    */
   public final int maxVideoHeight;
+
   /**
    * Maximum allowed video frame rate in hertz. The default value is {@link Integer#MAX_VALUE} (i.e.
    * no constraint).
    */
   public final int maxVideoFrameRate;
+
   /**
    * Maximum allowed video bitrate in bits per second. The default value is {@link
    * Integer#MAX_VALUE} (i.e. no constraint).
    */
   public final int maxVideoBitrate;
+
   /** Minimum allowed video width in pixels. The default value is 0 (i.e. no constraint). */
   public final int minVideoWidth;
+
   /** Minimum allowed video height in pixels. The default value is 0 (i.e. no constraint). */
   public final int minVideoHeight;
+
   /** Minimum allowed video frame rate in hertz. The default value is 0 (i.e. no constraint). */
   public final int minVideoFrameRate;
+
   /**
    * Minimum allowed video bitrate in bits per second. The default value is 0 (i.e. no constraint).
    */
   public final int minVideoBitrate;
+
   /**
    * Viewport width in pixels. Constrains video track selections for adaptive content so that only
    * tracks suitable for the viewport are selected. The default value is the physical width of the
    * primary display, in pixels.
    */
   public final int viewportWidth;
+
   /**
    * Viewport height in pixels. Constrains video track selections for adaptive content so that only
    * tracks suitable for the viewport are selected. The default value is the physical height of the
    * primary display, in pixels.
    */
   public final int viewportHeight;
+
   /**
    * Whether the viewport orientation may change during playback. Constrains video track selections
    * for adaptive content so that only tracks suitable for the viewport are selected. The default
    * value is {@code true}.
    */
   public final boolean viewportOrientationMayChange;
+
   /**
    * The preferred sample MIME types for video tracks in order of preference, or an empty list for
    * no preference. The default is an empty list.
    */
   public final ImmutableList<String> preferredVideoMimeTypes;
+
   /**
    * The preferred {@link C.RoleFlags} for video tracks. {@code 0} selects the default track if
    * there is one, or the first track if there's no default. The default value is {@code 0}.
    */
   public final @C.RoleFlags int preferredVideoRoleFlags;
+
   // Audio
   /**
    * The preferred languages for audio and forced text tracks as IETF BCP 47 conformant tags in
@@ -974,21 +990,25 @@ public class TrackSelectionParameters implements Bundleable {
    * default. The default value is an empty list.
    */
   public final ImmutableList<String> preferredAudioLanguages;
+
   /**
    * The preferred {@link C.RoleFlags} for audio tracks. {@code 0} selects the default track if
    * there is one, or the first track if there's no default. The default value is {@code 0}.
    */
   public final @C.RoleFlags int preferredAudioRoleFlags;
+
   /**
    * Maximum allowed audio channel count. The default value is {@link Integer#MAX_VALUE} (i.e. no
    * constraint).
    */
   public final int maxAudioChannelCount;
+
   /**
    * Maximum allowed audio bitrate in bits per second. The default value is {@link
    * Integer#MAX_VALUE} (i.e. no constraint).
    */
   public final int maxAudioBitrate;
+
   /**
    * The preferred sample MIME types for audio tracks in order of preference, or an empty list for
    * no preference. The default is an empty list.
@@ -1000,12 +1020,14 @@ public class TrackSelectionParameters implements Bundleable {
    * #AUDIO_OFFLOAD_MODE_PREFERENCE_DISABLED}.
    */
   public final @AudioOffloadModePreference int audioOffloadModePreference;
+
   /**
    * A constraint on enabling offload. If {@code isGaplessSupportRequired}, then audio offload will
    * be enabled only if the device supports gapless transitions during offload or the selected audio
    * is not gapless.
    */
   public final boolean isGaplessSupportRequired;
+
   /**
    * A constraint on enabling offload. If {@code isSpeedChangeSupportRequired}, then audio offload
    * will be enabled only if the device supports changing playback speed during offload.
@@ -1020,6 +1042,7 @@ public class TrackSelectionParameters implements Bundleable {
    * enabled.
    */
   public final ImmutableList<String> preferredTextLanguages;
+
   /**
    * The preferred {@link C.RoleFlags} for text tracks. {@code 0} selects the default track if there
    * is one, or no track otherwise. The default value is {@code 0}, or {@link C#ROLE_FLAG_SUBTITLE}
@@ -1027,23 +1050,27 @@ public class TrackSelectionParameters implements Bundleable {
    * is enabled.
    */
   public final @C.RoleFlags int preferredTextRoleFlags;
+
   /**
    * Bitmask of selection flags that are ignored for text track selections. See {@link
    * C.SelectionFlags}. The default value is {@code 0} (i.e., no flags are ignored).
    */
   public final @C.SelectionFlags int ignoredTextSelectionFlags;
+
   /**
    * Whether a text track with undetermined language should be selected if no track with {@link
    * #preferredTextLanguages} is available, or if {@link #preferredTextLanguages} is unset. The
    * default value is {@code false}.
    */
   public final boolean selectUndeterminedTextLanguage;
+
   // General
   /**
    * Whether to force selection of the single lowest bitrate audio and video tracks that comply with
    * all other constraints. The default value is {@code false}.
    */
   public final boolean forceLowestBitrate;
+
   /**
    * Whether to force selection of the highest bitrate audio and video tracks that comply with all
    * other constraints. The default value is {@code false}.

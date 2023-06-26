@@ -237,137 +237,199 @@ public interface AnalyticsListener {
     EVENT_VIDEO_CODEC_ERROR,
   })
   @interface EventFlags {}
+
   /** {@link Player#getCurrentTimeline()} changed. */
   int EVENT_TIMELINE_CHANGED = Player.EVENT_TIMELINE_CHANGED;
+
   /**
    * {@link Player#getCurrentMediaItem()} changed or the player started repeating the current item.
    */
   int EVENT_MEDIA_ITEM_TRANSITION = Player.EVENT_MEDIA_ITEM_TRANSITION;
+
   /** {@link Player#getCurrentTracks()} changed. */
   int EVENT_TRACKS_CHANGED = Player.EVENT_TRACKS_CHANGED;
+
   /** {@link Player#isLoading()} ()} changed. */
   int EVENT_IS_LOADING_CHANGED = Player.EVENT_IS_LOADING_CHANGED;
+
   /** {@link Player#getPlaybackState()} changed. */
   int EVENT_PLAYBACK_STATE_CHANGED = Player.EVENT_PLAYBACK_STATE_CHANGED;
+
   /** {@link Player#getPlayWhenReady()} changed. */
   int EVENT_PLAY_WHEN_READY_CHANGED = Player.EVENT_PLAY_WHEN_READY_CHANGED;
+
   /** {@link Player#getPlaybackSuppressionReason()} changed. */
   int EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED = Player.EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED;
+
   /** {@link Player#isPlaying()} changed. */
   int EVENT_IS_PLAYING_CHANGED = Player.EVENT_IS_PLAYING_CHANGED;
+
   /** {@link Player#getRepeatMode()} changed. */
   int EVENT_REPEAT_MODE_CHANGED = Player.EVENT_REPEAT_MODE_CHANGED;
+
   /** {@link Player#getShuffleModeEnabled()} changed. */
   int EVENT_SHUFFLE_MODE_ENABLED_CHANGED = Player.EVENT_SHUFFLE_MODE_ENABLED_CHANGED;
+
   /** {@link Player#getPlayerError()} changed. */
   int EVENT_PLAYER_ERROR = Player.EVENT_PLAYER_ERROR;
+
   /**
    * A position discontinuity occurred. See {@link
    * Player.Listener#onPositionDiscontinuity(Player.PositionInfo, Player.PositionInfo, int)}.
    */
   int EVENT_POSITION_DISCONTINUITY = Player.EVENT_POSITION_DISCONTINUITY;
+
   /** {@link Player#getPlaybackParameters()} changed. */
   int EVENT_PLAYBACK_PARAMETERS_CHANGED = Player.EVENT_PLAYBACK_PARAMETERS_CHANGED;
+
   /** {@link Player#getAvailableCommands()} changed. */
   int EVENT_AVAILABLE_COMMANDS_CHANGED = Player.EVENT_AVAILABLE_COMMANDS_CHANGED;
+
   /** {@link Player#getMediaMetadata()} changed. */
   int EVENT_MEDIA_METADATA_CHANGED = Player.EVENT_MEDIA_METADATA_CHANGED;
+
   /** {@link Player#getPlaylistMetadata()} changed. */
   int EVENT_PLAYLIST_METADATA_CHANGED = Player.EVENT_PLAYLIST_METADATA_CHANGED;
+
   /** {@link Player#getSeekBackIncrement()} changed. */
   int EVENT_SEEK_BACK_INCREMENT_CHANGED = Player.EVENT_SEEK_BACK_INCREMENT_CHANGED;
+
   /** {@link Player#getSeekForwardIncrement()} changed. */
   int EVENT_SEEK_FORWARD_INCREMENT_CHANGED = Player.EVENT_SEEK_FORWARD_INCREMENT_CHANGED;
+
   /** {@link Player#getMaxSeekToPreviousPosition()} changed. */
   int EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED =
       Player.EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED;
+
   /** {@link Player#getTrackSelectionParameters()} changed. */
   int EVENT_TRACK_SELECTION_PARAMETERS_CHANGED = Player.EVENT_TRACK_SELECTION_PARAMETERS_CHANGED;
+
   /** Audio attributes changed. */
   int EVENT_AUDIO_ATTRIBUTES_CHANGED = Player.EVENT_AUDIO_ATTRIBUTES_CHANGED;
+
   /** An audio session id was set. */
   int EVENT_AUDIO_SESSION_ID = Player.EVENT_AUDIO_SESSION_ID;
+
   /** The volume changed. */
   int EVENT_VOLUME_CHANGED = Player.EVENT_VOLUME_CHANGED;
+
   /** Skipping silences was enabled or disabled in the audio stream. */
   int EVENT_SKIP_SILENCE_ENABLED_CHANGED = Player.EVENT_SKIP_SILENCE_ENABLED_CHANGED;
+
   /** The surface size changed. */
   int EVENT_SURFACE_SIZE_CHANGED = Player.EVENT_SURFACE_SIZE_CHANGED;
+
   /** The video size changed. */
   int EVENT_VIDEO_SIZE_CHANGED = Player.EVENT_VIDEO_SIZE_CHANGED;
+
   /**
    * The first frame has been rendered since setting the surface, since the renderer was reset or
    * since the stream changed.
    */
   int EVENT_RENDERED_FIRST_FRAME = Player.EVENT_RENDERED_FIRST_FRAME;
+
   /** Metadata associated with the current playback time was reported. */
   int EVENT_METADATA = Player.EVENT_METADATA;
+
   /** {@link Player#getCurrentCues()} changed. */
   int EVENT_CUES = Player.EVENT_CUES;
+
   /** {@link Player#getDeviceInfo()} changed. */
   int EVENT_DEVICE_INFO_CHANGED = Player.EVENT_DEVICE_INFO_CHANGED;
+
   /** {@link Player#getDeviceVolume()} changed. */
   int EVENT_DEVICE_VOLUME_CHANGED = Player.EVENT_DEVICE_VOLUME_CHANGED;
+
   /** A source started loading data. */
   int EVENT_LOAD_STARTED = 1000; // Intentional gap to leave space for new Player events
+
   /** A source started completed loading data. */
   int EVENT_LOAD_COMPLETED = 1001;
+
   /** A source canceled loading data. */
   int EVENT_LOAD_CANCELED = 1002;
+
   /** A source had a non-fatal error loading data. */
   int EVENT_LOAD_ERROR = 1003;
+
   /** The downstream format sent to renderers changed. */
   int EVENT_DOWNSTREAM_FORMAT_CHANGED = 1004;
+
   /** Data was removed from the end of the media buffer. */
   int EVENT_UPSTREAM_DISCARDED = 1005;
+
   /** The bandwidth estimate has been updated. */
   int EVENT_BANDWIDTH_ESTIMATE = 1006;
+
   /** An audio renderer was enabled. */
   int EVENT_AUDIO_ENABLED = 1007;
+
   /** An audio renderer created a decoder. */
   int EVENT_AUDIO_DECODER_INITIALIZED = 1008;
+
   /** The format consumed by an audio renderer changed. */
   int EVENT_AUDIO_INPUT_FORMAT_CHANGED = 1009;
+
   /** The audio position has increased for the first time since the last pause or position reset. */
   int EVENT_AUDIO_POSITION_ADVANCING = 1010;
+
   /** An audio underrun occurred. */
   int EVENT_AUDIO_UNDERRUN = 1011;
+
   /** An audio renderer released a decoder. */
   int EVENT_AUDIO_DECODER_RELEASED = 1012;
+
   /** An audio renderer was disabled. */
   int EVENT_AUDIO_DISABLED = 1013;
+
   /** The audio sink encountered a non-fatal error. */
   int EVENT_AUDIO_SINK_ERROR = 1014;
+
   /** A video renderer was enabled. */
   int EVENT_VIDEO_ENABLED = 1015;
+
   /** A video renderer created a decoder. */
   int EVENT_VIDEO_DECODER_INITIALIZED = 1016;
+
   /** The format consumed by a video renderer changed. */
   int EVENT_VIDEO_INPUT_FORMAT_CHANGED = 1017;
+
   /** Video frames have been dropped. */
   int EVENT_DROPPED_VIDEO_FRAMES = 1018;
+
   /** A video renderer released a decoder. */
   int EVENT_VIDEO_DECODER_RELEASED = 1019;
+
   /** A video renderer was disabled. */
   int EVENT_VIDEO_DISABLED = 1020;
+
   /** Video frame processing offset data has been reported. */
   int EVENT_VIDEO_FRAME_PROCESSING_OFFSET = 1021;
+
   /** A DRM session has been acquired. */
   int EVENT_DRM_SESSION_ACQUIRED = 1022;
+
   /** DRM keys were loaded. */
   int EVENT_DRM_KEYS_LOADED = 1023;
+
   /** A non-fatal DRM session manager error occurred. */
   int EVENT_DRM_SESSION_MANAGER_ERROR = 1024;
+
   /** DRM keys were restored. */
   int EVENT_DRM_KEYS_RESTORED = 1025;
+
   /** DRM keys were removed. */
   int EVENT_DRM_KEYS_REMOVED = 1026;
+
   /** A DRM session has been released. */
   int EVENT_DRM_SESSION_RELEASED = 1027;
+
   /** The player was released. */
   int EVENT_PLAYER_RELEASED = 1028;
+
   /** The audio codec encountered an error. */
   int EVENT_AUDIO_CODEC_ERROR = 1029;
+
   /** The video codec encountered an error. */
   int EVENT_VIDEO_CODEC_ERROR = 1030;
 

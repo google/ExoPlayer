@@ -38,6 +38,7 @@ public final class SpeedChangingAudioProcessor extends BaseAudioProcessor {
 
   /** The speed provider that provides the speed for each timestamp. */
   private final SpeedProvider speedProvider;
+
   /**
    * The {@link SonicAudioProcessor} used to change the speed, when needed. If there is no speed
    * change required, the input buffer is copied to the output buffer and this processor is not

@@ -73,12 +73,14 @@ public final class TimelineQueueEditor
      * @param description The {@link MediaDescriptionCompat} to be added.
      */
     void add(int position, MediaDescriptionCompat description);
+
     /**
      * Removes the item at the given {@code position}.
      *
      * @param position The position at which to remove the item.
      */
     void remove(int position);
+
     /**
      * Moves a queue item from position {@code from} to position {@code to}.
      *

@@ -128,12 +128,16 @@ public final class C {
         CRYPTO_TYPE_FRAMEWORK,
       })
   public @interface CryptoType {}
+
   /** No crypto. */
   public static final int CRYPTO_TYPE_NONE = 0;
+
   /** An unsupported crypto type. */
   public static final int CRYPTO_TYPE_UNSUPPORTED = 1;
+
   /** Framework crypto in which a {@link MediaCodec} is configured with a {@link MediaCrypto}. */
   public static final int CRYPTO_TYPE_FRAMEWORK = 2;
+
   /**
    * Applications or extensions may define custom {@code CRYPTO_TYPE_*} constants greater than or
    * equal to this value.
@@ -149,10 +153,13 @@ public final class C {
   @Target(TYPE_USE)
   @IntDef({CRYPTO_MODE_UNENCRYPTED, CRYPTO_MODE_AES_CTR, CRYPTO_MODE_AES_CBC})
   public @interface CryptoMode {}
+
   /** See {@link MediaCodec#CRYPTO_MODE_UNENCRYPTED}. */
   public static final int CRYPTO_MODE_UNENCRYPTED = MediaCodec.CRYPTO_MODE_UNENCRYPTED;
+
   /** See {@link MediaCodec#CRYPTO_MODE_AES_CTR}. */
   public static final int CRYPTO_MODE_AES_CTR = MediaCodec.CRYPTO_MODE_AES_CTR;
+
   /** See {@link MediaCodec#CRYPTO_MODE_AES_CBC}. */
   public static final int CRYPTO_MODE_AES_CBC = MediaCodec.CRYPTO_MODE_AES_CBC;
 
@@ -221,50 +228,73 @@ public final class C {
     ENCODING_PCM_FLOAT
   })
   public @interface PcmEncoding {}
+
   /** See {@link AudioFormat#ENCODING_INVALID}. */
   public static final int ENCODING_INVALID = AudioFormat.ENCODING_INVALID;
+
   /** See {@link AudioFormat#ENCODING_PCM_8BIT}. */
   public static final int ENCODING_PCM_8BIT = AudioFormat.ENCODING_PCM_8BIT;
+
   /** See {@link AudioFormat#ENCODING_PCM_16BIT}. */
   public static final int ENCODING_PCM_16BIT = AudioFormat.ENCODING_PCM_16BIT;
+
   /** Like {@link #ENCODING_PCM_16BIT}, but with the bytes in big endian order. */
   public static final int ENCODING_PCM_16BIT_BIG_ENDIAN = 0x10000000;
+
   /** PCM encoding with 24 bits per sample. */
   public static final int ENCODING_PCM_24BIT = 0x20000000;
+
   /** PCM encoding with 32 bits per sample. */
   public static final int ENCODING_PCM_32BIT = 0x30000000;
+
   /** See {@link AudioFormat#ENCODING_PCM_FLOAT}. */
   public static final int ENCODING_PCM_FLOAT = AudioFormat.ENCODING_PCM_FLOAT;
+
   /** See {@link AudioFormat#ENCODING_MP3}. */
   public static final int ENCODING_MP3 = AudioFormat.ENCODING_MP3;
+
   /** See {@link AudioFormat#ENCODING_AAC_LC}. */
   public static final int ENCODING_AAC_LC = AudioFormat.ENCODING_AAC_LC;
+
   /** See {@link AudioFormat#ENCODING_AAC_HE_V1}. */
   public static final int ENCODING_AAC_HE_V1 = AudioFormat.ENCODING_AAC_HE_V1;
+
   /** See {@link AudioFormat#ENCODING_AAC_HE_V2}. */
   public static final int ENCODING_AAC_HE_V2 = AudioFormat.ENCODING_AAC_HE_V2;
+
   /** See {@link AudioFormat#ENCODING_AAC_XHE}. */
   public static final int ENCODING_AAC_XHE = AudioFormat.ENCODING_AAC_XHE;
+
   /** See {@link AudioFormat#ENCODING_AAC_ELD}. */
   public static final int ENCODING_AAC_ELD = AudioFormat.ENCODING_AAC_ELD;
+
   /** AAC Error Resilient Bit-Sliced Arithmetic Coding. */
   public static final int ENCODING_AAC_ER_BSAC = 0x40000000;
+
   /** See {@link AudioFormat#ENCODING_AC3}. */
   public static final int ENCODING_AC3 = AudioFormat.ENCODING_AC3;
+
   /** See {@link AudioFormat#ENCODING_E_AC3}. */
   public static final int ENCODING_E_AC3 = AudioFormat.ENCODING_E_AC3;
+
   /** See {@link AudioFormat#ENCODING_E_AC3_JOC}. */
   public static final int ENCODING_E_AC3_JOC = AudioFormat.ENCODING_E_AC3_JOC;
+
   /** See {@link AudioFormat#ENCODING_AC4}. */
   public static final int ENCODING_AC4 = AudioFormat.ENCODING_AC4;
+
   /** See {@link AudioFormat#ENCODING_DTS}. */
   public static final int ENCODING_DTS = AudioFormat.ENCODING_DTS;
+
   /** See {@link AudioFormat#ENCODING_DTS_HD}. */
   public static final int ENCODING_DTS_HD = AudioFormat.ENCODING_DTS_HD;
+
   // TODO(internal b/283949283): Use AudioFormat.ENCODING_DTS_UHD_P2 when Android 14 is released.
   public static final int ENCODING_DTS_UHD_P2 = 0x0000001e;
+
   /** See {@link AudioFormat#ENCODING_DOLBY_TRUEHD}. */
   public static final int ENCODING_DOLBY_TRUEHD = AudioFormat.ENCODING_DOLBY_TRUEHD;
+
   /** See {@link AudioFormat#ENCODING_OPUS}. */
   public static final int ENCODING_OPUS = AudioFormat.ENCODING_OPUS;
 
@@ -281,6 +311,7 @@ public final class C {
   /** See {@link AudioAttributes#SPATIALIZATION_BEHAVIOR_AUTO}. */
   public static final int SPATIALIZATION_BEHAVIOR_AUTO =
       AudioAttributes.SPATIALIZATION_BEHAVIOR_AUTO;
+
   /** See {@link AudioAttributes#SPATIALIZATION_BEHAVIOR_NEVER}. */
   public static final int SPATIALIZATION_BEHAVIOR_NEVER =
       AudioAttributes.SPATIALIZATION_BEHAVIOR_NEVER;
@@ -308,20 +339,28 @@ public final class C {
     STREAM_TYPE_DEFAULT
   })
   public @interface StreamType {}
+
   /** See {@link AudioManager#STREAM_ALARM}. */
   public static final int STREAM_TYPE_ALARM = AudioManager.STREAM_ALARM;
+
   /** See {@link AudioManager#STREAM_DTMF}. */
   public static final int STREAM_TYPE_DTMF = AudioManager.STREAM_DTMF;
+
   /** See {@link AudioManager#STREAM_MUSIC}. */
   public static final int STREAM_TYPE_MUSIC = AudioManager.STREAM_MUSIC;
+
   /** See {@link AudioManager#STREAM_NOTIFICATION}. */
   public static final int STREAM_TYPE_NOTIFICATION = AudioManager.STREAM_NOTIFICATION;
+
   /** See {@link AudioManager#STREAM_RING}. */
   public static final int STREAM_TYPE_RING = AudioManager.STREAM_RING;
+
   /** See {@link AudioManager#STREAM_SYSTEM}. */
   public static final int STREAM_TYPE_SYSTEM = AudioManager.STREAM_SYSTEM;
+
   /** See {@link AudioManager#STREAM_VOICE_CALL}. */
   public static final int STREAM_TYPE_VOICE_CALL = AudioManager.STREAM_VOICE_CALL;
+
   /** The default stream type used by audio renderers. Equal to {@link #STREAM_TYPE_MUSIC}. */
   public static final int STREAM_TYPE_DEFAULT = STREAM_TYPE_MUSIC;
 
@@ -344,15 +383,20 @@ public final class C {
         VOLUME_FLAG_VIBRATE,
       })
   public @interface VolumeFlags {}
+
   /** See {@link AudioManager#FLAG_SHOW_UI}. */
   public static final int VOLUME_FLAG_SHOW_UI = AudioManager.FLAG_SHOW_UI;
+
   /** See {@link AudioManager#FLAG_ALLOW_RINGER_MODES}. */
   public static final int VOLUME_FLAG_ALLOW_RINGER_MODES = AudioManager.FLAG_ALLOW_RINGER_MODES;
+
   /** See {@link AudioManager#FLAG_PLAY_SOUND}. */
   public static final int VOLUME_FLAG_PLAY_SOUND = AudioManager.FLAG_PLAY_SOUND;
+
   /** See {@link AudioManager#FLAG_REMOVE_SOUND_AND_VIBRATE}. */
   public static final int VOLUME_FLAG_REMOVE_SOUND_AND_VIBRATE =
       AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE;
+
   /** See {@link AudioManager#FLAG_VIBRATE}. */
   public static final int VOLUME_FLAG_VIBRATE = AudioManager.FLAG_VIBRATE;
 
@@ -380,33 +424,43 @@ public final class C {
     AUDIO_CONTENT_TYPE_UNKNOWN
   })
   public @interface AudioContentType {}
+
   /** See {@link AudioAttributes#CONTENT_TYPE_MOVIE}. */
   public static final int AUDIO_CONTENT_TYPE_MOVIE = AudioAttributes.CONTENT_TYPE_MOVIE;
+
   /**
    * @deprecated Use {@link #AUDIO_CONTENT_TYPE_MOVIE} instead.
    */
   @Deprecated public static final int CONTENT_TYPE_MOVIE = AUDIO_CONTENT_TYPE_MOVIE;
+
   /** See {@link AudioAttributes#CONTENT_TYPE_MUSIC}. */
   public static final int AUDIO_CONTENT_TYPE_MUSIC = AudioAttributes.CONTENT_TYPE_MUSIC;
+
   /**
    * @deprecated Use {@link #AUDIO_CONTENT_TYPE_MUSIC} instead.
    */
   @Deprecated public static final int CONTENT_TYPE_MUSIC = AUDIO_CONTENT_TYPE_MUSIC;
+
   /** See {@link AudioAttributes#CONTENT_TYPE_SONIFICATION}. */
   public static final int AUDIO_CONTENT_TYPE_SONIFICATION =
       AudioAttributes.CONTENT_TYPE_SONIFICATION;
+
   /**
    * @deprecated Use {@link #AUDIO_CONTENT_TYPE_SONIFICATION} instead.
    */
   @Deprecated public static final int CONTENT_TYPE_SONIFICATION = AUDIO_CONTENT_TYPE_SONIFICATION;
+
   /** See {@link AudioAttributes#CONTENT_TYPE_SPEECH}. */
   public static final int AUDIO_CONTENT_TYPE_SPEECH = AudioAttributes.CONTENT_TYPE_SPEECH;
+
   /**
    * @deprecated Use {@link #AUDIO_CONTENT_TYPE_SPEECH} instead.
    */
   @Deprecated public static final int CONTENT_TYPE_SPEECH = AUDIO_CONTENT_TYPE_SPEECH;
+
   /** See {@link AudioAttributes#CONTENT_TYPE_UNKNOWN}. */
   public static final int AUDIO_CONTENT_TYPE_UNKNOWN = AudioAttributes.CONTENT_TYPE_UNKNOWN;
+
   /**
    * @deprecated Use {@link #AUDIO_CONTENT_TYPE_UNKNOWN} instead.
    */
@@ -427,6 +481,7 @@ public final class C {
       flag = true,
       value = {FLAG_AUDIBILITY_ENFORCED})
   public @interface AudioFlags {}
+
   /** See {@link android.media.AudioAttributes#FLAG_AUDIBILITY_ENFORCED}. */
   public static final int FLAG_AUDIBILITY_ENFORCED =
       android.media.AudioAttributes.FLAG_AUDIBILITY_ENFORCED;
@@ -465,45 +520,61 @@ public final class C {
     USAGE_VOICE_COMMUNICATION_SIGNALLING
   })
   public @interface AudioUsage {}
+
   /** See {@link android.media.AudioAttributes#USAGE_ALARM}. */
   public static final int USAGE_ALARM = android.media.AudioAttributes.USAGE_ALARM;
+
   /** See {@link android.media.AudioAttributes#USAGE_ASSISTANCE_ACCESSIBILITY}. */
   public static final int USAGE_ASSISTANCE_ACCESSIBILITY =
       android.media.AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY;
+
   /** See {@link android.media.AudioAttributes#USAGE_ASSISTANCE_NAVIGATION_GUIDANCE}. */
   public static final int USAGE_ASSISTANCE_NAVIGATION_GUIDANCE =
       android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
+
   /** See {@link android.media.AudioAttributes#USAGE_ASSISTANCE_SONIFICATION}. */
   public static final int USAGE_ASSISTANCE_SONIFICATION =
       android.media.AudioAttributes.USAGE_ASSISTANCE_SONIFICATION;
+
   /** See {@link android.media.AudioAttributes#USAGE_ASSISTANT}. */
   public static final int USAGE_ASSISTANT = android.media.AudioAttributes.USAGE_ASSISTANT;
+
   /** See {@link android.media.AudioAttributes#USAGE_GAME}. */
   public static final int USAGE_GAME = android.media.AudioAttributes.USAGE_GAME;
+
   /** See {@link android.media.AudioAttributes#USAGE_MEDIA}. */
   public static final int USAGE_MEDIA = android.media.AudioAttributes.USAGE_MEDIA;
+
   /** See {@link android.media.AudioAttributes#USAGE_NOTIFICATION}. */
   public static final int USAGE_NOTIFICATION = android.media.AudioAttributes.USAGE_NOTIFICATION;
+
   /** See {@link android.media.AudioAttributes#USAGE_NOTIFICATION_COMMUNICATION_DELAYED}. */
   public static final int USAGE_NOTIFICATION_COMMUNICATION_DELAYED =
       android.media.AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_DELAYED;
+
   /** See {@link android.media.AudioAttributes#USAGE_NOTIFICATION_COMMUNICATION_INSTANT}. */
   public static final int USAGE_NOTIFICATION_COMMUNICATION_INSTANT =
       android.media.AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT;
+
   /** See {@link android.media.AudioAttributes#USAGE_NOTIFICATION_COMMUNICATION_REQUEST}. */
   public static final int USAGE_NOTIFICATION_COMMUNICATION_REQUEST =
       android.media.AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_REQUEST;
+
   /** See {@link android.media.AudioAttributes#USAGE_NOTIFICATION_EVENT}. */
   public static final int USAGE_NOTIFICATION_EVENT =
       android.media.AudioAttributes.USAGE_NOTIFICATION_EVENT;
+
   /** See {@link android.media.AudioAttributes#USAGE_NOTIFICATION_RINGTONE}. */
   public static final int USAGE_NOTIFICATION_RINGTONE =
       android.media.AudioAttributes.USAGE_NOTIFICATION_RINGTONE;
+
   /** See {@link android.media.AudioAttributes#USAGE_UNKNOWN}. */
   public static final int USAGE_UNKNOWN = android.media.AudioAttributes.USAGE_UNKNOWN;
+
   /** See {@link android.media.AudioAttributes#USAGE_VOICE_COMMUNICATION}. */
   public static final int USAGE_VOICE_COMMUNICATION =
       android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION;
+
   /** See {@link android.media.AudioAttributes#USAGE_VOICE_COMMUNICATION_SIGNALLING}. */
   public static final int USAGE_VOICE_COMMUNICATION_SIGNALLING =
       android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING;
@@ -519,10 +590,13 @@ public final class C {
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({ALLOW_CAPTURE_BY_ALL, ALLOW_CAPTURE_BY_NONE, ALLOW_CAPTURE_BY_SYSTEM})
   public @interface AudioAllowedCapturePolicy {}
+
   /** See {@link android.media.AudioAttributes#ALLOW_CAPTURE_BY_ALL}. */
   public static final int ALLOW_CAPTURE_BY_ALL = AudioAttributes.ALLOW_CAPTURE_BY_ALL;
+
   /** See {@link android.media.AudioAttributes#ALLOW_CAPTURE_BY_NONE}. */
   public static final int ALLOW_CAPTURE_BY_NONE = AudioAttributes.ALLOW_CAPTURE_BY_NONE;
+
   /** See {@link android.media.AudioAttributes#ALLOW_CAPTURE_BY_SYSTEM}. */
   public static final int ALLOW_CAPTURE_BY_SYSTEM = AudioAttributes.ALLOW_CAPTURE_BY_SYSTEM;
 
@@ -547,18 +621,25 @@ public final class C {
         BUFFER_FLAG_DECODE_ONLY
       })
   public @interface BufferFlags {}
+
   /** Indicates that a buffer holds a synchronization sample. */
   public static final int BUFFER_FLAG_KEY_FRAME = MediaCodec.BUFFER_FLAG_KEY_FRAME;
+
   /** Flag for empty buffers that signal that the end of the stream was reached. */
   public static final int BUFFER_FLAG_END_OF_STREAM = MediaCodec.BUFFER_FLAG_END_OF_STREAM;
+
   /** Indicates that a buffer is known to contain the first media sample of the stream. */
   public static final int BUFFER_FLAG_FIRST_SAMPLE = 1 << 27; // 0x08000000
+
   /** Indicates that a buffer has supplemental data. */
   public static final int BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA = 1 << 28; // 0x10000000
+
   /** Indicates that a buffer is known to contain the last media sample of the stream. */
   public static final int BUFFER_FLAG_LAST_SAMPLE = 1 << 29; // 0x20000000
+
   /** Indicates that a buffer is (at least partially) encrypted. */
   public static final int BUFFER_FLAG_ENCRYPTED = 1 << 30; // 0x40000000
+
   /** Indicates that a buffer should be decoded but not rendered. */
   public static final int BUFFER_FLAG_DECODE_ONLY = 1 << 31; // 0x80000000
 
@@ -571,10 +652,13 @@ public final class C {
   @Target(TYPE_USE)
   @IntDef(value = {VIDEO_OUTPUT_MODE_NONE, VIDEO_OUTPUT_MODE_YUV, VIDEO_OUTPUT_MODE_SURFACE_YUV})
   public @interface VideoOutputMode {}
+
   /** Video decoder output mode is not set. */
   public static final int VIDEO_OUTPUT_MODE_NONE = -1;
+
   /** Video decoder output mode that outputs raw 4:2:0 YUV planes. */
   public static final int VIDEO_OUTPUT_MODE_YUV = 0;
+
   /** Video decoder output mode that renders 4:2:0 YUV planes directly to a surface. */
   public static final int VIDEO_OUTPUT_MODE_SURFACE_YUV = 1;
 
@@ -595,12 +679,15 @@ public final class C {
     VIDEO_SCALING_MODE_DEFAULT
   })
   public @interface VideoScalingMode {}
+
   /** See {@link MediaCodec#VIDEO_SCALING_MODE_SCALE_TO_FIT}. */
   public static final int VIDEO_SCALING_MODE_SCALE_TO_FIT =
       MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT;
+
   /** See {@link MediaCodec#VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING}. */
   public static final int VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING =
       MediaCodec.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING;
+
   /** A default video scaling mode for {@link MediaCodec}-based renderers. */
   public static final int VIDEO_SCALING_MODE_DEFAULT = VIDEO_SCALING_MODE_SCALE_TO_FIT;
 
@@ -612,11 +699,13 @@ public final class C {
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({VIDEO_CHANGE_FRAME_RATE_STRATEGY_OFF, VIDEO_CHANGE_FRAME_RATE_STRATEGY_ONLY_IF_SEAMLESS})
   public @interface VideoChangeFrameRateStrategy {}
+
   /**
    * Strategy to never call {@link Surface#setFrameRate}. Use this strategy if you prefer to call
    * {@link Surface#setFrameRate} directly from application code.
    */
   public static final int VIDEO_CHANGE_FRAME_RATE_STRATEGY_OFF = Integer.MIN_VALUE;
+
   /**
    * Strategy to call {@link Surface#setFrameRate} with {@link
    * Surface#CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS} when the output frame rate is known.
@@ -637,9 +726,11 @@ public final class C {
       flag = true,
       value = {SELECTION_FLAG_DEFAULT, SELECTION_FLAG_FORCED, SELECTION_FLAG_AUTOSELECT})
   public @interface SelectionFlags {}
+
   // LINT.IfChange(selection_flags)
   /** Indicates that the track should be selected if user preferences do not state otherwise. */
   public static final int SELECTION_FLAG_DEFAULT = 1;
+
   /**
    * Indicates that the track should be selected if its language matches the language of the
    * selected audio track and user preferences do not state otherwise. Only applies to text tracks.
@@ -650,6 +741,7 @@ public final class C {
    * for more info.
    */
   public static final int SELECTION_FLAG_FORCED = 1 << 1; // 2
+
   /**
    * Indicates that the player may choose to play the track in absence of an explicit user
    * preference.
@@ -683,32 +775,42 @@ public final class C {
     CONTENT_TYPE_OTHER
   })
   public @interface ContentType {}
+
   /** Value representing a DASH manifest. */
   public static final int CONTENT_TYPE_DASH = 0;
+
   /**
    * @deprecated Use {@link #CONTENT_TYPE_DASH} instead.
    */
   @Deprecated public static final int TYPE_DASH = CONTENT_TYPE_DASH;
+
   /** Value representing a Smooth Streaming manifest. */
   public static final int CONTENT_TYPE_SS = 1;
+
   /**
    * @deprecated Use {@link #CONTENT_TYPE_SS} instead.
    */
   @Deprecated public static final int TYPE_SS = CONTENT_TYPE_SS;
+
   /** Value representing an HLS manifest. */
   public static final int CONTENT_TYPE_HLS = 2;
+
   /**
    * @deprecated Use {@link #CONTENT_TYPE_HLS} instead.
    */
   @Deprecated public static final int TYPE_HLS = CONTENT_TYPE_HLS;
+
   /** Value representing an RTSP stream. */
   public static final int CONTENT_TYPE_RTSP = 3;
+
   /**
    * @deprecated Use {@link #CONTENT_TYPE_RTSP} instead.
    */
   @Deprecated public static final int TYPE_RTSP = CONTENT_TYPE_RTSP;
+
   /** Value representing files other than DASH, HLS or Smooth Streaming manifests, or RTSP URIs. */
   public static final int CONTENT_TYPE_OTHER = 4;
+
   /**
    * @deprecated Use {@link #CONTENT_TYPE_OTHER} instead.
    */
@@ -716,14 +818,18 @@ public final class C {
 
   /** A return value for methods where the end of an input was encountered. */
   public static final int RESULT_END_OF_INPUT = -1;
+
   /**
    * A return value for methods where the length of parsed data exceeds the maximum length allowed.
    */
   public static final int RESULT_MAX_LENGTH_EXCEEDED = -2;
+
   /** A return value for methods where nothing was read. */
   public static final int RESULT_NOTHING_READ = -3;
+
   /** A return value for methods where a buffer was read. */
   public static final int RESULT_BUFFER_READ = -4;
+
   /** A return value for methods where a format was read. */
   public static final int RESULT_FORMAT_READ = -5;
 
@@ -750,24 +856,33 @@ public final class C {
         DATA_TYPE_MEDIA_PROGRESSIVE_LIVE
       })
   public @interface DataType {}
+
   /** A data type constant for data of unknown or unspecified type. */
   public static final int DATA_TYPE_UNKNOWN = 0;
+
   /** A data type constant for media, typically containing media samples. */
   public static final int DATA_TYPE_MEDIA = 1;
+
   /** A data type constant for media, typically containing only initialization data. */
   public static final int DATA_TYPE_MEDIA_INITIALIZATION = 2;
+
   /** A data type constant for drm or encryption data. */
   public static final int DATA_TYPE_DRM = 3;
+
   /** A data type constant for a manifest file. */
   public static final int DATA_TYPE_MANIFEST = 4;
+
   /** A data type constant for time synchronization data. */
   public static final int DATA_TYPE_TIME_SYNCHRONIZATION = 5;
+
   /** A data type constant for ads loader data. */
   public static final int DATA_TYPE_AD = 6;
+
   /**
    * A data type constant for live progressive media streams, typically containing media samples.
    */
   public static final int DATA_TYPE_MEDIA_PROGRESSIVE_LIVE = 7;
+
   /**
    * Applications or extensions may define custom {@code DATA_TYPE_*} constants greater than or
    * equal to this value.
@@ -798,24 +913,34 @@ public final class C {
         TRACK_TYPE_NONE,
       })
   public @interface TrackType {}
+
   /** A type constant for a fake or empty track. */
   public static final int TRACK_TYPE_NONE = -2;
+
   /** A type constant for tracks of unknown type. */
   public static final int TRACK_TYPE_UNKNOWN = -1;
+
   /** A type constant for tracks of some default type, where the type itself is unknown. */
   public static final int TRACK_TYPE_DEFAULT = 0;
+
   /** A type constant for audio tracks. */
   public static final int TRACK_TYPE_AUDIO = 1;
+
   /** A type constant for video tracks. */
   public static final int TRACK_TYPE_VIDEO = 2;
+
   /** A type constant for text tracks. */
   public static final int TRACK_TYPE_TEXT = 3;
+
   /** A type constant for image tracks. */
   public static final int TRACK_TYPE_IMAGE = 4;
+
   /** A type constant for metadata tracks. */
   public static final int TRACK_TYPE_METADATA = 5;
+
   /** A type constant for camera motion tracks. */
   public static final int TRACK_TYPE_CAMERA_MOTION = 6;
+
   /**
    * Applications or extensions may define custom {@code TRACK_TYPE_*} constants greater than or
    * equal to this value.
@@ -841,16 +966,22 @@ public final class C {
         SELECTION_REASON_TRICK_PLAY
       })
   public @interface SelectionReason {}
+
   /** A selection reason constant for selections whose reasons are unknown or unspecified. */
   public static final int SELECTION_REASON_UNKNOWN = 0;
+
   /** A selection reason constant for an initial track selection. */
   public static final int SELECTION_REASON_INITIAL = 1;
+
   /** A selection reason constant for an manual (i.e. user initiated) track selection. */
   public static final int SELECTION_REASON_MANUAL = 2;
+
   /** A selection reason constant for an adaptive track selection. */
   public static final int SELECTION_REASON_ADAPTIVE = 3;
+
   /** A selection reason constant for a trick play track selection. */
   public static final int SELECTION_REASON_TRICK_PLAY = 4;
+
   /**
    * Applications or extensions may define custom {@code SELECTION_REASON_*} constants greater than
    * or equal to this value.
@@ -862,6 +993,7 @@ public final class C {
 
   /** A default seek back increment, in milliseconds. */
   public static final long DEFAULT_SEEK_BACK_INCREMENT_MS = 5_000;
+
   /** A default seek forward increment, in milliseconds. */
   public static final long DEFAULT_SEEK_FORWARD_INCREMENT_MS = 15_000;
 
@@ -938,12 +1070,16 @@ public final class C {
     STEREO_MODE_STEREO_MESH
   })
   public @interface StereoMode {}
+
   /** Indicates Monoscopic stereo layout, used with 360/3D/VR videos. */
   public static final int STEREO_MODE_MONO = 0;
+
   /** Indicates Top-Bottom stereo layout, used with 360/3D/VR videos. */
   public static final int STEREO_MODE_TOP_BOTTOM = 1;
+
   /** Indicates Left-Right stereo layout, used with 360/3D/VR videos. */
   public static final int STEREO_MODE_LEFT_RIGHT = 2;
+
   /**
    * Indicates a stereo layout where the left and right eyes have separate meshes, used with
    * 360/3D/VR videos.
@@ -960,10 +1096,13 @@ public final class C {
   @Target(TYPE_USE)
   @IntDef({Format.NO_VALUE, COLOR_SPACE_BT601, COLOR_SPACE_BT709, COLOR_SPACE_BT2020})
   public @interface ColorSpace {}
+
   /** See {@link MediaFormat#COLOR_STANDARD_BT601_PAL}. */
   public static final int COLOR_SPACE_BT601 = MediaFormat.COLOR_STANDARD_BT601_PAL;
+
   /** See {@link MediaFormat#COLOR_STANDARD_BT709}. */
   public static final int COLOR_SPACE_BT709 = MediaFormat.COLOR_STANDARD_BT709;
+
   /** See {@link MediaFormat#COLOR_STANDARD_BT2020}. */
   public static final int COLOR_SPACE_BT2020 = MediaFormat.COLOR_STANDARD_BT2020;
 
@@ -986,10 +1125,13 @@ public final class C {
     COLOR_TRANSFER_HLG
   })
   public @interface ColorTransfer {}
+
   /** See {@link MediaFormat#COLOR_TRANSFER_LINEAR}. */
   public static final int COLOR_TRANSFER_LINEAR = MediaFormat.COLOR_TRANSFER_LINEAR;
+
   /** See {@link MediaFormat#COLOR_TRANSFER_SDR_VIDEO}. The SMPTE 170M transfer function. */
   public static final int COLOR_TRANSFER_SDR = MediaFormat.COLOR_TRANSFER_SDR_VIDEO;
+
   /**
    * See {@link android.hardware.DataSpace#TRANSFER_SRGB}. The standard RGB transfer function, used
    * for some SDR use-cases like image input.
@@ -997,13 +1139,16 @@ public final class C {
   // Value sourced from ordering here:
   // https://cs.android.com/android/platform/superproject/+/master:frameworks/native/headers/media_plugin/media/hardware/VideoAPI.h;drc=55e9bd7c487ee235631f302ab8626776547ac913;l=138.
   public static final int COLOR_TRANSFER_SRGB = 2;
+
   /**
    * See {@link android.hardware.DataSpace#TRANSFER_GAMMA2_2}. The Gamma 2.2 transfer function, used
    * for some SDR use-cases like tone-mapping.
    */
   public static final int COLOR_TRANSFER_GAMMA_2_2 = 10;
+
   /** See {@link MediaFormat#COLOR_TRANSFER_ST2084}. */
   public static final int COLOR_TRANSFER_ST2084 = MediaFormat.COLOR_TRANSFER_ST2084;
+
   /** See {@link MediaFormat#COLOR_TRANSFER_HLG}. */
   public static final int COLOR_TRANSFER_HLG = MediaFormat.COLOR_TRANSFER_HLG;
 
@@ -1017,8 +1162,10 @@ public final class C {
   @Target(TYPE_USE)
   @IntDef({Format.NO_VALUE, COLOR_RANGE_LIMITED, COLOR_RANGE_FULL})
   public @interface ColorRange {}
+
   /** See {@link MediaFormat#COLOR_RANGE_LIMITED}. */
   public static final int COLOR_RANGE_LIMITED = MediaFormat.COLOR_RANGE_LIMITED;
+
   /** See {@link MediaFormat#COLOR_RANGE_FULL}. */
   public static final int COLOR_RANGE_FULL = MediaFormat.COLOR_RANGE_FULL;
 
@@ -1034,12 +1181,16 @@ public final class C {
     PROJECTION_MESH
   })
   public @interface Projection {}
+
   /** Conventional rectangular projection. */
   public static final int PROJECTION_RECTANGULAR = 0;
+
   /** Equirectangular spherical projection. */
   public static final int PROJECTION_EQUIRECTANGULAR = 1;
+
   /** Cube map projection. */
   public static final int PROJECTION_CUBEMAP = 2;
+
   /** 3-D mesh projection. */
   public static final int PROJECTION_MESH = 3;
 
@@ -1082,29 +1233,40 @@ public final class C {
     NETWORK_TYPE_OTHER
   })
   public @interface NetworkType {}
+
   /** Unknown network type. */
   public static final int NETWORK_TYPE_UNKNOWN = 0;
+
   /** No network connection. */
   public static final int NETWORK_TYPE_OFFLINE = 1;
+
   /** Network type for a Wifi connection. */
   public static final int NETWORK_TYPE_WIFI = 2;
+
   /** Network type for a 2G cellular connection. */
   public static final int NETWORK_TYPE_2G = 3;
+
   /** Network type for a 3G cellular connection. */
   public static final int NETWORK_TYPE_3G = 4;
+
   /** Network type for a 4G cellular connection. */
   public static final int NETWORK_TYPE_4G = 5;
+
   /** Network type for a 5G stand-alone (SA) cellular connection. */
   public static final int NETWORK_TYPE_5G_SA = 9;
+
   /** Network type for a 5G non-stand-alone (NSA) cellular connection. */
   public static final int NETWORK_TYPE_5G_NSA = 10;
+
   /**
    * Network type for cellular connections which cannot be mapped to one of {@link
    * #NETWORK_TYPE_2G}, {@link #NETWORK_TYPE_3G}, or {@link #NETWORK_TYPE_4G}.
    */
   public static final int NETWORK_TYPE_CELLULAR_UNKNOWN = 6;
+
   /** Network type for an Ethernet connection. */
   public static final int NETWORK_TYPE_ETHERNET = 7;
+
   /** Network type for other connections which are not Wifi or cellular (e.g. VPN, Bluetooth). */
   public static final int NETWORK_TYPE_OTHER = 8;
 
@@ -1119,12 +1281,14 @@ public final class C {
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
   @IntDef({WAKE_MODE_NONE, WAKE_MODE_LOCAL, WAKE_MODE_NETWORK})
   public @interface WakeMode {}
+
   /**
    * A wake mode that will not cause the player to hold any locks.
    *
    * <p>This is suitable for applications that do not play media with the screen off.
    */
   public static final int WAKE_MODE_NONE = 0;
+
   /**
    * A wake mode that will cause the player to hold a {@link android.os.PowerManager.WakeLock}
    * during playback.
@@ -1133,6 +1297,7 @@ public final class C {
    * over wifi.
    */
   public static final int WAKE_MODE_LOCAL = 1;
+
   /**
    * A wake mode that will cause the player to hold a {@link android.os.PowerManager.WakeLock} and a
    * {@link android.net.wifi.WifiManager.WifiLock} during playback.
@@ -1176,50 +1341,65 @@ public final class C {
         ROLE_FLAG_TRICK_PLAY
       })
   public @interface RoleFlags {}
+
   // LINT.IfChange(role_flags)
   /** Indicates a main track. */
   public static final int ROLE_FLAG_MAIN = 1;
+
   /**
    * Indicates an alternate track. For example a video track recorded from an different view point
    * than the main track(s).
    */
   public static final int ROLE_FLAG_ALTERNATE = 1 << 1;
+
   /**
    * Indicates a supplementary track, meaning the track has lower importance than the main track(s).
    * For example a video track that provides a visual accompaniment to a main audio track.
    */
   public static final int ROLE_FLAG_SUPPLEMENTARY = 1 << 2;
+
   /** Indicates the track contains commentary, for example from the director. */
   public static final int ROLE_FLAG_COMMENTARY = 1 << 3;
+
   /**
    * Indicates the track is in a different language from the original, for example dubbed audio or
    * translated captions.
    */
   public static final int ROLE_FLAG_DUB = 1 << 4;
+
   /** Indicates the track contains information about a current emergency. */
   public static final int ROLE_FLAG_EMERGENCY = 1 << 5;
+
   /**
    * Indicates the track contains captions. This flag may be set on video tracks to indicate the
    * presence of burned in captions.
    */
   public static final int ROLE_FLAG_CAPTION = 1 << 6;
+
   /**
    * Indicates the track contains subtitles. This flag may be set on video tracks to indicate the
    * presence of burned in subtitles.
    */
   public static final int ROLE_FLAG_SUBTITLE = 1 << 7;
+
   /** Indicates the track contains a visual sign-language interpretation of an audio track. */
   public static final int ROLE_FLAG_SIGN = 1 << 8;
+
   /** Indicates the track contains an audio or textual description of a video track. */
   public static final int ROLE_FLAG_DESCRIBES_VIDEO = 1 << 9;
+
   /** Indicates the track contains a textual description of music and sound. */
   public static final int ROLE_FLAG_DESCRIBES_MUSIC_AND_SOUND = 1 << 10;
+
   /** Indicates the track is designed for improved intelligibility of dialogue. */
   public static final int ROLE_FLAG_ENHANCED_DIALOG_INTELLIGIBILITY = 1 << 11;
+
   /** Indicates the track contains a transcription of spoken dialog. */
   public static final int ROLE_FLAG_TRANSCRIBES_DIALOG = 1 << 12;
+
   /** Indicates the track contains a text that has been edited for ease of reading. */
   public static final int ROLE_FLAG_EASY_TO_READ = 1 << 13;
+
   /** Indicates the track is intended for trick play. */
   public static final int ROLE_FLAG_TRICK_PLAY = 1 << 14;
 
@@ -1241,9 +1421,11 @@ public final class C {
     FORMAT_UNSUPPORTED_TYPE
   })
   public @interface FormatSupport {}
+
   // TODO(b/172315872) Renderer was a link. Link to equivalent concept or remove @code.
   /** The {@code Renderer} is capable of rendering the format. */
   public static final int FORMAT_HANDLED = 0b100;
+
   /**
    * The {@code Renderer} is capable of rendering formats with the same MIME type, but the
    * properties of the format exceed the renderer's capabilities. There is a chance the renderer
@@ -1255,6 +1437,7 @@ public final class C {
    * by the underlying H264 decoder.
    */
   public static final int FORMAT_EXCEEDS_CAPABILITIES = 0b011;
+
   /**
    * The {@code Renderer} is capable of rendering formats with the same MIME type, but is not
    * capable of rendering the format because the format's drm protection is not supported.
@@ -1264,6 +1447,7 @@ public final class C {
    * renderer only supports Widevine.
    */
   public static final int FORMAT_UNSUPPORTED_DRM = 0b010;
+
   /**
    * The {@code Renderer} is a general purpose renderer for formats of the same top-level type, but
    * is not capable of rendering the format or any other format with the same MIME type because the
@@ -1273,6 +1457,7 @@ public final class C {
    * matches audio/[subtype], but there does not exist a suitable decoder for [subtype].
    */
   public static final int FORMAT_UNSUPPORTED_SUBTYPE = 0b001;
+
   /**
    * The {@code Renderer} is not capable of rendering the format, either because it does not support
    * the format's top-level type, or because it's a specialized renderer for a different MIME type.

@@ -84,6 +84,7 @@ import org.checkerframework.dataflow.qual.Pure;
   @Nullable final Presentation presentation;
 
   private volatile boolean encoderExpectsTimestampZero;
+
   /**
    * The timestamp of the last buffer processed before {@linkplain
    * VideoFrameProcessor.Listener#onEnded() frame processing has ended}.

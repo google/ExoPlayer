@@ -34,15 +34,19 @@ public final class TrackSelectorResult {
 
   /** The number of selections in the result. Greater than or equal to zero. */
   public final int length;
+
   /**
    * A {@link RendererConfiguration} for each renderer. A null entry indicates the corresponding
    * renderer should be disabled.
    */
   public final @NullableType RendererConfiguration[] rendererConfigurations;
+
   /** A {@link ExoTrackSelection} array containing the track selection for each renderer. */
   public final @NullableType ExoTrackSelection[] selections;
+
   /** Describe the tracks and which one were selected. */
   public final Tracks tracks;
+
   /**
    * An opaque object that will be returned to {@link TrackSelector#onSelectionActivated(Object)}
    * should the selections be activated.

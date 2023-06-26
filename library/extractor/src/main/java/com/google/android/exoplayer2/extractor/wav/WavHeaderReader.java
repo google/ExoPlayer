@@ -202,6 +202,7 @@ import java.io.IOException;
 
     /** 4-character identifier, stored as an integer, for this chunk. */
     public final int id;
+
     /** Size of this chunk in bytes. */
     public final long size;
 
