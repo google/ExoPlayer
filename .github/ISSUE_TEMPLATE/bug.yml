@@ -34,6 +34,7 @@ body:
         - Media3 1.0.0-alpha01
         - Media3 `main` branch
         - Media3 pre-release (alpha, beta or RC not in this list)
+        - ExoPlayer 2.19.0
         - ExoPlayer 2.18.7
         - ExoPlayer 2.18.6
         - ExoPlayer 2.18.5
