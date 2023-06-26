@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var data = {"i0":38,"i1":38,"i2":38,"i3":38,"i4":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -125,7 +125,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="DefaultLivePlaybackSpeedControl.html" title="class in com.google.android.exoplayer2">DefaultLivePlaybackSpeedControl</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">LivePlaybackSpeedControl</span></pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">LivePlaybackSpeedControl</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Controls the playback speed while playing live content in order to maintain a steady target live
  offset.</div>
 </li>
@@ -142,7 +148,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -153,6 +159,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdjustedPlaybackSpeed(long,long)">getAdjustedPlaybackSpeed</a></span>&#8203;(long&nbsp;liveOffsetUs,
                         long&nbsp;bufferedDurationUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the adjusted playback speed in order get closer towards the <a href="#getTargetLiveOffsetUs()"><code>target live offset</code></a>.</div>
 </td>
 </tr>
@@ -160,6 +167,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTargetLiveOffsetUs()">getTargetLiveOffsetUs</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current target live offset, in microseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no target
  live offset is defined for the current media.</div>
 </td>
@@ -168,6 +176,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#notifyRebuffer()">notifyRebuffer</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Notifies the live playback speed control that a rebuffer occurred.</div>
 </td>
 </tr>
@@ -175,6 +184,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLiveConfiguration(com.google.android.exoplayer2.MediaItem.LiveConfiguration)">setLiveConfiguration</a></span>&#8203;(<a href="MediaItem.LiveConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.LiveConfiguration</a>&nbsp;liveConfiguration)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the live configuration defined by the media.</div>
 </td>
 </tr>
@@ -182,6 +192,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTargetLiveOffsetOverrideUs(long)">setTargetLiveOffsetOverrideUs</a></span>&#8203;(long&nbsp;liveOffsetUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the target live offset in microseconds that overrides the live offset <a href="#setLiveConfiguration(com.google.android.exoplayer2.MediaItem.LiveConfiguration)"><code>configured</code></a> by the media.</div>
 </td>
 </tr>
@@ -209,6 +220,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>setLiveConfiguration</h4>
 <pre class="methodSignature">void&nbsp;setLiveConfiguration&#8203;(<a href="MediaItem.LiveConfiguration.html" title="class in com.google.android.exoplayer2">MediaItem.LiveConfiguration</a>&nbsp;liveConfiguration)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the live configuration defined by the media.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -223,6 +235,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>setTargetLiveOffsetOverrideUs</h4>
 <pre class="methodSignature">void&nbsp;setTargetLiveOffsetOverrideUs&#8203;(long&nbsp;liveOffsetUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the target live offset in microseconds that overrides the live offset <a href="#setLiveConfiguration(com.google.android.exoplayer2.MediaItem.LiveConfiguration)"><code>configured</code></a> by the media. Passing <code>C.TIME_UNSET</code> deletes a previous
  override.
 
@@ -237,6 +250,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>notifyRebuffer</h4>
 <pre class="methodSignature">void&nbsp;notifyRebuffer()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Notifies the live playback speed control that a rebuffer occurred.
 
  <p>A rebuffer is defined to be caused by buffer depletion rather than a user action. Hence this
@@ -252,6 +266,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>getAdjustedPlaybackSpeed</h4>
 <pre class="methodSignature">float&nbsp;getAdjustedPlaybackSpeed&#8203;(long&nbsp;liveOffsetUs,
                                long&nbsp;bufferedDurationUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the adjusted playback speed in order get closer towards the <a href="#getTargetLiveOffsetUs()"><code>target live offset</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -269,6 +284,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>getTargetLiveOffsetUs</h4>
 <pre class="methodSignature">long&nbsp;getTargetLiveOffsetUs()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current target live offset, in microseconds, or <a href="C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no target
  live offset is defined for the current media.</div>
 </li>

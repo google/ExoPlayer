@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":9,"i4":10,"i5":10,"i6":10};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":41,"i4":42,"i5":42,"i6":42};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="ElementaryStreamReader.html" title="interface in com.google.android.exoplayer2.extractor.ts">ElementaryStreamReader</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">AdtsReader</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">AdtsReader</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="ElementaryStreamReader.html" title="interface in com.google.android.exoplayer2.extractor.ts">ElementaryStreamReader</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Parses a continuous ADTS byte stream and extracts individual frames.</div>
 </li>
 </ul>
@@ -158,12 +164,16 @@ implements <a href="ElementaryStreamReader.html" title="interface in com.google.
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(boolean)">AdtsReader</a></span>&#8203;(boolean&nbsp;exposeId3)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(boolean,java.lang.String)">AdtsReader</a></span>&#8203;(boolean&nbsp;exposeId3,
           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -177,7 +187,7 @@ implements <a href="ElementaryStreamReader.html" title="interface in com.google.
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -187,6 +197,7 @@ implements <a href="ElementaryStreamReader.html" title="interface in com.google.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#consume(com.google.android.exoplayer2.util.ParsableByteArray)">consume</a></span>&#8203;(<a href="../../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Consumes (possibly partial) data from the current packet.</div>
 </td>
 </tr>
@@ -195,6 +206,7 @@ implements <a href="ElementaryStreamReader.html" title="interface in com.google.
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createTracks(com.google.android.exoplayer2.extractor.ExtractorOutput,com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator)">createTracks</a></span>&#8203;(<a href="../ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;extractorOutput,
             <a href="TsPayloadReader.TrackIdGenerator.html" title="class in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.TrackIdGenerator</a>&nbsp;idGenerator)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Initializes the reader by providing outputs and ids for the tracks.</div>
 </td>
 </tr>
@@ -202,6 +214,7 @@ implements <a href="ElementaryStreamReader.html" title="interface in com.google.
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSampleDurationUs()">getSampleDurationUs</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the duration in microseconds per sample, or <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the sample duration
  is not available.</div>
 </td>
@@ -210,6 +223,7 @@ implements <a href="ElementaryStreamReader.html" title="interface in com.google.
 <td class="colFirst"><code>static boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isAdtsSyncWord(int)">isAdtsSyncWord</a></span>&#8203;(int&nbsp;candidateSyncWord)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether an integer matches an ADTS SYNC word.</div>
 </td>
 </tr>
@@ -217,6 +231,7 @@ implements <a href="ElementaryStreamReader.html" title="interface in com.google.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#packetFinished()">packetFinished</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a packet ends.</div>
 </td>
 </tr>
@@ -225,6 +240,7 @@ implements <a href="ElementaryStreamReader.html" title="interface in com.google.
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#packetStarted(long,@com.google.android.exoplayer2.extractor.ts.TsPayloadReader.Flagsint)">packetStarted</a></span>&#8203;(long&nbsp;pesTimeUs,
              @com.google.android.exoplayer2.extractor.ts.TsPayloadReader.Flags int&nbsp;flags)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a packet starts.</div>
 </td>
 </tr>
@@ -232,6 +248,7 @@ implements <a href="ElementaryStreamReader.html" title="interface in com.google.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seek()">seek</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Notifies the reader that a seek has occurred.</div>
 </td>
 </tr>
@@ -266,6 +283,7 @@ implements <a href="ElementaryStreamReader.html" title="interface in com.google.
 <li class="blockList">
 <h4>AdtsReader</h4>
 <pre>public&nbsp;AdtsReader&#8203;(boolean&nbsp;exposeId3)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>exposeId3</code> - True if the reader should expose ID3 information.</dd>
@@ -281,6 +299,7 @@ implements <a href="ElementaryStreamReader.html" title="interface in com.google.
 <pre>public&nbsp;AdtsReader&#8203;(boolean&nbsp;exposeId3,
                   @Nullable
                   <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>exposeId3</code> - True if the reader should expose ID3 information.</dd>
@@ -305,6 +324,7 @@ implements <a href="ElementaryStreamReader.html" title="interface in com.google.
 <li class="blockList">
 <h4>isAdtsSyncWord</h4>
 <pre class="methodSignature">public static&nbsp;boolean&nbsp;isAdtsSyncWord&#8203;(int&nbsp;candidateSyncWord)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether an integer matches an ADTS SYNC word.</div>
 </li>
 </ul>
@@ -315,6 +335,7 @@ implements <a href="ElementaryStreamReader.html" title="interface in com.google.
 <li class="blockList">
 <h4>seek</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;seek()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ElementaryStreamReader.html#seek()">ElementaryStreamReader</a></code></span></div>
 <div class="block">Notifies the reader that a seek has occurred.</div>
 <dl>
@@ -331,6 +352,7 @@ implements <a href="ElementaryStreamReader.html" title="interface in com.google.
 <h4>createTracks</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;createTracks&#8203;(<a href="../ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;extractorOutput,
                          <a href="TsPayloadReader.TrackIdGenerator.html" title="class in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.TrackIdGenerator</a>&nbsp;idGenerator)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ElementaryStreamReader.html#createTracks(com.google.android.exoplayer2.extractor.ExtractorOutput,com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator)">ElementaryStreamReader</a></code></span></div>
 <div class="block">Initializes the reader by providing outputs and ids for the tracks.</div>
 <dl>
@@ -351,6 +373,7 @@ implements <a href="ElementaryStreamReader.html" title="interface in com.google.
 <h4>packetStarted</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;packetStarted&#8203;(long&nbsp;pesTimeUs,
                           @com.google.android.exoplayer2.extractor.ts.TsPayloadReader.Flags int&nbsp;flags)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ElementaryStreamReader.html#packetStarted(long,@com.google.android.exoplayer2.extractor.ts.TsPayloadReader.Flagsint)">ElementaryStreamReader</a></code></span></div>
 <div class="block">Called when a packet starts.</div>
 <dl>
@@ -370,6 +393,7 @@ implements <a href="ElementaryStreamReader.html" title="interface in com.google.
 <h4>consume</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;consume&#8203;(<a href="../../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data)
              throws <a href="../../ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ElementaryStreamReader.html#consume(com.google.android.exoplayer2.util.ParsableByteArray)">ElementaryStreamReader</a></code></span></div>
 <div class="block">Consumes (possibly partial) data from the current packet.</div>
 <dl>
@@ -389,6 +413,7 @@ implements <a href="ElementaryStreamReader.html" title="interface in com.google.
 <li class="blockList">
 <h4>packetFinished</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;packetFinished()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ElementaryStreamReader.html#packetFinished()">ElementaryStreamReader</a></code></span></div>
 <div class="block">Called when a packet ends.</div>
 <dl>
@@ -404,6 +429,7 @@ implements <a href="ElementaryStreamReader.html" title="interface in com.google.
 <li class="blockList">
 <h4>getSampleDurationUs</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getSampleDurationUs()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the duration in microseconds per sample, or <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if the sample duration
  is not available.</div>
 </li>

@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":41,"i1":41,"i2":41,"i3":41,"i4":41,"i5":41,"i6":41,"i7":41};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">Ac3Util</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">Ac3Util</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Utility methods for parsing Dolby TrueHD and (E-)AC-3 syncframes. (E-)AC-3 parsing follows the
  definition in ETSI TS 102 366 V1.4.1.</div>
 </li>
@@ -157,6 +163,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Ac3Util.SyncFrameInfo.html" title="class in com.google.android.exoplayer2.audio">Ac3Util.SyncFrameInfo</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Holds sample format information as presented by a syncframe header.</div>
 </td>
 </tr>
@@ -182,6 +189,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AC3_MAX_RATE_BYTES_PER_SECOND">AC3_MAX_RATE_BYTES_PER_SECOND</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Maximum rate for an AC-3 audio stream, in bytes per second.</div>
 </td>
 </tr>
@@ -189,6 +197,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#E_AC3_MAX_RATE_BYTES_PER_SECOND">E_AC3_MAX_RATE_BYTES_PER_SECOND</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Maximum rate for an E-AC-3 audio stream, in bytes per second.</div>
 </td>
 </tr>
@@ -196,6 +205,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TRUEHD_MAX_RATE_BYTES_PER_SECOND">TRUEHD_MAX_RATE_BYTES_PER_SECOND</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Maximum rate for a TrueHD audio stream, in bytes per second.</div>
 </td>
 </tr>
@@ -203,6 +213,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TRUEHD_RECHUNK_SAMPLE_COUNT">TRUEHD_RECHUNK_SAMPLE_COUNT</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of samples to store in each output chunk when rechunking TrueHD streams.</div>
 </td>
 </tr>
@@ -210,6 +221,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TRUEHD_SYNCFRAME_PREFIX_LENGTH">TRUEHD_SYNCFRAME_PREFIX_LENGTH</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of bytes that must be parsed from a TrueHD syncframe to calculate the sample count.</div>
 </td>
 </tr>
@@ -225,7 +237,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -235,6 +247,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#findTrueHdSyncframeOffset(java.nio.ByteBuffer)">findTrueHdSyncframeOffset</a></span>&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the offset relative to the buffer's position of the start of a TrueHD syncframe, or
  <a href="../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if no syncframe was found.</div>
 </td>
@@ -246,6 +259,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language,
                     <a href="../drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the AC-3 format given <code>data</code> containing the AC3SpecificBox according to Annex F.</div>
 </td>
 </tr>
@@ -253,6 +267,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseAc3SyncframeAudioSampleCount(java.nio.ByteBuffer)">parseAc3SyncframeAudioSampleCount</a></span>&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Reads the number of audio samples represented by the given (E-)AC-3 syncframe.</div>
 </td>
 </tr>
@@ -260,6 +275,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static <a href="Ac3Util.SyncFrameInfo.html" title="class in com.google.android.exoplayer2.audio">Ac3Util.SyncFrameInfo</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseAc3SyncframeInfo(com.google.android.exoplayer2.util.ParsableBitArray)">parseAc3SyncframeInfo</a></span>&#8203;(<a href="../util/ParsableBitArray.html" title="class in com.google.android.exoplayer2.util">ParsableBitArray</a>&nbsp;data)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns (E-)AC-3 format information given <code>data</code> containing a syncframe.</div>
 </td>
 </tr>
@@ -267,6 +283,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseAc3SyncframeSize(byte%5B%5D)">parseAc3SyncframeSize</a></span>&#8203;(byte[]&nbsp;data)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the size in bytes of the given (E-)AC-3 syncframe.</div>
 </td>
 </tr>
@@ -277,6 +294,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language,
                      <a href="../drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the E-AC-3 format given <code>data</code> containing the EC3SpecificBox according to Annex
  F.</div>
 </td>
@@ -285,6 +303,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseTrueHdSyncframeAudioSampleCount(byte%5B%5D)">parseTrueHdSyncframeAudioSampleCount</a></span>&#8203;(byte[]&nbsp;syncframe)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the number of audio samples represented by the given TrueHD syncframe, or 0 if the
  buffer is not the start of a syncframe.</div>
 </td>
@@ -294,6 +313,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseTrueHdSyncframeAudioSampleCount(java.nio.ByteBuffer,int)">parseTrueHdSyncframeAudioSampleCount</a></span>&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer,
                                     int&nbsp;offset)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Reads the number of audio samples represented by a TrueHD syncframe.</div>
 </td>
 </tr>
@@ -328,6 +348,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>AC3_MAX_RATE_BYTES_PER_SECOND</h4>
 <pre>public static final&nbsp;int AC3_MAX_RATE_BYTES_PER_SECOND</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Maximum rate for an AC-3 audio stream, in bytes per second.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -342,6 +363,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>E_AC3_MAX_RATE_BYTES_PER_SECOND</h4>
 <pre>public static final&nbsp;int E_AC3_MAX_RATE_BYTES_PER_SECOND</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Maximum rate for an E-AC-3 audio stream, in bytes per second.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -356,6 +378,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>TRUEHD_MAX_RATE_BYTES_PER_SECOND</h4>
 <pre>public static final&nbsp;int TRUEHD_MAX_RATE_BYTES_PER_SECOND</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Maximum rate for a TrueHD audio stream, in bytes per second.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -370,6 +393,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>TRUEHD_RECHUNK_SAMPLE_COUNT</h4>
 <pre>public static final&nbsp;int TRUEHD_RECHUNK_SAMPLE_COUNT</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of samples to store in each output chunk when rechunking TrueHD streams. The number
  of samples extracted from the container corresponding to one syncframe must be an integer
  multiple of this value.</div>
@@ -386,6 +410,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>TRUEHD_SYNCFRAME_PREFIX_LENGTH</h4>
 <pre>public static final&nbsp;int TRUEHD_SYNCFRAME_PREFIX_LENGTH</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of bytes that must be parsed from a TrueHD syncframe to calculate the sample count.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -414,6 +439,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                                           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language,
                                           @Nullable
                                           <a href="../drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the AC-3 format given <code>data</code> containing the AC3SpecificBox according to Annex F.
  The reading position of <code>data</code> will be modified.</div>
 <dl>
@@ -438,6 +464,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;language,
                                            @Nullable
                                            <a href="../drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the E-AC-3 format given <code>data</code> containing the EC3SpecificBox according to Annex
  F. The reading position of <code>data</code> will be modified.</div>
 <dl>
@@ -458,6 +485,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>parseAc3SyncframeInfo</h4>
 <pre class="methodSignature">public static&nbsp;<a href="Ac3Util.SyncFrameInfo.html" title="class in com.google.android.exoplayer2.audio">Ac3Util.SyncFrameInfo</a>&nbsp;parseAc3SyncframeInfo&#8203;(<a href="../util/ParsableBitArray.html" title="class in com.google.android.exoplayer2.util">ParsableBitArray</a>&nbsp;data)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns (E-)AC-3 format information given <code>data</code> containing a syncframe. The reading
  position of <code>data</code> will be modified.</div>
 <dl>
@@ -475,6 +503,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>parseAc3SyncframeSize</h4>
 <pre class="methodSignature">public static&nbsp;int&nbsp;parseAc3SyncframeSize&#8203;(byte[]&nbsp;data)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the size in bytes of the given (E-)AC-3 syncframe.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -491,6 +520,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>parseAc3SyncframeAudioSampleCount</h4>
 <pre class="methodSignature">public static&nbsp;int&nbsp;parseAc3SyncframeAudioSampleCount&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Reads the number of audio samples represented by the given (E-)AC-3 syncframe. The buffer's
  position is not modified.</div>
 <dl>
@@ -508,6 +538,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>findTrueHdSyncframeOffset</h4>
 <pre class="methodSignature">public static&nbsp;int&nbsp;findTrueHdSyncframeOffset&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the offset relative to the buffer's position of the start of a TrueHD syncframe, or
  <a href="../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if no syncframe was found. The buffer's position is not modified.</div>
 <dl>
@@ -526,6 +557,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>parseTrueHdSyncframeAudioSampleCount</h4>
 <pre class="methodSignature">public static&nbsp;int&nbsp;parseTrueHdSyncframeAudioSampleCount&#8203;(byte[]&nbsp;syncframe)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the number of audio samples represented by the given TrueHD syncframe, or 0 if the
  buffer is not the start of a syncframe.</div>
 <dl>
@@ -545,6 +577,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>parseTrueHdSyncframeAudioSampleCount</h4>
 <pre class="methodSignature">public static&nbsp;int&nbsp;parseTrueHdSyncframeAudioSampleCount&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer,
                                                        int&nbsp;offset)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Reads the number of audio samples represented by a TrueHD syncframe. The buffer's position is
  not modified.</div>
 <dl>

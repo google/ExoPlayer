@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42,"i12":42,"i13":42,"i14":42,"i15":42,"i16":42,"i17":42,"i18":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">ParsableBitArray</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">ParsableBitArray</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Wraps a byte array, providing methods that allow it to be read as a bitstream.</div>
 </li>
 </ul>
@@ -155,7 +161,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="altColor">
 <td class="colFirst"><code>byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#data">data</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -177,12 +185,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">ParsableBitArray</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new instance that initially has no backing data.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(byte%5B%5D)">ParsableBitArray</a></span>&#8203;(byte[]&nbsp;data)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new instance that wraps an existing array.</div>
 </td>
 </tr>
@@ -190,6 +200,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(byte%5B%5D,int)">ParsableBitArray</a></span>&#8203;(byte[]&nbsp;data,
                 int&nbsp;limit)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new instance that wraps an existing array.</div>
 </td>
 </tr>
@@ -205,7 +216,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -215,6 +226,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#bitsLeft()">bitsLeft</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the number of bits yet to be read.</div>
 </td>
 </tr>
@@ -222,6 +234,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#byteAlign()">byteAlign</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Aligns the position to the next byte boundary.</div>
 </td>
 </tr>
@@ -229,6 +242,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getBytePosition()">getBytePosition</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current byte offset.</div>
 </td>
 </tr>
@@ -236,6 +250,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPosition()">getPosition</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current bit offset.</div>
 </td>
 </tr>
@@ -244,6 +259,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#putInt(int,int)">putInt</a></span>&#8203;(int&nbsp;value,
       int&nbsp;numBits)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Overwrites <code>numBits</code> from this array using the <code>numBits</code> least significant bits
  from <code>value</code>.</div>
 </td>
@@ -252,6 +268,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readBit()">readBit</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Reads a single bit.</div>
 </td>
 </tr>
@@ -261,6 +278,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
         int&nbsp;offset,
         int&nbsp;numBits)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Reads <code>numBits</code> bits into <code>buffer</code>.</div>
 </td>
 </tr>
@@ -268,6 +286,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readBits(int)">readBits</a></span>&#8203;(int&nbsp;numBits)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Reads up to 32 bits.</div>
 </td>
 </tr>
@@ -275,6 +294,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readBitsToLong(int)">readBitsToLong</a></span>&#8203;(int&nbsp;numBits)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Reads up to 64 bits.</div>
 </td>
 </tr>
@@ -284,6 +304,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
          int&nbsp;offset,
          int&nbsp;length)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Reads the next <code>length</code> bytes into <code>buffer</code>.</div>
 </td>
 </tr>
@@ -291,6 +312,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readBytesAsString(int)">readBytesAsString</a></span>&#8203;(int&nbsp;length)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Reads the next <code>length</code> bytes as a UTF-8 string.</div>
 </td>
 </tr>
@@ -299,6 +321,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readBytesAsString(int,java.nio.charset.Charset)">readBytesAsString</a></span>&#8203;(int&nbsp;length,
                  <a href="https://developer.android.com/reference/java/nio/charset/Charset.html" title="class or interface in java.nio.charset" class="externalLink" target="_top">Charset</a>&nbsp;charset)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Reads the next <code>length</code> bytes as a string encoded in <a href="https://developer.android.com/reference/java/nio/charset/Charset.html" title="class or interface in java.nio.charset" class="externalLink" target="_top"><code>Charset</code></a>.</div>
 </td>
 </tr>
@@ -306,6 +329,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset(byte%5B%5D)">reset</a></span>&#8203;(byte[]&nbsp;data)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates the instance to wrap <code>data</code>, and resets the position to zero.</div>
 </td>
 </tr>
@@ -314,6 +338,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset(byte%5B%5D,int)">reset</a></span>&#8203;(byte[]&nbsp;data,
      int&nbsp;limit)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates the instance to wrap <code>data</code>, and resets the position to zero.</div>
 </td>
 </tr>
@@ -321,6 +346,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset(com.google.android.exoplayer2.util.ParsableByteArray)">reset</a></span>&#8203;(<a href="ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;parsableByteArray)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets this instance's data, position and limit to match the provided <code>parsableByteArray</code>.</div>
 </td>
 </tr>
@@ -328,6 +354,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPosition(int)">setPosition</a></span>&#8203;(int&nbsp;position)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the current bit offset.</div>
 </td>
 </tr>
@@ -335,6 +362,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skipBit()">skipBit</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Skips a single bit.</div>
 </td>
 </tr>
@@ -342,6 +370,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skipBits(int)">skipBits</a></span>&#8203;(int&nbsp;numBits)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Skips bits and moves current reading position forward.</div>
 </td>
 </tr>
@@ -349,6 +378,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skipBytes(int)">skipBytes</a></span>&#8203;(int&nbsp;length)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Skips the next <code>length</code> bytes.</div>
 </td>
 </tr>
@@ -383,6 +413,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>data</h4>
 <pre>public&nbsp;byte[] data</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -402,6 +433,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>ParsableBitArray</h4>
 <pre>public&nbsp;ParsableBitArray()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new instance that initially has no backing data.</div>
 </li>
 </ul>
@@ -412,6 +444,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>ParsableBitArray</h4>
 <pre>public&nbsp;ParsableBitArray&#8203;(byte[]&nbsp;data)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new instance that wraps an existing array.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -427,6 +460,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>ParsableBitArray</h4>
 <pre>public&nbsp;ParsableBitArray&#8203;(byte[]&nbsp;data,
                         int&nbsp;limit)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new instance that wraps an existing array.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -452,6 +486,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>reset</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;reset&#8203;(byte[]&nbsp;data)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates the instance to wrap <code>data</code>, and resets the position to zero.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -466,6 +501,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>reset</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;reset&#8203;(<a href="ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;parsableByteArray)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets this instance's data, position and limit to match the provided <code>parsableByteArray</code>.
  Any modifications to the underlying data array will be visible in both instances</div>
 <dl>
@@ -482,6 +518,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>reset</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;reset&#8203;(byte[]&nbsp;data,
                   int&nbsp;limit)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates the instance to wrap <code>data</code>, and resets the position to zero.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -497,6 +534,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>bitsLeft</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;bitsLeft()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the number of bits yet to be read.</div>
 </li>
 </ul>
@@ -507,6 +545,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>getPosition</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getPosition()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current bit offset.</div>
 </li>
 </ul>
@@ -517,6 +556,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>getBytePosition</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getBytePosition()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current byte offset. Must only be called when the position is byte aligned.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -531,6 +571,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>setPosition</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setPosition&#8203;(int&nbsp;position)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the current bit offset.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -545,6 +586,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>skipBit</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;skipBit()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Skips a single bit.</div>
 </li>
 </ul>
@@ -555,6 +597,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>skipBits</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;skipBits&#8203;(int&nbsp;numBits)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Skips bits and moves current reading position forward.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -569,6 +612,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>readBit</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;readBit()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Reads a single bit.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -583,6 +627,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>readBits</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;readBits&#8203;(int&nbsp;numBits)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Reads up to 32 bits.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -599,6 +644,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>readBitsToLong</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;readBitsToLong&#8203;(int&nbsp;numBits)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Reads up to 64 bits.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -617,6 +663,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">public&nbsp;void&nbsp;readBits&#8203;(byte[]&nbsp;buffer,
                      int&nbsp;offset,
                      int&nbsp;numBits)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Reads <code>numBits</code> bits into <code>buffer</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -635,6 +682,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>byteAlign</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;byteAlign()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Aligns the position to the next byte boundary. Does nothing if the position is already aligned.</div>
 </li>
 </ul>
@@ -647,6 +695,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">public&nbsp;void&nbsp;readBytes&#8203;(byte[]&nbsp;buffer,
                       int&nbsp;offset,
                       int&nbsp;length)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Reads the next <code>length</code> bytes into <code>buffer</code>. Must only be called when the position
  is byte aligned.</div>
 <dl>
@@ -668,6 +717,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>skipBytes</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;skipBytes&#8203;(int&nbsp;length)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Skips the next <code>length</code> bytes. Must only be called when the position is byte aligned.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -684,6 +734,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>readBytesAsString</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;readBytesAsString&#8203;(int&nbsp;length)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Reads the next <code>length</code> bytes as a UTF-8 string. Must only be called when the position is
  byte aligned.</div>
 <dl>
@@ -702,6 +753,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>readBytesAsString</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;readBytesAsString&#8203;(int&nbsp;length,
                                 <a href="https://developer.android.com/reference/java/nio/charset/Charset.html" title="class or interface in java.nio.charset" class="externalLink" target="_top">Charset</a>&nbsp;charset)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Reads the next <code>length</code> bytes as a string encoded in <a href="https://developer.android.com/reference/java/nio/charset/Charset.html" title="class or interface in java.nio.charset" class="externalLink" target="_top"><code>Charset</code></a>. Must only be called
  when the position is byte aligned.</div>
 <dl>
@@ -721,6 +773,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>putInt</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;putInt&#8203;(int&nbsp;value,
                    int&nbsp;numBits)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Overwrites <code>numBits</code> from this array using the <code>numBits</code> least significant bits
  from <code>value</code>. Bits are written in order from most significant to least significant. The
  read position is advanced by <code>numBits</code>.</div>

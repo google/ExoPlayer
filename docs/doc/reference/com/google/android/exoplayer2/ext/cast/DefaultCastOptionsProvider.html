@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code>com.google.android.gms.cast.framework.OptionsProvider</code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">DefaultCastOptionsProvider</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">DefaultCastOptionsProvider</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements com.google.android.gms.cast.framework.OptionsProvider</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A convenience <code>OptionsProvider</code> to target the default cast receiver app.</div>
 </li>
 </ul>
@@ -161,6 +167,7 @@ implements com.google.android.gms.cast.framework.OptionsProvider</pre>
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#APP_ID_DEFAULT_RECEIVER_WITH_DRM">APP_ID_DEFAULT_RECEIVER_WITH_DRM</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">App id that points to the Default Media Receiver app with basic DRM support.</div>
 </td>
 </tr>
@@ -183,7 +190,9 @@ implements com.google.android.gms.cast.framework.OptionsProvider</pre>
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">DefaultCastOptionsProvider</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -197,7 +206,7 @@ implements com.google.android.gms.cast.framework.OptionsProvider</pre>
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -206,12 +215,16 @@ implements com.google.android.gms.cast.framework.OptionsProvider</pre>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;com.google.android.gms.cast.framework.SessionProvider&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdditionalSessionProviders(android.content.Context)">getAdditionalSessionProviders</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>com.google.android.gms.cast.framework.CastOptions</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCastOptions(android.content.Context)">getCastOptions</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -244,6 +257,7 @@ implements com.google.android.gms.cast.framework.OptionsProvider</pre>
 <li class="blockList">
 <h4>APP_ID_DEFAULT_RECEIVER_WITH_DRM</h4>
 <pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> APP_ID_DEFAULT_RECEIVER_WITH_DRM</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">App id that points to the Default Media Receiver app with basic DRM support.
 
  <p>Applications that require more complex DRM authentication should <a href="https://developers.google.com/cast/docs/web_receiver/streaming_protocols#drm">create a
@@ -271,6 +285,7 @@ implements com.google.android.gms.cast.framework.OptionsProvider</pre>
 <li class="blockList">
 <h4>DefaultCastOptionsProvider</h4>
 <pre>public&nbsp;DefaultCastOptionsProvider()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -290,6 +305,7 @@ implements com.google.android.gms.cast.framework.OptionsProvider</pre>
 <li class="blockList">
 <h4>getCastOptions</h4>
 <pre class="methodSignature">public&nbsp;com.google.android.gms.cast.framework.CastOptions&nbsp;getCastOptions&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code>getCastOptions</code>&nbsp;in interface&nbsp;<code>com.google.android.gms.cast.framework.OptionsProvider</code></dd>
@@ -303,6 +319,7 @@ implements com.google.android.gms.cast.framework.OptionsProvider</pre>
 <li class="blockList">
 <h4>getAdditionalSessionProviders</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;com.google.android.gms.cast.framework.SessionProvider&gt;&nbsp;getAdditionalSessionProviders&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html?is-external=true" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code>getAdditionalSessionProviders</code>&nbsp;in interface&nbsp;<code>com.google.android.gms.cast.framework.OptionsProvider</code></dd>

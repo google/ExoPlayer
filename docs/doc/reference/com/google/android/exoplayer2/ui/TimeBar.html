@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var data = {"i0":38,"i1":38,"i2":38,"i3":38,"i4":38,"i5":38,"i6":38,"i7":38,"i8":38,"i9":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -125,7 +125,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="DefaultTimeBar.html" title="class in com.google.android.exoplayer2.ui">DefaultTimeBar</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">TimeBar</span></pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">TimeBar</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Interface for time bar views that can display a playback position, buffered position, duration
  and ad markers, and that have a listener for scrubbing (seeking) events.</div>
 </li>
@@ -152,6 +158,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="TimeBar.OnScrubListener.html" title="interface in com.google.android.exoplayer2.ui">TimeBar.OnScrubListener</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Listener for scrubbing events.</div>
 </td>
 </tr>
@@ -167,7 +174,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -177,6 +184,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addListener(com.google.android.exoplayer2.ui.TimeBar.OnScrubListener)">addListener</a></span>&#8203;(<a href="TimeBar.OnScrubListener.html" title="interface in com.google.android.exoplayer2.ui">TimeBar.OnScrubListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a listener for scrubbing events.</div>
 </td>
 </tr>
@@ -184,6 +192,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPreferredUpdateDelay()">getPreferredUpdateDelay</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the preferred delay in milliseconds of media time after which the time bar position
  should be updated.</div>
 </td>
@@ -192,6 +201,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeListener(com.google.android.exoplayer2.ui.TimeBar.OnScrubListener)">removeListener</a></span>&#8203;(<a href="TimeBar.OnScrubListener.html" title="interface in com.google.android.exoplayer2.ui">TimeBar.OnScrubListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Removes a listener for scrubbing events.</div>
 </td>
 </tr>
@@ -201,6 +211,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                  boolean[]&nbsp;playedAdGroups,
                  int&nbsp;adGroupCount)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the times of ad groups and whether each ad group has been played.</div>
 </td>
 </tr>
@@ -208,6 +219,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setBufferedPosition(long)">setBufferedPosition</a></span>&#8203;(long&nbsp;bufferedPosition)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the buffered position.</div>
 </td>
 </tr>
@@ -215,18 +227,22 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDuration(long)">setDuration</a></span>&#8203;(long&nbsp;duration)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the duration.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setEnabled(boolean)">setEnabled</a></span>&#8203;(boolean&nbsp;enabled)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setKeyCountIncrement(int)">setKeyCountIncrement</a></span>&#8203;(int&nbsp;count)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the position increment for key presses and accessibility actions, as a number of
  increments that divide the duration of the media.</div>
 </td>
@@ -235,6 +251,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setKeyTimeIncrement(long)">setKeyTimeIncrement</a></span>&#8203;(long&nbsp;time)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the position increment for key presses and accessibility actions, in milliseconds.</div>
 </td>
 </tr>
@@ -242,6 +259,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPosition(long)">setPosition</a></span>&#8203;(long&nbsp;position)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the current position.</div>
 </td>
 </tr>
@@ -269,6 +287,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>addListener</h4>
 <pre class="methodSignature">void&nbsp;addListener&#8203;(<a href="TimeBar.OnScrubListener.html" title="interface in com.google.android.exoplayer2.ui">TimeBar.OnScrubListener</a>&nbsp;listener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a listener for scrubbing events.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -283,6 +302,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>removeListener</h4>
 <pre class="methodSignature">void&nbsp;removeListener&#8203;(<a href="TimeBar.OnScrubListener.html" title="interface in com.google.android.exoplayer2.ui">TimeBar.OnScrubListener</a>&nbsp;listener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Removes a listener for scrubbing events.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -297,6 +317,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>setEnabled</h4>
 <pre class="methodSignature">void&nbsp;setEnabled&#8203;(boolean&nbsp;enabled)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="https://developer.android.com/reference/android/view/View.html#isEnabled()" title="class or interface in android.view" class="externalLink" target="_top"><code>View.isEnabled()</code></a></dd>
@@ -310,6 +331,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>setKeyTimeIncrement</h4>
 <pre class="methodSignature">void&nbsp;setKeyTimeIncrement&#8203;(long&nbsp;time)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the position increment for key presses and accessibility actions, in milliseconds.
 
  <p>Clears any increment specified in a preceding call to <a href="#setKeyCountIncrement(int)"><code>setKeyCountIncrement(int)</code></a>.</div>
@@ -326,6 +348,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>setKeyCountIncrement</h4>
 <pre class="methodSignature">void&nbsp;setKeyCountIncrement&#8203;(int&nbsp;count)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the position increment for key presses and accessibility actions, as a number of
  increments that divide the duration of the media. For example, passing 20 will cause key
  presses to increment/decrement the position by 1/20th of the duration (if known).
@@ -344,6 +367,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>setPosition</h4>
 <pre class="methodSignature">void&nbsp;setPosition&#8203;(long&nbsp;position)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the current position.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -358,6 +382,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>setBufferedPosition</h4>
 <pre class="methodSignature">void&nbsp;setBufferedPosition&#8203;(long&nbsp;bufferedPosition)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the buffered position.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -372,6 +397,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>setDuration</h4>
 <pre class="methodSignature">void&nbsp;setDuration&#8203;(long&nbsp;duration)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the duration.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -386,6 +412,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>getPreferredUpdateDelay</h4>
 <pre class="methodSignature">long&nbsp;getPreferredUpdateDelay()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the preferred delay in milliseconds of media time after which the time bar position
  should be updated.</div>
 <dl>
@@ -405,6 +432,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                        @Nullable
                        boolean[]&nbsp;playedAdGroups,
                        int&nbsp;adGroupCount)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the times of ad groups and whether each ad group has been played.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

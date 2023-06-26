@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">TimedValueQueue&lt;V&gt;</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">TimedValueQueue&lt;V&gt;</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A utility class to keep a queue of values with timestamps. This class is thread safe.</div>
 </li>
 </ul>
@@ -153,11 +159,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">TimedValueQueue</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int)">TimedValueQueue</a></span>&#8203;(int&nbsp;initialBufferSize)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a TimedValueBuffer with the given initial buffer size.</div>
 </td>
 </tr>
@@ -173,7 +182,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -184,6 +193,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#add(long,V)">add</a></span>&#8203;(long&nbsp;timestamp,
    <a href="TimedValueQueue.html" title="type parameter in TimedValueQueue">V</a>&nbsp;value)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Associates the specified value with the specified timestamp.</div>
 </td>
 </tr>
@@ -191,6 +201,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clear()">clear</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Removes all of the values.</div>
 </td>
 </tr>
@@ -198,6 +209,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="TimedValueQueue.html" title="type parameter in TimedValueQueue">V</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#poll(long)">poll</a></span>&#8203;(long&nbsp;timestamp)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the value with the closest timestamp to the given timestamp.</div>
 </td>
 </tr>
@@ -205,6 +217,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="TimedValueQueue.html" title="type parameter in TimedValueQueue">V</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#pollFirst()">pollFirst</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Removes and returns the first value in the queue, or null if the queue is empty.</div>
 </td>
 </tr>
@@ -212,6 +225,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="TimedValueQueue.html" title="type parameter in TimedValueQueue">V</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#pollFloor(long)">pollFloor</a></span>&#8203;(long&nbsp;timestamp)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the value with the greatest timestamp which is less than or equal to the given
  timestamp.</div>
 </td>
@@ -220,6 +234,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#size()">size</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns number of the values buffered.</div>
 </td>
 </tr>
@@ -254,6 +269,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>TimedValueQueue</h4>
 <pre>public&nbsp;TimedValueQueue()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="&lt;init&gt;(int)">
@@ -263,6 +279,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>TimedValueQueue</h4>
 <pre>public&nbsp;TimedValueQueue&#8203;(int&nbsp;initialBufferSize)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a TimedValueBuffer with the given initial buffer size.</div>
 </li>
 </ul>
@@ -286,6 +303,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>add</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;add&#8203;(long&nbsp;timestamp,
                 <a href="TimedValueQueue.html" title="type parameter in TimedValueQueue">V</a>&nbsp;value)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Associates the specified value with the specified timestamp. All new values should have a
  greater timestamp than the previously added values. Otherwise all values are removed before
  adding the new one.</div>
@@ -298,6 +316,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>clear</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;clear()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Removes all of the values.</div>
 </li>
 </ul>
@@ -308,6 +327,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>size</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;size()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns number of the values buffered.</div>
 </li>
 </ul>
@@ -319,6 +339,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>pollFirst</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="TimedValueQueue.html" title="type parameter in TimedValueQueue">V</a>&nbsp;pollFirst()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Removes and returns the first value in the queue, or null if the queue is empty.</div>
 </li>
 </ul>
@@ -330,6 +351,7 @@ public&nbsp;<a href="TimedValueQueue.html" title="type parameter in TimedValueQu
 <h4>pollFloor</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="TimedValueQueue.html" title="type parameter in TimedValueQueue">V</a>&nbsp;pollFloor&#8203;(long&nbsp;timestamp)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the value with the greatest timestamp which is less than or equal to the given
  timestamp. Removes all older values and the returned one from the buffer.</div>
 <dl>
@@ -351,6 +373,7 @@ public&nbsp;<a href="TimedValueQueue.html" title="type parameter in TimedValueQu
 <h4>poll</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="TimedValueQueue.html" title="type parameter in TimedValueQueue">V</a>&nbsp;poll&#8203;(long&nbsp;timestamp)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the value with the closest timestamp to the given timestamp. Removes all older values
  including the returned one from the buffer.</div>
 <dl>

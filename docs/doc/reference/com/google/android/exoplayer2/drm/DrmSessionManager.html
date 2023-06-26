@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":33,"i3":18,"i4":18,"i5":18,"i6":6};
+var data = {"i0":38,"i1":38,"i2":33,"i3":50,"i4":50,"i5":50,"i6":38};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -125,7 +125,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">DrmSessionManager</span></pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">DrmSessionManager</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Manages a DRM session.</div>
 </li>
 </ul>
@@ -151,6 +157,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DrmSessionManager.DrmSessionReference.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager.DrmSessionReference</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Represents a single reference count of a <a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSession</code></a>, while deliberately not giving
  access to the underlying session.</div>
 </td>
@@ -177,6 +184,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static <a href="DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DRM_UNSUPPORTED">DRM_UNSUPPORTED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">An instance that supports no DRM schemes.</div>
 </td>
 </tr>
@@ -212,6 +220,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#acquireSession(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)">acquireSession</a></span>&#8203;(<a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
               <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSession</code></a> for the specified <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>, with an incremented reference
  count.</div>
 </td>
@@ -220,6 +229,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>@com.google.android.exoplayer2.C.CryptoType int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCryptoType(com.google.android.exoplayer2.Format)">getCryptoType</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="../C.CryptoType.html" title="annotation in com.google.android.exoplayer2"><code>C.CryptoType</code></a> that the DRM session manager will use for a given <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 </td>
 </tr>
@@ -237,6 +247,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#preacquireSession(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)">preacquireSession</a></span>&#8203;(<a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
                  <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Pre-acquires a DRM session for the specified <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 </td>
 </tr>
@@ -244,6 +255,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#prepare()">prepare</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Acquires any required resources.</div>
 </td>
 </tr>
@@ -251,6 +263,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases any acquired resources.</div>
 </td>
 </tr>
@@ -259,6 +272,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlayer(android.os.Looper,com.google.android.exoplayer2.analytics.PlayerId)">setPlayer</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;playbackLooper,
          <a href="../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets information about the player using this DRM session manager.</div>
 </td>
 </tr>
@@ -286,6 +300,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>DRM_UNSUPPORTED</h4>
 <pre>static final&nbsp;<a href="DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a> DRM_UNSUPPORTED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">An instance that supports no DRM schemes.</div>
 </li>
 </ul>
@@ -334,6 +349,7 @@ static&nbsp;<a href="DrmSessionManager.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>prepare</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;prepare()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Acquires any required resources.
 
  <p><a href="#release()"><code>release()</code></a> must be called to ensure the acquired resources are released. After
@@ -347,6 +363,7 @@ static&nbsp;<a href="DrmSessionManager.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>release</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;release()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases any acquired resources.</div>
 </li>
 </ul>
@@ -358,6 +375,7 @@ static&nbsp;<a href="DrmSessionManager.html" title="interface in com.google.andr
 <h4>setPlayer</h4>
 <pre class="methodSignature">void&nbsp;setPlayer&#8203;(<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;playbackLooper,
                <a href="../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets information about the player using this DRM session manager.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -375,6 +393,7 @@ static&nbsp;<a href="DrmSessionManager.html" title="interface in com.google.andr
 <pre class="methodSignature">default&nbsp;<a href="DrmSessionManager.DrmSessionReference.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager.DrmSessionReference</a>&nbsp;preacquireSession&#8203;(@Nullable
                                                                 <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
                                                                 <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Pre-acquires a DRM session for the specified <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.
 
  <p>This notifies the manager that a subsequent call to <a href="#acquireSession(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)"><code>acquireSession(
@@ -422,6 +441,7 @@ static&nbsp;<a href="DrmSessionManager.html" title="interface in com.google.andr
 <a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a>&nbsp;acquireSession&#8203;(@Nullable
                           <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
                           <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSession</code></a> for the specified <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>, with an incremented reference
  count. May return null if the <a href="../Format.html#drmInitData"><code>Format.drmInitData</code></a> is null and the DRM session manager is
  not configured to attach a <a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSession</code></a> to clear content. When the caller no longer needs
@@ -449,6 +469,7 @@ static&nbsp;<a href="DrmSessionManager.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>getCryptoType</h4>
 <pre class="methodSignature">@com.google.android.exoplayer2.C.CryptoType int&nbsp;getCryptoType&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="../C.CryptoType.html" title="annotation in com.google.android.exoplayer2"><code>C.CryptoType</code></a> that the DRM session manager will use for a given <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>. Returns <a href="../C.html#CRYPTO_TYPE_UNSUPPORTED"><code>C.CRYPTO_TYPE_UNSUPPORTED</code></a> if the manager does not support any of the
  DRM schemes defined in the <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>. Returns <a href="../C.html#CRYPTO_TYPE_NONE"><code>C.CRYPTO_TYPE_NONE</code></a> if <a href="../Format.html#drmInitData"><code>Format.drmInitData</code></a> is null and <a href="#acquireSession(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)"><code>acquireSession(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher, com.google.android.exoplayer2.Format)</code></a> will return <code>null</code> for the given
  <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>

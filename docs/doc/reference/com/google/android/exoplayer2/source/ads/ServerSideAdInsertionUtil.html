@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":41,"i1":41,"i2":41,"i3":41,"i4":41,"i5":41,"i6":41,"i7":41,"i8":41};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">ServerSideAdInsertionUtil</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">ServerSideAdInsertionUtil</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A static utility class with methods to work with server-side inserted ads.</div>
 </li>
 </ul>
@@ -146,7 +152,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -159,6 +165,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                            long&nbsp;contentResumeOffsetUs,
                            long...&nbsp;adDurationsUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a new server-side inserted ad group to an <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdPlaybackState</code></a>.</div>
 </td>
 </tr>
@@ -167,6 +174,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdCountInGroup(com.google.android.exoplayer2.source.ads.AdPlaybackState,int)">getAdCountInGroup</a></span>&#8203;(<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;adPlaybackState,
                  int&nbsp;adGroupIndex)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the number of ads in an ad group, treating an unknown number as zero ads.</div>
 </td>
 </tr>
@@ -176,6 +184,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                         <a href="../MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaPeriodId</a>&nbsp;mediaPeriodId,
                         <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;adPlaybackState)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the position in a <a href="../MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a> for a position in the underlying server-side
  inserted ads stream.</div>
 </td>
@@ -187,6 +196,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                              int&nbsp;adIndexInAdGroup,
                              <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;adPlaybackState)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the position in an ad <a href="../MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a> for a position in the underlying server-side
  inserted ads stream.</div>
 </td>
@@ -197,6 +207,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                                   int&nbsp;nextAdGroupIndex,
                                   <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;adPlaybackState)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the position in a content <a href="../MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a> for a position in the underlying
  server-side inserted ads stream.</div>
 </td>
@@ -207,6 +218,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                    <a href="../MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaPeriodId</a>&nbsp;mediaPeriodId,
                    <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;adPlaybackState)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the position in the underlying server-side inserted ads stream for a position in a
  <a href="../MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a>.</div>
 </td>
@@ -216,6 +228,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getStreamPositionUs(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.source.ads.AdPlaybackState)">getStreamPositionUs</a></span>&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                    <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;adPlaybackState)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the position in the underlying server-side inserted ads stream for the current playback
  position in the <a href="../../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>.</div>
 </td>
@@ -227,6 +240,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                         int&nbsp;adIndexInAdGroup,
                         <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;adPlaybackState)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the position in the underlying server-side inserted ads stream for a position in an ad
  <a href="../MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a>.</div>
 </td>
@@ -237,6 +251,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                              int&nbsp;nextAdGroupIndex,
                              <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;adPlaybackState)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the position in the underlying server-side inserted ads stream for a position in a
  content <a href="../MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a>.</div>
 </td>
@@ -276,6 +291,7 @@ public static&nbsp;<a href="AdPlaybackState.html" title="class in com.google.and
                                                           long&nbsp;fromPositionUs,
                                                           long&nbsp;contentResumeOffsetUs,
                                                           long...&nbsp;adDurationsUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a new server-side inserted ad group to an <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdPlaybackState</code></a>.
 
  <p>If the first ad with a non-zero duration is not the first ad in the group, all ads before
@@ -303,6 +319,7 @@ public static&nbsp;<a href="AdPlaybackState.html" title="class in com.google.and
 <h4>getStreamPositionUs</h4>
 <pre class="methodSignature">public static&nbsp;long&nbsp;getStreamPositionUs&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                                        <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;adPlaybackState)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the position in the underlying server-side inserted ads stream for the current playback
  position in the <a href="../../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>.</div>
 <dl>
@@ -324,6 +341,7 @@ public static&nbsp;<a href="AdPlaybackState.html" title="class in com.google.and
 <pre class="methodSignature">public static&nbsp;long&nbsp;getStreamPositionUs&#8203;(long&nbsp;positionUs,
                                        <a href="../MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaPeriodId</a>&nbsp;mediaPeriodId,
                                        <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;adPlaybackState)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the position in the underlying server-side inserted ads stream for a position in a
  <a href="../MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a>.</div>
 <dl>
@@ -345,6 +363,7 @@ public static&nbsp;<a href="AdPlaybackState.html" title="class in com.google.and
 <pre class="methodSignature">public static&nbsp;long&nbsp;getMediaPeriodPositionUs&#8203;(long&nbsp;positionUs,
                                             <a href="../MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaPeriodId</a>&nbsp;mediaPeriodId,
                                             <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;adPlaybackState)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the position in a <a href="../MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a> for a position in the underlying server-side
  inserted ads stream.</div>
 <dl>
@@ -368,6 +387,7 @@ public static&nbsp;<a href="AdPlaybackState.html" title="class in com.google.and
                                             int&nbsp;adGroupIndex,
                                             int&nbsp;adIndexInAdGroup,
                                             <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;adPlaybackState)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the position in the underlying server-side inserted ads stream for a position in an ad
  <a href="../MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a>.</div>
 <dl>
@@ -391,6 +411,7 @@ public static&nbsp;<a href="AdPlaybackState.html" title="class in com.google.and
                                                  int&nbsp;adGroupIndex,
                                                  int&nbsp;adIndexInAdGroup,
                                                  <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;adPlaybackState)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the position in an ad <a href="../MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a> for a position in the underlying server-side
  inserted ads stream.</div>
 <dl>
@@ -414,6 +435,7 @@ public static&nbsp;<a href="AdPlaybackState.html" title="class in com.google.and
 <pre class="methodSignature">public static&nbsp;long&nbsp;getStreamPositionUsForContent&#8203;(long&nbsp;positionUs,
                                                  int&nbsp;nextAdGroupIndex,
                                                  <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;adPlaybackState)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the position in the underlying server-side inserted ads stream for a position in a
  content <a href="../MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a>.</div>
 <dl>
@@ -437,6 +459,7 @@ public static&nbsp;<a href="AdPlaybackState.html" title="class in com.google.and
 <pre class="methodSignature">public static&nbsp;long&nbsp;getMediaPeriodPositionUsForContent&#8203;(long&nbsp;positionUs,
                                                       int&nbsp;nextAdGroupIndex,
                                                       <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;adPlaybackState)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the position in a content <a href="../MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a> for a position in the underlying
  server-side inserted ads stream.</div>
 <dl>
@@ -460,6 +483,7 @@ public static&nbsp;<a href="AdPlaybackState.html" title="class in com.google.and
 <h4>getAdCountInGroup</h4>
 <pre class="methodSignature">public static&nbsp;int&nbsp;getAdCountInGroup&#8203;(<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;adPlaybackState,
                                     int&nbsp;adGroupIndex)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the number of ads in an ad group, treating an unknown number as zero ads.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

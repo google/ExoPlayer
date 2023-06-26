@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42,"i12":42,"i13":42,"i14":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><a href="TransformationResult.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult</a></dd>
 </dl>
 <hr>
-<pre>public static final class <span class="typeNameLabel">TransformationResult.Builder</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static final class <span class="typeNameLabel">TransformationResult.Builder</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
-<div class="block">A builder for <a href="TransformationResult.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationResult</code></a> instances.</div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExportResult.Builder.html" title="class in com.google.android.exoplayer2.transformer"><code>ExportResult.Builder</code></a> instead.</div>
+</div>
 </li>
 </ul>
 </div>
@@ -157,7 +160,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">Builder</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Creates a builder.</div>
+</td>
 </tr>
 </table>
 </li>
@@ -171,7 +177,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -180,41 +186,121 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="TransformationResult.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#build()">build</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Builds a <a href="TransformationResult.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationResult</code></a> instance.</div>
+</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAverageAudioBitrate(int)">setAverageAudioBitrate</a></span>&#8203;(int&nbsp;averageAudioBitrate)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAudioEncoderName(java.lang.String)">setAudioEncoderName</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;audioEncoderName)</code></th>
 <td class="colLast">
-<div class="block">Sets the average audio bitrate.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the name of the audio encoder used.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAverageVideoBitrate(int)">setAverageVideoBitrate</a></span>&#8203;(int&nbsp;averageVideoBitrate)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAverageAudioBitrate(int)">setAverageAudioBitrate</a></span>&#8203;(int&nbsp;averageAudioBitrate)</code></th>
 <td class="colLast">
-<div class="block">Sets the average video bitrate.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the average audio bitrate.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDurationMs(long)">setDurationMs</a></span>&#8203;(long&nbsp;durationMs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAverageVideoBitrate(int)">setAverageVideoBitrate</a></span>&#8203;(int&nbsp;averageVideoBitrate)</code></th>
 <td class="colLast">
-<div class="block">Sets the duration of the video in milliseconds.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the average video bitrate.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFileSizeBytes(long)">setFileSizeBytes</a></span>&#8203;(long&nbsp;fileSizeBytes)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setChannelCount(int)">setChannelCount</a></span>&#8203;(int&nbsp;channelCount)</code></th>
 <td class="colLast">
-<div class="block">Sets the file size in bytes.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the channel count.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setColorInfo(com.google.android.exoplayer2.video.ColorInfo)">setColorInfo</a></span>&#8203;(<a href="../video/ColorInfo.html" title="class in com.google.android.exoplayer2.video">ColorInfo</a>&nbsp;colorInfo)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the <a href="../video/ColorInfo.html" title="class in com.google.android.exoplayer2.video"><code>ColorInfo</code></a>.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code><a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDurationMs(long)">setDurationMs</a></span>&#8203;(long&nbsp;durationMs)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the duration of the output in milliseconds.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code><a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFileSizeBytes(long)">setFileSizeBytes</a></span>&#8203;(long&nbsp;fileSizeBytes)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the file size in bytes.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code><a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setHeight(int)">setHeight</a></span>&#8203;(int&nbsp;height)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the height.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code><a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setProcessedInputs(com.google.common.collect.ImmutableList)">setProcessedInputs</a></span>&#8203;(<a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="TransformationResult.ProcessedInput.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.ProcessedInput</a>&gt;&nbsp;processedInputs)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the <a href="TransformationResult.ProcessedInput.html" title="class in com.google.android.exoplayer2.transformer">processed inputs</a>.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code><a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSampleRate(int)">setSampleRate</a></span>&#8203;(int&nbsp;sampleRate)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the sample rate.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code><a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTransformationException(com.google.android.exoplayer2.transformer.TransformationException)">setTransformationException</a></span>&#8203;(<a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a>&nbsp;transformationException)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationException</code></a> that caused the transformation to fail.</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code><a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVideoEncoderName(java.lang.String)">setVideoEncoderName</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;videoEncoderName)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the name of the video encoder used.</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code><a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVideoFrameCount(int)">setVideoFrameCount</a></span>&#8203;(int&nbsp;videoFrameCount)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the number of video frames.</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
+<td class="colFirst"><code><a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setWidth(int)">setWidth</a></span>&#8203;(int&nbsp;width)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the width.</div>
 </td>
 </tr>
 </table>
@@ -248,6 +334,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>Builder</h4>
 <pre>public&nbsp;Builder()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Creates a builder.</div>
 </li>
 </ul>
 </li>
@@ -260,6 +348,18 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a id="setProcessedInputs(com.google.common.collect.ImmutableList)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setProcessedInputs</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a>&nbsp;setProcessedInputs&#8203;(<a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="TransformationResult.ProcessedInput.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.ProcessedInput</a>&gt;&nbsp;processedInputs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the <a href="TransformationResult.ProcessedInput.html" title="class in com.google.android.exoplayer2.transformer">processed inputs</a>.</div>
+</li>
+</ul>
 <a id="setDurationMs(long)">
 <!--   -->
 </a>
@@ -268,9 +368,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>setDurationMs</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a>&nbsp;setDurationMs&#8203;(long&nbsp;durationMs)</pre>
-<div class="block">Sets the duration of the video in milliseconds.
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the duration of the output in milliseconds.
 
- <p>Input must be positive or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>.</div>
+ <p>Must be positive or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>.</div>
 </li>
 </ul>
 <a id="setFileSizeBytes(long)">
@@ -281,9 +382,10 @@ public&nbsp;<a href="TransformationResult.Builder.html" title="class in com.goog
 <h4>setFileSizeBytes</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a>&nbsp;setFileSizeBytes&#8203;(long&nbsp;fileSizeBytes)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the file size in bytes.
 
- <p>Input must be positive or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>.</div>
+ <p>Must be positive or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>.</div>
 </li>
 </ul>
 <a id="setAverageAudioBitrate(int)">
@@ -294,9 +396,51 @@ public&nbsp;<a href="TransformationResult.Builder.html" title="class in com.goog
 <h4>setAverageAudioBitrate</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a>&nbsp;setAverageAudioBitrate&#8203;(int&nbsp;averageAudioBitrate)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the average audio bitrate.
 
- <p>Input must be positive or <a href="../C.html#RATE_UNSET_INT"><code>C.RATE_UNSET_INT</code></a>.</div>
+ <p>Must be positive or <a href="../C.html#RATE_UNSET_INT"><code>C.RATE_UNSET_INT</code></a>.</div>
+</li>
+</ul>
+<a id="setChannelCount(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setChannelCount</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a>&nbsp;setChannelCount&#8203;(int&nbsp;channelCount)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the channel count.
+
+ <p>Must be positive or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>.</div>
+</li>
+</ul>
+<a id="setSampleRate(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setSampleRate</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a>&nbsp;setSampleRate&#8203;(int&nbsp;sampleRate)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the sample rate.
+
+ <p>Must be positive or <a href="../C.html#RATE_UNSET_INT"><code>C.RATE_UNSET_INT</code></a>.</div>
+</li>
+</ul>
+<a id="setAudioEncoderName(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAudioEncoderName</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a>&nbsp;setAudioEncoderName&#8203;(@Nullable
+                                                        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;audioEncoderName)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the name of the audio encoder used.</div>
 </li>
 </ul>
 <a id="setAverageVideoBitrate(int)">
@@ -307,9 +451,51 @@ public&nbsp;<a href="TransformationResult.Builder.html" title="class in com.goog
 <h4>setAverageVideoBitrate</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a>&nbsp;setAverageVideoBitrate&#8203;(int&nbsp;averageVideoBitrate)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the average video bitrate.
 
- <p>Input must be positive or <a href="../C.html#RATE_UNSET_INT"><code>C.RATE_UNSET_INT</code></a>.</div>
+ <p>Must be positive or <a href="../C.html#RATE_UNSET_INT"><code>C.RATE_UNSET_INT</code></a>.</div>
+</li>
+</ul>
+<a id="setColorInfo(com.google.android.exoplayer2.video.ColorInfo)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setColorInfo</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a>&nbsp;setColorInfo&#8203;(@Nullable
+                                                 <a href="../video/ColorInfo.html" title="class in com.google.android.exoplayer2.video">ColorInfo</a>&nbsp;colorInfo)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the <a href="../video/ColorInfo.html" title="class in com.google.android.exoplayer2.video"><code>ColorInfo</code></a>.</div>
+</li>
+</ul>
+<a id="setHeight(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setHeight</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a>&nbsp;setHeight&#8203;(int&nbsp;height)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the height.
+
+ <p>Must be positive or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>.</div>
+</li>
+</ul>
+<a id="setWidth(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setWidth</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a>&nbsp;setWidth&#8203;(int&nbsp;width)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the width.
+
+ <p>Must be positive or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>.</div>
 </li>
 </ul>
 <a id="setVideoFrameCount(int)">
@@ -320,9 +506,36 @@ public&nbsp;<a href="TransformationResult.Builder.html" title="class in com.goog
 <h4>setVideoFrameCount</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a>&nbsp;setVideoFrameCount&#8203;(int&nbsp;videoFrameCount)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the number of video frames.
 
- <p>Input must be positive or <code>0</code>.</div>
+ <p>Must be positive or <code>0</code>.</div>
+</li>
+</ul>
+<a id="setVideoEncoderName(java.lang.String)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setVideoEncoderName</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a>&nbsp;setVideoEncoderName&#8203;(@Nullable
+                                                        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;videoEncoderName)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the name of the video encoder used.</div>
+</li>
+</ul>
+<a id="setTransformationException(com.google.android.exoplayer2.transformer.TransformationException)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setTransformationException</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a>&nbsp;setTransformationException&#8203;(@Nullable
+                                                               <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a>&nbsp;transformationException)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationException</code></a> that caused the transformation to fail.</div>
 </li>
 </ul>
 <a id="build()">
@@ -332,6 +545,8 @@ public&nbsp;<a href="TransformationResult.Builder.html" title="class in com.goog
 <li class="blockList">
 <h4>build</h4>
 <pre class="methodSignature">public&nbsp;<a href="TransformationResult.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult</a>&nbsp;build()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Builds a <a href="TransformationResult.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationResult</code></a> instance.</div>
 </li>
 </ul>
 </li>

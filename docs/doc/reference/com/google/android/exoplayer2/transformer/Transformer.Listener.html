@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":18,"i1":50,"i2":18,"i3":18,"i4":50};
+var data = {"i0":18,"i1":18,"i2":50,"i3":18,"i4":50,"i5":50,"i6":50,"i7":50,"i8":50};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],16:["t5","Default Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -126,7 +126,10 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 <hr>
 <pre>public static interface <span class="typeNameLabel">Transformer.Listener</span></pre>
-<div class="block">A listener for the transformation events.</div>
+<div class="block">A listener for the export events.
+
+ <p>If the export is not cancelled, either <a href="#onError(com.google.android.exoplayer2.transformer.Composition,com.google.android.exoplayer2.transformer.ExportResult,com.google.android.exoplayer2.transformer.ExportException)"><code>onError(com.google.android.exoplayer2.transformer.Composition, com.google.android.exoplayer2.transformer.ExportResult, com.google.android.exoplayer2.transformer.ExportException)</code></a> or <a href="#onCompleted(com.google.android.exoplayer2.transformer.Composition,com.google.android.exoplayer2.transformer.ExportResult)"><code>onCompleted(com.google.android.exoplayer2.transformer.Composition, com.google.android.exoplayer2.transformer.ExportResult)</code></a> will be
+ called once for each export.</div>
 </li>
 </ul>
 </div>
@@ -149,46 +152,90 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>default void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onFallbackApplied(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.transformer.TransformationRequest,com.google.android.exoplayer2.transformer.TransformationRequest)">onFallbackApplied</a></span>&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;inputMediaItem,
-                 <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest</a>&nbsp;originalTransformationRequest,
-                 <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest</a>&nbsp;fallbackTransformationRequest)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onCompleted(com.google.android.exoplayer2.transformer.Composition,com.google.android.exoplayer2.transformer.ExportResult)">onCompleted</a></span>&#8203;(<a href="Composition.html" title="class in com.google.android.exoplayer2.transformer">Composition</a>&nbsp;composition,
+           <a href="ExportResult.html" title="class in com.google.android.exoplayer2.transformer">ExportResult</a>&nbsp;exportResult)</code></th>
 <td class="colLast">
-<div class="block">Called when fallback to an alternative <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationRequest</code></a> is necessary to comply
- with muxer or device constraints.</div>
+<div class="block">Called when the export is completed successfully.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTransformationCompleted(com.google.android.exoplayer2.MediaItem)">onTransformationCompleted</a></span>&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;inputMediaItem)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onError(com.google.android.exoplayer2.transformer.Composition,com.google.android.exoplayer2.transformer.ExportResult,com.google.android.exoplayer2.transformer.ExportException)">onError</a></span>&#8203;(<a href="Composition.html" title="class in com.google.android.exoplayer2.transformer">Composition</a>&nbsp;composition,
+       <a href="ExportResult.html" title="class in com.google.android.exoplayer2.transformer">ExportResult</a>&nbsp;exportResult,
+       <a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a>&nbsp;exportException)</code></th>
 <td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#onTransformationCompleted(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.transformer.TransformationResult)"><code>onTransformationCompleted(MediaItem, TransformationResult)</code></a> instead.</div>
-</div>
+<div class="block">Called if an exception occurs during the export.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>default void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTransformationCompleted(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.transformer.TransformationResult)">onTransformationCompleted</a></span>&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;inputMediaItem,
-                         <a href="TransformationResult.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult</a>&nbsp;transformationResult)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onFallbackApplied(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.transformer.TransformationRequest,com.google.android.exoplayer2.transformer.TransformationRequest)">onFallbackApplied</a></span>&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;inputMediaItem,
+                 <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest</a>&nbsp;originalTransformationRequest,
+                 <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest</a>&nbsp;fallbackTransformationRequest)</code></th>
 <td class="colLast">
-<div class="block">Called when the transformation is completed successfully.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#onFallbackApplied(com.google.android.exoplayer2.transformer.Composition,com.google.android.exoplayer2.transformer.TransformationRequest,com.google.android.exoplayer2.transformer.TransformationRequest)"><code>onFallbackApplied(Composition, TransformationRequest,
+     TransformationRequest)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTransformationError(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.transformer.TransformationException)">onTransformationError</a></span>&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;inputMediaItem,
-                     <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a>&nbsp;exception)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onFallbackApplied(com.google.android.exoplayer2.transformer.Composition,com.google.android.exoplayer2.transformer.TransformationRequest,com.google.android.exoplayer2.transformer.TransformationRequest)">onFallbackApplied</a></span>&#8203;(<a href="Composition.html" title="class in com.google.android.exoplayer2.transformer">Composition</a>&nbsp;composition,
+                 <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest</a>&nbsp;originalTransformationRequest,
+                 <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest</a>&nbsp;fallbackTransformationRequest)</code></th>
 <td class="colLast">
-<div class="block">Called if an exception occurs during the transformation.</div>
+<div class="block">Called when falling back to an alternative <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationRequest</code></a> or changing the
+ video frames' resolution is necessary to comply with muxer or device constraints.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
+<td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTransformationCompleted(com.google.android.exoplayer2.MediaItem)">onTransformationCompleted</a></span>&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;inputMediaItem)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#onCompleted(com.google.android.exoplayer2.transformer.Composition,com.google.android.exoplayer2.transformer.ExportResult)"><code>onCompleted(Composition, ExportResult)</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTransformationCompleted(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.transformer.TransformationResult)">onTransformationCompleted</a></span>&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;inputMediaItem,
+                         <a href="TransformationResult.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult</a>&nbsp;result)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#onCompleted(com.google.android.exoplayer2.transformer.Composition,com.google.android.exoplayer2.transformer.ExportResult)"><code>onCompleted(Composition, ExportResult)</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTransformationError(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.transformer.TransformationException)">onTransformationError</a></span>&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;inputMediaItem,
+                     <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a>&nbsp;exception)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#onError(com.google.android.exoplayer2.transformer.Composition,com.google.android.exoplayer2.transformer.ExportResult,com.google.android.exoplayer2.transformer.ExportException)"><code>onError(Composition, ExportResult, ExportException)</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTransformationError(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.transformer.TransformationResult,com.google.android.exoplayer2.transformer.TransformationException)">onTransformationError</a></span>&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;inputMediaItem,
+                     <a href="TransformationResult.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult</a>&nbsp;result,
+                     <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a>&nbsp;exception)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#onError(com.google.android.exoplayer2.transformer.Composition,com.google.android.exoplayer2.transformer.ExportResult,com.google.android.exoplayer2.transformer.ExportException)"><code>onError(Composition, ExportResult, ExportException)</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTransformationError(com.google.android.exoplayer2.MediaItem,java.lang.Exception)">onTransformationError</a></span>&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;inputMediaItem,
                      <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;exception)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#onTransformationError(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.transformer.TransformationException)"><code>onTransformationError(MediaItem, TransformationException)</code></a>.</div>
+<div class="deprecationComment">Use <a href="#onError(com.google.android.exoplayer2.transformer.Composition,com.google.android.exoplayer2.transformer.ExportResult,com.google.android.exoplayer2.transformer.ExportException)"><code>onError(Composition, ExportResult, ExportException)</code></a> instead.</div>
 </div>
 </td>
 </tr>
@@ -218,7 +265,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 default&nbsp;void&nbsp;onTransformationCompleted&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;inputMediaItem)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#onTransformationCompleted(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.transformer.TransformationResult)"><code>onTransformationCompleted(MediaItem, TransformationResult)</code></a> instead.</div>
+<div class="deprecationComment">Use <a href="#onCompleted(com.google.android.exoplayer2.transformer.Composition,com.google.android.exoplayer2.transformer.ExportResult)"><code>onCompleted(Composition, ExportResult)</code></a> instead.</div>
 </div>
 </li>
 </ul>
@@ -228,13 +275,27 @@ default&nbsp;void&nbsp;onTransformationCompleted&#8203;(<a href="../MediaItem.ht
 <ul class="blockList">
 <li class="blockList">
 <h4>onTransformationCompleted</h4>
-<pre class="methodSignature">default&nbsp;void&nbsp;onTransformationCompleted&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;inputMediaItem,
-                                       <a href="TransformationResult.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult</a>&nbsp;transformationResult)</pre>
-<div class="block">Called when the transformation is completed successfully.</div>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+default&nbsp;void&nbsp;onTransformationCompleted&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;inputMediaItem,
+                                       <a href="TransformationResult.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult</a>&nbsp;result)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#onCompleted(com.google.android.exoplayer2.transformer.Composition,com.google.android.exoplayer2.transformer.ExportResult)"><code>onCompleted(Composition, ExportResult)</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="onCompleted(com.google.android.exoplayer2.transformer.Composition,com.google.android.exoplayer2.transformer.ExportResult)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onCompleted</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;onCompleted&#8203;(<a href="Composition.html" title="class in com.google.android.exoplayer2.transformer">Composition</a>&nbsp;composition,
+                         <a href="ExportResult.html" title="class in com.google.android.exoplayer2.transformer">ExportResult</a>&nbsp;exportResult)</pre>
+<div class="block">Called when the export is completed successfully.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputMediaItem</code> - The <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> for which the transformation is completed.</dd>
-<dd><code>transformationResult</code> - The <a href="TransformationResult.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationResult</code></a> of the transformation.</dd>
+<dd><code>composition</code> - The <a href="Composition.html" title="class in com.google.android.exoplayer2.transformer"><code>Composition</code></a> for which the export is completed.</dd>
+<dd><code>exportResult</code> - The <a href="ExportResult.html" title="class in com.google.android.exoplayer2.transformer"><code>ExportResult</code></a> of the export.</dd>
 </dl>
 </li>
 </ul>
@@ -248,7 +309,7 @@ default&nbsp;void&nbsp;onTransformationCompleted&#8203;(<a href="../MediaItem.ht
 default&nbsp;void&nbsp;onTransformationError&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;inputMediaItem,
                                    <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;exception)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#onTransformationError(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.transformer.TransformationException)"><code>onTransformationError(MediaItem, TransformationException)</code></a>.</div>
+<div class="deprecationComment">Use <a href="#onError(com.google.android.exoplayer2.transformer.Composition,com.google.android.exoplayer2.transformer.ExportResult,com.google.android.exoplayer2.transformer.ExportException)"><code>onError(Composition, ExportResult, ExportException)</code></a> instead.</div>
 </div>
 </li>
 </ul>
@@ -258,35 +319,85 @@ default&nbsp;void&nbsp;onTransformationError&#8203;(<a href="../MediaItem.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>onTransformationError</h4>
-<pre class="methodSignature">default&nbsp;void&nbsp;onTransformationError&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;inputMediaItem,
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+default&nbsp;void&nbsp;onTransformationError&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;inputMediaItem,
                                    <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a>&nbsp;exception)</pre>
-<div class="block">Called if an exception occurs during the transformation.</div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#onError(com.google.android.exoplayer2.transformer.Composition,com.google.android.exoplayer2.transformer.ExportResult,com.google.android.exoplayer2.transformer.ExportException)"><code>onError(Composition, ExportResult, ExportException)</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="onTransformationError(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.transformer.TransformationResult,com.google.android.exoplayer2.transformer.TransformationException)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onTransformationError</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+default&nbsp;void&nbsp;onTransformationError&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;inputMediaItem,
+                                   <a href="TransformationResult.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult</a>&nbsp;result,
+                                   <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a>&nbsp;exception)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#onError(com.google.android.exoplayer2.transformer.Composition,com.google.android.exoplayer2.transformer.ExportResult,com.google.android.exoplayer2.transformer.ExportException)"><code>onError(Composition, ExportResult, ExportException)</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="onError(com.google.android.exoplayer2.transformer.Composition,com.google.android.exoplayer2.transformer.ExportResult,com.google.android.exoplayer2.transformer.ExportException)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onError</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;onError&#8203;(<a href="Composition.html" title="class in com.google.android.exoplayer2.transformer">Composition</a>&nbsp;composition,
+                     <a href="ExportResult.html" title="class in com.google.android.exoplayer2.transformer">ExportResult</a>&nbsp;exportResult,
+                     <a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a>&nbsp;exportException)</pre>
+<div class="block">Called if an exception occurs during the export.
+
+ <p>The export output file (if any) is not deleted in this case.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputMediaItem</code> - The <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> for which the exception occurs.</dd>
-<dd><code>exception</code> - The <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationException</code></a> describing the exception.</dd>
+<dd><code>composition</code> - The <a href="Composition.html" title="class in com.google.android.exoplayer2.transformer"><code>Composition</code></a> for which the exception occurs.</dd>
+<dd><code>exportResult</code> - The <a href="ExportResult.html" title="class in com.google.android.exoplayer2.transformer"><code>ExportResult</code></a> of the export.</dd>
+<dd><code>exportException</code> - The <a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer"><code>ExportException</code></a> describing the exception. This is the same
+     instance as the <a href="ExportResult.html#exportException">exception</a> in <code>result</code>.</dd>
 </dl>
 </li>
 </ul>
 <a id="onFallbackApplied(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.transformer.TransformationRequest,com.google.android.exoplayer2.transformer.TransformationRequest)">
 <!--   -->
 </a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onFallbackApplied</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+default&nbsp;void&nbsp;onFallbackApplied&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;inputMediaItem,
+                               <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest</a>&nbsp;originalTransformationRequest,
+                               <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest</a>&nbsp;fallbackTransformationRequest)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#onFallbackApplied(com.google.android.exoplayer2.transformer.Composition,com.google.android.exoplayer2.transformer.TransformationRequest,com.google.android.exoplayer2.transformer.TransformationRequest)"><code>onFallbackApplied(Composition, TransformationRequest,
+     TransformationRequest)</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="onFallbackApplied(com.google.android.exoplayer2.transformer.Composition,com.google.android.exoplayer2.transformer.TransformationRequest,com.google.android.exoplayer2.transformer.TransformationRequest)">
+<!--   -->
+</a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>onFallbackApplied</h4>
-<pre class="methodSignature">default&nbsp;void&nbsp;onFallbackApplied&#8203;(<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;inputMediaItem,
+<pre class="methodSignature">default&nbsp;void&nbsp;onFallbackApplied&#8203;(<a href="Composition.html" title="class in com.google.android.exoplayer2.transformer">Composition</a>&nbsp;composition,
                                <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest</a>&nbsp;originalTransformationRequest,
                                <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest</a>&nbsp;fallbackTransformationRequest)</pre>
-<div class="block">Called when fallback to an alternative <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationRequest</code></a> is necessary to comply
- with muxer or device constraints.</div>
+<div class="block">Called when falling back to an alternative <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationRequest</code></a> or changing the
+ video frames' resolution is necessary to comply with muxer or device constraints.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>inputMediaItem</code> - The <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> for which the transformation is requested.</dd>
+<dd><code>composition</code> - The <a href="Composition.html" title="class in com.google.android.exoplayer2.transformer"><code>Composition</code></a> for which the export is requested.</dd>
 <dd><code>originalTransformationRequest</code> - The unsupported <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationRequest</code></a> used when
      building <a href="Transformer.html" title="class in com.google.android.exoplayer2.transformer"><code>Transformer</code></a>.</dd>
 <dd><code>fallbackTransformationRequest</code> - The alternative <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationRequest</code></a>, with
      supported <a href="TransformationRequest.html#audioMimeType"><code>TransformationRequest.audioMimeType</code></a>, <a href="TransformationRequest.html#videoMimeType"><code>TransformationRequest.videoMimeType</code></a>, <a href="TransformationRequest.html#outputHeight"><code>TransformationRequest.outputHeight</code></a>, and
-     <a href="TransformationRequest.html#enableRequestSdrToneMapping"><code>TransformationRequest.enableRequestSdrToneMapping</code></a> values set.</dd>
+     <a href="TransformationRequest.html#hdrMode"><code>TransformationRequest.hdrMode</code></a> values set.</dd>
 </dl>
 </li>
 </ul>

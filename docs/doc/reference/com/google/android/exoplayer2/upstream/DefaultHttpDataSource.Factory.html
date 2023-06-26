@@ -207,9 +207,9 @@ implements <a href="HttpDataSource.Factory.html" title="interface in com.google.
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="DefaultHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream">DefaultHttpDataSource.Factory</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setContentTypePredicate(com.google.common.base.Predicate)">setContentTypePredicate</a></span>&#8203;(<a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setContentTypePredicate(com.google.common.base.Predicate)">setContentTypePredicate</a></span>&#8203;(<a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</code></th>
 <td class="colLast">
-<div class="block">Sets a content type <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink"><code>Predicate</code></a>.</div>
+<div class="block">Sets a content type <a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink"><code>Predicate</code></a>.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
@@ -404,14 +404,14 @@ public&nbsp;<a href="DefaultHttpDataSource.Factory.html" title="class in com.goo
 <h4>setContentTypePredicate</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="DefaultHttpDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream">DefaultHttpDataSource.Factory</a>&nbsp;setContentTypePredicate&#8203;(@Nullable
-                                                             <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</pre>
-<div class="block">Sets a content type <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink"><code>Predicate</code></a>. If a content type is rejected by the predicate then a
+                                                             <a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</pre>
+<div class="block">Sets a content type <a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink"><code>Predicate</code></a>. If a content type is rejected by the predicate then a
  <a href="HttpDataSource.InvalidContentTypeException.html" title="class in com.google.android.exoplayer2.upstream"><code>HttpDataSource.InvalidContentTypeException</code></a> is thrown from <a href="DefaultHttpDataSource.html#open(com.google.android.exoplayer2.upstream.DataSpec)"><code>DefaultHttpDataSource.open(DataSpec)</code></a>.
 
  <p>The default is <code>null</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>contentTypePredicate</code> - The content type <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink"><code>Predicate</code></a>, or <code>null</code> to clear a
+<dd><code>contentTypePredicate</code> - The content type <a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink"><code>Predicate</code></a>, or <code>null</code> to clear a
      predicate that was previously set.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This factory.</dd>

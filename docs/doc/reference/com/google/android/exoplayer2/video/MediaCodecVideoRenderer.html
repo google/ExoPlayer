@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":9,"i5":10,"i6":10,"i7":10,"i8":10,"i9":9,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10,"i40":10,"i41":10,"i42":10,"i43":10,"i44":10,"i45":10,"i46":10};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":41,"i6":42,"i7":42,"i8":42,"i9":42,"i10":41,"i11":42,"i12":42,"i13":42,"i14":42,"i15":42,"i16":42,"i17":42,"i18":42,"i19":42,"i20":42,"i21":42,"i22":42,"i23":42,"i24":42,"i25":42,"i26":42,"i27":42,"i28":42,"i29":42,"i30":42,"i31":42,"i32":42,"i33":42,"i34":42,"i35":42,"i36":42,"i37":42,"i38":42,"i39":42,"i40":42,"i41":42,"i42":42,"i43":42,"i44":42,"i45":42,"i46":42,"i47":42,"i48":42,"i49":42,"i50":42};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -143,8 +143,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a></code>, <code><a href="../Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></code>, <code><a href="../RendererCapabilities.html" title="interface in com.google.android.exoplayer2">RendererCapabilities</a></code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">MediaCodecVideoRenderer</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">MediaCodecVideoRenderer</span>
 extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecRenderer</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Decodes and renders video using <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.
 
  <p>This renderer accepts the following messages sent via <a href="../ExoPlayer.html#createMessage(com.google.android.exoplayer2.PlayerMessage.Target)"><code>ExoPlayer.createMessage(Target)</code></a>
@@ -154,6 +160,8 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
    <li>Message with type <a href="../Renderer.html#MSG_SET_VIDEO_OUTPUT"><code>Renderer.MSG_SET_VIDEO_OUTPUT</code></a> to set the output. The message payload
        should be the target <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a>, or null to clear the output. Other non-null payloads
        have the effect of clearing the output.
+   <li>Message with type <a href="../Renderer.html#MSG_SET_VIDEO_OUTPUT_RESOLUTION"><code>Renderer.MSG_SET_VIDEO_OUTPUT_RESOLUTION</code></a> to set the output resolution.
+       The message payload should be the output resolution in <a href="../util/Size.html" title="class in com.google.android.exoplayer2.util"><code>Size</code></a>.
    <li>Message with type <a href="../Renderer.html#MSG_SET_SCALING_MODE"><code>Renderer.MSG_SET_SCALING_MODE</code></a> to set the video scaling mode. The message
        payload should be one of the integer scaling modes in <a href="../C.VideoScalingMode.html" title="annotation in com.google.android.exoplayer2"><code>C.VideoScalingMode</code></a>. Note that
        the scaling mode only applies if the <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a> targeted by this renderer is owned by
@@ -186,7 +194,9 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
 <tr class="altColor">
 <td class="colFirst"><code>protected static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaCodecVideoRenderer.CodecMaxValues.html" title="class in com.google.android.exoplayer2.video">MediaCodecVideoRenderer.CodecMaxValues</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -208,7 +218,7 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
 <!--   -->
 </a>
 <h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../RendererCapabilities.html" title="interface in com.google.android.exoplayer2">RendererCapabilities</a></h3>
-<code><a href="../RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.AdaptiveSupport</a>, <a href="../RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.Capabilities</a>, <a href="../RendererCapabilities.DecoderSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.DecoderSupport</a>, <a href="../RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.FormatSupport</a>, <a href="../RendererCapabilities.HardwareAccelerationSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.HardwareAccelerationSupport</a>, <a href="../RendererCapabilities.TunnelingSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.TunnelingSupport</a></code></li>
+<code><a href="../RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.AdaptiveSupport</a>, <a href="../RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.Capabilities</a>, <a href="../RendererCapabilities.DecoderSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.DecoderSupport</a>, <a href="../RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.FormatSupport</a>, <a href="../RendererCapabilities.HardwareAccelerationSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.HardwareAccelerationSupport</a>, <a href="../RendererCapabilities.Listener.html" title="interface in com.google.android.exoplayer2">RendererCapabilities.Listener</a>, <a href="../RendererCapabilities.TunnelingSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.TunnelingSupport</a></code></li>
 </ul>
 </li>
 </ul>
@@ -232,7 +242,7 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
 <!--   -->
 </a>
 <h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></h3>
-<code><a href="../Renderer.html#MSG_CUSTOM_BASE">MSG_CUSTOM_BASE</a>, <a href="../Renderer.html#MSG_SET_AUDIO_ATTRIBUTES">MSG_SET_AUDIO_ATTRIBUTES</a>, <a href="../Renderer.html#MSG_SET_AUDIO_SESSION_ID">MSG_SET_AUDIO_SESSION_ID</a>, <a href="../Renderer.html#MSG_SET_AUX_EFFECT_INFO">MSG_SET_AUX_EFFECT_INFO</a>, <a href="../Renderer.html#MSG_SET_CAMERA_MOTION_LISTENER">MSG_SET_CAMERA_MOTION_LISTENER</a>, <a href="../Renderer.html#MSG_SET_CHANGE_FRAME_RATE_STRATEGY">MSG_SET_CHANGE_FRAME_RATE_STRATEGY</a>, <a href="../Renderer.html#MSG_SET_PREFERRED_AUDIO_DEVICE">MSG_SET_PREFERRED_AUDIO_DEVICE</a>, <a href="../Renderer.html#MSG_SET_SCALING_MODE">MSG_SET_SCALING_MODE</a>, <a href="../Renderer.html#MSG_SET_SKIP_SILENCE_ENABLED">MSG_SET_SKIP_SILENCE_ENABLED</a>, <a href="../Renderer.html#MSG_SET_VIDEO_FRAME_METADATA_LISTENER">MSG_SET_VIDEO_FRAME_METADATA_LISTENER</a>, <a href="../Renderer.html#MSG_SET_VIDEO_OUTPUT">MSG_SET_VIDEO_OUTPUT</a>, <a href="../Renderer.html#MSG_SET_VOLUME">MSG_SET_VOLUME</a>, <a href="../Renderer.html#MSG_SET_WAKEUP_LISTENER">MSG_SET_WAKEUP_LISTENER</a>, <a href="../Renderer.html#STATE_DISABLED">STATE_DISABLED</a>, <a href="../Renderer.html#STATE_ENABLED">STATE_ENABLED</a>, <a href="../Renderer.html#STATE_STARTED">STATE_STARTED</a></code></li>
+<code><a href="../Renderer.html#MSG_CUSTOM_BASE">MSG_CUSTOM_BASE</a>, <a href="../Renderer.html#MSG_SET_AUDIO_ATTRIBUTES">MSG_SET_AUDIO_ATTRIBUTES</a>, <a href="../Renderer.html#MSG_SET_AUDIO_SESSION_ID">MSG_SET_AUDIO_SESSION_ID</a>, <a href="../Renderer.html#MSG_SET_AUX_EFFECT_INFO">MSG_SET_AUX_EFFECT_INFO</a>, <a href="../Renderer.html#MSG_SET_CAMERA_MOTION_LISTENER">MSG_SET_CAMERA_MOTION_LISTENER</a>, <a href="../Renderer.html#MSG_SET_CHANGE_FRAME_RATE_STRATEGY">MSG_SET_CHANGE_FRAME_RATE_STRATEGY</a>, <a href="../Renderer.html#MSG_SET_PREFERRED_AUDIO_DEVICE">MSG_SET_PREFERRED_AUDIO_DEVICE</a>, <a href="../Renderer.html#MSG_SET_SCALING_MODE">MSG_SET_SCALING_MODE</a>, <a href="../Renderer.html#MSG_SET_SKIP_SILENCE_ENABLED">MSG_SET_SKIP_SILENCE_ENABLED</a>, <a href="../Renderer.html#MSG_SET_VIDEO_EFFECTS">MSG_SET_VIDEO_EFFECTS</a>, <a href="../Renderer.html#MSG_SET_VIDEO_FRAME_METADATA_LISTENER">MSG_SET_VIDEO_FRAME_METADATA_LISTENER</a>, <a href="../Renderer.html#MSG_SET_VIDEO_OUTPUT">MSG_SET_VIDEO_OUTPUT</a>, <a href="../Renderer.html#MSG_SET_VIDEO_OUTPUT_RESOLUTION">MSG_SET_VIDEO_OUTPUT_RESOLUTION</a>, <a href="../Renderer.html#MSG_SET_VOLUME">MSG_SET_VOLUME</a>, <a href="../Renderer.html#MSG_SET_WAKEUP_LISTENER">MSG_SET_WAKEUP_LISTENER</a>, <a href="../Renderer.html#STATE_DISABLED">STATE_DISABLED</a>, <a href="../Renderer.html#STATE_ENABLED">STATE_ENABLED</a>, <a href="../Renderer.html#STATE_STARTED">STATE_STARTED</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.RendererCapabilities">
@@ -266,7 +276,9 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
                        <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;eventHandler,
                        <a href="VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;eventListener,
                        int&nbsp;maxDroppedFramesToNotify)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,com.google.android.exoplayer2.mediacodec.MediaCodecAdapter.Factory,com.google.android.exoplayer2.mediacodec.MediaCodecSelector,long,boolean,android.os.Handler,com.google.android.exoplayer2.video.VideoRendererEventListener,int,float)">MediaCodecVideoRenderer</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
@@ -279,19 +291,24 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
                        int&nbsp;maxDroppedFramesToNotify,
                        float&nbsp;assumedMinimumCodecOperatingRate)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new instance.</div>
 </td>
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,com.google.android.exoplayer2.mediacodec.MediaCodecSelector)">MediaCodecVideoRenderer</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                        <a href="../mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,com.google.android.exoplayer2.mediacodec.MediaCodecSelector,long)">MediaCodecVideoRenderer</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                        <a href="../mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector,
                        long&nbsp;allowedJoiningTimeMs)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,com.google.android.exoplayer2.mediacodec.MediaCodecSelector,long,boolean,android.os.Handler,com.google.android.exoplayer2.video.VideoRendererEventListener,int)">MediaCodecVideoRenderer</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
@@ -301,7 +318,9 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
                        <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;eventHandler,
                        <a href="VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;eventListener,
                        int&nbsp;maxDroppedFramesToNotify)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,com.google.android.exoplayer2.mediacodec.MediaCodecSelector,long,android.os.Handler,com.google.android.exoplayer2.video.VideoRendererEventListener,int)">MediaCodecVideoRenderer</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
@@ -310,7 +329,9 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
                        <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;eventHandler,
                        <a href="VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;eventListener,
                        int&nbsp;maxDroppedFramesToNotify)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -324,7 +345,7 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -336,6 +357,7 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
              <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;oldFormat,
              <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;newFormat)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Evaluates whether the existing <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink"><code>MediaCodec</code></a> can be kept for a new <a href="../Format.html" title="class in com.google.android.exoplayer2" target="_top"><code>Format</code></a>, and if
  it can whether it requires reconfiguration.</div>
 </td>
@@ -344,6 +366,7 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
 <td class="colFirst"><code>protected boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#codecNeedsSetOutputSurfaceWorkaround(java.lang.String)">codecNeedsSetOutputSurfaceWorkaround</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the codec is known to implement <a href="https://developer.android.com/reference/android/media/MediaCodec.html#setOutputSurface(android.view.Surface)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.setOutputSurface(Surface)</code></a>
  incorrectly.</div>
 </td>
@@ -352,7 +375,9 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
 <td class="colFirst"><code>protected <a href="../mediacodec/MediaCodecDecoderException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecDecoderException</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createDecoderException(java.lang.Throwable,com.google.android.exoplayer2.mediacodec.MediaCodecInfo)">createDecoderException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
                       <a href="../mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;codecInfo)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
@@ -360,74 +385,91 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
                 int&nbsp;index,
                 long&nbsp;presentationTimeUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Drops the output buffer with the specified index.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
+<td class="colFirst"><code>protected <a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="ColorInfo.html" title="class in com.google.android.exoplayer2.video">ColorInfo</a>,&#8203;<a href="ColorInfo.html" title="class in com.google.android.exoplayer2.video" target="_top">ColorInfo</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#experimentalGetVideoFrameProcessorColorConfiguration(com.google.android.exoplayer2.video.ColorInfo)">experimentalGetVideoFrameProcessorColorConfiguration</a></span>&#8203;(<a href="ColorInfo.html" title="class in com.google.android.exoplayer2.video">ColorInfo</a>&nbsp;inputColorInfo)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns a <a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink"><code>Pair</code></a> of <a href="ColorInfo.html" title="class in com.google.android.exoplayer2.video">input color</a> and <a href="ColorInfo.html" title="class in com.google.android.exoplayer2.video" target="_top">output
+ color</a> to configure the <code>VideoFrameProcessor</code>.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCodecMaxInputSize(com.google.android.exoplayer2.mediacodec.MediaCodecInfo,com.google.android.exoplayer2.Format)">getCodecMaxInputSize</a></span>&#8203;(<a href="../mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;codecInfo,
                     <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a maximum input size for a given codec and format.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>protected <a href="MediaCodecVideoRenderer.CodecMaxValues.html" title="class in com.google.android.exoplayer2.video">MediaCodecVideoRenderer.CodecMaxValues</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCodecMaxValues(com.google.android.exoplayer2.mediacodec.MediaCodecInfo,com.google.android.exoplayer2.Format,com.google.android.exoplayer2.Format%5B%5D)">getCodecMaxValues</a></span>&#8203;(<a href="../mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;codecInfo,
                  <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                  <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>[]&nbsp;streamFormats)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns <a href="MediaCodecVideoRenderer.CodecMaxValues.html" title="class in com.google.android.exoplayer2.video"><code>MediaCodecVideoRenderer.CodecMaxValues</code></a> suitable for configuring a codec for <code>format</code> in a way
  that will allow possible adaptation to other compatible formats in <code>streamFormats</code>.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCodecNeedsEosPropagation()">getCodecNeedsEosPropagation</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the codec needs the renderer to propagate the end-of-stream signal directly,
  rather than by using an end-of-stream buffer queued to the codec.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>protected float</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCodecOperatingRateV23(float,com.google.android.exoplayer2.Format,com.google.android.exoplayer2.Format%5B%5D)">getCodecOperatingRateV23</a></span>&#8203;(float&nbsp;targetPlaybackSpeed,
                         <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                         <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>[]&nbsp;streamFormats)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="https://developer.android.com/reference/android/media/MediaFormat.html#KEY_OPERATING_RATE" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaFormat.KEY_OPERATING_RATE</code></a> value for a given playback speed, current
  <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> and set of possible stream formats.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>protected <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec" target="_top">MediaCodecInfo</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDecoderInfos(com.google.android.exoplayer2.mediacodec.MediaCodecSelector,com.google.android.exoplayer2.Format,boolean)">getDecoderInfos</a></span>&#8203;(<a href="../mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector,
                <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                boolean&nbsp;requiresSecureDecoder)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a list of decoders that can decode media in the specified format, in priority order.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>protected static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMaxInputSize(com.google.android.exoplayer2.mediacodec.MediaCodecInfo,com.google.android.exoplayer2.Format)">getMaxInputSize</a></span>&#8203;(<a href="../mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;codecInfo,
                <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a maximum input buffer size for a given <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink"><code>MediaCodec</code></a> and <a href="../Format.html" title="class in com.google.android.exoplayer2" target="_top"><code>Format</code></a>.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>protected <a href="../mediacodec/MediaCodecAdapter.Configuration.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter.Configuration</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMediaCodecConfiguration(com.google.android.exoplayer2.mediacodec.MediaCodecInfo,com.google.android.exoplayer2.Format,android.media.MediaCrypto,float)">getMediaCodecConfiguration</a></span>&#8203;(<a href="../mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;codecInfo,
                           <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                           <a href="https://developer.android.com/reference/android/media/MediaCrypto.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCrypto</a>&nbsp;crypto,
                           float&nbsp;codecOperatingRate)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="../mediacodec/MediaCodecAdapter.Configuration.html" title="class in com.google.android.exoplayer2.mediacodec"><code>MediaCodecAdapter.Configuration</code></a> that will be used to create and configure a
  <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink"><code>MediaCodec</code></a> to decode the given <a href="../Format.html" title="class in com.google.android.exoplayer2" target="_top"><code>Format</code></a> for a playback.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>protected <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMediaFormat(com.google.android.exoplayer2.Format,java.lang.String,com.google.android.exoplayer2.video.MediaCodecVideoRenderer.CodecMaxValues,float,boolean,int)">getMediaFormat</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecMimeType,
@@ -436,164 +478,204 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
               boolean&nbsp;deviceNeedsNoPostProcessWorkaround,
               int&nbsp;tunnelingAudioSessionId)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the framework <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaFormat</code></a> that should be used to configure the decoder.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getName()">getName</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the name of this renderer, for logging and debugging purposes.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>protected <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSurface()">getSurface</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr id="i14" class="altColor">
-<td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handleInputBufferSupplementalData(com.google.android.exoplayer2.decoder.DecoderInputBuffer)">handleInputBufferSupplementalData</a></span>&#8203;(<a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;buffer)</code></th>
 <td class="colLast">
-<div class="block">Handles supplemental data associated with an input buffer.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns the output surface.</div>
 </td>
 </tr>
 <tr id="i15" class="rowColor">
+<td class="colFirst"><code>protected void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handleInputBufferSupplementalData(com.google.android.exoplayer2.decoder.DecoderInputBuffer)">handleInputBufferSupplementalData</a></span>&#8203;(<a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;buffer)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Handles supplemental data associated with an input buffer.</div>
+</td>
+</tr>
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handleMessage(@com.google.android.exoplayer2.Renderer.MessageTypeint,java.lang.Object)">handleMessage</a></span>&#8203;(@com.google.android.exoplayer2.Renderer.MessageType int&nbsp;messageType,
              <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;message)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Handles a message delivered to the target.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isEnded()">isEnded</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Whether the renderer is ready for the <a href="../ExoPlayer.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer</code></a> instance to transition to <a href="../Player.html#STATE_ENDED"><code>Player.STATE_ENDED</code></a>.</div>
+</td>
+</tr>
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isReady()">isReady</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the renderer is able to immediately render media from the current position.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maybeDropBuffersToKeyframe(long,boolean)">maybeDropBuffersToKeyframe</a></span>&#8203;(long&nbsp;positionUs,
                           boolean&nbsp;treatDroppedBuffersAsSkipped)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Drops frames from the current output buffer to the next keyframe at or before the playback
  position.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onCodecError(java.lang.Exception)">onCodecError</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;codecError)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a codec error has occurred.</div>
 </td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onCodecInitialized(java.lang.String,com.google.android.exoplayer2.mediacodec.MediaCodecAdapter.Configuration,long,long)">onCodecInitialized</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
                   <a href="../mediacodec/MediaCodecAdapter.Configuration.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter.Configuration</a>&nbsp;configuration,
                   long&nbsp;initializedTimestampMs,
                   long&nbsp;initializationDurationMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> has been created and configured.</div>
-</td>
-</tr>
-<tr id="i20" class="altColor">
-<td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onCodecReleased(java.lang.String)">onCodecReleased</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name)</code></th>
-<td class="colLast">
-<div class="block">Called when a <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> has been released.</div>
-</td>
-</tr>
-<tr id="i21" class="rowColor">
-<td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDisabled()">onDisabled</a></span>()</code></th>
-<td class="colLast">
-<div class="block">Called when the renderer is disabled.</div>
 </td>
 </tr>
 <tr id="i22" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onEnabled(boolean,boolean)">onEnabled</a></span>&#8203;(boolean&nbsp;joining,
-         boolean&nbsp;mayRenderStartOfStream)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onCodecReleased(java.lang.String)">onCodecReleased</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name)</code></th>
 <td class="colLast">
-<div class="block">Called when the renderer is enabled.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Called when a <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> has been released.</div>
 </td>
 </tr>
 <tr id="i23" class="rowColor">
-<td class="colFirst"><code>protected <a href="../decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onInputFormatChanged(com.google.android.exoplayer2.FormatHolder)">onInputFormatChanged</a></span>&#8203;(<a href="../FormatHolder.html" title="class in com.google.android.exoplayer2">FormatHolder</a>&nbsp;formatHolder)</code></th>
+<td class="colFirst"><code>protected void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDisabled()">onDisabled</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Called when a new <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> is read from the upstream <a href="../source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Called when the renderer is disabled.</div>
 </td>
 </tr>
 <tr id="i24" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onOutputFormatChanged(com.google.android.exoplayer2.Format,android.media.MediaFormat)">onOutputFormatChanged</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
-                     <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;mediaFormat)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onEnabled(boolean,boolean)">onEnabled</a></span>&#8203;(boolean&nbsp;joining,
+         boolean&nbsp;mayRenderStartOfStream)</code></th>
 <td class="colLast">
-<div class="block">Called when one of the output formats changes.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Called when the renderer is enabled.</div>
 </td>
 </tr>
 <tr id="i25" class="rowColor">
-<td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPositionReset(long,boolean)">onPositionReset</a></span>&#8203;(long&nbsp;positionUs,
-               boolean&nbsp;joining)</code></th>
+<td class="colFirst"><code>protected <a href="../decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onInputFormatChanged(com.google.android.exoplayer2.FormatHolder)">onInputFormatChanged</a></span>&#8203;(<a href="../FormatHolder.html" title="class in com.google.android.exoplayer2">FormatHolder</a>&nbsp;formatHolder)</code></th>
 <td class="colLast">
-<div class="block">Called when the position is reset.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Called when a new <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> is read from the upstream <a href="../source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a>.</div>
 </td>
 </tr>
 <tr id="i26" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onProcessedOutputBuffer(long)">onProcessedOutputBuffer</a></span>&#8203;(long&nbsp;presentationTimeUs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onOutputFormatChanged(com.google.android.exoplayer2.Format,android.media.MediaFormat)">onOutputFormatChanged</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+                     <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;mediaFormat)</code></th>
 <td class="colLast">
-<div class="block">Called when an output buffer is successfully processed.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Called when one of the output formats changes.</div>
 </td>
 </tr>
 <tr id="i27" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onProcessedStreamChange()">onProcessedStreamChange</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPositionReset(long,boolean)">onPositionReset</a></span>&#8203;(long&nbsp;positionUs,
+               boolean&nbsp;joining)</code></th>
 <td class="colLast">
-<div class="block">Called after the last output buffer before a stream change has been processed.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Called when the position is reset.</div>
 </td>
 </tr>
 <tr id="i28" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onProcessedTunneledBuffer(long)">onProcessedTunneledBuffer</a></span>&#8203;(long&nbsp;presentationTimeUs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onProcessedOutputBuffer(long)">onProcessedOutputBuffer</a></span>&#8203;(long&nbsp;presentationTimeUs)</code></th>
 <td class="colLast">
-<div class="block">Called when a buffer was processed in tunneling mode.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Called when an output buffer is successfully processed.</div>
 </td>
 </tr>
 <tr id="i29" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onQueueInputBuffer(com.google.android.exoplayer2.decoder.DecoderInputBuffer)">onQueueInputBuffer</a></span>&#8203;(<a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;buffer)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onProcessedStreamChange()">onProcessedStreamChange</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Called immediately before an input buffer is queued into the codec.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Called after the last output buffer before a stream change has been processed.</div>
 </td>
 </tr>
 <tr id="i30" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onReset()">onReset</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onProcessedTunneledBuffer(long)">onProcessedTunneledBuffer</a></span>&#8203;(long&nbsp;presentationTimeUs)</code></th>
 <td class="colLast">
-<div class="block">Called when the renderer is reset.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Called when a buffer was processed in tunneling mode.</div>
 </td>
 </tr>
 <tr id="i31" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onStarted()">onStarted</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onQueueInputBuffer(com.google.android.exoplayer2.decoder.DecoderInputBuffer)">onQueueInputBuffer</a></span>&#8203;(<a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;buffer)</code></th>
 <td class="colLast">
-<div class="block">Called when the renderer is started.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Called immediately before an input buffer is queued into the codec.</div>
 </td>
 </tr>
 <tr id="i32" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onStopped()">onStopped</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onReadyToInitializeCodec(com.google.android.exoplayer2.Format)">onReadyToInitializeCodec</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
-<div class="block">Called when the renderer is stopped.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Called when ready to initialize the <a href="../mediacodec/MediaCodecAdapter.html" title="interface in com.google.android.exoplayer2.mediacodec"><code>MediaCodecAdapter</code></a>.</div>
 </td>
 </tr>
 <tr id="i33" class="rowColor">
+<td class="colFirst"><code>protected void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onReset()">onReset</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Called when the renderer is reset.</div>
+</td>
+</tr>
+<tr id="i34" class="altColor">
+<td class="colFirst"><code>protected void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onStarted()">onStarted</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Called when the renderer is started.</div>
+</td>
+</tr>
+<tr id="i35" class="rowColor">
+<td class="colFirst"><code>protected void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onStopped()">onStopped</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Called when the renderer is stopped.</div>
+</td>
+</tr>
+<tr id="i36" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#processOutputBuffer(long,long,com.google.android.exoplayer2.mediacodec.MediaCodecAdapter,java.nio.ByteBuffer,int,int,int,long,boolean,boolean,com.google.android.exoplayer2.Format)">processOutputBuffer</a></span>&#8203;(long&nbsp;positionUs,
                    long&nbsp;elapsedRealtimeUs,
@@ -607,110 +689,135 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
                    boolean&nbsp;isLastBuffer,
                    <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Processes an output media buffer.</div>
 </td>
 </tr>
-<tr id="i34" class="altColor">
+<tr id="i37" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#render(long,long)">render</a></span>&#8203;(long&nbsp;positionUs,
+      long&nbsp;elapsedRealtimeUs)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Incrementally renders the <a href="../source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>.</div>
+</td>
+</tr>
+<tr id="i38" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#renderOutputBuffer(com.google.android.exoplayer2.mediacodec.MediaCodecAdapter,int,long)">renderOutputBuffer</a></span>&#8203;(<a href="../mediacodec/MediaCodecAdapter.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter</a>&nbsp;codec,
                   int&nbsp;index,
                   long&nbsp;presentationTimeUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Renders the output buffer with the specified index.</div>
 </td>
 </tr>
-<tr id="i35" class="rowColor">
+<tr id="i39" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#renderOutputBufferV21(com.google.android.exoplayer2.mediacodec.MediaCodecAdapter,int,long,long)">renderOutputBufferV21</a></span>&#8203;(<a href="../mediacodec/MediaCodecAdapter.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter</a>&nbsp;codec,
                      int&nbsp;index,
                      long&nbsp;presentationTimeUs,
                      long&nbsp;releaseTimeNs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Renders the output buffer with the specified index.</div>
 </td>
 </tr>
-<tr id="i36" class="altColor">
+<tr id="i40" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#resetCodecStateForFlush()">resetCodecStateForFlush</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Resets the renderer internal state after a codec flush.</div>
 </td>
 </tr>
-<tr id="i37" class="rowColor">
+<tr id="i41" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOutputSurfaceV23(com.google.android.exoplayer2.mediacodec.MediaCodecAdapter,android.view.Surface)">setOutputSurfaceV23</a></span>&#8203;(<a href="../mediacodec/MediaCodecAdapter.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter</a>&nbsp;codec,
                    <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
-<tr id="i38" class="altColor">
+<tr id="i42" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlaybackSpeed(float,float)">setPlaybackSpeed</a></span>&#8203;(float&nbsp;currentPlaybackSpeed,
                 float&nbsp;targetPlaybackSpeed)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Indicates the playback speed to this renderer.</div>
 </td>
 </tr>
-<tr id="i39" class="rowColor">
+<tr id="i43" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#shouldDropBuffersToKeyframe(long,long,boolean)">shouldDropBuffersToKeyframe</a></span>&#8203;(long&nbsp;earlyUs,
                            long&nbsp;elapsedRealtimeUs,
                            boolean&nbsp;isLastBuffer)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether to drop all buffers from the buffer being processed to the keyframe at or after
  the current playback position, if possible.</div>
 </td>
 </tr>
-<tr id="i40" class="altColor">
+<tr id="i44" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#shouldDropOutputBuffer(long,long,boolean)">shouldDropOutputBuffer</a></span>&#8203;(long&nbsp;earlyUs,
                       long&nbsp;elapsedRealtimeUs,
                       boolean&nbsp;isLastBuffer)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the buffer being processed should be dropped.</div>
 </td>
 </tr>
-<tr id="i41" class="rowColor">
+<tr id="i45" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#shouldForceRenderOutputBuffer(long,long)">shouldForceRenderOutputBuffer</a></span>&#8203;(long&nbsp;earlyUs,
                              long&nbsp;elapsedSinceLastRenderUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether to force rendering an output buffer.</div>
 </td>
 </tr>
-<tr id="i42" class="altColor">
+<tr id="i46" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#shouldInitCodec(com.google.android.exoplayer2.mediacodec.MediaCodecInfo)">shouldInitCodec</a></span>&#8203;(<a href="../mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;codecInfo)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
-<tr id="i43" class="rowColor">
+<tr id="i47" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skipOutputBuffer(com.google.android.exoplayer2.mediacodec.MediaCodecAdapter,int,long)">skipOutputBuffer</a></span>&#8203;(<a href="../mediacodec/MediaCodecAdapter.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter</a>&nbsp;codec,
                 int&nbsp;index,
                 long&nbsp;presentationTimeUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Skips the output buffer with the specified index.</div>
 </td>
 </tr>
-<tr id="i44" class="altColor">
+<tr id="i48" class="altColor">
 <td class="colFirst"><code>protected @com.google.android.exoplayer2.RendererCapabilities.Capabilities int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#supportsFormat(com.google.android.exoplayer2.mediacodec.MediaCodecSelector,com.google.android.exoplayer2.Format)">supportsFormat</a></span>&#8203;(<a href="../mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector,
               <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="../RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a> for the given <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 </td>
 </tr>
-<tr id="i45" class="rowColor">
+<tr id="i49" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#updateDroppedBufferCounters(int,int)">updateDroppedBufferCounters</a></span>&#8203;(int&nbsp;droppedInputBufferCount,
                            int&nbsp;droppedDecoderBufferCount)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates local counters and <a href="../mediacodec/MediaCodecRenderer.html#decoderCounters"><code>MediaCodecRenderer.decoderCounters</code></a> to reflect that buffers were dropped.</div>
 </td>
 </tr>
-<tr id="i46" class="altColor">
+<tr id="i50" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#updateVideoFrameProcessingOffsetCounters(long)">updateVideoFrameProcessingOffsetCounters</a></span>&#8203;(long&nbsp;processingOffsetUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates local counters and <a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder"><code>DecoderCounters</code></a> with a new video frame processing offset.</div>
 </td>
 </tr>
@@ -720,14 +827,14 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.mediacodec.<a href="../mediacodec/MediaCodecRenderer.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecRenderer</a></h3>
-<code><a href="../mediacodec/MediaCodecRenderer.html#flushOrReinitializeCodec()">flushOrReinitializeCodec</a>, <a href="../mediacodec/MediaCodecRenderer.html#flushOrReleaseCodec()">flushOrReleaseCodec</a>, <a href="../mediacodec/MediaCodecRenderer.html#getCodec()">getCodec</a>, <a href="../mediacodec/MediaCodecRenderer.html#getCodecInfo()">getCodecInfo</a>, <a href="../mediacodec/MediaCodecRenderer.html#getCodecOperatingRate()">getCodecOperatingRate</a>, <a href="../mediacodec/MediaCodecRenderer.html#getCodecOutputMediaFormat()">getCodecOutputMediaFormat</a>, <a href="../mediacodec/MediaCodecRenderer.html#getOutputStreamOffsetUs()">getOutputStreamOffsetUs</a>, <a href="../mediacodec/MediaCodecRenderer.html#getPlaybackSpeed()">getPlaybackSpeed</a>, <a href="../mediacodec/MediaCodecRenderer.html#isEnded()">isEnded</a>, <a href="../mediacodec/MediaCodecRenderer.html#maybeInitCodecOrBypass()">maybeInitCodecOrBypass</a>, <a href="../mediacodec/MediaCodecRenderer.html#onOutputStreamOffsetUsChanged(long)">onOutputStreamOffsetUsChanged</a>, <a href="../mediacodec/MediaCodecRenderer.html#onStreamChanged(com.google.android.exoplayer2.Format%5B%5D,long,long)">onStreamChanged</a>, <a href="../mediacodec/MediaCodecRenderer.html#releaseCodec()">releaseCodec</a>, <a href="../mediacodec/MediaCodecRenderer.html#render(long,long)">render</a>, <a href="../mediacodec/MediaCodecRenderer.html#renderToEndOfStream()">renderToEndOfStream</a>, <a href="../mediacodec/MediaCodecRenderer.html#resetCodecStateForRelease()">resetCodecStateForRelease</a>, <a href="../mediacodec/MediaCodecRenderer.html#setPendingOutputEndOfStream()">setPendingOutputEndOfStream</a>, <a href="../mediacodec/MediaCodecRenderer.html#setPendingPlaybackException(com.google.android.exoplayer2.ExoPlaybackException)">setPendingPlaybackException</a>, <a href="../mediacodec/MediaCodecRenderer.html#setRenderTimeLimitMs(long)">setRenderTimeLimitMs</a>, <a href="../mediacodec/MediaCodecRenderer.html#shouldReinitCodec()">shouldReinitCodec</a>, <a href="../mediacodec/MediaCodecRenderer.html#shouldUseBypass(com.google.android.exoplayer2.Format)">shouldUseBypass</a>, <a href="../mediacodec/MediaCodecRenderer.html#supportsFormat(com.google.android.exoplayer2.Format)">supportsFormat</a>, <a href="../mediacodec/MediaCodecRenderer.html#supportsFormatDrm(com.google.android.exoplayer2.Format)">supportsFormatDrm</a>, <a href="../mediacodec/MediaCodecRenderer.html#supportsMixedMimeTypeAdaptation()">supportsMixedMimeTypeAdaptation</a>, <a href="../mediacodec/MediaCodecRenderer.html#updateCodecOperatingRate()">updateCodecOperatingRate</a>, <a href="../mediacodec/MediaCodecRenderer.html#updateOutputFormatForTime(long)">updateOutputFormatForTime</a></code></li>
+<code><a href="../mediacodec/MediaCodecRenderer.html#flushOrReinitializeCodec()">flushOrReinitializeCodec</a>, <a href="../mediacodec/MediaCodecRenderer.html#flushOrReleaseCodec()">flushOrReleaseCodec</a>, <a href="../mediacodec/MediaCodecRenderer.html#getCodec()">getCodec</a>, <a href="../mediacodec/MediaCodecRenderer.html#getCodecInfo()">getCodecInfo</a>, <a href="../mediacodec/MediaCodecRenderer.html#getCodecOperatingRate()">getCodecOperatingRate</a>, <a href="../mediacodec/MediaCodecRenderer.html#getCodecOutputMediaFormat()">getCodecOutputMediaFormat</a>, <a href="../mediacodec/MediaCodecRenderer.html#getOutputStreamOffsetUs()">getOutputStreamOffsetUs</a>, <a href="../mediacodec/MediaCodecRenderer.html#getPlaybackSpeed()">getPlaybackSpeed</a>, <a href="../mediacodec/MediaCodecRenderer.html#isBypassPossible(com.google.android.exoplayer2.Format)">isBypassPossible</a>, <a href="../mediacodec/MediaCodecRenderer.html#maybeInitCodecOrBypass()">maybeInitCodecOrBypass</a>, <a href="../mediacodec/MediaCodecRenderer.html#onOutputStreamOffsetUsChanged(long)">onOutputStreamOffsetUsChanged</a>, <a href="../mediacodec/MediaCodecRenderer.html#onStreamChanged(com.google.android.exoplayer2.Format%5B%5D,long,long)">onStreamChanged</a>, <a href="../mediacodec/MediaCodecRenderer.html#releaseCodec()">releaseCodec</a>, <a href="../mediacodec/MediaCodecRenderer.html#renderToEndOfStream()">renderToEndOfStream</a>, <a href="../mediacodec/MediaCodecRenderer.html#resetCodecStateForRelease()">resetCodecStateForRelease</a>, <a href="../mediacodec/MediaCodecRenderer.html#setPendingOutputEndOfStream()">setPendingOutputEndOfStream</a>, <a href="../mediacodec/MediaCodecRenderer.html#setPendingPlaybackException(com.google.android.exoplayer2.ExoPlaybackException)">setPendingPlaybackException</a>, <a href="../mediacodec/MediaCodecRenderer.html#setRenderTimeLimitMs(long)">setRenderTimeLimitMs</a>, <a href="../mediacodec/MediaCodecRenderer.html#shouldReinitCodec()">shouldReinitCodec</a>, <a href="../mediacodec/MediaCodecRenderer.html#shouldUseBypass(com.google.android.exoplayer2.Format)">shouldUseBypass</a>, <a href="../mediacodec/MediaCodecRenderer.html#supportsFormat(com.google.android.exoplayer2.Format)">supportsFormat</a>, <a href="../mediacodec/MediaCodecRenderer.html#supportsFormatDrm(com.google.android.exoplayer2.Format)">supportsFormatDrm</a>, <a href="../mediacodec/MediaCodecRenderer.html#supportsMixedMimeTypeAdaptation()">supportsMixedMimeTypeAdaptation</a>, <a href="../mediacodec/MediaCodecRenderer.html#updateCodecOperatingRate()">updateCodecOperatingRate</a>, <a href="../mediacodec/MediaCodecRenderer.html#updateOutputFormatForTime(long)">updateOutputFormatForTime</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.BaseRenderer">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.<a href="../BaseRenderer.html" title="class in com.google.android.exoplayer2">BaseRenderer</a></h3>
-<code><a href="../BaseRenderer.html#createRendererException(java.lang.Throwable,com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">createRendererException</a>, <a href="../BaseRenderer.html#createRendererException(java.lang.Throwable,com.google.android.exoplayer2.Format,boolean,@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">createRendererException</a>, <a href="../BaseRenderer.html#disable()">disable</a>, <a href="../BaseRenderer.html#enable(com.google.android.exoplayer2.RendererConfiguration,com.google.android.exoplayer2.Format%5B%5D,com.google.android.exoplayer2.source.SampleStream,long,boolean,boolean,long,long)">enable</a>, <a href="../BaseRenderer.html#getCapabilities()">getCapabilities</a>, <a href="../BaseRenderer.html#getConfiguration()">getConfiguration</a>, <a href="../BaseRenderer.html#getFormatHolder()">getFormatHolder</a>, <a href="../BaseRenderer.html#getIndex()">getIndex</a>, <a href="../BaseRenderer.html#getLastResetPositionUs()">getLastResetPositionUs</a>, <a href="../BaseRenderer.html#getMediaClock()">getMediaClock</a>, <a href="../BaseRenderer.html#getPlayerId()">getPlayerId</a>, <a href="../BaseRenderer.html#getReadingPositionUs()">getReadingPositionUs</a>, <a href="../BaseRenderer.html#getState()">getState</a>, <a href="../BaseRenderer.html#getStream()">getStream</a>, <a href="../BaseRenderer.html#getStreamFormats()">getStreamFormats</a>, <a href="../BaseRenderer.html#getTrackType()">getTrackType</a>, <a href="../BaseRenderer.html#hasReadStreamToEnd()">hasReadStreamToEnd</a>, <a href="../BaseRenderer.html#init(int,com.google.android.exoplayer2.analytics.PlayerId)">init</a>, <a href="../BaseRenderer.html#isCurrentStreamFinal()">isCurrentStreamFinal</a>, <a href="../BaseRenderer.html#isSourceReady()">isSourceReady</a>, <a href="../BaseRenderer.html#maybeThrowStreamError()">maybeThrowStreamError</a>, <a href="../BaseRenderer.html#readSource(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,@com.google.android.exoplayer2.source.SampleStream.ReadFlagsint)">readSource</a>, <a href="../BaseRenderer.html#replaceStream(com.google.android.exoplayer2.Format%5B%5D,com.google.android.exoplayer2.source.SampleStream,long,long)">replaceStream</a>, <a href="../BaseRenderer.html#reset()">reset</a>, <a href="../BaseRenderer.html#resetPosition(long)">resetPosition</a>, <a href="../BaseRenderer.html#setCurrentStreamFinal()">setCurrentStreamFinal</a>, <a href="../BaseRenderer.html#skipSource(long)">skipSource</a>, <a href="../BaseRenderer.html#start()">start</a>, <a href="../BaseRenderer.html#stop()">stop</a></code></li>
+<code><a href="../BaseRenderer.html#clearListener()">clearListener</a>, <a href="../BaseRenderer.html#createRendererException(java.lang.Throwable,com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">createRendererException</a>, <a href="../BaseRenderer.html#createRendererException(java.lang.Throwable,com.google.android.exoplayer2.Format,boolean,@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">createRendererException</a>, <a href="../BaseRenderer.html#disable()">disable</a>, <a href="../BaseRenderer.html#enable(com.google.android.exoplayer2.RendererConfiguration,com.google.android.exoplayer2.Format%5B%5D,com.google.android.exoplayer2.source.SampleStream,long,boolean,boolean,long,long)">enable</a>, <a href="../BaseRenderer.html#getCapabilities()">getCapabilities</a>, <a href="../BaseRenderer.html#getConfiguration()">getConfiguration</a>, <a href="../BaseRenderer.html#getFormatHolder()">getFormatHolder</a>, <a href="../BaseRenderer.html#getIndex()">getIndex</a>, <a href="../BaseRenderer.html#getLastResetPositionUs()">getLastResetPositionUs</a>, <a href="../BaseRenderer.html#getMediaClock()">getMediaClock</a>, <a href="../BaseRenderer.html#getPlayerId()">getPlayerId</a>, <a href="../BaseRenderer.html#getReadingPositionUs()">getReadingPositionUs</a>, <a href="../BaseRenderer.html#getState()">getState</a>, <a href="../BaseRenderer.html#getStream()">getStream</a>, <a href="../BaseRenderer.html#getStreamFormats()">getStreamFormats</a>, <a href="../BaseRenderer.html#getTrackType()">getTrackType</a>, <a href="../BaseRenderer.html#hasReadStreamToEnd()">hasReadStreamToEnd</a>, <a href="../BaseRenderer.html#init(int,com.google.android.exoplayer2.analytics.PlayerId)">init</a>, <a href="../BaseRenderer.html#isCurrentStreamFinal()">isCurrentStreamFinal</a>, <a href="../BaseRenderer.html#isSourceReady()">isSourceReady</a>, <a href="../BaseRenderer.html#maybeThrowStreamError()">maybeThrowStreamError</a>, <a href="../BaseRenderer.html#onRelease()">onRelease</a>, <a href="../BaseRenderer.html#onRendererCapabilitiesChanged()">onRendererCapabilitiesChanged</a>, <a href="../BaseRenderer.html#readSource(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,@com.google.android.exoplayer2.source.SampleStream.ReadFlagsint)">readSource</a>, <a href="../BaseRenderer.html#release()">release</a>, <a href="../BaseRenderer.html#replaceStream(com.google.android.exoplayer2.Format%5B%5D,com.google.android.exoplayer2.source.SampleStream,long,long)">replaceStream</a>, <a href="../BaseRenderer.html#reset()">reset</a>, <a href="../BaseRenderer.html#resetPosition(long)">resetPosition</a>, <a href="../BaseRenderer.html#setCurrentStreamFinal()">setCurrentStreamFinal</a>, <a href="../BaseRenderer.html#setListener(com.google.android.exoplayer2.RendererCapabilities.Listener)">setListener</a>, <a href="../BaseRenderer.html#skipSource(long)">skipSource</a>, <a href="../BaseRenderer.html#start()">start</a>, <a href="../BaseRenderer.html#stop()">stop</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
@@ -760,6 +867,7 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
 <h4>MediaCodecVideoRenderer</h4>
 <pre>public&nbsp;MediaCodecVideoRenderer&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                                <a href="../mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - A context.</dd>
@@ -776,6 +884,7 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
 <pre>public&nbsp;MediaCodecVideoRenderer&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                                <a href="../mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector,
                                long&nbsp;allowedJoiningTimeMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - A context.</dd>
@@ -799,6 +908,7 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
                                @Nullable
                                <a href="VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;eventListener,
                                int&nbsp;maxDroppedFramesToNotify)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - A context.</dd>
@@ -828,6 +938,7 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
                                @Nullable
                                <a href="VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;eventListener,
                                int&nbsp;maxDroppedFramesToNotify)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - A context.</dd>
@@ -861,6 +972,7 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
                                @Nullable
                                <a href="VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;eventListener,
                                int&nbsp;maxDroppedFramesToNotify)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - A context.</dd>
@@ -896,6 +1008,7 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
                                <a href="VideoRendererEventListener.html" title="interface in com.google.android.exoplayer2.video">VideoRendererEventListener</a>&nbsp;eventListener,
                                int&nbsp;maxDroppedFramesToNotify,
                                float&nbsp;assumedMinimumCodecOperatingRate)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -935,6 +1048,7 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
 <li class="blockList">
 <h4>getName</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;getName()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Renderer.html#getName()">Renderer</a></code></span></div>
 <div class="block">Returns the name of this renderer, for logging and debugging purposes. Should typically be the
  renderer's (un-obfuscated) class name.</div>
@@ -953,6 +1067,7 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
 <pre class="methodSignature">protected&nbsp;@com.google.android.exoplayer2.RendererCapabilities.Capabilities int&nbsp;supportsFormat&#8203;(<a href="../mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector,
                                                                                               <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)
                                                                                        throws <a href="../mediacodec/MediaCodecUtil.DecoderQueryException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil.DecoderQueryException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#supportsFormat(com.google.android.exoplayer2.mediacodec.MediaCodecSelector,com.google.android.exoplayer2.Format)">MediaCodecRenderer</a></code></span></div>
 <div class="block">Returns the <a href="../RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a> for the given <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 <dl>
@@ -978,6 +1093,7 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
                                                <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                                boolean&nbsp;requiresSecureDecoder)
                                         throws <a href="../mediacodec/MediaCodecUtil.DecoderQueryException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil.DecoderQueryException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#getDecoderInfos(com.google.android.exoplayer2.mediacodec.MediaCodecSelector,com.google.android.exoplayer2.Format,boolean)">MediaCodecRenderer</a></code></span></div>
 <div class="block">Returns a list of decoders that can decode media in the specified format, in priority order.</div>
 <dl>
@@ -1003,6 +1119,7 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
 <pre class="methodSignature">protected&nbsp;void&nbsp;onEnabled&#8203;(boolean&nbsp;joining,
                          boolean&nbsp;mayRenderStartOfStream)
                   throws <a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../BaseRenderer.html#onEnabled(boolean,boolean)">BaseRenderer</a></code></span></div>
 <div class="block">Called when the renderer is enabled.
 
@@ -1028,6 +1145,7 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
 <pre class="methodSignature">protected&nbsp;void&nbsp;onPositionReset&#8203;(long&nbsp;positionUs,
                                boolean&nbsp;joining)
                         throws <a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../BaseRenderer.html#onPositionReset(long,boolean)">BaseRenderer</a></code></span></div>
 <div class="block">Called when the position is reset. This occurs when the renderer is enabled after <a href="../BaseRenderer.html#onStreamChanged(com.google.android.exoplayer2.Format%5B%5D,long,long)"><code>BaseRenderer.onStreamChanged(Format[], long, long)</code></a> has been called, and also when a position discontinuity
  is encountered.
@@ -1047,6 +1165,29 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
 </dl>
 </li>
 </ul>
+<a id="isEnded()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isEnded</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isEnded()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Renderer.html#isEnded()">Renderer</a></code></span></div>
+<div class="block">Whether the renderer is ready for the <a href="../ExoPlayer.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer</code></a> instance to transition to <a href="../Player.html#STATE_ENDED"><code>Player.STATE_ENDED</code></a>. The player will make this transition as soon as <code>true</code> is returned
+ by all of its renderers.
+
+ <p>This method may be called when the renderer is in the following states: <a href="../Renderer.html#STATE_ENABLED"><code>Renderer.STATE_ENABLED</code></a>, <a href="../Renderer.html#STATE_STARTED"><code>Renderer.STATE_STARTED</code></a>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../Renderer.html#isEnded()">isEnded</a></code>&nbsp;in interface&nbsp;<code><a href="../Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></code></dd>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="../mediacodec/MediaCodecRenderer.html#isEnded()">isEnded</a></code>&nbsp;in class&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecRenderer</a></code></dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether the renderer is ready for the player to transition to the ended state.</dd>
+</dl>
+</li>
+</ul>
 <a id="isReady()">
 <!--   -->
 </a>
@@ -1054,6 +1195,7 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
 <li class="blockList">
 <h4>isReady</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isReady()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Renderer.html#isReady()">Renderer</a></code></span></div>
 <div class="block">Whether the renderer is able to immediately render media from the current position.
 
@@ -1082,6 +1224,7 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
 <li class="blockList">
 <h4>onStarted</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onStarted()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../BaseRenderer.html#onStarted()">BaseRenderer</a></code></span></div>
 <div class="block">Called when the renderer is started.
 
@@ -1099,6 +1242,7 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
 <li class="blockList">
 <h4>onStopped</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onStopped()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../BaseRenderer.html#onStopped()">BaseRenderer</a></code></span></div>
 <div class="block">Called when the renderer is stopped.
 
@@ -1116,6 +1260,7 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
 <li class="blockList">
 <h4>onDisabled</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onDisabled()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../BaseRenderer.html#onDisabled()">BaseRenderer</a></code></span></div>
 <div class="block">Called when the renderer is disabled.
 
@@ -1133,6 +1278,7 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
 <li class="blockList">
 <h4>onReset</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onReset()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../BaseRenderer.html#onReset()">BaseRenderer</a></code></span></div>
 <div class="block">Called when the renderer is reset.
 
@@ -1153,6 +1299,7 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
                           @Nullable
                           <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;message)
                    throws <a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../PlayerMessage.Target.html#handleMessage(@com.google.android.exoplayer2.Renderer.MessageTypeint,java.lang.Object)">PlayerMessage.Target</a></code></span></div>
 <div class="block">Handles a message delivered to the target.</div>
 <dl>
@@ -1176,6 +1323,7 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
 <li class="blockList">
 <h4>shouldInitCodec</h4>
 <pre class="methodSignature">protected&nbsp;boolean&nbsp;shouldInitCodec&#8203;(<a href="../mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;codecInfo)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="../mediacodec/MediaCodecRenderer.html#shouldInitCodec(com.google.android.exoplayer2.mediacodec.MediaCodecInfo)">shouldInitCodec</a></code>&nbsp;in class&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecRenderer</a></code></dd>
@@ -1189,6 +1337,7 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
 <li class="blockList">
 <h4>getCodecNeedsEosPropagation</h4>
 <pre class="methodSignature">protected&nbsp;boolean&nbsp;getCodecNeedsEosPropagation()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#getCodecNeedsEosPropagation()">MediaCodecRenderer</a></code></span></div>
 <div class="block">Returns whether the codec needs the renderer to propagate the end-of-stream signal directly,
  rather than by using an end-of-stream buffer queued to the codec.</div>
@@ -1209,6 +1358,7 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
                                                                      @Nullable
                                                                      <a href="https://developer.android.com/reference/android/media/MediaCrypto.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCrypto</a>&nbsp;crypto,
                                                                      float&nbsp;codecOperatingRate)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#getMediaCodecConfiguration(com.google.android.exoplayer2.mediacodec.MediaCodecInfo,com.google.android.exoplayer2.Format,android.media.MediaCrypto,float)">MediaCodecRenderer</a></code></span></div>
 <div class="block">Returns the <a href="../mediacodec/MediaCodecAdapter.Configuration.html" title="class in com.google.android.exoplayer2.mediacodec"><code>MediaCodecAdapter.Configuration</code></a> that will be used to create and configure a
  <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink"><code>MediaCodec</code></a> to decode the given <a href="../Format.html" title="class in com.google.android.exoplayer2" target="_top"><code>Format</code></a> for a playback.</div>
@@ -1235,6 +1385,7 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
 <pre class="methodSignature">protected&nbsp;<a href="../decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a>&nbsp;canReuseCodec&#8203;(<a href="../mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;codecInfo,
                                                <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;oldFormat,
                                                <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;newFormat)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#canReuseCodec(com.google.android.exoplayer2.mediacodec.MediaCodecInfo,com.google.android.exoplayer2.Format,com.google.android.exoplayer2.Format)">MediaCodecRenderer</a></code></span></div>
 <div class="block">Evaluates whether the existing <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink"><code>MediaCodec</code></a> can be kept for a new <a href="../Format.html" title="class in com.google.android.exoplayer2" target="_top"><code>Format</code></a>, and if
  it can whether it requires reconfiguration.
@@ -1252,6 +1403,50 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
 </dl>
 </li>
 </ul>
+<a id="render(long,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>render</h4>
+<pre class="methodSignature">@CallSuper
+public&nbsp;void&nbsp;render&#8203;(long&nbsp;positionUs,
+                   long&nbsp;elapsedRealtimeUs)
+            throws <a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Renderer.html#render(long,long)">Renderer</a></code></span></div>
+<div class="block">Incrementally renders the <a href="../source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>.
+
+ <p>If the renderer is in the <a href="../Renderer.html#STATE_ENABLED"><code>Renderer.STATE_ENABLED</code></a> state then each call to this method will do
+ work toward being ready to render the <a href="../source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> when the renderer is started. If the
+ renderer is in the <a href="../Renderer.html#STATE_STARTED"><code>Renderer.STATE_STARTED</code></a> state then calls to this method will render the
+ <a href="../source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> in sync with the specified media positions.
+
+ <p>The renderer may also render the very start of the media at the current position (e.g. the
+ first frame of a video stream) while still in the <a href="../Renderer.html#STATE_ENABLED"><code>Renderer.STATE_ENABLED</code></a> state, unless it's the
+ initial start of the media after calling <a href="../Renderer.html#enable(com.google.android.exoplayer2.RendererConfiguration,com.google.android.exoplayer2.Format%5B%5D,com.google.android.exoplayer2.source.SampleStream,long,boolean,boolean,long,long)"><code>Renderer.enable(RendererConfiguration, Format[],
+ SampleStream, long, boolean, boolean, long, long)</code></a> with <code>mayRenderStartOfStream</code> set to
+ <code>false</code>.
+
+ <p>This method should return quickly, and should not block if the renderer is unable to make
+ useful progress.
+
+ <p>This method may be called when the renderer is in the following states: <a href="../Renderer.html#STATE_ENABLED"><code>Renderer.STATE_ENABLED</code></a>, <a href="../Renderer.html#STATE_STARTED"><code>Renderer.STATE_STARTED</code></a>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../Renderer.html#render(long,long)">render</a></code>&nbsp;in interface&nbsp;<code><a href="../Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></code></dd>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="../mediacodec/MediaCodecRenderer.html#render(long,long)">render</a></code>&nbsp;in class&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecRenderer</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>positionUs</code> - The current media time in microseconds, measured at the start of the current
+     iteration of the rendering loop.</dd>
+<dd><code>elapsedRealtimeUs</code> - <a href="https://developer.android.com/reference/android/os/SystemClock.html#elapsedRealtime()" title="class or interface in android.os" class="externalLink" target="_top"><code>SystemClock.elapsedRealtime()</code></a> in microseconds,
+     measured at the start of the current iteration of the rendering loop.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></code> - If an error occurs.</dd>
+</dl>
+</li>
+</ul>
 <a id="resetCodecStateForFlush()">
 <!--   -->
 </a>
@@ -1260,6 +1455,7 @@ extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.goog
 <h4>resetCodecStateForFlush</h4>
 <pre class="methodSignature">@CallSuper
 protected&nbsp;void&nbsp;resetCodecStateForFlush()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#resetCodecStateForFlush()">MediaCodecRenderer</a></code></span></div>
 <div class="block">Resets the renderer internal state after a codec flush.</div>
 <dl>
@@ -1277,6 +1473,7 @@ protected&nbsp;void&nbsp;resetCodecStateForFlush()</pre>
 <pre class="methodSignature">public&nbsp;void&nbsp;setPlaybackSpeed&#8203;(float&nbsp;currentPlaybackSpeed,
                              float&nbsp;targetPlaybackSpeed)
                       throws <a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Renderer.html#setPlaybackSpeed(float,float)">Renderer</a></code></span></div>
 <div class="block">Indicates the playback speed to this renderer.
 
@@ -1304,6 +1501,7 @@ protected&nbsp;void&nbsp;resetCodecStateForFlush()</pre>
 <h4>getCodecMaxInputSize</h4>
 <pre class="methodSignature">public static&nbsp;int&nbsp;getCodecMaxInputSize&#8203;(<a href="../mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;codecInfo,
                                        <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a maximum input size for a given codec and format.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1324,6 +1522,7 @@ protected&nbsp;void&nbsp;resetCodecStateForFlush()</pre>
 <pre class="methodSignature">protected&nbsp;float&nbsp;getCodecOperatingRateV23&#8203;(float&nbsp;targetPlaybackSpeed,
                                          <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                          <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>[]&nbsp;streamFormats)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#getCodecOperatingRateV23(float,com.google.android.exoplayer2.Format,com.google.android.exoplayer2.Format%5B%5D)">MediaCodecRenderer</a></code></span></div>
 <div class="block">Returns the <a href="https://developer.android.com/reference/android/media/MediaFormat.html#KEY_OPERATING_RATE" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaFormat.KEY_OPERATING_RATE</code></a> value for a given playback speed, current
  <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> and set of possible stream formats.
@@ -1344,6 +1543,33 @@ protected&nbsp;void&nbsp;resetCodecStateForFlush()</pre>
 </dl>
 </li>
 </ul>
+<a id="onReadyToInitializeCodec(com.google.android.exoplayer2.Format)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onReadyToInitializeCodec</h4>
+<pre class="methodSignature">@CallSuper
+protected&nbsp;void&nbsp;onReadyToInitializeCodec&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)
+                                 throws <a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#onReadyToInitializeCodec(com.google.android.exoplayer2.Format)">MediaCodecRenderer</a></code></span></div>
+<div class="block">Called when ready to initialize the <a href="../mediacodec/MediaCodecAdapter.html" title="interface in com.google.android.exoplayer2.mediacodec"><code>MediaCodecAdapter</code></a>.
+
+ <p>This method is called just before the renderer obtains the <a href="../mediacodec/MediaCodecRenderer.html#getMediaCodecConfiguration(com.google.android.exoplayer2.mediacodec.MediaCodecInfo,com.google.android.exoplayer2.Format,android.media.MediaCrypto,float)">configuration</a> for the <a href="../mediacodec/MediaCodecAdapter.html" title="interface in com.google.android.exoplayer2.mediacodec"><code>MediaCodecAdapter</code></a> and creates the
+ adapter via the passed in <a href="../mediacodec/MediaCodecAdapter.Factory.html" title="interface in com.google.android.exoplayer2.mediacodec"><code>MediaCodecAdapter.Factory</code></a>.
+
+ <p>The default implementation is a no-op.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="../mediacodec/MediaCodecRenderer.html#onReadyToInitializeCodec(com.google.android.exoplayer2.Format)">onReadyToInitializeCodec</a></code>&nbsp;in class&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecRenderer</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>format</code> - The <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> for which the codec is being configured.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></code> - If an error occurs preparing for initializing the codec.</dd>
+</dl>
+</li>
+</ul>
 <a id="onCodecInitialized(java.lang.String,com.google.android.exoplayer2.mediacodec.MediaCodecAdapter.Configuration,long,long)">
 <!--   -->
 </a>
@@ -1354,6 +1580,7 @@ protected&nbsp;void&nbsp;resetCodecStateForFlush()</pre>
                                   <a href="../mediacodec/MediaCodecAdapter.Configuration.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter.Configuration</a>&nbsp;configuration,
                                   long&nbsp;initializedTimestampMs,
                                   long&nbsp;initializationDurationMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#onCodecInitialized(java.lang.String,com.google.android.exoplayer2.mediacodec.MediaCodecAdapter.Configuration,long,long)">MediaCodecRenderer</a></code></span></div>
 <div class="block">Called when a <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> has been created and configured.
 
@@ -1377,6 +1604,7 @@ protected&nbsp;void&nbsp;resetCodecStateForFlush()</pre>
 <li class="blockList">
 <h4>onCodecReleased</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onCodecReleased&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#onCodecReleased(java.lang.String)">MediaCodecRenderer</a></code></span></div>
 <div class="block">Called when a <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> has been released.
 
@@ -1396,6 +1624,7 @@ protected&nbsp;void&nbsp;resetCodecStateForFlush()</pre>
 <li class="blockList">
 <h4>onCodecError</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onCodecError&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;codecError)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#onCodecError(java.lang.Exception)">MediaCodecRenderer</a></code></span></div>
 <div class="block">Called when a codec error has occurred.
 
@@ -1417,6 +1646,7 @@ protected&nbsp;void&nbsp;resetCodecStateForFlush()</pre>
 <pre class="methodSignature">@Nullable
 protected&nbsp;<a href="../decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a>&nbsp;onInputFormatChanged&#8203;(<a href="../FormatHolder.html" title="class in com.google.android.exoplayer2">FormatHolder</a>&nbsp;formatHolder)
                                                throws <a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#onInputFormatChanged(com.google.android.exoplayer2.FormatHolder)">MediaCodecRenderer</a></code></span></div>
 <div class="block">Called when a new <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> is read from the upstream <a href="../source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a>.</div>
 <dl>
@@ -1441,6 +1671,7 @@ protected&nbsp;<a href="../decoder/DecoderReuseEvaluation.html" title="class in 
 <pre class="methodSignature">@CallSuper
 protected&nbsp;void&nbsp;onQueueInputBuffer&#8203;(<a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;buffer)
                            throws <a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called immediately before an input buffer is queued into the codec.
 
  <p>In tunneling mode for pre Marshmallow, the buffer is treated as if immediately output.</div>
@@ -1463,6 +1694,7 @@ protected&nbsp;void&nbsp;onQueueInputBuffer&#8203;(<a href="../decoder/DecoderIn
 <pre class="methodSignature">protected&nbsp;void&nbsp;onOutputFormatChanged&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                      @Nullable
                                      <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;mediaFormat)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#onOutputFormatChanged(com.google.android.exoplayer2.Format,android.media.MediaFormat)">MediaCodecRenderer</a></code></span></div>
 <div class="block">Called when one of the output formats changes.
 
@@ -1486,6 +1718,7 @@ protected&nbsp;void&nbsp;onQueueInputBuffer&#8203;(<a href="../decoder/DecoderIn
 <h4>handleInputBufferSupplementalData</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;handleInputBufferSupplementalData&#8203;(<a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;buffer)
                                           throws <a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#handleInputBufferSupplementalData(com.google.android.exoplayer2.decoder.DecoderInputBuffer)">MediaCodecRenderer</a></code></span></div>
 <div class="block">Handles supplemental data associated with an input buffer.
 
@@ -1520,6 +1753,7 @@ protected&nbsp;void&nbsp;onQueueInputBuffer&#8203;(<a href="../decoder/DecoderIn
                                       boolean&nbsp;isLastBuffer,
                                       <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)
                                throws <a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#processOutputBuffer(long,long,com.google.android.exoplayer2.mediacodec.MediaCodecAdapter,java.nio.ByteBuffer,int,int,int,long,boolean,boolean,com.google.android.exoplayer2.Format)">MediaCodecRenderer</a></code></span></div>
 <div class="block">Processes an output media buffer.
 
@@ -1573,6 +1807,7 @@ protected&nbsp;void&nbsp;onQueueInputBuffer&#8203;(<a href="../decoder/DecoderIn
 <h4>onProcessedTunneledBuffer</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onProcessedTunneledBuffer&#8203;(long&nbsp;presentationTimeUs)
                                   throws <a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a buffer was processed in tunneling mode.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -1588,6 +1823,7 @@ protected&nbsp;void&nbsp;onQueueInputBuffer&#8203;(<a href="../decoder/DecoderIn
 <h4>onProcessedOutputBuffer</h4>
 <pre class="methodSignature">@CallSuper
 protected&nbsp;void&nbsp;onProcessedOutputBuffer&#8203;(long&nbsp;presentationTimeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#onProcessedOutputBuffer(long)">MediaCodecRenderer</a></code></span></div>
 <div class="block">Called when an output buffer is successfully processed.</div>
 <dl>
@@ -1605,6 +1841,7 @@ protected&nbsp;void&nbsp;onProcessedOutputBuffer&#8203;(long&nbsp;presentationTi
 <li class="blockList">
 <h4>onProcessedStreamChange</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onProcessedStreamChange()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#onProcessedStreamChange()">MediaCodecRenderer</a></code></span></div>
 <div class="block">Called after the last output buffer before a stream change has been processed.</div>
 <dl>
@@ -1622,6 +1859,7 @@ protected&nbsp;void&nbsp;onProcessedOutputBuffer&#8203;(long&nbsp;presentationTi
 <pre class="methodSignature">protected&nbsp;boolean&nbsp;shouldDropOutputBuffer&#8203;(long&nbsp;earlyUs,
                                          long&nbsp;elapsedRealtimeUs,
                                          boolean&nbsp;isLastBuffer)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the buffer being processed should be dropped.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1642,6 +1880,7 @@ protected&nbsp;void&nbsp;onProcessedOutputBuffer&#8203;(long&nbsp;presentationTi
 <pre class="methodSignature">protected&nbsp;boolean&nbsp;shouldDropBuffersToKeyframe&#8203;(long&nbsp;earlyUs,
                                               long&nbsp;elapsedRealtimeUs,
                                               boolean&nbsp;isLastBuffer)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether to drop all buffers from the buffer being processed to the keyframe at or after
  the current playback position, if possible.</div>
 <dl>
@@ -1662,6 +1901,7 @@ protected&nbsp;void&nbsp;onProcessedOutputBuffer&#8203;(long&nbsp;presentationTi
 <h4>shouldForceRenderOutputBuffer</h4>
 <pre class="methodSignature">protected&nbsp;boolean&nbsp;shouldForceRenderOutputBuffer&#8203;(long&nbsp;earlyUs,
                                                 long&nbsp;elapsedSinceLastRenderUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether to force rendering an output buffer.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1683,6 +1923,7 @@ protected&nbsp;void&nbsp;onProcessedOutputBuffer&#8203;(long&nbsp;presentationTi
 <pre class="methodSignature">protected&nbsp;void&nbsp;skipOutputBuffer&#8203;(<a href="../mediacodec/MediaCodecAdapter.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter</a>&nbsp;codec,
                                 int&nbsp;index,
                                 long&nbsp;presentationTimeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Skips the output buffer with the specified index.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1701,6 +1942,7 @@ protected&nbsp;void&nbsp;onProcessedOutputBuffer&#8203;(long&nbsp;presentationTi
 <pre class="methodSignature">protected&nbsp;void&nbsp;dropOutputBuffer&#8203;(<a href="../mediacodec/MediaCodecAdapter.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter</a>&nbsp;codec,
                                 int&nbsp;index,
                                 long&nbsp;presentationTimeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Drops the output buffer with the specified index.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1719,6 +1961,7 @@ protected&nbsp;void&nbsp;onProcessedOutputBuffer&#8203;(long&nbsp;presentationTi
 <pre class="methodSignature">protected&nbsp;boolean&nbsp;maybeDropBuffersToKeyframe&#8203;(long&nbsp;positionUs,
                                              boolean&nbsp;treatDroppedBuffersAsSkipped)
                                       throws <a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Drops frames from the current output buffer to the next keyframe at or before the playback
  position. If no such keyframe exists, as the playback position is inside the same group of
  pictures as the buffer being processed, returns <code>false</code>. Returns <code>true</code> otherwise.</div>
@@ -1742,6 +1985,7 @@ protected&nbsp;void&nbsp;onProcessedOutputBuffer&#8203;(long&nbsp;presentationTi
 <h4>updateDroppedBufferCounters</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;updateDroppedBufferCounters&#8203;(int&nbsp;droppedInputBufferCount,
                                            int&nbsp;droppedDecoderBufferCount)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates local counters and <a href="../mediacodec/MediaCodecRenderer.html#decoderCounters"><code>MediaCodecRenderer.decoderCounters</code></a> to reflect that buffers were dropped.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1759,11 +2003,25 @@ protected&nbsp;void&nbsp;onProcessedOutputBuffer&#8203;(long&nbsp;presentationTi
 <li class="blockList">
 <h4>updateVideoFrameProcessingOffsetCounters</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;updateVideoFrameProcessingOffsetCounters&#8203;(long&nbsp;processingOffsetUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates local counters and <a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder"><code>DecoderCounters</code></a> with a new video frame processing offset.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>processingOffsetUs</code> - The video frame processing offset.</dd>
 </dl>
+</li>
+</ul>
+<a id="experimentalGetVideoFrameProcessorColorConfiguration(com.google.android.exoplayer2.video.ColorInfo)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>experimentalGetVideoFrameProcessorColorConfiguration</h4>
+<pre class="methodSignature">protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="ColorInfo.html" title="class in com.google.android.exoplayer2.video">ColorInfo</a>,&#8203;<a href="ColorInfo.html" title="class in com.google.android.exoplayer2.video" target="_top">ColorInfo</a>&gt;&nbsp;experimentalGetVideoFrameProcessorColorConfiguration&#8203;(@Nullable
+                                                                                               <a href="ColorInfo.html" title="class in com.google.android.exoplayer2.video">ColorInfo</a>&nbsp;inputColorInfo)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns a <a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink"><code>Pair</code></a> of <a href="ColorInfo.html" title="class in com.google.android.exoplayer2.video">input color</a> and <a href="ColorInfo.html" title="class in com.google.android.exoplayer2.video" target="_top">output
+ color</a> to configure the <code>VideoFrameProcessor</code>.</div>
 </li>
 </ul>
 <a id="renderOutputBuffer(com.google.android.exoplayer2.mediacodec.MediaCodecAdapter,int,long)">
@@ -1775,8 +2033,12 @@ protected&nbsp;void&nbsp;onProcessedOutputBuffer&#8203;(long&nbsp;presentationTi
 <pre class="methodSignature">protected&nbsp;void&nbsp;renderOutputBuffer&#8203;(<a href="../mediacodec/MediaCodecAdapter.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter</a>&nbsp;codec,
                                   int&nbsp;index,
                                   long&nbsp;presentationTimeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Renders the output buffer with the specified index. This method is only called if the platform
- API version of the device is less than 21.</div>
+ API version of the device is less than 21.
+
+ <p>When video frame processing is MediaCodecVideoRenderer.VideoFrameProcessorManager.isEnabled() enabled},
+ this method renders to <code>MediaCodecVideoRenderer.VideoFrameProcessorManager</code>'s input surface.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>codec</code> - The codec that owns the output buffer.</dd>
@@ -1796,8 +2058,12 @@ protected&nbsp;void&nbsp;renderOutputBufferV21&#8203;(<a href="../mediacodec/Med
                                      int&nbsp;index,
                                      long&nbsp;presentationTimeUs,
                                      long&nbsp;releaseTimeNs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Renders the output buffer with the specified index. This method is only called if the platform
- API version of the device is 21 or later.</div>
+ API version of the device is 21 or later.
+
+ <p>When video frame processing is MediaCodecVideoRenderer.VideoFrameProcessorManager.isEnabled() enabled},
+ this method renders to <code>MediaCodecVideoRenderer.VideoFrameProcessorManager</code>'s input surface.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>codec</code> - The codec that owns the output buffer.</dd>
@@ -1816,6 +2082,7 @@ protected&nbsp;void&nbsp;renderOutputBufferV21&#8203;(<a href="../mediacodec/Med
 <pre class="methodSignature">@RequiresApi(23)
 protected&nbsp;void&nbsp;setOutputSurfaceV23&#8203;(<a href="../mediacodec/MediaCodecAdapter.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter</a>&nbsp;codec,
                                    <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="getMediaFormat(com.google.android.exoplayer2.Format,java.lang.String,com.google.android.exoplayer2.video.MediaCodecVideoRenderer.CodecMaxValues,float,boolean,int)">
@@ -1830,6 +2097,7 @@ protected&nbsp;void&nbsp;setOutputSurfaceV23&#8203;(<a href="../mediacodec/Media
                                      float&nbsp;codecOperatingRate,
                                      boolean&nbsp;deviceNeedsNoPostProcessWorkaround,
                                      int&nbsp;tunnelingAudioSessionId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the framework <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaFormat</code></a> that should be used to configure the decoder.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1855,6 +2123,7 @@ protected&nbsp;void&nbsp;setOutputSurfaceV23&#8203;(<a href="../mediacodec/Media
 <pre class="methodSignature">protected&nbsp;<a href="MediaCodecVideoRenderer.CodecMaxValues.html" title="class in com.google.android.exoplayer2.video">MediaCodecVideoRenderer.CodecMaxValues</a>&nbsp;getCodecMaxValues&#8203;(<a href="../mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;codecInfo,
                                                                    <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                                                    <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>[]&nbsp;streamFormats)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns <a href="MediaCodecVideoRenderer.CodecMaxValues.html" title="class in com.google.android.exoplayer2.video"><code>MediaCodecVideoRenderer.CodecMaxValues</code></a> suitable for configuring a codec for <code>format</code> in a way
  that will allow possible adaptation to other compatible formats in <code>streamFormats</code>.</div>
 <dl>
@@ -1876,6 +2145,7 @@ protected&nbsp;void&nbsp;setOutputSurfaceV23&#8203;(<a href="../mediacodec/Media
 <pre class="methodSignature">protected&nbsp;<a href="../mediacodec/MediaCodecDecoderException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecDecoderException</a>&nbsp;createDecoderException&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
                                                             @Nullable
                                                             <a href="../mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;codecInfo)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="../mediacodec/MediaCodecRenderer.html#createDecoderException(java.lang.Throwable,com.google.android.exoplayer2.mediacodec.MediaCodecInfo)">createDecoderException</a></code>&nbsp;in class&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecRenderer</a></code></dd>
@@ -1890,6 +2160,7 @@ protected&nbsp;void&nbsp;setOutputSurfaceV23&#8203;(<a href="../mediacodec/Media
 <h4>getMaxInputSize</h4>
 <pre class="methodSignature">protected static&nbsp;int&nbsp;getMaxInputSize&#8203;(<a href="../mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;codecInfo,
                                      <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a maximum input buffer size for a given <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink"><code>MediaCodec</code></a> and <a href="../Format.html" title="class in com.google.android.exoplayer2" target="_top"><code>Format</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1908,6 +2179,7 @@ protected&nbsp;void&nbsp;setOutputSurfaceV23&#8203;(<a href="../mediacodec/Media
 <li class="blockList">
 <h4>codecNeedsSetOutputSurfaceWorkaround</h4>
 <pre class="methodSignature">protected&nbsp;boolean&nbsp;codecNeedsSetOutputSurfaceWorkaround&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the codec is known to implement <a href="https://developer.android.com/reference/android/media/MediaCodec.html#setOutputSurface(android.view.Surface)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.setOutputSurface(Surface)</code></a>
  incorrectly.
 
@@ -1927,7 +2199,10 @@ protected&nbsp;void&nbsp;setOutputSurfaceV23&#8203;(<a href="../mediacodec/Media
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getSurface</h4>
-<pre class="methodSignature">protected&nbsp;<a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;getSurface()</pre>
+<pre class="methodSignature">@Nullable
+protected&nbsp;<a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;getSurface()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns the output surface.</div>
 </li>
 </ul>
 </li>

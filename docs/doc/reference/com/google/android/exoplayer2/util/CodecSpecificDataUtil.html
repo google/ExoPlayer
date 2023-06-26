@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":41,"i1":41,"i2":41,"i3":41,"i4":41,"i5":41,"i6":41,"i7":41};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">CodecSpecificDataUtil</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">CodecSpecificDataUtil</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Provides utilities for handling various types of codec-specific data.</div>
 </li>
 </ul>
@@ -146,7 +152,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -158,6 +164,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                    int&nbsp;constraintsFlagsAndReservedZero2Bits,
                    int&nbsp;levelIdc)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builds an RFC 6381 AVC codec string using the provided parameters.</div>
 </td>
 </tr>
@@ -165,6 +172,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildCea708InitializationData(boolean)">buildCea708InitializationData</a></span>&#8203;(boolean&nbsp;isWideAspectRatio)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns initialization data for formats with MIME type <a href="MimeTypes.html#APPLICATION_CEA708"><code>MimeTypes.APPLICATION_CEA708</code></a>.</div>
 </td>
 </tr>
@@ -177,6 +185,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                     int[]&nbsp;constraintBytes,
                     int&nbsp;generalLevelIdc)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builds an RFC 6381 HEVC codec string using the provided parameters.</div>
 </td>
 </tr>
@@ -186,6 +195,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
             int&nbsp;offset,
             int&nbsp;length)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Constructs a NAL unit consisting of the NAL start code followed by the specified data.</div>
 </td>
 </tr>
@@ -193,6 +203,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getVideoResolutionFromMpeg4VideoConfig(byte%5B%5D)">getVideoResolutionFromMpeg4VideoConfig</a></span>&#8203;(byte[]&nbsp;videoSpecificConfig)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses an MPEG-4 Visual configuration information, as defined in ISO/IEC14496-2.</div>
 </td>
 </tr>
@@ -200,6 +211,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseAlacAudioSpecificConfig(byte%5B%5D)">parseAlacAudioSpecificConfig</a></span>&#8203;(byte[]&nbsp;audioSpecificConfig)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses an ALAC AudioSpecificConfig (i.e.</div>
 </td>
 </tr>
@@ -207,6 +219,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseCea708InitializationData(java.util.List)">parseCea708InitializationData</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the CEA-708 closed caption service with the given initialization data is
  formatted for displays with 16:9 aspect ratio.</div>
 </td>
@@ -215,6 +228,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static byte[][]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#splitNalUnits(byte%5B%5D)">splitNalUnits</a></span>&#8203;(byte[]&nbsp;data)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Splits an array of NAL units.</div>
 </td>
 </tr>
@@ -249,6 +263,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>parseAlacAudioSpecificConfig</h4>
 <pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;&nbsp;parseAlacAudioSpecificConfig&#8203;(byte[]&nbsp;audioSpecificConfig)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses an ALAC AudioSpecificConfig (i.e. an <a href="https://github.com/macosforge/alac/blob/master/ALACMagicCookieDescription.txt">ALACSpecificConfig</a>).</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -265,6 +280,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>buildCea708InitializationData</h4>
 <pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;buildCea708InitializationData&#8203;(boolean&nbsp;isWideAspectRatio)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns initialization data for formats with MIME type <a href="MimeTypes.html#APPLICATION_CEA708"><code>MimeTypes.APPLICATION_CEA708</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -282,6 +298,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>parseCea708InitializationData</h4>
 <pre class="methodSignature">public static&nbsp;boolean&nbsp;parseCea708InitializationData&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the CEA-708 closed caption service with the given initialization data is
  formatted for displays with 16:9 aspect ratio.</div>
 <dl>
@@ -300,6 +317,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>getVideoResolutionFromMpeg4VideoConfig</h4>
 <pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;&nbsp;getVideoResolutionFromMpeg4VideoConfig&#8203;(byte[]&nbsp;videoSpecificConfig)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses an MPEG-4 Visual configuration information, as defined in ISO/IEC14496-2.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -319,6 +337,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;buildAvcCodecString&#8203;(int&nbsp;profileIdc,
                                          int&nbsp;constraintsFlagsAndReservedZero2Bits,
                                          int&nbsp;levelIdc)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builds an RFC 6381 AVC codec string using the provided parameters.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -343,6 +362,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                                           int&nbsp;generalProfileCompatibilityFlags,
                                           int[]&nbsp;constraintBytes,
                                           int&nbsp;generalLevelIdc)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builds an RFC 6381 HEVC codec string using the provided parameters.</div>
 </li>
 </ul>
@@ -355,6 +375,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">public static&nbsp;byte[]&nbsp;buildNalUnit&#8203;(byte[]&nbsp;data,
                                   int&nbsp;offset,
                                   int&nbsp;length)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Constructs a NAL unit consisting of the NAL start code followed by the specified data.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -374,6 +395,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>splitNalUnits</h4>
 <pre class="methodSignature">@Nullable
 public static&nbsp;byte[][]&nbsp;splitNalUnits&#8203;(byte[]&nbsp;data)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Splits an array of NAL units.
 
  <p>If the input consists of NAL start code delimited units, then the returned array consists of

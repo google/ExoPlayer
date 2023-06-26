@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -134,9 +134,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 <hr>
 <pre>@RequiresApi(30)
+<a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 public final class <span class="typeNameLabel">InputReaderAdapterV30</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="https://developer.android.com/reference/android/media/MediaParser.SeekableInputReader.html" title="class or interface in android.media" class="externalLink" target="_top">MediaParser.SeekableInputReader</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block"><a href="https://developer.android.com/reference/android/media/MediaParser.SeekableInputReader.html" title="class or interface in android.media" class="externalLink"><code>MediaParser.SeekableInputReader</code></a> implementation wrapping a <a href="../../upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream" target="_top"><code>DataReader</code></a>.</div>
 </li>
 </ul>
@@ -159,7 +165,9 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">InputReaderAdapterV30</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -173,7 +181,7 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -183,36 +191,46 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAndResetSeekPosition()">getAndResetSeekPosition</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the last value passed to <a href="#seekToPosition(long)"><code>seekToPosition(long)</code></a> and sets the stored value to
- <a href="../../C.html#POSITION_UNSET"><code>C.POSITION_UNSET</code></a>.</div>
+ <a href="../../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a>.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLength()">getLength</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPosition()">getPosition</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#read(byte%5B%5D,int,int)">read</a></span>&#8203;(byte[]&nbsp;bytes,
     int&nbsp;offset,
     int&nbsp;readLength)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekToPosition(long)">seekToPosition</a></span>&#8203;(long&nbsp;position)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setCurrentPosition(long)">setCurrentPosition</a></span>&#8203;(long&nbsp;position)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the absolute position in the resource from which the wrapped <a href="../../upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataReader</code></a> reads.</div>
 </td>
 </tr>
@@ -221,6 +239,7 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDataReader(com.google.android.exoplayer2.upstream.DataReader,long)">setDataReader</a></span>&#8203;(<a href="../../upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a>&nbsp;dataReader,
              long&nbsp;length)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the wrapped <a href="../../upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataReader</code></a>.</div>
 </td>
 </tr>
@@ -255,6 +274,7 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
 <li class="blockList">
 <h4>InputReaderAdapterV30</h4>
 <pre>public&nbsp;InputReaderAdapterV30()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -275,6 +295,7 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
 <h4>setDataReader</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setDataReader&#8203;(<a href="../../upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a>&nbsp;dataReader,
                           long&nbsp;length)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the wrapped <a href="../../upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataReader</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -290,6 +311,7 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
 <li class="blockList">
 <h4>setCurrentPosition</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setCurrentPosition&#8203;(long&nbsp;position)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the absolute position in the resource from which the wrapped <a href="../../upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataReader</code></a> reads.</div>
 </li>
 </ul>
@@ -300,8 +322,9 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
 <li class="blockList">
 <h4>getAndResetSeekPosition</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getAndResetSeekPosition()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the last value passed to <a href="#seekToPosition(long)"><code>seekToPosition(long)</code></a> and sets the stored value to
- <a href="../../C.html#POSITION_UNSET"><code>C.POSITION_UNSET</code></a>.</div>
+ <a href="../../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a>.</div>
 </li>
 </ul>
 <a id="seekToPosition(long)">
@@ -311,6 +334,7 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
 <li class="blockList">
 <h4>seekToPosition</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;seekToPosition&#8203;(long&nbsp;position)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/media/MediaParser.SeekableInputReader.html#seekToPosition(long)" title="class or interface in android.media" class="externalLink">seekToPosition</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/android/media/MediaParser.SeekableInputReader.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top">MediaParser.SeekableInputReader</a></code></dd>
@@ -327,6 +351,7 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
                 int&nbsp;offset,
                 int&nbsp;readLength)
          throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/media/MediaParser.InputReader.html#read(byte%5B%5D,int,int)" title="class or interface in android.media" class="externalLink">read</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/android/media/MediaParser.InputReader.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top">MediaParser.InputReader</a></code></dd>
@@ -342,6 +367,7 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
 <li class="blockList">
 <h4>getPosition</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getPosition()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/media/MediaParser.InputReader.html#getPosition()" title="class or interface in android.media" class="externalLink">getPosition</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/android/media/MediaParser.InputReader.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top">MediaParser.InputReader</a></code></dd>
@@ -355,6 +381,7 @@ implements <a href="https://developer.android.com/reference/android/media/MediaP
 <li class="blockList">
 <h4>getLength</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getLength()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/media/MediaParser.InputReader.html#getLength()" title="class or interface in android.media" class="externalLink">getLength</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/android/media/MediaParser.InputReader.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top">MediaParser.InputReader</a></code></dd>

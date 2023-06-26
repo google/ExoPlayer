@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="MediaClock.html" title="interface in com.google.android.exoplayer2.util">MediaClock</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">StandaloneMediaClock</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">StandaloneMediaClock</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="MediaClock.html" title="interface in com.google.android.exoplayer2.util">MediaClock</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A <a href="MediaClock.html" title="interface in com.google.android.exoplayer2.util"><code>MediaClock</code></a> whose position advances with real time based on the playback parameters when
  started.</div>
 </li>
@@ -160,6 +166,7 @@ implements <a href="MediaClock.html" title="interface in com.google.android.exop
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.util.Clock)">StandaloneMediaClock</a></span>&#8203;(<a href="Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new standalone media clock using the given <a href="Clock.html" title="interface in com.google.android.exoplayer2.util"><code>Clock</code></a> implementation.</div>
 </td>
 </tr>
@@ -175,7 +182,7 @@ implements <a href="MediaClock.html" title="interface in com.google.android.exop
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -185,6 +192,7 @@ implements <a href="MediaClock.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPlaybackParameters()">getPlaybackParameters</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the active playback parameters.</div>
 </td>
 </tr>
@@ -192,6 +200,7 @@ implements <a href="MediaClock.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPositionUs()">getPositionUs</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current media position in microseconds.</div>
 </td>
 </tr>
@@ -199,6 +208,7 @@ implements <a href="MediaClock.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#resetPosition(long)">resetPosition</a></span>&#8203;(long&nbsp;positionUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Resets the clock's position.</div>
 </td>
 </tr>
@@ -206,6 +216,7 @@ implements <a href="MediaClock.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)">setPlaybackParameters</a></span>&#8203;(<a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Attempts to set the playback parameters.</div>
 </td>
 </tr>
@@ -213,6 +224,7 @@ implements <a href="MediaClock.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#start()">start</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts the clock.</div>
 </td>
 </tr>
@@ -220,6 +232,7 @@ implements <a href="MediaClock.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#stop()">stop</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Stops the clock.</div>
 </td>
 </tr>
@@ -254,6 +267,7 @@ implements <a href="MediaClock.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>StandaloneMediaClock</h4>
 <pre>public&nbsp;StandaloneMediaClock&#8203;(<a href="Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new standalone media clock using the given <a href="Clock.html" title="interface in com.google.android.exoplayer2.util"><code>Clock</code></a> implementation.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -278,6 +292,7 @@ implements <a href="MediaClock.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>start</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;start()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts the clock. Does nothing if the clock is already started.</div>
 </li>
 </ul>
@@ -288,6 +303,7 @@ implements <a href="MediaClock.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>stop</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;stop()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Stops the clock. Does nothing if the clock is already stopped.</div>
 </li>
 </ul>
@@ -298,6 +314,7 @@ implements <a href="MediaClock.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>resetPosition</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;resetPosition&#8203;(long&nbsp;positionUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Resets the clock's position.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -312,6 +329,7 @@ implements <a href="MediaClock.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>getPositionUs</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getPositionUs()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaClock.html#getPositionUs()">MediaClock</a></code></span></div>
 <div class="block">Returns the current media position in microseconds.</div>
 <dl>
@@ -327,6 +345,7 @@ implements <a href="MediaClock.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>setPlaybackParameters</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setPlaybackParameters&#8203;(<a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaClock.html#setPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)">MediaClock</a></code></span></div>
 <div class="block">Attempts to set the playback parameters. The media clock may override the speed if changing the
  playback parameters is not supported.</div>
@@ -345,6 +364,7 @@ implements <a href="MediaClock.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>getPlaybackParameters</h4>
 <pre class="methodSignature">public&nbsp;<a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;getPlaybackParameters()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaClock.html#getPlaybackParameters()">MediaClock</a></code></span></div>
 <div class="block">Returns the active playback parameters.</div>
 <dl>

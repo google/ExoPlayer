@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":41,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -148,8 +148,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="https://developer.android.com/reference/android/graphics/drawable/Drawable.Callback.html" title="class or interface in android.graphics.drawable" class="externalLink">Drawable.Callback</a></code>, <code><a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityEventSource.html?is-external=true" title="class or interface in android.view.accessibility" class="externalLink">AccessibilityEventSource</a></code>, <code><a href="https://developer.android.com/reference/android/view/KeyEvent.Callback.html?is-external=true" title="class or interface in android.view" class="externalLink">KeyEvent.Callback</a></code>, <code><a href="https://developer.android.com/reference/android/view/ViewManager.html?is-external=true" title="class or interface in android.view" class="externalLink">ViewManager</a></code>, <code><a href="https://developer.android.com/reference/android/view/ViewParent.html?is-external=true" title="class or interface in android.view" class="externalLink" target="_top">ViewParent</a></code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">TrackSelectionView</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">TrackSelectionView</span>
 extends <a href="https://developer.android.com/reference/android/widget/LinearLayout.html" title="class or interface in android.widget" class="externalLink" target="_top">LinearLayout</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A view for making track selections.</div>
 </li>
 </ul>
@@ -175,6 +181,7 @@ extends <a href="https://developer.android.com/reference/android/widget/LinearLa
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="TrackSelectionView.TrackSelectionListener.html" title="interface in com.google.android.exoplayer2.ui">TrackSelectionView.TrackSelectionListener</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Listener for changes to the selected tracks.</div>
 </td>
 </tr>
@@ -250,6 +257,7 @@ extends <a href="https://developer.android.com/reference/android/widget/LinearLa
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context)">TrackSelectionView</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a track selection view.</div>
 </td>
 </tr>
@@ -257,6 +265,7 @@ extends <a href="https://developer.android.com/reference/android/widget/LinearLa
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,android.util.AttributeSet)">TrackSelectionView</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                   <a href="https://developer.android.com/reference/android/util/AttributeSet.html" title="class or interface in android.util" class="externalLink" target="_top">AttributeSet</a>&nbsp;attrs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a track selection view.</div>
 </td>
 </tr>
@@ -265,6 +274,7 @@ extends <a href="https://developer.android.com/reference/android/widget/LinearLa
                   <a href="https://developer.android.com/reference/android/util/AttributeSet.html" title="class or interface in android.util" class="externalLink" target="_top">AttributeSet</a>&nbsp;attrs,
                   int&nbsp;defStyleAttr)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a track selection view.</div>
 </td>
 </tr>
@@ -280,7 +290,7 @@ extends <a href="https://developer.android.com/reference/android/widget/LinearLa
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -292,6 +302,7 @@ extends <a href="https://developer.android.com/reference/android/widget/LinearLa
                <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../Tracks.Group.html" title="class in com.google.android.exoplayer2" target="_top">Tracks.Group</a>&gt;&nbsp;trackGroups,
                boolean&nbsp;allowMultipleOverrides)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the subset of <code>overrides</code> that apply to the specified <code>trackGroups</code>.</div>
 </td>
 </tr>
@@ -299,6 +310,7 @@ extends <a href="https://developer.android.com/reference/android/widget/LinearLa
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getIsDisabled()">getIsDisabled</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the disabled option is selected.</div>
 </td>
 </tr>
@@ -306,6 +318,7 @@ extends <a href="https://developer.android.com/reference/android/widget/LinearLa
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>,&#8203;<a href="../trackselection/TrackSelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection" target="_top">TrackSelectionOverride</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getOverrides()">getOverrides</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the selected track overrides.</div>
 </td>
 </tr>
@@ -317,6 +330,7 @@ extends <a href="https://developer.android.com/reference/android/widget/LinearLa
     <a href="https://developer.android.com/reference/java/util/Comparator.html" title="class or interface in java.util" class="externalLink">Comparator</a>&lt;<a href="../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;trackFormatComparator,
     <a href="TrackSelectionView.TrackSelectionListener.html" title="interface in com.google.android.exoplayer2.ui">TrackSelectionView.TrackSelectionListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Initialize the view to select tracks from a specified list of track groups.</div>
 </td>
 </tr>
@@ -324,6 +338,7 @@ extends <a href="https://developer.android.com/reference/android/widget/LinearLa
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAllowAdaptiveSelections(boolean)">setAllowAdaptiveSelections</a></span>&#8203;(boolean&nbsp;allowAdaptiveSelections)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether adaptive selections (consisting of more than one track) can be made using this
  selection view.</div>
 </td>
@@ -332,6 +347,7 @@ extends <a href="https://developer.android.com/reference/android/widget/LinearLa
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAllowMultipleOverrides(boolean)">setAllowMultipleOverrides</a></span>&#8203;(boolean&nbsp;allowMultipleOverrides)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether tracks from multiple track groups can be selected.</div>
 </td>
 </tr>
@@ -339,6 +355,7 @@ extends <a href="https://developer.android.com/reference/android/widget/LinearLa
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowDisableOption(boolean)">setShowDisableOption</a></span>&#8203;(boolean&nbsp;showDisableOption)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the disabled option can be selected.</div>
 </td>
 </tr>
@@ -346,6 +363,7 @@ extends <a href="https://developer.android.com/reference/android/widget/LinearLa
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTrackNameProvider(com.google.android.exoplayer2.ui.TrackNameProvider)">setTrackNameProvider</a></span>&#8203;(<a href="TrackNameProvider.html" title="interface in com.google.android.exoplayer2.ui">TrackNameProvider</a>&nbsp;trackNameProvider)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="TrackNameProvider.html" title="interface in com.google.android.exoplayer2.ui"><code>TrackNameProvider</code></a> used to generate the user visible name of each track and
  updates the view with track names queried from the specified provider.</div>
 </td>
@@ -409,6 +427,7 @@ extends <a href="https://developer.android.com/reference/android/widget/LinearLa
 <li class="blockList">
 <h4>TrackSelectionView</h4>
 <pre>public&nbsp;TrackSelectionView&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a track selection view.</div>
 </li>
 </ul>
@@ -421,6 +440,7 @@ extends <a href="https://developer.android.com/reference/android/widget/LinearLa
 <pre>public&nbsp;TrackSelectionView&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                           @Nullable
                           <a href="https://developer.android.com/reference/android/util/AttributeSet.html" title="class or interface in android.util" class="externalLink" target="_top">AttributeSet</a>&nbsp;attrs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a track selection view.</div>
 </li>
 </ul>
@@ -435,6 +455,7 @@ extends <a href="https://developer.android.com/reference/android/widget/LinearLa
                           <a href="https://developer.android.com/reference/android/util/AttributeSet.html" title="class or interface in android.util" class="externalLink" target="_top">AttributeSet</a>&nbsp;attrs,
                           @AttrRes
                           int&nbsp;defStyleAttr)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a track selection view.</div>
 </li>
 </ul>
@@ -457,6 +478,7 @@ extends <a href="https://developer.android.com/reference/android/widget/LinearLa
 <pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>,&#8203;<a href="../trackselection/TrackSelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionOverride</a>&gt;&nbsp;filterOverrides&#8203;(<a href="https://developer.android.com/reference/java/util/Map.html?is-external=true" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>,&#8203;<a href="../trackselection/TrackSelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection" target="_top">TrackSelectionOverride</a>&gt;&nbsp;overrides,
                                                                            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../Tracks.Group.html" title="class in com.google.android.exoplayer2" target="_top">Tracks.Group</a>&gt;&nbsp;trackGroups,
                                                                            boolean&nbsp;allowMultipleOverrides)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the subset of <code>overrides</code> that apply to the specified <code>trackGroups</code>. If
  <code>allowMultipleOverrides</code> is  then at most one override is retained, which will be
  the one whose track group is first in <code>trackGroups</code>.</div>
@@ -477,6 +499,7 @@ extends <a href="https://developer.android.com/reference/android/widget/LinearLa
 <li class="blockList">
 <h4>setAllowAdaptiveSelections</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setAllowAdaptiveSelections&#8203;(boolean&nbsp;allowAdaptiveSelections)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether adaptive selections (consisting of more than one track) can be made using this
  selection view.
 
@@ -495,6 +518,7 @@ extends <a href="https://developer.android.com/reference/android/widget/LinearLa
 <li class="blockList">
 <h4>setAllowMultipleOverrides</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setAllowMultipleOverrides&#8203;(boolean&nbsp;allowMultipleOverrides)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether tracks from multiple track groups can be selected. This results in multiple <a href="../trackselection/TrackSelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelectionOverrides</code></a> being returned by <a href="#getOverrides()"><code>getOverrides()</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -509,6 +533,7 @@ extends <a href="https://developer.android.com/reference/android/widget/LinearLa
 <li class="blockList">
 <h4>setShowDisableOption</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setShowDisableOption&#8203;(boolean&nbsp;showDisableOption)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the disabled option can be selected.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -523,6 +548,7 @@ extends <a href="https://developer.android.com/reference/android/widget/LinearLa
 <li class="blockList">
 <h4>setTrackNameProvider</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setTrackNameProvider&#8203;(<a href="TrackNameProvider.html" title="interface in com.google.android.exoplayer2.ui">TrackNameProvider</a>&nbsp;trackNameProvider)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="TrackNameProvider.html" title="interface in com.google.android.exoplayer2.ui"><code>TrackNameProvider</code></a> used to generate the user visible name of each track and
  updates the view with track names queried from the specified provider.</div>
 <dl>
@@ -544,6 +570,7 @@ extends <a href="https://developer.android.com/reference/android/widget/LinearLa
                  <a href="https://developer.android.com/reference/java/util/Comparator.html" title="class or interface in java.util" class="externalLink">Comparator</a>&lt;<a href="../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;trackFormatComparator,
                  @Nullable
                  <a href="TrackSelectionView.TrackSelectionListener.html" title="interface in com.google.android.exoplayer2.ui">TrackSelectionView.TrackSelectionListener</a>&nbsp;listener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Initialize the view to select tracks from a specified list of track groups.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -566,6 +593,7 @@ extends <a href="https://developer.android.com/reference/android/widget/LinearLa
 <li class="blockList">
 <h4>getIsDisabled</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;getIsDisabled()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the disabled option is selected.</div>
 </li>
 </ul>
@@ -576,6 +604,7 @@ extends <a href="https://developer.android.com/reference/android/widget/LinearLa
 <li class="blockList">
 <h4>getOverrides</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>,&#8203;<a href="../trackselection/TrackSelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection" target="_top">TrackSelectionOverride</a>&gt;&nbsp;getOverrides()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the selected track overrides.</div>
 </li>
 </ul>

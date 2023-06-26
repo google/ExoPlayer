@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var data = {"i0":38,"i1":38,"i2":38,"i3":38,"i4":38,"i5":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -130,8 +130,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 <hr>
 <pre>@WorkerThread
+<a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 public interface <span class="typeNameLabel">WritableDownloadIndex</span>
 extends <a href="DownloadIndex.html" title="interface in com.google.android.exoplayer2.offline">DownloadIndex</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A writable index of <a href="Download.html" title="class in com.google.android.exoplayer2.offline"><code>Downloads</code></a>.</div>
 </li>
 </ul>
@@ -147,7 +153,7 @@ extends <a href="DownloadIndex.html" title="interface in com.google.android.exop
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -157,6 +163,7 @@ extends <a href="DownloadIndex.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#putDownload(com.google.android.exoplayer2.offline.Download)">putDownload</a></span>&#8203;(<a href="Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;download)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds or replaces a <a href="Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a>.</div>
 </td>
 </tr>
@@ -164,6 +171,7 @@ extends <a href="DownloadIndex.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeDownload(java.lang.String)">removeDownload</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Removes the download with the given ID.</div>
 </td>
 </tr>
@@ -171,6 +179,7 @@ extends <a href="DownloadIndex.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDownloadingStatesToQueued()">setDownloadingStatesToQueued</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets all <a href="Download.html#STATE_DOWNLOADING"><code>Download.STATE_DOWNLOADING</code></a> states to <a href="Download.html#STATE_QUEUED"><code>Download.STATE_QUEUED</code></a>.</div>
 </td>
 </tr>
@@ -178,6 +187,7 @@ extends <a href="DownloadIndex.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setStatesToRemoving()">setStatesToRemoving</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets all states to <a href="Download.html#STATE_REMOVING"><code>Download.STATE_REMOVING</code></a>.</div>
 </td>
 </tr>
@@ -185,6 +195,7 @@ extends <a href="DownloadIndex.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setStopReason(int)">setStopReason</a></span>&#8203;(int&nbsp;stopReason)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the stop reason of the downloads in a terminal state (<a href="Download.html#STATE_COMPLETED"><code>Download.STATE_COMPLETED</code></a>,
  <a href="Download.html#STATE_FAILED"><code>Download.STATE_FAILED</code></a>).</div>
 </td>
@@ -194,6 +205,7 @@ extends <a href="DownloadIndex.html" title="interface in com.google.android.exop
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setStopReason(java.lang.String,int)">setStopReason</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
              int&nbsp;stopReason)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the stop reason of the download with the given ID in a terminal state (<a href="Download.html#STATE_COMPLETED"><code>Download.STATE_COMPLETED</code></a>, <a href="Download.html#STATE_FAILED"><code>Download.STATE_FAILED</code></a>).</div>
 </td>
 </tr>
@@ -229,6 +241,7 @@ extends <a href="DownloadIndex.html" title="interface in com.google.android.exop
 <h4>putDownload</h4>
 <pre class="methodSignature">void&nbsp;putDownload&#8203;(<a href="Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;download)
           throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds or replaces a <a href="Download.html" title="class in com.google.android.exoplayer2.offline"><code>Download</code></a>.
 
  <p>This method may be slow and shouldn't normally be called on the main thread.</div>
@@ -248,6 +261,7 @@ extends <a href="DownloadIndex.html" title="interface in com.google.android.exop
 <h4>removeDownload</h4>
 <pre class="methodSignature">void&nbsp;removeDownload&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id)
              throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Removes the download with the given ID. Does nothing if a download with the given ID does not
  exist.
 
@@ -268,6 +282,7 @@ extends <a href="DownloadIndex.html" title="interface in com.google.android.exop
 <h4>setDownloadingStatesToQueued</h4>
 <pre class="methodSignature">void&nbsp;setDownloadingStatesToQueued()
                            throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets all <a href="Download.html#STATE_DOWNLOADING"><code>Download.STATE_DOWNLOADING</code></a> states to <a href="Download.html#STATE_QUEUED"><code>Download.STATE_QUEUED</code></a>.
 
  <p>This method may be slow and shouldn't normally be called on the main thread.</div>
@@ -285,6 +300,7 @@ extends <a href="DownloadIndex.html" title="interface in com.google.android.exop
 <h4>setStatesToRemoving</h4>
 <pre class="methodSignature">void&nbsp;setStatesToRemoving()
                   throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets all states to <a href="Download.html#STATE_REMOVING"><code>Download.STATE_REMOVING</code></a>.
 
  <p>This method may be slow and shouldn't normally be called on the main thread.</div>
@@ -302,6 +318,7 @@ extends <a href="DownloadIndex.html" title="interface in com.google.android.exop
 <h4>setStopReason</h4>
 <pre class="methodSignature">void&nbsp;setStopReason&#8203;(int&nbsp;stopReason)
             throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the stop reason of the downloads in a terminal state (<a href="Download.html#STATE_COMPLETED"><code>Download.STATE_COMPLETED</code></a>,
  <a href="Download.html#STATE_FAILED"><code>Download.STATE_FAILED</code></a>).
 
@@ -323,6 +340,7 @@ extends <a href="DownloadIndex.html" title="interface in com.google.android.exop
 <pre class="methodSignature">void&nbsp;setStopReason&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
                    int&nbsp;stopReason)
             throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the stop reason of the download with the given ID in a terminal state (<a href="Download.html#STATE_COMPLETED"><code>Download.STATE_COMPLETED</code></a>, <a href="Download.html#STATE_FAILED"><code>Download.STATE_FAILED</code></a>). Does nothing if a download with the
  given ID does not exist, or if it's not in a terminal state.
 

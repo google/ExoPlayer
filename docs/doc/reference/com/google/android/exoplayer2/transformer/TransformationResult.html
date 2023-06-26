@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,9 +129,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">TransformationResult</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">TransformationResult</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
-<div class="block">Information about the result of a successful transformation.</div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExportResult.html" title="class in com.google.android.exoplayer2.transformer"><code>ExportResult</code></a> instead.</div>
+</div>
 </li>
 </ul>
 </div>
@@ -156,7 +159,18 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a></span></code></th>
 <td class="colLast">
-<div class="block">A builder for <a href="TransformationResult.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationResult</code></a> instances.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExportResult.Builder.html" title="class in com.google.android.exoplayer2.transformer"><code>ExportResult.Builder</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="TransformationResult.ProcessedInput.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.ProcessedInput</a></span></code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="ExportResult.ProcessedInput.html" title="class in com.google.android.exoplayer2.transformer"><code>ExportResult.ProcessedInput</code></a> instead.</div>
+</div>
 </td>
 </tr>
 </table>
@@ -178,38 +192,116 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#averageAudioBitrate">averageAudioBitrate</a></span></code></th>
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#audioEncoderName">audioEncoderName</a></span></code></th>
 <td class="colLast">
-<div class="block">The average bitrate of the audio track data, or <a href="../C.html#RATE_UNSET_INT"><code>C.RATE_UNSET_INT</code></a> if unset or unknown.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">The name of the audio encoder used, or <code>null</code> if none were used.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#averageAudioBitrate">averageAudioBitrate</a></span></code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">The average bitrate of the audio track data, or <a href="../C.html#RATE_UNSET_INT"><code>C.RATE_UNSET_INT</code></a> if unset or unknown.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#averageVideoBitrate">averageVideoBitrate</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The average bitrate of the video track data, or <a href="../C.html#RATE_UNSET_INT"><code>C.RATE_UNSET_INT</code></a> if unset or unknown.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#channelCount">channelCount</a></span></code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">The channel count of the audio, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if unset or unknown.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="../video/ColorInfo.html" title="class in com.google.android.exoplayer2.video">ColorInfo</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#colorInfo">colorInfo</a></span></code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">The <a href="../video/ColorInfo.html" title="class in com.google.android.exoplayer2.video"><code>ColorInfo</code></a> of the video, or <code>null</code> if unset or unknown.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#durationMs">durationMs</a></span></code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">The duration of the file in milliseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if unset or unknown.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#durationMs">durationMs</a></span></code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fileSizeBytes">fileSizeBytes</a></span></code></th>
 <td class="colLast">
-<div class="block">The duration of the file in milliseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if unset or unknown.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">The size of the file in bytes, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if unset or unknown.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>long</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fileSizeBytes">fileSizeBytes</a></span></code></th>
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#height">height</a></span></code></th>
 <td class="colLast">
-<div class="block">The size of the file in bytes, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if unset or unknown.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">The height of the video, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if unset or unknown.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="TransformationResult.ProcessedInput.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.ProcessedInput</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#processedInputs">processedInputs</a></span></code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">The list of <a href="TransformationResult.ProcessedInput.html" title="class in com.google.android.exoplayer2.transformer">processed inputs</a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sampleRate">sampleRate</a></span></code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">The sample rate of the audio, or <a href="../C.html#RATE_UNSET_INT"><code>C.RATE_UNSET_INT</code></a> if unset or unknown.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code><a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#transformationException">transformationException</a></span></code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">The <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationException</code></a> that caused the transformation to fail, or <code>null</code> if
+ the transformation was a success.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#videoEncoderName">videoEncoderName</a></span></code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">The name of the video encoder used, or <code>null</code> if none were used.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#videoFrameCount">videoFrameCount</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of video frames.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#width">width</a></span></code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">The width of the video, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if unset or unknown.</div>
 </td>
 </tr>
 </table>
@@ -224,7 +316,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -233,17 +325,23 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildUpon()">buildUpon</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;o)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -269,6 +367,17 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Field Detail</h3>
+<a id="processedInputs">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>processedInputs</h4>
+<pre>public final&nbsp;<a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="TransformationResult.ProcessedInput.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.ProcessedInput</a>&gt; processedInputs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">The list of <a href="TransformationResult.ProcessedInput.html" title="class in com.google.android.exoplayer2.transformer">processed inputs</a>.</div>
+</li>
+</ul>
 <a id="durationMs">
 <!--   -->
 </a>
@@ -276,6 +385,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>durationMs</h4>
 <pre>public final&nbsp;long durationMs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The duration of the file in milliseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if unset or unknown.</div>
 </li>
 </ul>
@@ -286,6 +396,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>fileSizeBytes</h4>
 <pre>public final&nbsp;long fileSizeBytes</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The size of the file in bytes, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if unset or unknown.</div>
 </li>
 </ul>
@@ -296,7 +407,42 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>averageAudioBitrate</h4>
 <pre>public final&nbsp;int averageAudioBitrate</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The average bitrate of the audio track data, or <a href="../C.html#RATE_UNSET_INT"><code>C.RATE_UNSET_INT</code></a> if unset or unknown.</div>
+</li>
+</ul>
+<a id="channelCount">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>channelCount</h4>
+<pre>public final&nbsp;int channelCount</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">The channel count of the audio, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if unset or unknown.</div>
+</li>
+</ul>
+<a id="sampleRate">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>sampleRate</h4>
+<pre>public final&nbsp;int sampleRate</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">The sample rate of the audio, or <a href="../C.html#RATE_UNSET_INT"><code>C.RATE_UNSET_INT</code></a> if unset or unknown.</div>
+</li>
+</ul>
+<a id="audioEncoderName">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>audioEncoderName</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> audioEncoderName</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">The name of the audio encoder used, or <code>null</code> if none were used.</div>
 </li>
 </ul>
 <a id="averageVideoBitrate">
@@ -306,17 +452,78 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>averageVideoBitrate</h4>
 <pre>public final&nbsp;int averageVideoBitrate</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The average bitrate of the video track data, or <a href="../C.html#RATE_UNSET_INT"><code>C.RATE_UNSET_INT</code></a> if unset or unknown.</div>
+</li>
+</ul>
+<a id="colorInfo">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>colorInfo</h4>
+<pre>@Nullable
+public final&nbsp;<a href="../video/ColorInfo.html" title="class in com.google.android.exoplayer2.video">ColorInfo</a> colorInfo</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">The <a href="../video/ColorInfo.html" title="class in com.google.android.exoplayer2.video"><code>ColorInfo</code></a> of the video, or <code>null</code> if unset or unknown.</div>
+</li>
+</ul>
+<a id="height">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>height</h4>
+<pre>public final&nbsp;int height</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">The height of the video, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if unset or unknown.</div>
+</li>
+</ul>
+<a id="width">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>width</h4>
+<pre>public final&nbsp;int width</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">The width of the video, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if unset or unknown.</div>
 </li>
 </ul>
 <a id="videoFrameCount">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>videoFrameCount</h4>
 <pre>public final&nbsp;int videoFrameCount</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of video frames.</div>
+</li>
+</ul>
+<a id="videoEncoderName">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>videoEncoderName</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> videoEncoderName</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">The name of the video encoder used, or <code>null</code> if none were used.</div>
+</li>
+</ul>
+<a id="transformationException">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>transformationException</h4>
+<pre>@Nullable
+public final&nbsp;<a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a> transformationException</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">The <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationException</code></a> that caused the transformation to fail, or <code>null</code> if
+ the transformation was a success.</div>
 </li>
 </ul>
 </li>
@@ -336,6 +543,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>buildUpon</h4>
 <pre class="methodSignature">public&nbsp;<a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a>&nbsp;buildUpon()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="equals(java.lang.Object)">
@@ -346,6 +554,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>equals</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;equals&#8203;(@Nullable
                       <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;o)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
@@ -359,6 +568,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>hashCode</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;hashCode()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>

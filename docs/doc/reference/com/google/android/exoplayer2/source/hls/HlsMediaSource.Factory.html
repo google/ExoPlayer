@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -231,13 +231,21 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setCmcdConfigurationFactory(com.google.android.exoplayer2.upstream.CmcdConfiguration.Factory)">setCmcdConfigurationFactory</a></span>&#8203;(<a href="../../upstream/CmcdConfiguration.Factory.html" title="interface in com.google.android.exoplayer2.upstream">CmcdConfiguration.Factory</a>&nbsp;cmcdConfigurationFactory)</code></th>
+<td class="colLast">
+<div class="block">Sets the <a href="../../upstream/CmcdConfiguration.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>CmcdConfiguration.Factory</code></a> used to obtain a <a href="../../upstream/CmcdConfiguration.html" title="class in com.google.android.exoplayer2.upstream"><code>CmcdConfiguration</code></a> for a
+ <a href="../../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code><a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setCompositeSequenceableLoaderFactory(com.google.android.exoplayer2.source.CompositeSequenceableLoaderFactory)">setCompositeSequenceableLoaderFactory</a></span>&#8203;(<a href="../CompositeSequenceableLoaderFactory.html" title="interface in com.google.android.exoplayer2.source">CompositeSequenceableLoaderFactory</a>&nbsp;compositeSequenceableLoaderFactory)</code></th>
 <td class="colLast">
 <div class="block">Sets the factory to create composite <a href="../SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source"><code>SequenceableLoader</code></a>s for when this media source
  loads data from multiple streams (video, audio etc...).</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmSessionManagerProvider(com.google.android.exoplayer2.drm.DrmSessionManagerProvider)">setDrmSessionManagerProvider</a></span>&#8203;(<a href="../../drm/DrmSessionManagerProvider.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManagerProvider</a>&nbsp;drmSessionManagerProvider)</code></th>
 <td class="colLast">
@@ -245,42 +253,50 @@ implements <a href="../MediaSourceFactory.html" title="interface in com.google.a
  <a href="../../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setExtractorFactory(com.google.android.exoplayer2.source.hls.HlsExtractorFactory)">setExtractorFactory</a></span>&#8203;(<a href="HlsExtractorFactory.html" title="interface in com.google.android.exoplayer2.source.hls">HlsExtractorFactory</a>&nbsp;extractorFactory)</code></th>
 <td class="colLast">
 <div class="block">Sets the factory for <a href="../../extractor/Extractor.html" title="interface in com.google.android.exoplayer2.extractor"><code>Extractor</code></a>s for the segments.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLoadErrorHandlingPolicy(com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">setLoadErrorHandlingPolicy</a></span>&#8203;(<a href="../../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</code></th>
 <td class="colLast">
 <div class="block">Sets an optional <a href="../../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy</code></a>.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMetadataType(@com.google.android.exoplayer2.source.hls.HlsMediaSource.MetadataTypeint)">setMetadataType</a></span>&#8203;(@com.google.android.exoplayer2.source.hls.HlsMediaSource.MetadataType int&nbsp;metadataType)</code></th>
 <td class="colLast">
 <div class="block">Sets the type of metadata to extract from the HLS source (defaults to <a href="HlsMediaSource.html#METADATA_TYPE_ID3"><code>HlsMediaSource.METADATA_TYPE_ID3</code></a>).</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlaylistParserFactory(com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParserFactory)">setPlaylistParserFactory</a></span>&#8203;(<a href="playlist/HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistParserFactory</a>&nbsp;playlistParserFactory)</code></th>
 <td class="colLast">
 <div class="block">Sets the factory from which playlist parsers will be obtained.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code><a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlaylistTrackerFactory(com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.Factory)">setPlaylistTrackerFactory</a></span>&#8203;(<a href="playlist/HlsPlaylistTracker.Factory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.Factory</a>&nbsp;playlistTrackerFactory)</code></th>
 <td class="colLast">
 <div class="block">Sets the <a href="playlist/HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist"><code>HlsPlaylistTracker</code></a> factory.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code><a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTimestampAdjusterInitializationTimeoutMs(long)">setTimestampAdjusterInitializationTimeoutMs</a></span>&#8203;(long&nbsp;timestampAdjusterInitializationTimeoutMs)</code></th>
+<td class="colLast">
+<div class="block">Sets the timeout for the loading thread to wait for the timestamp adjuster to initialize, in
+ milliseconds.The default value is zero, which is interpreted as an infinite timeout.</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
 <td class="colFirst"><code><a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUseSessionKeys(boolean)">setUseSessionKeys</a></span>&#8203;(boolean&nbsp;useSessionKeys)</code></th>
 <td class="colLast">
@@ -531,6 +547,25 @@ public&nbsp;<a href="HlsMediaSource.Factory.html" title="class in com.google.and
 </dl>
 </li>
 </ul>
+<a id="setCmcdConfigurationFactory(com.google.android.exoplayer2.upstream.CmcdConfiguration.Factory)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setCmcdConfigurationFactory</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a>&nbsp;setCmcdConfigurationFactory&#8203;(<a href="../../upstream/CmcdConfiguration.Factory.html" title="interface in com.google.android.exoplayer2.upstream">CmcdConfiguration.Factory</a>&nbsp;cmcdConfigurationFactory)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../MediaSource.Factory.html#setCmcdConfigurationFactory(com.google.android.exoplayer2.upstream.CmcdConfiguration.Factory)">MediaSource.Factory</a></code></span></div>
+<div class="block">Sets the <a href="../../upstream/CmcdConfiguration.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>CmcdConfiguration.Factory</code></a> used to obtain a <a href="../../upstream/CmcdConfiguration.html" title="class in com.google.android.exoplayer2.upstream"><code>CmcdConfiguration</code></a> for a
+ <a href="../../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../MediaSource.Factory.html#setCmcdConfigurationFactory(com.google.android.exoplayer2.upstream.CmcdConfiguration.Factory)">setCmcdConfigurationFactory</a></code>&nbsp;in interface&nbsp;<code><a href="../MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Factory</a></code></dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This factory, for convenience.</dd>
+</dl>
+</li>
+</ul>
 <a id="setDrmSessionManagerProvider(com.google.android.exoplayer2.drm.DrmSessionManagerProvider)">
 <!--   -->
 </a>
@@ -545,6 +580,25 @@ public&nbsp;<a href="HlsMediaSource.Factory.html" title="class in com.google.and
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../MediaSource.Factory.html#setDrmSessionManagerProvider(com.google.android.exoplayer2.drm.DrmSessionManagerProvider)">setDrmSessionManagerProvider</a></code>&nbsp;in interface&nbsp;<code><a href="../MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Factory</a></code></dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This factory, for convenience.</dd>
+</dl>
+</li>
+</ul>
+<a id="setTimestampAdjusterInitializationTimeoutMs(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setTimestampAdjusterInitializationTimeoutMs</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+public&nbsp;<a href="HlsMediaSource.Factory.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource.Factory</a>&nbsp;setTimestampAdjusterInitializationTimeoutMs&#8203;(long&nbsp;timestampAdjusterInitializationTimeoutMs)</pre>
+<div class="block">Sets the timeout for the loading thread to wait for the timestamp adjuster to initialize, in
+ milliseconds.The default value is zero, which is interpreted as an infinite timeout.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>timestampAdjusterInitializationTimeoutMs</code> - The timeout in milliseconds. A timeout of
+     zero is interpreted as an infinite timeout.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This factory, for convenience.</dd>
 </dl>

@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -147,8 +147,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
  <p>The figure below shows some of the information defined by a period, as well as how this
  information relates to a corresponding <a href="Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> in the timeline.
 
- <p style="align:center"><img src="doc-files/timeline-period.svg" alt="Information defined by a
- period"></div>
+ <p style="align:center"><img src="https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/doc-files/timeline-period.svg" alt="Information defined by a period"></div>
 </li>
 </ul>
 </div>
@@ -432,13 +431,20 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 </tr>
 <tr id="i20" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isLivePostrollPlaceholder(int)">isLivePostrollPlaceholder</a></span>&#8203;(int&nbsp;adGroupIndex)</code></th>
+<td class="colLast">
+<div class="block">Returns whether the ad group at the given ad group index is a live postroll placeholder.</div>
+</td>
+</tr>
+<tr id="i21" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isServerSideInsertedAdGroup(int)">isServerSideInsertedAdGroup</a></span>&#8203;(int&nbsp;adGroupIndex)</code></th>
 <td class="colLast">
 <div class="block">Returns whether the ad group at index <code>adGroupIndex</code> is server-side inserted and part
  of the content stream.</div>
 </td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code><a href="Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#set(java.lang.Object,java.lang.Object,int,long,long)">set</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;id,
    <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;uid,
@@ -449,7 +455,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <div class="block">Sets the data held by this period.</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code><a href="Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#set(java.lang.Object,java.lang.Object,int,long,long,com.google.android.exoplayer2.source.ads.AdPlaybackState,boolean)">set</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;id,
    <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;uid,
@@ -462,7 +468,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <div class="block">Sets the data held by this period.</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundle()">toBundle</a></span>()</code></th>
 <td class="colLast">
@@ -910,6 +916,22 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The state of the ad, or <a href="source/ads/AdPlaybackState.html#AD_STATE_UNAVAILABLE"><code>AdPlaybackState.AD_STATE_UNAVAILABLE</code></a> if not yet
      known.</dd>
+</dl>
+</li>
+</ul>
+<a id="isLivePostrollPlaceholder(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isLivePostrollPlaceholder</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isLivePostrollPlaceholder&#8203;(int&nbsp;adGroupIndex)</pre>
+<div class="block">Returns whether the ad group at the given ad group index is a live postroll placeholder.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>adGroupIndex</code> - The ad group index.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>True if the ad group at the given index is a live postroll placeholder.</dd>
 </dl>
 </li>
 </ul>

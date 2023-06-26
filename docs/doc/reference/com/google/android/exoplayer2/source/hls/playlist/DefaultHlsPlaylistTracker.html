@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42,"i12":42,"i13":42,"i14":42,"i15":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a></code>, <code><a href="../../../upstream/Loader.Callback.html" title="interface in com.google.android.exoplayer2.upstream">Loader.Callback</a>&lt;<a href="../../../upstream/ParsingLoadable.html" title="class in com.google.android.exoplayer2.upstream">ParsingLoadable</a>&lt;<a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&gt;&gt;</code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">DefaultHlsPlaylistTracker</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">DefaultHlsPlaylistTracker</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker</a>, <a href="../../../upstream/Loader.Callback.html" title="interface in com.google.android.exoplayer2.upstream">Loader.Callback</a>&lt;<a href="../../../upstream/ParsingLoadable.html" title="class in com.google.android.exoplayer2.upstream">ParsingLoadable</a>&lt;<a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&gt;&gt;</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Default implementation for <a href="HlsPlaylistTracker.html" title="interface in com.google.android.exoplayer2.source.hls.playlist"><code>HlsPlaylistTracker</code></a>.</div>
 </li>
 </ul>
@@ -178,6 +184,7 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
 <td class="colFirst"><code>static double</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_PLAYLIST_STUCK_TARGET_DURATION_COEFFICIENT">DEFAULT_PLAYLIST_STUCK_TARGET_DURATION_COEFFICIENT</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default coefficient applied on the target duration of a playlist to determine the amount of
  time after which an unchanging playlist is considered stuck.</div>
 </td>
@@ -186,6 +193,7 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
 <td class="colFirst"><code>static <a href="HlsPlaylistTracker.Factory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FACTORY">FACTORY</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Factory for <a href="DefaultHlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>DefaultHlsPlaylistTracker</code></a> instances.</div>
 </td>
 </tr>
@@ -211,6 +219,7 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
                          <a href="../../../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy,
                          <a href="HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistParserFactory</a>&nbsp;playlistParserFactory)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance.</div>
 </td>
 </tr>
@@ -220,6 +229,7 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
                          <a href="HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistParserFactory</a>&nbsp;playlistParserFactory,
                          double&nbsp;playlistStuckTargetDurationCoefficient)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance.</div>
 </td>
 </tr>
@@ -235,7 +245,7 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -245,6 +255,7 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addListener(com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PlaylistEventListener)">addListener</a></span>&#8203;(<a href="HlsPlaylistTracker.PlaylistEventListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PlaylistEventListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Registers a listener to receive events from the playlist tracker.</div>
 </td>
 </tr>
@@ -253,6 +264,7 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#excludeMediaPlaylist(android.net.Uri,long)">excludeMediaPlaylist</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;playlistUrl,
                     long&nbsp;exclusionDurationMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Excludes the given media playlist for the given duration, in milliseconds.</div>
 </td>
 </tr>
@@ -260,6 +272,7 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getInitialStartTimeUs()">getInitialStartTimeUs</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the start time of the first loaded primary playlist, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no
  media playlist has been loaded.</div>
 </td>
@@ -268,6 +281,7 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
 <td class="colFirst"><code><a href="HlsMultivariantPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMultivariantPlaylist</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMultivariantPlaylist()">getMultivariantPlaylist</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the multivariant playlist.</div>
 </td>
 </tr>
@@ -276,6 +290,7 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPlaylistSnapshot(android.net.Uri,boolean)">getPlaylistSnapshot</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url,
                    boolean&nbsp;isForPlayback)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the most recent snapshot available of the playlist referenced by the provided <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a>.</div>
 </td>
 </tr>
@@ -283,6 +298,7 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isLive()">isLive</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the tracked playlists describe a live stream.</div>
 </td>
 </tr>
@@ -290,6 +306,7 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isSnapshotValid(android.net.Uri)">isSnapshotValid</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the snapshot of the playlist referenced by the provided <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a> is valid,
  meaning all the segments referenced by the playlist are expected to be available.</div>
 </td>
@@ -298,6 +315,7 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maybeThrowPlaylistRefreshError(android.net.Uri)">maybeThrowPlaylistRefreshError</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If the playlist is having trouble refreshing the playlist referenced by the given <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a>,
  this method throws the underlying error.</div>
 </td>
@@ -306,6 +324,7 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maybeThrowPrimaryPlaylistRefreshError()">maybeThrowPrimaryPlaylistRefreshError</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If the tracker is having trouble refreshing the multivariant playlist or the primary playlist,
  this method throws the underlying error.</div>
 </td>
@@ -317,6 +336,7 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
               long&nbsp;loadDurationMs,
               boolean&nbsp;released)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a load has been canceled.</div>
 </td>
 </tr>
@@ -326,6 +346,7 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
                long&nbsp;elapsedRealtimeMs,
                long&nbsp;loadDurationMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a load has completed.</div>
 </td>
 </tr>
@@ -337,6 +358,7 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
            <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;error,
            int&nbsp;errorCount)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a load encounters an error.</div>
 </td>
 </tr>
@@ -344,6 +366,7 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#refreshPlaylist(android.net.Uri)">refreshPlaylist</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Requests a playlist refresh and removes it from the exclusion list.</div>
 </td>
 </tr>
@@ -351,6 +374,7 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeListener(com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PlaylistEventListener)">removeListener</a></span>&#8203;(<a href="HlsPlaylistTracker.PlaylistEventListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PlaylistEventListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Unregisters a listener.</div>
 </td>
 </tr>
@@ -360,6 +384,7 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
      <a href="../../MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
      <a href="HlsPlaylistTracker.PrimaryPlaylistListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PrimaryPlaylistListener</a>&nbsp;primaryPlaylistListener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts the playlist tracker.</div>
 </td>
 </tr>
@@ -367,6 +392,7 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#stop()">stop</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Stops the playlist tracker and releases any acquired resources.</div>
 </td>
 </tr>
@@ -401,6 +427,7 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>FACTORY</h4>
 <pre>public static final&nbsp;<a href="HlsPlaylistTracker.Factory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.Factory</a> FACTORY</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Factory for <a href="DefaultHlsPlaylistTracker.html" title="class in com.google.android.exoplayer2.source.hls.playlist"><code>DefaultHlsPlaylistTracker</code></a> instances.</div>
 </li>
 </ul>
@@ -411,6 +438,7 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>DEFAULT_PLAYLIST_STUCK_TARGET_DURATION_COEFFICIENT</h4>
 <pre>public static final&nbsp;double DEFAULT_PLAYLIST_STUCK_TARGET_DURATION_COEFFICIENT</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default coefficient applied on the target duration of a playlist to determine the amount of
  time after which an unchanging playlist is considered stuck.</div>
 <dl>
@@ -438,6 +466,7 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
 <pre>public&nbsp;DefaultHlsPlaylistTracker&#8203;(<a href="../HlsDataSourceFactory.html" title="interface in com.google.android.exoplayer2.source.hls">HlsDataSourceFactory</a>&nbsp;dataSourceFactory,
                                  <a href="../../../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy,
                                  <a href="HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistParserFactory</a>&nbsp;playlistParserFactory)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -457,6 +486,7 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
                                  <a href="../../../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy,
                                  <a href="HlsPlaylistParserFactory.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistParserFactory</a>&nbsp;playlistParserFactory,
                                  double&nbsp;playlistStuckTargetDurationCoefficient)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -488,6 +518,7 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
 <pre class="methodSignature">public&nbsp;void&nbsp;start&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;initialPlaylistUri,
                   <a href="../../MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
                   <a href="HlsPlaylistTracker.PrimaryPlaylistListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PrimaryPlaylistListener</a>&nbsp;primaryPlaylistListener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="HlsPlaylistTracker.html#start(android.net.Uri,com.google.android.exoplayer2.source.MediaSourceEventListener.EventDispatcher,com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PrimaryPlaylistListener)">HlsPlaylistTracker</a></code></span></div>
 <div class="block">Starts the playlist tracker.
 
@@ -511,6 +542,7 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>stop</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;stop()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="HlsPlaylistTracker.html#stop()">HlsPlaylistTracker</a></code></span></div>
 <div class="block">Stops the playlist tracker and releases any acquired resources.
 
@@ -528,6 +560,7 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>addListener</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;addListener&#8203;(<a href="HlsPlaylistTracker.PlaylistEventListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PlaylistEventListener</a>&nbsp;listener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="HlsPlaylistTracker.html#addListener(com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PlaylistEventListener)">HlsPlaylistTracker</a></code></span></div>
 <div class="block">Registers a listener to receive events from the playlist tracker.</div>
 <dl>
@@ -545,6 +578,7 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>removeListener</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;removeListener&#8203;(<a href="HlsPlaylistTracker.PlaylistEventListener.html" title="interface in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylistTracker.PlaylistEventListener</a>&nbsp;listener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="HlsPlaylistTracker.html#removeListener(com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker.PlaylistEventListener)">HlsPlaylistTracker</a></code></span></div>
 <div class="block">Unregisters a listener.</div>
 <dl>
@@ -563,6 +597,7 @@ implements <a href="HlsPlaylistTracker.html" title="interface in com.google.andr
 <h4>getMultivariantPlaylist</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="HlsMultivariantPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMultivariantPlaylist</a>&nbsp;getMultivariantPlaylist()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="HlsPlaylistTracker.html#getMultivariantPlaylist()">HlsPlaylistTracker</a></code></span></div>
 <div class="block">Returns the multivariant playlist.
 
@@ -584,6 +619,7 @@ public&nbsp;<a href="HlsMultivariantPlaylist.html" title="class in com.google.an
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist</a>&nbsp;getPlaylistSnapshot&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url,
                                             boolean&nbsp;isForPlayback)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="HlsPlaylistTracker.html#getPlaylistSnapshot(android.net.Uri,boolean)">HlsPlaylistTracker</a></code></span></div>
 <div class="block">Returns the most recent snapshot available of the playlist referenced by the provided <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a>.</div>
 <dl>
@@ -606,6 +642,7 @@ public&nbsp;<a href="HlsMediaPlaylist.html" title="class in com.google.android.e
 <li class="blockList">
 <h4>getInitialStartTimeUs</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getInitialStartTimeUs()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="HlsPlaylistTracker.html#getInitialStartTimeUs()">HlsPlaylistTracker</a></code></span></div>
 <div class="block">Returns the start time of the first loaded primary playlist, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no
  media playlist has been loaded.</div>
@@ -622,6 +659,7 @@ public&nbsp;<a href="HlsMediaPlaylist.html" title="class in com.google.android.e
 <li class="blockList">
 <h4>isSnapshotValid</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isSnapshotValid&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="HlsPlaylistTracker.html#isSnapshotValid(android.net.Uri)">HlsPlaylistTracker</a></code></span></div>
 <div class="block">Returns whether the snapshot of the playlist referenced by the provided <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a> is valid,
  meaning all the segments referenced by the playlist are expected to be available. If the
@@ -644,6 +682,7 @@ public&nbsp;<a href="HlsMediaPlaylist.html" title="class in com.google.android.e
 <h4>maybeThrowPrimaryPlaylistRefreshError</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;maybeThrowPrimaryPlaylistRefreshError()
                                            throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="HlsPlaylistTracker.html#maybeThrowPrimaryPlaylistRefreshError()">HlsPlaylistTracker</a></code></span></div>
 <div class="block">If the tracker is having trouble refreshing the multivariant playlist or the primary playlist,
  this method throws the underlying error. Otherwise, does nothing.</div>
@@ -663,6 +702,7 @@ public&nbsp;<a href="HlsMediaPlaylist.html" title="class in com.google.android.e
 <h4>maybeThrowPlaylistRefreshError</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;maybeThrowPlaylistRefreshError&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url)
                                     throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="HlsPlaylistTracker.html#maybeThrowPlaylistRefreshError(android.net.Uri)">HlsPlaylistTracker</a></code></span></div>
 <div class="block">If the playlist is having trouble refreshing the playlist referenced by the given <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a>,
  this method throws the underlying error.</div>
@@ -683,6 +723,7 @@ public&nbsp;<a href="HlsMediaPlaylist.html" title="class in com.google.android.e
 <li class="blockList">
 <h4>refreshPlaylist</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;refreshPlaylist&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;url)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="HlsPlaylistTracker.html#refreshPlaylist(android.net.Uri)">HlsPlaylistTracker</a></code></span></div>
 <div class="block">Requests a playlist refresh and removes it from the exclusion list.
 
@@ -703,6 +744,7 @@ public&nbsp;<a href="HlsMediaPlaylist.html" title="class in com.google.android.e
 <li class="blockList">
 <h4>isLive</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isLive()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="HlsPlaylistTracker.html#isLive()">HlsPlaylistTracker</a></code></span></div>
 <div class="block">Returns whether the tracked playlists describe a live stream.</div>
 <dl>
@@ -721,6 +763,7 @@ public&nbsp;<a href="HlsMediaPlaylist.html" title="class in com.google.android.e
 <h4>excludeMediaPlaylist</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;excludeMediaPlaylist&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;playlistUrl,
                                     long&nbsp;exclusionDurationMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="HlsPlaylistTracker.html#excludeMediaPlaylist(android.net.Uri,long)">HlsPlaylistTracker</a></code></span></div>
 <div class="block">Excludes the given media playlist for the given duration, in milliseconds.</div>
 <dl>
@@ -743,6 +786,7 @@ public&nbsp;<a href="HlsMediaPlaylist.html" title="class in com.google.android.e
 <pre class="methodSignature">public&nbsp;void&nbsp;onLoadCompleted&#8203;(<a href="../../../upstream/ParsingLoadable.html" title="class in com.google.android.exoplayer2.upstream">ParsingLoadable</a>&lt;<a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&gt;&nbsp;loadable,
                             long&nbsp;elapsedRealtimeMs,
                             long&nbsp;loadDurationMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../upstream/Loader.Callback.html#onLoadCompleted(T,long,long)">Loader.Callback</a></code></span></div>
 <div class="block">Called when a load has completed.
 
@@ -769,6 +813,7 @@ public&nbsp;<a href="HlsMediaPlaylist.html" title="class in com.google.android.e
                            long&nbsp;elapsedRealtimeMs,
                            long&nbsp;loadDurationMs,
                            boolean&nbsp;released)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../upstream/Loader.Callback.html#onLoadCanceled(T,long,long,boolean)">Loader.Callback</a></code></span></div>
 <div class="block">Called when a load has been canceled.
 
@@ -799,6 +844,7 @@ public&nbsp;<a href="HlsMediaPlaylist.html" title="class in com.google.android.e
                                           long&nbsp;loadDurationMs,
                                           <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;error,
                                           int&nbsp;errorCount)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../upstream/Loader.Callback.html#onLoadError(T,long,long,java.io.IOException,int)">Loader.Callback</a></code></span></div>
 <div class="block">Called when a load encounters an error.
 

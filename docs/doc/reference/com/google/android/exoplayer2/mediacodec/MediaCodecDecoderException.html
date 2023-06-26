@@ -146,8 +146,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../video/MediaCodecVideoDecoderException.html" title="class in com.google.android.exoplayer2.video">MediaCodecVideoDecoderException</a></code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">MediaCodecDecoderException</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">MediaCodecDecoderException</span>
 extends <a href="../decoder/DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Thrown when a failure occurs in a <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> decoder.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -177,6 +183,7 @@ extends <a href="../decoder/DecoderException.html" title="class in com.google.an
 <td class="colFirst"><code><a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#codecInfo">codecInfo</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec"><code>MediaCodecInfo</code></a> of the decoder that failed.</div>
 </td>
 </tr>
@@ -184,6 +191,7 @@ extends <a href="../decoder/DecoderException.html" title="class in com.google.an
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#diagnosticInfo">diagnosticInfo</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">An optional developer-readable diagnostic information string.</div>
 </td>
 </tr>
@@ -207,7 +215,9 @@ extends <a href="../decoder/DecoderException.html" title="class in com.google.an
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.Throwable,com.google.android.exoplayer2.mediacodec.MediaCodecInfo)">MediaCodecDecoderException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
                           <a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;codecInfo)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -258,6 +268,7 @@ extends <a href="../decoder/DecoderException.html" title="class in com.google.an
 <h4>codecInfo</h4>
 <pre>@Nullable
 public final&nbsp;<a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a> codecInfo</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec"><code>MediaCodecInfo</code></a> of the decoder that failed. Null if unknown.</div>
 </li>
 </ul>
@@ -269,6 +280,7 @@ public final&nbsp;<a href="MediaCodecInfo.html" title="class in com.google.andro
 <h4>diagnosticInfo</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> diagnosticInfo</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">An optional developer-readable diagnostic information string. May be null.</div>
 </li>
 </ul>
@@ -291,6 +303,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <pre>public&nbsp;MediaCodecDecoderException&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;cause,
                                   @Nullable
                                   <a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;codecInfo)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>

@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42,"i12":42,"i13":42,"i14":42,"i15":42,"i16":42,"i17":42,"i18":42,"i19":42,"i20":42,"i21":42,"i22":42,"i23":42,"i24":42,"i25":42,"i26":42,"i27":42,"i28":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -148,8 +148,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="https://developer.android.com/reference/android/graphics/drawable/Drawable.Callback.html" title="class or interface in android.graphics.drawable" class="externalLink">Drawable.Callback</a></code>, <code><a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityEventSource.html?is-external=true" title="class or interface in android.view.accessibility" class="externalLink">AccessibilityEventSource</a></code>, <code><a href="https://developer.android.com/reference/android/view/KeyEvent.Callback.html?is-external=true" title="class or interface in android.view" class="externalLink">KeyEvent.Callback</a></code>, <code><a href="https://developer.android.com/reference/android/view/ViewManager.html?is-external=true" title="class or interface in android.view" class="externalLink">ViewManager</a></code>, <code><a href="https://developer.android.com/reference/android/view/ViewParent.html?is-external=true" title="class or interface in android.view" class="externalLink" target="_top">ViewParent</a></code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">PlayerControlView</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">PlayerControlView</span>
 extends <a href="https://developer.android.com/reference/android/widget/FrameLayout.html" title="class or interface in android.widget" class="externalLink" target="_top">FrameLayout</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A view for controlling <a href="../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> instances.
 
  <p>A PlayerControlView can be customized by setting attributes (or calling corresponding
@@ -348,6 +354,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="PlayerControlView.ProgressUpdateListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerControlView.ProgressUpdateListener</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Listener to be notified when progress has been updated.</div>
 </td>
 </tr>
@@ -355,6 +362,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="PlayerControlView.VisibilityListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerControlView.VisibilityListener</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Listener to be notified about changes of the visibility of the UI control.</div>
 </td>
 </tr>
@@ -401,6 +409,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>static @com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_REPEAT_TOGGLE_MODES">DEFAULT_REPEAT_TOGGLE_MODES</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default repeat toggle modes.</div>
 </td>
 </tr>
@@ -408,6 +417,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_SHOW_TIMEOUT_MS">DEFAULT_SHOW_TIMEOUT_MS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default show timeout, in milliseconds.</div>
 </td>
 </tr>
@@ -415,6 +425,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_TIME_BAR_MIN_UPDATE_INTERVAL_MS">DEFAULT_TIME_BAR_MIN_UPDATE_INTERVAL_MS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default minimum interval between time bar position updates.</div>
 </td>
 </tr>
@@ -422,6 +433,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MAX_WINDOWS_FOR_MULTI_WINDOW_TIME_BAR">MAX_WINDOWS_FOR_MULTI_WINDOW_TIME_BAR</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The maximum number of windows that can be shown in a multi-window time bar.</div>
 </td>
 </tr>
@@ -458,25 +470,33 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context)">PlayerControlView</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,android.util.AttributeSet)">PlayerControlView</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                  <a href="https://developer.android.com/reference/android/util/AttributeSet.html" title="class or interface in android.util" class="externalLink" target="_top">AttributeSet</a>&nbsp;attrs)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,android.util.AttributeSet,int)">PlayerControlView</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                  <a href="https://developer.android.com/reference/android/util/AttributeSet.html" title="class or interface in android.util" class="externalLink" target="_top">AttributeSet</a>&nbsp;attrs,
                  int&nbsp;defStyleAttr)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,android.util.AttributeSet,int,android.util.AttributeSet)">PlayerControlView</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                  <a href="https://developer.android.com/reference/android/util/AttributeSet.html" title="class or interface in android.util" class="externalLink" target="_top">AttributeSet</a>&nbsp;attrs,
                  int&nbsp;defStyleAttr,
                  <a href="https://developer.android.com/reference/android/util/AttributeSet.html" title="class or interface in android.util" class="externalLink" target="_top">AttributeSet</a>&nbsp;playbackAttrs)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -490,7 +510,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -500,30 +520,37 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addVisibilityListener(com.google.android.exoplayer2.ui.PlayerControlView.VisibilityListener)">addVisibilityListener</a></span>&#8203;(<a href="PlayerControlView.VisibilityListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerControlView.VisibilityListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a <a href="PlayerControlView.VisibilityListener.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerControlView.VisibilityListener</code></a>.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchKeyEvent(android.view.KeyEvent)">dispatchKeyEvent</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/KeyEvent.html" title="class or interface in android.view" class="externalLink" target="_top">KeyEvent</a>&nbsp;event)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchMediaKeyEvent(android.view.KeyEvent)">dispatchMediaKeyEvent</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/KeyEvent.html" title="class or interface in android.view" class="externalLink" target="_top">KeyEvent</a>&nbsp;event)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called to process media key events.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dispatchTouchEvent(android.view.MotionEvent)">dispatchTouchEvent</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/MotionEvent.html" title="class or interface in android.view" class="externalLink" target="_top">MotionEvent</a>&nbsp;ev)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPlayer()">getPlayer</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> currently being controlled by this view, or null if no player is
  set.</div>
 </td>
@@ -532,6 +559,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getRepeatToggleModes()">getRepeatToggleModes</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns which repeat toggle modes are enabled.</div>
 </td>
 </tr>
@@ -539,6 +567,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getShowShuffleButton()">getShowShuffleButton</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the shuffle button is shown.</div>
 </td>
 </tr>
@@ -546,6 +575,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getShowTimeoutMs()">getShowTimeoutMs</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the playback controls timeout.</div>
 </td>
 </tr>
@@ -553,6 +583,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getShowVrButton()">getShowVrButton</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the VR button is shown.</div>
 </td>
 </tr>
@@ -560,6 +591,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hide()">hide</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Hides the controller.</div>
 </td>
 </tr>
@@ -567,23 +599,29 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isVisible()">isVisible</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the controller is currently visible.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAttachedToWindow()">onAttachedToWindow</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDetachedFromWindow()">onDetachedFromWindow</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeVisibilityListener(com.google.android.exoplayer2.ui.PlayerControlView.VisibilityListener)">removeVisibilityListener</a></span>&#8203;(<a href="PlayerControlView.VisibilityListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerControlView.VisibilityListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Removes a <a href="PlayerControlView.VisibilityListener.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerControlView.VisibilityListener</code></a>.</div>
 </td>
 </tr>
@@ -592,6 +630,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setExtraAdGroupMarkers(long%5B%5D,boolean%5B%5D)">setExtraAdGroupMarkers</a></span>&#8203;(long[]&nbsp;extraAdGroupTimesMs,
                       boolean[]&nbsp;extraPlayedAdGroups)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the millisecond positions of extra ad markers relative to the start of the window (or
  timeline, if in multi-window mode) and whether each extra ad has been played or not.</div>
 </td>
@@ -600,6 +639,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlayer(com.google.android.exoplayer2.Player)">setPlayer</a></span>&#8203;(<a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to control.</div>
 </td>
 </tr>
@@ -607,6 +647,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setProgressUpdateListener(com.google.android.exoplayer2.ui.PlayerControlView.ProgressUpdateListener)">setProgressUpdateListener</a></span>&#8203;(<a href="PlayerControlView.ProgressUpdateListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerControlView.ProgressUpdateListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="PlayerControlView.ProgressUpdateListener.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerControlView.ProgressUpdateListener</code></a>.</div>
 </td>
 </tr>
@@ -614,6 +655,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRepeatToggleModes(@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModesint)">setRepeatToggleModes</a></span>&#8203;(@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes int&nbsp;repeatToggleModes)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets which repeat toggle modes are enabled.</div>
 </td>
 </tr>
@@ -621,6 +663,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowFastForwardButton(boolean)">setShowFastForwardButton</a></span>&#8203;(boolean&nbsp;showFastForwardButton)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the fast forward button is shown.</div>
 </td>
 </tr>
@@ -628,6 +671,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowMultiWindowTimeBar(boolean)">setShowMultiWindowTimeBar</a></span>&#8203;(boolean&nbsp;showMultiWindowTimeBar)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the time bar should show all windows, as opposed to just the current one.</div>
 </td>
 </tr>
@@ -635,6 +679,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowNextButton(boolean)">setShowNextButton</a></span>&#8203;(boolean&nbsp;showNextButton)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the next button is shown.</div>
 </td>
 </tr>
@@ -642,6 +687,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowPreviousButton(boolean)">setShowPreviousButton</a></span>&#8203;(boolean&nbsp;showPreviousButton)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the previous button is shown.</div>
 </td>
 </tr>
@@ -649,6 +695,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowRewindButton(boolean)">setShowRewindButton</a></span>&#8203;(boolean&nbsp;showRewindButton)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the rewind button is shown.</div>
 </td>
 </tr>
@@ -656,6 +703,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowShuffleButton(boolean)">setShowShuffleButton</a></span>&#8203;(boolean&nbsp;showShuffleButton)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the shuffle button is shown.</div>
 </td>
 </tr>
@@ -663,6 +711,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowTimeoutMs(int)">setShowTimeoutMs</a></span>&#8203;(int&nbsp;showTimeoutMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the playback controls timeout.</div>
 </td>
 </tr>
@@ -670,6 +719,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setShowVrButton(boolean)">setShowVrButton</a></span>&#8203;(boolean&nbsp;showVrButton)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the VR button is shown.</div>
 </td>
 </tr>
@@ -677,6 +727,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTimeBarMinUpdateInterval(int)">setTimeBarMinUpdateInterval</a></span>&#8203;(int&nbsp;minUpdateIntervalMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the minimum interval between time bar position updates.</div>
 </td>
 </tr>
@@ -684,6 +735,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVrButtonListener(android.view.View.OnClickListener)">setVrButtonListener</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/View.OnClickListener.html" title="class or interface in android.view" class="externalLink" target="_top">View.OnClickListener</a>&nbsp;onClickListener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets listener for the VR button.</div>
 </td>
 </tr>
@@ -691,6 +743,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#show()">show</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Shows the playback controls.</div>
 </td>
 </tr>
@@ -753,6 +806,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <li class="blockList">
 <h4>DEFAULT_SHOW_TIMEOUT_MS</h4>
 <pre>public static final&nbsp;int DEFAULT_SHOW_TIMEOUT_MS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default show timeout, in milliseconds.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -768,6 +822,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <h4>DEFAULT_REPEAT_TOGGLE_MODES</h4>
 <pre><a href="../util/RepeatModeUtil.RepeatToggleModes.html" title="annotation in com.google.android.exoplayer2.util">@RepeatToggleModes</a>
 public static final&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes int DEFAULT_REPEAT_TOGGLE_MODES</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default repeat toggle modes.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -782,6 +837,7 @@ public static final&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.Repe
 <li class="blockList">
 <h4>DEFAULT_TIME_BAR_MIN_UPDATE_INTERVAL_MS</h4>
 <pre>public static final&nbsp;int DEFAULT_TIME_BAR_MIN_UPDATE_INTERVAL_MS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default minimum interval between time bar position updates.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -796,6 +852,7 @@ public static final&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.Repe
 <li class="blockList">
 <h4>MAX_WINDOWS_FOR_MULTI_WINDOW_TIME_BAR</h4>
 <pre>public static final&nbsp;int MAX_WINDOWS_FOR_MULTI_WINDOW_TIME_BAR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The maximum number of windows that can be shown in a multi-window time bar.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -820,6 +877,7 @@ public static final&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.Repe
 <li class="blockList">
 <h4>PlayerControlView</h4>
 <pre>public&nbsp;PlayerControlView&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="&lt;init&gt;(android.content.Context,android.util.AttributeSet)">
@@ -831,6 +889,7 @@ public static final&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.Repe
 <pre>public&nbsp;PlayerControlView&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                          @Nullable
                          <a href="https://developer.android.com/reference/android/util/AttributeSet.html" title="class or interface in android.util" class="externalLink" target="_top">AttributeSet</a>&nbsp;attrs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="&lt;init&gt;(android.content.Context,android.util.AttributeSet,int)">
@@ -843,6 +902,7 @@ public static final&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.Repe
                          @Nullable
                          <a href="https://developer.android.com/reference/android/util/AttributeSet.html" title="class or interface in android.util" class="externalLink" target="_top">AttributeSet</a>&nbsp;attrs,
                          int&nbsp;defStyleAttr)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="&lt;init&gt;(android.content.Context,android.util.AttributeSet,int,android.util.AttributeSet)">
@@ -857,6 +917,7 @@ public static final&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.Repe
                          int&nbsp;defStyleAttr,
                          @Nullable
                          <a href="https://developer.android.com/reference/android/util/AttributeSet.html" title="class or interface in android.util" class="externalLink" target="_top">AttributeSet</a>&nbsp;playbackAttrs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -877,6 +938,7 @@ public static final&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.Repe
 <h4>getPlayer</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;getPlayer()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> currently being controlled by this view, or null if no player is
  set.</div>
 </li>
@@ -889,6 +951,7 @@ public&nbsp;<a href="../Player.html" title="interface in com.google.android.exop
 <h4>setPlayer</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setPlayer&#8203;(@Nullable
                       <a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> to control.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -905,6 +968,7 @@ public&nbsp;<a href="../Player.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>setShowMultiWindowTimeBar</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setShowMultiWindowTimeBar&#8203;(boolean&nbsp;showMultiWindowTimeBar)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the time bar should show all windows, as opposed to just the current one. If the
  timeline has a period with unknown duration or more than <a href="#MAX_WINDOWS_FOR_MULTI_WINDOW_TIME_BAR"><code>MAX_WINDOWS_FOR_MULTI_WINDOW_TIME_BAR</code></a> windows the time bar will fall back to showing a single
  window.</div>
@@ -924,6 +988,7 @@ public&nbsp;<a href="../Player.html" title="interface in com.google.android.exop
                                    long[]&nbsp;extraAdGroupTimesMs,
                                    @Nullable
                                    boolean[]&nbsp;extraPlayedAdGroups)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the millisecond positions of extra ad markers relative to the start of the window (or
  timeline, if in multi-window mode) and whether each extra ad has been played or not. The
  markers are shown in addition to any ad markers for ads in the player's timeline.</div>
@@ -943,6 +1008,7 @@ public&nbsp;<a href="../Player.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>addVisibilityListener</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;addVisibilityListener&#8203;(<a href="PlayerControlView.VisibilityListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerControlView.VisibilityListener</a>&nbsp;listener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a <a href="PlayerControlView.VisibilityListener.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerControlView.VisibilityListener</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -957,6 +1023,7 @@ public&nbsp;<a href="../Player.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>removeVisibilityListener</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;removeVisibilityListener&#8203;(<a href="PlayerControlView.VisibilityListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerControlView.VisibilityListener</a>&nbsp;listener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Removes a <a href="PlayerControlView.VisibilityListener.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerControlView.VisibilityListener</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -972,6 +1039,7 @@ public&nbsp;<a href="../Player.html" title="interface in com.google.android.exop
 <h4>setProgressUpdateListener</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setProgressUpdateListener&#8203;(@Nullable
                                       <a href="PlayerControlView.ProgressUpdateListener.html" title="interface in com.google.android.exoplayer2.ui">PlayerControlView.ProgressUpdateListener</a>&nbsp;listener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="PlayerControlView.ProgressUpdateListener.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerControlView.ProgressUpdateListener</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -986,6 +1054,7 @@ public&nbsp;<a href="../Player.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>setShowRewindButton</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setShowRewindButton&#8203;(boolean&nbsp;showRewindButton)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the rewind button is shown.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1000,6 +1069,7 @@ public&nbsp;<a href="../Player.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>setShowFastForwardButton</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setShowFastForwardButton&#8203;(boolean&nbsp;showFastForwardButton)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the fast forward button is shown.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1014,6 +1084,7 @@ public&nbsp;<a href="../Player.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>setShowPreviousButton</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setShowPreviousButton&#8203;(boolean&nbsp;showPreviousButton)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the previous button is shown.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1028,6 +1099,7 @@ public&nbsp;<a href="../Player.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>setShowNextButton</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setShowNextButton&#8203;(boolean&nbsp;showNextButton)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the next button is shown.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1042,6 +1114,7 @@ public&nbsp;<a href="../Player.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>getShowTimeoutMs</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getShowTimeoutMs()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the playback controls timeout. The playback controls are automatically hidden after
  this duration of time has elapsed without user input.</div>
 <dl>
@@ -1058,6 +1131,7 @@ public&nbsp;<a href="../Player.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>setShowTimeoutMs</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setShowTimeoutMs&#8203;(int&nbsp;showTimeoutMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the playback controls timeout. The playback controls are automatically hidden after this
  duration of time has elapsed without user input.</div>
 <dl>
@@ -1075,6 +1149,7 @@ public&nbsp;<a href="../Player.html" title="interface in com.google.android.exop
 <h4>getRepeatToggleModes</h4>
 <pre class="methodSignature"><a href="../util/RepeatModeUtil.RepeatToggleModes.html" title="annotation in com.google.android.exoplayer2.util">@RepeatToggleModes</a>
 public&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes int&nbsp;getRepeatToggleModes()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns which repeat toggle modes are enabled.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -1090,6 +1165,7 @@ public&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes
 <h4>setRepeatToggleModes</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setRepeatToggleModes&#8203;(<a href="../util/RepeatModeUtil.RepeatToggleModes.html" title="annotation in com.google.android.exoplayer2.util">@RepeatToggleModes</a>
                                  @com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes int&nbsp;repeatToggleModes)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets which repeat toggle modes are enabled.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1104,6 +1180,7 @@ public&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes
 <li class="blockList">
 <h4>getShowShuffleButton</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;getShowShuffleButton()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the shuffle button is shown.</div>
 </li>
 </ul>
@@ -1114,6 +1191,7 @@ public&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes
 <li class="blockList">
 <h4>setShowShuffleButton</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setShowShuffleButton&#8203;(boolean&nbsp;showShuffleButton)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the shuffle button is shown.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1128,6 +1206,7 @@ public&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes
 <li class="blockList">
 <h4>getShowVrButton</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;getShowVrButton()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the VR button is shown.</div>
 </li>
 </ul>
@@ -1138,6 +1217,7 @@ public&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes
 <li class="blockList">
 <h4>setShowVrButton</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setShowVrButton&#8203;(boolean&nbsp;showVrButton)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether the VR button is shown.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1153,6 +1233,7 @@ public&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes
 <h4>setVrButtonListener</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setVrButtonListener&#8203;(@Nullable
                                 <a href="https://developer.android.com/reference/android/view/View.OnClickListener.html" title="class or interface in android.view" class="externalLink" target="_top">View.OnClickListener</a>&nbsp;onClickListener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets listener for the VR button.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1167,6 +1248,7 @@ public&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes
 <li class="blockList">
 <h4>setTimeBarMinUpdateInterval</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setTimeBarMinUpdateInterval&#8203;(int&nbsp;minUpdateIntervalMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the minimum interval between time bar position updates.
 
  <p>Note that smaller intervals, e.g. 33ms, will result in a smooth movement but will use more
@@ -1186,6 +1268,7 @@ public&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes
 <li class="blockList">
 <h4>show</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;show()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Shows the playback controls. If <a href="#getShowTimeoutMs()"><code>getShowTimeoutMs()</code></a> is positive then the controls will
  be automatically hidden after this duration of time has elapsed without user input.</div>
 </li>
@@ -1197,6 +1280,7 @@ public&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes
 <li class="blockList">
 <h4>hide</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;hide()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Hides the controller.</div>
 </li>
 </ul>
@@ -1207,6 +1291,7 @@ public&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes
 <li class="blockList">
 <h4>isVisible</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isVisible()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the controller is currently visible.</div>
 </li>
 </ul>
@@ -1217,6 +1302,7 @@ public&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes
 <li class="blockList">
 <h4>onAttachedToWindow</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onAttachedToWindow()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/view/ViewGroup.html#onAttachedToWindow()" title="class or interface in android.view" class="externalLink">onAttachedToWindow</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/view/ViewGroup.html?is-external=true" title="class or interface in android.view" class="externalLink" target="_top">ViewGroup</a></code></dd>
@@ -1230,6 +1316,7 @@ public&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes
 <li class="blockList">
 <h4>onDetachedFromWindow</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onDetachedFromWindow()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/view/ViewGroup.html#onDetachedFromWindow()" title="class or interface in android.view" class="externalLink">onDetachedFromWindow</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/view/ViewGroup.html?is-external=true" title="class or interface in android.view" class="externalLink" target="_top">ViewGroup</a></code></dd>
@@ -1243,6 +1330,7 @@ public&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes
 <li class="blockList">
 <h4>dispatchTouchEvent</h4>
 <pre class="methodSignature">public final&nbsp;boolean&nbsp;dispatchTouchEvent&#8203;(<a href="https://developer.android.com/reference/android/view/MotionEvent.html" title="class or interface in android.view" class="externalLink" target="_top">MotionEvent</a>&nbsp;ev)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/view/ViewGroup.html#dispatchTouchEvent(android.view.MotionEvent)" title="class or interface in android.view" class="externalLink">dispatchTouchEvent</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/view/ViewGroup.html?is-external=true" title="class or interface in android.view" class="externalLink" target="_top">ViewGroup</a></code></dd>
@@ -1256,6 +1344,7 @@ public&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes
 <li class="blockList">
 <h4>dispatchKeyEvent</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;dispatchKeyEvent&#8203;(<a href="https://developer.android.com/reference/android/view/KeyEvent.html" title="class or interface in android.view" class="externalLink" target="_top">KeyEvent</a>&nbsp;event)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/view/ViewGroup.html#dispatchKeyEvent(android.view.KeyEvent)" title="class or interface in android.view" class="externalLink">dispatchKeyEvent</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/view/ViewGroup.html?is-external=true" title="class or interface in android.view" class="externalLink" target="_top">ViewGroup</a></code></dd>
@@ -1269,6 +1358,7 @@ public&nbsp;@com.google.android.exoplayer2.util.RepeatModeUtil.RepeatToggleModes
 <li class="blockList">
 <h4>dispatchMediaKeyEvent</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;dispatchMediaKeyEvent&#8203;(<a href="https://developer.android.com/reference/android/view/KeyEvent.html" title="class or interface in android.view" class="externalLink" target="_top">KeyEvent</a>&nbsp;event)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called to process media key events. Any <a href="https://developer.android.com/reference/android/view/KeyEvent.html" title="class or interface in android.view" class="externalLink" target="_top"><code>KeyEvent</code></a> can be passed but only media key
  events will be handled.</div>
 <dl>

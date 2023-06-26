@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a></code>, <code><a href="../DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">CacheDataSource</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">CacheDataSource</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="../DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A <a href="../DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> that reads and writes a <a href="Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>Cache</code></a>. Requests are fulfilled from the cache
  when possible. When data is not cached it is requested from an upstream <a href="../DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> and
  written into the cache.</div>
@@ -163,6 +169,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="CacheDataSource.CacheIgnoredReason.html" title="annotation in com.google.android.exoplayer2.upstream.cache">CacheDataSource.CacheIgnoredReason</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Reasons the cache may be ignored.</div>
 </td>
 </tr>
@@ -170,6 +177,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="CacheDataSource.EventListener.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheDataSource.EventListener</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Listener of <a href="CacheDataSource.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheDataSource</code></a> events.</div>
 </td>
 </tr>
@@ -177,6 +185,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="CacheDataSource.Factory.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Factory</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource.Factory</code></a> for <a href="CacheDataSource.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheDataSource</code></a> instances.</div>
 </td>
 </tr>
@@ -184,6 +193,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="CacheDataSource.Flags.html" title="annotation in com.google.android.exoplayer2.upstream.cache">CacheDataSource.Flags</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Flags controlling the CacheDataSource's behavior.</div>
 </td>
 </tr>
@@ -209,6 +219,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#CACHE_IGNORED_REASON_ERROR">CACHE_IGNORED_REASON_ERROR</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Cache ignored due to a cache related error.</div>
 </td>
 </tr>
@@ -216,6 +227,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#CACHE_IGNORED_REASON_UNSET_LENGTH">CACHE_IGNORED_REASON_UNSET_LENGTH</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Cache ignored due to a request with an unset length.</div>
 </td>
 </tr>
@@ -223,6 +235,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FLAG_BLOCK_ON_CACHE">FLAG_BLOCK_ON_CACHE</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A flag indicating whether we will block reads if the cache key is locked.</div>
 </td>
 </tr>
@@ -230,6 +243,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS">FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A flag indicating that the cache should be bypassed for requests whose lengths are unset.</div>
 </td>
 </tr>
@@ -237,6 +251,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FLAG_IGNORE_CACHE_ON_ERROR">FLAG_IGNORE_CACHE_ON_ERROR</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A flag indicating whether the cache is bypassed following any cache related error.</div>
 </td>
 </tr>
@@ -261,6 +276,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.upstream.cache.Cache,com.google.android.exoplayer2.upstream.DataSource)">CacheDataSource</a></span>&#8203;(<a href="Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
                <a href="../DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;upstreamDataSource)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Constructs an instance with default <a href="../DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> and <a href="../DataSink.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSink</code></a> instances for
  reading and writing the cache.</div>
 </td>
@@ -270,6 +286,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
                <a href="../DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;upstreamDataSource,
                @com.google.android.exoplayer2.upstream.cache.CacheDataSource.Flags int&nbsp;flags)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Constructs an instance with default <a href="../DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> and <a href="../DataSink.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSink</code></a> instances for
  reading and writing the cache.</div>
 </td>
@@ -282,6 +299,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
                @com.google.android.exoplayer2.upstream.cache.CacheDataSource.Flags int&nbsp;flags,
                <a href="CacheDataSource.EventListener.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheDataSource.EventListener</a>&nbsp;eventListener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Constructs an instance with arbitrary <a href="../DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> and <a href="../DataSink.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSink</code></a> instances for
  reading and writing the cache.</div>
 </td>
@@ -295,6 +313,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
                <a href="CacheDataSource.EventListener.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheDataSource.EventListener</a>&nbsp;eventListener,
                <a href="CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheKeyFactory</a>&nbsp;cacheKeyFactory)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Constructs an instance with arbitrary <a href="../DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> and <a href="../DataSink.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSink</code></a> instances for
  reading and writing the cache.</div>
 </td>
@@ -311,7 +330,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -321,6 +340,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addTransferListener(com.google.android.exoplayer2.upstream.TransferListener)">addTransferListener</a></span>&#8203;(<a href="../TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;transferListener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a <a href="../TransferListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>TransferListener</code></a> to listen to data transfers.</div>
 </td>
 </tr>
@@ -328,6 +348,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#close()">close</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Closes the source.</div>
 </td>
 </tr>
@@ -335,6 +356,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
 <td class="colFirst"><code><a href="Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCache()">getCache</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>Cache</code></a> used by this instance.</div>
 </td>
 </tr>
@@ -342,6 +364,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
 <td class="colFirst"><code><a href="CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheKeyFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCacheKeyFactory()">getCacheKeyFactory</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>CacheKeyFactory</code></a> used by this instance.</div>
 </td>
 </tr>
@@ -349,6 +372,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getResponseHeaders()">getResponseHeaders</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">When the source is open, returns the response headers associated with the last <a href="../DataSource.html#open(com.google.android.exoplayer2.upstream.DataSpec)"><code>DataSource.open(com.google.android.exoplayer2.upstream.DataSpec)</code></a>
  call.</div>
 </td>
@@ -357,6 +381,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getUri()">getUri</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">When the source is open, returns the <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a> from which data is being read.</div>
 </td>
 </tr>
@@ -364,6 +389,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#open(com.google.android.exoplayer2.upstream.DataSpec)">open</a></span>&#8203;(<a href="../DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Opens the source to read the specified data.</div>
 </td>
 </tr>
@@ -373,6 +399,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
     int&nbsp;offset,
     int&nbsp;length)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Reads up to <code>length</code> bytes of data from the input.</div>
 </td>
 </tr>
@@ -407,6 +434,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
 <li class="blockList">
 <h4>FLAG_BLOCK_ON_CACHE</h4>
 <pre>public static final&nbsp;int FLAG_BLOCK_ON_CACHE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A flag indicating whether we will block reads if the cache key is locked. If unset then data is
  read from upstream if the cache key is locked, regardless of whether the data is cached.</div>
 <dl>
@@ -422,6 +450,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
 <li class="blockList">
 <h4>FLAG_IGNORE_CACHE_ON_ERROR</h4>
 <pre>public static final&nbsp;int FLAG_IGNORE_CACHE_ON_ERROR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A flag indicating whether the cache is bypassed following any cache related error. If set then
  cache related exceptions may be thrown for one cycle of open, read and close calls. Subsequent
  cycles of these calls will then bypass the cache.</div>
@@ -438,6 +467,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
 <li class="blockList">
 <h4>FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS</h4>
 <pre>public static final&nbsp;int FLAG_IGNORE_CACHE_FOR_UNSET_LENGTH_REQUESTS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A flag indicating that the cache should be bypassed for requests whose lengths are unset. This
  flag is provided for legacy reasons only.</div>
 <dl>
@@ -453,6 +483,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
 <li class="blockList">
 <h4>CACHE_IGNORED_REASON_ERROR</h4>
 <pre>public static final&nbsp;int CACHE_IGNORED_REASON_ERROR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Cache ignored due to a cache related error.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -467,6 +498,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
 <li class="blockList">
 <h4>CACHE_IGNORED_REASON_UNSET_LENGTH</h4>
 <pre>public static final&nbsp;int CACHE_IGNORED_REASON_UNSET_LENGTH</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Cache ignored due to a request with an unset length.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -493,6 +525,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
 <pre>public&nbsp;CacheDataSource&#8203;(<a href="Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
                        @Nullable
                        <a href="../DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;upstreamDataSource)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Constructs an instance with default <a href="../DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> and <a href="../DataSink.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSink</code></a> instances for
  reading and writing the cache.</div>
 <dl>
@@ -513,6 +546,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
                        @Nullable
                        <a href="../DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;upstreamDataSource,
                        @com.google.android.exoplayer2.upstream.cache.CacheDataSource.Flags int&nbsp;flags)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Constructs an instance with default <a href="../DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> and <a href="../DataSink.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSink</code></a> instances for
  reading and writing the cache.</div>
 <dl>
@@ -540,6 +574,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
                        @com.google.android.exoplayer2.upstream.cache.CacheDataSource.Flags int&nbsp;flags,
                        @Nullable
                        <a href="CacheDataSource.EventListener.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheDataSource.EventListener</a>&nbsp;eventListener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Constructs an instance with arbitrary <a href="../DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> and <a href="../DataSink.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSink</code></a> instances for
  reading and writing the cache. One use of this constructor is to allow data to be transformed
  before it is written to disk.</div>
@@ -574,6 +609,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
                        <a href="CacheDataSource.EventListener.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheDataSource.EventListener</a>&nbsp;eventListener,
                        @Nullable
                        <a href="CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheKeyFactory</a>&nbsp;cacheKeyFactory)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Constructs an instance with arbitrary <a href="../DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> and <a href="../DataSink.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSink</code></a> instances for
  reading and writing the cache. One use of this constructor is to allow data to be transformed
  before it is written to disk.</div>
@@ -609,6 +645,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
 <li class="blockList">
 <h4>getCache</h4>
 <pre class="methodSignature">public&nbsp;<a href="Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;getCache()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>Cache</code></a> used by this instance.</div>
 </li>
 </ul>
@@ -619,6 +656,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
 <li class="blockList">
 <h4>getCacheKeyFactory</h4>
 <pre class="methodSignature">public&nbsp;<a href="CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache">CacheKeyFactory</a>&nbsp;getCacheKeyFactory()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="CacheKeyFactory.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>CacheKeyFactory</code></a> used by this instance.</div>
 </li>
 </ul>
@@ -629,6 +667,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
 <li class="blockList">
 <h4>addTransferListener</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;addTransferListener&#8203;(<a href="../TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;transferListener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../DataSource.html#addTransferListener(com.google.android.exoplayer2.upstream.TransferListener)">DataSource</a></code></span></div>
 <div class="block">Adds a <a href="../TransferListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>TransferListener</code></a> to listen to data transfers. This method is not thread-safe.</div>
 <dl>
@@ -647,6 +686,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
 <h4>open</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;open&#8203;(<a href="../DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)
           throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../DataSource.html#open(com.google.android.exoplayer2.upstream.DataSpec)">DataSource</a></code></span></div>
 <div class="block">Opens the source to read the specified data. If an <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top"><code>IOException</code></a> is thrown, callers must
  still call <a href="../DataSource.html#close()"><code>DataSource.close()</code></a> to ensure that any partial effects of the invocation are cleaned
@@ -692,6 +732,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
                 int&nbsp;offset,
                 int&nbsp;length)
          throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../DataReader.html#read(byte%5B%5D,int,int)">DataReader</a></code></span></div>
 <div class="block">Reads up to <code>length</code> bytes of data from the input.
 
@@ -723,6 +764,7 @@ implements <a href="../DataSource.html" title="interface in com.google.android.e
 <h4>getUri</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;getUri()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../DataSource.html#getUri()">DataSource</a></code></span></div>
 <div class="block">When the source is open, returns the <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a> from which data is being read. The returned
  <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink"><code>Uri</code></a> will be identical to the one passed <a href="../DataSource.html#open(com.google.android.exoplayer2.upstream.DataSpec)"><code>DataSource.open(DataSpec)</code></a> in the <a href="../DataSpec.html" title="class in com.google.android.exoplayer2.upstream" target="_top"><code>DataSpec</code></a>
@@ -743,6 +785,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.htm
 <li class="blockList">
 <h4>getResponseHeaders</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;&nbsp;getResponseHeaders()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../DataSource.html#getResponseHeaders()">DataSource</a></code></span></div>
 <div class="block">When the source is open, returns the response headers associated with the last <a href="../DataSource.html#open(com.google.android.exoplayer2.upstream.DataSpec)"><code>DataSource.open(com.google.android.exoplayer2.upstream.DataSpec)</code></a>
  call. Otherwise, returns an empty map.
@@ -762,6 +805,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.htm
 <h4>close</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;close()
            throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../DataSource.html#close()">DataSource</a></code></span></div>
 <div class="block">Closes the source. This method must be called even if the corresponding call to <a href="../DataSource.html#open(com.google.android.exoplayer2.upstream.DataSpec)"><code>DataSource.open(DataSpec)</code></a> threw an <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top"><code>IOException</code></a>.</div>
 <dl>

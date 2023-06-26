@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":18,"i5":18,"i6":6,"i7":18,"i8":18,"i9":18,"i10":18,"i11":18,"i12":6,"i13":18};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
+var data = {"i0":38,"i1":38,"i2":38,"i3":38,"i4":50,"i5":50,"i6":38,"i7":50,"i8":50,"i9":50,"i10":50,"i11":50,"i12":38,"i13":50};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -125,8 +125,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="https://developer.android.com/reference/java/lang/AutoCloseable.html" title="class or interface in java.lang" class="externalLink">AutoCloseable</a></code>, <code><a href="https://developer.android.com/reference/java/io/Closeable.html?is-external=true" title="class or interface in java.io" class="externalLink" target="_top">Closeable</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">DownloadCursor</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">DownloadCursor</span>
 extends <a href="https://developer.android.com/reference/java/io/Closeable.html" title="class or interface in java.io" class="externalLink" target="_top">Closeable</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Provides random read-write access to the result set returned by a database query.</div>
 </li>
 </ul>
@@ -142,7 +148,7 @@ extends <a href="https://developer.android.com/reference/java/io/Closeable.html"
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -151,12 +157,15 @@ extends <a href="https://developer.android.com/reference/java/io/Closeable.html"
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#close()">close</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCount()">getCount</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the numbers of downloads in the cursor.</div>
 </td>
 </tr>
@@ -164,6 +173,7 @@ extends <a href="https://developer.android.com/reference/java/io/Closeable.html"
 <td class="colFirst"><code><a href="Download.html" title="class in com.google.android.exoplayer2.offline">Download</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDownload()">getDownload</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the download at the current position.</div>
 </td>
 </tr>
@@ -171,6 +181,7 @@ extends <a href="https://developer.android.com/reference/java/io/Closeable.html"
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPosition()">getPosition</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current position of the cursor in the download set.</div>
 </td>
 </tr>
@@ -178,6 +189,7 @@ extends <a href="https://developer.android.com/reference/java/io/Closeable.html"
 <td class="colFirst"><code>default boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isAfterLast()">isAfterLast</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the cursor is pointing to the position after the last download.</div>
 </td>
 </tr>
@@ -185,6 +197,7 @@ extends <a href="https://developer.android.com/reference/java/io/Closeable.html"
 <td class="colFirst"><code>default boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isBeforeFirst()">isBeforeFirst</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the cursor is pointing to the position before the first download.</div>
 </td>
 </tr>
@@ -192,6 +205,7 @@ extends <a href="https://developer.android.com/reference/java/io/Closeable.html"
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isClosed()">isClosed</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the cursor is closed</div>
 </td>
 </tr>
@@ -199,6 +213,7 @@ extends <a href="https://developer.android.com/reference/java/io/Closeable.html"
 <td class="colFirst"><code>default boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isFirst()">isFirst</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the cursor is pointing to the first download.</div>
 </td>
 </tr>
@@ -206,6 +221,7 @@ extends <a href="https://developer.android.com/reference/java/io/Closeable.html"
 <td class="colFirst"><code>default boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isLast()">isLast</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the cursor is pointing to the last download.</div>
 </td>
 </tr>
@@ -213,6 +229,7 @@ extends <a href="https://developer.android.com/reference/java/io/Closeable.html"
 <td class="colFirst"><code>default boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#moveToFirst()">moveToFirst</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Move the cursor to the first download.</div>
 </td>
 </tr>
@@ -220,6 +237,7 @@ extends <a href="https://developer.android.com/reference/java/io/Closeable.html"
 <td class="colFirst"><code>default boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#moveToLast()">moveToLast</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Move the cursor to the last download.</div>
 </td>
 </tr>
@@ -227,6 +245,7 @@ extends <a href="https://developer.android.com/reference/java/io/Closeable.html"
 <td class="colFirst"><code>default boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#moveToNext()">moveToNext</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Move the cursor to the next download.</div>
 </td>
 </tr>
@@ -234,6 +253,7 @@ extends <a href="https://developer.android.com/reference/java/io/Closeable.html"
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#moveToPosition(int)">moveToPosition</a></span>&#8203;(int&nbsp;position)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Move the cursor to an absolute position.</div>
 </td>
 </tr>
@@ -241,6 +261,7 @@ extends <a href="https://developer.android.com/reference/java/io/Closeable.html"
 <td class="colFirst"><code>default boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#moveToPrevious()">moveToPrevious</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Move the cursor to the previous download.</div>
 </td>
 </tr>
@@ -268,6 +289,7 @@ extends <a href="https://developer.android.com/reference/java/io/Closeable.html"
 <li class="blockList">
 <h4>getDownload</h4>
 <pre class="methodSignature"><a href="Download.html" title="class in com.google.android.exoplayer2.offline">Download</a>&nbsp;getDownload()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the download at the current position.</div>
 </li>
 </ul>
@@ -278,6 +300,7 @@ extends <a href="https://developer.android.com/reference/java/io/Closeable.html"
 <li class="blockList">
 <h4>getCount</h4>
 <pre class="methodSignature">int&nbsp;getCount()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the numbers of downloads in the cursor.</div>
 </li>
 </ul>
@@ -288,6 +311,7 @@ extends <a href="https://developer.android.com/reference/java/io/Closeable.html"
 <li class="blockList">
 <h4>getPosition</h4>
 <pre class="methodSignature">int&nbsp;getPosition()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current position of the cursor in the download set. The value is zero-based. When
  the download set is first returned the cursor will be at position -1, which is before the first
  download. After the last download is returned another call to next() will leave the cursor past
@@ -305,6 +329,7 @@ extends <a href="https://developer.android.com/reference/java/io/Closeable.html"
 <li class="blockList">
 <h4>moveToPosition</h4>
 <pre class="methodSignature">boolean&nbsp;moveToPosition&#8203;(int&nbsp;position)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Move the cursor to an absolute position. The valid range of values is -1 &lt;= position &lt;=
  count.
 
@@ -325,6 +350,7 @@ extends <a href="https://developer.android.com/reference/java/io/Closeable.html"
 <li class="blockList">
 <h4>moveToFirst</h4>
 <pre class="methodSignature">default&nbsp;boolean&nbsp;moveToFirst()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Move the cursor to the first download.
 
  <p>This method will return false if the cursor is empty.</div>
@@ -341,6 +367,7 @@ extends <a href="https://developer.android.com/reference/java/io/Closeable.html"
 <li class="blockList">
 <h4>moveToLast</h4>
 <pre class="methodSignature">default&nbsp;boolean&nbsp;moveToLast()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Move the cursor to the last download.
 
  <p>This method will return false if the cursor is empty.</div>
@@ -357,6 +384,7 @@ extends <a href="https://developer.android.com/reference/java/io/Closeable.html"
 <li class="blockList">
 <h4>moveToNext</h4>
 <pre class="methodSignature">default&nbsp;boolean&nbsp;moveToNext()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Move the cursor to the next download.
 
  <p>This method will return false if the cursor is already past the last entry in the result
@@ -374,6 +402,7 @@ extends <a href="https://developer.android.com/reference/java/io/Closeable.html"
 <li class="blockList">
 <h4>moveToPrevious</h4>
 <pre class="methodSignature">default&nbsp;boolean&nbsp;moveToPrevious()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Move the cursor to the previous download.
 
  <p>This method will return false if the cursor is already before the first entry in the result
@@ -391,6 +420,7 @@ extends <a href="https://developer.android.com/reference/java/io/Closeable.html"
 <li class="blockList">
 <h4>isFirst</h4>
 <pre class="methodSignature">default&nbsp;boolean&nbsp;isFirst()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the cursor is pointing to the first download.</div>
 </li>
 </ul>
@@ -401,6 +431,7 @@ extends <a href="https://developer.android.com/reference/java/io/Closeable.html"
 <li class="blockList">
 <h4>isLast</h4>
 <pre class="methodSignature">default&nbsp;boolean&nbsp;isLast()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the cursor is pointing to the last download.</div>
 </li>
 </ul>
@@ -411,6 +442,7 @@ extends <a href="https://developer.android.com/reference/java/io/Closeable.html"
 <li class="blockList">
 <h4>isBeforeFirst</h4>
 <pre class="methodSignature">default&nbsp;boolean&nbsp;isBeforeFirst()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the cursor is pointing to the position before the first download.</div>
 </li>
 </ul>
@@ -421,6 +453,7 @@ extends <a href="https://developer.android.com/reference/java/io/Closeable.html"
 <li class="blockList">
 <h4>isAfterLast</h4>
 <pre class="methodSignature">default&nbsp;boolean&nbsp;isAfterLast()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the cursor is pointing to the position after the last download.</div>
 </li>
 </ul>
@@ -431,6 +464,7 @@ extends <a href="https://developer.android.com/reference/java/io/Closeable.html"
 <li class="blockList">
 <h4>isClosed</h4>
 <pre class="methodSignature">boolean&nbsp;isClosed()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the cursor is closed</div>
 </li>
 </ul>
@@ -441,6 +475,7 @@ extends <a href="https://developer.android.com/reference/java/io/Closeable.html"
 <li class="blockList">
 <h4>close</h4>
 <pre class="methodSignature">void&nbsp;close()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/AutoCloseable.html#close()" title="class or interface in java.lang" class="externalLink">close</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/lang/AutoCloseable.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">AutoCloseable</a></code></dd>

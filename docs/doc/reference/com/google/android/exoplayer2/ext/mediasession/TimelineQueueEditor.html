@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="MediaSessionConnector.CommandReceiver.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CommandReceiver</a></code>, <code><a href="MediaSessionConnector.QueueEditor.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueEditor</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">TimelineQueueEditor</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">TimelineQueueEditor</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="MediaSessionConnector.QueueEditor.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.QueueEditor</a>, <a href="MediaSessionConnector.CommandReceiver.html" title="interface in com.google.android.exoplayer2.ext.mediasession">MediaSessionConnector.CommandReceiver</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A <a href="MediaSessionConnector.QueueEditor.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.QueueEditor</code></a> implementation.
 
  <p>This class implements the <a href="MediaSessionConnector.CommandReceiver.html" title="interface in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector.CommandReceiver</code></a> interface and handles
@@ -165,6 +171,7 @@ implements <a href="MediaSessionConnector.QueueEditor.html" title="interface in 
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="TimelineQueueEditor.MediaDescriptionConverter.html" title="interface in com.google.android.exoplayer2.ext.mediasession">TimelineQueueEditor.MediaDescriptionConverter</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Converts a <code>MediaDescriptionCompat</code> to a <a href="../../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 </td>
 </tr>
@@ -172,6 +179,7 @@ implements <a href="MediaSessionConnector.QueueEditor.html" title="interface in 
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="TimelineQueueEditor.MediaIdEqualityChecker.html" title="class in com.google.android.exoplayer2.ext.mediasession">TimelineQueueEditor.MediaIdEqualityChecker</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Media description comparator comparing the media IDs.</div>
 </td>
 </tr>
@@ -179,6 +187,7 @@ implements <a href="MediaSessionConnector.QueueEditor.html" title="interface in 
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="TimelineQueueEditor.QueueDataAdapter.html" title="interface in com.google.android.exoplayer2.ext.mediasession">TimelineQueueEditor.QueueDataAdapter</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adapter to get <code>MediaDescriptionCompat</code> of items in the queue and to notify the
  application about changes in the queue to sync the data structure backing the <a href="MediaSessionConnector.html" title="class in com.google.android.exoplayer2.ext.mediasession"><code>MediaSessionConnector</code></a>.</div>
 </td>
@@ -204,17 +213,23 @@ implements <a href="MediaSessionConnector.QueueEditor.html" title="interface in 
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#COMMAND_MOVE_QUEUE_ITEM">COMMAND_MOVE_QUEUE_ITEM</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EXTRA_FROM_INDEX">EXTRA_FROM_INDEX</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EXTRA_TO_INDEX">EXTRA_TO_INDEX</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -238,6 +253,7 @@ implements <a href="MediaSessionConnector.QueueEditor.html" title="interface in 
                    <a href="TimelineQueueEditor.QueueDataAdapter.html" title="interface in com.google.android.exoplayer2.ext.mediasession">TimelineQueueEditor.QueueDataAdapter</a>&nbsp;queueDataAdapter,
                    <a href="TimelineQueueEditor.MediaDescriptionConverter.html" title="interface in com.google.android.exoplayer2.ext.mediasession">TimelineQueueEditor.MediaDescriptionConverter</a>&nbsp;mediaDescriptionConverter)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new <a href="TimelineQueueEditor.html" title="class in com.google.android.exoplayer2.ext.mediasession"><code>TimelineQueueEditor</code></a> with a given mediaSourceFactory.</div>
 </td>
 </tr>
@@ -247,6 +263,7 @@ implements <a href="MediaSessionConnector.QueueEditor.html" title="interface in 
                    <a href="TimelineQueueEditor.MediaDescriptionConverter.html" title="interface in com.google.android.exoplayer2.ext.mediasession">TimelineQueueEditor.MediaDescriptionConverter</a>&nbsp;mediaDescriptionConverter,
                    com.google.android.exoplayer2.ext.mediasession.TimelineQueueEditor.MediaDescriptionEqualityChecker&nbsp;equalityChecker)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new <a href="TimelineQueueEditor.html" title="class in com.google.android.exoplayer2.ext.mediasession"><code>TimelineQueueEditor</code></a> with a given mediaSourceFactory.</div>
 </td>
 </tr>
@@ -262,7 +279,7 @@ implements <a href="MediaSessionConnector.QueueEditor.html" title="interface in 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -273,6 +290,7 @@ implements <a href="MediaSessionConnector.QueueEditor.html" title="interface in 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAddQueueItem(com.google.android.exoplayer2.Player,android.support.v4.media.MediaDescriptionCompat)">onAddQueueItem</a></span>&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
               android.support.v4.media.MediaDescriptionCompat&nbsp;description)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <code>MediaSessionCompat.Callback.onAddQueueItem(MediaDescriptionCompat description)</code>.</div>
 </td>
 </tr>
@@ -282,6 +300,7 @@ implements <a href="MediaSessionConnector.QueueEditor.html" title="interface in 
               android.support.v4.media.MediaDescriptionCompat&nbsp;description,
               int&nbsp;index)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <code>MediaSessionCompat.Callback.onAddQueueItem(MediaDescriptionCompat description, int
  index)</code>.</div>
 </td>
@@ -293,6 +312,7 @@ implements <a href="MediaSessionConnector.QueueEditor.html" title="interface in 
          <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;extras,
          <a href="https://developer.android.com/reference/android/os/ResultReceiver.html" title="class or interface in android.os" class="externalLink" target="_top">ResultReceiver</a>&nbsp;cb)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <code>MediaSessionCompat.Callback.onCommand(String, Bundle, ResultReceiver)</code>.</div>
 </td>
 </tr>
@@ -301,6 +321,7 @@ implements <a href="MediaSessionConnector.QueueEditor.html" title="interface in 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onRemoveQueueItem(com.google.android.exoplayer2.Player,android.support.v4.media.MediaDescriptionCompat)">onRemoveQueueItem</a></span>&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                  android.support.v4.media.MediaDescriptionCompat&nbsp;description)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <code>MediaSessionCompat.Callback.onRemoveQueueItem(MediaDescriptionCompat
  description)</code>.</div>
 </td>
@@ -336,6 +357,7 @@ implements <a href="MediaSessionConnector.QueueEditor.html" title="interface in 
 <li class="blockList">
 <h4>COMMAND_MOVE_QUEUE_ITEM</h4>
 <pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> COMMAND_MOVE_QUEUE_ITEM</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.ext.mediasession.TimelineQueueEditor.COMMAND_MOVE_QUEUE_ITEM">Constant Field Values</a></dd>
@@ -349,6 +371,7 @@ implements <a href="MediaSessionConnector.QueueEditor.html" title="interface in 
 <li class="blockList">
 <h4>EXTRA_FROM_INDEX</h4>
 <pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> EXTRA_FROM_INDEX</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.ext.mediasession.TimelineQueueEditor.EXTRA_FROM_INDEX">Constant Field Values</a></dd>
@@ -362,6 +385,7 @@ implements <a href="MediaSessionConnector.QueueEditor.html" title="interface in 
 <li class="blockList">
 <h4>EXTRA_TO_INDEX</h4>
 <pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> EXTRA_TO_INDEX</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.ext.mediasession.TimelineQueueEditor.EXTRA_TO_INDEX">Constant Field Values</a></dd>
@@ -387,6 +411,7 @@ implements <a href="MediaSessionConnector.QueueEditor.html" title="interface in 
 <pre>public&nbsp;TimelineQueueEditor&#8203;(android.support.v4.media.session.MediaControllerCompat&nbsp;mediaController,
                            <a href="TimelineQueueEditor.QueueDataAdapter.html" title="interface in com.google.android.exoplayer2.ext.mediasession">TimelineQueueEditor.QueueDataAdapter</a>&nbsp;queueDataAdapter,
                            <a href="TimelineQueueEditor.MediaDescriptionConverter.html" title="interface in com.google.android.exoplayer2.ext.mediasession">TimelineQueueEditor.MediaDescriptionConverter</a>&nbsp;mediaDescriptionConverter)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new <a href="TimelineQueueEditor.html" title="class in com.google.android.exoplayer2.ext.mediasession"><code>TimelineQueueEditor</code></a> with a given mediaSourceFactory.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -407,6 +432,7 @@ implements <a href="MediaSessionConnector.QueueEditor.html" title="interface in 
                            <a href="TimelineQueueEditor.QueueDataAdapter.html" title="interface in com.google.android.exoplayer2.ext.mediasession">TimelineQueueEditor.QueueDataAdapter</a>&nbsp;queueDataAdapter,
                            <a href="TimelineQueueEditor.MediaDescriptionConverter.html" title="interface in com.google.android.exoplayer2.ext.mediasession">TimelineQueueEditor.MediaDescriptionConverter</a>&nbsp;mediaDescriptionConverter,
                            com.google.android.exoplayer2.ext.mediasession.TimelineQueueEditor.MediaDescriptionEqualityChecker&nbsp;equalityChecker)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new <a href="TimelineQueueEditor.html" title="class in com.google.android.exoplayer2.ext.mediasession"><code>TimelineQueueEditor</code></a> with a given mediaSourceFactory.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -436,6 +462,7 @@ implements <a href="MediaSessionConnector.QueueEditor.html" title="interface in 
 <h4>onAddQueueItem</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onAddQueueItem&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                            android.support.v4.media.MediaDescriptionCompat&nbsp;description)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSessionConnector.QueueEditor.html#onAddQueueItem(com.google.android.exoplayer2.Player,android.support.v4.media.MediaDescriptionCompat)">MediaSessionConnector.QueueEditor</a></code></span></div>
 <div class="block">See <code>MediaSessionCompat.Callback.onAddQueueItem(MediaDescriptionCompat description)</code>.</div>
 <dl>
@@ -453,6 +480,7 @@ implements <a href="MediaSessionConnector.QueueEditor.html" title="interface in 
 <pre class="methodSignature">public&nbsp;void&nbsp;onAddQueueItem&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                            android.support.v4.media.MediaDescriptionCompat&nbsp;description,
                            int&nbsp;index)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSessionConnector.QueueEditor.html#onAddQueueItem(com.google.android.exoplayer2.Player,android.support.v4.media.MediaDescriptionCompat,int)">MediaSessionConnector.QueueEditor</a></code></span></div>
 <div class="block">See <code>MediaSessionCompat.Callback.onAddQueueItem(MediaDescriptionCompat description, int
  index)</code>.</div>
@@ -470,6 +498,7 @@ implements <a href="MediaSessionConnector.QueueEditor.html" title="interface in 
 <h4>onRemoveQueueItem</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onRemoveQueueItem&#8203;(<a href="../../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                               android.support.v4.media.MediaDescriptionCompat&nbsp;description)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSessionConnector.QueueEditor.html#onRemoveQueueItem(com.google.android.exoplayer2.Player,android.support.v4.media.MediaDescriptionCompat)">MediaSessionConnector.QueueEditor</a></code></span></div>
 <div class="block">See <code>MediaSessionCompat.Callback.onRemoveQueueItem(MediaDescriptionCompat
  description)</code>.</div>
@@ -491,6 +520,7 @@ implements <a href="MediaSessionConnector.QueueEditor.html" title="interface in 
                          <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;extras,
                          @Nullable
                          <a href="https://developer.android.com/reference/android/os/ResultReceiver.html" title="class or interface in android.os" class="externalLink" target="_top">ResultReceiver</a>&nbsp;cb)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSessionConnector.CommandReceiver.html#onCommand(com.google.android.exoplayer2.Player,java.lang.String,android.os.Bundle,android.os.ResultReceiver)">MediaSessionConnector.CommandReceiver</a></code></span></div>
 <div class="block">See <code>MediaSessionCompat.Callback.onCommand(String, Bundle, ResultReceiver)</code>. The
  receiver may handle the command, but is not required to do so.</div>

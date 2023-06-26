@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42,"i12":42,"i13":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -93,7 +93,7 @@ loadScripts(document, 'script');</script>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer">Codec</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">DefaultCodec</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">DefaultCodec</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer">Codec</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A default <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a> implementation that uses <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</div>
 </li>
 </ul>
@@ -167,13 +173,21 @@ implements <a href="Codec.html" title="interface in com.google.android.exoplayer
 <!--   -->
 </a>
 <h3>Field Summary</h3>
-<ul class="blockList">
-<li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.transformer.Codec">
-<!--   -->
-</a>
-<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.transformer.<a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer">Codec</a></h3>
-<code><a href="Codec.html#UNLIMITED_PENDING_FRAME_COUNT">UNLIMITED_PENDING_FRAME_COUNT</a></code></li>
-</ul>
+<table class="memberSummary">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_PCM_ENCODING">DEFAULT_PCM_ENCODING</a></span></code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
+</tr>
+</table>
 </li>
 </ul>
 </section>
@@ -198,6 +212,7 @@ implements <a href="Codec.html" title="interface in com.google.android.exoplayer
             boolean&nbsp;isDecoder,
             <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;outputSurface)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a <code>DefaultCodec</code>.</div>
 </td>
 </tr>
@@ -213,7 +228,7 @@ implements <a href="Codec.html" title="interface in com.google.android.exoplayer
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -223,6 +238,7 @@ implements <a href="Codec.html" title="interface in com.google.android.exoplayer
 <td class="colFirst"><code><a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getConfigurationFormat()">getConfigurationFormat</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> used for configuring the <code>Codec</code>.</div>
 </td>
 </tr>
@@ -230,6 +246,7 @@ implements <a href="Codec.html" title="interface in com.google.android.exoplayer
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getInputSurface()">getInputSurface</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the input <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a> of an underlying video encoder.</div>
 </td>
 </tr>
@@ -237,14 +254,16 @@ implements <a href="Codec.html" title="interface in com.google.android.exoplayer
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMaxPendingFrameCount()">getMaxPendingFrameCount</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the maximum number of frames that may be pending in the output <code>Codec</code> at a time,
- or <a href="Codec.html#UNLIMITED_PENDING_FRAME_COUNT"><code>Codec.UNLIMITED_PENDING_FRAME_COUNT</code></a> if it's not necessary to enforce a limit.</div>
+ or <code>5</code> as a default value.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getName()">getName</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the name of the underlying codec.</div>
 </td>
 </tr>
@@ -252,6 +271,7 @@ implements <a href="Codec.html" title="interface in com.google.android.exoplayer
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getOutputBuffer()">getOutputBuffer</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current output <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer</code></a>, or <code>null</code> if unavailable.</div>
 </td>
 </tr>
@@ -259,6 +279,7 @@ implements <a href="Codec.html" title="interface in com.google.android.exoplayer
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/media/MediaCodec.BufferInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodec.BufferInfo</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getOutputBufferInfo()">getOutputBufferInfo</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="https://developer.android.com/reference/android/media/MediaCodec.BufferInfo.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.BufferInfo</code></a> associated with the current output buffer, or <code>null</code> if
  there is no output buffer available.</div>
 </td>
@@ -267,6 +288,7 @@ implements <a href="Codec.html" title="interface in com.google.android.exoplayer
 <td class="colFirst"><code><a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getOutputFormat()">getOutputFormat</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current output format, or <code>null</code> if unavailable.</div>
 </td>
 </tr>
@@ -274,6 +296,7 @@ implements <a href="Codec.html" title="interface in com.google.android.exoplayer
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isEnded()">isEnded</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the <code>Codec</code>'s output stream has ended, and no more data can be dequeued.</div>
 </td>
 </tr>
@@ -281,6 +304,7 @@ implements <a href="Codec.html" title="interface in com.google.android.exoplayer
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maybeDequeueInputBuffer(com.google.android.exoplayer2.decoder.DecoderInputBuffer)">maybeDequeueInputBuffer</a></span>&#8203;(<a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;inputBuffer)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dequeues a writable input buffer, if available.</div>
 </td>
 </tr>
@@ -288,6 +312,7 @@ implements <a href="Codec.html" title="interface in com.google.android.exoplayer
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#queueInputBuffer(com.google.android.exoplayer2.decoder.DecoderInputBuffer)">queueInputBuffer</a></span>&#8203;(<a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;inputBuffer)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Queues an input buffer to the <code>Codec</code>.</div>
 </td>
 </tr>
@@ -295,6 +320,7 @@ implements <a href="Codec.html" title="interface in com.google.android.exoplayer
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases the <code>Codec</code>.</div>
 </td>
 </tr>
@@ -302,13 +328,23 @@ implements <a href="Codec.html" title="interface in com.google.android.exoplayer
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#releaseOutputBuffer(boolean)">releaseOutputBuffer</a></span>&#8203;(boolean&nbsp;render)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases the current output buffer.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#releaseOutputBuffer(long)">releaseOutputBuffer</a></span>&#8203;(long&nbsp;renderPresentationTimeUs)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Renders and releases the current output buffer.</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#signalEndOfInputStream()">signalEndOfInputStream</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Signals end-of-stream on input to a video encoder.</div>
 </td>
 </tr>
@@ -329,6 +365,30 @@ implements <a href="Codec.html" title="interface in com.google.android.exoplayer
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a id="DEFAULT_PCM_ENCODING">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>DEFAULT_PCM_ENCODING</h4>
+<pre>public static final&nbsp;int DEFAULT_PCM_ENCODING</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.transformer.DefaultCodec.DEFAULT_PCM_ENCODING">Constant Field Values</a></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
 <!-- ========= CONSTRUCTOR DETAIL ======== -->
 <section role="region">
 <ul class="blockList">
@@ -349,7 +409,8 @@ implements <a href="Codec.html" title="interface in com.google.android.exoplayer
                     boolean&nbsp;isDecoder,
                     @Nullable
                     <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;outputSurface)
-             throws <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></pre>
+             throws <a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a <code>DefaultCodec</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -361,7 +422,7 @@ implements <a href="Codec.html" title="interface in com.google.android.exoplayer
 <dd><code>isDecoder</code> - Whether the <code>DefaultCodec</code> is intended as a decoder.</dd>
 <dd><code>outputSurface</code> - The output <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink"><code>Surface</code></a> if the <a href="https://developer.android.com/reference/android/media/MediaCodec.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> outputs to a surface.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></code></dd>
+<dd><code><a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></code></dd>
 </dl>
 </li>
 </ul>
@@ -382,6 +443,7 @@ implements <a href="Codec.html" title="interface in com.google.android.exoplayer
 <li class="blockList">
 <h4>getConfigurationFormat</h4>
 <pre class="methodSignature">public&nbsp;<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;getConfigurationFormat()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Codec.html#getConfigurationFormat()">Codec</a></code></span></div>
 <div class="block">Returns the <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> used for configuring the <code>Codec</code>.
 
@@ -400,6 +462,7 @@ implements <a href="Codec.html" title="interface in com.google.android.exoplayer
 <li class="blockList">
 <h4>getInputSurface</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;getInputSurface()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Codec.html#getInputSurface()">Codec</a></code></span></div>
 <div class="block">Returns the input <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a> of an underlying video encoder.
 
@@ -418,9 +481,10 @@ implements <a href="Codec.html" title="interface in com.google.android.exoplayer
 <li class="blockList">
 <h4>getMaxPendingFrameCount</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getMaxPendingFrameCount()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Codec.html#getMaxPendingFrameCount()">Codec</a></code></span></div>
 <div class="block">Returns the maximum number of frames that may be pending in the output <code>Codec</code> at a time,
- or <a href="Codec.html#UNLIMITED_PENDING_FRAME_COUNT"><code>Codec.UNLIMITED_PENDING_FRAME_COUNT</code></a> if it's not necessary to enforce a limit.</div>
+ or <code>5</code> as a default value.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Codec.html#getMaxPendingFrameCount()">getMaxPendingFrameCount</a></code>&nbsp;in interface&nbsp;<code><a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer">Codec</a></code></dd>
@@ -436,7 +500,8 @@ implements <a href="Codec.html" title="interface in com.google.android.exoplayer
 <pre class="methodSignature">@EnsuresNonNullIf(expression="#1.data",
                   result=true)
 public&nbsp;boolean&nbsp;maybeDequeueInputBuffer&#8203;(<a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;inputBuffer)
-                                throws <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></pre>
+                                throws <a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Codec.html#maybeDequeueInputBuffer(com.google.android.exoplayer2.decoder.DecoderInputBuffer)">Codec</a></code></span></div>
 <div class="block">Dequeues a writable input buffer, if available.
 
@@ -450,7 +515,7 @@ public&nbsp;boolean&nbsp;maybeDequeueInputBuffer&#8203;(<a href="../decoder/Deco
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Whether an input buffer is ready to be used.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></code> - If the underlying decoder or encoder encounters a problem.</dd>
+<dd><code><a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></code> - If the underlying decoder or encoder encounters a problem.</dd>
 </dl>
 </li>
 </ul>
@@ -461,7 +526,8 @@ public&nbsp;boolean&nbsp;maybeDequeueInputBuffer&#8203;(<a href="../decoder/Deco
 <li class="blockList">
 <h4>queueInputBuffer</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;queueInputBuffer&#8203;(<a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;inputBuffer)
-                      throws <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></pre>
+                      throws <a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Codec.html#queueInputBuffer(com.google.android.exoplayer2.decoder.DecoderInputBuffer)">Codec</a></code></span></div>
 <div class="block">Queues an input buffer to the <code>Codec</code>. No buffers may be queued after <a href="../decoder/Buffer.html#isEndOfStream()">end of stream</a> buffer has been queued.
 
@@ -473,7 +539,7 @@ public&nbsp;boolean&nbsp;maybeDequeueInputBuffer&#8203;(<a href="../decoder/Deco
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>inputBuffer</code> - The <a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">input buffer</a>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></code> - If the underlying decoder or encoder encounters a problem.</dd>
+<dd><code><a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></code> - If the underlying decoder or encoder encounters a problem.</dd>
 </dl>
 </li>
 </ul>
@@ -484,7 +550,8 @@ public&nbsp;boolean&nbsp;maybeDequeueInputBuffer&#8203;(<a href="../decoder/Deco
 <li class="blockList">
 <h4>signalEndOfInputStream</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;signalEndOfInputStream()
-                            throws <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></pre>
+                            throws <a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Codec.html#signalEndOfInputStream()">Codec</a></code></span></div>
 <div class="block">Signals end-of-stream on input to a video encoder.
 
@@ -495,7 +562,7 @@ public&nbsp;boolean&nbsp;maybeDequeueInputBuffer&#8203;(<a href="../decoder/Deco
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Codec.html#signalEndOfInputStream()">signalEndOfInputStream</a></code>&nbsp;in interface&nbsp;<code><a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer">Codec</a></code></dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></code> - If the underlying video encoder encounters a problem.</dd>
+<dd><code><a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></code> - If the underlying video encoder encounters a problem.</dd>
 </dl>
 </li>
 </ul>
@@ -507,14 +574,15 @@ public&nbsp;boolean&nbsp;maybeDequeueInputBuffer&#8203;(<a href="../decoder/Deco
 <h4>getOutputFormat</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;getOutputFormat()
-                       throws <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></pre>
+                       throws <a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Codec.html#getOutputFormat()">Codec</a></code></span></div>
 <div class="block">Returns the current output format, or <code>null</code> if unavailable.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Codec.html#getOutputFormat()">getOutputFormat</a></code>&nbsp;in interface&nbsp;<code><a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer">Codec</a></code></dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></code> - If the underlying decoder or encoder encounters a problem.</dd>
+<dd><code><a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></code> - If the underlying decoder or encoder encounters a problem.</dd>
 </dl>
 </li>
 </ul>
@@ -526,7 +594,8 @@ public&nbsp;<a href="../Format.html" title="class in com.google.android.exoplaye
 <h4>getOutputBuffer</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;getOutputBuffer()
-                           throws <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></pre>
+                           throws <a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Codec.html#getOutputBuffer()">Codec</a></code></span></div>
 <div class="block">Returns the current output <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer</code></a>, or <code>null</code> if unavailable.
 
@@ -535,7 +604,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Codec.html#getOutputBuffer()">getOutputBuffer</a></code>&nbsp;in interface&nbsp;<code><a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer">Codec</a></code></dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></code> - If the underlying decoder or encoder encounters a problem.</dd>
+<dd><code><a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></code> - If the underlying decoder or encoder encounters a problem.</dd>
 </dl>
 </li>
 </ul>
@@ -547,7 +616,8 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <h4>getOutputBufferInfo</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="https://developer.android.com/reference/android/media/MediaCodec.BufferInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodec.BufferInfo</a>&nbsp;getOutputBufferInfo()
-                                          throws <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></pre>
+                                          throws <a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Codec.html#getOutputBufferInfo()">Codec</a></code></span></div>
 <div class="block">Returns the <a href="https://developer.android.com/reference/android/media/MediaCodec.BufferInfo.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.BufferInfo</code></a> associated with the current output buffer, or <code>null</code> if
  there is no output buffer available.
@@ -557,7 +627,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/media/Media
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Codec.html#getOutputBufferInfo()">getOutputBufferInfo</a></code>&nbsp;in interface&nbsp;<code><a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer">Codec</a></code></dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></code> - If the underlying decoder or encoder encounters a problem.</dd>
+<dd><code><a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></code> - If the underlying decoder or encoder encounters a problem.</dd>
 </dl>
 </li>
 </ul>
@@ -568,7 +638,8 @@ public&nbsp;<a href="https://developer.android.com/reference/android/media/Media
 <li class="blockList">
 <h4>releaseOutputBuffer</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;releaseOutputBuffer&#8203;(boolean&nbsp;render)
-                         throws <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></pre>
+                         throws <a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Codec.html#releaseOutputBuffer(boolean)">Codec</a></code></span></div>
 <div class="block">Releases the current output buffer.
 
@@ -578,14 +649,46 @@ public&nbsp;<a href="https://developer.android.com/reference/android/media/Media
  used/displayed.
 
  <p>This should be called after the buffer has been processed. The next output buffer will not
- be available until the current output buffer has been released.</div>
+ be available until the current output buffer has been released.
+
+ <p>Calling this method with <code>render</code> set to <code>true</code> is equivalent to calling <a href="Codec.html#releaseOutputBuffer(long)"><code>Codec.releaseOutputBuffer(long)</code></a> with the presentation timestamp of the <a href="Codec.html#getOutputBufferInfo()"><code>output buffer info</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Codec.html#releaseOutputBuffer(boolean)">releaseOutputBuffer</a></code>&nbsp;in interface&nbsp;<code><a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer">Codec</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>render</code> - Whether the buffer needs to be rendered to the output <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></code> - If the underlying decoder or encoder encounters a problem.</dd>
+<dd><code><a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></code> - If the underlying decoder or encoder encounters a problem.</dd>
+</dl>
+</li>
+</ul>
+<a id="releaseOutputBuffer(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>releaseOutputBuffer</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;releaseOutputBuffer&#8203;(long&nbsp;renderPresentationTimeUs)
+                         throws <a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Codec.html#releaseOutputBuffer(long)">Codec</a></code></span></div>
+<div class="block">Renders and releases the current output buffer.
+
+ <p>This method must only be called on video decoders.
+
+ <p>This method will first render the buffer to the output surface. The surface will then
+ release the buffer back to the <code>Codec</code> once it is no longer used/displayed.
+
+ <p>This should be called after the buffer has been processed. The next output buffer will not
+ be available until the current output buffer has been released.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="Codec.html#releaseOutputBuffer(long)">releaseOutputBuffer</a></code>&nbsp;in interface&nbsp;<code><a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer">Codec</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>renderPresentationTimeUs</code> - The presentation timestamp to associate with this buffer, in
+     microseconds.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></code> - If the underlying decoder or encoder encounters a problem.</dd>
 </dl>
 </li>
 </ul>
@@ -596,6 +699,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/media/Media
 <li class="blockList">
 <h4>isEnded</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isEnded()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Codec.html#isEnded()">Codec</a></code></span></div>
 <div class="block">Returns whether the <code>Codec</code>'s output stream has ended, and no more data can be dequeued.</div>
 <dl>
@@ -611,6 +715,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/media/Media
 <li class="blockList">
 <h4>release</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;release()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Codec.html#release()">Codec</a></code></span></div>
 <div class="block">Releases the <code>Codec</code>.</div>
 <dl>
@@ -626,6 +731,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/media/Media
 <li class="blockList">
 <h4>getName</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;getName()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the name of the underlying codec.
 
  <p>This name is of the actual codec, which may not be the same as the <code>mediaCodecName</code>
@@ -696,7 +802,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/media/Media
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>

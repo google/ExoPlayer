@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">VideoFrameReleaseHelper</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">VideoFrameReleaseHelper</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Helps a video <a href="../Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> release frames to a <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a>. The helper:
 
  <ul>
@@ -161,6 +167,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context)">VideoFrameReleaseHelper</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Constructs an instance.</div>
 </td>
 </tr>
@@ -176,7 +183,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -186,6 +193,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#adjustReleaseTime(long)">adjustReleaseTime</a></span>&#8203;(long&nbsp;releaseTimeNs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adjusts the release timestamp for the next frame.</div>
 </td>
 </tr>
@@ -193,6 +201,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onFormatChanged(float)">onFormatChanged</a></span>&#8203;(float&nbsp;formatFrameRate)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer's output format changes.</div>
 </td>
 </tr>
@@ -200,6 +209,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onNextFrame(long)">onNextFrame</a></span>&#8203;(long&nbsp;framePresentationTimeUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called by the renderer for each frame, prior to it being skipped, dropped or rendered.</div>
 </td>
 </tr>
@@ -207,6 +217,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlaybackSpeed(float)">onPlaybackSpeed</a></span>&#8203;(float&nbsp;playbackSpeed)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer's playback speed changes.</div>
 </td>
 </tr>
@@ -214,6 +225,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPositionReset()">onPositionReset</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer's position is reset.</div>
 </td>
 </tr>
@@ -221,6 +233,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onStarted()">onStarted</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer is started.</div>
 </td>
 </tr>
@@ -228,6 +241,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onStopped()">onStopped</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer is stopped.</div>
 </td>
 </tr>
@@ -235,6 +249,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSurfaceChanged(android.view.Surface)">onSurfaceChanged</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer changes which <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a> it's rendering to renders to.</div>
 </td>
 </tr>
@@ -242,6 +257,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setChangeFrameRateStrategy(@com.google.android.exoplayer2.C.VideoChangeFrameRateStrategyint)">setChangeFrameRateStrategy</a></span>&#8203;(@com.google.android.exoplayer2.C.VideoChangeFrameRateStrategy int&nbsp;changeFrameRateStrategy)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Change the <a href="../C.VideoChangeFrameRateStrategy.html" title="annotation in com.google.android.exoplayer2"><code>C.VideoChangeFrameRateStrategy</code></a> used when calling <a href="https://developer.android.com/reference/android/view/Surface.html#setFrameRate(float,int,int)" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface.setFrameRate(float, int, int)</code></a>.</div>
 </td>
 </tr>
@@ -277,6 +293,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>VideoFrameReleaseHelper</h4>
 <pre>public&nbsp;VideoFrameReleaseHelper&#8203;(@Nullable
                                <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Constructs an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -302,6 +319,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>setChangeFrameRateStrategy</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setChangeFrameRateStrategy&#8203;(<a href="../C.VideoChangeFrameRateStrategy.html" title="annotation in com.google.android.exoplayer2">@VideoChangeFrameRateStrategy</a>
                                        @com.google.android.exoplayer2.C.VideoChangeFrameRateStrategy int&nbsp;changeFrameRateStrategy)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Change the <a href="../C.VideoChangeFrameRateStrategy.html" title="annotation in com.google.android.exoplayer2"><code>C.VideoChangeFrameRateStrategy</code></a> used when calling <a href="https://developer.android.com/reference/android/view/Surface.html#setFrameRate(float,int,int)" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface.setFrameRate(float, int, int)</code></a>.</div>
 </li>
 </ul>
@@ -312,6 +330,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>onStarted</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onStarted()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer is started.</div>
 </li>
 </ul>
@@ -323,6 +342,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>onSurfaceChanged</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onSurfaceChanged&#8203;(@Nullable
                              <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;surface)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer changes which <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a> it's rendering to renders to.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -337,6 +357,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>onPositionReset</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onPositionReset()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer's position is reset.</div>
 </li>
 </ul>
@@ -347,6 +368,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>onPlaybackSpeed</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onPlaybackSpeed&#8203;(float&nbsp;playbackSpeed)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer's playback speed changes.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -361,6 +383,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>onFormatChanged</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onFormatChanged&#8203;(float&nbsp;formatFrameRate)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer's output format changes.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -375,6 +398,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>onNextFrame</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onNextFrame&#8203;(long&nbsp;framePresentationTimeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called by the renderer for each frame, prior to it being skipped, dropped or rendered.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -389,6 +413,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>onStopped</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onStopped()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer is stopped.</div>
 </li>
 </ul>
@@ -399,6 +424,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>adjustReleaseTime</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;adjustReleaseTime&#8203;(long&nbsp;releaseTimeNs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adjusts the release timestamp for the next frame. This is the frame whose presentation
  timestamp was most recently passed to <a href="#onNextFrame(long)"><code>onNextFrame(long)</code></a>.
 

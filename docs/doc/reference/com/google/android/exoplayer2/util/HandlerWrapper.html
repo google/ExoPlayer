@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var data = {"i0":38,"i1":38,"i2":38,"i3":38,"i4":38,"i5":38,"i6":38,"i7":38,"i8":38,"i9":38,"i10":38,"i11":38,"i12":38,"i13":38,"i14":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -121,7 +121,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public interface <span class="typeNameLabel">HandlerWrapper</span></pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">HandlerWrapper</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">An interface to call through to a <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink"><code>Handler</code></a>. Instances must be created by calling <a href="Clock.html#createHandler(android.os.Looper,android.os.Handler.Callback)"><code>Clock.createHandler(Looper, Handler.Callback)</code></a> on <a href="Clock.html#DEFAULT" target="_top"><code>Clock.DEFAULT</code></a> for all non-test cases.</div>
 </li>
 </ul>
@@ -147,6 +153,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="HandlerWrapper.Message.html" title="interface in com.google.android.exoplayer2.util">HandlerWrapper.Message</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A message obtained from the handler.</div>
 </td>
 </tr>
@@ -162,7 +169,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -172,6 +179,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLooper()">getLooper</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <a href="https://developer.android.com/reference/android/os/Handler.html#getLooper()" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler.getLooper()</code></a>.</div>
 </td>
 </tr>
@@ -179,6 +187,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hasMessages(int)">hasMessages</a></span>&#8203;(int&nbsp;what)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <a href="https://developer.android.com/reference/android/os/Handler.html#hasMessages(int)" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler.hasMessages(int)</code></a>.</div>
 </td>
 </tr>
@@ -186,6 +195,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="HandlerWrapper.Message.html" title="interface in com.google.android.exoplayer2.util">HandlerWrapper.Message</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#obtainMessage(int)">obtainMessage</a></span>&#8203;(int&nbsp;what)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <a href="https://developer.android.com/reference/android/os/Handler.html#obtainMessage(int)" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler.obtainMessage(int)</code></a>.</div>
 </td>
 </tr>
@@ -195,6 +205,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
              int&nbsp;arg1,
              int&nbsp;arg2)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <a href="https://developer.android.com/reference/android/os/Handler.html#obtainMessage(int,int,int)" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler.obtainMessage(int, int, int)</code></a>.</div>
 </td>
 </tr>
@@ -205,6 +216,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
              int&nbsp;arg2,
              <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <a href="https://developer.android.com/reference/android/os/Handler.html#obtainMessage(int,int,int,java.lang.Object)" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler.obtainMessage(int, int, int, Object)</code></a>.</div>
 </td>
 </tr>
@@ -213,6 +225,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#obtainMessage(int,java.lang.Object)">obtainMessage</a></span>&#8203;(int&nbsp;what,
              <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <a href="https://developer.android.com/reference/android/os/Handler.html#obtainMessage(int,java.lang.Object)" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler.obtainMessage(int, Object)</code></a>.</div>
 </td>
 </tr>
@@ -220,6 +233,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#post(java.lang.Runnable)">post</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Runnable.html" title="class or interface in java.lang" class="externalLink" target="_top">Runnable</a>&nbsp;runnable)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <a href="https://developer.android.com/reference/android/os/Handler.html#post(java.lang.Runnable)" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler.post(Runnable)</code></a>.</div>
 </td>
 </tr>
@@ -227,6 +241,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#postAtFrontOfQueue(java.lang.Runnable)">postAtFrontOfQueue</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Runnable.html" title="class or interface in java.lang" class="externalLink" target="_top">Runnable</a>&nbsp;runnable)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <a href="https://developer.android.com/reference/android/os/Handler.html#postAtFrontOfQueue(java.lang.Runnable)" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler.postAtFrontOfQueue(Runnable)</code></a>.</div>
 </td>
 </tr>
@@ -235,6 +250,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#postDelayed(java.lang.Runnable,long)">postDelayed</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Runnable.html" title="class or interface in java.lang" class="externalLink" target="_top">Runnable</a>&nbsp;runnable,
            long&nbsp;delayMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <a href="https://developer.android.com/reference/android/os/Handler.html#postDelayed(java.lang.Runnable,long)" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler.postDelayed(Runnable, long)</code></a>.</div>
 </td>
 </tr>
@@ -242,6 +258,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeCallbacksAndMessages(java.lang.Object)">removeCallbacksAndMessages</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;token)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <a href="https://developer.android.com/reference/android/os/Handler.html#removeCallbacksAndMessages(java.lang.Object)" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler.removeCallbacksAndMessages(Object)</code></a>.</div>
 </td>
 </tr>
@@ -249,6 +266,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeMessages(int)">removeMessages</a></span>&#8203;(int&nbsp;what)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <a href="https://developer.android.com/reference/android/os/Handler.html#removeMessages(int)" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler.removeMessages(int)</code></a>.</div>
 </td>
 </tr>
@@ -256,6 +274,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sendEmptyMessage(int)">sendEmptyMessage</a></span>&#8203;(int&nbsp;what)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <a href="https://developer.android.com/reference/android/os/Handler.html#sendEmptyMessage(int)" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler.sendEmptyMessage(int)</code></a>.</div>
 </td>
 </tr>
@@ -264,6 +283,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sendEmptyMessageAtTime(int,long)">sendEmptyMessageAtTime</a></span>&#8203;(int&nbsp;what,
                       long&nbsp;uptimeMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <a href="https://developer.android.com/reference/android/os/Handler.html#sendEmptyMessageAtTime(int,long)" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler.sendEmptyMessageAtTime(int, long)</code></a>.</div>
 </td>
 </tr>
@@ -272,6 +292,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sendEmptyMessageDelayed(int,int)">sendEmptyMessageDelayed</a></span>&#8203;(int&nbsp;what,
                        int&nbsp;delayMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <a href="https://developer.android.com/reference/android/os/Handler.html#sendEmptyMessageDelayed(int,long)" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler.sendEmptyMessageDelayed(int, long)</code></a>.</div>
 </td>
 </tr>
@@ -279,6 +300,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sendMessageAtFrontOfQueue(com.google.android.exoplayer2.util.HandlerWrapper.Message)">sendMessageAtFrontOfQueue</a></span>&#8203;(<a href="HandlerWrapper.Message.html" title="interface in com.google.android.exoplayer2.util">HandlerWrapper.Message</a>&nbsp;message)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <a href="https://developer.android.com/reference/android/os/Handler.html#sendMessageAtFrontOfQueue(android.os.Message)" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler.sendMessageAtFrontOfQueue(android.os.Message)</code></a>.</div>
 </td>
 </tr>
@@ -306,6 +328,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>getLooper</h4>
 <pre class="methodSignature"><a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;getLooper()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <a href="https://developer.android.com/reference/android/os/Handler.html#getLooper()" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler.getLooper()</code></a>.</div>
 </li>
 </ul>
@@ -316,6 +339,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>hasMessages</h4>
 <pre class="methodSignature">boolean&nbsp;hasMessages&#8203;(int&nbsp;what)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <a href="https://developer.android.com/reference/android/os/Handler.html#hasMessages(int)" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler.hasMessages(int)</code></a>.</div>
 </li>
 </ul>
@@ -326,6 +350,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>obtainMessage</h4>
 <pre class="methodSignature"><a href="HandlerWrapper.Message.html" title="interface in com.google.android.exoplayer2.util">HandlerWrapper.Message</a>&nbsp;obtainMessage&#8203;(int&nbsp;what)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <a href="https://developer.android.com/reference/android/os/Handler.html#obtainMessage(int)" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler.obtainMessage(int)</code></a>.</div>
 </li>
 </ul>
@@ -338,6 +363,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre class="methodSignature"><a href="HandlerWrapper.Message.html" title="interface in com.google.android.exoplayer2.util">HandlerWrapper.Message</a>&nbsp;obtainMessage&#8203;(int&nbsp;what,
                                      @Nullable
                                      <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <a href="https://developer.android.com/reference/android/os/Handler.html#obtainMessage(int,java.lang.Object)" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler.obtainMessage(int, Object)</code></a>.</div>
 </li>
 </ul>
@@ -350,6 +376,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre class="methodSignature"><a href="HandlerWrapper.Message.html" title="interface in com.google.android.exoplayer2.util">HandlerWrapper.Message</a>&nbsp;obtainMessage&#8203;(int&nbsp;what,
                                      int&nbsp;arg1,
                                      int&nbsp;arg2)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <a href="https://developer.android.com/reference/android/os/Handler.html#obtainMessage(int,int,int)" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler.obtainMessage(int, int, int)</code></a>.</div>
 </li>
 </ul>
@@ -364,6 +391,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                                      int&nbsp;arg2,
                                      @Nullable
                                      <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <a href="https://developer.android.com/reference/android/os/Handler.html#obtainMessage(int,int,int,java.lang.Object)" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler.obtainMessage(int, int, int, Object)</code></a>.</div>
 </li>
 </ul>
@@ -374,6 +402,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>sendMessageAtFrontOfQueue</h4>
 <pre class="methodSignature">boolean&nbsp;sendMessageAtFrontOfQueue&#8203;(<a href="HandlerWrapper.Message.html" title="interface in com.google.android.exoplayer2.util">HandlerWrapper.Message</a>&nbsp;message)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <a href="https://developer.android.com/reference/android/os/Handler.html#sendMessageAtFrontOfQueue(android.os.Message)" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler.sendMessageAtFrontOfQueue(android.os.Message)</code></a>.</div>
 </li>
 </ul>
@@ -384,6 +413,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>sendEmptyMessage</h4>
 <pre class="methodSignature">boolean&nbsp;sendEmptyMessage&#8203;(int&nbsp;what)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <a href="https://developer.android.com/reference/android/os/Handler.html#sendEmptyMessage(int)" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler.sendEmptyMessage(int)</code></a>.</div>
 </li>
 </ul>
@@ -395,6 +425,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>sendEmptyMessageDelayed</h4>
 <pre class="methodSignature">boolean&nbsp;sendEmptyMessageDelayed&#8203;(int&nbsp;what,
                                 int&nbsp;delayMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <a href="https://developer.android.com/reference/android/os/Handler.html#sendEmptyMessageDelayed(int,long)" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler.sendEmptyMessageDelayed(int, long)</code></a>.</div>
 </li>
 </ul>
@@ -406,6 +437,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>sendEmptyMessageAtTime</h4>
 <pre class="methodSignature">boolean&nbsp;sendEmptyMessageAtTime&#8203;(int&nbsp;what,
                                long&nbsp;uptimeMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <a href="https://developer.android.com/reference/android/os/Handler.html#sendEmptyMessageAtTime(int,long)" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler.sendEmptyMessageAtTime(int, long)</code></a>.</div>
 </li>
 </ul>
@@ -416,6 +448,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>removeMessages</h4>
 <pre class="methodSignature">void&nbsp;removeMessages&#8203;(int&nbsp;what)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <a href="https://developer.android.com/reference/android/os/Handler.html#removeMessages(int)" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler.removeMessages(int)</code></a>.</div>
 </li>
 </ul>
@@ -427,6 +460,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>removeCallbacksAndMessages</h4>
 <pre class="methodSignature">void&nbsp;removeCallbacksAndMessages&#8203;(@Nullable
                                 <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;token)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <a href="https://developer.android.com/reference/android/os/Handler.html#removeCallbacksAndMessages(java.lang.Object)" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler.removeCallbacksAndMessages(Object)</code></a>.</div>
 </li>
 </ul>
@@ -437,6 +471,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>post</h4>
 <pre class="methodSignature">boolean&nbsp;post&#8203;(<a href="https://developer.android.com/reference/java/lang/Runnable.html" title="class or interface in java.lang" class="externalLink" target="_top">Runnable</a>&nbsp;runnable)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <a href="https://developer.android.com/reference/android/os/Handler.html#post(java.lang.Runnable)" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler.post(Runnable)</code></a>.</div>
 </li>
 </ul>
@@ -448,6 +483,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>postDelayed</h4>
 <pre class="methodSignature">boolean&nbsp;postDelayed&#8203;(<a href="https://developer.android.com/reference/java/lang/Runnable.html" title="class or interface in java.lang" class="externalLink" target="_top">Runnable</a>&nbsp;runnable,
                     long&nbsp;delayMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <a href="https://developer.android.com/reference/android/os/Handler.html#postDelayed(java.lang.Runnable,long)" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler.postDelayed(Runnable, long)</code></a>.</div>
 </li>
 </ul>
@@ -458,6 +494,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>postAtFrontOfQueue</h4>
 <pre class="methodSignature">boolean&nbsp;postAtFrontOfQueue&#8203;(<a href="https://developer.android.com/reference/java/lang/Runnable.html" title="class or interface in java.lang" class="externalLink" target="_top">Runnable</a>&nbsp;runnable)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <a href="https://developer.android.com/reference/android/os/Handler.html#postAtFrontOfQueue(java.lang.Runnable)" title="class or interface in android.os" class="externalLink" target="_top"><code>Handler.postAtFrontOfQueue(Runnable)</code></a>.</div>
 </li>
 </ul>

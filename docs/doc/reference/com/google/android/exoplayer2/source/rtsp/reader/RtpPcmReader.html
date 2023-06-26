@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -136,6 +136,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre>public final class <span class="typeNameLabel">RtpPcmReader</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="RtpPayloadReader.html" title="interface in com.google.android.exoplayer2.source.rtsp.reader">RtpPayloadReader</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Parses byte stream carried on RTP packets, and extracts PCM frames. Refer to RFC3551 for more
  details.</div>
 </li>
@@ -176,7 +181,9 @@ implements <a href="RtpPayloadReader.html" title="interface in com.google.androi
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.rtsp.RtpPayloadFormat)">RtpPcmReader</a></span>&#8203;(<a href="../RtpPayloadFormat.html" title="class in com.google.android.exoplayer2.source.rtsp">RtpPayloadFormat</a>&nbsp;payloadFormat)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -190,7 +197,7 @@ implements <a href="RtpPayloadReader.html" title="interface in com.google.androi
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -203,6 +210,7 @@ implements <a href="RtpPayloadReader.html" title="interface in com.google.androi
        int&nbsp;sequenceNumber,
        boolean&nbsp;rtpMarker)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Consumes the payload from the an RTP packet.</div>
 </td>
 </tr>
@@ -211,6 +219,7 @@ implements <a href="RtpPayloadReader.html" title="interface in com.google.androi
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createTracks(com.google.android.exoplayer2.extractor.ExtractorOutput,int)">createTracks</a></span>&#8203;(<a href="../../../extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;extractorOutput,
             int&nbsp;trackId)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Initializes the reader by providing its output and track id.</div>
 </td>
 </tr>
@@ -219,6 +228,7 @@ implements <a href="RtpPayloadReader.html" title="interface in com.google.androi
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onReceivingFirstPacket(long,int)">onReceivingFirstPacket</a></span>&#8203;(long&nbsp;timestamp,
                       int&nbsp;sequenceNumber)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">This method should be called on reading the first packet in a stream of incoming packets.</div>
 </td>
 </tr>
@@ -227,6 +237,7 @@ implements <a href="RtpPayloadReader.html" title="interface in com.google.androi
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seek(long,long)">seek</a></span>&#8203;(long&nbsp;nextRtpTimestamp,
     long&nbsp;timeUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Seeks the reader.</div>
 </td>
 </tr>
@@ -261,6 +272,7 @@ implements <a href="RtpPayloadReader.html" title="interface in com.google.androi
 <li class="blockList">
 <h4>RtpPcmReader</h4>
 <pre>public&nbsp;RtpPcmReader&#8203;(<a href="../RtpPayloadFormat.html" title="class in com.google.android.exoplayer2.source.rtsp">RtpPayloadFormat</a>&nbsp;payloadFormat)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -281,6 +293,7 @@ implements <a href="RtpPayloadReader.html" title="interface in com.google.androi
 <h4>createTracks</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;createTracks&#8203;(<a href="../../../extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;extractorOutput,
                          int&nbsp;trackId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="RtpPayloadReader.html#createTracks(com.google.android.exoplayer2.extractor.ExtractorOutput,int)">RtpPayloadReader</a></code></span></div>
 <div class="block">Initializes the reader by providing its output and track id.</div>
 <dl>
@@ -300,6 +313,7 @@ implements <a href="RtpPayloadReader.html" title="interface in com.google.androi
 <h4>onReceivingFirstPacket</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onReceivingFirstPacket&#8203;(long&nbsp;timestamp,
                                    int&nbsp;sequenceNumber)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="RtpPayloadReader.html#onReceivingFirstPacket(long,int)">RtpPayloadReader</a></code></span></div>
 <div class="block">This method should be called on reading the first packet in a stream of incoming packets.</div>
 <dl>
@@ -323,6 +337,7 @@ implements <a href="RtpPayloadReader.html" title="interface in com.google.androi
                     long&nbsp;timestamp,
                     int&nbsp;sequenceNumber,
                     boolean&nbsp;rtpMarker)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="RtpPayloadReader.html#consume(com.google.android.exoplayer2.util.ParsableByteArray,long,int,boolean)">RtpPayloadReader</a></code></span></div>
 <div class="block">Consumes the payload from the an RTP packet.</div>
 <dl>
@@ -347,6 +362,7 @@ implements <a href="RtpPayloadReader.html" title="interface in com.google.androi
 <h4>seek</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;seek&#8203;(long&nbsp;nextRtpTimestamp,
                  long&nbsp;timeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="RtpPayloadReader.html#seek(long,long)">RtpPayloadReader</a></code></span></div>
 <div class="block">Seeks the reader.
 

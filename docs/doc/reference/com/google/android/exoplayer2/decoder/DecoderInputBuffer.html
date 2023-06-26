@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":9,"i5":10};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":41,"i5":42};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -138,8 +138,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../metadata/MetadataInputBuffer.html" title="class in com.google.android.exoplayer2.metadata">MetadataInputBuffer</a></code>, <code><a href="../text/SubtitleInputBuffer.html" title="class in com.google.android.exoplayer2.text">SubtitleInputBuffer</a></code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">DecoderInputBuffer</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">DecoderInputBuffer</span>
 extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.decoder">Buffer</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Holds input for a decoder.</div>
 </li>
 </ul>
@@ -165,6 +171,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DecoderInputBuffer.BufferReplacementMode.html" title="annotation in com.google.android.exoplayer2.decoder">DecoderInputBuffer.BufferReplacementMode</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The buffer replacement mode.</div>
 </td>
 </tr>
@@ -172,6 +179,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DecoderInputBuffer.InsufficientCapacityException.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer.InsufficientCapacityException</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Thrown when an attempt is made to write into a <a href="DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder"><code>DecoderInputBuffer</code></a> whose <a href="#bufferReplacementMode"><code>bufferReplacementMode</code></a> is <a href="#BUFFER_REPLACEMENT_MODE_DISABLED"><code>BUFFER_REPLACEMENT_MODE_DISABLED</code></a> and who <a href="#data"><code>data</code></a>
  capacity is smaller than required.</div>
 </td>
@@ -198,6 +206,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#BUFFER_REPLACEMENT_MODE_DIRECT">BUFFER_REPLACEMENT_MODE_DIRECT</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Allows buffer replacement using <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html#allocateDirect(int)" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer.allocateDirect(int)</code></a>.</div>
 </td>
 </tr>
@@ -205,6 +214,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#BUFFER_REPLACEMENT_MODE_DISABLED">BUFFER_REPLACEMENT_MODE_DISABLED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Disallows buffer replacement.</div>
 </td>
 </tr>
@@ -212,6 +222,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#BUFFER_REPLACEMENT_MODE_NORMAL">BUFFER_REPLACEMENT_MODE_NORMAL</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Allows buffer replacement using <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html#allocate(int)" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer.allocate(int)</code></a>.</div>
 </td>
 </tr>
@@ -219,6 +230,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 <td class="colFirst"><code><a href="CryptoInfo.html" title="class in com.google.android.exoplayer2.decoder">CryptoInfo</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#cryptoInfo">cryptoInfo</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="CryptoInfo.html" title="class in com.google.android.exoplayer2.decoder"><code>CryptoInfo</code></a> for encrypted data.</div>
 </td>
 </tr>
@@ -226,6 +238,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#data">data</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The buffer's data, or <code>null</code> if no data has been set.</div>
 </td>
 </tr>
@@ -233,6 +246,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 <td class="colFirst"><code><a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#format">format</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 </td>
 </tr>
@@ -240,6 +254,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#supplementalData">supplementalData</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Supplemental data related to the buffer, if <a href="Buffer.html#hasSupplementalData()"><code>Buffer.hasSupplementalData()</code></a> returns true.</div>
 </td>
 </tr>
@@ -247,6 +262,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#timeUs">timeUs</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The time at which the sample should be presented.</div>
 </td>
 </tr>
@@ -254,6 +270,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#waitingForKeys">waitingForKeys</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the last attempt to read a sample into this buffer failed due to not yet having the DRM
  keys associated with the next sample.</div>
 </td>
@@ -278,6 +295,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(@com.google.android.exoplayer2.decoder.DecoderInputBuffer.BufferReplacementModeint)">DecoderInputBuffer</a></span>&#8203;(@com.google.android.exoplayer2.decoder.DecoderInputBuffer.BufferReplacementMode int&nbsp;bufferReplacementMode)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new instance.</div>
 </td>
 </tr>
@@ -285,6 +303,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(@com.google.android.exoplayer2.decoder.DecoderInputBuffer.BufferReplacementModeint,int)">DecoderInputBuffer</a></span>&#8203;(@com.google.android.exoplayer2.decoder.DecoderInputBuffer.BufferReplacementMode int&nbsp;bufferReplacementMode,
                   int&nbsp;paddingSize)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new instance.</div>
 </td>
 </tr>
@@ -300,7 +319,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -310,6 +329,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clear()">clear</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Clears the buffer.</div>
 </td>
 </tr>
@@ -317,6 +337,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ensureSpaceForWrite(int)">ensureSpaceForWrite</a></span>&#8203;(int&nbsp;length)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Ensures that <a href="#data"><code>data</code></a> is large enough to accommodate a write of a given length at its
  current position.</div>
 </td>
@@ -325,6 +346,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#flip()">flip</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Flips <a href="#data"><code>data</code></a> and <a href="#supplementalData"><code>supplementalData</code></a> in preparation for being queued to a decoder.</div>
 </td>
 </tr>
@@ -332,6 +354,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isEncrypted()">isEncrypted</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the <a href="../C.html#BUFFER_FLAG_ENCRYPTED"><code>C.BUFFER_FLAG_ENCRYPTED</code></a> flag is set.</div>
 </td>
 </tr>
@@ -339,6 +362,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 <td class="colFirst"><code>static <a href="DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newNoDataInstance()">newNoDataInstance</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a new instance that's not able to hold any data.</div>
 </td>
 </tr>
@@ -346,6 +370,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#resetSupplementalData(int)">resetSupplementalData</a></span>&#8203;(int&nbsp;length)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Clears <a href="#supplementalData"><code>supplementalData</code></a> and ensures that it's large enough to accommodate <code>
  length</code> bytes.</div>
 </td>
@@ -388,6 +413,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 <li class="blockList">
 <h4>BUFFER_REPLACEMENT_MODE_DISABLED</h4>
 <pre>public static final&nbsp;int BUFFER_REPLACEMENT_MODE_DISABLED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Disallows buffer replacement.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -402,6 +428,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 <li class="blockList">
 <h4>BUFFER_REPLACEMENT_MODE_NORMAL</h4>
 <pre>public static final&nbsp;int BUFFER_REPLACEMENT_MODE_NORMAL</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Allows buffer replacement using <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html#allocate(int)" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer.allocate(int)</code></a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -416,6 +443,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 <li class="blockList">
 <h4>BUFFER_REPLACEMENT_MODE_DIRECT</h4>
 <pre>public static final&nbsp;int BUFFER_REPLACEMENT_MODE_DIRECT</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Allows buffer replacement using <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html#allocateDirect(int)" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer.allocateDirect(int)</code></a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -431,6 +459,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 <h4>format</h4>
 <pre>@Nullable
 public&nbsp;<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a> format</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 </li>
 </ul>
@@ -441,6 +470,7 @@ public&nbsp;<a href="../Format.html" title="class in com.google.android.exoplaye
 <li class="blockList">
 <h4>cryptoInfo</h4>
 <pre>public final&nbsp;<a href="CryptoInfo.html" title="class in com.google.android.exoplayer2.decoder">CryptoInfo</a> cryptoInfo</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="CryptoInfo.html" title="class in com.google.android.exoplayer2.decoder"><code>CryptoInfo</code></a> for encrypted data.</div>
 </li>
 </ul>
@@ -452,6 +482,7 @@ public&nbsp;<a href="../Format.html" title="class in com.google.android.exoplaye
 <h4>data</h4>
 <pre>@Nullable
 public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a> data</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The buffer's data, or <code>null</code> if no data has been set.</div>
 </li>
 </ul>
@@ -462,6 +493,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <li class="blockList">
 <h4>waitingForKeys</h4>
 <pre>public&nbsp;boolean waitingForKeys</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the last attempt to read a sample into this buffer failed due to not yet having the DRM
  keys associated with the next sample.</div>
 </li>
@@ -473,6 +505,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <li class="blockList">
 <h4>timeUs</h4>
 <pre>public&nbsp;long timeUs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The time at which the sample should be presented.</div>
 </li>
 </ul>
@@ -484,6 +517,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <h4>supplementalData</h4>
 <pre>@Nullable
 public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a> supplementalData</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Supplemental data related to the buffer, if <a href="Buffer.html#hasSupplementalData()"><code>Buffer.hasSupplementalData()</code></a> returns true. If
  present, the buffer is populated with supplemental data from position 0 to its limit.</div>
 </li>
@@ -505,6 +539,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <li class="blockList">
 <h4>DecoderInputBuffer</h4>
 <pre>public&nbsp;DecoderInputBuffer&#8203;(@com.google.android.exoplayer2.decoder.DecoderInputBuffer.BufferReplacementMode int&nbsp;bufferReplacementMode)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -520,6 +555,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <h4>DecoderInputBuffer</h4>
 <pre>public&nbsp;DecoderInputBuffer&#8203;(@com.google.android.exoplayer2.decoder.DecoderInputBuffer.BufferReplacementMode int&nbsp;bufferReplacementMode,
                           int&nbsp;paddingSize)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -549,6 +585,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <li class="blockList">
 <h4>newNoDataInstance</h4>
 <pre class="methodSignature">public static&nbsp;<a href="DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;newNoDataInstance()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a new instance that's not able to hold any data.</div>
 </li>
 </ul>
@@ -560,6 +597,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <h4>resetSupplementalData</h4>
 <pre class="methodSignature">@EnsuresNonNull("supplementalData")
 public&nbsp;void&nbsp;resetSupplementalData&#8203;(int&nbsp;length)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Clears <a href="#supplementalData"><code>supplementalData</code></a> and ensures that it's large enough to accommodate <code>
  length</code> bytes.</div>
 <dl>
@@ -576,6 +614,7 @@ public&nbsp;void&nbsp;resetSupplementalData&#8203;(int&nbsp;length)</pre>
 <h4>ensureSpaceForWrite</h4>
 <pre class="methodSignature">@EnsuresNonNull("data")
 public&nbsp;void&nbsp;ensureSpaceForWrite&#8203;(int&nbsp;length)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Ensures that <a href="#data"><code>data</code></a> is large enough to accommodate a write of a given length at its
  current position.
 
@@ -598,6 +637,7 @@ public&nbsp;void&nbsp;ensureSpaceForWrite&#8203;(int&nbsp;length)</pre>
 <li class="blockList">
 <h4>isEncrypted</h4>
 <pre class="methodSignature">public final&nbsp;boolean&nbsp;isEncrypted()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the <a href="../C.html#BUFFER_FLAG_ENCRYPTED"><code>C.BUFFER_FLAG_ENCRYPTED</code></a> flag is set.</div>
 </li>
 </ul>
@@ -608,6 +648,7 @@ public&nbsp;void&nbsp;ensureSpaceForWrite&#8203;(int&nbsp;length)</pre>
 <li class="blockList">
 <h4>flip</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;flip()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Flips <a href="#data"><code>data</code></a> and <a href="#supplementalData"><code>supplementalData</code></a> in preparation for being queued to a decoder.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -622,6 +663,7 @@ public&nbsp;void&nbsp;ensureSpaceForWrite&#8203;(int&nbsp;length)</pre>
 <li class="blockList">
 <h4>clear</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;clear()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="Buffer.html#clear()">Buffer</a></code></span></div>
 <div class="block">Clears the buffer.</div>
 <dl>

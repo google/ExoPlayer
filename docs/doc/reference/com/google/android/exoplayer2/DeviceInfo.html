@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">DeviceInfo</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">DeviceInfo</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Information about the playback device.</div>
 </li>
 </ul>
@@ -158,9 +164,18 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DeviceInfo.Builder.html" title="class in com.google.android.exoplayer2">DeviceInfo.Builder</a></span></code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Builder for <a href="DeviceInfo.html" title="class in com.google.android.exoplayer2"><code>DeviceInfo</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DeviceInfo.PlaybackType.html" title="annotation in com.google.android.exoplayer2">DeviceInfo.PlaybackType</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Types of playback.</div>
 </td>
 </tr>
@@ -193,6 +208,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static <a href="Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="DeviceInfo.html" title="class in com.google.android.exoplayer2">DeviceInfo</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#CREATOR">CREATOR</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Object that can restore <a href="DeviceInfo.html" title="class in com.google.android.exoplayer2"><code>DeviceInfo</code></a> from a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.</div>
 </td>
 </tr>
@@ -200,13 +216,15 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maxVolume">maxVolume</a></span></code></th>
 <td class="colLast">
-<div class="block">The maximum volume that the device supports.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">The maximum volume that the device supports, or <code>0</code> if unspecified.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#minVolume">minVolume</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The minimum volume that the device supports.</div>
 </td>
 </tr>
@@ -214,6 +232,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PLAYBACK_TYPE_LOCAL">PLAYBACK_TYPE_LOCAL</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Playback happens on the local device (e.g.</div>
 </td>
 </tr>
@@ -221,6 +240,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PLAYBACK_TYPE_REMOTE">PLAYBACK_TYPE_REMOTE</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Playback happens outside of the device (e.g.</div>
 </td>
 </tr>
@@ -228,13 +248,24 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>@com.google.android.exoplayer2.DeviceInfo.PlaybackType int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#playbackType">playbackType</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The type of playback.</div>
 </td>
 </tr>
 <tr class="altColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#routingControllerId">routingControllerId</a></span></code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">The <a href="https://developer.android.com/reference/android/media/MediaRouter2.RoutingController.html#getId()" title="class or interface in android.media" class="externalLink" target="_top">routing controller id</a> of the associated
+ <a href="https://developer.android.com/reference/android/media/MediaRouter2.RoutingController.html" title="class or interface in android.media" class="externalLink"><code>MediaRouter2.RoutingController</code></a>, or null if unset or <a href="#playbackType"><code>playbackType</code></a> is <a href="#PLAYBACK_TYPE_LOCAL" target="_top"><code>PLAYBACK_TYPE_LOCAL</code></a>.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <td class="colFirst"><code>static <a href="DeviceInfo.html" title="class in com.google.android.exoplayer2">DeviceInfo</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#UNKNOWN">UNKNOWN</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Unknown DeviceInfo.</div>
 </td>
 </tr>
@@ -260,7 +291,9 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
           int&nbsp;minVolume,
           int&nbsp;maxVolume)</code></th>
 <td class="colLast">
-<div class="block">Creates device information.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="DeviceInfo.Builder.html" title="class in com.google.android.exoplayer2"><code>DeviceInfo.Builder</code></a> instead.</div>
+</div>
 </td>
 </tr>
 </table>
@@ -275,7 +308,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -284,17 +317,22 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundle()">toBundle</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representing the information stored in this object.</div>
 </td>
 </tr>
@@ -329,6 +367,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>PLAYBACK_TYPE_LOCAL</h4>
 <pre>public static final&nbsp;int PLAYBACK_TYPE_LOCAL</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Playback happens on the local device (e.g. phone).</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -343,6 +382,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>PLAYBACK_TYPE_REMOTE</h4>
 <pre>public static final&nbsp;int PLAYBACK_TYPE_REMOTE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Playback happens outside of the device (e.g. a cast device).</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -357,6 +397,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>UNKNOWN</h4>
 <pre>public static final&nbsp;<a href="DeviceInfo.html" title="class in com.google.android.exoplayer2">DeviceInfo</a> UNKNOWN</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Unknown DeviceInfo.</div>
 </li>
 </ul>
@@ -367,6 +408,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>playbackType</h4>
 <pre>public final&nbsp;@com.google.android.exoplayer2.DeviceInfo.PlaybackType int playbackType</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The type of playback.</div>
 </li>
 </ul>
@@ -376,7 +418,9 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <ul class="blockList">
 <li class="blockList">
 <h4>minVolume</h4>
-<pre>public final&nbsp;int minVolume</pre>
+<pre>@IntRange(from=0L)
+public final&nbsp;int minVolume</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The minimum volume that the device supports.</div>
 </li>
 </ul>
@@ -386,8 +430,26 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <ul class="blockList">
 <li class="blockList">
 <h4>maxVolume</h4>
-<pre>public final&nbsp;int maxVolume</pre>
-<div class="block">The maximum volume that the device supports.</div>
+<pre>@IntRange(from=0L)
+public final&nbsp;int maxVolume</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">The maximum volume that the device supports, or <code>0</code> if unspecified.</div>
+</li>
+</ul>
+<a id="routingControllerId">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>routingControllerId</h4>
+<pre>@Nullable
+public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> routingControllerId</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">The <a href="https://developer.android.com/reference/android/media/MediaRouter2.RoutingController.html#getId()" title="class or interface in android.media" class="externalLink" target="_top">routing controller id</a> of the associated
+ <a href="https://developer.android.com/reference/android/media/MediaRouter2.RoutingController.html" title="class or interface in android.media" class="externalLink"><code>MediaRouter2.RoutingController</code></a>, or null if unset or <a href="#playbackType"><code>playbackType</code></a> is <a href="#PLAYBACK_TYPE_LOCAL" target="_top"><code>PLAYBACK_TYPE_LOCAL</code></a>.
+
+ <p>This id allows mapping this device information to a routing controller, which provides
+ information about the media route and allows controlling its volume.</div>
 </li>
 </ul>
 <a id="CREATOR">
@@ -397,6 +459,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>CREATOR</h4>
 <pre>public static final&nbsp;<a href="Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="DeviceInfo.html" title="class in com.google.android.exoplayer2">DeviceInfo</a>&gt; CREATOR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Object that can restore <a href="DeviceInfo.html" title="class in com.google.android.exoplayer2"><code>DeviceInfo</code></a> from a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.</div>
 </li>
 </ul>
@@ -416,10 +479,15 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <ul class="blockListLast">
 <li class="blockList">
 <h4>DeviceInfo</h4>
-<pre>public&nbsp;DeviceInfo&#8203;(@com.google.android.exoplayer2.DeviceInfo.PlaybackType int&nbsp;playbackType,
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;DeviceInfo&#8203;(@com.google.android.exoplayer2.DeviceInfo.PlaybackType int&nbsp;playbackType,
+                  @IntRange(from=0L)
                   int&nbsp;minVolume,
+                  @IntRange(from=0L)
                   int&nbsp;maxVolume)</pre>
-<div class="block">Creates device information.</div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="DeviceInfo.Builder.html" title="class in com.google.android.exoplayer2"><code>DeviceInfo.Builder</code></a> instead.</div>
+</div>
 </li>
 </ul>
 </li>
@@ -440,6 +508,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <h4>equals</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;equals&#8203;(@Nullable
                       <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
@@ -453,6 +522,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>hashCode</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;hashCode()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
@@ -466,6 +536,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>toBundle</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;toBundle()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Bundleable.html#toBundle()">Bundleable</a></code></span></div>
 <div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representing the information stored in this object.</div>
 <dl>

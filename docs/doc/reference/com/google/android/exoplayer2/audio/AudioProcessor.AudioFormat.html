@@ -180,7 +180,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#NOT_SET">NOT_SET</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block">An <a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio"><code>AudioProcessor.AudioFormat</code></a> instance to represent an unset <a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio"><code>AudioProcessor.AudioFormat</code></a>.</div>
+</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
@@ -276,6 +278,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>NOT_SET</h4>
 <pre>public static final&nbsp;<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a> NOT_SET</pre>
+<div class="block">An <a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio"><code>AudioProcessor.AudioFormat</code></a> instance to represent an unset <a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio"><code>AudioProcessor.AudioFormat</code></a>. This should not be
+ returned by <a href="AudioProcessor.html#configure(com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat)"><code>AudioProcessor.configure(AudioFormat)</code></a> if the processor <a href="AudioProcessor.html#isActive()"><code>AudioProcessor.isActive()</code></a>.
+
+ <p>Typically used to represent an inactive <a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioProcessor</code></a> <a href="AudioProcessor.html#configure(com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat)">output format</a>.</div>
 </li>
 </ul>
 <a id="sampleRate">

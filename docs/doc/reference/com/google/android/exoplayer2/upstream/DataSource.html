@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":18,"i3":6,"i4":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
+var data = {"i0":38,"i1":38,"i2":50,"i3":38,"i4":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,8 +133,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="crypto/AesCipherDataSource.html" title="class in com.google.android.exoplayer2.upstream.crypto">AesCipherDataSource</a></code>, <code><a href="AssetDataSource.html" title="class in com.google.android.exoplayer2.upstream">AssetDataSource</a></code>, <code><a href="BaseDataSource.html" title="class in com.google.android.exoplayer2.upstream">BaseDataSource</a></code>, <code><a href="ByteArrayDataSource.html" title="class in com.google.android.exoplayer2.upstream">ByteArrayDataSource</a></code>, <code><a href="cache/CacheDataSource.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheDataSource</a></code>, <code><a href="ContentDataSource.html" title="class in com.google.android.exoplayer2.upstream">ContentDataSource</a></code>, <code><a href="../ext/cronet/CronetDataSource.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource</a></code>, <code><a href="DataSchemeDataSource.html" title="class in com.google.android.exoplayer2.upstream">DataSchemeDataSource</a></code>, <code><a href="DefaultDataSource.html" title="class in com.google.android.exoplayer2.upstream">DefaultDataSource</a></code>, <code><a href="DefaultHttpDataSource.html" title="class in com.google.android.exoplayer2.upstream">DefaultHttpDataSource</a></code>, <code><a href="../testutil/FakeDataSource.html" title="class in com.google.android.exoplayer2.testutil">FakeDataSource</a></code>, <code><a href="FileDataSource.html" title="class in com.google.android.exoplayer2.upstream">FileDataSource</a></code>, <code><a href="../ext/okhttp/OkHttpDataSource.html" title="class in com.google.android.exoplayer2.ext.okhttp">OkHttpDataSource</a></code>, <code><a href="PlaceholderDataSource.html" title="class in com.google.android.exoplayer2.upstream">PlaceholderDataSource</a></code>, <code><a href="PriorityDataSource.html" title="class in com.google.android.exoplayer2.upstream">PriorityDataSource</a></code>, <code><a href="RawResourceDataSource.html" title="class in com.google.android.exoplayer2.upstream">RawResourceDataSource</a></code>, <code><a href="ResolvingDataSource.html" title="class in com.google.android.exoplayer2.upstream">ResolvingDataSource</a></code>, <code><a href="../ext/rtmp/RtmpDataSource.html" title="class in com.google.android.exoplayer2.ext.rtmp">RtmpDataSource</a></code>, <code><a href="StatsDataSource.html" title="class in com.google.android.exoplayer2.upstream">StatsDataSource</a></code>, <code><a href="TeeDataSource.html" title="class in com.google.android.exoplayer2.upstream">TeeDataSource</a></code>, <code><a href="UdpDataSource.html" title="class in com.google.android.exoplayer2.upstream">UdpDataSource</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">DataSource</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">DataSource</span>
 extends <a href="DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Reads data from URI-identified resources.</div>
 </li>
 </ul>
@@ -160,6 +166,7 @@ extends <a href="DataReader.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A factory for <a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> instances.</div>
 </td>
 </tr>
@@ -175,7 +182,7 @@ extends <a href="DataReader.html" title="interface in com.google.android.exoplay
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -185,6 +192,7 @@ extends <a href="DataReader.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addTransferListener(com.google.android.exoplayer2.upstream.TransferListener)">addTransferListener</a></span>&#8203;(<a href="TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;transferListener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a <a href="TransferListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>TransferListener</code></a> to listen to data transfers.</div>
 </td>
 </tr>
@@ -192,6 +200,7 @@ extends <a href="DataReader.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#close()">close</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Closes the source.</div>
 </td>
 </tr>
@@ -199,6 +208,7 @@ extends <a href="DataReader.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>default <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getResponseHeaders()">getResponseHeaders</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">When the source is open, returns the response headers associated with the last <a href="#open(com.google.android.exoplayer2.upstream.DataSpec)"><code>open(com.google.android.exoplayer2.upstream.DataSpec)</code></a>
  call.</div>
 </td>
@@ -207,6 +217,7 @@ extends <a href="DataReader.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getUri()">getUri</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">When the source is open, returns the <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a> from which data is being read.</div>
 </td>
 </tr>
@@ -214,6 +225,7 @@ extends <a href="DataReader.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#open(com.google.android.exoplayer2.upstream.DataSpec)">open</a></span>&#8203;(<a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Opens the source to read the specified data.</div>
 </td>
 </tr>
@@ -248,6 +260,7 @@ extends <a href="DataReader.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>addTransferListener</h4>
 <pre class="methodSignature">void&nbsp;addTransferListener&#8203;(<a href="TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;transferListener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a <a href="TransferListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>TransferListener</code></a> to listen to data transfers. This method is not thread-safe.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -263,6 +276,7 @@ extends <a href="DataReader.html" title="interface in com.google.android.exoplay
 <h4>open</h4>
 <pre class="methodSignature">long&nbsp;open&#8203;(<a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)
    throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Opens the source to read the specified data. If an <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top"><code>IOException</code></a> is thrown, callers must
  still call <a href="#close()"><code>close()</code></a> to ensure that any partial effects of the invocation are cleaned
  up.
@@ -303,6 +317,7 @@ extends <a href="DataReader.html" title="interface in com.google.android.exoplay
 <h4>getUri</h4>
 <pre class="methodSignature">@Nullable
 <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;getUri()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">When the source is open, returns the <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a> from which data is being read. The returned
  <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink"><code>Uri</code></a> will be identical to the one passed <a href="#open(com.google.android.exoplayer2.upstream.DataSpec)"><code>open(DataSpec)</code></a> in the <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream" target="_top"><code>DataSpec</code></a>
  unless redirection has occurred. If redirection has occurred, the <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a> after redirection
@@ -320,6 +335,7 @@ extends <a href="DataReader.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>getResponseHeaders</h4>
 <pre class="methodSignature">default&nbsp;<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;&nbsp;getResponseHeaders()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">When the source is open, returns the response headers associated with the last <a href="#open(com.google.android.exoplayer2.upstream.DataSpec)"><code>open(com.google.android.exoplayer2.upstream.DataSpec)</code></a>
  call. Otherwise, returns an empty map.
 
@@ -334,6 +350,7 @@ extends <a href="DataReader.html" title="interface in com.google.android.exoplay
 <h4>close</h4>
 <pre class="methodSignature">void&nbsp;close()
     throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Closes the source. This method must be called even if the corresponding call to <a href="#open(com.google.android.exoplayer2.upstream.DataSpec)"><code>open(DataSpec)</code></a> threw an <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top"><code>IOException</code></a>.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>

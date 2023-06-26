@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -137,9 +137,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="dvbsi/AppInfoTableDecoder.html" title="class in com.google.android.exoplayer2.metadata.dvbsi">AppInfoTableDecoder</a></code>, <code><a href="emsg/EventMessageDecoder.html" title="class in com.google.android.exoplayer2.metadata.emsg">EventMessageDecoder</a></code>, <code><a href="icy/IcyDecoder.html" title="class in com.google.android.exoplayer2.metadata.icy">IcyDecoder</a></code>, <code><a href="id3/Id3Decoder.html" title="class in com.google.android.exoplayer2.metadata.id3">Id3Decoder</a></code>, <code><a href="scte35/SpliceInfoDecoder.html" title="class in com.google.android.exoplayer2.metadata.scte35">SpliceInfoDecoder</a></code></dd>
 </dl>
 <hr>
-<pre>public abstract class <span class="typeNameLabel">SimpleMetadataDecoder</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public abstract class <span class="typeNameLabel">SimpleMetadataDecoder</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="MetadataDecoder.html" title="interface in com.google.android.exoplayer2.metadata">MetadataDecoder</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A <a href="MetadataDecoder.html" title="interface in com.google.android.exoplayer2.metadata"><code>MetadataDecoder</code></a> base class that validates input buffers and discards any for which
  <a href="../decoder/Buffer.html#isDecodeOnly()"><code>Buffer.isDecodeOnly()</code></a> is <code>true</code>.</div>
 </li>
@@ -163,7 +169,9 @@ implements <a href="MetadataDecoder.html" title="interface in com.google.android
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">SimpleMetadataDecoder</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -177,7 +185,7 @@ implements <a href="MetadataDecoder.html" title="interface in com.google.android
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -187,6 +195,7 @@ implements <a href="MetadataDecoder.html" title="interface in com.google.android
 <td class="colFirst"><code><a href="Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decode(com.google.android.exoplayer2.metadata.MetadataInputBuffer)">decode</a></span>&#8203;(<a href="MetadataInputBuffer.html" title="class in com.google.android.exoplayer2.metadata">MetadataInputBuffer</a>&nbsp;inputBuffer)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Decodes a <a href="Metadata.html" title="class in com.google.android.exoplayer2.metadata"><code>Metadata</code></a> element from the provided input buffer.</div>
 </td>
 </tr>
@@ -195,6 +204,7 @@ implements <a href="MetadataDecoder.html" title="interface in com.google.android
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decode(com.google.android.exoplayer2.metadata.MetadataInputBuffer,java.nio.ByteBuffer)">decode</a></span>&#8203;(<a href="MetadataInputBuffer.html" title="class in com.google.android.exoplayer2.metadata">MetadataInputBuffer</a>&nbsp;inputBuffer,
       <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called by <a href="#decode(com.google.android.exoplayer2.metadata.MetadataInputBuffer)"><code>decode(MetadataInputBuffer)</code></a> after input buffer validation has been
  performed, except in the case that <a href="../decoder/Buffer.html#isDecodeOnly()"><code>Buffer.isDecodeOnly()</code></a> is <code>true</code>.</div>
 </td>
@@ -230,6 +240,7 @@ implements <a href="MetadataDecoder.html" title="interface in com.google.android
 <li class="blockList">
 <h4>SimpleMetadataDecoder</h4>
 <pre>public&nbsp;SimpleMetadataDecoder()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -250,6 +261,7 @@ implements <a href="MetadataDecoder.html" title="interface in com.google.android
 <h4>decode</h4>
 <pre class="methodSignature">@Nullable
 public final&nbsp;<a href="Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;decode&#8203;(<a href="MetadataInputBuffer.html" title="class in com.google.android.exoplayer2.metadata">MetadataInputBuffer</a>&nbsp;inputBuffer)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MetadataDecoder.html#decode(com.google.android.exoplayer2.metadata.MetadataInputBuffer)">MetadataDecoder</a></code></span></div>
 <div class="block">Decodes a <a href="Metadata.html" title="class in com.google.android.exoplayer2.metadata"><code>Metadata</code></a> element from the provided input buffer.
 
@@ -274,6 +286,7 @@ public final&nbsp;<a href="Metadata.html" title="class in com.google.android.exo
 <pre class="methodSignature">@Nullable
 protected abstract&nbsp;<a href="Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;decode&#8203;(<a href="MetadataInputBuffer.html" title="class in com.google.android.exoplayer2.metadata">MetadataInputBuffer</a>&nbsp;inputBuffer,
                                    <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called by <a href="#decode(com.google.android.exoplayer2.metadata.MetadataInputBuffer)"><code>decode(MetadataInputBuffer)</code></a> after input buffer validation has been
  performed, except in the case that <a href="../decoder/Buffer.html#isDecodeOnly()"><code>Buffer.isDecodeOnly()</code></a> is <code>true</code>.</div>
 <dl>

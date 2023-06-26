@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -148,8 +148,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="https://developer.android.com/reference/android/graphics/drawable/Drawable.Callback.html" title="class or interface in android.graphics.drawable" class="externalLink">Drawable.Callback</a></code>, <code><a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityEventSource.html?is-external=true" title="class or interface in android.view.accessibility" class="externalLink">AccessibilityEventSource</a></code>, <code><a href="https://developer.android.com/reference/android/view/KeyEvent.Callback.html?is-external=true" title="class or interface in android.view" class="externalLink">KeyEvent.Callback</a></code>, <code><a href="https://developer.android.com/reference/android/view/SurfaceHolder.Callback.html?is-external=true" title="class or interface in android.view" class="externalLink">SurfaceHolder.Callback</a></code>, <code><a href="https://developer.android.com/reference/android/view/SurfaceHolder.Callback2.html?is-external=true" title="class or interface in android.view" class="externalLink" target="_top">SurfaceHolder.Callback2</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">SphericalGLSurfaceView</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">SphericalGLSurfaceView</span>
 extends <a href="https://developer.android.com/reference/android/opengl/GLSurfaceView.html" title="class or interface in android.opengl" class="externalLink" target="_top">GLSurfaceView</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Renders a GL scene in a non-VR Activity that is affected by phone orientation and touch input.
 
  <p>The two input components are the TYPE_GAME_ROTATION_VECTOR Sensor and a TouchListener. The GL
@@ -182,6 +188,7 @@ extends <a href="https://developer.android.com/reference/android/opengl/GLSurfac
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="SphericalGLSurfaceView.VideoSurfaceListener.html" title="interface in com.google.android.exoplayer2.video.spherical">SphericalGLSurfaceView.VideoSurfaceListener</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Listener for the <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a> to which video frames should be rendered.</div>
 </td>
 </tr>
@@ -242,12 +249,16 @@ extends <a href="https://developer.android.com/reference/android/opengl/GLSurfac
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context)">SphericalGLSurfaceView</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,android.util.AttributeSet)">SphericalGLSurfaceView</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                       <a href="https://developer.android.com/reference/android/util/AttributeSet.html" title="class or interface in android.util" class="externalLink" target="_top">AttributeSet</a>&nbsp;attributeSet)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -261,7 +272,7 @@ extends <a href="https://developer.android.com/reference/android/opengl/GLSurfac
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -271,6 +282,7 @@ extends <a href="https://developer.android.com/reference/android/opengl/GLSurfac
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addVideoSurfaceListener(com.google.android.exoplayer2.video.spherical.SphericalGLSurfaceView.VideoSurfaceListener)">addVideoSurfaceListener</a></span>&#8203;(<a href="SphericalGLSurfaceView.VideoSurfaceListener.html" title="interface in com.google.android.exoplayer2.video.spherical">SphericalGLSurfaceView.VideoSurfaceListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a <a href="SphericalGLSurfaceView.VideoSurfaceListener.html" title="interface in com.google.android.exoplayer2.video.spherical"><code>SphericalGLSurfaceView.VideoSurfaceListener</code></a>.</div>
 </td>
 </tr>
@@ -278,6 +290,7 @@ extends <a href="https://developer.android.com/reference/android/opengl/GLSurfac
 <td class="colFirst"><code><a href="CameraMotionListener.html" title="interface in com.google.android.exoplayer2.video.spherical">CameraMotionListener</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCameraMotionListener()">getCameraMotionListener</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="CameraMotionListener.html" title="interface in com.google.android.exoplayer2.video.spherical"><code>CameraMotionListener</code></a> that should be registered during playback.</div>
 </td>
 </tr>
@@ -285,6 +298,7 @@ extends <a href="https://developer.android.com/reference/android/opengl/GLSurfac
 <td class="colFirst"><code><a href="../VideoFrameMetadataListener.html" title="interface in com.google.android.exoplayer2.video">VideoFrameMetadataListener</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getVideoFrameMetadataListener()">getVideoFrameMetadataListener</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="../VideoFrameMetadataListener.html" title="interface in com.google.android.exoplayer2.video"><code>VideoFrameMetadataListener</code></a> that should be registered during playback.</div>
 </td>
 </tr>
@@ -292,6 +306,7 @@ extends <a href="https://developer.android.com/reference/android/opengl/GLSurfac
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getVideoSurface()">getVideoSurface</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a> to which video frames should be rendered, or <code>null</code> if it has
  not been created.</div>
 </td>
@@ -299,22 +314,29 @@ extends <a href="https://developer.android.com/reference/android/opengl/GLSurfac
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDetachedFromWindow()">onDetachedFromWindow</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPause()">onPause</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onResume()">onResume</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeVideoSurfaceListener(com.google.android.exoplayer2.video.spherical.SphericalGLSurfaceView.VideoSurfaceListener)">removeVideoSurfaceListener</a></span>&#8203;(<a href="SphericalGLSurfaceView.VideoSurfaceListener.html" title="interface in com.google.android.exoplayer2.video.spherical">SphericalGLSurfaceView.VideoSurfaceListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Removes a <a href="SphericalGLSurfaceView.VideoSurfaceListener.html" title="interface in com.google.android.exoplayer2.video.spherical"><code>SphericalGLSurfaceView.VideoSurfaceListener</code></a>.</div>
 </td>
 </tr>
@@ -322,6 +344,7 @@ extends <a href="https://developer.android.com/reference/android/opengl/GLSurfac
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDefaultStereoMode(@com.google.android.exoplayer2.C.StereoModeint)">setDefaultStereoMode</a></span>&#8203;(@com.google.android.exoplayer2.C.StereoMode int&nbsp;stereoMode)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the default stereo mode.</div>
 </td>
 </tr>
@@ -329,6 +352,7 @@ extends <a href="https://developer.android.com/reference/android/opengl/GLSurfac
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUseSensorRotation(boolean)">setUseSensorRotation</a></span>&#8203;(boolean&nbsp;useSensorRotation)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether to use the orientation sensor for rotation (if available).</div>
 </td>
 </tr>
@@ -384,6 +408,7 @@ extends <a href="https://developer.android.com/reference/android/opengl/GLSurfac
 <li class="blockList">
 <h4>SphericalGLSurfaceView</h4>
 <pre>public&nbsp;SphericalGLSurfaceView&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="&lt;init&gt;(android.content.Context,android.util.AttributeSet)">
@@ -395,6 +420,7 @@ extends <a href="https://developer.android.com/reference/android/opengl/GLSurfac
 <pre>public&nbsp;SphericalGLSurfaceView&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                               @Nullable
                               <a href="https://developer.android.com/reference/android/util/AttributeSet.html" title="class or interface in android.util" class="externalLink" target="_top">AttributeSet</a>&nbsp;attributeSet)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -414,6 +440,7 @@ extends <a href="https://developer.android.com/reference/android/opengl/GLSurfac
 <li class="blockList">
 <h4>addVideoSurfaceListener</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;addVideoSurfaceListener&#8203;(<a href="SphericalGLSurfaceView.VideoSurfaceListener.html" title="interface in com.google.android.exoplayer2.video.spherical">SphericalGLSurfaceView.VideoSurfaceListener</a>&nbsp;listener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a <a href="SphericalGLSurfaceView.VideoSurfaceListener.html" title="interface in com.google.android.exoplayer2.video.spherical"><code>SphericalGLSurfaceView.VideoSurfaceListener</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -428,6 +455,7 @@ extends <a href="https://developer.android.com/reference/android/opengl/GLSurfac
 <li class="blockList">
 <h4>removeVideoSurfaceListener</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;removeVideoSurfaceListener&#8203;(<a href="SphericalGLSurfaceView.VideoSurfaceListener.html" title="interface in com.google.android.exoplayer2.video.spherical">SphericalGLSurfaceView.VideoSurfaceListener</a>&nbsp;listener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Removes a <a href="SphericalGLSurfaceView.VideoSurfaceListener.html" title="interface in com.google.android.exoplayer2.video.spherical"><code>SphericalGLSurfaceView.VideoSurfaceListener</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -443,6 +471,7 @@ extends <a href="https://developer.android.com/reference/android/opengl/GLSurfac
 <h4>getVideoSurface</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;getVideoSurface()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a> to which video frames should be rendered, or <code>null</code> if it has
  not been created.</div>
 </li>
@@ -454,6 +483,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/view/Surfac
 <li class="blockList">
 <h4>getVideoFrameMetadataListener</h4>
 <pre class="methodSignature">public&nbsp;<a href="../VideoFrameMetadataListener.html" title="interface in com.google.android.exoplayer2.video">VideoFrameMetadataListener</a>&nbsp;getVideoFrameMetadataListener()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="../VideoFrameMetadataListener.html" title="interface in com.google.android.exoplayer2.video"><code>VideoFrameMetadataListener</code></a> that should be registered during playback.</div>
 </li>
 </ul>
@@ -464,6 +494,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/view/Surfac
 <li class="blockList">
 <h4>getCameraMotionListener</h4>
 <pre class="methodSignature">public&nbsp;<a href="CameraMotionListener.html" title="interface in com.google.android.exoplayer2.video.spherical">CameraMotionListener</a>&nbsp;getCameraMotionListener()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="CameraMotionListener.html" title="interface in com.google.android.exoplayer2.video.spherical"><code>CameraMotionListener</code></a> that should be registered during playback.</div>
 </li>
 </ul>
@@ -474,6 +505,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/view/Surfac
 <li class="blockList">
 <h4>setDefaultStereoMode</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setDefaultStereoMode&#8203;(@com.google.android.exoplayer2.C.StereoMode int&nbsp;stereoMode)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the default stereo mode. If the played video doesn't contain a stereo mode the default one
  is used.</div>
 <dl>
@@ -489,6 +521,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/view/Surfac
 <li class="blockList">
 <h4>setUseSensorRotation</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setUseSensorRotation&#8203;(boolean&nbsp;useSensorRotation)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether to use the orientation sensor for rotation (if available).</div>
 </li>
 </ul>
@@ -499,6 +532,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/view/Surfac
 <li class="blockList">
 <h4>onResume</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onResume()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/opengl/GLSurfaceView.html#onResume()" title="class or interface in android.opengl" class="externalLink">onResume</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/opengl/GLSurfaceView.html?is-external=true" title="class or interface in android.opengl" class="externalLink" target="_top">GLSurfaceView</a></code></dd>
@@ -512,6 +546,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/view/Surfac
 <li class="blockList">
 <h4>onPause</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onPause()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/opengl/GLSurfaceView.html#onPause()" title="class or interface in android.opengl" class="externalLink">onPause</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/opengl/GLSurfaceView.html?is-external=true" title="class or interface in android.opengl" class="externalLink" target="_top">GLSurfaceView</a></code></dd>
@@ -525,6 +560,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/view/Surfac
 <li class="blockList">
 <h4>onDetachedFromWindow</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onDetachedFromWindow()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/opengl/GLSurfaceView.html#onDetachedFromWindow()" title="class or interface in android.opengl" class="externalLink">onDetachedFromWindow</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/opengl/GLSurfaceView.html?is-external=true" title="class or interface in android.opengl" class="externalLink" target="_top">GLSurfaceView</a></code></dd>

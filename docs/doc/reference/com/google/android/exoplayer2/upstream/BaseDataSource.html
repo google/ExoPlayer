@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -137,9 +137,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="AssetDataSource.html" title="class in com.google.android.exoplayer2.upstream">AssetDataSource</a></code>, <code><a href="ByteArrayDataSource.html" title="class in com.google.android.exoplayer2.upstream">ByteArrayDataSource</a></code>, <code><a href="ContentDataSource.html" title="class in com.google.android.exoplayer2.upstream">ContentDataSource</a></code>, <code><a href="../ext/cronet/CronetDataSource.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource</a></code>, <code><a href="DataSchemeDataSource.html" title="class in com.google.android.exoplayer2.upstream">DataSchemeDataSource</a></code>, <code><a href="DefaultHttpDataSource.html" title="class in com.google.android.exoplayer2.upstream">DefaultHttpDataSource</a></code>, <code><a href="../testutil/FakeDataSource.html" title="class in com.google.android.exoplayer2.testutil">FakeDataSource</a></code>, <code><a href="FileDataSource.html" title="class in com.google.android.exoplayer2.upstream">FileDataSource</a></code>, <code><a href="../ext/okhttp/OkHttpDataSource.html" title="class in com.google.android.exoplayer2.ext.okhttp">OkHttpDataSource</a></code>, <code><a href="RawResourceDataSource.html" title="class in com.google.android.exoplayer2.upstream">RawResourceDataSource</a></code>, <code><a href="../ext/rtmp/RtmpDataSource.html" title="class in com.google.android.exoplayer2.ext.rtmp">RtmpDataSource</a></code>, <code><a href="UdpDataSource.html" title="class in com.google.android.exoplayer2.upstream">UdpDataSource</a></code></dd>
 </dl>
 <hr>
-<pre>public abstract class <span class="typeNameLabel">BaseDataSource</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public abstract class <span class="typeNameLabel">BaseDataSource</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Base <a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> implementation to keep a list of <a href="TransferListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>TransferListener</code></a>s.
 
  <p>Subclasses must call <a href="#transferInitializing(com.google.android.exoplayer2.upstream.DataSpec)"><code>transferInitializing(DataSpec)</code></a>, <a href="#transferStarted(com.google.android.exoplayer2.upstream.DataSpec)"><code>transferStarted(DataSpec)</code></a>, <a href="#bytesTransferred(int)"><code>bytesTransferred(int)</code></a>, and <a href="#transferEnded()"><code>transferEnded()</code></a> to
@@ -185,6 +191,7 @@ implements <a href="DataSource.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>protected </code></td>
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(boolean)">BaseDataSource</a></span>&#8203;(boolean&nbsp;isNetwork)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates base data source.</div>
 </td>
 </tr>
@@ -200,7 +207,7 @@ implements <a href="DataSource.html" title="interface in com.google.android.exop
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -210,6 +217,7 @@ implements <a href="DataSource.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addTransferListener(com.google.android.exoplayer2.upstream.TransferListener)">addTransferListener</a></span>&#8203;(<a href="TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;transferListener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a <a href="TransferListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>TransferListener</code></a> to listen to data transfers.</div>
 </td>
 </tr>
@@ -217,6 +225,7 @@ implements <a href="DataSource.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#bytesTransferred(int)">bytesTransferred</a></span>&#8203;(int&nbsp;bytesTransferred)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Notifies listeners that bytes were transferred.</div>
 </td>
 </tr>
@@ -224,6 +233,7 @@ implements <a href="DataSource.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#transferEnded()">transferEnded</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Notifies listeners that a transfer ended.</div>
 </td>
 </tr>
@@ -231,6 +241,7 @@ implements <a href="DataSource.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#transferInitializing(com.google.android.exoplayer2.upstream.DataSpec)">transferInitializing</a></span>&#8203;(<a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Notifies listeners that data transfer for the specified <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> is being initialized.</div>
 </td>
 </tr>
@@ -238,6 +249,7 @@ implements <a href="DataSource.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#transferStarted(com.google.android.exoplayer2.upstream.DataSpec)">transferStarted</a></span>&#8203;(<a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Notifies listeners that data transfer for the specified <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> started.</div>
 </td>
 </tr>
@@ -286,6 +298,7 @@ implements <a href="DataSource.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>BaseDataSource</h4>
 <pre>protected&nbsp;BaseDataSource&#8203;(boolean&nbsp;isNetwork)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates base data source.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -310,6 +323,7 @@ implements <a href="DataSource.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>addTransferListener</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;addTransferListener&#8203;(<a href="TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;transferListener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DataSource.html#addTransferListener(com.google.android.exoplayer2.upstream.TransferListener)">DataSource</a></code></span></div>
 <div class="block">Adds a <a href="TransferListener.html" title="interface in com.google.android.exoplayer2.upstream"><code>TransferListener</code></a> to listen to data transfers. This method is not thread-safe.</div>
 <dl>
@@ -327,6 +341,7 @@ implements <a href="DataSource.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>transferInitializing</h4>
 <pre class="methodSignature">protected final&nbsp;void&nbsp;transferInitializing&#8203;(<a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Notifies listeners that data transfer for the specified <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> is being initialized.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -341,6 +356,7 @@ implements <a href="DataSource.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>transferStarted</h4>
 <pre class="methodSignature">protected final&nbsp;void&nbsp;transferStarted&#8203;(<a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Notifies listeners that data transfer for the specified <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> started.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -355,6 +371,7 @@ implements <a href="DataSource.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>bytesTransferred</h4>
 <pre class="methodSignature">protected final&nbsp;void&nbsp;bytesTransferred&#8203;(int&nbsp;bytesTransferred)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Notifies listeners that bytes were transferred.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -370,6 +387,7 @@ implements <a href="DataSource.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>transferEnded</h4>
 <pre class="methodSignature">protected final&nbsp;void&nbsp;transferEnded()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Notifies listeners that a transfer ended.</div>
 </li>
 </ul>

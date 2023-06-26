@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":9,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":9,"i21":9,"i22":10,"i23":10,"i24":9,"i25":9,"i26":9,"i27":9,"i28":9,"i29":9,"i30":9,"i31":10,"i32":10,"i33":10,"i34":9,"i35":9,"i36":10,"i37":9,"i38":10,"i39":9,"i40":9,"i41":10,"i42":9,"i43":10,"i44":10,"i45":10,"i46":10,"i47":10,"i48":10,"i49":10,"i50":10,"i51":10,"i52":10,"i53":10,"i54":10,"i55":10,"i56":10,"i57":10,"i58":10,"i59":10,"i60":9,"i61":9,"i62":10,"i63":10,"i64":10,"i65":10};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42,"i12":42,"i13":41,"i14":42,"i15":42,"i16":42,"i17":42,"i18":42,"i19":42,"i20":41,"i21":41,"i22":42,"i23":42,"i24":41,"i25":41,"i26":41,"i27":41,"i28":41,"i29":41,"i30":41,"i31":42,"i32":42,"i33":42,"i34":41,"i35":41,"i36":42,"i37":41,"i38":42,"i39":41,"i40":41,"i41":42,"i42":41,"i43":42,"i44":42,"i45":42,"i46":42,"i47":42,"i48":42,"i49":42,"i50":42,"i51":42,"i52":42,"i53":42,"i54":42,"i55":42,"i56":42,"i57":42,"i58":42,"i59":42,"i60":41,"i61":41,"i62":42,"i63":42,"i64":42,"i65":42};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -138,9 +138,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../../../upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&gt;</code>, <code><a href="https://developer.android.com/reference/org/xml/sax/ContentHandler.html" title="class or interface in org.xml.sax" class="externalLink">ContentHandler</a></code>, <code><a href="https://developer.android.com/reference/org/xml/sax/DTDHandler.html?is-external=true" title="class or interface in org.xml.sax" class="externalLink">DTDHandler</a></code>, <code><a href="https://developer.android.com/reference/org/xml/sax/EntityResolver.html?is-external=true" title="class or interface in org.xml.sax" class="externalLink">EntityResolver</a></code>, <code><a href="https://developer.android.com/reference/org/xml/sax/ErrorHandler.html?is-external=true" title="class or interface in org.xml.sax" class="externalLink" target="_top">ErrorHandler</a></code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">DashManifestParser</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">DashManifestParser</span>
 extends <a href="https://developer.android.com/reference/org/xml/sax/helpers/DefaultHandler.html" title="class or interface in org.xml.sax.helpers" class="externalLink" target="_top">DefaultHandler</a>
 implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;<a href="DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&gt;</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A parser of media presentation description files.</div>
 </li>
 </ul>
@@ -166,6 +172,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 <td class="colFirst"><code>protected static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DashManifestParser.RepresentationInfo.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser.RepresentationInfo</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A parsed Representation element.</div>
 </td>
 </tr>
@@ -188,7 +195,9 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">DashManifestParser</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -202,7 +211,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -216,7 +225,9 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                   <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors,
                   <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;essentialProperties,
                   <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;supplementalProperties)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>protected <a href="../../../metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg">EventMessage</a></code></td>
@@ -225,7 +236,9 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
           long&nbsp;id,
           long&nbsp;durationMs,
           byte[]&nbsp;messageData)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>protected <a href="EventStream.html" title="class in com.google.android.exoplayer2.source.dash.manifest">EventStream</a></code></td>
@@ -234,7 +247,9 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                 long&nbsp;timescale,
                 long[]&nbsp;presentationTimesUs,
                 <a href="../../../metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg">EventMessage</a>[]&nbsp;events)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>protected <a href="../../../Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
@@ -252,7 +267,9 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;essentialProperties,
            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;supplementalProperties)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>protected <a href="DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a></code></td>
@@ -269,7 +286,9 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                                  <a href="ServiceDescriptionElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">ServiceDescriptionElement</a>&nbsp;serviceDescription,
                                  <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;location,
                                  <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Period.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Period</a>&gt;&nbsp;periods)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>protected <a href="Period.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Period</a></code></td>
@@ -278,14 +297,18 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="AdaptationSet.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">AdaptationSet</a>&gt;&nbsp;adaptationSets,
            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="EventStream.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">EventStream</a>&gt;&nbsp;eventStreams,
            <a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Descriptor</a>&nbsp;assetIdentifier)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>protected <a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildRangedUri(java.lang.String,long,long)">buildRangedUri</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;urlText,
               long&nbsp;rangeStart,
               long&nbsp;rangeLength)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>protected <a href="Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a></code></td>
@@ -294,7 +317,9 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;extraDrmSchemeType,
                    <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="../../../drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm" target="_top">DrmInitData.SchemeData</a>&gt;&nbsp;extraDrmSchemeDatas,
                    <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;extraInbandEventStreams)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>protected <a href="SegmentBase.SegmentList.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentList</a></code></td>
@@ -308,7 +333,9 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                 <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">RangedUri</a>&gt;&nbsp;segments,
                 long&nbsp;timeShiftBufferDepthMs,
                 long&nbsp;periodStartUnixTimeMs)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>protected <a href="SegmentBase.SegmentTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentTemplate</a></code></td>
@@ -324,13 +351,17 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                     <a href="UrlTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UrlTemplate</a>&nbsp;mediaTemplate,
                     long&nbsp;timeShiftBufferDepthMs,
                     long&nbsp;periodStartUnixTimeMs)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code>protected <a href="SegmentBase.SegmentTimelineElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentTimelineElement</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildSegmentTimelineElement(long,long)">buildSegmentTimelineElement</a></span>&#8203;(long&nbsp;startTime,
                            long&nbsp;duration)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>protected <a href="SegmentBase.SingleSegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SingleSegmentBase</a></code></td>
@@ -339,18 +370,23 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                       long&nbsp;presentationTimeOffset,
                       long&nbsp;indexStart,
                       long&nbsp;indexLength)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code>protected <a href="UtcTimingElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UtcTimingElement</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildUtcTimingElement(java.lang.String,java.lang.String)">buildUtcTimingElement</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;schemeIdUri,
                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i13" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maybeSkipTag(org.xmlpull.v1.XmlPullParser)">maybeSkipTag</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If the provided <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top"><code>XmlPullParser</code></a> is currently positioned at the start of a tag, skips
  forward to the end of that tag.</div>
 </td>
@@ -360,6 +396,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parse(android.net.Uri,java.io.InputStream)">parse</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
      <a href="https://developer.android.com/reference/java/io/InputStream.html" title="class or interface in java.io" class="externalLink" target="_top">InputStream</a>&nbsp;inputStream)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses an object from a response.</div>
 </td>
 </tr>
@@ -374,25 +411,31 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                   long&nbsp;periodStartUnixTimeMs,
                   long&nbsp;timeShiftBufferDepthMs,
                   boolean&nbsp;dvbProfileDeclared)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i16" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseAdaptationSetChild(org.xmlpull.v1.XmlPullParser)">parseAdaptationSetChild</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses children of AdaptationSet elements not specifically parsed elsewhere.</div>
 </td>
 </tr>
 <tr id="i17" class="rowColor">
 <td class="colFirst"><code>protected int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseAudioChannelConfiguration(org.xmlpull.v1.XmlPullParser)">parseAudioChannelConfiguration</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i18" class="altColor">
 <td class="colFirst"><code>protected long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseAvailabilityTimeOffsetUs(org.xmlpull.v1.XmlPullParser,long)">parseAvailabilityTimeOffsetUs</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
                              long&nbsp;parentAvailabilityTimeOffsetUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses the availabilityTimeOffset value and returns the parsed value or the parent value if it
  doesn't exist.</div>
 </td>
@@ -403,43 +446,54 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
             <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="BaseUrl.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">BaseUrl</a>&gt;&nbsp;parentBaseUrls,
             boolean&nbsp;dvbProfileDeclared)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses a BaseURL element.</div>
 </td>
 </tr>
 <tr id="i20" class="altColor">
 <td class="colFirst"><code>protected static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseCea608AccessibilityChannel(java.util.List)">parseCea608AccessibilityChannel</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i21" class="rowColor">
 <td class="colFirst"><code>protected static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseCea708AccessibilityChannel(java.util.List)">parseCea708AccessibilityChannel</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i22" class="altColor">
 <td class="colFirst"><code>protected <a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;@NullableType <a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;@NullableType <a href="../../../drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm" target="_top">DrmInitData.SchemeData</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseContentProtection(org.xmlpull.v1.XmlPullParser)">parseContentProtection</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses a ContentProtection element.</div>
 </td>
 </tr>
 <tr id="i23" class="rowColor">
 <td class="colFirst"><code>protected @com.google.android.exoplayer2.C.TrackType int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseContentType(org.xmlpull.v1.XmlPullParser)">parseContentType</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i24" class="altColor">
 <td class="colFirst"><code>protected static long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseDateTime(org.xmlpull.v1.XmlPullParser,java.lang.String,long)">parseDateTime</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
              long&nbsp;defaultValue)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i25" class="rowColor">
 <td class="colFirst"><code>protected static <a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Descriptor</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseDescriptor(org.xmlpull.v1.XmlPullParser,java.lang.String)">parseDescriptor</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses a <a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>Descriptor</code></a> from an element.</div>
 </td>
 </tr>
@@ -447,6 +501,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 <td class="colFirst"><code>protected static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseDolbyChannelConfiguration(org.xmlpull.v1.XmlPullParser)">parseDolbyChannelConfiguration</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses the number of channels from the value attribute of an AudioChannelConfiguration with
  schemeIdUri "tag:dolby.com,2014:dash:audio_channel_configuration:2011" as defined by table E.5
  in ETSI TS 102 366, or by the legacy schemeIdUri
@@ -457,6 +512,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 <td class="colFirst"><code>protected static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseDtsChannelConfiguration(org.xmlpull.v1.XmlPullParser)">parseDtsChannelConfiguration</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses the number of channels from the value attribute of an AudioChannelConfiguration with
  schemeIdUri "tag:dts.com,2014:dash:audio_channel_configuration:2012" as defined by Annex G
  (3.2) in ETSI TS 102 114 V1.6.1, or by the legacy schemeIdUri
@@ -467,6 +523,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 <td class="colFirst"><code>protected static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseDtsxChannelConfiguration(org.xmlpull.v1.XmlPullParser)">parseDtsxChannelConfiguration</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses the number of channels from the value attribute of an AudioChannelConfiguration with
  schemeIdUri "tag:dts.com,2018:uhd:audio_channel_configuration" as defined by table B-5 in ETSI
  TS 103 491 v1.2.1.</div>
@@ -477,12 +534,16 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseDuration(org.xmlpull.v1.XmlPullParser,java.lang.String,long)">parseDuration</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
              long&nbsp;defaultValue)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i30" class="altColor">
 <td class="colFirst"><code>protected static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseEac3SupplementalProperties(java.util.List)">parseEac3SupplementalProperties</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;supplementalProperties)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i31" class="rowColor">
 <td class="colFirst"><code>protected <a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html?is-external=true" title="class or interface in java.lang" class="externalLink">Long</a>,&#8203;<a href="../../../metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg" target="_top">EventMessage</a>&gt;</code></td>
@@ -493,6 +554,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
           long&nbsp;presentationTimeOffset,
           <a href="https://developer.android.com/reference/java/io/ByteArrayOutputStream.html" title="class or interface in java.io" class="externalLink" target="_top">ByteArrayOutputStream</a>&nbsp;scratchOutputStream)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses a single Event node in the manifest.</div>
 </td>
 </tr>
@@ -501,6 +563,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseEventObject(org.xmlpull.v1.XmlPullParser,java.io.ByteArrayOutputStream)">parseEventObject</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
                 <a href="https://developer.android.com/reference/java/io/ByteArrayOutputStream.html" title="class or interface in java.io" class="externalLink" target="_top">ByteArrayOutputStream</a>&nbsp;scratchOutputStream)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses an event object.</div>
 </td>
 </tr>
@@ -508,6 +571,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 <td class="colFirst"><code>protected <a href="EventStream.html" title="class in com.google.android.exoplayer2.source.dash.manifest">EventStream</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseEventStream(org.xmlpull.v1.XmlPullParser)">parseEventStream</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses a single EventStream node in the manifest.</div>
 </td>
 </tr>
@@ -516,55 +580,71 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseFloat(org.xmlpull.v1.XmlPullParser,java.lang.String,float)">parseFloat</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
           float&nbsp;defaultValue)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i35" class="rowColor">
 <td class="colFirst"><code>protected static float</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseFrameRate(org.xmlpull.v1.XmlPullParser,float)">parseFrameRate</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
               float&nbsp;defaultValue)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i36" class="altColor">
 <td class="colFirst"><code>protected <a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseInitialization(org.xmlpull.v1.XmlPullParser)">parseInitialization</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i37" class="rowColor">
 <td class="colFirst"><code>protected static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseInt(org.xmlpull.v1.XmlPullParser,java.lang.String,int)">parseInt</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
         int&nbsp;defaultValue)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i38" class="altColor">
 <td class="colFirst"><code>protected <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseLabel(org.xmlpull.v1.XmlPullParser)">parseLabel</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses a Label element.</div>
 </td>
 </tr>
 <tr id="i39" class="rowColor">
 <td class="colFirst"><code>protected static long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseLastSegmentNumberSupplementalProperty(java.util.List)">parseLastSegmentNumberSupplementalProperty</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;supplementalProperties)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i40" class="altColor">
 <td class="colFirst"><code>protected static long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseLong(org.xmlpull.v1.XmlPullParser,java.lang.String,long)">parseLong</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
          long&nbsp;defaultValue)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i41" class="rowColor">
 <td class="colFirst"><code>protected <a href="DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseMediaPresentationDescription(org.xmlpull.v1.XmlPullParser,android.net.Uri)">parseMediaPresentationDescription</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
                                  <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;documentBaseUri)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i42" class="altColor">
 <td class="colFirst"><code>protected static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseMpegChannelConfiguration(org.xmlpull.v1.XmlPullParser)">parseMpegChannelConfiguration</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses the number of channels from the value attribute of an AudioChannelConfiguration with
  schemeIdUri "urn:mpeg:mpegB:cicp:ChannelConfiguration", as defined by ISO 23001-8 clause 8.1.</div>
 </td>
@@ -578,26 +658,34 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
            long&nbsp;availabilityStartTimeMs,
            long&nbsp;timeShiftBufferDepthMs,
            boolean&nbsp;dvbProfileDeclared)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i44" class="altColor">
 <td class="colFirst"><code>protected <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseProfiles(org.xmlpull.v1.XmlPullParser,java.lang.String,java.lang.String%5B%5D)">parseProfiles</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;attributeName,
              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>[]&nbsp;defaultValue)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i45" class="rowColor">
 <td class="colFirst"><code>protected <a href="ProgramInformation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">ProgramInformation</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseProgramInformation(org.xmlpull.v1.XmlPullParser)">parseProgramInformation</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i46" class="altColor">
 <td class="colFirst"><code>protected <a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseRangedUrl(org.xmlpull.v1.XmlPullParser,java.lang.String,java.lang.String)">parseRangedUrl</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;urlAttribute,
               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;rangeAttribute)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i47" class="rowColor">
 <td class="colFirst"><code>protected <a href="DashManifestParser.RepresentationInfo.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifestParser.RepresentationInfo</a></code></td>
@@ -622,33 +710,45 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                    long&nbsp;segmentBaseAvailabilityTimeOffsetUs,
                    long&nbsp;timeShiftBufferDepthMs,
                    boolean&nbsp;dvbProfileDeclared)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i48" class="altColor">
 <td class="colFirst"><code>protected @com.google.android.exoplayer2.C.RoleFlags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseRoleFlagsFromAccessibilityDescriptors(java.util.List)">parseRoleFlagsFromAccessibilityDescriptors</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i49" class="rowColor">
 <td class="colFirst"><code>protected @com.google.android.exoplayer2.C.RoleFlags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseRoleFlagsFromDashRoleScheme(java.lang.String)">parseRoleFlagsFromDashRoleScheme</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i50" class="altColor">
 <td class="colFirst"><code>protected @com.google.android.exoplayer2.C.RoleFlags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseRoleFlagsFromProperties(java.util.List)">parseRoleFlagsFromProperties</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i51" class="rowColor">
 <td class="colFirst"><code>protected @com.google.android.exoplayer2.C.RoleFlags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseRoleFlagsFromRoleDescriptors(java.util.List)">parseRoleFlagsFromRoleDescriptors</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;roleDescriptors)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i52" class="altColor">
 <td class="colFirst"><code>protected <a href="SegmentBase.SingleSegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SingleSegmentBase</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseSegmentBase(org.xmlpull.v1.XmlPullParser,com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegmentBase)">parseSegmentBase</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
                 <a href="SegmentBase.SingleSegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SingleSegmentBase</a>&nbsp;parent)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i53" class="rowColor">
 <td class="colFirst"><code>protected <a href="SegmentBase.SegmentList.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentList</a></code></td>
@@ -659,7 +759,9 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                 long&nbsp;baseUrlAvailabilityTimeOffsetUs,
                 long&nbsp;segmentBaseAvailabilityTimeOffsetUs,
                 long&nbsp;timeShiftBufferDepthMs)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i54" class="altColor">
 <td class="colFirst"><code>protected <a href="SegmentBase.SegmentTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentTemplate</a></code></td>
@@ -671,71 +773,94 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                     long&nbsp;baseUrlAvailabilityTimeOffsetUs,
                     long&nbsp;segmentBaseAvailabilityTimeOffsetUs,
                     long&nbsp;timeShiftBufferDepthMs)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i55" class="rowColor">
 <td class="colFirst"><code>protected <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="SegmentBase.SegmentTimelineElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">SegmentBase.SegmentTimelineElement</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseSegmentTimeline(org.xmlpull.v1.XmlPullParser,long,long)">parseSegmentTimeline</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
                     long&nbsp;timescale,
                     long&nbsp;periodDurationMs)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i56" class="altColor">
 <td class="colFirst"><code>protected <a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseSegmentUrl(org.xmlpull.v1.XmlPullParser)">parseSegmentUrl</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i57" class="rowColor">
 <td class="colFirst"><code>protected @com.google.android.exoplayer2.C.SelectionFlags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseSelectionFlagsFromDashRoleScheme(java.lang.String)">parseSelectionFlagsFromDashRoleScheme</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i58" class="altColor">
 <td class="colFirst"><code>protected @com.google.android.exoplayer2.C.SelectionFlags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseSelectionFlagsFromRoleDescriptors(java.util.List)">parseSelectionFlagsFromRoleDescriptors</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;roleDescriptors)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i59" class="rowColor">
 <td class="colFirst"><code>protected <a href="ServiceDescriptionElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">ServiceDescriptionElement</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseServiceDescription(org.xmlpull.v1.XmlPullParser)">parseServiceDescription</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i60" class="altColor">
 <td class="colFirst"><code>protected static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseString(org.xmlpull.v1.XmlPullParser,java.lang.String,java.lang.String)">parseString</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;defaultValue)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i61" class="rowColor">
 <td class="colFirst"><code>protected static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseText(org.xmlpull.v1.XmlPullParser,java.lang.String)">parseText</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;label)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i62" class="altColor">
 <td class="colFirst"><code>protected <a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseTileCountFromProperties(java.util.List)">parseTileCountFromProperties</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;essentialProperties)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses given descriptors for thumbnail tile information.</div>
 </td>
 </tr>
 <tr id="i63" class="rowColor">
 <td class="colFirst"><code>protected @com.google.android.exoplayer2.C.RoleFlags int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseTvaAudioPurposeCsValue(java.lang.String)">parseTvaAudioPurposeCsValue</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i64" class="altColor">
 <td class="colFirst"><code>protected <a href="UrlTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UrlTemplate</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseUrlTemplate(org.xmlpull.v1.XmlPullParser,java.lang.String,com.google.android.exoplayer2.source.dash.manifest.UrlTemplate)">parseUrlTemplate</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
                 <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
                 <a href="UrlTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UrlTemplate</a>&nbsp;defaultValue)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i65" class="rowColor">
 <td class="colFirst"><code>protected <a href="UtcTimingElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UtcTimingElement</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseUtcTiming(org.xmlpull.v1.XmlPullParser)">parseUtcTiming</a></span>&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -775,6 +900,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 <li class="blockList">
 <h4>DashManifestParser</h4>
 <pre>public&nbsp;DashManifestParser()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -796,6 +922,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 <pre class="methodSignature">public&nbsp;<a href="DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;parse&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
                           <a href="https://developer.android.com/reference/java/io/InputStream.html" title="class or interface in java.io" class="externalLink" target="_top">InputStream</a>&nbsp;inputStream)
                    throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../upstream/ParsingLoadable.Parser.html#parse(android.net.Uri,java.io.InputStream)">ParsingLoadable.Parser</a></code></span></div>
 <div class="block">Parses an object from a response.</div>
 <dl>
@@ -822,6 +949,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                                                          <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;documentBaseUri)
                                                   throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
                                                          <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></code></dd>
@@ -852,6 +980,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                                                          @Nullable
                                                          <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;location,
                                                          <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Period.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Period</a>&gt;&nbsp;periods)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseUtcTiming(org.xmlpull.v1.XmlPullParser)">
@@ -861,6 +990,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 <li class="blockList">
 <h4>parseUtcTiming</h4>
 <pre class="methodSignature">protected&nbsp;<a href="UtcTimingElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UtcTimingElement</a>&nbsp;parseUtcTiming&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="buildUtcTimingElement(java.lang.String,java.lang.String)">
@@ -871,6 +1001,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 <h4>buildUtcTimingElement</h4>
 <pre class="methodSignature">protected&nbsp;<a href="UtcTimingElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UtcTimingElement</a>&nbsp;buildUtcTimingElement&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;schemeIdUri,
                                                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseServiceDescription(org.xmlpull.v1.XmlPullParser)">
@@ -882,6 +1013,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 <pre class="methodSignature">protected&nbsp;<a href="ServiceDescriptionElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">ServiceDescriptionElement</a>&nbsp;parseServiceDescription&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)
                                                      throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
                                                             <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></code></dd>
@@ -904,6 +1036,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                                               boolean&nbsp;dvbProfileDeclared)
                                        throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
                                               <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></code></dd>
@@ -924,6 +1057,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                              <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="EventStream.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">EventStream</a>&gt;&nbsp;eventStreams,
                              @Nullable
                              <a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Descriptor</a>&nbsp;assetIdentifier)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseAdaptationSet(org.xmlpull.v1.XmlPullParser,java.util.List,com.google.android.exoplayer2.source.dash.manifest.SegmentBase,long,long,long,long,long,boolean)">
@@ -944,6 +1078,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                                            boolean&nbsp;dvbProfileDeclared)
                                     throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
                                            <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></code></dd>
@@ -963,6 +1098,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                                            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors,
                                            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;essentialProperties,
                                            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;supplementalProperties)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseContentType(org.xmlpull.v1.XmlPullParser)">
@@ -972,6 +1108,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 <li class="blockList">
 <h4>parseContentType</h4>
 <pre class="methodSignature">protected&nbsp;@com.google.android.exoplayer2.C.TrackType int&nbsp;parseContentType&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseContentProtection(org.xmlpull.v1.XmlPullParser)">
@@ -983,6 +1120,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 <pre class="methodSignature">protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;@NullableType <a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;@NullableType <a href="../../../drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a>&gt;&nbsp;parseContentProtection&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html?is-external=true" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)
                                                                                                 throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
                                                                                                        <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses a ContentProtection element.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1005,6 +1143,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 <pre class="methodSignature">protected&nbsp;void&nbsp;parseAdaptationSetChild&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)
                                 throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
                                        <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses children of AdaptationSet elements not specifically parsed elsewhere.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1048,6 +1187,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                                                                     boolean&nbsp;dvbProfileDeclared)
                                                              throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
                                                                     <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></code></dd>
@@ -1079,6 +1219,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecs,
                              <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;essentialProperties,
                              <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;supplementalProperties)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="buildRepresentation(com.google.android.exoplayer2.source.dash.manifest.DashManifestParser.RepresentationInfo,java.lang.String,java.lang.String,java.util.ArrayList,java.util.ArrayList)">
@@ -1094,6 +1235,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                                              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;extraDrmSchemeType,
                                              <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="../../../drm/DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm" target="_top">DrmInitData.SchemeData</a>&gt;&nbsp;extraDrmSchemeDatas,
                                              <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;extraInbandEventStreams)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseSegmentBase(org.xmlpull.v1.XmlPullParser,com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SingleSegmentBase)">
@@ -1107,6 +1249,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                                                          <a href="SegmentBase.SingleSegmentBase.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SingleSegmentBase</a>&nbsp;parent)
                                                   throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
                                                          <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></code></dd>
@@ -1125,6 +1268,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                                                                long&nbsp;presentationTimeOffset,
                                                                long&nbsp;indexStart,
                                                                long&nbsp;indexLength)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseSegmentList(org.xmlpull.v1.XmlPullParser,com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SegmentList,long,long,long,long,long)">
@@ -1143,6 +1287,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                                                    long&nbsp;timeShiftBufferDepthMs)
                                             throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
                                                    <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></code></dd>
@@ -1168,6 +1313,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                                                    <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">RangedUri</a>&gt;&nbsp;segments,
                                                    long&nbsp;timeShiftBufferDepthMs,
                                                    long&nbsp;periodStartUnixTimeMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseSegmentTemplate(org.xmlpull.v1.XmlPullParser,com.google.android.exoplayer2.source.dash.manifest.SegmentBase.SegmentTemplate,java.util.List,long,long,long,long,long)">
@@ -1187,6 +1333,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                                                            long&nbsp;timeShiftBufferDepthMs)
                                                     throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
                                                            <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></code></dd>
@@ -1214,6 +1361,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                                                            <a href="UrlTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UrlTemplate</a>&nbsp;mediaTemplate,
                                                            long&nbsp;timeShiftBufferDepthMs,
                                                            long&nbsp;periodStartUnixTimeMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseEventStream(org.xmlpull.v1.XmlPullParser)">
@@ -1225,6 +1373,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 <pre class="methodSignature">protected&nbsp;<a href="EventStream.html" title="class in com.google.android.exoplayer2.source.dash.manifest">EventStream</a>&nbsp;parseEventStream&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)
                                 throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
                                        <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses a single EventStream node in the manifest.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1248,6 +1397,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                                        long&nbsp;timescale,
                                        long[]&nbsp;presentationTimesUs,
                                        <a href="../../../metadata/emsg/EventMessage.html" title="class in com.google.android.exoplayer2.metadata.emsg">EventMessage</a>[]&nbsp;events)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseEvent(org.xmlpull.v1.XmlPullParser,java.lang.String,java.lang.String,long,long,java.io.ByteArrayOutputStream)">
@@ -1264,6 +1414,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                                                    <a href="https://developer.android.com/reference/java/io/ByteArrayOutputStream.html" title="class or interface in java.io" class="externalLink" target="_top">ByteArrayOutputStream</a>&nbsp;scratchOutputStream)
                                             throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>,
                                                    <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses a single Event node in the manifest.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1293,6 +1444,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                                   <a href="https://developer.android.com/reference/java/io/ByteArrayOutputStream.html" title="class or interface in java.io" class="externalLink" target="_top">ByteArrayOutputStream</a>&nbsp;scratchOutputStream)
                            throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
                                   <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses an event object.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1317,6 +1469,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                                   long&nbsp;id,
                                   long&nbsp;durationMs,
                                   byte[]&nbsp;messageData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseSegmentTimeline(org.xmlpull.v1.XmlPullParser,long,long)">
@@ -1330,6 +1483,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
                                                                         long&nbsp;periodDurationMs)
                                                                  throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
                                                                         <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></code></dd>
@@ -1345,6 +1499,7 @@ implements <a href="../../../upstream/ParsingLoadable.Parser.html" title="interf
 <h4>buildSegmentTimelineElement</h4>
 <pre class="methodSignature">protected&nbsp;<a href="SegmentBase.SegmentTimelineElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">SegmentBase.SegmentTimelineElement</a>&nbsp;buildSegmentTimelineElement&#8203;(long&nbsp;startTime,
                                                                          long&nbsp;duration)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseUrlTemplate(org.xmlpull.v1.XmlPullParser,java.lang.String,com.google.android.exoplayer2.source.dash.manifest.UrlTemplate)">
@@ -1358,6 +1513,7 @@ protected&nbsp;<a href="UrlTemplate.html" title="class in com.google.android.exo
                                        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
                                        @Nullable
                                        <a href="UrlTemplate.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UrlTemplate</a>&nbsp;defaultValue)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseInitialization(org.xmlpull.v1.XmlPullParser)">
@@ -1367,6 +1523,7 @@ protected&nbsp;<a href="UrlTemplate.html" title="class in com.google.android.exo
 <li class="blockList">
 <h4>parseInitialization</h4>
 <pre class="methodSignature">protected&nbsp;<a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;parseInitialization&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseSegmentUrl(org.xmlpull.v1.XmlPullParser)">
@@ -1376,6 +1533,7 @@ protected&nbsp;<a href="UrlTemplate.html" title="class in com.google.android.exo
 <li class="blockList">
 <h4>parseSegmentUrl</h4>
 <pre class="methodSignature">protected&nbsp;<a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;parseSegmentUrl&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseRangedUrl(org.xmlpull.v1.XmlPullParser,java.lang.String,java.lang.String)">
@@ -1387,6 +1545,7 @@ protected&nbsp;<a href="UrlTemplate.html" title="class in com.google.android.exo
 <pre class="methodSignature">protected&nbsp;<a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;parseRangedUrl&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
                                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;urlAttribute,
                                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;rangeAttribute)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="buildRangedUri(java.lang.String,long,long)">
@@ -1398,6 +1557,7 @@ protected&nbsp;<a href="UrlTemplate.html" title="class in com.google.android.exo
 <pre class="methodSignature">protected&nbsp;<a href="RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;buildRangedUri&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;urlText,
                                    long&nbsp;rangeStart,
                                    long&nbsp;rangeLength)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseProgramInformation(org.xmlpull.v1.XmlPullParser)">
@@ -1409,6 +1569,7 @@ protected&nbsp;<a href="UrlTemplate.html" title="class in com.google.android.exo
 <pre class="methodSignature">protected&nbsp;<a href="ProgramInformation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">ProgramInformation</a>&nbsp;parseProgramInformation&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)
                                               throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>,
                                                      <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code></dd>
@@ -1425,6 +1586,7 @@ protected&nbsp;<a href="UrlTemplate.html" title="class in com.google.android.exo
 <pre class="methodSignature">protected&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;parseLabel&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html?is-external=true" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)
                      throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
                             <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses a Label element.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1448,6 +1610,7 @@ protected&nbsp;<a href="UrlTemplate.html" title="class in com.google.android.exo
                                      boolean&nbsp;dvbProfileDeclared)
                               throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
                                      <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses a BaseURL element.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1470,6 +1633,7 @@ protected&nbsp;<a href="UrlTemplate.html" title="class in com.google.android.exo
 <h4>parseAvailabilityTimeOffsetUs</h4>
 <pre class="methodSignature">protected&nbsp;long&nbsp;parseAvailabilityTimeOffsetUs&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
                                              long&nbsp;parentAvailabilityTimeOffsetUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses the availabilityTimeOffset value and returns the parsed value or the parent value if it
  doesn't exist.</div>
 <dl>
@@ -1491,6 +1655,7 @@ protected&nbsp;<a href="UrlTemplate.html" title="class in com.google.android.exo
 <pre class="methodSignature">protected&nbsp;int&nbsp;parseAudioChannelConfiguration&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)
                                       throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
                                              <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></code></dd>
@@ -1506,6 +1671,7 @@ protected&nbsp;<a href="UrlTemplate.html" title="class in com.google.android.exo
 <h4>parseSelectionFlagsFromRoleDescriptors</h4>
 <pre class="methodSignature"><a href="../../../C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
 protected&nbsp;@com.google.android.exoplayer2.C.SelectionFlags int&nbsp;parseSelectionFlagsFromRoleDescriptors&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;roleDescriptors)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseSelectionFlagsFromDashRoleScheme(java.lang.String)">
@@ -1517,6 +1683,7 @@ protected&nbsp;@com.google.android.exoplayer2.C.SelectionFlags int&nbsp;parseSel
 <pre class="methodSignature"><a href="../../../C.SelectionFlags.html" title="annotation in com.google.android.exoplayer2">@SelectionFlags</a>
 protected&nbsp;@com.google.android.exoplayer2.C.SelectionFlags int&nbsp;parseSelectionFlagsFromDashRoleScheme&#8203;(@Nullable
                                                                                                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseRoleFlagsFromRoleDescriptors(java.util.List)">
@@ -1527,6 +1694,7 @@ protected&nbsp;@com.google.android.exoplayer2.C.SelectionFlags int&nbsp;parseSel
 <h4>parseRoleFlagsFromRoleDescriptors</h4>
 <pre class="methodSignature"><a href="../../../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
 protected&nbsp;@com.google.android.exoplayer2.C.RoleFlags int&nbsp;parseRoleFlagsFromRoleDescriptors&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;roleDescriptors)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseRoleFlagsFromAccessibilityDescriptors(java.util.List)">
@@ -1537,6 +1705,7 @@ protected&nbsp;@com.google.android.exoplayer2.C.RoleFlags int&nbsp;parseRoleFlag
 <h4>parseRoleFlagsFromAccessibilityDescriptors</h4>
 <pre class="methodSignature"><a href="../../../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
 protected&nbsp;@com.google.android.exoplayer2.C.RoleFlags int&nbsp;parseRoleFlagsFromAccessibilityDescriptors&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseRoleFlagsFromProperties(java.util.List)">
@@ -1547,6 +1716,7 @@ protected&nbsp;@com.google.android.exoplayer2.C.RoleFlags int&nbsp;parseRoleFlag
 <h4>parseRoleFlagsFromProperties</h4>
 <pre class="methodSignature"><a href="../../../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
 protected&nbsp;@com.google.android.exoplayer2.C.RoleFlags int&nbsp;parseRoleFlagsFromProperties&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseRoleFlagsFromDashRoleScheme(java.lang.String)">
@@ -1558,6 +1728,7 @@ protected&nbsp;@com.google.android.exoplayer2.C.RoleFlags int&nbsp;parseRoleFlag
 <pre class="methodSignature"><a href="../../../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
 protected&nbsp;@com.google.android.exoplayer2.C.RoleFlags int&nbsp;parseRoleFlagsFromDashRoleScheme&#8203;(@Nullable
                                                                                           <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseTvaAudioPurposeCsValue(java.lang.String)">
@@ -1569,6 +1740,7 @@ protected&nbsp;@com.google.android.exoplayer2.C.RoleFlags int&nbsp;parseRoleFlag
 <pre class="methodSignature"><a href="../../../C.RoleFlags.html" title="annotation in com.google.android.exoplayer2">@RoleFlags</a>
 protected&nbsp;@com.google.android.exoplayer2.C.RoleFlags int&nbsp;parseTvaAudioPurposeCsValue&#8203;(@Nullable
                                                                                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseProfiles(org.xmlpull.v1.XmlPullParser,java.lang.String,java.lang.String[])">
@@ -1580,6 +1752,7 @@ protected&nbsp;@com.google.android.exoplayer2.C.RoleFlags int&nbsp;parseTvaAudio
 <pre class="methodSignature">protected&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink">String</a>[]&nbsp;parseProfiles&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html?is-external=true" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
                                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;attributeName,
                                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>[]&nbsp;defaultValue)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseTileCountFromProperties(java.util.List)">
@@ -1590,6 +1763,7 @@ protected&nbsp;@com.google.android.exoplayer2.C.RoleFlags int&nbsp;parseTvaAudio
 <h4>parseTileCountFromProperties</h4>
 <pre class="methodSignature">@Nullable
 protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>&gt;&nbsp;parseTileCountFromProperties&#8203;(<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;essentialProperties)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses given descriptors for thumbnail tile information.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1609,6 +1783,7 @@ protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pai
 <pre class="methodSignature">public static&nbsp;void&nbsp;maybeSkipTag&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)
                          throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>,
                                 <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If the provided <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top"><code>XmlPullParser</code></a> is currently positioned at the start of a tag, skips
  forward to the end of that tag.</div>
 <dl>
@@ -1630,6 +1805,7 @@ protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pai
                                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag)
                                      throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
                                             <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses a <a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>Descriptor</code></a> from an element.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1650,6 +1826,7 @@ protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pai
 <li class="blockList">
 <h4>parseCea608AccessibilityChannel</h4>
 <pre class="methodSignature">protected static&nbsp;int&nbsp;parseCea608AccessibilityChannel&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseCea708AccessibilityChannel(java.util.List)">
@@ -1659,6 +1836,7 @@ protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pai
 <li class="blockList">
 <h4>parseCea708AccessibilityChannel</h4>
 <pre class="methodSignature">protected static&nbsp;int&nbsp;parseCea708AccessibilityChannel&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;accessibilityDescriptors)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseEac3SupplementalProperties(java.util.List)">
@@ -1668,6 +1846,7 @@ protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pai
 <li class="blockList">
 <h4>parseEac3SupplementalProperties</h4>
 <pre class="methodSignature">protected static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;parseEac3SupplementalProperties&#8203;(<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;supplementalProperties)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseFrameRate(org.xmlpull.v1.XmlPullParser,float)">
@@ -1678,6 +1857,7 @@ protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pai
 <h4>parseFrameRate</h4>
 <pre class="methodSignature">protected static&nbsp;float&nbsp;parseFrameRate&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
                                       float&nbsp;defaultValue)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseDuration(org.xmlpull.v1.XmlPullParser,java.lang.String,long)">
@@ -1689,6 +1869,7 @@ protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pai
 <pre class="methodSignature">protected static&nbsp;long&nbsp;parseDuration&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
                                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
                                     long&nbsp;defaultValue)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseDateTime(org.xmlpull.v1.XmlPullParser,java.lang.String,long)">
@@ -1701,6 +1882,7 @@ protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pai
                                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
                                     long&nbsp;defaultValue)
                              throws <a href="../../../ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="../../../ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></code></dd>
@@ -1717,6 +1899,7 @@ protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pai
                                   <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;label)
                            throws <a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a>,
                                   <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParserException.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParserException</a></code></dd>
@@ -1733,6 +1916,7 @@ protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pai
 <pre class="methodSignature">protected static&nbsp;int&nbsp;parseInt&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
                               int&nbsp;defaultValue)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseLong(org.xmlpull.v1.XmlPullParser,java.lang.String,long)">
@@ -1744,6 +1928,7 @@ protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pai
 <pre class="methodSignature">protected static&nbsp;long&nbsp;parseLong&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
                                 <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
                                 long&nbsp;defaultValue)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseFloat(org.xmlpull.v1.XmlPullParser,java.lang.String,float)">
@@ -1755,6 +1940,7 @@ protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pai
 <pre class="methodSignature">protected static&nbsp;float&nbsp;parseFloat&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
                                   <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
                                   float&nbsp;defaultValue)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseString(org.xmlpull.v1.XmlPullParser,java.lang.String,java.lang.String)">
@@ -1766,6 +1952,7 @@ protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pai
 <pre class="methodSignature">protected static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;parseString&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html?is-external=true" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp,
                                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
                                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;defaultValue)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="parseMpegChannelConfiguration(org.xmlpull.v1.XmlPullParser)">
@@ -1775,6 +1962,7 @@ protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pai
 <li class="blockList">
 <h4>parseMpegChannelConfiguration</h4>
 <pre class="methodSignature">protected static&nbsp;int&nbsp;parseMpegChannelConfiguration&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses the number of channels from the value attribute of an AudioChannelConfiguration with
  schemeIdUri "urn:mpeg:mpegB:cicp:ChannelConfiguration", as defined by ISO 23001-8 clause 8.1.</div>
 <dl>
@@ -1793,6 +1981,7 @@ protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pai
 <li class="blockList">
 <h4>parseDtsChannelConfiguration</h4>
 <pre class="methodSignature">protected static&nbsp;int&nbsp;parseDtsChannelConfiguration&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses the number of channels from the value attribute of an AudioChannelConfiguration with
  schemeIdUri "tag:dts.com,2014:dash:audio_channel_configuration:2012" as defined by Annex G
  (3.2) in ETSI TS 102 114 V1.6.1, or by the legacy schemeIdUri
@@ -1813,6 +2002,7 @@ protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pai
 <li class="blockList">
 <h4>parseDtsxChannelConfiguration</h4>
 <pre class="methodSignature">protected static&nbsp;int&nbsp;parseDtsxChannelConfiguration&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses the number of channels from the value attribute of an AudioChannelConfiguration with
  schemeIdUri "tag:dts.com,2018:uhd:audio_channel_configuration" as defined by table B-5 in ETSI
  TS 103 491 v1.2.1.</div>
@@ -1832,6 +2022,7 @@ protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pai
 <li class="blockList">
 <h4>parseDolbyChannelConfiguration</h4>
 <pre class="methodSignature">protected static&nbsp;int&nbsp;parseDolbyChannelConfiguration&#8203;(<a href="https://developer.android.com/reference/org/xmlpull/v1/XmlPullParser.html" title="class or interface in org.xmlpull.v1" class="externalLink" target="_top">XmlPullParser</a>&nbsp;xpp)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses the number of channels from the value attribute of an AudioChannelConfiguration with
  schemeIdUri "tag:dolby.com,2014:dash:audio_channel_configuration:2011" as defined by table E.5
  in ETSI TS 102 366, or by the legacy schemeIdUri
@@ -1852,6 +2043,7 @@ protected&nbsp;<a href="https://developer.android.com/reference/android/util/Pai
 <li class="blockList">
 <h4>parseLastSegmentNumberSupplementalProperty</h4>
 <pre class="methodSignature">protected static&nbsp;long&nbsp;parseLastSegmentNumberSupplementalProperty&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Descriptor</a>&gt;&nbsp;supplementalProperties)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>

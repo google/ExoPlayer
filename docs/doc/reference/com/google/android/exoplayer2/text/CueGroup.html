@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">CueGroup</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">CueGroup</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Class to represent the state of active <a href="Cue.html" title="class in com.google.android.exoplayer2.text"><code>Cues</code></a> at a particular time.</div>
 </li>
 </ul>
@@ -177,12 +183,15 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="CueGroup.html" title="class in com.google.android.exoplayer2.text">CueGroup</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#CREATOR">CREATOR</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code><a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="Cue.html" title="class in com.google.android.exoplayer2.text">Cue</a>&gt;</code></td>
+<td class="colFirst"><code><a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="Cue.html" title="class in com.google.android.exoplayer2.text">Cue</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#cues">cues</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The cues in this group.</div>
 </td>
 </tr>
@@ -190,6 +199,7 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <td class="colFirst"><code>static <a href="CueGroup.html" title="class in com.google.android.exoplayer2.text">CueGroup</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EMPTY_TIME_ZERO">EMPTY_TIME_ZERO</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">An empty group with no <a href="Cue.html" title="class in com.google.android.exoplayer2.text"><code>Cues</code></a> and presentation time of zero.</div>
 </td>
 </tr>
@@ -197,6 +207,7 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#presentationTimeUs">presentationTimeUs</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The presentation time of the <a href="#cues"><code>cues</code></a>, in microseconds.</div>
 </td>
 </tr>
@@ -221,6 +232,7 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.util.List,long)">CueGroup</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Cue.html" title="class in com.google.android.exoplayer2.text" target="_top">Cue</a>&gt;&nbsp;cues,
         long&nbsp;presentationTimeUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a CueGroup.</div>
 </td>
 </tr>
@@ -236,7 +248,7 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -246,6 +258,7 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundle()">toBundle</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representing the information stored in this object.</div>
 </td>
 </tr>
@@ -280,6 +293,7 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <li class="blockList">
 <h4>EMPTY_TIME_ZERO</h4>
 <pre>public static final&nbsp;<a href="CueGroup.html" title="class in com.google.android.exoplayer2.text">CueGroup</a> EMPTY_TIME_ZERO</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">An empty group with no <a href="Cue.html" title="class in com.google.android.exoplayer2.text"><code>Cues</code></a> and presentation time of zero.</div>
 </li>
 </ul>
@@ -289,7 +303,8 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <ul class="blockList">
 <li class="blockList">
 <h4>cues</h4>
-<pre>public final&nbsp;<a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="Cue.html" title="class in com.google.android.exoplayer2.text">Cue</a>&gt; cues</pre>
+<pre>public final&nbsp;<a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="Cue.html" title="class in com.google.android.exoplayer2.text">Cue</a>&gt; cues</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The cues in this group.
 
  <p>This list is in ascending order of priority. If any of the cue boxes overlap when displayed,
@@ -305,6 +320,7 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <li class="blockList">
 <h4>presentationTimeUs</h4>
 <pre>public final&nbsp;long presentationTimeUs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The presentation time of the <a href="#cues"><code>cues</code></a>, in microseconds.
 
  <p>This time is an offset from the start of the current <a href="../Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a>.</div>
@@ -317,6 +333,7 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <li class="blockList">
 <h4>CREATOR</h4>
 <pre>public static final&nbsp;<a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="CueGroup.html" title="class in com.google.android.exoplayer2.text">CueGroup</a>&gt; CREATOR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -337,6 +354,7 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <h4>CueGroup</h4>
 <pre>public&nbsp;CueGroup&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Cue.html" title="class in com.google.android.exoplayer2.text" target="_top">Cue</a>&gt;&nbsp;cues,
                 long&nbsp;presentationTimeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a CueGroup.</div>
 </li>
 </ul>
@@ -357,6 +375,7 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <li class="blockList">
 <h4>toBundle</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;toBundle()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Bundleable.html#toBundle()">Bundleable</a></code></span></div>
 <div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representing the information stored in this object.</div>
 <dl>

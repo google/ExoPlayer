@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="https://developer.android.com/reference/java/lang/Comparable.html" title="class or interface in java.lang" class="externalLink">Comparable</a>&lt;<a href="CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache" target="_top">CacheSpan</a>&gt;</code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">CacheSpan</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">CacheSpan</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="https://developer.android.com/reference/java/lang/Comparable.html" title="class or interface in java.lang" class="externalLink">Comparable</a>&lt;<a href="CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache" target="_top">CacheSpan</a>&gt;</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Defines a span of data that may or may not be cached (as indicated by <a href="#isCached"><code>isCached</code></a>).</div>
 </li>
 </ul>
@@ -161,6 +167,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#file">file</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The file corresponding to this <a href="CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a>, or null if <a href="#isCached"><code>isCached</code></a> is false.</div>
 </td>
 </tr>
@@ -168,6 +175,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isCached">isCached</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the <a href="CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> is cached.</div>
 </td>
 </tr>
@@ -175,6 +183,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#key">key</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The cache key that uniquely identifies the resource.</div>
 </td>
 </tr>
@@ -182,6 +191,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#lastTouchTimestamp">lastTouchTimestamp</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The last touch timestamp, or <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if <a href="#isCached"><code>isCached</code></a> is false.</div>
 </td>
 </tr>
@@ -189,6 +199,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#length">length</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The length of the <a href="CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a>, or <a href="../../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if this is an open-ended hole.</div>
 </td>
 </tr>
@@ -196,6 +207,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#position">position</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The position of the <a href="CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> in the resource.</div>
 </td>
 </tr>
@@ -221,6 +233,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
          long&nbsp;position,
          long&nbsp;length)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a hole CacheSpan which isn't cached, has no last touch timestamp and no file
  associated.</div>
 </td>
@@ -232,6 +245,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
          long&nbsp;lastTouchTimestamp,
          <a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a>&nbsp;file)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a CacheSpan.</div>
 </td>
 </tr>
@@ -247,7 +261,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -256,12 +270,15 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#compareTo(com.google.android.exoplayer2.upstream.cache.CacheSpan)">compareTo</a></span>&#8203;(<a href="CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;another)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isHoleSpan()">isHoleSpan</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether this is a hole <a href="CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a>.</div>
 </td>
 </tr>
@@ -269,13 +286,16 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isOpenEnded()">isOpenEnded</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether this is an open-ended <a href="CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a>.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -308,6 +328,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
 <li class="blockList">
 <h4>key</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> key</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The cache key that uniquely identifies the resource.</div>
 </li>
 </ul>
@@ -318,6 +339,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
 <li class="blockList">
 <h4>position</h4>
 <pre>public final&nbsp;long position</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The position of the <a href="CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> in the resource.</div>
 </li>
 </ul>
@@ -328,6 +350,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
 <li class="blockList">
 <h4>length</h4>
 <pre>public final&nbsp;long length</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The length of the <a href="CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a>, or <a href="../../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if this is an open-ended hole.</div>
 </li>
 </ul>
@@ -338,6 +361,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
 <li class="blockList">
 <h4>isCached</h4>
 <pre>public final&nbsp;boolean isCached</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the <a href="CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> is cached.</div>
 </li>
 </ul>
@@ -349,6 +373,7 @@ implements <a href="https://developer.android.com/reference/java/lang/Comparable
 <h4>file</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a> file</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The file corresponding to this <a href="CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a>, or null if <a href="#isCached"><code>isCached</code></a> is false.</div>
 </li>
 </ul>
@@ -359,6 +384,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/io/File.
 <li class="blockList">
 <h4>lastTouchTimestamp</h4>
 <pre>public final&nbsp;long lastTouchTimestamp</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The last touch timestamp, or <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if <a href="#isCached"><code>isCached</code></a> is false.</div>
 </li>
 </ul>
@@ -381,6 +407,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/io/File.
 <pre>public&nbsp;CacheSpan&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;key,
                  long&nbsp;position,
                  long&nbsp;length)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a hole CacheSpan which isn't cached, has no last touch timestamp and no file
  associated.</div>
 <dl>
@@ -404,6 +431,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/io/File.
                  long&nbsp;lastTouchTimestamp,
                  @Nullable
                  <a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a>&nbsp;file)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a CacheSpan.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -433,6 +461,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/io/File.
 <li class="blockList">
 <h4>isOpenEnded</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isOpenEnded()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether this is an open-ended <a href="CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a>.</div>
 </li>
 </ul>
@@ -443,6 +472,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/io/File.
 <li class="blockList">
 <h4>isHoleSpan</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isHoleSpan()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether this is a hole <a href="CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a>.</div>
 </li>
 </ul>
@@ -453,6 +483,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/io/File.
 <li class="blockList">
 <h4>compareTo</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;compareTo&#8203;(<a href="CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;another)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Comparable.html#compareTo(T)" title="class or interface in java.lang" class="externalLink">compareTo</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Comparable.html?is-external=true" title="class or interface in java.lang" class="externalLink">Comparable</a>&lt;<a href="CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache" target="_top">CacheSpan</a>&gt;</code></dd>
@@ -466,6 +497,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/io/File.
 <li class="blockList">
 <h4>toString</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;toString()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#toString()" title="class or interface in java.lang" class="externalLink">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>

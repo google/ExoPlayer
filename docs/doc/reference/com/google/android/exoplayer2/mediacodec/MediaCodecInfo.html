@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":42,"i11":10,"i12":9,"i13":10};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42,"i12":41,"i13":42};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -129,9 +129,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">MediaCodecInfo</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">MediaCodecInfo</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
-<div class="block">Information about a <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> for a given mime type.</div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
+<div class="block">Information about a <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> for a given MIME type.</div>
 </li>
 </ul>
 </div>
@@ -156,6 +162,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#adaptive">adaptive</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the decoder supports seamless resolution switches.</div>
 </td>
 </tr>
@@ -163,6 +170,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/media/MediaCodecInfo.CodecCapabilities.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo.CodecCapabilities</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#capabilities">capabilities</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The capabilities of the decoder, like the profiles/levels it supports, or <code>null</code> if not
  known.</div>
 </td>
@@ -171,6 +179,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#codecMimeType">codecMimeType</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The MIME type that the codec uses for media of type <a href="#mimeType"><code>mimeType</code></a>.</div>
 </td>
 </tr>
@@ -178,6 +187,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hardwareAccelerated">hardwareAccelerated</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the codec is hardware accelerated.</div>
 </td>
 </tr>
@@ -185,6 +195,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MAX_SUPPORTED_INSTANCES_UNKNOWN">MAX_SUPPORTED_INSTANCES_UNKNOWN</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The value returned by <a href="#getMaxSupportedInstances()"><code>getMaxSupportedInstances()</code></a> if the upper bound on the maximum
  number of supported instances is unknown.</div>
 </td>
@@ -193,6 +204,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#mimeType">mimeType</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The MIME type handled by the codec.</div>
 </td>
 </tr>
@@ -200,6 +212,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#name">name</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The name of the decoder.</div>
 </td>
 </tr>
@@ -207,6 +220,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#secure">secure</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the decoder is secure.</div>
 </td>
 </tr>
@@ -214,18 +228,22 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#softwareOnly">softwareOnly</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the codec is software only.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TAG">TAG</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#tunneling">tunneling</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the decoder supports tunneling.</div>
 </td>
 </tr>
@@ -233,6 +251,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#vendor">vendor</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the codec is from the vendor.</div>
 </td>
 </tr>
@@ -259,6 +278,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#alignVideoSizeV21(int,int)">alignVideoSizeV21</a></span>&#8203;(int&nbsp;width,
                  int&nbsp;height)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the smallest video size greater than or equal to a specified size that also satisfies
  the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>'s width and height alignment requirements.</div>
 </td>
@@ -268,6 +288,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#canReuseCodec(com.google.android.exoplayer2.Format,com.google.android.exoplayer2.Format)">canReuseCodec</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;oldFormat,
              <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;newFormat)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Evaluates whether it's possible to reuse an instance of this decoder that's currently decoding
  <code>oldFormat</code> to decode <code>newFormat</code> instead.</div>
 </td>
@@ -276,6 +297,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMaxSupportedInstances()">getMaxSupportedInstances</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an upper bound on the maximum number of supported instances, or <a href="#MAX_SUPPORTED_INSTANCES_UNKNOWN"><code>MAX_SUPPORTED_INSTANCES_UNKNOWN</code></a> if unknown.</div>
 </td>
 </tr>
@@ -283,6 +305,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/media/MediaCodecInfo.CodecProfileLevel.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo.CodecProfileLevel</a>[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getProfileLevels()">getProfileLevels</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The profile levels supported by the decoder.</div>
 </td>
 </tr>
@@ -290,6 +313,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isAudioChannelCountSupportedV21(int)">isAudioChannelCountSupportedV21</a></span>&#8203;(int&nbsp;channelCount)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the decoder supports audio with a given channel count.</div>
 </td>
 </tr>
@@ -297,6 +321,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isAudioSampleRateSupportedV21(int)">isAudioSampleRateSupportedV21</a></span>&#8203;(int&nbsp;sampleRate)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the decoder supports audio with a given sample rate.</div>
 </td>
 </tr>
@@ -304,6 +329,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isFormatFunctionallySupported(com.google.android.exoplayer2.Format)">isFormatFunctionallySupported</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the decoder may functionally support decoding the given <code>format</code>.</div>
 </td>
 </tr>
@@ -311,6 +337,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isFormatSupported(com.google.android.exoplayer2.Format)">isFormatSupported</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the decoder may support decoding the given <code>format</code> both functionally and
  performantly.</div>
 </td>
@@ -319,6 +346,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isHdr10PlusOutOfBandMetadataSupported()">isHdr10PlusOutOfBandMetadataSupported</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the codec handles HDR10+ out-of-band metadata.</div>
 </td>
 </tr>
@@ -326,6 +354,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isSeamlessAdaptationSupported(com.google.android.exoplayer2.Format)">isSeamlessAdaptationSupported</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether it may be possible to adapt an instance of this decoder to playing a different
  format when the codec is configured to play media in the specified <code>format</code>.</div>
 </td>
@@ -347,6 +376,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                               int&nbsp;height,
                               double&nbsp;frameRate)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the decoder supports video with a given width, height and frame rate.</div>
 </td>
 </tr>
@@ -362,13 +392,16 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
            boolean&nbsp;forceDisableAdaptive,
            boolean&nbsp;forceSecure)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance.</div>
 </td>
 </tr>
 <tr id="i13" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -401,6 +434,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>TAG</h4>
 <pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> TAG</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.mediacodec.MediaCodecInfo.TAG">Constant Field Values</a></dd>
@@ -414,6 +448,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>MAX_SUPPORTED_INSTANCES_UNKNOWN</h4>
 <pre>public static final&nbsp;int MAX_SUPPORTED_INSTANCES_UNKNOWN</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The value returned by <a href="#getMaxSupportedInstances()"><code>getMaxSupportedInstances()</code></a> if the upper bound on the maximum
  number of supported instances is unknown.</div>
 <dl>
@@ -429,6 +464,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>name</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> name</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The name of the decoder.
 
  <p>May be passed to <a href="https://developer.android.com/reference/android/media/MediaCodec.html#createByCodecName(java.lang.String)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.createByCodecName(String)</code></a> to create an instance of the
@@ -442,6 +478,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>mimeType</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> mimeType</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The MIME type handled by the codec.</div>
 </li>
 </ul>
@@ -452,6 +489,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>codecMimeType</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> codecMimeType</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The MIME type that the codec uses for media of type <a href="#mimeType"><code>mimeType</code></a>. Equal to <a href="#mimeType"><code>mimeType</code></a> unless the codec is known to use a non-standard MIME type alias.</div>
 </li>
 </ul>
@@ -463,6 +501,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>capabilities</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.CodecCapabilities.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo.CodecCapabilities</a> capabilities</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The capabilities of the decoder, like the profiles/levels it supports, or <code>null</code> if not
  known.</div>
 </li>
@@ -474,6 +513,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/media
 <li class="blockList">
 <h4>adaptive</h4>
 <pre>public final&nbsp;boolean adaptive</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the decoder supports seamless resolution switches.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -489,6 +529,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/media
 <li class="blockList">
 <h4>tunneling</h4>
 <pre>public final&nbsp;boolean tunneling</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the decoder supports tunneling.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -504,6 +545,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/media
 <li class="blockList">
 <h4>secure</h4>
 <pre>public final&nbsp;boolean secure</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the decoder is secure.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -519,6 +561,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/media
 <li class="blockList">
 <h4>hardwareAccelerated</h4>
 <pre>public final&nbsp;boolean hardwareAccelerated</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the codec is hardware accelerated.
 
  <p>This could be an approximation as the exact information is only provided in API levels 29+.</div>
@@ -535,6 +578,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/media
 <li class="blockList">
 <h4>softwareOnly</h4>
 <pre>public final&nbsp;boolean softwareOnly</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the codec is software only.
 
  <p>This could be an approximation as the exact information is only provided in API levels 29+.</div>
@@ -551,6 +595,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/media
 <li class="blockList">
 <h4>vendor</h4>
 <pre>public final&nbsp;boolean vendor</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the codec is from the vendor.
 
  <p>This could be an approximation as the exact information is only provided in API levels 29+.</div>
@@ -586,14 +631,15 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/media
                                          boolean&nbsp;vendor,
                                          boolean&nbsp;forceDisableAdaptive,
                                          boolean&nbsp;forceSecure)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>name</code> - The name of the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</dd>
-<dd><code>mimeType</code> - A mime type supported by the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</dd>
+<dd><code>mimeType</code> - A MIME type supported by the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</dd>
 <dd><code>codecMimeType</code> - The MIME type that the codec uses for media of type <code>#mimeType</code>.
      Equal to <code>mimeType</code> unless the codec is known to use a non-standard MIME type alias.</dd>
-<dd><code>capabilities</code> - The capabilities of the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> for the specified mime type, or
+<dd><code>capabilities</code> - The capabilities of the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> for the specified MIME type, or
      <code>null</code> if not known.</dd>
 <dd><code>hardwareAccelerated</code> - Whether the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> is hardware accelerated.</dd>
 <dd><code>softwareOnly</code> - Whether the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> is software only.</dd>
@@ -612,6 +658,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/media
 <li class="blockList">
 <h4>toString</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;toString()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#toString()" title="class or interface in java.lang" class="externalLink">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
@@ -625,6 +672,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/media
 <li class="blockList">
 <h4>getProfileLevels</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/media/MediaCodecInfo.CodecProfileLevel.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodecInfo.CodecProfileLevel</a>[]&nbsp;getProfileLevels()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The profile levels supported by the decoder.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -639,6 +687,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/media
 <li class="blockList">
 <h4>getMaxSupportedInstances</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getMaxSupportedInstances()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an upper bound on the maximum number of supported instances, or <a href="#MAX_SUPPORTED_INSTANCES_UNKNOWN"><code>MAX_SUPPORTED_INSTANCES_UNKNOWN</code></a> if unknown. Applications should not expect to operate more
  instances than the returned maximum.</div>
 <dl>
@@ -655,6 +704,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/media
 <h4>isFormatSupported</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isFormatSupported&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)
                           throws <a href="MediaCodecUtil.DecoderQueryException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil.DecoderQueryException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the decoder may support decoding the given <code>format</code> both functionally and
  performantly.</div>
 <dl>
@@ -674,6 +724,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/media
 <li class="blockList">
 <h4>isFormatFunctionallySupported</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isFormatFunctionallySupported&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the decoder may functionally support decoding the given <code>format</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -690,6 +741,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/media
 <li class="blockList">
 <h4>isHdr10PlusOutOfBandMetadataSupported</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isHdr10PlusOutOfBandMetadataSupported()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the codec handles HDR10+ out-of-band metadata.</div>
 </li>
 </ul>
@@ -700,6 +752,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/media
 <li class="blockList">
 <h4>isSeamlessAdaptationSupported</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isSeamlessAdaptationSupported&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether it may be possible to adapt an instance of this decoder to playing a different
  format when the codec is configured to play media in the specified <code>format</code>.
 
@@ -752,6 +805,7 @@ public&nbsp;boolean&nbsp;isSeamlessAdaptationSupported&#8203;(<a href="../Format
 <h4>canReuseCodec</h4>
 <pre class="methodSignature">public&nbsp;<a href="../decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a>&nbsp;canReuseCodec&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;oldFormat,
                                             <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;newFormat)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Evaluates whether it's possible to reuse an instance of this decoder that's currently decoding
  <code>oldFormat</code> to decode <code>newFormat</code> instead.
 
@@ -776,6 +830,7 @@ public&nbsp;boolean&nbsp;isSeamlessAdaptationSupported&#8203;(<a href="../Format
 public&nbsp;boolean&nbsp;isVideoSizeAndRateSupportedV21&#8203;(int&nbsp;width,
                                               int&nbsp;height,
                                               double&nbsp;frameRate)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the decoder supports video with a given width, height and frame rate.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -797,6 +852,7 @@ public&nbsp;boolean&nbsp;isVideoSizeAndRateSupportedV21&#8203;(int&nbsp;width,
 @RequiresApi(21)
 public&nbsp;<a href="https://developer.android.com/reference/android/graphics/Point.html" title="class or interface in android.graphics" class="externalLink" target="_top">Point</a>&nbsp;alignVideoSizeV21&#8203;(int&nbsp;width,
                                int&nbsp;height)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the smallest video size greater than or equal to a specified size that also satisfies
  the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>'s width and height alignment requirements.
 
@@ -820,6 +876,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/graphics/Po
 <h4>isAudioSampleRateSupportedV21</h4>
 <pre class="methodSignature">@RequiresApi(21)
 public&nbsp;boolean&nbsp;isAudioSampleRateSupportedV21&#8203;(int&nbsp;sampleRate)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the decoder supports audio with a given sample rate.
 
  <p>Must not be called if the device SDK version is less than 21.</div>
@@ -839,6 +896,7 @@ public&nbsp;boolean&nbsp;isAudioSampleRateSupportedV21&#8203;(int&nbsp;sampleRat
 <h4>isAudioChannelCountSupportedV21</h4>
 <pre class="methodSignature">@RequiresApi(21)
 public&nbsp;boolean&nbsp;isAudioChannelCountSupportedV21&#8203;(int&nbsp;channelCount)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the decoder supports audio with a given channel count.
 
  <p>Must not be called if the device SDK version is less than 21.</div>

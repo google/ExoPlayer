@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":18,"i7":6,"i8":6,"i9":1,"i10":6};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
+var data = {"i0":38,"i1":38,"i2":38,"i3":38,"i4":38,"i5":38,"i6":50,"i7":38,"i8":38,"i9":33,"i10":38};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -125,7 +125,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="ErrorStateDrmSession.html" title="class in com.google.android.exoplayer2.drm">ErrorStateDrmSession</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">DrmSession</span></pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">DrmSession</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A DRM session.</div>
 </li>
 </ul>
@@ -151,6 +157,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DrmSession.DrmSessionException.html" title="class in com.google.android.exoplayer2.drm">DrmSession.DrmSessionException</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Wraps the throwable which is the cause of the error state.</div>
 </td>
 </tr>
@@ -158,6 +165,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DrmSession.State.html" title="annotation in com.google.android.exoplayer2.drm">DrmSession.State</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The state of the DRM session.</div>
 </td>
 </tr>
@@ -183,6 +191,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#STATE_ERROR">STATE_ERROR</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The session has encountered an error.</div>
 </td>
 </tr>
@@ -190,6 +199,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#STATE_OPENED">STATE_OPENED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The session is open, but does not have keys required for decryption.</div>
 </td>
 </tr>
@@ -197,6 +207,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#STATE_OPENED_WITH_KEYS">STATE_OPENED_WITH_KEYS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The session is open and has keys required for decryption.</div>
 </td>
 </tr>
@@ -204,6 +215,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#STATE_OPENING">STATE_OPENING</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The session is being opened.</div>
 </td>
 </tr>
@@ -211,6 +223,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#STATE_RELEASED">STATE_RELEASED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The session has been released.</div>
 </td>
 </tr>
@@ -226,7 +239,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -236,6 +249,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#acquire(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)">acquire</a></span>&#8203;(<a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Increments the reference count.</div>
 </td>
 </tr>
@@ -243,6 +257,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder">CryptoConfig</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCryptoConfig()">getCryptoConfig</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder"><code>CryptoConfig</code></a> for the open session, or null if called before the session has
  been opened or after it's been released.</div>
 </td>
@@ -251,6 +266,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="DrmSession.DrmSessionException.html" title="class in com.google.android.exoplayer2.drm">DrmSession.DrmSessionException</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getError()">getError</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the cause of the error state, or null if <a href="#getState()"><code>getState()</code></a> is not <a href="#STATE_ERROR"><code>STATE_ERROR</code></a>.</div>
 </td>
 </tr>
@@ -258,6 +274,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getOfflineLicenseKeySetId()">getOfflineLicenseKeySetId</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the key set id of the offline license loaded into this session, or null if there isn't
  one.</div>
 </td>
@@ -266,6 +283,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSchemeUuid()">getSchemeUuid</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the DRM scheme UUID for this session.</div>
 </td>
 </tr>
@@ -273,6 +291,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>@com.google.android.exoplayer2.drm.DrmSession.State int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getState()">getState</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current state of the session, which is one of <a href="#STATE_ERROR"><code>STATE_ERROR</code></a>, <a href="#STATE_RELEASED"><code>STATE_RELEASED</code></a>, <a href="#STATE_OPENING"><code>STATE_OPENING</code></a>, <a href="#STATE_OPENED"><code>STATE_OPENED</code></a> and <a href="#STATE_OPENED_WITH_KEYS"><code>STATE_OPENED_WITH_KEYS</code></a>.</div>
 </td>
 </tr>
@@ -280,6 +299,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>default boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#playClearSamplesWithoutKeys()">playClearSamplesWithoutKeys</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether this session allows playback of clear samples prior to keys being loaded.</div>
 </td>
 </tr>
@@ -287,6 +307,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#queryKeyStatus()">queryKeyStatus</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a map describing the key status for the session, or null if called before the session
  has been opened or after it's been released.</div>
 </td>
@@ -295,6 +316,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)">release</a></span>&#8203;(<a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Decrements the reference count.</div>
 </td>
 </tr>
@@ -303,6 +325,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#replaceSession(com.google.android.exoplayer2.drm.DrmSession,com.google.android.exoplayer2.drm.DrmSession)">replaceSession</a></span>&#8203;(<a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a>&nbsp;previousSession,
               <a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a>&nbsp;newSession)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Acquires <code>newSession</code> then releases <code>previousSession</code>.</div>
 </td>
 </tr>
@@ -310,6 +333,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#requiresSecureDecoder(java.lang.String)">requiresSecureDecoder</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether this session requires use of a secure decoder for the given MIME type.</div>
 </td>
 </tr>
@@ -337,6 +361,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>STATE_RELEASED</h4>
 <pre>static final&nbsp;int STATE_RELEASED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The session has been released. This is a terminal state.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -351,6 +376,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>STATE_ERROR</h4>
 <pre>static final&nbsp;int STATE_ERROR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The session has encountered an error. <a href="#getError()"><code>getError()</code></a> can be used to retrieve the cause.
  This is a terminal state.</div>
 <dl>
@@ -366,6 +392,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>STATE_OPENING</h4>
 <pre>static final&nbsp;int STATE_OPENING</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The session is being opened.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -380,6 +407,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>STATE_OPENED</h4>
 <pre>static final&nbsp;int STATE_OPENED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The session is open, but does not have keys required for decryption.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -394,6 +422,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>STATE_OPENED_WITH_KEYS</h4>
 <pre>static final&nbsp;int STATE_OPENED_WITH_KEYS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The session is open and has keys required for decryption.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -421,6 +450,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                            <a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a>&nbsp;previousSession,
                            @Nullable
                            <a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a>&nbsp;newSession)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Acquires <code>newSession</code> then releases <code>previousSession</code>.
 
  <p>Invokes <code>newSession's</code> <a href="#acquire(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)"><code>acquire(DrmSessionEventListener.EventDispatcher)</code></a> and
@@ -437,6 +467,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>getState</h4>
 <pre class="methodSignature"><a href="DrmSession.State.html" title="annotation in com.google.android.exoplayer2.drm">@State</a>
 @com.google.android.exoplayer2.drm.DrmSession.State int&nbsp;getState()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current state of the session, which is one of <a href="#STATE_ERROR"><code>STATE_ERROR</code></a>, <a href="#STATE_RELEASED"><code>STATE_RELEASED</code></a>, <a href="#STATE_OPENING"><code>STATE_OPENING</code></a>, <a href="#STATE_OPENED"><code>STATE_OPENED</code></a> and <a href="#STATE_OPENED_WITH_KEYS"><code>STATE_OPENED_WITH_KEYS</code></a>.</div>
 </li>
 </ul>
@@ -447,6 +478,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>playClearSamplesWithoutKeys</h4>
 <pre class="methodSignature">default&nbsp;boolean&nbsp;playClearSamplesWithoutKeys()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether this session allows playback of clear samples prior to keys being loaded.</div>
 </li>
 </ul>
@@ -458,6 +490,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>getError</h4>
 <pre class="methodSignature">@Nullable
 <a href="DrmSession.DrmSessionException.html" title="class in com.google.android.exoplayer2.drm">DrmSession.DrmSessionException</a>&nbsp;getError()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the cause of the error state, or null if <a href="#getState()"><code>getState()</code></a> is not <a href="#STATE_ERROR"><code>STATE_ERROR</code></a>.</div>
 </li>
 </ul>
@@ -468,6 +501,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>getSchemeUuid</h4>
 <pre class="methodSignature"><a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a>&nbsp;getSchemeUuid()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the DRM scheme UUID for this session.</div>
 </li>
 </ul>
@@ -479,6 +513,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>getCryptoConfig</h4>
 <pre class="methodSignature">@Nullable
 <a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder">CryptoConfig</a>&nbsp;getCryptoConfig()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder"><code>CryptoConfig</code></a> for the open session, or null if called before the session has
  been opened or after it's been released.</div>
 </li>
@@ -491,6 +526,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>queryKeyStatus</h4>
 <pre class="methodSignature">@Nullable
 <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;queryKeyStatus()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a map describing the key status for the session, or null if called before the session
  has been opened or after it's been released.
 
@@ -514,6 +550,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>getOfflineLicenseKeySetId</h4>
 <pre class="methodSignature">@Nullable
 byte[]&nbsp;getOfflineLicenseKeySetId()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the key set id of the offline license loaded into this session, or null if there isn't
  one.</div>
 </li>
@@ -525,6 +562,7 @@ byte[]&nbsp;getOfflineLicenseKeySetId()</pre>
 <li class="blockList">
 <h4>requiresSecureDecoder</h4>
 <pre class="methodSignature">boolean&nbsp;requiresSecureDecoder&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether this session requires use of a secure decoder for the given MIME type. Assumes
  a license policy that requires the highest level of security supported by the session.
 
@@ -539,6 +577,7 @@ byte[]&nbsp;getOfflineLicenseKeySetId()</pre>
 <h4>acquire</h4>
 <pre class="methodSignature">void&nbsp;acquire&#8203;(@Nullable
              <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Increments the reference count. When the caller no longer needs to use the instance, it must
  call <a href="#release(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)"><code>release(DrmSessionEventListener.EventDispatcher)</code></a> to decrement the reference
  count.</div>
@@ -557,6 +596,7 @@ byte[]&nbsp;getOfflineLicenseKeySetId()</pre>
 <h4>release</h4>
 <pre class="methodSignature">void&nbsp;release&#8203;(@Nullable
              <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Decrements the reference count. If the reference count drops to 0 underlying resources are
  released, and the instance cannot be re-used.</div>
 <dl>

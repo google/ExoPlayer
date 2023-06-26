@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":18,"i1":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
+var data = {"i0":50,"i1":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -126,11 +126,17 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><code><a href="Crop.html" title="class in com.google.android.exoplayer2.effect">Crop</a></code>, <code><a href="Presentation.html" title="class in com.google.android.exoplayer2.effect">Presentation</a></code>, <code><a href="ScaleToFitTransformation.html" title="class in com.google.android.exoplayer2.effect">ScaleToFitTransformation</a></code></dd>
+<dd><code><a href="Crop.html" title="class in com.google.android.exoplayer2.effect">Crop</a></code>, <code><a href="Presentation.html" title="class in com.google.android.exoplayer2.effect">Presentation</a></code>, <code><a href="ScaleAndRotateTransformation.html" title="class in com.google.android.exoplayer2.effect">ScaleAndRotateTransformation</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">MatrixTransformation</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">MatrixTransformation</span>
 extends <a href="GlMatrixTransformation.html" title="interface in com.google.android.exoplayer2.effect">GlMatrixTransformation</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Specifies a 3x3 transformation <a href="https://developer.android.com/reference/android/graphics/Matrix.html" title="class or interface in android.graphics" class="externalLink" target="_top"><code>Matrix</code></a> to apply in the vertex shader for each frame.
 
  <p>The matrix is applied to points given in normalized device coordinates (-1 to 1 on x and y
@@ -153,7 +159,7 @@ extends <a href="GlMatrixTransformation.html" title="interface in com.google.and
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -163,6 +169,7 @@ extends <a href="GlMatrixTransformation.html" title="interface in com.google.and
 <td class="colFirst"><code>default float[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getGlMatrixArray(long)">getGlMatrixArray</a></span>&#8203;(long&nbsp;presentationTimeUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the 4x4 transformation <a href="https://developer.android.com/reference/android/opengl/Matrix.html" title="class or interface in android.opengl" class="externalLink" target="_top"><code>Matrix</code></a> to apply to the frame with the given timestamp.</div>
 </td>
 </tr>
@@ -170,16 +177,24 @@ extends <a href="GlMatrixTransformation.html" title="interface in com.google.and
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/graphics/Matrix.html" title="class or interface in android.graphics" class="externalLink" target="_top">Matrix</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMatrix(long)">getMatrix</a></span>&#8203;(long&nbsp;presentationTimeUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the 3x3 transformation <a href="https://developer.android.com/reference/android/graphics/Matrix.html" title="class or interface in android.graphics" class="externalLink" target="_top"><code>Matrix</code></a> to apply to the frame with the given timestamp.</div>
 </td>
 </tr>
 </table>
 <ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.effect.GlEffect">
+<!--   -->
+</a>
+<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.effect.<a href="GlEffect.html" title="interface in com.google.android.exoplayer2.effect">GlEffect</a></h3>
+<code><a href="GlEffect.html#isNoOp(int,int)">isNoOp</a></code></li>
+</ul>
+<ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.effect.GlMatrixTransformation">
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.effect.<a href="GlMatrixTransformation.html" title="interface in com.google.android.exoplayer2.effect">GlMatrixTransformation</a></h3>
-<code><a href="GlMatrixTransformation.html#configure(int,int)">configure</a>, <a href="GlMatrixTransformation.html#toGlTextureProcessor(android.content.Context,boolean)">toGlTextureProcessor</a></code></li>
+<code><a href="GlMatrixTransformation.html#configure(int,int)">configure</a>, <a href="GlMatrixTransformation.html#toGlShaderProgram(android.content.Context,boolean)">toGlShaderProgram</a></code></li>
 </ul>
 </li>
 </ul>
@@ -204,6 +219,7 @@ extends <a href="GlMatrixTransformation.html" title="interface in com.google.and
 <li class="blockList">
 <h4>getMatrix</h4>
 <pre class="methodSignature"><a href="https://developer.android.com/reference/android/graphics/Matrix.html" title="class or interface in android.graphics" class="externalLink" target="_top">Matrix</a>&nbsp;getMatrix&#8203;(long&nbsp;presentationTimeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the 3x3 transformation <a href="https://developer.android.com/reference/android/graphics/Matrix.html" title="class or interface in android.graphics" class="externalLink" target="_top"><code>Matrix</code></a> to apply to the frame with the given timestamp.</div>
 </li>
 </ul>
@@ -214,6 +230,7 @@ extends <a href="GlMatrixTransformation.html" title="interface in com.google.and
 <li class="blockList">
 <h4>getGlMatrixArray</h4>
 <pre class="methodSignature">default&nbsp;float[]&nbsp;getGlMatrixArray&#8203;(long&nbsp;presentationTimeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="GlMatrixTransformation.html#getGlMatrixArray(long)">GlMatrixTransformation</a></code></span></div>
 <div class="block">Returns the 4x4 transformation <a href="https://developer.android.com/reference/android/opengl/Matrix.html" title="class or interface in android.opengl" class="externalLink" target="_top"><code>Matrix</code></a> to apply to the frame with the given timestamp.</div>
 <dl>

@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":42,"i8":10,"i9":42,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":42,"i6":10,"i7":10,"i8":42,"i9":42,"i10":10,"i11":10,"i12":42,"i13":42,"i14":10,"i15":42,"i16":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -183,7 +183,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="Transformer.Builder.html" title="class in com.google.android.exoplayer2.transformer">Transformer.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addListener(com.google.android.exoplayer2.transformer.Transformer.Listener)">addListener</a></span>&#8203;(<a href="Transformer.Listener.html" title="interface in com.google.android.exoplayer2.transformer">Transformer.Listener</a>&nbsp;listener)</code></th>
 <td class="colLast">
-<div class="block">Adds a <a href="Transformer.Listener.html" title="interface in com.google.android.exoplayer2.transformer"><code>Transformer.Listener</code></a> to listen to the transformation events.</div>
+<div class="block">Adds a <a href="Transformer.Listener.html" title="interface in com.google.android.exoplayer2.transformer"><code>Transformer.Listener</code></a> to listen to the export events.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
@@ -209,42 +209,42 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="Transformer.Builder.html" title="class in com.google.android.exoplayer2.transformer">Transformer.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDebugViewProvider(com.google.android.exoplayer2.util.DebugViewProvider)">setDebugViewProvider</a></span>&#8203;(<a href="../util/DebugViewProvider.html" title="interface in com.google.android.exoplayer2.util">DebugViewProvider</a>&nbsp;debugViewProvider)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAssetLoaderFactory(com.google.android.exoplayer2.transformer.AssetLoader.Factory)">setAssetLoaderFactory</a></span>&#8203;(<a href="AssetLoader.Factory.html" title="interface in com.google.android.exoplayer2.transformer">AssetLoader.Factory</a>&nbsp;assetLoaderFactory)</code></th>
 <td class="colLast">
-<div class="block">Sets a provider for views to show diagnostic information (if available) during
- transformation.</div>
+<div class="block">Sets the <a href="AssetLoader.Factory.html" title="interface in com.google.android.exoplayer2.transformer"><code>AssetLoader.Factory</code></a> to be used to retrieve the samples to export.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="Transformer.Builder.html" title="class in com.google.android.exoplayer2.transformer">Transformer.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDecoderFactory(com.google.android.exoplayer2.transformer.Codec.DecoderFactory)">setDecoderFactory</a></span>&#8203;(<a href="Codec.DecoderFactory.html" title="interface in com.google.android.exoplayer2.transformer">Codec.DecoderFactory</a>&nbsp;decoderFactory)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAudioProcessors(java.util.List)">setAudioProcessors</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio" target="_top">AudioProcessor</a>&gt;&nbsp;audioProcessors)</code></th>
 <td class="colLast">
-<div class="block">Sets the <a href="Codec.DecoderFactory.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec.DecoderFactory</code></a> that will be used by the transformer.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Set the <a href="../audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">audio processors</a> in an <a href="EditedMediaItem.html" title="class in com.google.android.exoplayer2.transformer"><code>EditedMediaItem</code></a>, and pass it to <a href="Transformer.html#start(com.google.android.exoplayer2.transformer.EditedMediaItem,java.lang.String)"><code>Transformer.start(EditedMediaItem, String)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
+<td class="colFirst"><code><a href="Transformer.Builder.html" title="class in com.google.android.exoplayer2.transformer">Transformer.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDebugViewProvider(com.google.android.exoplayer2.util.DebugViewProvider)">setDebugViewProvider</a></span>&#8203;(<a href="../util/DebugViewProvider.html" title="interface in com.google.android.exoplayer2.util">DebugViewProvider</a>&nbsp;debugViewProvider)</code></th>
+<td class="colLast">
+<div class="block">Sets a provider for views to show diagnostic information (if available) during export.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="Transformer.Builder.html" title="class in com.google.android.exoplayer2.transformer">Transformer.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setEncoderFactory(com.google.android.exoplayer2.transformer.Codec.EncoderFactory)">setEncoderFactory</a></span>&#8203;(<a href="Codec.EncoderFactory.html" title="interface in com.google.android.exoplayer2.transformer">Codec.EncoderFactory</a>&nbsp;encoderFactory)</code></th>
 <td class="colLast">
 <div class="block">Sets the <a href="Codec.EncoderFactory.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec.EncoderFactory</code></a> that will be used by the transformer.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="Transformer.Builder.html" title="class in com.google.android.exoplayer2.transformer">Transformer.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFlattenForSlowMotion(boolean)">setFlattenForSlowMotion</a></span>&#8203;(boolean&nbsp;flattenForSlowMotion)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="TransformationRequest.Builder.html#setFlattenForSlowMotion(boolean)"><code>TransformationRequest.Builder.setFlattenForSlowMotion(boolean)</code></a>
-     instead.</div>
+<div class="deprecationComment">Use <a href="EditedMediaItem.Builder.html#setFlattenForSlowMotion(boolean)"><code>EditedMediaItem.Builder.setFlattenForSlowMotion(boolean)</code></a> to flatten
+     the <a href="EditedMediaItem.html" title="class in com.google.android.exoplayer2.transformer"><code>EditedMediaItem</code></a> passed to <a href="Transformer.html#start(com.google.android.exoplayer2.transformer.EditedMediaItem,java.lang.String)"><code>Transformer.start(EditedMediaItem, String)</code></a> instead.</div>
 </div>
-</td>
-</tr>
-<tr id="i8" class="altColor">
-<td class="colFirst"><code><a href="Transformer.Builder.html" title="class in com.google.android.exoplayer2.transformer">Transformer.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setFrameProcessorFactory(com.google.android.exoplayer2.util.FrameProcessor.Factory)">setFrameProcessorFactory</a></span>&#8203;(<a href="../util/FrameProcessor.Factory.html" title="interface in com.google.android.exoplayer2.util">FrameProcessor.Factory</a>&nbsp;frameProcessorFactory)</code></th>
-<td class="colLast">
-<div class="block">Sets the <a href="../util/FrameProcessor.Factory.html" title="interface in com.google.android.exoplayer2.util"><code>FrameProcessor.Factory</code></a> for the <a href="../util/FrameProcessor.html" title="interface in com.google.android.exoplayer2.util"><code>FrameProcessor</code></a> to use when applying
- <a href="../util/Effect.html" title="interface in com.google.android.exoplayer2.util">effects</a> to the video frames.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
@@ -266,44 +266,55 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code><a href="Transformer.Builder.html" title="class in com.google.android.exoplayer2.transformer">Transformer.Builder</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMediaSourceFactory(com.google.android.exoplayer2.source.MediaSource.Factory)">setMediaSourceFactory</a></span>&#8203;(<a href="../source/MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Factory</a>&nbsp;mediaSourceFactory)</code></th>
-<td class="colLast">
-<div class="block">Sets the <a href="../source/MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource.Factory</code></a> to be used to retrieve the inputs to transform.</div>
-</td>
-</tr>
-<tr id="i12" class="altColor">
-<td class="colFirst"><code><a href="Transformer.Builder.html" title="class in com.google.android.exoplayer2.transformer">Transformer.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMuxerFactory(com.google.android.exoplayer2.transformer.Muxer.Factory)">setMuxerFactory</a></span>&#8203;(<a href="Muxer.Factory.html" title="interface in com.google.android.exoplayer2.transformer">Muxer.Factory</a>&nbsp;muxerFactory)</code></th>
 <td class="colLast">
 <div class="block">Sets the factory for muxers that write the media container.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code><a href="Transformer.Builder.html" title="class in com.google.android.exoplayer2.transformer">Transformer.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRemoveAudio(boolean)">setRemoveAudio</a></span>&#8203;(boolean&nbsp;removeAudio)</code></th>
 <td class="colLast">
-<div class="block">Sets whether to remove the audio from the output.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="EditedMediaItem.Builder.html#setRemoveAudio(boolean)"><code>EditedMediaItem.Builder.setRemoveAudio(boolean)</code></a> to remove the audio
+     from the <a href="EditedMediaItem.html" title="class in com.google.android.exoplayer2.transformer"><code>EditedMediaItem</code></a> passed to <a href="Transformer.html#start(com.google.android.exoplayer2.transformer.EditedMediaItem,java.lang.String)"><code>Transformer.start(EditedMediaItem, String)</code></a>
+     instead.</div>
+</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code><a href="Transformer.Builder.html" title="class in com.google.android.exoplayer2.transformer">Transformer.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRemoveVideo(boolean)">setRemoveVideo</a></span>&#8203;(boolean&nbsp;removeVideo)</code></th>
 <td class="colLast">
-<div class="block">Sets whether to remove the video from the output.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="EditedMediaItem.Builder.html#setRemoveVideo(boolean)"><code>EditedMediaItem.Builder.setRemoveVideo(boolean)</code></a> to remove the video
+     from the <a href="EditedMediaItem.html" title="class in com.google.android.exoplayer2.transformer"><code>EditedMediaItem</code></a> passed to <a href="Transformer.html#start(com.google.android.exoplayer2.transformer.EditedMediaItem,java.lang.String)"><code>Transformer.start(EditedMediaItem, String)</code></a>
+     instead.</div>
+</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code><a href="Transformer.Builder.html" title="class in com.google.android.exoplayer2.transformer">Transformer.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTransformationRequest(com.google.android.exoplayer2.transformer.TransformationRequest)">setTransformationRequest</a></span>&#8203;(<a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest</a>&nbsp;transformationRequest)</code></th>
 <td class="colLast">
 <div class="block">Sets the <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationRequest</code></a> which configures the editing and transcoding options.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code><a href="Transformer.Builder.html" title="class in com.google.android.exoplayer2.transformer">Transformer.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVideoEffects(java.util.List)">setVideoEffects</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../util/Effect.html" title="interface in com.google.android.exoplayer2.util" target="_top">Effect</a>&gt;&nbsp;effects)</code></th>
 <td class="colLast">
-<div class="block">Sets the <a href="../util/Effect.html" title="interface in com.google.android.exoplayer2.util"><code>Effect</code></a> instances to apply to each video frame.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Set the <a href="../util/Effect.html" title="interface in com.google.android.exoplayer2.util">video effects</a> in an <a href="EditedMediaItem.html" title="class in com.google.android.exoplayer2.transformer"><code>EditedMediaItem</code></a>, and pass
+     it to <a href="Transformer.html#start(com.google.android.exoplayer2.transformer.EditedMediaItem,java.lang.String)"><code>Transformer.start(EditedMediaItem, String)</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr id="i16" class="altColor">
+<td class="colFirst"><code><a href="Transformer.Builder.html" title="class in com.google.android.exoplayer2.transformer">Transformer.Builder</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVideoFrameProcessorFactory(com.google.android.exoplayer2.util.VideoFrameProcessor.Factory)">setVideoFrameProcessorFactory</a></span>&#8203;(<a href="../util/VideoFrameProcessor.Factory.html" title="interface in com.google.android.exoplayer2.util">VideoFrameProcessor.Factory</a>&nbsp;videoFrameProcessorFactory)</code></th>
+<td class="colLast">
+<div class="block">Sets the factory to be used to create <a href="../util/VideoFrameProcessor.html" title="interface in com.google.android.exoplayer2.util"><code>VideoFrameProcessor</code></a> instances.</div>
 </td>
 </tr>
 </table>
@@ -364,14 +375,28 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 public&nbsp;<a href="Transformer.Builder.html" title="class in com.google.android.exoplayer2.transformer">Transformer.Builder</a>&nbsp;setTransformationRequest&#8203;(<a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest</a>&nbsp;transformationRequest)</pre>
 <div class="block">Sets the <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationRequest</code></a> which configures the editing and transcoding options.
 
- <p>Actual applied values may differ, per device capabilities. <a href="Transformer.Listener.html#onFallbackApplied(com.google.android.exoplayer2.MediaItem,com.google.android.exoplayer2.transformer.TransformationRequest,com.google.android.exoplayer2.transformer.TransformationRequest)"><code>Transformer.Listener.onFallbackApplied(MediaItem, TransformationRequest, TransformationRequest)</code></a> will be
- invoked with the actual applied values.</div>
+ <p>Actual applied values may differ, per device capabilities. <a href="Transformer.Listener.html#onFallbackApplied(com.google.android.exoplayer2.transformer.Composition,com.google.android.exoplayer2.transformer.TransformationRequest,com.google.android.exoplayer2.transformer.TransformationRequest)"><code>Transformer.Listener.onFallbackApplied(Composition, TransformationRequest, TransformationRequest)</code></a> will
+ be invoked with the actual applied values.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>transformationRequest</code> - The <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationRequest</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
 </dl>
+</li>
+</ul>
+<a id="setAudioProcessors(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setAudioProcessors</h4>
+<pre class="methodSignature">@CanIgnoreReturnValue
+<a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;<a href="Transformer.Builder.html" title="class in com.google.android.exoplayer2.transformer">Transformer.Builder</a>&nbsp;setAudioProcessors&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio" target="_top">AudioProcessor</a>&gt;&nbsp;audioProcessors)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Set the <a href="../audio/AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">audio processors</a> in an <a href="EditedMediaItem.html" title="class in com.google.android.exoplayer2.transformer"><code>EditedMediaItem</code></a>, and pass it to <a href="Transformer.html#start(com.google.android.exoplayer2.transformer.EditedMediaItem,java.lang.String)"><code>Transformer.start(EditedMediaItem, String)</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="setVideoEffects(java.util.List)">
@@ -381,19 +406,12 @@ public&nbsp;<a href="Transformer.Builder.html" title="class in com.google.androi
 <li class="blockList">
 <h4>setVideoEffects</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
+<a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 public&nbsp;<a href="Transformer.Builder.html" title="class in com.google.android.exoplayer2.transformer">Transformer.Builder</a>&nbsp;setVideoEffects&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../util/Effect.html" title="interface in com.google.android.exoplayer2.util" target="_top">Effect</a>&gt;&nbsp;effects)</pre>
-<div class="block">Sets the <a href="../util/Effect.html" title="interface in com.google.android.exoplayer2.util"><code>Effect</code></a> instances to apply to each video frame.
-
- <p>The <a href="../util/Effect.html" title="interface in com.google.android.exoplayer2.util"><code>Effect</code></a> instances are applied before any <a href="TransformationRequest.Builder.html#setScale(float,float)">scale</a>, <a href="TransformationRequest.Builder.html#setRotationDegrees(float)">rotation</a>, or <a href="TransformationRequest.Builder.html#setResolution(int)">resolution</a> changes specified in the <a href="#setTransformationRequest(com.google.android.exoplayer2.transformer.TransformationRequest)"><code>TransformationRequest</code></a> but after <a href="TransformationRequest.Builder.html#setFlattenForSlowMotion(boolean)">slow-motion flattening</a>.
-
- <p>The default <a href="../util/FrameProcessor.html" title="interface in com.google.android.exoplayer2.util"><code>FrameProcessor</code></a> only supports <a href="../effect/GlEffect.html" title="interface in com.google.android.exoplayer2.effect"><code>GlEffect</code></a> instances. To use other
- effects, call <a href="#setFrameProcessorFactory(com.google.android.exoplayer2.util.FrameProcessor.Factory)"><code>setFrameProcessorFactory(FrameProcessor.Factory)</code></a> with a custom <a href="../util/FrameProcessor.Factory.html" title="interface in com.google.android.exoplayer2.util"><code>FrameProcessor.Factory</code></a>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>effects</code> - The <a href="../util/Effect.html" title="interface in com.google.android.exoplayer2.util"><code>Effect</code></a> instances to apply to each video frame.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This builder.</dd>
-</dl>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Set the <a href="../util/Effect.html" title="interface in com.google.android.exoplayer2.util">video effects</a> in an <a href="EditedMediaItem.html" title="class in com.google.android.exoplayer2.transformer"><code>EditedMediaItem</code></a>, and pass
+     it to <a href="Transformer.html#start(com.google.android.exoplayer2.transformer.EditedMediaItem,java.lang.String)"><code>Transformer.start(EditedMediaItem, String)</code></a> instead.</div>
+</div>
 </li>
 </ul>
 <a id="setRemoveAudio(boolean)">
@@ -403,19 +421,13 @@ public&nbsp;<a href="Transformer.Builder.html" title="class in com.google.androi
 <li class="blockList">
 <h4>setRemoveAudio</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
+<a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 public&nbsp;<a href="Transformer.Builder.html" title="class in com.google.android.exoplayer2.transformer">Transformer.Builder</a>&nbsp;setRemoveAudio&#8203;(boolean&nbsp;removeAudio)</pre>
-<div class="block">Sets whether to remove the audio from the output.
-
- <p>The default value is <code>false</code>.
-
- <p>The audio and video cannot both be removed because the output would not contain any
- samples.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>removeAudio</code> - Whether to remove the audio.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This builder.</dd>
-</dl>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="EditedMediaItem.Builder.html#setRemoveAudio(boolean)"><code>EditedMediaItem.Builder.setRemoveAudio(boolean)</code></a> to remove the audio
+     from the <a href="EditedMediaItem.html" title="class in com.google.android.exoplayer2.transformer"><code>EditedMediaItem</code></a> passed to <a href="Transformer.html#start(com.google.android.exoplayer2.transformer.EditedMediaItem,java.lang.String)"><code>Transformer.start(EditedMediaItem, String)</code></a>
+     instead.</div>
+</div>
 </li>
 </ul>
 <a id="setRemoveVideo(boolean)">
@@ -425,19 +437,13 @@ public&nbsp;<a href="Transformer.Builder.html" title="class in com.google.androi
 <li class="blockList">
 <h4>setRemoveVideo</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
+<a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 public&nbsp;<a href="Transformer.Builder.html" title="class in com.google.android.exoplayer2.transformer">Transformer.Builder</a>&nbsp;setRemoveVideo&#8203;(boolean&nbsp;removeVideo)</pre>
-<div class="block">Sets whether to remove the video from the output.
-
- <p>The default value is <code>false</code>.
-
- <p>The audio and video cannot both be removed because the output would not contain any
- samples.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>removeVideo</code> - Whether to remove the video.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This builder.</dd>
-</dl>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="EditedMediaItem.Builder.html#setRemoveVideo(boolean)"><code>EditedMediaItem.Builder.setRemoveVideo(boolean)</code></a> to remove the video
+     from the <a href="EditedMediaItem.html" title="class in com.google.android.exoplayer2.transformer"><code>EditedMediaItem</code></a> passed to <a href="Transformer.html#start(com.google.android.exoplayer2.transformer.EditedMediaItem,java.lang.String)"><code>Transformer.start(EditedMediaItem, String)</code></a>
+     instead.</div>
+</div>
 </li>
 </ul>
 <a id="setFlattenForSlowMotion(boolean)">
@@ -450,8 +456,8 @@ public&nbsp;<a href="Transformer.Builder.html" title="class in com.google.androi
 <a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 public&nbsp;<a href="Transformer.Builder.html" title="class in com.google.android.exoplayer2.transformer">Transformer.Builder</a>&nbsp;setFlattenForSlowMotion&#8203;(boolean&nbsp;flattenForSlowMotion)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="TransformationRequest.Builder.html#setFlattenForSlowMotion(boolean)"><code>TransformationRequest.Builder.setFlattenForSlowMotion(boolean)</code></a>
-     instead.</div>
+<div class="deprecationComment">Use <a href="EditedMediaItem.Builder.html#setFlattenForSlowMotion(boolean)"><code>EditedMediaItem.Builder.setFlattenForSlowMotion(boolean)</code></a> to flatten
+     the <a href="EditedMediaItem.html" title="class in com.google.android.exoplayer2.transformer"><code>EditedMediaItem</code></a> passed to <a href="Transformer.html#start(com.google.android.exoplayer2.transformer.EditedMediaItem,java.lang.String)"><code>Transformer.start(EditedMediaItem, String)</code></a> instead.</div>
 </div>
 </li>
 </ul>
@@ -477,7 +483,7 @@ public&nbsp;<a href="Transformer.Builder.html" title="class in com.google.androi
 <h4>addListener</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="Transformer.Builder.html" title="class in com.google.android.exoplayer2.transformer">Transformer.Builder</a>&nbsp;addListener&#8203;(<a href="Transformer.Listener.html" title="interface in com.google.android.exoplayer2.transformer">Transformer.Listener</a>&nbsp;listener)</pre>
-<div class="block">Adds a <a href="Transformer.Listener.html" title="interface in com.google.android.exoplayer2.transformer"><code>Transformer.Listener</code></a> to listen to the transformation events.
+<div class="block">Adds a <a href="Transformer.Listener.html" title="interface in com.google.android.exoplayer2.transformer"><code>Transformer.Listener</code></a> to listen to the export events.
 
  <p>This is equivalent to <a href="Transformer.html#addListener(com.google.android.exoplayer2.transformer.Transformer.Listener)"><code>Transformer.addListener(Listener)</code></a>.</div>
 <dl>
@@ -524,40 +530,40 @@ public&nbsp;<a href="Transformer.Builder.html" title="class in com.google.androi
 </dl>
 </li>
 </ul>
-<a id="setMediaSourceFactory(com.google.android.exoplayer2.source.MediaSource.Factory)">
+<a id="setAssetLoaderFactory(com.google.android.exoplayer2.transformer.AssetLoader.Factory)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setMediaSourceFactory</h4>
+<h4>setAssetLoaderFactory</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
-public&nbsp;<a href="Transformer.Builder.html" title="class in com.google.android.exoplayer2.transformer">Transformer.Builder</a>&nbsp;setMediaSourceFactory&#8203;(<a href="../source/MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Factory</a>&nbsp;mediaSourceFactory)</pre>
-<div class="block">Sets the <a href="../source/MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource.Factory</code></a> to be used to retrieve the inputs to transform.
+public&nbsp;<a href="Transformer.Builder.html" title="class in com.google.android.exoplayer2.transformer">Transformer.Builder</a>&nbsp;setAssetLoaderFactory&#8203;(<a href="AssetLoader.Factory.html" title="interface in com.google.android.exoplayer2.transformer">AssetLoader.Factory</a>&nbsp;assetLoaderFactory)</pre>
+<div class="block">Sets the <a href="AssetLoader.Factory.html" title="interface in com.google.android.exoplayer2.transformer"><code>AssetLoader.Factory</code></a> to be used to retrieve the samples to export.
 
- <p>The default value is a <a href="../source/DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source"><code>DefaultMediaSourceFactory</code></a> built with the context provided
- in <a href="#%3Cinit%3E(android.content.Context)">the constructor</a>.</div>
+ <p>The default value is a <a href="DefaultAssetLoaderFactory.html" title="class in com.google.android.exoplayer2.transformer"><code>DefaultAssetLoaderFactory</code></a> built with a <a href="../source/DefaultMediaSourceFactory.html" title="class in com.google.android.exoplayer2.source"><code>DefaultMediaSourceFactory</code></a> and a <code>DefaultDecoderFactory</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>mediaSourceFactory</code> - A <a href="../source/MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource.Factory</code></a>.</dd>
+<dd><code>assetLoaderFactory</code> - An <a href="AssetLoader.Factory.html" title="interface in com.google.android.exoplayer2.transformer"><code>AssetLoader.Factory</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
 </dl>
 </li>
 </ul>
-<a id="setDecoderFactory(com.google.android.exoplayer2.transformer.Codec.DecoderFactory)">
+<a id="setVideoFrameProcessorFactory(com.google.android.exoplayer2.util.VideoFrameProcessor.Factory)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>setDecoderFactory</h4>
+<h4>setVideoFrameProcessorFactory</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
-public&nbsp;<a href="Transformer.Builder.html" title="class in com.google.android.exoplayer2.transformer">Transformer.Builder</a>&nbsp;setDecoderFactory&#8203;(<a href="Codec.DecoderFactory.html" title="interface in com.google.android.exoplayer2.transformer">Codec.DecoderFactory</a>&nbsp;decoderFactory)</pre>
-<div class="block">Sets the <a href="Codec.DecoderFactory.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec.DecoderFactory</code></a> that will be used by the transformer.
+public&nbsp;<a href="Transformer.Builder.html" title="class in com.google.android.exoplayer2.transformer">Transformer.Builder</a>&nbsp;setVideoFrameProcessorFactory&#8203;(<a href="../util/VideoFrameProcessor.Factory.html" title="interface in com.google.android.exoplayer2.util">VideoFrameProcessor.Factory</a>&nbsp;videoFrameProcessorFactory)</pre>
+<div class="block">Sets the factory to be used to create <a href="../util/VideoFrameProcessor.html" title="interface in com.google.android.exoplayer2.util"><code>VideoFrameProcessor</code></a> instances.
 
- <p>The default value is a <code>DefaultDecoderFactory</code> instance.</div>
+ <p>The default value is a <a href="../effect/DefaultVideoFrameProcessor.Factory.html" title="class in com.google.android.exoplayer2.effect"><code>DefaultVideoFrameProcessor.Factory</code></a> built with default
+ values.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>decoderFactory</code> - The <a href="Codec.DecoderFactory.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec.DecoderFactory</code></a> instance.</dd>
+<dd><code>videoFrameProcessorFactory</code> - A <a href="../util/VideoFrameProcessor.Factory.html" title="interface in com.google.android.exoplayer2.util"><code>VideoFrameProcessor.Factory</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
 </dl>
@@ -577,30 +583,6 @@ public&nbsp;<a href="Transformer.Builder.html" title="class in com.google.androi
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>encoderFactory</code> - The <a href="Codec.EncoderFactory.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec.EncoderFactory</code></a> instance.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>This builder.</dd>
-</dl>
-</li>
-</ul>
-<a id="setFrameProcessorFactory(com.google.android.exoplayer2.util.FrameProcessor.Factory)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>setFrameProcessorFactory</h4>
-<pre class="methodSignature">@CanIgnoreReturnValue
-public&nbsp;<a href="Transformer.Builder.html" title="class in com.google.android.exoplayer2.transformer">Transformer.Builder</a>&nbsp;setFrameProcessorFactory&#8203;(<a href="../util/FrameProcessor.Factory.html" title="interface in com.google.android.exoplayer2.util">FrameProcessor.Factory</a>&nbsp;frameProcessorFactory)</pre>
-<div class="block">Sets the <a href="../util/FrameProcessor.Factory.html" title="interface in com.google.android.exoplayer2.util"><code>FrameProcessor.Factory</code></a> for the <a href="../util/FrameProcessor.html" title="interface in com.google.android.exoplayer2.util"><code>FrameProcessor</code></a> to use when applying
- <a href="../util/Effect.html" title="interface in com.google.android.exoplayer2.util">effects</a> to the video frames.
-
- <p>This factory will be used to create the <a href="../util/FrameProcessor.html" title="interface in com.google.android.exoplayer2.util"><code>FrameProcessor</code></a> used for applying the
- <a href="../util/Effect.html" title="interface in com.google.android.exoplayer2.util"><code>Effect</code></a> instances passed to <a href="#setVideoEffects(java.util.List)"><code>setVideoEffects(List)</code></a> and any additional <a href="../effect/GlMatrixTransformation.html" title="interface in com.google.android.exoplayer2.effect"><code>GlMatrixTransformation</code></a> instances derived from the <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationRequest</code></a> set using
- <a href="#setTransformationRequest(com.google.android.exoplayer2.transformer.TransformationRequest)"><code>setTransformationRequest(TransformationRequest)</code></a>.
-
- <p>The default is <a href="../effect/GlEffectsFrameProcessor.Factory.html" title="class in com.google.android.exoplayer2.effect"><code>GlEffectsFrameProcessor.Factory</code></a>.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>frameProcessorFactory</code> - The <a href="../util/FrameProcessor.Factory.html" title="interface in com.google.android.exoplayer2.util"><code>FrameProcessor.Factory</code></a> to use.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>This builder.</dd>
 </dl>
@@ -654,13 +636,12 @@ public&nbsp;<a href="Transformer.Builder.html" title="class in com.google.androi
 <h4>setDebugViewProvider</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="Transformer.Builder.html" title="class in com.google.android.exoplayer2.transformer">Transformer.Builder</a>&nbsp;setDebugViewProvider&#8203;(<a href="../util/DebugViewProvider.html" title="interface in com.google.android.exoplayer2.util">DebugViewProvider</a>&nbsp;debugViewProvider)</pre>
-<div class="block">Sets a provider for views to show diagnostic information (if available) during
- transformation.
+<div class="block">Sets a provider for views to show diagnostic information (if available) during export.
 
  <p>This is intended for debugging. The default value is <a href="../util/DebugViewProvider.html#NONE"><code>DebugViewProvider.NONE</code></a>, which
  doesn't show any debug info.
 
- <p>Not all transformations will result in debug views being populated.</div>
+ <p>Not all exports will result in debug views being populated.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>debugViewProvider</code> - Provider for debug views.</dd>
@@ -679,11 +660,10 @@ public&nbsp;<a href="Transformer.Builder.html" title="class in com.google.androi
 <div class="block">Builds a <a href="Transformer.html" title="class in com.google.android.exoplayer2.transformer"><code>Transformer</code></a> instance.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="https://developer.android.com/reference/java/lang/NullPointerException.html" title="class or interface in java.lang" class="externalLink">NullPointerException</a></code> - If the <a href="https://developer.android.com/reference/android/content/Context.html?is-external=true" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a> has not been provided.</dd>
 <dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalStateException</a></code> - If both audio and video have been removed (otherwise the output
      would not contain any samples).</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalStateException</a></code> - If the muxer doesn't support the requested audio MIME type.</dd>
-<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalStateException</a></code> - If the muxer doesn't support the requested video MIME type.</dd>
+<dd><code><a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalStateException</a></code> - If the muxer doesn't support the requested audio/video MIME
+     type.</dd>
 </dl>
 </li>
 </ul>

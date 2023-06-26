@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -142,9 +142,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="ExoDatabaseProvider.html" title="class in com.google.android.exoplayer2.database">ExoDatabaseProvider</a></code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">StandaloneDatabaseProvider</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">StandaloneDatabaseProvider</span>
 extends <a href="https://developer.android.com/reference/android/database/sqlite/SQLiteOpenHelper.html" title="class or interface in android.database.sqlite" class="externalLink" target="_top">SQLiteOpenHelper</a>
 implements <a href="DatabaseProvider.html" title="interface in com.google.android.exoplayer2.database">DatabaseProvider</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">An <a href="https://developer.android.com/reference/android/database/sqlite/SQLiteOpenHelper.html" title="class or interface in android.database.sqlite" class="externalLink" target="_top"><code>SQLiteOpenHelper</code></a> that provides instances of a standalone database.
 
  <p>Suitable for use by applications that do not already have their own database, or that would
@@ -174,6 +180,7 @@ implements <a href="DatabaseProvider.html" title="interface in com.google.androi
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DATABASE_NAME">DATABASE_NAME</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The file name used for the standalone database.</div>
 </td>
 </tr>
@@ -204,6 +211,7 @@ implements <a href="DatabaseProvider.html" title="interface in com.google.androi
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context)">StandaloneDatabaseProvider</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Provides instances of the database located by passing <a href="#DATABASE_NAME"><code>DATABASE_NAME</code></a> to <a href="https://developer.android.com/reference/android/content/Context.html#getDatabasePath(java.lang.String)" title="class or interface in android.content" class="externalLink" target="_top"><code>Context.getDatabasePath(String)</code></a>.</div>
 </td>
 </tr>
@@ -219,7 +227,7 @@ implements <a href="DatabaseProvider.html" title="interface in com.google.androi
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -228,21 +236,27 @@ implements <a href="DatabaseProvider.html" title="interface in com.google.androi
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onCreate(android.database.sqlite.SQLiteDatabase)">onCreate</a></span>&#8203;(<a href="https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase.html" title="class or interface in android.database.sqlite" class="externalLink" target="_top">SQLiteDatabase</a>&nbsp;db)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDowngrade(android.database.sqlite.SQLiteDatabase,int,int)">onDowngrade</a></span>&#8203;(<a href="https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase.html" title="class or interface in android.database.sqlite" class="externalLink" target="_top">SQLiteDatabase</a>&nbsp;db,
            int&nbsp;oldVersion,
            int&nbsp;newVersion)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onUpgrade(android.database.sqlite.SQLiteDatabase,int,int)">onUpgrade</a></span>&#8203;(<a href="https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase.html" title="class or interface in android.database.sqlite" class="externalLink" target="_top">SQLiteDatabase</a>&nbsp;db,
          int&nbsp;oldVersion,
          int&nbsp;newVersion)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -289,6 +303,7 @@ implements <a href="DatabaseProvider.html" title="interface in com.google.androi
 <li class="blockList">
 <h4>DATABASE_NAME</h4>
 <pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> DATABASE_NAME</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The file name used for the standalone database.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -313,6 +328,7 @@ implements <a href="DatabaseProvider.html" title="interface in com.google.androi
 <li class="blockList">
 <h4>StandaloneDatabaseProvider</h4>
 <pre>public&nbsp;StandaloneDatabaseProvider&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Provides instances of the database located by passing <a href="#DATABASE_NAME"><code>DATABASE_NAME</code></a> to <a href="https://developer.android.com/reference/android/content/Context.html#getDatabasePath(java.lang.String)" title="class or interface in android.content" class="externalLink" target="_top"><code>Context.getDatabasePath(String)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -337,6 +353,7 @@ implements <a href="DatabaseProvider.html" title="interface in com.google.androi
 <li class="blockList">
 <h4>onCreate</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onCreate&#8203;(<a href="https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase.html" title="class or interface in android.database.sqlite" class="externalLink" target="_top">SQLiteDatabase</a>&nbsp;db)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/database/sqlite/SQLiteOpenHelper.html#onCreate(android.database.sqlite.SQLiteDatabase)" title="class or interface in android.database.sqlite" class="externalLink">onCreate</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/database/sqlite/SQLiteOpenHelper.html?is-external=true" title="class or interface in android.database.sqlite" class="externalLink" target="_top">SQLiteOpenHelper</a></code></dd>
@@ -352,6 +369,7 @@ implements <a href="DatabaseProvider.html" title="interface in com.google.androi
 <pre class="methodSignature">public&nbsp;void&nbsp;onUpgrade&#8203;(<a href="https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase.html" title="class or interface in android.database.sqlite" class="externalLink" target="_top">SQLiteDatabase</a>&nbsp;db,
                       int&nbsp;oldVersion,
                       int&nbsp;newVersion)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/database/sqlite/SQLiteOpenHelper.html#onUpgrade(android.database.sqlite.SQLiteDatabase,int,int)" title="class or interface in android.database.sqlite" class="externalLink">onUpgrade</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/database/sqlite/SQLiteOpenHelper.html?is-external=true" title="class or interface in android.database.sqlite" class="externalLink" target="_top">SQLiteOpenHelper</a></code></dd>
@@ -367,6 +385,7 @@ implements <a href="DatabaseProvider.html" title="interface in com.google.androi
 <pre class="methodSignature">public&nbsp;void&nbsp;onDowngrade&#8203;(<a href="https://developer.android.com/reference/android/database/sqlite/SQLiteDatabase.html" title="class or interface in android.database.sqlite" class="externalLink" target="_top">SQLiteDatabase</a>&nbsp;db,
                         int&nbsp;oldVersion,
                         int&nbsp;newVersion)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/database/sqlite/SQLiteOpenHelper.html#onDowngrade(android.database.sqlite.SQLiteDatabase,int,int)" title="class or interface in android.database.sqlite" class="externalLink">onDowngrade</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/database/sqlite/SQLiteOpenHelper.html?is-external=true" title="class or interface in android.database.sqlite" class="externalLink" target="_top">SQLiteOpenHelper</a></code></dd>

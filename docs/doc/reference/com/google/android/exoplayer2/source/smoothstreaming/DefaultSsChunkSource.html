@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../chunk/ChunkSource.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkSource</a></code>, <code><a href="SsChunkSource.html" title="interface in com.google.android.exoplayer2.source.smoothstreaming">SsChunkSource</a></code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">DefaultSsChunkSource</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">DefaultSsChunkSource</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="SsChunkSource.html" title="interface in com.google.android.exoplayer2.source.smoothstreaming">SsChunkSource</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A default <a href="SsChunkSource.html" title="interface in com.google.android.exoplayer2.source.smoothstreaming"><code>SsChunkSource</code></a> implementation.</div>
 </li>
 </ul>
@@ -160,7 +166,9 @@ implements <a href="SsChunkSource.html" title="interface in com.google.android.e
 <tr class="altColor">
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DefaultSsChunkSource.Factory.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">DefaultSsChunkSource.Factory</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -180,12 +188,15 @@ implements <a href="SsChunkSource.html" title="interface in com.google.android.e
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest,int,com.google.android.exoplayer2.trackselection.ExoTrackSelection,com.google.android.exoplayer2.upstream.DataSource)">DefaultSsChunkSource</a></span>&#8203;(<a href="../../upstream/LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream">LoaderErrorThrower</a>&nbsp;manifestLoaderErrorThrower,
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest,int,com.google.android.exoplayer2.trackselection.ExoTrackSelection,com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.upstream.CmcdConfiguration)">DefaultSsChunkSource</a></span>&#8203;(<a href="../../upstream/LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream">LoaderErrorThrower</a>&nbsp;manifestLoaderErrorThrower,
                     <a href="manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&nbsp;manifest,
                     int&nbsp;streamElementIndex,
                     <a href="../../trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>&nbsp;trackSelection,
-                    <a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource)</code></th>
-<td class="colLast">&nbsp;</td>
+                    <a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
+                    <a href="../../upstream/CmcdConfiguration.html" title="class in com.google.android.exoplayer2.upstream">CmcdConfiguration</a>&nbsp;cmcdConfiguration)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -199,7 +210,7 @@ implements <a href="SsChunkSource.html" title="interface in com.google.android.e
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -210,6 +221,7 @@ implements <a href="SsChunkSource.html" title="interface in com.google.android.e
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdjustedSeekPositionUs(long,com.google.android.exoplayer2.SeekParameters)">getAdjustedSeekPositionUs</a></span>&#8203;(long&nbsp;positionUs,
                          <a href="../../SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a>&nbsp;seekParameters)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adjusts a seek position given the specified <a href="../../SeekParameters.html" title="class in com.google.android.exoplayer2"><code>SeekParameters</code></a>.</div>
 </td>
 </tr>
@@ -220,6 +232,7 @@ implements <a href="SsChunkSource.html" title="interface in com.google.android.e
             <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue,
             <a href="../chunk/ChunkHolder.html" title="class in com.google.android.exoplayer2.source.chunk">ChunkHolder</a>&nbsp;out)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the next chunk to load.</div>
 </td>
 </tr>
@@ -228,6 +241,7 @@ implements <a href="SsChunkSource.html" title="interface in com.google.android.e
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPreferredQueueSize(long,java.util.List)">getPreferredQueueSize</a></span>&#8203;(long&nbsp;playbackPositionUs,
                      <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Evaluates whether <a href="../chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s should be removed from the back of the queue.</div>
 </td>
 </tr>
@@ -235,6 +249,7 @@ implements <a href="SsChunkSource.html" title="interface in com.google.android.e
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maybeThrowError()">maybeThrowError</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If the source is currently having difficulty providing chunks, then this method throws the
  underlying error.</div>
 </td>
@@ -243,6 +258,7 @@ implements <a href="SsChunkSource.html" title="interface in com.google.android.e
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onChunkLoadCompleted(com.google.android.exoplayer2.source.chunk.Chunk)">onChunkLoadCompleted</a></span>&#8203;(<a href="../chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;chunk)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the <a href="../chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk"><code>ChunkSampleStream</code></a> has finished loading a chunk obtained from this
  source.</div>
 </td>
@@ -254,6 +270,7 @@ implements <a href="SsChunkSource.html" title="interface in com.google.android.e
                 <a href="../../upstream/LoadErrorHandlingPolicy.LoadErrorInfo.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.LoadErrorInfo</a>&nbsp;loadErrorInfo,
                 <a href="../../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the <a href="../chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk"><code>ChunkSampleStream</code></a> encounters an error loading a chunk obtained from
  this source.</div>
 </td>
@@ -262,6 +279,7 @@ implements <a href="SsChunkSource.html" title="interface in com.google.android.e
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases any held resources.</div>
 </td>
 </tr>
@@ -271,6 +289,7 @@ implements <a href="SsChunkSource.html" title="interface in com.google.android.e
                 <a href="../chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;loadingChunk,
                 <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether an ongoing load of a chunk should be canceled.</div>
 </td>
 </tr>
@@ -278,6 +297,7 @@ implements <a href="SsChunkSource.html" title="interface in com.google.android.e
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#updateManifest(com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest)">updateManifest</a></span>&#8203;(<a href="manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&nbsp;newManifest)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates the manifest.</div>
 </td>
 </tr>
@@ -285,6 +305,7 @@ implements <a href="SsChunkSource.html" title="interface in com.google.android.e
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#updateTrackSelection(com.google.android.exoplayer2.trackselection.ExoTrackSelection)">updateTrackSelection</a></span>&#8203;(<a href="../../trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>&nbsp;trackSelection)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates the track selection.</div>
 </td>
 </tr>
@@ -312,7 +333,7 @@ implements <a href="SsChunkSource.html" title="interface in com.google.android.e
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest,int,com.google.android.exoplayer2.trackselection.ExoTrackSelection,com.google.android.exoplayer2.upstream.DataSource)">
+<a id="&lt;init&gt;(com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest,int,com.google.android.exoplayer2.trackselection.ExoTrackSelection,com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.upstream.CmcdConfiguration)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -322,7 +343,10 @@ implements <a href="SsChunkSource.html" title="interface in com.google.android.e
                             <a href="manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&nbsp;manifest,
                             int&nbsp;streamElementIndex,
                             <a href="../../trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>&nbsp;trackSelection,
-                            <a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource)</pre>
+                            <a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
+                            @Nullable
+                            <a href="../../upstream/CmcdConfiguration.html" title="class in com.google.android.exoplayer2.upstream">CmcdConfiguration</a>&nbsp;cmcdConfiguration)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>manifestLoaderErrorThrower</code> - Throws errors affecting loading of manifests.</dd>
@@ -330,6 +354,7 @@ implements <a href="SsChunkSource.html" title="interface in com.google.android.e
 <dd><code>streamElementIndex</code> - The index of the stream element in the manifest.</dd>
 <dd><code>trackSelection</code> - The track selection.</dd>
 <dd><code>dataSource</code> - A <a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> suitable for loading the media data.</dd>
+<dd><code>cmcdConfiguration</code> - The <a href="../../upstream/CmcdConfiguration.html" title="class in com.google.android.exoplayer2.upstream"><code>CmcdConfiguration</code></a> for this chunk source.</dd>
 </dl>
 </li>
 </ul>
@@ -351,6 +376,7 @@ implements <a href="SsChunkSource.html" title="interface in com.google.android.e
 <h4>getAdjustedSeekPositionUs</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getAdjustedSeekPositionUs&#8203;(long&nbsp;positionUs,
                                       <a href="../../SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a>&nbsp;seekParameters)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../chunk/ChunkSource.html#getAdjustedSeekPositionUs(long,com.google.android.exoplayer2.SeekParameters)">ChunkSource</a></code></span></div>
 <div class="block">Adjusts a seek position given the specified <a href="../../SeekParameters.html" title="class in com.google.android.exoplayer2"><code>SeekParameters</code></a>. Chunk boundaries are used
  as sync points.</div>
@@ -372,6 +398,7 @@ implements <a href="SsChunkSource.html" title="interface in com.google.android.e
 <li class="blockList">
 <h4>updateManifest</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;updateManifest&#8203;(<a href="manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&nbsp;newManifest)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="SsChunkSource.html#updateManifest(com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest)">SsChunkSource</a></code></span></div>
 <div class="block">Updates the manifest.</div>
 <dl>
@@ -389,6 +416,7 @@ implements <a href="SsChunkSource.html" title="interface in com.google.android.e
 <li class="blockList">
 <h4>updateTrackSelection</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;updateTrackSelection&#8203;(<a href="../../trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>&nbsp;trackSelection)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="SsChunkSource.html#updateTrackSelection(com.google.android.exoplayer2.trackselection.ExoTrackSelection)">SsChunkSource</a></code></span></div>
 <div class="block">Updates the track selection.</div>
 <dl>
@@ -407,6 +435,7 @@ implements <a href="SsChunkSource.html" title="interface in com.google.android.e
 <h4>maybeThrowError</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;maybeThrowError()
                      throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../chunk/ChunkSource.html#maybeThrowError()">ChunkSource</a></code></span></div>
 <div class="block">If the source is currently having difficulty providing chunks, then this method throws the
  underlying error. Otherwise does nothing.</div>
@@ -426,6 +455,7 @@ implements <a href="SsChunkSource.html" title="interface in com.google.android.e
 <h4>getPreferredQueueSize</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getPreferredQueueSize&#8203;(long&nbsp;playbackPositionUs,
                                  <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../chunk/ChunkSource.html#getPreferredQueueSize(long,java.util.List)">ChunkSource</a></code></span></div>
 <div class="block">Evaluates whether <a href="../chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s should be removed from the back of the queue.
 
@@ -454,6 +484,7 @@ implements <a href="SsChunkSource.html" title="interface in com.google.android.e
 <pre class="methodSignature">public&nbsp;boolean&nbsp;shouldCancelLoad&#8203;(long&nbsp;playbackPositionUs,
                                 <a href="../chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;loadingChunk,
                                 <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../chunk/ChunkSource.html#shouldCancelLoad(long,com.google.android.exoplayer2.source.chunk.Chunk,java.util.List)">ChunkSource</a></code></span></div>
 <div class="block">Returns whether an ongoing load of a chunk should be canceled.</div>
 <dl>
@@ -478,6 +509,7 @@ implements <a href="SsChunkSource.html" title="interface in com.google.android.e
                                long&nbsp;loadPositionUs,
                                <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue,
                                <a href="../chunk/ChunkHolder.html" title="class in com.google.android.exoplayer2.source.chunk">ChunkHolder</a>&nbsp;out)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../chunk/ChunkSource.html#getNextChunk(long,long,java.util.List,com.google.android.exoplayer2.source.chunk.ChunkHolder)">ChunkSource</a></code></span></div>
 <div class="block">Returns the next chunk to load.
 
@@ -507,6 +539,7 @@ implements <a href="SsChunkSource.html" title="interface in com.google.android.e
 <li class="blockList">
 <h4>onChunkLoadCompleted</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onChunkLoadCompleted&#8203;(<a href="../chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;chunk)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../chunk/ChunkSource.html#onChunkLoadCompleted(com.google.android.exoplayer2.source.chunk.Chunk)">ChunkSource</a></code></span></div>
 <div class="block">Called when the <a href="../chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk"><code>ChunkSampleStream</code></a> has finished loading a chunk obtained from this
  source.</div>
@@ -528,6 +561,7 @@ implements <a href="SsChunkSource.html" title="interface in com.google.android.e
                                 boolean&nbsp;cancelable,
                                 <a href="../../upstream/LoadErrorHandlingPolicy.LoadErrorInfo.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.LoadErrorInfo</a>&nbsp;loadErrorInfo,
                                 <a href="../../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../chunk/ChunkSource.html#onChunkLoadError(com.google.android.exoplayer2.source.chunk.Chunk,boolean,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.LoadErrorInfo,com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">ChunkSource</a></code></span></div>
 <div class="block">Called when the <a href="../chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk"><code>ChunkSampleStream</code></a> encounters an error loading a chunk obtained from
  this source.</div>
@@ -554,6 +588,7 @@ implements <a href="SsChunkSource.html" title="interface in com.google.android.e
 <li class="blockList">
 <h4>release</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;release()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../chunk/ChunkSource.html#release()">ChunkSource</a></code></span></div>
 <div class="block">Releases any held resources.</div>
 <dl>

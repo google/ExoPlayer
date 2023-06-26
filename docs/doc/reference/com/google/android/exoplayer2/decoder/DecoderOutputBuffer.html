@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var data = {"i0":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -138,8 +138,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="SimpleDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoderOutputBuffer</a></code>, <code><a href="../text/SubtitleOutputBuffer.html" title="class in com.google.android.exoplayer2.text">SubtitleOutputBuffer</a></code>, <code><a href="VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">VideoDecoderOutputBuffer</a></code></dd>
 </dl>
 <hr>
-<pre>public abstract class <span class="typeNameLabel">DecoderOutputBuffer</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public abstract class <span class="typeNameLabel">DecoderOutputBuffer</span>
 extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.decoder">Buffer</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Output buffer decoded by a <a href="Decoder.html" title="interface in com.google.android.exoplayer2.decoder"><code>Decoder</code></a>.</div>
 </li>
 </ul>
@@ -165,6 +171,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DecoderOutputBuffer.Owner.html" title="interface in com.google.android.exoplayer2.decoder">DecoderOutputBuffer.Owner</a>&lt;<a href="DecoderOutputBuffer.Owner.html" title="type parameter in DecoderOutputBuffer.Owner">S</a> extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderOutputBuffer</a>&gt;</span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Buffer owner.</div>
 </td>
 </tr>
@@ -190,6 +197,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skippedOutputBufferCount">skippedOutputBufferCount</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of buffers immediately prior to this one that were skipped in the <a href="Decoder.html" title="interface in com.google.android.exoplayer2.decoder"><code>Decoder</code></a>.</div>
 </td>
 </tr>
@@ -197,6 +205,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#timeUs">timeUs</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The presentation timestamp for the buffer, in microseconds.</div>
 </td>
 </tr>
@@ -219,7 +228,9 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">DecoderOutputBuffer</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -233,7 +244,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -243,6 +254,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 <td class="colFirst"><code>abstract void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases the output buffer for reuse.</div>
 </td>
 </tr>
@@ -284,6 +296,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 <li class="blockList">
 <h4>timeUs</h4>
 <pre>public&nbsp;long timeUs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The presentation timestamp for the buffer, in microseconds.</div>
 </li>
 </ul>
@@ -294,6 +307,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 <li class="blockList">
 <h4>skippedOutputBufferCount</h4>
 <pre>public&nbsp;int skippedOutputBufferCount</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of buffers immediately prior to this one that were skipped in the <a href="Decoder.html" title="interface in com.google.android.exoplayer2.decoder"><code>Decoder</code></a>.</div>
 </li>
 </ul>
@@ -314,6 +328,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 <li class="blockList">
 <h4>DecoderOutputBuffer</h4>
 <pre>public&nbsp;DecoderOutputBuffer()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -333,6 +348,7 @@ extends <a href="Buffer.html" title="class in com.google.android.exoplayer2.deco
 <li class="blockList">
 <h4>release</h4>
 <pre class="methodSignature">public abstract&nbsp;void&nbsp;release()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases the output buffer for reuse. Must be called when the buffer is no longer needed.</div>
 </li>
 </ul>

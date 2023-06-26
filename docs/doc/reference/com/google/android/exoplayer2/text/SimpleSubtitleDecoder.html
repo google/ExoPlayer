@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":6,"i4":10,"i5":10,"i6":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":38,"i4":42,"i5":42,"i6":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -142,9 +142,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="dvb/DvbDecoder.html" title="class in com.google.android.exoplayer2.text.dvb">DvbDecoder</a></code>, <code><a href="webvtt/Mp4WebvttDecoder.html" title="class in com.google.android.exoplayer2.text.webvtt">Mp4WebvttDecoder</a></code>, <code><a href="pgs/PgsDecoder.html" title="class in com.google.android.exoplayer2.text.pgs">PgsDecoder</a></code>, <code><a href="ssa/SsaDecoder.html" title="class in com.google.android.exoplayer2.text.ssa">SsaDecoder</a></code>, <code><a href="subrip/SubripDecoder.html" title="class in com.google.android.exoplayer2.text.subrip">SubripDecoder</a></code>, <code><a href="ttml/TtmlDecoder.html" title="class in com.google.android.exoplayer2.text.ttml">TtmlDecoder</a></code>, <code><a href="tx3g/Tx3gDecoder.html" title="class in com.google.android.exoplayer2.text.tx3g">Tx3gDecoder</a></code>, <code><a href="webvtt/WebvttDecoder.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttDecoder</a></code></dd>
 </dl>
 <hr>
-<pre>public abstract class <span class="typeNameLabel">SimpleSubtitleDecoder</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public abstract class <span class="typeNameLabel">SimpleSubtitleDecoder</span>
 extends <a href="../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a>&lt;<a href="SubtitleInputBuffer.html" title="class in com.google.android.exoplayer2.text">SubtitleInputBuffer</a>,&#8203;<a href="SubtitleOutputBuffer.html" title="class in com.google.android.exoplayer2.text">SubtitleOutputBuffer</a>,&#8203;<a href="SubtitleDecoderException.html" title="class in com.google.android.exoplayer2.text">SubtitleDecoderException</a>&gt;
 implements <a href="SubtitleDecoder.html" title="interface in com.google.android.exoplayer2.text">SubtitleDecoder</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Base class for subtitle parsers that use their own decode thread.</div>
 </li>
 </ul>
@@ -169,7 +175,9 @@ implements <a href="SubtitleDecoder.html" title="interface in com.google.android
 <tr class="altColor">
 <td class="colFirst"><code>protected </code></td>
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String)">SimpleSubtitleDecoder</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -183,7 +191,7 @@ implements <a href="SubtitleDecoder.html" title="interface in com.google.android
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -193,6 +201,7 @@ implements <a href="SubtitleDecoder.html" title="interface in com.google.android
 <td class="colFirst"><code>protected <a href="SubtitleInputBuffer.html" title="class in com.google.android.exoplayer2.text">SubtitleInputBuffer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createInputBuffer()">createInputBuffer</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new input buffer.</div>
 </td>
 </tr>
@@ -200,6 +209,7 @@ implements <a href="SubtitleDecoder.html" title="interface in com.google.android
 <td class="colFirst"><code>protected <a href="SubtitleOutputBuffer.html" title="class in com.google.android.exoplayer2.text">SubtitleOutputBuffer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createOutputBuffer()">createOutputBuffer</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new output buffer.</div>
 </td>
 </tr>
@@ -207,6 +217,7 @@ implements <a href="SubtitleDecoder.html" title="interface in com.google.android
 <td class="colFirst"><code>protected <a href="SubtitleDecoderException.html" title="class in com.google.android.exoplayer2.text">SubtitleDecoderException</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createUnexpectedDecodeException(java.lang.Throwable)">createUnexpectedDecodeException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;error)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an exception to propagate for an unexpected decode error.</div>
 </td>
 </tr>
@@ -216,6 +227,7 @@ implements <a href="SubtitleDecoder.html" title="interface in com.google.android
       int&nbsp;length,
       boolean&nbsp;reset)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Decodes data into a <a href="Subtitle.html" title="interface in com.google.android.exoplayer2.text"><code>Subtitle</code></a>.</div>
 </td>
 </tr>
@@ -225,6 +237,7 @@ implements <a href="SubtitleDecoder.html" title="interface in com.google.android
       <a href="SubtitleOutputBuffer.html" title="class in com.google.android.exoplayer2.text">SubtitleOutputBuffer</a>&nbsp;outputBuffer,
       boolean&nbsp;reset)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Decodes the <code>inputBuffer</code> and stores any decoded output in <code>outputBuffer</code>.</div>
 </td>
 </tr>
@@ -232,6 +245,7 @@ implements <a href="SubtitleDecoder.html" title="interface in com.google.android
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getName()">getName</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the name of the decoder.</div>
 </td>
 </tr>
@@ -239,6 +253,7 @@ implements <a href="SubtitleDecoder.html" title="interface in com.google.android
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPositionUs(long)">setPositionUs</a></span>&#8203;(long&nbsp;positionUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Informs the decoder of the current playback position.</div>
 </td>
 </tr>
@@ -287,6 +302,7 @@ implements <a href="SubtitleDecoder.html" title="interface in com.google.android
 <li class="blockList">
 <h4>SimpleSubtitleDecoder</h4>
 <pre>protected&nbsp;SimpleSubtitleDecoder&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>name</code> - The name of the decoder.</dd>
@@ -310,6 +326,7 @@ implements <a href="SubtitleDecoder.html" title="interface in com.google.android
 <li class="blockList">
 <h4>getName</h4>
 <pre class="methodSignature">public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;getName()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../decoder/Decoder.html#getName()">Decoder</a></code></span></div>
 <div class="block">Returns the name of the decoder.</div>
 <dl>
@@ -327,6 +344,7 @@ implements <a href="SubtitleDecoder.html" title="interface in com.google.android
 <li class="blockList">
 <h4>setPositionUs</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setPositionUs&#8203;(long&nbsp;positionUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="SubtitleDecoder.html#setPositionUs(long)">SubtitleDecoder</a></code></span></div>
 <div class="block">Informs the decoder of the current playback position.
 
@@ -346,6 +364,7 @@ implements <a href="SubtitleDecoder.html" title="interface in com.google.android
 <li class="blockList">
 <h4>createInputBuffer</h4>
 <pre class="methodSignature">protected final&nbsp;<a href="SubtitleInputBuffer.html" title="class in com.google.android.exoplayer2.text">SubtitleInputBuffer</a>&nbsp;createInputBuffer()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../decoder/SimpleDecoder.html#createInputBuffer()">SimpleDecoder</a></code></span></div>
 <div class="block">Creates a new input buffer.</div>
 <dl>
@@ -361,6 +380,7 @@ implements <a href="SubtitleDecoder.html" title="interface in com.google.android
 <li class="blockList">
 <h4>createOutputBuffer</h4>
 <pre class="methodSignature">protected final&nbsp;<a href="SubtitleOutputBuffer.html" title="class in com.google.android.exoplayer2.text">SubtitleOutputBuffer</a>&nbsp;createOutputBuffer()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../decoder/SimpleDecoder.html#createOutputBuffer()">SimpleDecoder</a></code></span></div>
 <div class="block">Creates a new output buffer.</div>
 <dl>
@@ -376,6 +396,7 @@ implements <a href="SubtitleDecoder.html" title="interface in com.google.android
 <li class="blockList">
 <h4>createUnexpectedDecodeException</h4>
 <pre class="methodSignature">protected final&nbsp;<a href="SubtitleDecoderException.html" title="class in com.google.android.exoplayer2.text">SubtitleDecoderException</a>&nbsp;createUnexpectedDecodeException&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;error)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../decoder/SimpleDecoder.html#createUnexpectedDecodeException(java.lang.Throwable)">SimpleDecoder</a></code></span></div>
 <div class="block">Creates an exception to propagate for an unexpected decode error.</div>
 <dl>
@@ -398,6 +419,7 @@ implements <a href="SubtitleDecoder.html" title="interface in com.google.android
 protected final&nbsp;<a href="SubtitleDecoderException.html" title="class in com.google.android.exoplayer2.text">SubtitleDecoderException</a>&nbsp;decode&#8203;(<a href="SubtitleInputBuffer.html" title="class in com.google.android.exoplayer2.text">SubtitleInputBuffer</a>&nbsp;inputBuffer,
                                                 <a href="SubtitleOutputBuffer.html" title="class in com.google.android.exoplayer2.text">SubtitleOutputBuffer</a>&nbsp;outputBuffer,
                                                 boolean&nbsp;reset)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../decoder/SimpleDecoder.html#decode(I,O,boolean)">SimpleDecoder</a></code></span></div>
 <div class="block">Decodes the <code>inputBuffer</code> and stores any decoded output in <code>outputBuffer</code>.</div>
 <dl>
@@ -425,6 +447,7 @@ protected final&nbsp;<a href="SubtitleDecoderException.html" title="class in com
                                    int&nbsp;length,
                                    boolean&nbsp;reset)
                             throws <a href="SubtitleDecoderException.html" title="class in com.google.android.exoplayer2.text">SubtitleDecoderException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Decodes data into a <a href="Subtitle.html" title="interface in com.google.android.exoplayer2.text"><code>Subtitle</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

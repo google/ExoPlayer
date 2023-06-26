@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":41,"i1":41,"i2":41,"i3":41,"i4":41,"i5":41,"i6":41,"i7":41,"i8":41,"i9":41,"i10":41};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">MediaCodecUtil</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">MediaCodecUtil</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A utility class for querying the available codecs.</div>
 </li>
 </ul>
@@ -156,6 +162,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaCodecUtil.DecoderQueryException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil.DecoderQueryException</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Thrown when an error occurs querying the device for its underlying media capabilities.</div>
 </td>
 </tr>
@@ -171,7 +178,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -180,72 +187,107 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearDecoderInfoCache()">clearDecoderInfoCache</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAlternativeCodecMimeType(com.google.android.exoplayer2.Format)">getAlternativeCodecMimeType</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an alternative codec MIME type (besides the default <a href="../Format.html#sampleMimeType"><code>Format.sampleMimeType</code></a>) that
  can be used to decode samples of the provided <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec" target="_top">MediaCodecInfo</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAlternativeDecoderInfos(com.google.android.exoplayer2.mediacodec.MediaCodecSelector,com.google.android.exoplayer2.Format,boolean,boolean)">getAlternativeDecoderInfos</a></span>&#8203;(<a href="MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector,
+                          <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+                          boolean&nbsp;requiresSecureDecoder,
+                          boolean&nbsp;requiresTunnelingDecoder)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns a list of decoders for <a href="#getAlternativeCodecMimeType(com.google.android.exoplayer2.Format)">alternative MIME types</a>
+ that can decode samples of the provided <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>, in the priority order specified by the
+ <a href="MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec"><code>MediaCodecSelector</code></a>.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCodecProfileAndLevel(com.google.android.exoplayer2.Format)">getCodecProfileAndLevel</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns profile and level (as defined by <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.CodecProfileLevel.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodecInfo.CodecProfileLevel</code></a>) corresponding to the codec
  description string (as defined by RFC 6381) of the given format.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>static <a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDecoderInfo(java.lang.String,boolean,boolean)">getDecoderInfo</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
               boolean&nbsp;secure,
               boolean&nbsp;tunneling)</code></th>
 <td class="colLast">
-<div class="block">Returns information about the preferred decoder for a given mime type.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns information about the preferred decoder for a given MIME type.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec" target="_top">MediaCodecInfo</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDecoderInfos(java.lang.String,boolean,boolean)">getDecoderInfos</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
                boolean&nbsp;secure,
                boolean&nbsp;tunneling)</code></th>
 <td class="colLast">
-<div class="block">Returns all <a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec"><code>MediaCodecInfo</code></a>s for the given mime type, in the order given by <a href="https://developer.android.com/reference/android/media/MediaCodecList.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodecList</code></a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns all <a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec"><code>MediaCodecInfo</code></a>s for the given MIME type, in the order given by <a href="https://developer.android.com/reference/android/media/MediaCodecList.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodecList</code></a>.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec" target="_top">MediaCodecInfo</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDecoderInfosSoftMatch(com.google.android.exoplayer2.mediacodec.MediaCodecSelector,com.google.android.exoplayer2.Format,boolean,boolean)">getDecoderInfosSoftMatch</a></span>&#8203;(<a href="MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector,
+                        <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+                        boolean&nbsp;requiresSecureDecoder,
+                        boolean&nbsp;requiresTunnelingDecoder)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns a list of decoders that can decode media in the specified format, in the priority order
+ specified by the <a href="MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec"><code>MediaCodecSelector</code></a>.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec" target="_top">MediaCodecInfo</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDecoderInfosSortedByFormatSupport(java.util.List,com.google.android.exoplayer2.Format)">getDecoderInfosSortedByFormatSupport</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec" target="_top">MediaCodecInfo</a>&gt;&nbsp;decoderInfos,
                                     <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy of the provided decoder list sorted such that decoders with functional format
  support are listed first.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>static <a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDecryptOnlyDecoderInfo()">getDecryptOnlyDecoderInfo</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns information about a decoder that will only decrypt data, without decoding it.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maxH264DecodableFrameSize()">maxH264DecodableFrameSize</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the maximum frame size supported by the default H264 decoder.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#warmDecoderInfoCache(java.lang.String,boolean,boolean)">warmDecoderInfoCache</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
                     boolean&nbsp;secure,
                     boolean&nbsp;tunneling)</code></th>
 <td class="colLast">
-<div class="block">Optional call to warm the codec cache for a given mime type.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Optional call to warm the codec cache for a given MIME type.</div>
 </td>
 </tr>
 </table>
@@ -281,13 +323,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">public static&nbsp;void&nbsp;warmDecoderInfoCache&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
                                         boolean&nbsp;secure,
                                         boolean&nbsp;tunneling)</pre>
-<div class="block">Optional call to warm the codec cache for a given mime type.
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Optional call to warm the codec cache for a given MIME type.
 
  <p>Calling this method may speed up subsequent calls to <a href="#getDecoderInfo(java.lang.String,boolean,boolean)"><code>getDecoderInfo(String, boolean,
  boolean)</code></a> and <a href="#getDecoderInfos(java.lang.String,boolean,boolean)"><code>getDecoderInfos(String, boolean, boolean)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>mimeType</code> - The mime type.</dd>
+<dd><code>mimeType</code> - The MIME type.</dd>
 <dd><code>secure</code> - Whether the decoder is required to support secure decryption. Always pass false
      unless secure decryption really is required.</dd>
 <dd><code>tunneling</code> - Whether the decoder is required to support tunneling. Always pass false unless
@@ -302,6 +345,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>clearDecoderInfoCache</h4>
 <pre class="methodSignature">public static&nbsp;void&nbsp;clearDecoderInfoCache()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="getDecryptOnlyDecoderInfo()">
@@ -313,6 +357,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">@Nullable
 public static&nbsp;<a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;getDecryptOnlyDecoderInfo()
                                                 throws <a href="MediaCodecUtil.DecoderQueryException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil.DecoderQueryException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns information about a decoder that will only decrypt data, without decoding it.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -333,7 +378,8 @@ public static&nbsp;<a href="MediaCodecInfo.html" title="class in com.google.andr
                                             boolean&nbsp;secure,
                                             boolean&nbsp;tunneling)
                                      throws <a href="MediaCodecUtil.DecoderQueryException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil.DecoderQueryException</a></pre>
-<div class="block">Returns information about the preferred decoder for a given mime type.</div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns information about the preferred decoder for a given MIME type.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mimeType</code> - The MIME type.</dd>
@@ -358,7 +404,8 @@ public static&nbsp;<a href="MediaCodecInfo.html" title="class in com.google.andr
                                                    boolean&nbsp;secure,
                                                    boolean&nbsp;tunneling)
                                             throws <a href="MediaCodecUtil.DecoderQueryException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil.DecoderQueryException</a></pre>
-<div class="block">Returns all <a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec"><code>MediaCodecInfo</code></a>s for the given mime type, in the order given by <a href="https://developer.android.com/reference/android/media/MediaCodecList.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodecList</code></a>.</div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns all <a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec"><code>MediaCodecInfo</code></a>s for the given MIME type, in the order given by <a href="https://developer.android.com/reference/android/media/MediaCodecList.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodecList</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mimeType</code> - The MIME type.</dd>
@@ -367,10 +414,79 @@ public static&nbsp;<a href="MediaCodecInfo.html" title="class in com.google.andr
 <dd><code>tunneling</code> - Whether the decoder is required to support tunneling. Always pass false unless
      tunneling really is required.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>An unmodifiable list of all <a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec"><code>MediaCodecInfo</code></a>s for the given mime type, in the
+<dd>An unmodifiable list of all <a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec"><code>MediaCodecInfo</code></a>s for the given MIME type, in the
      order given by <a href="https://developer.android.com/reference/android/media/MediaCodecList.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodecList</code></a>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="MediaCodecUtil.DecoderQueryException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil.DecoderQueryException</a></code> - If there was an error querying the available decoders.</dd>
+</dl>
+</li>
+</ul>
+<a id="getDecoderInfosSoftMatch(com.google.android.exoplayer2.mediacodec.MediaCodecSelector,com.google.android.exoplayer2.Format,boolean,boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDecoderInfosSoftMatch</h4>
+<pre class="methodSignature">@RequiresNonNull("#2.sampleMimeType")
+public static&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&gt;&nbsp;getDecoderInfosSoftMatch&#8203;(<a href="MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec" target="_top">MediaCodecSelector</a>&nbsp;mediaCodecSelector,
+                                                            <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+                                                            boolean&nbsp;requiresSecureDecoder,
+                                                            boolean&nbsp;requiresTunnelingDecoder)
+                                                     throws <a href="MediaCodecUtil.DecoderQueryException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil.DecoderQueryException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns a list of decoders that can decode media in the specified format, in the priority order
+ specified by the <a href="MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec"><code>MediaCodecSelector</code></a>.
+
+ <p>Since the <a href="MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec"><code>MediaCodecSelector</code></a> only has access to <a href="../Format.html#sampleMimeType"><code>Format.sampleMimeType</code></a>, the
+ list is not ordered to account for whether each decoder supports the details of the format
+ (e.g., taking into account the format's profile, level, resolution and so on). <a href="#getDecoderInfosSortedByFormatSupport(java.util.List,com.google.android.exoplayer2.Format)"><code>getDecoderInfosSortedByFormatSupport(java.util.List&lt;com.google.android.exoplayer2.mediacodec.MediaCodecInfo&gt;, com.google.android.exoplayer2.Format)</code></a> can be used to further sort the list into an order where
+ decoders that fully support the format come first.
+
+ <p>This list is more complete than <a href="#getDecoderInfos(java.lang.String,boolean,boolean)"><code>getDecoderInfos(java.lang.String, boolean, boolean)</code></a>, as it also considers alternative
+ MIME types that are a close match using <a href="#getAlternativeCodecMimeType(com.google.android.exoplayer2.Format)"><code>getAlternativeCodecMimeType(com.google.android.exoplayer2.Format)</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>mediaCodecSelector</code> - The decoder selector.</dd>
+<dd><code>format</code> - The <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> for which a decoder is required.</dd>
+<dd><code>requiresSecureDecoder</code> - Whether a secure decoder is required.</dd>
+<dd><code>requiresTunnelingDecoder</code> - Whether a tunneling decoder is required.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A list of <a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec"><code>MediaCodecInfo</code></a>s corresponding to decoders. May be empty.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="MediaCodecUtil.DecoderQueryException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil.DecoderQueryException</a></code> - Thrown if there was an error querying decoders.</dd>
+</dl>
+</li>
+</ul>
+<a id="getAlternativeDecoderInfos(com.google.android.exoplayer2.mediacodec.MediaCodecSelector,com.google.android.exoplayer2.Format,boolean,boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getAlternativeDecoderInfos</h4>
+<pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&gt;&nbsp;getAlternativeDecoderInfos&#8203;(<a href="MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec" target="_top">MediaCodecSelector</a>&nbsp;mediaCodecSelector,
+                                                              <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+                                                              boolean&nbsp;requiresSecureDecoder,
+                                                              boolean&nbsp;requiresTunnelingDecoder)
+                                                       throws <a href="MediaCodecUtil.DecoderQueryException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil.DecoderQueryException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns a list of decoders for <a href="#getAlternativeCodecMimeType(com.google.android.exoplayer2.Format)">alternative MIME types</a>
+ that can decode samples of the provided <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>, in the priority order specified by the
+ <a href="MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec"><code>MediaCodecSelector</code></a>.
+
+ <p>Since the <a href="MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec"><code>MediaCodecSelector</code></a> only has access to <a href="../Format.html#sampleMimeType"><code>Format.sampleMimeType</code></a>, the
+ list is not ordered to account for whether each decoder supports the details of the format
+ (e.g., taking into account the format's profile, level, resolution and so on). <a href="#getDecoderInfosSortedByFormatSupport(java.util.List,com.google.android.exoplayer2.Format)"><code>getDecoderInfosSortedByFormatSupport(java.util.List&lt;com.google.android.exoplayer2.mediacodec.MediaCodecInfo&gt;, com.google.android.exoplayer2.Format)</code></a> can be used to further sort the list into an order where
+ decoders that fully support the format come first.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>mediaCodecSelector</code> - The decoder selector.</dd>
+<dd><code>format</code> - The <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> for which an alternative decoder is required.</dd>
+<dd><code>requiresSecureDecoder</code> - Whether a secure decoder is required.</dd>
+<dd><code>requiresTunnelingDecoder</code> - Whether a tunneling decoder is required.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A list of <a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec"><code>MediaCodecInfo</code></a>s corresponding to alternative decoders. May be empty.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="MediaCodecUtil.DecoderQueryException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil.DecoderQueryException</a></code> - Thrown if there was an error querying decoders.</dd>
 </dl>
 </li>
 </ul>
@@ -383,6 +499,7 @@ public static&nbsp;<a href="MediaCodecInfo.html" title="class in com.google.andr
 <pre class="methodSignature">@CheckResult
 public static&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&gt;&nbsp;getDecoderInfosSortedByFormatSupport&#8203;(<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec" target="_top">MediaCodecInfo</a>&gt;&nbsp;decoderInfos,
                                                                         <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy of the provided decoder list sorted such that decoders with functional format
  support are listed first. The returned list is modifiable for convenience.</div>
 </li>
@@ -395,6 +512,7 @@ public static&nbsp;<a href="https://developer.android.com/reference/java/util/Li
 <h4>maxH264DecodableFrameSize</h4>
 <pre class="methodSignature">public static&nbsp;int&nbsp;maxH264DecodableFrameSize()
                                      throws <a href="MediaCodecUtil.DecoderQueryException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil.DecoderQueryException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the maximum frame size supported by the default H264 decoder.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -412,6 +530,7 @@ public static&nbsp;<a href="https://developer.android.com/reference/java/util/Li
 <h4>getCodecProfileAndLevel</h4>
 <pre class="methodSignature">@Nullable
 public static&nbsp;<a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>&gt;&nbsp;getCodecProfileAndLevel&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&nbsp;format)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns profile and level (as defined by <a href="https://developer.android.com/reference/android/media/MediaCodecInfo.CodecProfileLevel.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodecInfo.CodecProfileLevel</code></a>) corresponding to the codec
  description string (as defined by RFC 6381) of the given format.</div>
 <dl>
@@ -431,6 +550,7 @@ public static&nbsp;<a href="https://developer.android.com/reference/android/util
 <h4>getAlternativeCodecMimeType</h4>
 <pre class="methodSignature">@Nullable
 public static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;getAlternativeCodecMimeType&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&nbsp;format)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an alternative codec MIME type (besides the default <a href="../Format.html#sampleMimeType"><code>Format.sampleMimeType</code></a>) that
  can be used to decode samples of the provided <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 <dl>

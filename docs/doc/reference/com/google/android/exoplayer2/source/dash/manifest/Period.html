@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public class <span class="typeNameLabel">Period</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">Period</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Encapsulates media content components over a contiguous period of time.</div>
 </li>
 </ul>
@@ -156,6 +162,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="AdaptationSet.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">AdaptationSet</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#adaptationSets">adaptationSets</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The adaptation sets belonging to the period.</div>
 </td>
 </tr>
@@ -163,6 +170,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Descriptor</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#assetIdentifier">assetIdentifier</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The asset identifier for this period, if one exists</div>
 </td>
 </tr>
@@ -170,6 +178,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="EventStream.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">EventStream</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#eventStreams">eventStreams</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The event stream belonging to the period.</div>
 </td>
 </tr>
@@ -177,6 +186,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#id">id</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The period identifier, if one exists.</div>
 </td>
 </tr>
@@ -184,6 +194,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#startMs">startMs</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The start time of the period in milliseconds, relative to the start of the manifest.</div>
 </td>
 </tr>
@@ -208,14 +219,18 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,long,java.util.List)">Period</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
       long&nbsp;startMs,
       <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="AdaptationSet.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">AdaptationSet</a>&gt;&nbsp;adaptationSets)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,long,java.util.List,java.util.List)">Period</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
       long&nbsp;startMs,
       <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="AdaptationSet.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">AdaptationSet</a>&gt;&nbsp;adaptationSets,
       <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="EventStream.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">EventStream</a>&gt;&nbsp;eventStreams)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,long,java.util.List,java.util.List,com.google.android.exoplayer2.source.dash.manifest.Descriptor)">Period</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
@@ -223,7 +238,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
       <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="AdaptationSet.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">AdaptationSet</a>&gt;&nbsp;adaptationSets,
       <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="EventStream.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">EventStream</a>&gt;&nbsp;eventStreams,
       <a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Descriptor</a>&nbsp;assetIdentifier)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -237,7 +254,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -247,6 +264,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdaptationSetIndex(int)">getAdaptationSetIndex</a></span>&#8203;(int&nbsp;type)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the index of the first adaptation set of a given type, or <a href="../../../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if no
  adaptation set of the specified type exists.</div>
 </td>
@@ -283,6 +301,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>id</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> id</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The period identifier, if one exists.</div>
 </li>
 </ul>
@@ -293,6 +312,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <li class="blockList">
 <h4>startMs</h4>
 <pre>public final&nbsp;long startMs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The start time of the period in milliseconds, relative to the start of the manifest.</div>
 </li>
 </ul>
@@ -303,6 +323,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <li class="blockList">
 <h4>adaptationSets</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="AdaptationSet.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">AdaptationSet</a>&gt; adaptationSets</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The adaptation sets belonging to the period.</div>
 </li>
 </ul>
@@ -313,6 +334,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <li class="blockList">
 <h4>eventStreams</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="EventStream.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">EventStream</a>&gt; eventStreams</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The event stream belonging to the period.</div>
 </li>
 </ul>
@@ -324,6 +346,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <h4>assetIdentifier</h4>
 <pre>@Nullable
 public final&nbsp;<a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Descriptor</a> assetIdentifier</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The asset identifier for this period, if one exists</div>
 </li>
 </ul>
@@ -347,6 +370,7 @@ public final&nbsp;<a href="Descriptor.html" title="class in com.google.android.e
               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
               long&nbsp;startMs,
               <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="AdaptationSet.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">AdaptationSet</a>&gt;&nbsp;adaptationSets)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>id</code> - The period identifier. May be null.</dd>
@@ -366,6 +390,7 @@ public final&nbsp;<a href="Descriptor.html" title="class in com.google.android.e
               long&nbsp;startMs,
               <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="AdaptationSet.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">AdaptationSet</a>&gt;&nbsp;adaptationSets,
               <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="EventStream.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">EventStream</a>&gt;&nbsp;eventStreams)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>id</code> - The period identifier. May be null.</dd>
@@ -388,6 +413,7 @@ public final&nbsp;<a href="Descriptor.html" title="class in com.google.android.e
               <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="EventStream.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">EventStream</a>&gt;&nbsp;eventStreams,
               @Nullable
               <a href="Descriptor.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Descriptor</a>&nbsp;assetIdentifier)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>id</code> - The period identifier. May be null.</dd>
@@ -415,6 +441,7 @@ public final&nbsp;<a href="Descriptor.html" title="class in com.google.android.e
 <li class="blockList">
 <h4>getAdaptationSetIndex</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getAdaptationSetIndex&#8203;(int&nbsp;type)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the index of the first adaptation set of a given type, or <a href="../../../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if no
  adaptation set of the specified type exists.</div>
 <dl>

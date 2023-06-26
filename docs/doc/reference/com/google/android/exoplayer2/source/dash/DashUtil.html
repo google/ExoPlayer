@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9,"i9":9};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":41,"i1":41,"i2":41,"i3":41,"i4":41,"i5":41,"i6":41,"i7":41,"i8":41,"i9":41};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">DashUtil</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">DashUtil</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Utility methods for DASH streams.</div>
 </li>
 </ul>
@@ -146,7 +152,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -158,6 +164,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
              <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;requestUri,
              int&nbsp;flags)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builds a <a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> for a given <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>RangedUri</code></a> belonging to <a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>Representation</code></a>.</div>
 </td>
 </tr>
@@ -168,6 +175,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
              <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;requestUri,
              int&nbsp;flags)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builds a <a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> for a given <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>RangedUri</code></a> belonging to <a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>Representation</code></a>.</div>
 </td>
 </tr>
@@ -177,6 +185,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
               int&nbsp;trackType,
               <a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;representation)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Loads initialization and index data for the <code>representation</code> and returns the <a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor"><code>ChunkIndex</code></a>.</div>
 </td>
 </tr>
@@ -187,6 +196,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
               <a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;representation,
               int&nbsp;baseUrlIndex)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Loads initialization and index data for the <code>representation</code> and returns the <a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor"><code>ChunkIndex</code></a>.</div>
 </td>
 </tr>
@@ -195,6 +205,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#loadFormatWithDrmInitData(com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.source.dash.manifest.Period)">loadFormatWithDrmInitData</a></span>&#8203;(<a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
                          <a href="manifest/Period.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Period</a>&nbsp;period)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Loads a <a href="../../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> for acquiring keys for a given period in a DASH manifest.</div>
 </td>
 </tr>
@@ -205,6 +216,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                       <a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;representation,
                       boolean&nbsp;loadIndex)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Loads initialization data for the <code>representation</code> and optionally index data then returns
  a <a href="../chunk/BundledChunkExtractor.html" title="class in com.google.android.exoplayer2.source.chunk"><code>BundledChunkExtractor</code></a> which contains the output.</div>
 </td>
@@ -214,6 +226,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#loadManifest(com.google.android.exoplayer2.upstream.DataSource,android.net.Uri)">loadManifest</a></span>&#8203;(<a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
             <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Loads a DASH manifest.</div>
 </td>
 </tr>
@@ -223,6 +236,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                 int&nbsp;trackType,
                 <a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;representation)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Loads initialization data for the <code>representation</code> and returns the sample <a href="../../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 </td>
 </tr>
@@ -233,6 +247,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                 <a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;representation,
                 int&nbsp;baseUrlIndex)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Loads initialization data for the <code>representation</code> and returns the sample <a href="../../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 </td>
 </tr>
@@ -241,6 +256,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#resolveCacheKey(com.google.android.exoplayer2.source.dash.manifest.Representation,com.google.android.exoplayer2.source.dash.manifest.RangedUri)">resolveCacheKey</a></span>&#8203;(<a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;representation,
                <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;rangedUri)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Resolves the cache key to be used when requesting the given ranged URI for the given <a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>Representation</code></a>.</div>
 </td>
 </tr>
@@ -278,6 +294,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;baseUrl,
                                      <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;requestUri,
                                      int&nbsp;flags)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builds a <a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> for a given <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>RangedUri</code></a> belonging to <a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>Representation</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -299,6 +316,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">public static&nbsp;<a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;buildDataSpec&#8203;(<a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;representation,
                                      <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;requestUri,
                                      int&nbsp;flags)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builds a <a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> for a given <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>RangedUri</code></a> belonging to <a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>Representation</code></a>.
 
  <p>Uses the first base URL of the representation to build the data spec.</div>
@@ -321,6 +339,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">public static&nbsp;<a href="manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;loadManifest&#8203;(<a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
                                         <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)
                                  throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Loads a DASH manifest.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -343,6 +362,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 public static&nbsp;<a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;loadFormatWithDrmInitData&#8203;(<a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
                                                <a href="manifest/Period.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Period</a>&nbsp;period)
                                         throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Loads a <a href="../../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> for acquiring keys for a given period in a DASH manifest.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -367,6 +387,7 @@ public static&nbsp;<a href="../../Format.html" title="class in com.google.androi
                                       <a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;representation,
                                       int&nbsp;baseUrlIndex)
                                throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Loads initialization data for the <code>representation</code> and returns the sample <a href="../../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -392,6 +413,7 @@ public static&nbsp;<a href="../../Format.html" title="class in com.google.androi
                                       int&nbsp;trackType,
                                       <a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;representation)
                                throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Loads initialization data for the <code>representation</code> and returns the sample <a href="../../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.
 
  <p>Uses the first base URL for loading the format.</div>
@@ -419,6 +441,7 @@ public static&nbsp;<a href="../../extractor/ChunkIndex.html" title="class in com
                                         <a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;representation,
                                         int&nbsp;baseUrlIndex)
                                  throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Loads initialization and index data for the <code>representation</code> and returns the <a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor"><code>ChunkIndex</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -445,6 +468,7 @@ public static&nbsp;<a href="../../extractor/ChunkIndex.html" title="class in com
                                         int&nbsp;trackType,
                                         <a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;representation)
                                  throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Loads initialization and index data for the <code>representation</code> and returns the <a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor"><code>ChunkIndex</code></a>.
 
  <p>Uses the first base URL for loading the index.</div>
@@ -472,6 +496,7 @@ public static&nbsp;<a href="../../extractor/ChunkIndex.html" title="class in com
                                           <a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Representation</a>&nbsp;representation,
                                           boolean&nbsp;loadIndex)
                                    throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Loads initialization data for the <code>representation</code> and optionally index data then returns
  a <a href="../chunk/BundledChunkExtractor.html" title="class in com.google.android.exoplayer2.source.chunk"><code>BundledChunkExtractor</code></a> which contains the output.
 
@@ -495,6 +520,7 @@ public static&nbsp;<a href="../../extractor/ChunkIndex.html" title="class in com
 <h4>resolveCacheKey</h4>
 <pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;resolveCacheKey&#8203;(<a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Representation</a>&nbsp;representation,
                                      <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;rangedUri)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Resolves the cache key to be used when requesting the given ranged URI for the given <a href="manifest/Representation.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>Representation</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

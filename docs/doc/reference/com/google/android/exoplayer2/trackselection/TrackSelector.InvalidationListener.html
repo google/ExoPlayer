@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var data = {"i0":18,"i1":6};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -141,13 +141,21 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
+<td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onRendererCapabilitiesChanged(com.google.android.exoplayer2.Renderer)">onRendererCapabilitiesChanged</a></span>&#8203;(<a href="../Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>&nbsp;renderer)</code></th>
+<td class="colLast">
+<div class="block">Called by a <a href="TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a> to indicate that selections it has previously made may no
+ longer be valid due to the renderer capabilities change.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTrackSelectionsInvalidated()">onTrackSelectionsInvalidated</a></span>()</code></th>
 <td class="colLast">
@@ -175,12 +183,28 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <a id="onTrackSelectionsInvalidated()">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>onTrackSelectionsInvalidated</h4>
 <pre class="methodSignature">void&nbsp;onTrackSelectionsInvalidated()</pre>
 <div class="block">Called by a <a href="TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a> to indicate that selections it has previously made are no
  longer valid. May be called from any thread.</div>
+</li>
+</ul>
+<a id="onRendererCapabilitiesChanged(com.google.android.exoplayer2.Renderer)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>onRendererCapabilitiesChanged</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;onRendererCapabilitiesChanged&#8203;(<a href="../Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>&nbsp;renderer)</pre>
+<div class="block">Called by a <a href="TrackSelector.html" title="class in com.google.android.exoplayer2.trackselection"><code>TrackSelector</code></a> to indicate that selections it has previously made may no
+ longer be valid due to the renderer capabilities change. This method is called from playback
+ thread.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>renderer</code> - The renderer whose capabilities changed.</dd>
+</dl>
 </li>
 </ul>
 </li>

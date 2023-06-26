@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -148,8 +148,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="https://developer.android.com/reference/android/graphics/drawable/Drawable.Callback.html" title="class or interface in android.graphics.drawable" class="externalLink">Drawable.Callback</a></code>, <code><a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityEventSource.html?is-external=true" title="class or interface in android.view.accessibility" class="externalLink">AccessibilityEventSource</a></code>, <code><a href="https://developer.android.com/reference/android/view/KeyEvent.Callback.html?is-external=true" title="class or interface in android.view" class="externalLink">KeyEvent.Callback</a></code>, <code><a href="https://developer.android.com/reference/android/view/ViewManager.html?is-external=true" title="class or interface in android.view" class="externalLink">ViewManager</a></code>, <code><a href="https://developer.android.com/reference/android/view/ViewParent.html?is-external=true" title="class or interface in android.view" class="externalLink" target="_top">ViewParent</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">AspectRatioFrameLayout</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">AspectRatioFrameLayout</span>
 extends <a href="https://developer.android.com/reference/android/widget/FrameLayout.html" title="class or interface in android.widget" class="externalLink" target="_top">FrameLayout</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A <a href="https://developer.android.com/reference/android/widget/FrameLayout.html" title="class or interface in android.widget" class="externalLink" target="_top"><code>FrameLayout</code></a> that resizes itself to match a specified aspect ratio.</div>
 </li>
 </ul>
@@ -175,6 +181,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="AspectRatioFrameLayout.AspectRatioListener.html" title="interface in com.google.android.exoplayer2.ui">AspectRatioFrameLayout.AspectRatioListener</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Listener to be notified about changes of the aspect ratios of this view.</div>
 </td>
 </tr>
@@ -182,6 +189,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="AspectRatioFrameLayout.ResizeMode.html" title="annotation in com.google.android.exoplayer2.ui">AspectRatioFrameLayout.ResizeMode</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Resize modes for <a href="AspectRatioFrameLayout.html" title="class in com.google.android.exoplayer2.ui"><code>AspectRatioFrameLayout</code></a>.</div>
 </td>
 </tr>
@@ -228,6 +236,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#RESIZE_MODE_FILL">RESIZE_MODE_FILL</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The specified aspect ratio is ignored.</div>
 </td>
 </tr>
@@ -235,6 +244,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#RESIZE_MODE_FIT">RESIZE_MODE_FIT</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Either the width or height is decreased to obtain the desired aspect ratio.</div>
 </td>
 </tr>
@@ -242,6 +252,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#RESIZE_MODE_FIXED_HEIGHT">RESIZE_MODE_FIXED_HEIGHT</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The height is fixed and the width is increased or decreased to obtain the desired aspect ratio.</div>
 </td>
 </tr>
@@ -249,6 +260,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#RESIZE_MODE_FIXED_WIDTH">RESIZE_MODE_FIXED_WIDTH</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The width is fixed and the height is increased or decreased to obtain the desired aspect ratio.</div>
 </td>
 </tr>
@@ -256,6 +268,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#RESIZE_MODE_ZOOM">RESIZE_MODE_ZOOM</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Either the width or height is increased to obtain the desired aspect ratio.</div>
 </td>
 </tr>
@@ -292,12 +305,16 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context)">AspectRatioFrameLayout</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,android.util.AttributeSet)">AspectRatioFrameLayout</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                       <a href="https://developer.android.com/reference/android/util/AttributeSet.html" title="class or interface in android.util" class="externalLink" target="_top">AttributeSet</a>&nbsp;attrs)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -311,7 +328,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -321,6 +338,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>@com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getResizeMode()">getResizeMode</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="AspectRatioFrameLayout.ResizeMode.html" title="annotation in com.google.android.exoplayer2.ui"><code>AspectRatioFrameLayout.ResizeMode</code></a>.</div>
 </td>
 </tr>
@@ -328,12 +346,15 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onMeasure(int,int)">onMeasure</a></span>&#8203;(int&nbsp;widthMeasureSpec,
          int&nbsp;heightMeasureSpec)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAspectRatio(float)">setAspectRatio</a></span>&#8203;(float&nbsp;widthHeightRatio)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the aspect ratio that this view should satisfy.</div>
 </td>
 </tr>
@@ -341,6 +362,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAspectRatioListener(com.google.android.exoplayer2.ui.AspectRatioFrameLayout.AspectRatioListener)">setAspectRatioListener</a></span>&#8203;(<a href="AspectRatioFrameLayout.AspectRatioListener.html" title="interface in com.google.android.exoplayer2.ui">AspectRatioFrameLayout.AspectRatioListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="AspectRatioFrameLayout.AspectRatioListener.html" title="interface in com.google.android.exoplayer2.ui"><code>AspectRatioFrameLayout.AspectRatioListener</code></a>.</div>
 </td>
 </tr>
@@ -348,6 +370,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setResizeMode(@com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeModeint)">setResizeMode</a></span>&#8203;(@com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode int&nbsp;resizeMode)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="AspectRatioFrameLayout.ResizeMode.html" title="annotation in com.google.android.exoplayer2.ui"><code>AspectRatioFrameLayout.ResizeMode</code></a></div>
 </td>
 </tr>
@@ -410,6 +433,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <li class="blockList">
 <h4>RESIZE_MODE_FIT</h4>
 <pre>public static final&nbsp;int RESIZE_MODE_FIT</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Either the width or height is decreased to obtain the desired aspect ratio.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -424,6 +448,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <li class="blockList">
 <h4>RESIZE_MODE_FIXED_WIDTH</h4>
 <pre>public static final&nbsp;int RESIZE_MODE_FIXED_WIDTH</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The width is fixed and the height is increased or decreased to obtain the desired aspect ratio.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -438,6 +463,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <li class="blockList">
 <h4>RESIZE_MODE_FIXED_HEIGHT</h4>
 <pre>public static final&nbsp;int RESIZE_MODE_FIXED_HEIGHT</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The height is fixed and the width is increased or decreased to obtain the desired aspect ratio.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -452,6 +478,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <li class="blockList">
 <h4>RESIZE_MODE_FILL</h4>
 <pre>public static final&nbsp;int RESIZE_MODE_FILL</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The specified aspect ratio is ignored.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -466,6 +493,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <li class="blockList">
 <h4>RESIZE_MODE_ZOOM</h4>
 <pre>public static final&nbsp;int RESIZE_MODE_ZOOM</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Either the width or height is increased to obtain the desired aspect ratio.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -490,6 +518,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <li class="blockList">
 <h4>AspectRatioFrameLayout</h4>
 <pre>public&nbsp;AspectRatioFrameLayout&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="&lt;init&gt;(android.content.Context,android.util.AttributeSet)">
@@ -501,6 +530,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <pre>public&nbsp;AspectRatioFrameLayout&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                               @Nullable
                               <a href="https://developer.android.com/reference/android/util/AttributeSet.html" title="class or interface in android.util" class="externalLink" target="_top">AttributeSet</a>&nbsp;attrs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -520,6 +550,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <li class="blockList">
 <h4>setAspectRatio</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setAspectRatio&#8203;(float&nbsp;widthHeightRatio)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the aspect ratio that this view should satisfy.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -535,6 +566,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <h4>setAspectRatioListener</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setAspectRatioListener&#8203;(@Nullable
                                    <a href="AspectRatioFrameLayout.AspectRatioListener.html" title="interface in com.google.android.exoplayer2.ui">AspectRatioFrameLayout.AspectRatioListener</a>&nbsp;listener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="AspectRatioFrameLayout.AspectRatioListener.html" title="interface in com.google.android.exoplayer2.ui"><code>AspectRatioFrameLayout.AspectRatioListener</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -550,6 +582,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <li class="blockList">
 <h4>getResizeMode</h4>
 <pre class="methodSignature">public&nbsp;@com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode int&nbsp;getResizeMode()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="AspectRatioFrameLayout.ResizeMode.html" title="annotation in com.google.android.exoplayer2.ui"><code>AspectRatioFrameLayout.ResizeMode</code></a>.</div>
 </li>
 </ul>
@@ -560,6 +593,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <li class="blockList">
 <h4>setResizeMode</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setResizeMode&#8203;(@com.google.android.exoplayer2.ui.AspectRatioFrameLayout.ResizeMode int&nbsp;resizeMode)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="AspectRatioFrameLayout.ResizeMode.html" title="annotation in com.google.android.exoplayer2.ui"><code>AspectRatioFrameLayout.ResizeMode</code></a></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -575,6 +609,7 @@ extends <a href="https://developer.android.com/reference/android/widget/FrameLay
 <h4>onMeasure</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onMeasure&#8203;(int&nbsp;widthMeasureSpec,
                          int&nbsp;heightMeasureSpec)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/widget/FrameLayout.html#onMeasure(int,int)" title="class or interface in android.widget" class="externalLink">onMeasure</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/widget/FrameLayout.html?is-external=true" title="class or interface in android.widget" class="externalLink" target="_top">FrameLayout</a></code></dd>

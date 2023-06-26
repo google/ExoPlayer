@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -143,8 +143,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">MergingMediaSource</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">MergingMediaSource</span>
 extends <a href="CompositeMediaSource.html" title="class in com.google.android.exoplayer2.source">CompositeMediaSource</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Merges multiple <a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a>s.
 
  <p>The <a href="../Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a>s of the sources being merged must have the same number of periods.</div>
@@ -172,6 +178,7 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MergingMediaSource.IllegalMergeException.html" title="class in com.google.android.exoplayer2.source">MergingMediaSource.IllegalMergeException</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Thrown when a <a href="MergingMediaSource.html" title="class in com.google.android.exoplayer2.source"><code>MergingMediaSource</code></a> cannot merge its sources.</div>
 </td>
 </tr>
@@ -205,6 +212,7 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
                   <a href="CompositeSequenceableLoaderFactory.html" title="interface in com.google.android.exoplayer2.source">CompositeSequenceableLoaderFactory</a>&nbsp;compositeSequenceableLoaderFactory,
                   <a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;mediaSources)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a merging media source.</div>
 </td>
 </tr>
@@ -213,6 +221,7 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
                   boolean&nbsp;clipDurations,
                   <a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;mediaSources)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a merging media source.</div>
 </td>
 </tr>
@@ -220,12 +229,14 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(boolean,com.google.android.exoplayer2.source.MediaSource...)">MergingMediaSource</a></span>&#8203;(boolean&nbsp;adjustPeriodTimeOffsets,
                   <a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;mediaSources)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a merging media source.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.MediaSource...)">MergingMediaSource</a></span>&#8203;(<a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;mediaSources)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a merging media source.</div>
 </td>
 </tr>
@@ -241,7 +252,7 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -253,6 +264,7 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
             <a href="../upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
             long&nbsp;startPositionUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a new <a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a> identified by <code>periodId</code>.</div>
 </td>
 </tr>
@@ -260,6 +272,7 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
 <td class="colFirst"><code><a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMediaItem()">getMediaItem</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> whose media is provided by the source.</div>
 </td>
 </tr>
@@ -268,6 +281,7 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMediaPeriodIdForChildMediaPeriodId(java.lang.Integer,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">getMediaPeriodIdForChildMediaPeriodId</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&nbsp;childSourceId,
                                      <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a> in the composite source corresponding to the specified <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a> in a child source.</div>
 </td>
 </tr>
@@ -275,6 +289,7 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maybeThrowSourceInfoRefreshError()">maybeThrowSourceInfoRefreshError</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Throws any pending error encountered while loading or refreshing source information.</div>
 </td>
 </tr>
@@ -284,6 +299,7 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
                           <a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
                           <a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;newTimeline)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the source info of a child source has been refreshed.</div>
 </td>
 </tr>
@@ -291,6 +307,7 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#prepareSourceInternal(com.google.android.exoplayer2.upstream.TransferListener)">prepareSourceInternal</a></span>&#8203;(<a href="../upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts source preparation and enables the source, see <a href="BaseMediaSource.html#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.analytics.PlayerId)"><code>BaseMediaSource.prepareSource(MediaSourceCaller,
  TransferListener, PlayerId)</code></a>.</div>
 </td>
@@ -299,6 +316,7 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#releasePeriod(com.google.android.exoplayer2.source.MediaPeriod)">releasePeriod</a></span>&#8203;(<a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&nbsp;mediaPeriod)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases the period.</div>
 </td>
 </tr>
@@ -306,6 +324,7 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#releaseSourceInternal()">releaseSourceInternal</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases the source, see <a href="BaseMediaSource.html#releaseSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)"><code>BaseMediaSource.releaseSource(MediaSourceCaller)</code></a>.</div>
 </td>
 </tr>
@@ -322,7 +341,7 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.source.<a href="BaseMediaSource.html" title="class in com.google.android.exoplayer2.source">BaseMediaSource</a></h3>
-<code><a href="BaseMediaSource.html#addDrmEventListener(android.os.Handler,com.google.android.exoplayer2.drm.DrmSessionEventListener)">addDrmEventListener</a>, <a href="BaseMediaSource.html#addEventListener(android.os.Handler,com.google.android.exoplayer2.source.MediaSourceEventListener)">addEventListener</a>, <a href="BaseMediaSource.html#createDrmEventDispatcher(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">createDrmEventDispatcher</a>, <a href="BaseMediaSource.html#createDrmEventDispatcher(com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">createDrmEventDispatcher</a>, <a href="BaseMediaSource.html#createEventDispatcher(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,long)">createEventDispatcher</a>, <a href="BaseMediaSource.html#createEventDispatcher(com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">createEventDispatcher</a>, <a href="BaseMediaSource.html#createEventDispatcher(com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,long)">createEventDispatcher</a>, <a href="BaseMediaSource.html#disable(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)">disable</a>, <a href="BaseMediaSource.html#enable(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)">enable</a>, <a href="BaseMediaSource.html#getPlayerId()">getPlayerId</a>, <a href="BaseMediaSource.html#isEnabled()">isEnabled</a>, <a href="BaseMediaSource.html#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener)">prepareSource</a>, <a href="BaseMediaSource.html#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.analytics.PlayerId)">prepareSource</a>, <a href="BaseMediaSource.html#refreshSourceInfo(com.google.android.exoplayer2.Timeline)">refreshSourceInfo</a>, <a href="BaseMediaSource.html#releaseSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)">releaseSource</a>, <a href="BaseMediaSource.html#removeDrmEventListener(com.google.android.exoplayer2.drm.DrmSessionEventListener)">removeDrmEventListener</a>, <a href="BaseMediaSource.html#removeEventListener(com.google.android.exoplayer2.source.MediaSourceEventListener)">removeEventListener</a></code></li>
+<code><a href="BaseMediaSource.html#addDrmEventListener(android.os.Handler,com.google.android.exoplayer2.drm.DrmSessionEventListener)">addDrmEventListener</a>, <a href="BaseMediaSource.html#addEventListener(android.os.Handler,com.google.android.exoplayer2.source.MediaSourceEventListener)">addEventListener</a>, <a href="BaseMediaSource.html#createDrmEventDispatcher(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">createDrmEventDispatcher</a>, <a href="BaseMediaSource.html#createDrmEventDispatcher(com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">createDrmEventDispatcher</a>, <a href="BaseMediaSource.html#createEventDispatcher(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">createEventDispatcher</a>, <a href="BaseMediaSource.html#createEventDispatcher(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,long)">createEventDispatcher</a>, <a href="BaseMediaSource.html#createEventDispatcher(com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">createEventDispatcher</a>, <a href="BaseMediaSource.html#createEventDispatcher(com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,long)">createEventDispatcher</a>, <a href="BaseMediaSource.html#disable(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)">disable</a>, <a href="BaseMediaSource.html#enable(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)">enable</a>, <a href="BaseMediaSource.html#getPlayerId()">getPlayerId</a>, <a href="BaseMediaSource.html#isEnabled()">isEnabled</a>, <a href="BaseMediaSource.html#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener)">prepareSource</a>, <a href="BaseMediaSource.html#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.analytics.PlayerId)">prepareSource</a>, <a href="BaseMediaSource.html#refreshSourceInfo(com.google.android.exoplayer2.Timeline)">refreshSourceInfo</a>, <a href="BaseMediaSource.html#releaseSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)">releaseSource</a>, <a href="BaseMediaSource.html#removeDrmEventListener(com.google.android.exoplayer2.drm.DrmSessionEventListener)">removeDrmEventListener</a>, <a href="BaseMediaSource.html#removeEventListener(com.google.android.exoplayer2.source.MediaSourceEventListener)">removeEventListener</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
@@ -361,6 +380,7 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
 <li class="blockList">
 <h4>MergingMediaSource</h4>
 <pre>public&nbsp;MergingMediaSource&#8203;(<a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;mediaSources)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a merging media source.
 
  <p>Neither offsets between the timestamps in the media sources nor the durations of the media
@@ -379,6 +399,7 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
 <h4>MergingMediaSource</h4>
 <pre>public&nbsp;MergingMediaSource&#8203;(boolean&nbsp;adjustPeriodTimeOffsets,
                           <a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;mediaSources)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a merging media source.
 
  <p>Durations of the media sources will not be adjusted.</div>
@@ -399,6 +420,7 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
 <pre>public&nbsp;MergingMediaSource&#8203;(boolean&nbsp;adjustPeriodTimeOffsets,
                           boolean&nbsp;clipDurations,
                           <a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;mediaSources)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a merging media source.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -420,6 +442,7 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
                           boolean&nbsp;clipDurations,
                           <a href="CompositeSequenceableLoaderFactory.html" title="interface in com.google.android.exoplayer2.source">CompositeSequenceableLoaderFactory</a>&nbsp;compositeSequenceableLoaderFactory,
                           <a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>...&nbsp;mediaSources)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a merging media source.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -450,8 +473,13 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
 <li class="blockList">
 <h4>getMediaItem</h4>
 <pre class="methodSignature">public&nbsp;<a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;getMediaItem()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSource.html#getMediaItem()">MediaSource</a></code></span></div>
-<div class="block">Returns the <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> whose media is provided by the source.</div>
+<div class="block">Returns the <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a> whose media is provided by the source.
+
+ <p>Should not be called directly from application code.
+
+ <p>This method must be called on the application thread.</div>
 </li>
 </ul>
 <a id="prepareSourceInternal(com.google.android.exoplayer2.upstream.TransferListener)">
@@ -462,6 +490,7 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
 <h4>prepareSourceInternal</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;prepareSourceInternal&#8203;(@Nullable
                                      <a href="../upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="BaseMediaSource.html#prepareSourceInternal(com.google.android.exoplayer2.upstream.TransferListener)">BaseMediaSource</a></code></span></div>
 <div class="block">Starts source preparation and enables the source, see <a href="BaseMediaSource.html#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.analytics.PlayerId)"><code>BaseMediaSource.prepareSource(MediaSourceCaller,
  TransferListener, PlayerId)</code></a>. This method is called at most once until the next call to <a href="BaseMediaSource.html#releaseSourceInternal()"><code>BaseMediaSource.releaseSourceInternal()</code></a>.</div>
@@ -484,13 +513,13 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
 <h4>maybeThrowSourceInfoRefreshError</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;maybeThrowSourceInfoRefreshError()
                                       throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSource.html#maybeThrowSourceInfoRefreshError()">MediaSource</a></code></span></div>
 <div class="block">Throws any pending error encountered while loading or refreshing source information.
 
  <p>Should not be called directly from application code.
 
- <p>Must only be called after <a href="MediaSource.html#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.analytics.PlayerId)"><code>MediaSource.prepareSource(MediaSourceCaller, TransferListener,
- PlayerId)</code></a>.</div>
+ <p>This method must be called on the playback thread and only after <a href="MediaSource.html#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.analytics.PlayerId)"><code>MediaSource.prepareSource(MediaSourceCaller, TransferListener, PlayerId)</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="MediaSource.html#maybeThrowSourceInfoRefreshError()">maybeThrowSourceInfoRefreshError</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></code></dd>
@@ -510,12 +539,13 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
 <pre class="methodSignature">public&nbsp;<a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&nbsp;createPeriod&#8203;(<a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;id,
                                 <a href="../upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
                                 long&nbsp;startPositionUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSource.html#createPeriod(com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,com.google.android.exoplayer2.upstream.Allocator,long)">MediaSource</a></code></span></div>
 <div class="block">Returns a new <a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a> identified by <code>periodId</code>.
 
  <p>Should not be called directly from application code.
 
- <p>Must only be called if the source is enabled.</div>
+ <p>This method must be called on the playback thread and only if the source is enabled.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>id</code> - The identifier of the period.</dd>
@@ -533,10 +563,13 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
 <li class="blockList">
 <h4>releasePeriod</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;releasePeriod&#8203;(<a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&nbsp;mediaPeriod)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSource.html#releasePeriod(com.google.android.exoplayer2.source.MediaPeriod)">MediaSource</a></code></span></div>
 <div class="block">Releases the period.
 
- <p>Should not be called directly from application code.</div>
+ <p>Should not be called directly from application code.
+
+ <p>This method must be called on the playback thread.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mediaPeriod</code> - The period to release.</dd>
@@ -550,6 +583,7 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
 <li class="blockList">
 <h4>releaseSourceInternal</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;releaseSourceInternal()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="BaseMediaSource.html#releaseSourceInternal()">BaseMediaSource</a></code></span></div>
 <div class="block">Releases the source, see <a href="BaseMediaSource.html#releaseSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)"><code>BaseMediaSource.releaseSource(MediaSourceCaller)</code></a>. This method is called
  exactly once after each call to <a href="BaseMediaSource.html#prepareSourceInternal(com.google.android.exoplayer2.upstream.TransferListener)"><code>BaseMediaSource.prepareSourceInternal(TransferListener)</code></a>.</div>
@@ -568,6 +602,7 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
 <pre class="methodSignature">protected&nbsp;void&nbsp;onChildSourceInfoRefreshed&#8203;(<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&nbsp;childSourceId,
                                           <a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a>&nbsp;mediaSource,
                                           <a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;newTimeline)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="CompositeMediaSource.html#onChildSourceInfoRefreshed(T,com.google.android.exoplayer2.source.MediaSource,com.google.android.exoplayer2.Timeline)">CompositeMediaSource</a></code></span></div>
 <div class="block">Called when the source info of a child source has been refreshed.</div>
 <dl>
@@ -589,6 +624,7 @@ extends <a href="CompositeMediaSource.html" title="class in com.google.android.e
 <pre class="methodSignature">@Nullable
 protected&nbsp;<a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;getMediaPeriodIdForChildMediaPeriodId&#8203;(<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&nbsp;childSourceId,
                                                                           <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="CompositeMediaSource.html#getMediaPeriodIdForChildMediaPeriodId(T,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">CompositeMediaSource</a></code></span></div>
 <div class="block">Returns the <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a> in the composite source corresponding to the specified <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a> in a child source. The default implementation does not change the media period
  id.</div>

@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42,"i12":42,"i13":42,"i14":42,"i15":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></code>, <code><a href="../upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a></code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">ForwardingExtractorInput</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">ForwardingExtractorInput</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">An overridable <a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a> implementation forwarding all methods to another input.</div>
 </li>
 </ul>
@@ -158,7 +164,9 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.extractor.ExtractorInput)">ForwardingExtractorInput</a></span>&#8203;(<a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -172,7 +180,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -182,6 +190,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#advancePeekPosition(int)">advancePeekPosition</a></span>&#8203;(int&nbsp;length)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Advances the peek position by <code>length</code> bytes.</div>
 </td>
 </tr>
@@ -190,6 +199,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#advancePeekPosition(int,boolean)">advancePeekPosition</a></span>&#8203;(int&nbsp;length,
                    boolean&nbsp;allowEndOfInput)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Advances the peek position by <code>length</code> bytes.</div>
 </td>
 </tr>
@@ -197,6 +207,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLength()">getLength</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the length of the source stream, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if it is unknown.</div>
 </td>
 </tr>
@@ -204,6 +215,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPeekPosition()">getPeekPosition</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current peek position (byte offset) in the stream.</div>
 </td>
 </tr>
@@ -211,6 +223,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPosition()">getPosition</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current read position (byte offset) in the stream.</div>
 </td>
 </tr>
@@ -220,6 +233,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
     int&nbsp;offset,
     int&nbsp;length)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Peeks up to <code>length</code> bytes from the peek position.</div>
 </td>
 </tr>
@@ -229,6 +243,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
          int&nbsp;offset,
          int&nbsp;length)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Equivalent to <a href="ExtractorInput.html#peekFully(byte%5B%5D,int,int,boolean)"><code>peekFully(target, offset, length,
  false)</code></a>.</div>
 </td>
@@ -240,6 +255,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
          int&nbsp;length,
          boolean&nbsp;allowEndOfInput)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Like <a href="ExtractorInput.html#peek(byte%5B%5D,int,int)"><code>ExtractorInput.peek(byte[], int, int)</code></a>, but peeks the requested <code>length</code> in full.</div>
 </td>
 </tr>
@@ -249,6 +265,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
     int&nbsp;offset,
     int&nbsp;length)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Reads up to <code>length</code> bytes from the input and resets the peek position.</div>
 </td>
 </tr>
@@ -258,6 +275,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
          int&nbsp;offset,
          int&nbsp;length)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Equivalent to <a href="ExtractorInput.html#readFully(byte%5B%5D,int,int,boolean)"><code>readFully(target, offset, length,
  false)</code></a>.</div>
 </td>
@@ -269,6 +287,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
          int&nbsp;length,
          boolean&nbsp;allowEndOfInput)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Like <a href="ExtractorInput.html#read(byte%5B%5D,int,int)"><code>ExtractorInput.read(byte[], int, int)</code></a>, but reads the requested <code>length</code> in full.</div>
 </td>
 </tr>
@@ -276,6 +295,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#resetPeekPosition()">resetPeekPosition</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Resets the peek position to equal the current read position.</div>
 </td>
 </tr>
@@ -284,6 +304,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRetryPosition(long,E)">setRetryPosition</a></span>&#8203;(long&nbsp;position,
                 E&nbsp;e)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when reading fails and the required retry position is different from the last position.</div>
 </td>
 </tr>
@@ -291,6 +312,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skip(int)">skip</a></span>&#8203;(int&nbsp;length)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Like <a href="ExtractorInput.html#read(byte%5B%5D,int,int)"><code>ExtractorInput.read(byte[], int, int)</code></a>, except the data is skipped instead of read.</div>
 </td>
 </tr>
@@ -298,6 +320,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skipFully(int)">skipFully</a></span>&#8203;(int&nbsp;length)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Like <a href="ExtractorInput.html#readFully(byte%5B%5D,int,int)"><code>ExtractorInput.readFully(byte[], int, int)</code></a>, except the data is skipped instead of read.</div>
 </td>
 </tr>
@@ -306,6 +329,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skipFully(int,boolean)">skipFully</a></span>&#8203;(int&nbsp;length,
          boolean&nbsp;allowEndOfInput)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Like <a href="ExtractorInput.html#readFully(byte%5B%5D,int,int,boolean)"><code>ExtractorInput.readFully(byte[], int, int, boolean)</code></a>, except the data is skipped instead of read.</div>
 </td>
 </tr>
@@ -340,6 +364,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
 <li class="blockList">
 <h4>ForwardingExtractorInput</h4>
 <pre>public&nbsp;ForwardingExtractorInput&#8203;(<a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -362,6 +387,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
                 int&nbsp;offset,
                 int&nbsp;length)
          throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorInput.html#read(byte%5B%5D,int,int)">ExtractorInput</a></code></span></div>
 <div class="block">Reads up to <code>length</code> bytes from the input and resets the peek position.
 
@@ -394,6 +420,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
                          int&nbsp;length,
                          boolean&nbsp;allowEndOfInput)
                   throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorInput.html#readFully(byte%5B%5D,int,int,boolean)">ExtractorInput</a></code></span></div>
 <div class="block">Like <a href="ExtractorInput.html#read(byte%5B%5D,int,int)"><code>ExtractorInput.read(byte[], int, int)</code></a>, but reads the requested <code>length</code> in full.</div>
 <dl>
@@ -428,6 +455,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
                       int&nbsp;offset,
                       int&nbsp;length)
                throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorInput.html#readFully(byte%5B%5D,int,int)">ExtractorInput</a></code></span></div>
 <div class="block">Equivalent to <a href="ExtractorInput.html#readFully(byte%5B%5D,int,int,boolean)"><code>readFully(target, offset, length,
  false)</code></a>.</div>
@@ -452,6 +480,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
 <h4>skip</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;skip&#8203;(int&nbsp;length)
          throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorInput.html#skip(int)">ExtractorInput</a></code></span></div>
 <div class="block">Like <a href="ExtractorInput.html#read(byte%5B%5D,int,int)"><code>ExtractorInput.read(byte[], int, int)</code></a>, except the data is skipped instead of read.</div>
 <dl>
@@ -475,6 +504,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
 <pre class="methodSignature">public&nbsp;boolean&nbsp;skipFully&#8203;(int&nbsp;length,
                          boolean&nbsp;allowEndOfInput)
                   throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorInput.html#skipFully(int,boolean)">ExtractorInput</a></code></span></div>
 <div class="block">Like <a href="ExtractorInput.html#readFully(byte%5B%5D,int,int,boolean)"><code>ExtractorInput.readFully(byte[], int, int, boolean)</code></a>, except the data is skipped instead of read.</div>
 <dl>
@@ -505,6 +535,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
 <h4>skipFully</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;skipFully&#8203;(int&nbsp;length)
                throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorInput.html#skipFully(int)">ExtractorInput</a></code></span></div>
 <div class="block">Like <a href="ExtractorInput.html#readFully(byte%5B%5D,int,int)"><code>ExtractorInput.readFully(byte[], int, int)</code></a>, except the data is skipped instead of read.
 
@@ -530,6 +561,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
                 int&nbsp;offset,
                 int&nbsp;length)
          throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorInput.html#peek(byte%5B%5D,int,int)">ExtractorInput</a></code></span></div>
 <div class="block">Peeks up to <code>length</code> bytes from the peek position. The current read position is left
  unchanged.
@@ -565,6 +597,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
                          int&nbsp;length,
                          boolean&nbsp;allowEndOfInput)
                   throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorInput.html#peekFully(byte%5B%5D,int,int,boolean)">ExtractorInput</a></code></span></div>
 <div class="block">Like <a href="ExtractorInput.html#peek(byte%5B%5D,int,int)"><code>ExtractorInput.peek(byte[], int, int)</code></a>, but peeks the requested <code>length</code> in full.</div>
 <dl>
@@ -599,6 +632,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
                       int&nbsp;offset,
                       int&nbsp;length)
                throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorInput.html#peekFully(byte%5B%5D,int,int)">ExtractorInput</a></code></span></div>
 <div class="block">Equivalent to <a href="ExtractorInput.html#peekFully(byte%5B%5D,int,int,boolean)"><code>peekFully(target, offset, length,
  false)</code></a>.</div>
@@ -624,6 +658,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
 <pre class="methodSignature">public&nbsp;boolean&nbsp;advancePeekPosition&#8203;(int&nbsp;length,
                                    boolean&nbsp;allowEndOfInput)
                             throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorInput.html#advancePeekPosition(int,boolean)">ExtractorInput</a></code></span></div>
 <div class="block">Advances the peek position by <code>length</code> bytes. Like <a href="ExtractorInput.html#peekFully(byte%5B%5D,int,int,boolean)"><code>ExtractorInput.peekFully(byte[], int, int,
  boolean)</code></a> except the data is skipped instead of read.</div>
@@ -655,6 +690,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
 <h4>advancePeekPosition</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;advancePeekPosition&#8203;(int&nbsp;length)
                          throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorInput.html#advancePeekPosition(int)">ExtractorInput</a></code></span></div>
 <div class="block">Advances the peek position by <code>length</code> bytes. Like <a href="ExtractorInput.html#peekFully(byte%5B%5D,int,int)"><code>ExtractorInput.peekFully(byte[], int, int)</code></a>
  except the data is skipped instead of read.</div>
@@ -676,6 +712,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
 <li class="blockList">
 <h4>resetPeekPosition</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;resetPeekPosition()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorInput.html#resetPeekPosition()">ExtractorInput</a></code></span></div>
 <div class="block">Resets the peek position to equal the current read position.</div>
 <dl>
@@ -691,6 +728,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
 <li class="blockList">
 <h4>getPeekPosition</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getPeekPosition()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorInput.html#getPeekPosition()">ExtractorInput</a></code></span></div>
 <div class="block">Returns the current peek position (byte offset) in the stream.</div>
 <dl>
@@ -708,6 +746,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
 <li class="blockList">
 <h4>getPosition</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getPosition()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorInput.html#getPosition()">ExtractorInput</a></code></span></div>
 <div class="block">Returns the current read position (byte offset) in the stream.</div>
 <dl>
@@ -725,6 +764,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
 <li class="blockList">
 <h4>getLength</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getLength()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorInput.html#getLength()">ExtractorInput</a></code></span></div>
 <div class="block">Returns the length of the source stream, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if it is unknown.</div>
 <dl>
@@ -746,6 +786,7 @@ implements <a href="ExtractorInput.html" title="interface in com.google.android.
 <pre class="methodSignature">public&nbsp;&lt;E extends <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&gt;&nbsp;void&nbsp;setRetryPosition&#8203;(long&nbsp;position,
                                                    E&nbsp;e)
                                             throws E extends <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExtractorInput.html#setRetryPosition(long,E)">ExtractorInput</a></code></span></div>
 <div class="block">Called when reading fails and the required retry position is different from the last position.
  After setting the retry position it throws the given <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>Throwable</code></a>.</div>

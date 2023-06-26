@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -138,8 +138,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">TeeAudioProcessor</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">TeeAudioProcessor</span>
 extends <a href="BaseAudioProcessor.html" title="class in com.google.android.exoplayer2.audio">BaseAudioProcessor</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Audio processor that outputs its input unmodified and also outputs its input to a given sink.
  This is intended to be used for diagnostics and debugging.
 
@@ -172,6 +178,7 @@ extends <a href="BaseAudioProcessor.html" title="class in com.google.android.exo
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="TeeAudioProcessor.AudioBufferSink.html" title="interface in com.google.android.exoplayer2.audio">TeeAudioProcessor.AudioBufferSink</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A sink for audio buffers handled by the audio processor.</div>
 </td>
 </tr>
@@ -179,6 +186,7 @@ extends <a href="BaseAudioProcessor.html" title="class in com.google.android.exo
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="TeeAudioProcessor.WavFileAudioBufferSink.html" title="class in com.google.android.exoplayer2.audio">TeeAudioProcessor.WavFileAudioBufferSink</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A sink for audio buffers that writes output audio as .wav files with a given path prefix.</div>
 </td>
 </tr>
@@ -233,6 +241,7 @@ extends <a href="BaseAudioProcessor.html" title="class in com.google.android.exo
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.audio.TeeAudioProcessor.AudioBufferSink)">TeeAudioProcessor</a></span>&#8203;(<a href="TeeAudioProcessor.AudioBufferSink.html" title="interface in com.google.android.exoplayer2.audio">TeeAudioProcessor.AudioBufferSink</a>&nbsp;audioBufferSink)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new tee audio processor, sending incoming data to the given <a href="TeeAudioProcessor.AudioBufferSink.html" title="interface in com.google.android.exoplayer2.audio"><code>TeeAudioProcessor.AudioBufferSink</code></a>.</div>
 </td>
 </tr>
@@ -248,7 +257,7 @@ extends <a href="BaseAudioProcessor.html" title="class in com.google.android.exo
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -258,6 +267,7 @@ extends <a href="BaseAudioProcessor.html" title="class in com.google.android.exo
 <td class="colFirst"><code><a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onConfigure(com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat)">onConfigure</a></span>&#8203;(<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;inputAudioFormat)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the processor is configured for a new input format.</div>
 </td>
 </tr>
@@ -265,6 +275,7 @@ extends <a href="BaseAudioProcessor.html" title="class in com.google.android.exo
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onFlush()">onFlush</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the processor is flushed, directly or as part of resetting.</div>
 </td>
 </tr>
@@ -272,6 +283,7 @@ extends <a href="BaseAudioProcessor.html" title="class in com.google.android.exo
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onQueueEndOfStream()">onQueueEndOfStream</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the end-of-stream is queued to the processor.</div>
 </td>
 </tr>
@@ -279,6 +291,7 @@ extends <a href="BaseAudioProcessor.html" title="class in com.google.android.exo
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onReset()">onReset</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the processor is reset.</div>
 </td>
 </tr>
@@ -286,6 +299,7 @@ extends <a href="BaseAudioProcessor.html" title="class in com.google.android.exo
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#queueInput(java.nio.ByteBuffer)">queueInput</a></span>&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;inputBuffer)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Queues audio data between the position and limit of the <code>inputBuffer</code> for processing.</div>
 </td>
 </tr>
@@ -327,6 +341,7 @@ extends <a href="BaseAudioProcessor.html" title="class in com.google.android.exo
 <li class="blockList">
 <h4>TeeAudioProcessor</h4>
 <pre>public&nbsp;TeeAudioProcessor&#8203;(<a href="TeeAudioProcessor.AudioBufferSink.html" title="interface in com.google.android.exoplayer2.audio">TeeAudioProcessor.AudioBufferSink</a>&nbsp;audioBufferSink)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new tee audio processor, sending incoming data to the given <a href="TeeAudioProcessor.AudioBufferSink.html" title="interface in com.google.android.exoplayer2.audio"><code>TeeAudioProcessor.AudioBufferSink</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -352,6 +367,7 @@ extends <a href="BaseAudioProcessor.html" title="class in com.google.android.exo
 <li class="blockList">
 <h4>onConfigure</h4>
 <pre class="methodSignature">public&nbsp;<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;onConfigure&#8203;(<a href="AudioProcessor.AudioFormat.html" title="class in com.google.android.exoplayer2.audio">AudioProcessor.AudioFormat</a>&nbsp;inputAudioFormat)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="BaseAudioProcessor.html#onConfigure(com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat)">BaseAudioProcessor</a></code></span></div>
 <div class="block">Called when the processor is configured for a new input format.</div>
 <dl>
@@ -367,6 +383,7 @@ extends <a href="BaseAudioProcessor.html" title="class in com.google.android.exo
 <li class="blockList">
 <h4>queueInput</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;queueInput&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;inputBuffer)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AudioProcessor.html#queueInput(java.nio.ByteBuffer)">AudioProcessor</a></code></span></div>
 <div class="block">Queues audio data between the position and limit of the <code>inputBuffer</code> for processing.
  After calling this method, processed output may be available via <a href="AudioProcessor.html#getOutput()"><code>AudioProcessor.getOutput()</code></a>. Calling
@@ -387,6 +404,7 @@ extends <a href="BaseAudioProcessor.html" title="class in com.google.android.exo
 <li class="blockList">
 <h4>onFlush</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onFlush()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="BaseAudioProcessor.html#onFlush()">BaseAudioProcessor</a></code></span></div>
 <div class="block">Called when the processor is flushed, directly or as part of resetting.</div>
 <dl>
@@ -402,6 +420,7 @@ extends <a href="BaseAudioProcessor.html" title="class in com.google.android.exo
 <li class="blockList">
 <h4>onQueueEndOfStream</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onQueueEndOfStream()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="BaseAudioProcessor.html#onQueueEndOfStream()">BaseAudioProcessor</a></code></span></div>
 <div class="block">Called when the end-of-stream is queued to the processor.</div>
 <dl>
@@ -417,6 +436,7 @@ extends <a href="BaseAudioProcessor.html" title="class in com.google.android.exo
 <li class="blockList">
 <h4>onReset</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onReset()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="BaseAudioProcessor.html#onReset()">BaseAudioProcessor</a></code></span></div>
 <div class="block">Called when the processor is reset.</div>
 <dl>

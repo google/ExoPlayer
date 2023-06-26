@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -139,8 +139,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public class <span class="typeNameLabel">SimpleDecoderOutputBuffer</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">SimpleDecoderOutputBuffer</span>
 extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderOutputBuffer</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Buffer for <a href="SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder"><code>SimpleDecoder</code></a> output.</div>
 </li>
 </ul>
@@ -182,7 +188,9 @@ extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.ex
 <tr class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#data">data</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -210,7 +218,9 @@ extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.ex
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.decoder.DecoderOutputBuffer.Owner)">SimpleDecoderOutputBuffer</a></span>&#8203;(<a href="DecoderOutputBuffer.Owner.html" title="interface in com.google.android.exoplayer2.decoder">DecoderOutputBuffer.Owner</a>&lt;<a href="SimpleDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoderOutputBuffer</a>&gt;&nbsp;owner)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -224,7 +234,7 @@ extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.ex
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -234,6 +244,7 @@ extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.ex
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clear()">clear</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Clears the buffer.</div>
 </td>
 </tr>
@@ -242,6 +253,7 @@ extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.ex
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#init(long,int)">init</a></span>&#8203;(long&nbsp;timeUs,
     int&nbsp;size)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Initializes the buffer.</div>
 </td>
 </tr>
@@ -249,6 +261,7 @@ extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.ex
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases the output buffer for reuse.</div>
 </td>
 </tr>
@@ -291,6 +304,7 @@ extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.ex
 <h4>data</h4>
 <pre>@Nullable
 public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a> data</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -310,6 +324,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <li class="blockList">
 <h4>SimpleDecoderOutputBuffer</h4>
 <pre>public&nbsp;SimpleDecoderOutputBuffer&#8203;(<a href="DecoderOutputBuffer.Owner.html" title="interface in com.google.android.exoplayer2.decoder">DecoderOutputBuffer.Owner</a>&lt;<a href="SimpleDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoderOutputBuffer</a>&gt;&nbsp;owner)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -330,6 +345,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <h4>init</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;init&#8203;(long&nbsp;timeUs,
                        int&nbsp;size)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Initializes the buffer.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -347,6 +363,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <li class="blockList">
 <h4>clear</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;clear()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="Buffer.html#clear()">Buffer</a></code></span></div>
 <div class="block">Clears the buffer.</div>
 <dl>
@@ -362,6 +379,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <li class="blockList">
 <h4>release</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;release()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="DecoderOutputBuffer.html#release()">DecoderOutputBuffer</a></code></span></div>
 <div class="block">Releases the output buffer for reuse. Must be called when the buffer is no longer needed.</div>
 <dl>

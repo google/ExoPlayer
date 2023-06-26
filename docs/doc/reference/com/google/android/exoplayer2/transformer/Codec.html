@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":18,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
+var data = {"i0":38,"i1":38,"i2":50,"i3":38,"i4":38,"i5":38,"i6":38,"i7":38,"i8":38,"i9":38,"i10":38,"i11":38,"i12":38,"i13":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -87,13 +87,13 @@ loadScripts(document, 'script');</script>
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
-<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
@@ -125,7 +125,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="DefaultCodec.html" title="class in com.google.android.exoplayer2.transformer">DefaultCodec</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">Codec</span></pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">Codec</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Provides a layer of abstraction for interacting with decoders and encoders.
 
  <p><a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder"><code>DecoderInputBuffers</code></a> are used as both decoders' and encoders' input
@@ -154,6 +160,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Codec.DecoderFactory.html" title="interface in com.google.android.exoplayer2.transformer">Codec.DecoderFactory</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A factory for <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer">decoder</a> instances.</div>
 </td>
 </tr>
@@ -161,32 +168,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Codec.EncoderFactory.html" title="interface in com.google.android.exoplayer2.transformer">Codec.EncoderFactory</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A factory for <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer">encoder</a> instances.</div>
-</td>
-</tr>
-</table>
-</li>
-</ul>
-</section>
-<!-- =========== FIELD SUMMARY =========== -->
-<section role="region">
-<ul class="blockList">
-<li class="blockList"><a id="field.summary">
-<!--   -->
-</a>
-<h3>Field Summary</h3>
-<table class="memberSummary">
-<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Modifier and Type</th>
-<th class="colSecond" scope="col">Field</th>
-<th class="colLast" scope="col">Description</th>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>static int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#UNLIMITED_PENDING_FRAME_COUNT">UNLIMITED_PENDING_FRAME_COUNT</a></span></code></th>
-<td class="colLast">
-<div class="block">Default value for the pending frame count, which represents applying no limit.</div>
 </td>
 </tr>
 </table>
@@ -201,7 +184,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -211,6 +194,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getConfigurationFormat()">getConfigurationFormat</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> used for configuring the <code>Codec</code>.</div>
 </td>
 </tr>
@@ -218,6 +202,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getInputSurface()">getInputSurface</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the input <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a> of an underlying video encoder.</div>
 </td>
 </tr>
@@ -225,14 +210,16 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>default int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMaxPendingFrameCount()">getMaxPendingFrameCount</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the maximum number of frames that may be pending in the output <code>Codec</code> at a time,
- or <a href="#UNLIMITED_PENDING_FRAME_COUNT"><code>UNLIMITED_PENDING_FRAME_COUNT</code></a> if it's not necessary to enforce a limit.</div>
+ or <code>5</code> as a default value.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getName()">getName</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the name of the underlying codec.</div>
 </td>
 </tr>
@@ -240,6 +227,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getOutputBuffer()">getOutputBuffer</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current output <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer</code></a>, or <code>null</code> if unavailable.</div>
 </td>
 </tr>
@@ -247,6 +235,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/media/MediaCodec.BufferInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodec.BufferInfo</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getOutputBufferInfo()">getOutputBufferInfo</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="https://developer.android.com/reference/android/media/MediaCodec.BufferInfo.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.BufferInfo</code></a> associated with the current output buffer, or <code>null</code> if
  there is no output buffer available.</div>
 </td>
@@ -255,6 +244,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getOutputFormat()">getOutputFormat</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current output format, or <code>null</code> if unavailable.</div>
 </td>
 </tr>
@@ -262,6 +252,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isEnded()">isEnded</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the <code>Codec</code>'s output stream has ended, and no more data can be dequeued.</div>
 </td>
 </tr>
@@ -269,6 +260,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maybeDequeueInputBuffer(com.google.android.exoplayer2.decoder.DecoderInputBuffer)">maybeDequeueInputBuffer</a></span>&#8203;(<a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;inputBuffer)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dequeues a writable input buffer, if available.</div>
 </td>
 </tr>
@@ -276,6 +268,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#queueInputBuffer(com.google.android.exoplayer2.decoder.DecoderInputBuffer)">queueInputBuffer</a></span>&#8203;(<a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;inputBuffer)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Queues an input buffer to the <code>Codec</code>.</div>
 </td>
 </tr>
@@ -283,6 +276,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases the <code>Codec</code>.</div>
 </td>
 </tr>
@@ -290,13 +284,23 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#releaseOutputBuffer(boolean)">releaseOutputBuffer</a></span>&#8203;(boolean&nbsp;render)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases the current output buffer.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#releaseOutputBuffer(long)">releaseOutputBuffer</a></span>&#8203;(long&nbsp;renderPresentationTimeUs)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Renders and releases the current output buffer.</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#signalEndOfInputStream()">signalEndOfInputStream</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Signals end-of-stream on input to a video encoder.</div>
 </td>
 </tr>
@@ -310,30 +314,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <div class="details">
 <ul class="blockList">
 <li class="blockList">
-<!-- ============ FIELD DETAIL =========== -->
-<section role="region">
-<ul class="blockList">
-<li class="blockList"><a id="field.detail">
-<!--   -->
-</a>
-<h3>Field Detail</h3>
-<a id="UNLIMITED_PENDING_FRAME_COUNT">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>UNLIMITED_PENDING_FRAME_COUNT</h4>
-<pre>static final&nbsp;int UNLIMITED_PENDING_FRAME_COUNT</pre>
-<div class="block">Default value for the pending frame count, which represents applying no limit.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.transformer.Codec.UNLIMITED_PENDING_FRAME_COUNT">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-</li>
-</ul>
-</section>
 <!-- ============ METHOD DETAIL ========== -->
 <section role="region">
 <ul class="blockList">
@@ -348,6 +328,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>getConfigurationFormat</h4>
 <pre class="methodSignature"><a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;getConfigurationFormat()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> used for configuring the <code>Codec</code>.
 
  <p>The configuration <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> is the input <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> used by the <a href="Codec.DecoderFactory.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec.DecoderFactory</code></a> or output <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> used by the <a href="Codec.EncoderFactory.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec.EncoderFactory</code></a> for selecting and
@@ -361,6 +342,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>getName</h4>
 <pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;getName()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the name of the underlying codec.</div>
 </li>
 </ul>
@@ -371,6 +353,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>getInputSurface</h4>
 <pre class="methodSignature"><a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;getInputSurface()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the input <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a> of an underlying video encoder.
 
  <p>This method must only be called on video encoders because audio/video decoders and audio
@@ -384,8 +367,9 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>getMaxPendingFrameCount</h4>
 <pre class="methodSignature">default&nbsp;int&nbsp;getMaxPendingFrameCount()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the maximum number of frames that may be pending in the output <code>Codec</code> at a time,
- or <a href="#UNLIMITED_PENDING_FRAME_COUNT"><code>UNLIMITED_PENDING_FRAME_COUNT</code></a> if it's not necessary to enforce a limit.</div>
+ or <code>5</code> as a default value.</div>
 </li>
 </ul>
 <a id="maybeDequeueInputBuffer(com.google.android.exoplayer2.decoder.DecoderInputBuffer)">
@@ -395,7 +379,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>maybeDequeueInputBuffer</h4>
 <pre class="methodSignature">boolean&nbsp;maybeDequeueInputBuffer&#8203;(<a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;inputBuffer)
-                         throws <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></pre>
+                         throws <a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dequeues a writable input buffer, if available.
 
  <p>This method must not be called from video encoders because they must use a <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a>
@@ -406,7 +391,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Whether an input buffer is ready to be used.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></code> - If the underlying decoder or encoder encounters a problem.</dd>
+<dd><code><a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></code> - If the underlying decoder or encoder encounters a problem.</dd>
 </dl>
 </li>
 </ul>
@@ -417,7 +402,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>queueInputBuffer</h4>
 <pre class="methodSignature">void&nbsp;queueInputBuffer&#8203;(<a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;inputBuffer)
-               throws <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></pre>
+               throws <a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Queues an input buffer to the <code>Codec</code>. No buffers may be queued after <a href="../decoder/Buffer.html#isEndOfStream()">end of stream</a> buffer has been queued.
 
  <p>This method must not be called from video encoders because they must use a <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a>
@@ -426,7 +412,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>inputBuffer</code> - The <a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">input buffer</a>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></code> - If the underlying decoder or encoder encounters a problem.</dd>
+<dd><code><a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></code> - If the underlying decoder or encoder encounters a problem.</dd>
 </dl>
 </li>
 </ul>
@@ -437,7 +423,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>signalEndOfInputStream</h4>
 <pre class="methodSignature">void&nbsp;signalEndOfInputStream()
-                     throws <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></pre>
+                     throws <a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Signals end-of-stream on input to a video encoder.
 
  <p>This method must only be called on video encoders because they must use a <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a> as
@@ -445,7 +432,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  should be set on the last input buffer <a href="#queueInputBuffer(com.google.android.exoplayer2.decoder.DecoderInputBuffer)">queued</a>.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></code> - If the underlying video encoder encounters a problem.</dd>
+<dd><code><a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></code> - If the underlying video encoder encounters a problem.</dd>
 </dl>
 </li>
 </ul>
@@ -457,11 +444,12 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>getOutputFormat</h4>
 <pre class="methodSignature">@Nullable
 <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;getOutputFormat()
-                throws <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></pre>
+                throws <a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current output format, or <code>null</code> if unavailable.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></code> - If the underlying decoder or encoder encounters a problem.</dd>
+<dd><code><a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></code> - If the underlying decoder or encoder encounters a problem.</dd>
 </dl>
 </li>
 </ul>
@@ -473,13 +461,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>getOutputBuffer</h4>
 <pre class="methodSignature">@Nullable
 <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;getOutputBuffer()
-                    throws <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></pre>
+                    throws <a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current output <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer</code></a>, or <code>null</code> if unavailable.
 
  <p>This method must not be called on video decoders because they must output to a <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a>.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></code> - If the underlying decoder or encoder encounters a problem.</dd>
+<dd><code><a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></code> - If the underlying decoder or encoder encounters a problem.</dd>
 </dl>
 </li>
 </ul>
@@ -491,14 +480,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>getOutputBufferInfo</h4>
 <pre class="methodSignature">@Nullable
 <a href="https://developer.android.com/reference/android/media/MediaCodec.BufferInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodec.BufferInfo</a>&nbsp;getOutputBufferInfo()
-                                   throws <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></pre>
+                                   throws <a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="https://developer.android.com/reference/android/media/MediaCodec.BufferInfo.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.BufferInfo</code></a> associated with the current output buffer, or <code>null</code> if
  there is no output buffer available.
 
  <p>This method returns <code>null</code> if and only if <a href="#getOutputBuffer()"><code>getOutputBuffer()</code></a> returns null.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></code> - If the underlying decoder or encoder encounters a problem.</dd>
+<dd><code><a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></code> - If the underlying decoder or encoder encounters a problem.</dd>
 </dl>
 </li>
 </ul>
@@ -509,7 +499,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>releaseOutputBuffer</h4>
 <pre class="methodSignature">void&nbsp;releaseOutputBuffer&#8203;(boolean&nbsp;render)
-                  throws <a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></pre>
+                  throws <a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases the current output buffer.
 
  <p>Only set <code>render</code> to <code>true</code> when the <code>Codec</code> is a video decoder. Setting
@@ -518,12 +509,41 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  used/displayed.
 
  <p>This should be called after the buffer has been processed. The next output buffer will not
- be available until the current output buffer has been released.</div>
+ be available until the current output buffer has been released.
+
+ <p>Calling this method with <code>render</code> set to <code>true</code> is equivalent to calling <a href="#releaseOutputBuffer(long)"><code>releaseOutputBuffer(long)</code></a> with the presentation timestamp of the <a href="#getOutputBufferInfo()"><code>output buffer info</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>render</code> - Whether the buffer needs to be rendered to the output <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top"><code>Surface</code></a>.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></code> - If the underlying decoder or encoder encounters a problem.</dd>
+<dd><code><a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></code> - If the underlying decoder or encoder encounters a problem.</dd>
+</dl>
+</li>
+</ul>
+<a id="releaseOutputBuffer(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>releaseOutputBuffer</h4>
+<pre class="methodSignature">void&nbsp;releaseOutputBuffer&#8203;(long&nbsp;renderPresentationTimeUs)
+                  throws <a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Renders and releases the current output buffer.
+
+ <p>This method must only be called on video decoders.
+
+ <p>This method will first render the buffer to the output surface. The surface will then
+ release the buffer back to the <code>Codec</code> once it is no longer used/displayed.
+
+ <p>This should be called after the buffer has been processed. The next output buffer will not
+ be available until the current output buffer has been released.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>renderPresentationTimeUs</code> - The presentation timestamp to associate with this buffer, in
+     microseconds.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></code> - If the underlying decoder or encoder encounters a problem.</dd>
 </dl>
 </li>
 </ul>
@@ -534,6 +554,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>isEnded</h4>
 <pre class="methodSignature">boolean&nbsp;isEnded()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the <code>Codec</code>'s output stream has ended, and no more data can be dequeued.</div>
 </li>
 </ul>
@@ -544,6 +565,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>release</h4>
 <pre class="methodSignature">void&nbsp;release()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases the <code>Codec</code>.</div>
 </li>
 </ul>
@@ -599,13 +621,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="subNavList">
 <li>Summary:&nbsp;</li>
 <li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
-<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
-<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>

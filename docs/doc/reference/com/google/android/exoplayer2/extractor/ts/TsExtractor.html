@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">TsExtractor</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">TsExtractor</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="../Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Extracts data from the MPEG-2 TS container format.</div>
 </li>
 </ul>
@@ -161,6 +167,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="TsExtractor.Mode.html" title="annotation in com.google.android.exoplayer2.extractor.ts">TsExtractor.Mode</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Modes for the extractor.</div>
 </td>
 </tr>
@@ -192,12 +199,15 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_TIMESTAMP_SEARCH_BYTES">DEFAULT_TIMESTAMP_SEARCH_BYTES</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="../ExtractorsFactory.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorsFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FACTORY">FACTORY</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Factory for <a href="TsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>TsExtractor</code></a> instances.</div>
 </td>
 </tr>
@@ -205,6 +215,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MODE_HLS">MODE_HLS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Enable single PMT mode, map <a href="../TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a>s by their type (instead of PID) and ignore
  continuity counters.</div>
 </td>
@@ -213,6 +224,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MODE_MULTI_PMT">MODE_MULTI_PMT</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Behave as defined in ISO/IEC 13818-1.</div>
 </td>
 </tr>
@@ -220,108 +232,149 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MODE_SINGLE_PMT">MODE_SINGLE_PMT</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Assume only one PMT will be contained in the stream, even if more are declared by the PAT.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TS_PACKET_SIZE">TS_PACKET_SIZE</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TS_STREAM_TYPE_AAC_ADTS">TS_STREAM_TYPE_AAC_ADTS</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TS_STREAM_TYPE_AAC_LATM">TS_STREAM_TYPE_AAC_LATM</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TS_STREAM_TYPE_AC3">TS_STREAM_TYPE_AC3</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TS_STREAM_TYPE_AC4">TS_STREAM_TYPE_AC4</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TS_STREAM_TYPE_AIT">TS_STREAM_TYPE_AIT</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TS_STREAM_TYPE_DC2_H262">TS_STREAM_TYPE_DC2_H262</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TS_STREAM_TYPE_DTS">TS_STREAM_TYPE_DTS</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TS_STREAM_TYPE_DVBSUBS">TS_STREAM_TYPE_DVBSUBS</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TS_STREAM_TYPE_E_AC3">TS_STREAM_TYPE_E_AC3</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TS_STREAM_TYPE_H262">TS_STREAM_TYPE_H262</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TS_STREAM_TYPE_H263">TS_STREAM_TYPE_H263</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TS_STREAM_TYPE_H264">TS_STREAM_TYPE_H264</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TS_STREAM_TYPE_H265">TS_STREAM_TYPE_H265</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TS_STREAM_TYPE_HDMV_DTS">TS_STREAM_TYPE_HDMV_DTS</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TS_STREAM_TYPE_ID3">TS_STREAM_TYPE_ID3</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TS_STREAM_TYPE_MPA">TS_STREAM_TYPE_MPA</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TS_STREAM_TYPE_MPA_LSF">TS_STREAM_TYPE_MPA_LSF</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TS_STREAM_TYPE_SPLICE_INFO">TS_STREAM_TYPE_SPLICE_INFO</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TS_SYNC_BYTE">TS_SYNC_BYTE</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -349,30 +402,40 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">TsExtractor</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(@com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flagsint)">TsExtractor</a></span>&#8203;(@com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flags int&nbsp;defaultTsPayloadReaderFlags)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(@com.google.android.exoplayer2.extractor.ts.TsExtractor.Modeint,@com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flagsint,int)">TsExtractor</a></span>&#8203;(@com.google.android.exoplayer2.extractor.ts.TsExtractor.Mode int&nbsp;mode,
            @com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flags int&nbsp;defaultTsPayloadReaderFlags,
            int&nbsp;timestampSearchBytes)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(@com.google.android.exoplayer2.extractor.ts.TsExtractor.Modeint,com.google.android.exoplayer2.util.TimestampAdjuster,com.google.android.exoplayer2.extractor.ts.TsPayloadReader.Factory)">TsExtractor</a></span>&#8203;(@com.google.android.exoplayer2.extractor.ts.TsExtractor.Mode int&nbsp;mode,
            <a href="../../util/TimestampAdjuster.html" title="class in com.google.android.exoplayer2.util">TimestampAdjuster</a>&nbsp;timestampAdjuster,
            <a href="TsPayloadReader.Factory.html" title="interface in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.Factory</a>&nbsp;payloadReaderFactory)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(@com.google.android.exoplayer2.extractor.ts.TsExtractor.Modeint,com.google.android.exoplayer2.util.TimestampAdjuster,com.google.android.exoplayer2.extractor.ts.TsPayloadReader.Factory,int)">TsExtractor</a></span>&#8203;(@com.google.android.exoplayer2.extractor.ts.TsExtractor.Mode int&nbsp;mode,
            <a href="../../util/TimestampAdjuster.html" title="class in com.google.android.exoplayer2.util">TimestampAdjuster</a>&nbsp;timestampAdjuster,
            <a href="TsPayloadReader.Factory.html" title="interface in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.Factory</a>&nbsp;payloadReaderFactory,
            int&nbsp;timestampSearchBytes)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -386,7 +449,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -396,6 +459,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#init(com.google.android.exoplayer2.extractor.ExtractorOutput)">init</a></span>&#8203;(<a href="../ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;output)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Initializes the extractor with an <a href="../ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorOutput</code></a>.</div>
 </td>
 </tr>
@@ -404,6 +468,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#read(com.google.android.exoplayer2.extractor.ExtractorInput,com.google.android.exoplayer2.extractor.PositionHolder)">read</a></span>&#8203;(<a href="../ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
     <a href="../PositionHolder.html" title="class in com.google.android.exoplayer2.extractor">PositionHolder</a>&nbsp;seekPosition)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Extracts data read from a provided <a href="../ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a>.</div>
 </td>
 </tr>
@@ -411,6 +476,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases all kept resources.</div>
 </td>
 </tr>
@@ -419,6 +485,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seek(long,long)">seek</a></span>&#8203;(long&nbsp;position,
     long&nbsp;timeUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Notifies the extractor that a seek has occurred.</div>
 </td>
 </tr>
@@ -426,6 +493,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sniff(com.google.android.exoplayer2.extractor.ExtractorInput)">sniff</a></span>&#8203;(<a href="../ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether this extractor can extract samples from the <a href="../ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a>, which must
  provide data from the start of the stream.</div>
 </td>
@@ -461,6 +529,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>FACTORY</h4>
 <pre>public static final&nbsp;<a href="../ExtractorsFactory.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorsFactory</a> FACTORY</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Factory for <a href="TsExtractor.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>TsExtractor</code></a> instances.</div>
 </li>
 </ul>
@@ -471,6 +540,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>MODE_MULTI_PMT</h4>
 <pre>public static final&nbsp;int MODE_MULTI_PMT</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Behave as defined in ISO/IEC 13818-1.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -485,6 +555,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>MODE_SINGLE_PMT</h4>
 <pre>public static final&nbsp;int MODE_SINGLE_PMT</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Assume only one PMT will be contained in the stream, even if more are declared by the PAT.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -499,6 +570,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>MODE_HLS</h4>
 <pre>public static final&nbsp;int MODE_HLS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Enable single PMT mode, map <a href="../TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a>s by their type (instead of PID) and ignore
  continuity counters.</div>
 <dl>
@@ -514,6 +586,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>TS_PACKET_SIZE</h4>
 <pre>public static final&nbsp;int TS_PACKET_SIZE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.TsExtractor.TS_PACKET_SIZE">Constant Field Values</a></dd>
@@ -527,6 +600,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>DEFAULT_TIMESTAMP_SEARCH_BYTES</h4>
 <pre>public static final&nbsp;int DEFAULT_TIMESTAMP_SEARCH_BYTES</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.TsExtractor.DEFAULT_TIMESTAMP_SEARCH_BYTES">Constant Field Values</a></dd>
@@ -540,6 +614,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>TS_STREAM_TYPE_MPA</h4>
 <pre>public static final&nbsp;int TS_STREAM_TYPE_MPA</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.TsExtractor.TS_STREAM_TYPE_MPA">Constant Field Values</a></dd>
@@ -553,6 +628,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>TS_STREAM_TYPE_MPA_LSF</h4>
 <pre>public static final&nbsp;int TS_STREAM_TYPE_MPA_LSF</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.TsExtractor.TS_STREAM_TYPE_MPA_LSF">Constant Field Values</a></dd>
@@ -566,6 +642,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>TS_STREAM_TYPE_AAC_ADTS</h4>
 <pre>public static final&nbsp;int TS_STREAM_TYPE_AAC_ADTS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.TsExtractor.TS_STREAM_TYPE_AAC_ADTS">Constant Field Values</a></dd>
@@ -579,6 +656,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>TS_STREAM_TYPE_AAC_LATM</h4>
 <pre>public static final&nbsp;int TS_STREAM_TYPE_AAC_LATM</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.TsExtractor.TS_STREAM_TYPE_AAC_LATM">Constant Field Values</a></dd>
@@ -592,6 +670,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>TS_STREAM_TYPE_AC3</h4>
 <pre>public static final&nbsp;int TS_STREAM_TYPE_AC3</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.TsExtractor.TS_STREAM_TYPE_AC3">Constant Field Values</a></dd>
@@ -605,6 +684,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>TS_STREAM_TYPE_DTS</h4>
 <pre>public static final&nbsp;int TS_STREAM_TYPE_DTS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.TsExtractor.TS_STREAM_TYPE_DTS">Constant Field Values</a></dd>
@@ -618,6 +698,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>TS_STREAM_TYPE_HDMV_DTS</h4>
 <pre>public static final&nbsp;int TS_STREAM_TYPE_HDMV_DTS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.TsExtractor.TS_STREAM_TYPE_HDMV_DTS">Constant Field Values</a></dd>
@@ -631,6 +712,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>TS_STREAM_TYPE_E_AC3</h4>
 <pre>public static final&nbsp;int TS_STREAM_TYPE_E_AC3</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.TsExtractor.TS_STREAM_TYPE_E_AC3">Constant Field Values</a></dd>
@@ -644,6 +726,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>TS_STREAM_TYPE_AC4</h4>
 <pre>public static final&nbsp;int TS_STREAM_TYPE_AC4</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.TsExtractor.TS_STREAM_TYPE_AC4">Constant Field Values</a></dd>
@@ -657,6 +740,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>TS_STREAM_TYPE_H262</h4>
 <pre>public static final&nbsp;int TS_STREAM_TYPE_H262</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.TsExtractor.TS_STREAM_TYPE_H262">Constant Field Values</a></dd>
@@ -670,6 +754,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>TS_STREAM_TYPE_H263</h4>
 <pre>public static final&nbsp;int TS_STREAM_TYPE_H263</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.TsExtractor.TS_STREAM_TYPE_H263">Constant Field Values</a></dd>
@@ -683,6 +768,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>TS_STREAM_TYPE_H264</h4>
 <pre>public static final&nbsp;int TS_STREAM_TYPE_H264</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.TsExtractor.TS_STREAM_TYPE_H264">Constant Field Values</a></dd>
@@ -696,6 +782,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>TS_STREAM_TYPE_H265</h4>
 <pre>public static final&nbsp;int TS_STREAM_TYPE_H265</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.TsExtractor.TS_STREAM_TYPE_H265">Constant Field Values</a></dd>
@@ -709,6 +796,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>TS_STREAM_TYPE_ID3</h4>
 <pre>public static final&nbsp;int TS_STREAM_TYPE_ID3</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.TsExtractor.TS_STREAM_TYPE_ID3">Constant Field Values</a></dd>
@@ -722,6 +810,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>TS_STREAM_TYPE_SPLICE_INFO</h4>
 <pre>public static final&nbsp;int TS_STREAM_TYPE_SPLICE_INFO</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.TsExtractor.TS_STREAM_TYPE_SPLICE_INFO">Constant Field Values</a></dd>
@@ -735,6 +824,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>TS_STREAM_TYPE_DVBSUBS</h4>
 <pre>public static final&nbsp;int TS_STREAM_TYPE_DVBSUBS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.TsExtractor.TS_STREAM_TYPE_DVBSUBS">Constant Field Values</a></dd>
@@ -748,6 +838,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>TS_STREAM_TYPE_DC2_H262</h4>
 <pre>public static final&nbsp;int TS_STREAM_TYPE_DC2_H262</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.TsExtractor.TS_STREAM_TYPE_DC2_H262">Constant Field Values</a></dd>
@@ -761,6 +852,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>TS_STREAM_TYPE_AIT</h4>
 <pre>public static final&nbsp;int TS_STREAM_TYPE_AIT</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.TsExtractor.TS_STREAM_TYPE_AIT">Constant Field Values</a></dd>
@@ -774,6 +866,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>TS_SYNC_BYTE</h4>
 <pre>public static final&nbsp;int TS_SYNC_BYTE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.ts.TsExtractor.TS_SYNC_BYTE">Constant Field Values</a></dd>
@@ -797,6 +890,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>TsExtractor</h4>
 <pre>public&nbsp;TsExtractor()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="&lt;init&gt;(@com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flagsint)">
@@ -806,6 +900,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>TsExtractor</h4>
 <pre>public&nbsp;TsExtractor&#8203;(@com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flags int&nbsp;defaultTsPayloadReaderFlags)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>defaultTsPayloadReaderFlags</code> - A combination of <a href="DefaultTsPayloadReaderFactory.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>DefaultTsPayloadReaderFactory</code></a>
@@ -822,6 +917,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <pre>public&nbsp;TsExtractor&#8203;(@com.google.android.exoplayer2.extractor.ts.TsExtractor.Mode int&nbsp;mode,
                    @com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flags int&nbsp;defaultTsPayloadReaderFlags,
                    int&nbsp;timestampSearchBytes)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mode</code> - Mode for the extractor. One of <a href="#MODE_MULTI_PMT"><code>MODE_MULTI_PMT</code></a>, <a href="#MODE_SINGLE_PMT"><code>MODE_SINGLE_PMT</code></a>
@@ -848,6 +944,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <pre>public&nbsp;TsExtractor&#8203;(@com.google.android.exoplayer2.extractor.ts.TsExtractor.Mode int&nbsp;mode,
                    <a href="../../util/TimestampAdjuster.html" title="class in com.google.android.exoplayer2.util">TimestampAdjuster</a>&nbsp;timestampAdjuster,
                    <a href="TsPayloadReader.Factory.html" title="interface in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.Factory</a>&nbsp;payloadReaderFactory)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mode</code> - Mode for the extractor. One of <a href="#MODE_MULTI_PMT"><code>MODE_MULTI_PMT</code></a>, <a href="#MODE_SINGLE_PMT"><code>MODE_SINGLE_PMT</code></a>
@@ -867,6 +964,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
                    <a href="../../util/TimestampAdjuster.html" title="class in com.google.android.exoplayer2.util">TimestampAdjuster</a>&nbsp;timestampAdjuster,
                    <a href="TsPayloadReader.Factory.html" title="interface in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.Factory</a>&nbsp;payloadReaderFactory,
                    int&nbsp;timestampSearchBytes)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>mode</code> - Mode for the extractor. One of <a href="#MODE_MULTI_PMT"><code>MODE_MULTI_PMT</code></a>, <a href="#MODE_SINGLE_PMT"><code>MODE_SINGLE_PMT</code></a>
@@ -902,6 +1000,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <h4>sniff</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;sniff&#8203;(<a href="../ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input)
               throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Extractor.html#sniff(com.google.android.exoplayer2.extractor.ExtractorInput)">Extractor</a></code></span></div>
 <div class="block">Returns whether this extractor can extract samples from the <a href="../ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a>, which must
  provide data from the start of the stream.
@@ -927,6 +1026,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>init</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;init&#8203;(<a href="../ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;output)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Extractor.html#init(com.google.android.exoplayer2.extractor.ExtractorOutput)">Extractor</a></code></span></div>
 <div class="block">Initializes the extractor with an <a href="../ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorOutput</code></a>. Called at most once.</div>
 <dl>
@@ -945,6 +1045,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <h4>seek</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;seek&#8203;(long&nbsp;position,
                  long&nbsp;timeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Extractor.html#seek(long,long)">Extractor</a></code></span></div>
 <div class="block">Notifies the extractor that a seek has occurred.
 
@@ -968,6 +1069,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>release</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;release()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Extractor.html#release()">Extractor</a></code></span></div>
 <div class="block">Releases all kept resources.</div>
 <dl>
@@ -985,6 +1087,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <pre class="methodSignature">public&nbsp;@com.google.android.exoplayer2.extractor.Extractor.ReadResult int&nbsp;read&#8203;(<a href="../ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
                                                                               <a href="../PositionHolder.html" title="class in com.google.android.exoplayer2.extractor">PositionHolder</a>&nbsp;seekPosition)
                                                                        throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Extractor.html#read(com.google.android.exoplayer2.extractor.ExtractorInput,com.google.android.exoplayer2.extractor.PositionHolder)">Extractor</a></code></span></div>
 <div class="block">Extracts data read from a provided <a href="../ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a>. Must not be called before <a href="../Extractor.html#init(com.google.android.exoplayer2.extractor.ExtractorOutput)"><code>Extractor.init(ExtractorOutput)</code></a>.
 

@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6,"i15":6,"i16":6,"i17":6,"i18":6,"i19":6,"i20":6,"i21":6,"i22":18,"i23":6,"i24":18,"i25":18,"i26":6,"i27":6,"i28":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
+var data = {"i0":38,"i1":38,"i2":38,"i3":38,"i4":38,"i5":38,"i6":38,"i7":38,"i8":38,"i9":38,"i10":38,"i11":38,"i12":38,"i13":38,"i14":38,"i15":38,"i16":38,"i17":50,"i18":38,"i19":38,"i20":38,"i21":38,"i22":38,"i23":50,"i24":38,"i25":50,"i26":50,"i27":38,"i28":38,"i29":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -122,10 +122,16 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><code><a href="../testutil/CapturingAudioSink.html" title="class in com.google.android.exoplayer2.testutil">CapturingAudioSink</a></code>, <code><a href="DefaultAudioSink.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink</a></code>, <code><a href="ForwardingAudioSink.html" title="class in com.google.android.exoplayer2.audio">ForwardingAudioSink</a></code></dd>
+<dd><code><a href="../testutil/CapturingAudioSink.html" title="class in com.google.android.exoplayer2.testutil">CapturingAudioSink</a></code>, <code><a href="DefaultAudioSink.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink</a></code>, <code><a href="ForwardingAudioSink.html" title="class in com.google.android.exoplayer2.audio">ForwardingAudioSink</a></code>, <code><a href="../testutil/OggFileAudioBufferSink.html" title="class in com.google.android.exoplayer2.testutil">OggFileAudioBufferSink</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">AudioSink</span></pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">AudioSink</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A sink that consumes audio data.
 
  <p>Before starting playback, specify the input audio format by calling <a href="#configure(com.google.android.exoplayer2.Format,int,int%5B%5D)"><code>configure(Format,
@@ -170,6 +176,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="AudioSink.ConfigurationException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.ConfigurationException</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Thrown when a failure occurs configuring the sink.</div>
 </td>
 </tr>
@@ -177,6 +184,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="AudioSink.InitializationException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.InitializationException</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Thrown when a failure occurs initializing the sink.</div>
 </td>
 </tr>
@@ -184,6 +192,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="AudioSink.Listener.html" title="interface in com.google.android.exoplayer2.audio">AudioSink.Listener</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Listener for audio sink events.</div>
 </td>
 </tr>
@@ -191,6 +200,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="AudioSink.SinkFormatSupport.html" title="annotation in com.google.android.exoplayer2.audio">AudioSink.SinkFormatSupport</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The level of support the sink provides for a format.</div>
 </td>
 </tr>
@@ -198,6 +208,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="AudioSink.UnexpectedDiscontinuityException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.UnexpectedDiscontinuityException</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Thrown when the sink encounters an unexpected timestamp discontinuity.</div>
 </td>
 </tr>
@@ -205,6 +216,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="AudioSink.WriteException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.WriteException</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Thrown when a failure occurs writing to the sink.</div>
 </td>
 </tr>
@@ -230,6 +242,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#CURRENT_POSITION_NOT_SET">CURRENT_POSITION_NOT_SET</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returned by <a href="#getCurrentPositionUs(boolean)"><code>getCurrentPositionUs(boolean)</code></a> when the position is not set.</div>
 </td>
 </tr>
@@ -237,6 +250,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#SINK_FORMAT_SUPPORTED_DIRECTLY">SINK_FORMAT_SUPPORTED_DIRECTLY</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The sink supports the format directly, without the need for internal transcoding.</div>
 </td>
 </tr>
@@ -244,6 +258,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#SINK_FORMAT_SUPPORTED_WITH_TRANSCODING">SINK_FORMAT_SUPPORTED_WITH_TRANSCODING</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The sink supports the format, but needs to transcode it internally to do so.</div>
 </td>
 </tr>
@@ -251,6 +266,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#SINK_FORMAT_UNSUPPORTED">SINK_FORMAT_UNSUPPORTED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The sink does not support the format.</div>
 </td>
 </tr>
@@ -266,7 +282,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -278,6 +294,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
          int&nbsp;specifiedBufferSize,
          int[]&nbsp;outputChannels)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Configures (or reconfigures) the sink.</div>
 </td>
 </tr>
@@ -285,6 +302,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#disableTunneling()">disableTunneling</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Disables tunneling.</div>
 </td>
 </tr>
@@ -292,6 +310,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#enableTunnelingV21()">enableTunnelingV21</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Enables tunneling, if possible.</div>
 </td>
 </tr>
@@ -299,6 +318,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#experimentalFlushWithoutAudioTrackRelease()">experimentalFlushWithoutAudioTrackRelease</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Flushes the sink, after which it is ready to receive buffers from a new playback position.</div>
 </td>
 </tr>
@@ -306,6 +326,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#flush()">flush</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Flushes the sink, after which it is ready to receive buffers from a new playback position.</div>
 </td>
 </tr>
@@ -313,6 +334,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAudioAttributes()">getAudioAttributes</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the audio attributes used for audio playback, or <code>null</code> if the sink does not use
  audio attributes.</div>
 </td>
@@ -321,6 +343,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCurrentPositionUs(boolean)">getCurrentPositionUs</a></span>&#8203;(boolean&nbsp;sourceEnded)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the playback position in the stream starting at zero, in microseconds, or <a href="#CURRENT_POSITION_NOT_SET"><code>CURRENT_POSITION_NOT_SET</code></a> if it is not yet available.</div>
 </td>
 </tr>
@@ -328,6 +351,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>@com.google.android.exoplayer2.audio.AudioSink.SinkFormatSupport int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFormatSupport(com.google.android.exoplayer2.Format)">getFormatSupport</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the level of support that the sink provides for a given <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 </td>
 </tr>
@@ -335,6 +359,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPlaybackParameters()">getPlaybackParameters</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the active <a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2"><code>PlaybackParameters</code></a>.</div>
 </td>
 </tr>
@@ -342,6 +367,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSkipSilenceEnabled()">getSkipSilenceEnabled</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether silences are skipped in the audio stream.</div>
 </td>
 </tr>
@@ -351,6 +377,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
             long&nbsp;presentationTimeUs,
             int&nbsp;encodedAccessUnitCount)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Attempts to process data from a <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer</code></a>, starting from its current position and
  ending at its limit (exclusive).</div>
 </td>
@@ -359,6 +386,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handleDiscontinuity()">handleDiscontinuity</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Signals to the sink that the next buffer may be discontinuous with the previous buffer.</div>
 </td>
 </tr>
@@ -366,6 +394,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hasPendingData()">hasPendingData</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the sink has data pending that has not been consumed yet.</div>
 </td>
 </tr>
@@ -373,6 +402,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isEnded()">isEnded</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether <a href="#playToEndOfStream()"><code>playToEndOfStream()</code></a> has been called and all buffers have been processed.</div>
 </td>
 </tr>
@@ -380,6 +410,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#pause()">pause</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Pauses playback.</div>
 </td>
 </tr>
@@ -387,6 +418,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#play()">play</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts or resumes consuming audio if initialized.</div>
 </td>
 </tr>
@@ -394,91 +426,112 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#playToEndOfStream()">playToEndOfStream</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Processes any remaining data.</div>
 </td>
 </tr>
 <tr id="i17" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset()">reset</a></span>()</code></th>
+<td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Resets the sink, releasing any resources that it currently holds.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Releases the audio sink.</div>
 </td>
 </tr>
 <tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAudioAttributes(com.google.android.exoplayer2.audio.AudioAttributes)">setAudioAttributes</a></span>&#8203;(<a href="AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset()">reset</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Sets attributes for audio playback.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Resets the sink, releasing any resources that it currently holds.</div>
 </td>
 </tr>
 <tr id="i19" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAudioSessionId(int)">setAudioSessionId</a></span>&#8203;(int&nbsp;audioSessionId)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAudioAttributes(com.google.android.exoplayer2.audio.AudioAttributes)">setAudioAttributes</a></span>&#8203;(<a href="AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes)</code></th>
 <td class="colLast">
-<div class="block">Sets the audio session id.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets attributes for audio playback.</div>
 </td>
 </tr>
 <tr id="i20" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAuxEffectInfo(com.google.android.exoplayer2.audio.AuxEffectInfo)">setAuxEffectInfo</a></span>&#8203;(<a href="AuxEffectInfo.html" title="class in com.google.android.exoplayer2.audio">AuxEffectInfo</a>&nbsp;auxEffectInfo)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAudioSessionId(int)">setAudioSessionId</a></span>&#8203;(int&nbsp;audioSessionId)</code></th>
 <td class="colLast">
-<div class="block">Sets the auxiliary effect.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the audio session id.</div>
 </td>
 </tr>
 <tr id="i21" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setListener(com.google.android.exoplayer2.audio.AudioSink.Listener)">setListener</a></span>&#8203;(<a href="AudioSink.Listener.html" title="interface in com.google.android.exoplayer2.audio">AudioSink.Listener</a>&nbsp;listener)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAuxEffectInfo(com.google.android.exoplayer2.audio.AuxEffectInfo)">setAuxEffectInfo</a></span>&#8203;(<a href="AuxEffectInfo.html" title="class in com.google.android.exoplayer2.audio">AuxEffectInfo</a>&nbsp;auxEffectInfo)</code></th>
 <td class="colLast">
-<div class="block">Sets the listener for sink events, which should be the audio renderer.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the auxiliary effect.</div>
 </td>
 </tr>
 <tr id="i22" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setListener(com.google.android.exoplayer2.audio.AudioSink.Listener)">setListener</a></span>&#8203;(<a href="AudioSink.Listener.html" title="interface in com.google.android.exoplayer2.audio">AudioSink.Listener</a>&nbsp;listener)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the listener for sink events, which should be the audio renderer.</div>
+</td>
+</tr>
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOutputStreamOffsetUs(long)">setOutputStreamOffsetUs</a></span>&#8203;(long&nbsp;outputStreamOffsetUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the offset that is added to the media timestamp before it is passed as <code>
  presentationTimeUs</code> in <a href="#handleBuffer(java.nio.ByteBuffer,long,int)"><code>handleBuffer(ByteBuffer, long, int)</code></a>.</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)">setPlaybackParameters</a></span>&#8203;(<a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Attempts to set the playback parameters.</div>
-</td>
-</tr>
-<tr id="i24" class="altColor">
-<td class="colFirst"><code>default void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlayerId(com.google.android.exoplayer2.analytics.PlayerId)">setPlayerId</a></span>&#8203;(<a href="../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</code></th>
-<td class="colLast">
-<div class="block">Sets the <a href="../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics"><code>PlayerId</code></a> of the player using this audio sink.</div>
 </td>
 </tr>
 <tr id="i25" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPreferredDevice(android.media.AudioDeviceInfo)">setPreferredDevice</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/AudioDeviceInfo.html" title="class or interface in android.media" class="externalLink" target="_top">AudioDeviceInfo</a>&nbsp;audioDeviceInfo)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlayerId(com.google.android.exoplayer2.analytics.PlayerId)">setPlayerId</a></span>&#8203;(<a href="../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</code></th>
 <td class="colLast">
-<div class="block">Sets the preferred audio device.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the <a href="../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics"><code>PlayerId</code></a> of the player using this audio sink.</div>
 </td>
 </tr>
 <tr id="i26" class="altColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSkipSilenceEnabled(boolean)">setSkipSilenceEnabled</a></span>&#8203;(boolean&nbsp;skipSilenceEnabled)</code></th>
+<td class="colFirst"><code>default void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPreferredDevice(android.media.AudioDeviceInfo)">setPreferredDevice</a></span>&#8203;(<a href="https://developer.android.com/reference/android/media/AudioDeviceInfo.html" title="class or interface in android.media" class="externalLink" target="_top">AudioDeviceInfo</a>&nbsp;audioDeviceInfo)</code></th>
 <td class="colLast">
-<div class="block">Sets whether silences should be skipped in the audio stream.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the preferred audio device.</div>
 </td>
 </tr>
 <tr id="i27" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVolume(float)">setVolume</a></span>&#8203;(float&nbsp;volume)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSkipSilenceEnabled(boolean)">setSkipSilenceEnabled</a></span>&#8203;(boolean&nbsp;skipSilenceEnabled)</code></th>
 <td class="colLast">
-<div class="block">Sets the playback volume.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets whether silences should be skipped in the audio stream.</div>
 </td>
 </tr>
 <tr id="i28" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setVolume(float)">setVolume</a></span>&#8203;(float&nbsp;volume)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the playback volume.</div>
+</td>
+</tr>
+<tr id="i29" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#supportsFormat(com.google.android.exoplayer2.Format)">supportsFormat</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the sink supports a given <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 </td>
 </tr>
@@ -506,6 +559,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>SINK_FORMAT_SUPPORTED_DIRECTLY</h4>
 <pre>static final&nbsp;int SINK_FORMAT_SUPPORTED_DIRECTLY</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The sink supports the format directly, without the need for internal transcoding.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -520,6 +574,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>SINK_FORMAT_SUPPORTED_WITH_TRANSCODING</h4>
 <pre>static final&nbsp;int SINK_FORMAT_SUPPORTED_WITH_TRANSCODING</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The sink supports the format, but needs to transcode it internally to do so. Internal
  transcoding may result in lower quality and higher CPU load in some cases.</div>
 <dl>
@@ -535,6 +590,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>SINK_FORMAT_UNSUPPORTED</h4>
 <pre>static final&nbsp;int SINK_FORMAT_UNSUPPORTED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The sink does not support the format.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -549,6 +605,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>CURRENT_POSITION_NOT_SET</h4>
 <pre>static final&nbsp;long CURRENT_POSITION_NOT_SET</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returned by <a href="#getCurrentPositionUs(boolean)"><code>getCurrentPositionUs(boolean)</code></a> when the position is not set.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -573,6 +630,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>setListener</h4>
 <pre class="methodSignature">void&nbsp;setListener&#8203;(<a href="AudioSink.Listener.html" title="interface in com.google.android.exoplayer2.audio">AudioSink.Listener</a>&nbsp;listener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the listener for sink events, which should be the audio renderer.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -588,6 +646,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>setPlayerId</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;setPlayerId&#8203;(@Nullable
                          <a href="../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics"><code>PlayerId</code></a> of the player using this audio sink.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -602,6 +661,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>supportsFormat</h4>
 <pre class="methodSignature">boolean&nbsp;supportsFormat&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the sink supports a given <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -618,6 +678,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>getFormatSupport</h4>
 <pre class="methodSignature">@com.google.android.exoplayer2.audio.AudioSink.SinkFormatSupport int&nbsp;getFormatSupport&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the level of support that the sink provides for a given <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -634,6 +695,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>getCurrentPositionUs</h4>
 <pre class="methodSignature">long&nbsp;getCurrentPositionUs&#8203;(boolean&nbsp;sourceEnded)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the playback position in the stream starting at zero, in microseconds, or <a href="#CURRENT_POSITION_NOT_SET"><code>CURRENT_POSITION_NOT_SET</code></a> if it is not yet available.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -654,6 +716,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                @Nullable
                int[]&nbsp;outputChannels)
         throws <a href="AudioSink.ConfigurationException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.ConfigurationException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Configures (or reconfigures) the sink.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -677,6 +740,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>play</h4>
 <pre class="methodSignature">void&nbsp;play()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts or resumes consuming audio if initialized.</div>
 </li>
 </ul>
@@ -687,6 +751,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>handleDiscontinuity</h4>
 <pre class="methodSignature">void&nbsp;handleDiscontinuity()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Signals to the sink that the next buffer may be discontinuous with the previous buffer.</div>
 </li>
 </ul>
@@ -701,6 +766,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                      int&nbsp;encodedAccessUnitCount)
               throws <a href="AudioSink.InitializationException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.InitializationException</a>,
                      <a href="AudioSink.WriteException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.WriteException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Attempts to process data from a <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer</code></a>, starting from its current position and
  ending at its limit (exclusive). The position of the <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer</code></a> is advanced by the
  number of bytes that were handled. <a href="AudioSink.Listener.html#onPositionDiscontinuity()"><code>AudioSink.Listener.onPositionDiscontinuity()</code></a> will be called if
@@ -733,6 +799,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>playToEndOfStream</h4>
 <pre class="methodSignature">void&nbsp;playToEndOfStream()
                 throws <a href="AudioSink.WriteException.html" title="class in com.google.android.exoplayer2.audio">AudioSink.WriteException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Processes any remaining data. <a href="#isEnded()"><code>isEnded()</code></a> will return <code>true</code> when no data remains.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -747,6 +814,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>isEnded</h4>
 <pre class="methodSignature">boolean&nbsp;isEnded()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether <a href="#playToEndOfStream()"><code>playToEndOfStream()</code></a> has been called and all buffers have been processed.</div>
 </li>
 </ul>
@@ -757,6 +825,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>hasPendingData</h4>
 <pre class="methodSignature">boolean&nbsp;hasPendingData()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the sink has data pending that has not been consumed yet.</div>
 </li>
 </ul>
@@ -767,6 +836,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>setPlaybackParameters</h4>
 <pre class="methodSignature">void&nbsp;setPlaybackParameters&#8203;(<a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Attempts to set the playback parameters. The audio sink may override these parameters if they
  are not supported.</div>
 <dl>
@@ -782,6 +852,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>getPlaybackParameters</h4>
 <pre class="methodSignature"><a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;getPlaybackParameters()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the active <a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2"><code>PlaybackParameters</code></a>.</div>
 </li>
 </ul>
@@ -792,6 +863,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>setSkipSilenceEnabled</h4>
 <pre class="methodSignature">void&nbsp;setSkipSilenceEnabled&#8203;(boolean&nbsp;skipSilenceEnabled)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether silences should be skipped in the audio stream.</div>
 </li>
 </ul>
@@ -802,6 +874,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>getSkipSilenceEnabled</h4>
 <pre class="methodSignature">boolean&nbsp;getSkipSilenceEnabled()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether silences are skipped in the audio stream.</div>
 </li>
 </ul>
@@ -812,6 +885,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>setAudioAttributes</h4>
 <pre class="methodSignature">void&nbsp;setAudioAttributes&#8203;(<a href="AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets attributes for audio playback. If the attributes have changed and if the sink is not
  configured for use with tunneling, then it is reset and the audio session id is cleared.
 
@@ -832,6 +906,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>getAudioAttributes</h4>
 <pre class="methodSignature">@Nullable
 <a href="AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;getAudioAttributes()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the audio attributes used for audio playback, or <code>null</code> if the sink does not use
  audio attributes.</div>
 </li>
@@ -843,6 +918,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>setAudioSessionId</h4>
 <pre class="methodSignature">void&nbsp;setAudioSessionId&#8203;(int&nbsp;audioSessionId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the audio session id.</div>
 </li>
 </ul>
@@ -853,6 +929,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>setAuxEffectInfo</h4>
 <pre class="methodSignature">void&nbsp;setAuxEffectInfo&#8203;(<a href="AuxEffectInfo.html" title="class in com.google.android.exoplayer2.audio">AuxEffectInfo</a>&nbsp;auxEffectInfo)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the auxiliary effect.</div>
 </li>
 </ul>
@@ -865,6 +942,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre class="methodSignature">@RequiresApi(23)
 default&nbsp;void&nbsp;setPreferredDevice&#8203;(@Nullable
                                 <a href="https://developer.android.com/reference/android/media/AudioDeviceInfo.html" title="class or interface in android.media" class="externalLink" target="_top">AudioDeviceInfo</a>&nbsp;audioDeviceInfo)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the preferred audio device.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -880,6 +958,7 @@ default&nbsp;void&nbsp;setPreferredDevice&#8203;(@Nullable
 <li class="blockList">
 <h4>setOutputStreamOffsetUs</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;setOutputStreamOffsetUs&#8203;(long&nbsp;outputStreamOffsetUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the offset that is added to the media timestamp before it is passed as <code>
  presentationTimeUs</code> in <a href="#handleBuffer(java.nio.ByteBuffer,long,int)"><code>handleBuffer(ByteBuffer, long, int)</code></a>.</div>
 <dl>
@@ -895,6 +974,7 @@ default&nbsp;void&nbsp;setPreferredDevice&#8203;(@Nullable
 <li class="blockList">
 <h4>enableTunnelingV21</h4>
 <pre class="methodSignature">void&nbsp;enableTunnelingV21()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Enables tunneling, if possible. The sink is reset if tunneling was previously disabled.
  Enabling tunneling is only possible if the sink is based on a platform <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack</code></a>, and
  requires platform API version 21 onwards.</div>
@@ -911,6 +991,7 @@ default&nbsp;void&nbsp;setPreferredDevice&#8203;(@Nullable
 <li class="blockList">
 <h4>disableTunneling</h4>
 <pre class="methodSignature">void&nbsp;disableTunneling()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Disables tunneling. If tunneling was previously enabled then the sink is reset and any audio
  session id is cleared.</div>
 </li>
@@ -922,6 +1003,7 @@ default&nbsp;void&nbsp;setPreferredDevice&#8203;(@Nullable
 <li class="blockList">
 <h4>setVolume</h4>
 <pre class="methodSignature">void&nbsp;setVolume&#8203;(float&nbsp;volume)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the playback volume.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -936,6 +1018,7 @@ default&nbsp;void&nbsp;setPreferredDevice&#8203;(@Nullable
 <li class="blockList">
 <h4>pause</h4>
 <pre class="methodSignature">void&nbsp;pause()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Pauses playback.</div>
 </li>
 </ul>
@@ -946,6 +1029,7 @@ default&nbsp;void&nbsp;setPreferredDevice&#8203;(@Nullable
 <li class="blockList">
 <h4>flush</h4>
 <pre class="methodSignature">void&nbsp;flush()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Flushes the sink, after which it is ready to receive buffers from a new playback position.
 
  <p>The audio session may remain active until <a href="#reset()"><code>reset()</code></a> is called.</div>
@@ -958,6 +1042,7 @@ default&nbsp;void&nbsp;setPreferredDevice&#8203;(@Nullable
 <li class="blockList">
 <h4>experimentalFlushWithoutAudioTrackRelease</h4>
 <pre class="methodSignature">void&nbsp;experimentalFlushWithoutAudioTrackRelease()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Flushes the sink, after which it is ready to receive buffers from a new playback position.
 
  <p>Does not release the <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack</code></a> held by the sink.
@@ -970,11 +1055,23 @@ default&nbsp;void&nbsp;setPreferredDevice&#8203;(@Nullable
 <a id="reset()">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>reset</h4>
 <pre class="methodSignature">void&nbsp;reset()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Resets the sink, releasing any resources that it currently holds.</div>
+</li>
+</ul>
+<a id="release()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>release</h4>
+<pre class="methodSignature">default&nbsp;void&nbsp;release()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Releases the audio sink.</div>
 </li>
 </ul>
 </li>

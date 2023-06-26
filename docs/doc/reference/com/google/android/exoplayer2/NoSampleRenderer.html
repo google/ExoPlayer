@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42,"i12":42,"i13":42,"i14":42,"i15":42,"i16":42,"i17":42,"i18":42,"i19":42,"i20":42,"i21":42,"i22":42,"i23":42,"i24":42,"i25":42,"i26":42,"i27":42,"i28":42,"i29":42,"i30":42,"i31":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a></code>, <code><a href="Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></code>, <code><a href="RendererCapabilities.html" title="interface in com.google.android.exoplayer2">RendererCapabilities</a></code></dd>
 </dl>
 <hr>
-<pre>public abstract class <span class="typeNameLabel">NoSampleRenderer</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public abstract class <span class="typeNameLabel">NoSampleRenderer</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>, <a href="RendererCapabilities.html" title="interface in com.google.android.exoplayer2">RendererCapabilities</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A <a href="Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> implementation whose track type is <a href="C.html#TRACK_TYPE_NONE"><code>C.TRACK_TYPE_NONE</code></a> and does not
  consume data from its <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>.</div>
 </li>
@@ -163,7 +169,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <!--   -->
 </a>
 <h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.<a href="RendererCapabilities.html" title="interface in com.google.android.exoplayer2">RendererCapabilities</a></h3>
-<code><a href="RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.AdaptiveSupport</a>, <a href="RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.Capabilities</a>, <a href="RendererCapabilities.DecoderSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.DecoderSupport</a>, <a href="RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.FormatSupport</a>, <a href="RendererCapabilities.HardwareAccelerationSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.HardwareAccelerationSupport</a>, <a href="RendererCapabilities.TunnelingSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.TunnelingSupport</a></code></li>
+<code><a href="RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.AdaptiveSupport</a>, <a href="RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.Capabilities</a>, <a href="RendererCapabilities.DecoderSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.DecoderSupport</a>, <a href="RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.FormatSupport</a>, <a href="RendererCapabilities.HardwareAccelerationSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.HardwareAccelerationSupport</a>, <a href="RendererCapabilities.Listener.html" title="interface in com.google.android.exoplayer2">RendererCapabilities.Listener</a>, <a href="RendererCapabilities.TunnelingSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.TunnelingSupport</a></code></li>
 </ul>
 </li>
 </ul>
@@ -180,7 +186,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <!--   -->
 </a>
 <h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.<a href="Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></h3>
-<code><a href="Renderer.html#MSG_CUSTOM_BASE">MSG_CUSTOM_BASE</a>, <a href="Renderer.html#MSG_SET_AUDIO_ATTRIBUTES">MSG_SET_AUDIO_ATTRIBUTES</a>, <a href="Renderer.html#MSG_SET_AUDIO_SESSION_ID">MSG_SET_AUDIO_SESSION_ID</a>, <a href="Renderer.html#MSG_SET_AUX_EFFECT_INFO">MSG_SET_AUX_EFFECT_INFO</a>, <a href="Renderer.html#MSG_SET_CAMERA_MOTION_LISTENER">MSG_SET_CAMERA_MOTION_LISTENER</a>, <a href="Renderer.html#MSG_SET_CHANGE_FRAME_RATE_STRATEGY">MSG_SET_CHANGE_FRAME_RATE_STRATEGY</a>, <a href="Renderer.html#MSG_SET_PREFERRED_AUDIO_DEVICE">MSG_SET_PREFERRED_AUDIO_DEVICE</a>, <a href="Renderer.html#MSG_SET_SCALING_MODE">MSG_SET_SCALING_MODE</a>, <a href="Renderer.html#MSG_SET_SKIP_SILENCE_ENABLED">MSG_SET_SKIP_SILENCE_ENABLED</a>, <a href="Renderer.html#MSG_SET_VIDEO_FRAME_METADATA_LISTENER">MSG_SET_VIDEO_FRAME_METADATA_LISTENER</a>, <a href="Renderer.html#MSG_SET_VIDEO_OUTPUT">MSG_SET_VIDEO_OUTPUT</a>, <a href="Renderer.html#MSG_SET_VOLUME">MSG_SET_VOLUME</a>, <a href="Renderer.html#MSG_SET_WAKEUP_LISTENER">MSG_SET_WAKEUP_LISTENER</a>, <a href="Renderer.html#STATE_DISABLED">STATE_DISABLED</a>, <a href="Renderer.html#STATE_ENABLED">STATE_ENABLED</a>, <a href="Renderer.html#STATE_STARTED">STATE_STARTED</a></code></li>
+<code><a href="Renderer.html#MSG_CUSTOM_BASE">MSG_CUSTOM_BASE</a>, <a href="Renderer.html#MSG_SET_AUDIO_ATTRIBUTES">MSG_SET_AUDIO_ATTRIBUTES</a>, <a href="Renderer.html#MSG_SET_AUDIO_SESSION_ID">MSG_SET_AUDIO_SESSION_ID</a>, <a href="Renderer.html#MSG_SET_AUX_EFFECT_INFO">MSG_SET_AUX_EFFECT_INFO</a>, <a href="Renderer.html#MSG_SET_CAMERA_MOTION_LISTENER">MSG_SET_CAMERA_MOTION_LISTENER</a>, <a href="Renderer.html#MSG_SET_CHANGE_FRAME_RATE_STRATEGY">MSG_SET_CHANGE_FRAME_RATE_STRATEGY</a>, <a href="Renderer.html#MSG_SET_PREFERRED_AUDIO_DEVICE">MSG_SET_PREFERRED_AUDIO_DEVICE</a>, <a href="Renderer.html#MSG_SET_SCALING_MODE">MSG_SET_SCALING_MODE</a>, <a href="Renderer.html#MSG_SET_SKIP_SILENCE_ENABLED">MSG_SET_SKIP_SILENCE_ENABLED</a>, <a href="Renderer.html#MSG_SET_VIDEO_EFFECTS">MSG_SET_VIDEO_EFFECTS</a>, <a href="Renderer.html#MSG_SET_VIDEO_FRAME_METADATA_LISTENER">MSG_SET_VIDEO_FRAME_METADATA_LISTENER</a>, <a href="Renderer.html#MSG_SET_VIDEO_OUTPUT">MSG_SET_VIDEO_OUTPUT</a>, <a href="Renderer.html#MSG_SET_VIDEO_OUTPUT_RESOLUTION">MSG_SET_VIDEO_OUTPUT_RESOLUTION</a>, <a href="Renderer.html#MSG_SET_VOLUME">MSG_SET_VOLUME</a>, <a href="Renderer.html#MSG_SET_WAKEUP_LISTENER">MSG_SET_WAKEUP_LISTENER</a>, <a href="Renderer.html#STATE_DISABLED">STATE_DISABLED</a>, <a href="Renderer.html#STATE_ENABLED">STATE_ENABLED</a>, <a href="Renderer.html#STATE_STARTED">STATE_STARTED</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.RendererCapabilities">
@@ -207,7 +213,9 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">NoSampleRenderer</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -221,7 +229,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -231,6 +239,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#disable()">disable</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Disable the renderer, transitioning it to the <a href="Renderer.html#STATE_DISABLED"><code>Renderer.STATE_DISABLED</code></a> state.</div>
 </td>
 </tr>
@@ -245,6 +254,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
       long&nbsp;startPositionUs,
       long&nbsp;offsetUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Enables the renderer to consume from the specified <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>.</div>
 </td>
 </tr>
@@ -252,6 +262,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code><a href="RendererCapabilities.html" title="interface in com.google.android.exoplayer2">RendererCapabilities</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCapabilities()">getCapabilities</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the capabilities of the renderer.</div>
 </td>
 </tr>
@@ -259,6 +270,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>protected <a href="RendererConfiguration.html" title="class in com.google.android.exoplayer2">RendererConfiguration</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getConfiguration()">getConfiguration</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the configuration set when the renderer was most recently enabled, or <code>null</code> if
  the renderer has never been enabled.</div>
 </td>
@@ -267,6 +279,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>protected int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getIndex()">getIndex</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the index of the renderer within the player.</div>
 </td>
 </tr>
@@ -274,6 +287,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code><a href="util/MediaClock.html" title="interface in com.google.android.exoplayer2.util">MediaClock</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMediaClock()">getMediaClock</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If the renderer advances its own playback position then this method returns a corresponding
  <a href="util/MediaClock.html" title="interface in com.google.android.exoplayer2.util"><code>MediaClock</code></a>.</div>
 </td>
@@ -282,6 +296,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getReadingPositionUs()">getReadingPositionUs</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the renderer time up to which the renderer has read samples, in microseconds, or <a href="C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> if the renderer has read the current <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> to the end.</div>
 </td>
 </tr>
@@ -289,6 +304,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getState()">getState</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current state of the renderer.</div>
 </td>
 </tr>
@@ -296,6 +312,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code><a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source">SampleStream</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getStream()">getStream</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> being consumed, or null if the renderer is disabled.</div>
 </td>
 </tr>
@@ -303,6 +320,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>@com.google.android.exoplayer2.C.TrackType int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTrackType()">getTrackType</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the track type that the renderer handles.</div>
 </td>
 </tr>
@@ -311,6 +329,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handleMessage(@com.google.android.exoplayer2.Renderer.MessageTypeint,java.lang.Object)">handleMessage</a></span>&#8203;(@com.google.android.exoplayer2.Renderer.MessageType int&nbsp;messageType,
              <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;message)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Handles a message delivered to the target.</div>
 </td>
 </tr>
@@ -318,6 +337,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hasReadStreamToEnd()">hasReadStreamToEnd</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the renderer has read the current <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> to the end.</div>
 </td>
 </tr>
@@ -326,6 +346,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#init(int,com.google.android.exoplayer2.analytics.PlayerId)">init</a></span>&#8203;(int&nbsp;index,
     <a href="analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Initializes the renderer for playback with a player.</div>
 </td>
 </tr>
@@ -333,6 +354,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isCurrentStreamFinal()">isCurrentStreamFinal</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the current <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> will be the final one supplied before the
  renderer is next disabled or reset.</div>
 </td>
@@ -341,6 +363,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isEnded()">isEnded</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the renderer is ready for the <a href="ExoPlayer.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer</code></a> instance to transition to <a href="Player.html#STATE_ENDED"><code>Player.STATE_ENDED</code></a>.</div>
 </td>
 </tr>
@@ -348,6 +371,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isReady()">isReady</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the renderer is able to immediately render media from the current position.</div>
 </td>
 </tr>
@@ -355,6 +379,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maybeThrowStreamError()">maybeThrowStreamError</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Throws an error that's preventing the renderer from reading from its <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>.</div>
 </td>
 </tr>
@@ -362,6 +387,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDisabled()">onDisabled</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer is disabled.</div>
 </td>
 </tr>
@@ -369,6 +395,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onEnabled(boolean)">onEnabled</a></span>&#8203;(boolean&nbsp;joining)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer is enabled.</div>
 </td>
 </tr>
@@ -377,6 +404,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPositionReset(long,boolean)">onPositionReset</a></span>&#8203;(long&nbsp;positionUs,
                boolean&nbsp;joining)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the position is reset.</div>
 </td>
 </tr>
@@ -384,6 +412,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onRendererOffsetChanged(long)">onRendererOffsetChanged</a></span>&#8203;(long&nbsp;offsetUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer's offset has been changed.</div>
 </td>
 </tr>
@@ -391,6 +420,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onReset()">onReset</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer is reset.</div>
 </td>
 </tr>
@@ -398,6 +428,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onStarted()">onStarted</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer is started.</div>
 </td>
 </tr>
@@ -405,6 +436,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onStopped()">onStopped</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer is stopped.</div>
 </td>
 </tr>
@@ -415,6 +447,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
              long&nbsp;startPositionUs,
              long&nbsp;offsetUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Replaces the <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> from which samples will be consumed.</div>
 </td>
 </tr>
@@ -422,6 +455,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset()">reset</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Forces the renderer to give up any resources (e.g.</div>
 </td>
 </tr>
@@ -429,6 +463,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#resetPosition(long)">resetPosition</a></span>&#8203;(long&nbsp;positionUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Signals to the renderer that a position discontinuity has occurred.</div>
 </td>
 </tr>
@@ -436,6 +471,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setCurrentStreamFinal()">setCurrentStreamFinal</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Signals to the renderer that the current <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> will be the final one supplied
  before it is next disabled or reset.</div>
 </td>
@@ -444,6 +480,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#start()">start</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts the renderer, meaning that calls to <a href="Renderer.html#render(long,long)"><code>Renderer.render(long, long)</code></a> will cause media to be
  rendered.</div>
 </td>
@@ -452,6 +489,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#stop()">stop</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Stops the renderer, transitioning it to the <a href="Renderer.html#STATE_ENABLED"><code>Renderer.STATE_ENABLED</code></a> state.</div>
 </td>
 </tr>
@@ -459,6 +497,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>@com.google.android.exoplayer2.RendererCapabilities.Capabilities int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#supportsFormat(com.google.android.exoplayer2.Format)">supportsFormat</a></span>&#8203;(<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the extent to which the <a href="Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> supports a given format.</div>
 </td>
 </tr>
@@ -466,6 +505,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>@com.google.android.exoplayer2.RendererCapabilities.AdaptiveSupport int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#supportsMixedMimeTypeAdaptation()">supportsMixedMimeTypeAdaptation</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the extent to which the <a href="Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> supports adapting between supported formats
  that have different MIME types.</div>
 </td>
@@ -483,14 +523,14 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.<a href="Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></h3>
-<code><a href="Renderer.html#getName()">getName</a>, <a href="Renderer.html#render(long,long)">render</a>, <a href="Renderer.html#setPlaybackSpeed(float,float)">setPlaybackSpeed</a></code></li>
+<code><a href="Renderer.html#getName()">getName</a>, <a href="Renderer.html#release()">release</a>, <a href="Renderer.html#render(long,long)">render</a>, <a href="Renderer.html#setPlaybackSpeed(float,float)">setPlaybackSpeed</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.RendererCapabilities">
 <!--   -->
 </a>
 <h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.<a href="RendererCapabilities.html" title="interface in com.google.android.exoplayer2">RendererCapabilities</a></h3>
-<code><a href="RendererCapabilities.html#getName()">getName</a></code></li>
+<code><a href="RendererCapabilities.html#clearListener()">clearListener</a>, <a href="RendererCapabilities.html#getName()">getName</a>, <a href="RendererCapabilities.html#setListener(com.google.android.exoplayer2.RendererCapabilities.Listener)">setListener</a></code></li>
 </ul>
 </li>
 </ul>
@@ -515,6 +555,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <li class="blockList">
 <h4>NoSampleRenderer</h4>
 <pre>public&nbsp;NoSampleRenderer()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -534,6 +575,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <li class="blockList">
 <h4>getTrackType</h4>
 <pre class="methodSignature">public final&nbsp;@com.google.android.exoplayer2.C.TrackType int&nbsp;getTrackType()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Renderer.html#getTrackType()">Renderer</a></code></span></div>
 <div class="block">Returns the track type that the renderer handles.</div>
 <dl>
@@ -555,6 +597,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <li class="blockList">
 <h4>getCapabilities</h4>
 <pre class="methodSignature">public final&nbsp;<a href="RendererCapabilities.html" title="interface in com.google.android.exoplayer2">RendererCapabilities</a>&nbsp;getCapabilities()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Renderer.html#getCapabilities()">Renderer</a></code></span></div>
 <div class="block">Returns the capabilities of the renderer.</div>
 <dl>
@@ -573,6 +616,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <h4>init</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;init&#8203;(int&nbsp;index,
                        <a href="analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Renderer.html#init(int,com.google.android.exoplayer2.analytics.PlayerId)">Renderer</a></code></span></div>
 <div class="block">Initializes the renderer for playback with a player.</div>
 <dl>
@@ -592,6 +636,7 @@ implements <a href="Renderer.html" title="interface in com.google.android.exopla
 <h4>getMediaClock</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="util/MediaClock.html" title="interface in com.google.android.exoplayer2.util">MediaClock</a>&nbsp;getMediaClock()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Renderer.html#getMediaClock()">Renderer</a></code></span></div>
 <div class="block">If the renderer advances its own playback position then this method returns a corresponding
  <a href="util/MediaClock.html" title="interface in com.google.android.exoplayer2.util"><code>MediaClock</code></a>. If provided, the player will use the returned <a href="util/MediaClock.html" title="interface in com.google.android.exoplayer2.util"><code>MediaClock</code></a> as its
@@ -611,6 +656,7 @@ public&nbsp;<a href="util/MediaClock.html" title="interface in com.google.androi
 <li class="blockList">
 <h4>getState</h4>
 <pre class="methodSignature">public final&nbsp;int&nbsp;getState()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Renderer.html#getState()">Renderer</a></code></span></div>
 <div class="block">Returns the current state of the renderer.</div>
 <dl>
@@ -636,6 +682,7 @@ public&nbsp;<a href="util/MediaClock.html" title="interface in com.google.androi
                          long&nbsp;startPositionUs,
                          long&nbsp;offsetUs)
                   throws <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Renderer.html#enable(com.google.android.exoplayer2.RendererConfiguration,com.google.android.exoplayer2.Format%5B%5D,com.google.android.exoplayer2.source.SampleStream,long,boolean,boolean,long,long)">Renderer</a></code></span></div>
 <div class="block">Enables the renderer to consume from the specified <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>.
 
@@ -667,6 +714,7 @@ public&nbsp;<a href="util/MediaClock.html" title="interface in com.google.androi
 <h4>start</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;start()
                  throws <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Renderer.html#start()">Renderer</a></code></span></div>
 <div class="block">Starts the renderer, meaning that calls to <a href="Renderer.html#render(long,long)"><code>Renderer.render(long, long)</code></a> will cause media to be
  rendered.
@@ -691,6 +739,7 @@ public&nbsp;<a href="util/MediaClock.html" title="interface in com.google.androi
                                 long&nbsp;startPositionUs,
                                 long&nbsp;offsetUs)
                          throws <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Renderer.html#replaceStream(com.google.android.exoplayer2.Format%5B%5D,com.google.android.exoplayer2.source.SampleStream,long,long)">Renderer</a></code></span></div>
 <div class="block">Replaces the <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> from which samples will be consumed.
 
@@ -717,6 +766,7 @@ public&nbsp;<a href="util/MediaClock.html" title="interface in com.google.androi
 <h4>getStream</h4>
 <pre class="methodSignature">@Nullable
 public final&nbsp;<a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source">SampleStream</a>&nbsp;getStream()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Renderer.html#getStream()">Renderer</a></code></span></div>
 <div class="block">Returns the <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> being consumed, or null if the renderer is disabled.</div>
 <dl>
@@ -732,6 +782,7 @@ public final&nbsp;<a href="source/SampleStream.html" title="interface in com.goo
 <li class="blockList">
 <h4>hasReadStreamToEnd</h4>
 <pre class="methodSignature">public final&nbsp;boolean&nbsp;hasReadStreamToEnd()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Renderer.html#hasReadStreamToEnd()">Renderer</a></code></span></div>
 <div class="block">Returns whether the renderer has read the current <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> to the end.
 
@@ -749,6 +800,7 @@ public final&nbsp;<a href="source/SampleStream.html" title="interface in com.goo
 <li class="blockList">
 <h4>getReadingPositionUs</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getReadingPositionUs()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Renderer.html#getReadingPositionUs()">Renderer</a></code></span></div>
 <div class="block">Returns the renderer time up to which the renderer has read samples, in microseconds, or <a href="C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> if the renderer has read the current <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> to the end.
 
@@ -766,6 +818,7 @@ public final&nbsp;<a href="source/SampleStream.html" title="interface in com.goo
 <li class="blockList">
 <h4>setCurrentStreamFinal</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;setCurrentStreamFinal()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Renderer.html#setCurrentStreamFinal()">Renderer</a></code></span></div>
 <div class="block">Signals to the renderer that the current <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> will be the final one supplied
  before it is next disabled or reset.
@@ -784,6 +837,7 @@ public final&nbsp;<a href="source/SampleStream.html" title="interface in com.goo
 <li class="blockList">
 <h4>isCurrentStreamFinal</h4>
 <pre class="methodSignature">public final&nbsp;boolean&nbsp;isCurrentStreamFinal()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Renderer.html#isCurrentStreamFinal()">Renderer</a></code></span></div>
 <div class="block">Returns whether the current <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a> will be the final one supplied before the
  renderer is next disabled or reset.</div>
@@ -801,6 +855,7 @@ public final&nbsp;<a href="source/SampleStream.html" title="interface in com.goo
 <h4>maybeThrowStreamError</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;maybeThrowStreamError()
                                  throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Renderer.html#maybeThrowStreamError()">Renderer</a></code></span></div>
 <div class="block">Throws an error that's preventing the renderer from reading from its <a href="source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>. Does
  nothing if no such error exists.
@@ -823,6 +878,7 @@ public final&nbsp;<a href="source/SampleStream.html" title="interface in com.goo
 <h4>resetPosition</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;resetPosition&#8203;(long&nbsp;positionUs)
                          throws <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Renderer.html#resetPosition(long)">Renderer</a></code></span></div>
 <div class="block">Signals to the renderer that a position discontinuity has occurred.
 
@@ -847,6 +903,7 @@ public final&nbsp;<a href="source/SampleStream.html" title="interface in com.goo
 <li class="blockList">
 <h4>stop</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;stop()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Renderer.html#stop()">Renderer</a></code></span></div>
 <div class="block">Stops the renderer, transitioning it to the <a href="Renderer.html#STATE_ENABLED"><code>Renderer.STATE_ENABLED</code></a> state.
 
@@ -864,6 +921,7 @@ public final&nbsp;<a href="source/SampleStream.html" title="interface in com.goo
 <li class="blockList">
 <h4>disable</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;disable()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Renderer.html#disable()">Renderer</a></code></span></div>
 <div class="block">Disable the renderer, transitioning it to the <a href="Renderer.html#STATE_DISABLED"><code>Renderer.STATE_DISABLED</code></a> state.
 
@@ -881,6 +939,7 @@ public final&nbsp;<a href="source/SampleStream.html" title="interface in com.goo
 <li class="blockList">
 <h4>reset</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;reset()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Renderer.html#reset()">Renderer</a></code></span></div>
 <div class="block">Forces the renderer to give up any resources (e.g. media decoders) that it may be holding. If
  the renderer is not holding any resources, the call is a no-op.
@@ -899,6 +958,7 @@ public final&nbsp;<a href="source/SampleStream.html" title="interface in com.goo
 <li class="blockList">
 <h4>isReady</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isReady()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Renderer.html#isReady()">Renderer</a></code></span></div>
 <div class="block">Whether the renderer is able to immediately render media from the current position.
 
@@ -925,6 +985,7 @@ public final&nbsp;<a href="source/SampleStream.html" title="interface in com.goo
 <li class="blockList">
 <h4>isEnded</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isEnded()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Renderer.html#isEnded()">Renderer</a></code></span></div>
 <div class="block">Whether the renderer is ready for the <a href="ExoPlayer.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer</code></a> instance to transition to <a href="Player.html#STATE_ENDED"><code>Player.STATE_ENDED</code></a>. The player will make this transition as soon as <code>true</code> is returned
  by all of its renderers.
@@ -946,6 +1007,7 @@ public final&nbsp;<a href="source/SampleStream.html" title="interface in com.goo
 <h4>supportsFormat</h4>
 <pre class="methodSignature">public&nbsp;@com.google.android.exoplayer2.RendererCapabilities.Capabilities int&nbsp;supportsFormat&#8203;(<a href="Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)
                                                                                     throws <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="RendererCapabilities.html#supportsFormat(com.google.android.exoplayer2.Format)">RendererCapabilities</a></code></span></div>
 <div class="block">Returns the extent to which the <a href="Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> supports a given format.</div>
 <dl>
@@ -968,6 +1030,7 @@ public final&nbsp;<a href="source/SampleStream.html" title="interface in com.goo
 <h4>supportsMixedMimeTypeAdaptation</h4>
 <pre class="methodSignature">public&nbsp;@com.google.android.exoplayer2.RendererCapabilities.AdaptiveSupport int&nbsp;supportsMixedMimeTypeAdaptation()
                                                                                                         throws <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="RendererCapabilities.html#supportsMixedMimeTypeAdaptation()">RendererCapabilities</a></code></span></div>
 <div class="block">Returns the extent to which the <a href="Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> supports adapting between supported formats
  that have different MIME types.</div>
@@ -992,6 +1055,7 @@ public final&nbsp;<a href="source/SampleStream.html" title="interface in com.goo
                           @Nullable
                           <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;message)
                    throws <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="PlayerMessage.Target.html#handleMessage(@com.google.android.exoplayer2.Renderer.MessageTypeint,java.lang.Object)">PlayerMessage.Target</a></code></span></div>
 <div class="block">Handles a message delivered to the target.</div>
 <dl>
@@ -1014,6 +1078,7 @@ public final&nbsp;<a href="source/SampleStream.html" title="interface in com.goo
 <h4>onEnabled</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onEnabled&#8203;(boolean&nbsp;joining)
                   throws <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer is enabled.
 
  <p>The default implementation is a no-op.</div>
@@ -1033,6 +1098,7 @@ public final&nbsp;<a href="source/SampleStream.html" title="interface in com.goo
 <h4>onRendererOffsetChanged</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onRendererOffsetChanged&#8203;(long&nbsp;offsetUs)
                                 throws <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer's offset has been changed.
 
  <p>The default implementation is a no-op.</div>
@@ -1053,6 +1119,7 @@ public final&nbsp;<a href="source/SampleStream.html" title="interface in com.goo
 <pre class="methodSignature">protected&nbsp;void&nbsp;onPositionReset&#8203;(long&nbsp;positionUs,
                                boolean&nbsp;joining)
                         throws <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the position is reset. This occurs when the renderer is enabled after <a href="#onRendererOffsetChanged(long)"><code>onRendererOffsetChanged(long)</code></a> has been called, and also when a position discontinuity is
  encountered.
 
@@ -1074,6 +1141,7 @@ public final&nbsp;<a href="source/SampleStream.html" title="interface in com.goo
 <h4>onStarted</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onStarted()
                   throws <a href="ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer is started.
 
  <p>The default implementation is a no-op.</div>
@@ -1090,6 +1158,7 @@ public final&nbsp;<a href="source/SampleStream.html" title="interface in com.goo
 <li class="blockList">
 <h4>onStopped</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onStopped()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer is stopped.
 
  <p>The default implementation is a no-op.</div>
@@ -1102,6 +1171,7 @@ public final&nbsp;<a href="source/SampleStream.html" title="interface in com.goo
 <li class="blockList">
 <h4>onDisabled</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onDisabled()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer is disabled.
 
  <p>The default implementation is a no-op.</div>
@@ -1114,6 +1184,7 @@ public final&nbsp;<a href="source/SampleStream.html" title="interface in com.goo
 <li class="blockList">
 <h4>onReset</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onReset()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer is reset.
 
  <p>The default implementation is a no-op.</div>
@@ -1127,6 +1198,7 @@ public final&nbsp;<a href="source/SampleStream.html" title="interface in com.goo
 <h4>getConfiguration</h4>
 <pre class="methodSignature">@Nullable
 protected final&nbsp;<a href="RendererConfiguration.html" title="class in com.google.android.exoplayer2">RendererConfiguration</a>&nbsp;getConfiguration()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the configuration set when the renderer was most recently enabled, or <code>null</code> if
  the renderer has never been enabled.</div>
 </li>
@@ -1138,6 +1210,7 @@ protected final&nbsp;<a href="RendererConfiguration.html" title="class in com.go
 <li class="blockList">
 <h4>getIndex</h4>
 <pre class="methodSignature">protected final&nbsp;int&nbsp;getIndex()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the index of the renderer within the player.</div>
 </li>
 </ul>

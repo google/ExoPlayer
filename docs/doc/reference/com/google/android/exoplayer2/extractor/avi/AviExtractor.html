@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">AviExtractor</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">AviExtractor</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="../Extractor.html" title="interface in com.google.android.exoplayer2.extractor">Extractor</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Extracts data from the AVI container format.
 
  <p>Spec: https://docs.microsoft.com/en-us/windows/win32/directshow/avi-riff-file-reference.</div>
@@ -179,77 +185,107 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOURCC_auds">FOURCC_auds</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOURCC_AVI_">FOURCC_AVI_</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOURCC_avih">FOURCC_avih</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOURCC_hdrl">FOURCC_hdrl</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOURCC_idx1">FOURCC_idx1</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOURCC_JUNK">FOURCC_JUNK</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOURCC_LIST">FOURCC_LIST</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOURCC_movi">FOURCC_movi</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOURCC_RIFF">FOURCC_RIFF</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOURCC_strf">FOURCC_strf</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOURCC_strh">FOURCC_strh</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOURCC_strl">FOURCC_strl</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOURCC_strn">FOURCC_strn</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOURCC_txts">FOURCC_txts</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOURCC_vids">FOURCC_vids</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -277,7 +313,9 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">AviExtractor</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -291,7 +329,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -301,6 +339,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#init(com.google.android.exoplayer2.extractor.ExtractorOutput)">init</a></span>&#8203;(<a href="../ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;output)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Initializes the extractor with an <a href="../ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorOutput</code></a>.</div>
 </td>
 </tr>
@@ -309,6 +348,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#read(com.google.android.exoplayer2.extractor.ExtractorInput,com.google.android.exoplayer2.extractor.PositionHolder)">read</a></span>&#8203;(<a href="../ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
     <a href="../PositionHolder.html" title="class in com.google.android.exoplayer2.extractor">PositionHolder</a>&nbsp;seekPosition)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Extracts data read from a provided <a href="../ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a>.</div>
 </td>
 </tr>
@@ -316,6 +356,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases all kept resources.</div>
 </td>
 </tr>
@@ -324,6 +365,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seek(long,long)">seek</a></span>&#8203;(long&nbsp;position,
     long&nbsp;timeUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Notifies the extractor that a seek has occurred.</div>
 </td>
 </tr>
@@ -331,6 +373,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sniff(com.google.android.exoplayer2.extractor.ExtractorInput)">sniff</a></span>&#8203;(<a href="../ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether this extractor can extract samples from the <a href="../ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a>, which must
  provide data from the start of the stream.</div>
 </td>
@@ -366,6 +409,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>FOURCC_RIFF</h4>
 <pre>public static final&nbsp;int FOURCC_RIFF</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.avi.AviExtractor.FOURCC_RIFF">Constant Field Values</a></dd>
@@ -379,6 +423,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>FOURCC_AVI_</h4>
 <pre>public static final&nbsp;int FOURCC_AVI_</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.avi.AviExtractor.FOURCC_AVI_">Constant Field Values</a></dd>
@@ -392,6 +437,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>FOURCC_LIST</h4>
 <pre>public static final&nbsp;int FOURCC_LIST</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.avi.AviExtractor.FOURCC_LIST">Constant Field Values</a></dd>
@@ -405,6 +451,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>FOURCC_avih</h4>
 <pre>public static final&nbsp;int FOURCC_avih</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.avi.AviExtractor.FOURCC_avih">Constant Field Values</a></dd>
@@ -418,6 +465,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>FOURCC_hdrl</h4>
 <pre>public static final&nbsp;int FOURCC_hdrl</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.avi.AviExtractor.FOURCC_hdrl">Constant Field Values</a></dd>
@@ -431,6 +479,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>FOURCC_strl</h4>
 <pre>public static final&nbsp;int FOURCC_strl</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.avi.AviExtractor.FOURCC_strl">Constant Field Values</a></dd>
@@ -444,6 +493,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>FOURCC_movi</h4>
 <pre>public static final&nbsp;int FOURCC_movi</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.avi.AviExtractor.FOURCC_movi">Constant Field Values</a></dd>
@@ -457,6 +507,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>FOURCC_idx1</h4>
 <pre>public static final&nbsp;int FOURCC_idx1</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.avi.AviExtractor.FOURCC_idx1">Constant Field Values</a></dd>
@@ -470,6 +521,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>FOURCC_JUNK</h4>
 <pre>public static final&nbsp;int FOURCC_JUNK</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.avi.AviExtractor.FOURCC_JUNK">Constant Field Values</a></dd>
@@ -483,6 +535,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>FOURCC_strf</h4>
 <pre>public static final&nbsp;int FOURCC_strf</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.avi.AviExtractor.FOURCC_strf">Constant Field Values</a></dd>
@@ -496,6 +549,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>FOURCC_strn</h4>
 <pre>public static final&nbsp;int FOURCC_strn</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.avi.AviExtractor.FOURCC_strn">Constant Field Values</a></dd>
@@ -509,6 +563,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>FOURCC_strh</h4>
 <pre>public static final&nbsp;int FOURCC_strh</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.avi.AviExtractor.FOURCC_strh">Constant Field Values</a></dd>
@@ -522,6 +577,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>FOURCC_auds</h4>
 <pre>public static final&nbsp;int FOURCC_auds</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.avi.AviExtractor.FOURCC_auds">Constant Field Values</a></dd>
@@ -535,6 +591,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>FOURCC_txts</h4>
 <pre>public static final&nbsp;int FOURCC_txts</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.avi.AviExtractor.FOURCC_txts">Constant Field Values</a></dd>
@@ -548,6 +605,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>FOURCC_vids</h4>
 <pre>public static final&nbsp;int FOURCC_vids</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../constant-values.html#com.google.android.exoplayer2.extractor.avi.AviExtractor.FOURCC_vids">Constant Field Values</a></dd>
@@ -571,6 +629,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>AviExtractor</h4>
 <pre>public&nbsp;AviExtractor()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -590,6 +649,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>init</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;init&#8203;(<a href="../ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;output)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Extractor.html#init(com.google.android.exoplayer2.extractor.ExtractorOutput)">Extractor</a></code></span></div>
 <div class="block">Initializes the extractor with an <a href="../ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorOutput</code></a>. Called at most once.</div>
 <dl>
@@ -608,6 +668,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <h4>sniff</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;sniff&#8203;(<a href="../ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input)
               throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Extractor.html#sniff(com.google.android.exoplayer2.extractor.ExtractorInput)">Extractor</a></code></span></div>
 <div class="block">Returns whether this extractor can extract samples from the <a href="../ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a>, which must
  provide data from the start of the stream.
@@ -635,6 +696,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <pre class="methodSignature">public&nbsp;int&nbsp;read&#8203;(<a href="../ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
                 <a href="../PositionHolder.html" title="class in com.google.android.exoplayer2.extractor">PositionHolder</a>&nbsp;seekPosition)
          throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Extractor.html#read(com.google.android.exoplayer2.extractor.ExtractorInput,com.google.android.exoplayer2.extractor.PositionHolder)">Extractor</a></code></span></div>
 <div class="block">Extracts data read from a provided <a href="../ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a>. Must not be called before <a href="../Extractor.html#init(com.google.android.exoplayer2.extractor.ExtractorOutput)"><code>Extractor.init(ExtractorOutput)</code></a>.
 
@@ -672,6 +734,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <h4>seek</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;seek&#8203;(long&nbsp;position,
                  long&nbsp;timeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Extractor.html#seek(long,long)">Extractor</a></code></span></div>
 <div class="block">Notifies the extractor that a seek has occurred.
 
@@ -695,6 +758,7 @@ implements <a href="../Extractor.html" title="interface in com.google.android.ex
 <li class="blockList">
 <h4>release</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;release()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Extractor.html#release()">Extractor</a></code></span></div>
 <div class="block">Releases all kept resources.</div>
 <dl>

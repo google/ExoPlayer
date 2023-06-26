@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -143,9 +143,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="Subtitle.html" title="interface in com.google.android.exoplayer2.text">Subtitle</a></code></dd>
 </dl>
 <hr>
-<pre>public abstract class <span class="typeNameLabel">SubtitleOutputBuffer</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public abstract class <span class="typeNameLabel">SubtitleOutputBuffer</span>
 extends <a href="../decoder/DecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderOutputBuffer</a>
 implements <a href="Subtitle.html" title="interface in com.google.android.exoplayer2.text">Subtitle</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Base class for <a href="SubtitleDecoder.html" title="interface in com.google.android.exoplayer2.text"><code>SubtitleDecoder</code></a> output buffers.</div>
 </li>
 </ul>
@@ -202,7 +208,9 @@ implements <a href="Subtitle.html" title="interface in com.google.android.exopla
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">SubtitleOutputBuffer</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -216,7 +224,7 @@ implements <a href="Subtitle.html" title="interface in com.google.android.exopla
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -226,6 +234,7 @@ implements <a href="Subtitle.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clear()">clear</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Clears the buffer.</div>
 </td>
 </tr>
@@ -233,6 +242,7 @@ implements <a href="Subtitle.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Cue.html" title="class in com.google.android.exoplayer2.text" target="_top">Cue</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCues(long)">getCues</a></span>&#8203;(long&nbsp;timeUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Retrieve the cues that should be displayed at a given time.</div>
 </td>
 </tr>
@@ -240,6 +250,7 @@ implements <a href="Subtitle.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getEventTime(int)">getEventTime</a></span>&#8203;(int&nbsp;index)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the event time at a specified index.</div>
 </td>
 </tr>
@@ -247,6 +258,7 @@ implements <a href="Subtitle.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getEventTimeCount()">getEventTimeCount</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the number of event times, where events are defined as points in time at which the cues
  returned by <a href="Subtitle.html#getCues(long)"><code>Subtitle.getCues(long)</code></a> changes.</div>
 </td>
@@ -255,6 +267,7 @@ implements <a href="Subtitle.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getNextEventTimeIndex(long)">getNextEventTimeIndex</a></span>&#8203;(long&nbsp;timeUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the index of the first event that occurs after a given time (exclusive).</div>
 </td>
 </tr>
@@ -264,6 +277,7 @@ implements <a href="Subtitle.html" title="interface in com.google.android.exopla
           <a href="Subtitle.html" title="interface in com.google.android.exoplayer2.text">Subtitle</a>&nbsp;subtitle,
           long&nbsp;subsampleOffsetUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the content of the output buffer, consisting of a <a href="Subtitle.html" title="interface in com.google.android.exoplayer2.text"><code>Subtitle</code></a> and associated
  metadata.</div>
 </td>
@@ -313,6 +327,7 @@ implements <a href="Subtitle.html" title="interface in com.google.android.exopla
 <li class="blockList">
 <h4>SubtitleOutputBuffer</h4>
 <pre>public&nbsp;SubtitleOutputBuffer()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -334,6 +349,7 @@ implements <a href="Subtitle.html" title="interface in com.google.android.exopla
 <pre class="methodSignature">public&nbsp;void&nbsp;setContent&#8203;(long&nbsp;timeUs,
                        <a href="Subtitle.html" title="interface in com.google.android.exoplayer2.text">Subtitle</a>&nbsp;subtitle,
                        long&nbsp;subsampleOffsetUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the content of the output buffer, consisting of a <a href="Subtitle.html" title="interface in com.google.android.exoplayer2.text"><code>Subtitle</code></a> and associated
  metadata.</div>
 <dl>
@@ -351,6 +367,7 @@ implements <a href="Subtitle.html" title="interface in com.google.android.exopla
 <li class="blockList">
 <h4>getEventTimeCount</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getEventTimeCount()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Subtitle.html#getEventTimeCount()">Subtitle</a></code></span></div>
 <div class="block">Returns the number of event times, where events are defined as points in time at which the cues
  returned by <a href="Subtitle.html#getCues(long)"><code>Subtitle.getCues(long)</code></a> changes.</div>
@@ -369,6 +386,7 @@ implements <a href="Subtitle.html" title="interface in com.google.android.exopla
 <li class="blockList">
 <h4>getEventTime</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getEventTime&#8203;(int&nbsp;index)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Subtitle.html#getEventTime(int)">Subtitle</a></code></span></div>
 <div class="block">Returns the event time at a specified index.</div>
 <dl>
@@ -388,6 +406,7 @@ implements <a href="Subtitle.html" title="interface in com.google.android.exopla
 <li class="blockList">
 <h4>getNextEventTimeIndex</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getNextEventTimeIndex&#8203;(long&nbsp;timeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Subtitle.html#getNextEventTimeIndex(long)">Subtitle</a></code></span></div>
 <div class="block">Returns the index of the first event that occurs after a given time (exclusive).</div>
 <dl>
@@ -408,6 +427,7 @@ implements <a href="Subtitle.html" title="interface in com.google.android.exopla
 <li class="blockList">
 <h4>getCues</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Cue.html" title="class in com.google.android.exoplayer2.text" target="_top">Cue</a>&gt;&nbsp;getCues&#8203;(long&nbsp;timeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Subtitle.html#getCues(long)">Subtitle</a></code></span></div>
 <div class="block">Retrieve the cues that should be displayed at a given time.</div>
 <dl>
@@ -427,6 +447,7 @@ implements <a href="Subtitle.html" title="interface in com.google.android.exopla
 <li class="blockList">
 <h4>clear</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;clear()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../decoder/Buffer.html#clear()">Buffer</a></code></span></div>
 <div class="block">Clears the buffer.</div>
 <dl>

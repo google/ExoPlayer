@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":42,"i13":10};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42,"i12":42,"i13":42};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -138,9 +138,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../../upstream/DataReader.html" title="interface in com.google.android.exoplayer2.upstream">DataReader</a></code>, <code><a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a></code>, <code><a href="../../upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">CronetDataSource</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">CronetDataSource</span>
 extends <a href="../../upstream/BaseDataSource.html" title="class in com.google.android.exoplayer2.upstream">BaseDataSource</a>
 implements <a href="../../upstream/HttpDataSource.html" title="interface in com.google.android.exoplayer2.upstream">HttpDataSource</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">DataSource without intermediate buffer based on Cronet API set using UrlRequest.
 
  <p>Note: HTTP request headers will be set using all parameters passed via (in order of decreasing
@@ -170,6 +176,7 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="CronetDataSource.Factory.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.Factory</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource.Factory</code></a> for <a href="CronetDataSource.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource</code></a> instances.</div>
 </td>
 </tr>
@@ -177,6 +184,7 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="CronetDataSource.OpenException.html" title="class in com.google.android.exoplayer2.ext.cronet">CronetDataSource.OpenException</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Thrown when an error is encountered when trying to open a <a href="CronetDataSource.html" title="class in com.google.android.exoplayer2.ext.cronet"><code>CronetDataSource</code></a>.</div>
 </td>
 </tr>
@@ -209,6 +217,7 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_CONNECT_TIMEOUT_MILLIS">DEFAULT_CONNECT_TIMEOUT_MILLIS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default connection timeout, in milliseconds.</div>
 </td>
 </tr>
@@ -216,6 +225,7 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_READ_TIMEOUT_MILLIS">DEFAULT_READ_TIMEOUT_MILLIS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default read timeout, in milliseconds.</div>
 </td>
 </tr>
@@ -255,9 +265,11 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
                 boolean&nbsp;handleSetCookieRequests,
                 <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;userAgent,
                 <a href="../../upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties,
-                <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate,
+                <a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate,
                 boolean&nbsp;keepPostFor302Redirects)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -280,12 +292,15 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>protected org.chromium.net.UrlRequest.Builder</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildRequestBuilder(com.google.android.exoplayer2.upstream.DataSpec)">buildRequestBuilder</a></span>&#8203;(<a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearAllRequestProperties()">clearAllRequestProperties</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Clears all request headers that were set by <a href="../../upstream/HttpDataSource.html#setRequestProperty(java.lang.String,java.lang.String)"><code>HttpDataSource.setRequestProperty(String, String)</code></a>.</div>
 </td>
 </tr>
@@ -293,6 +308,7 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearRequestProperty(java.lang.String)">clearRequestProperty</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Clears the value of a request header.</div>
 </td>
 </tr>
@@ -300,6 +316,7 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#close()">close</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Closes the source.</div>
 </td>
 </tr>
@@ -307,6 +324,7 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
 <td class="colFirst"><code>protected org.chromium.net.UrlRequest</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCurrentUrlRequest()">getCurrentUrlRequest</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns current <code>UrlRequest</code>.</div>
 </td>
 </tr>
@@ -314,6 +332,7 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
 <td class="colFirst"><code>protected org.chromium.net.UrlResponseInfo</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCurrentUrlResponseInfo()">getCurrentUrlResponseInfo</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns current <code>UrlResponseInfo</code>.</div>
 </td>
 </tr>
@@ -321,6 +340,7 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getResponseCode()">getResponseCode</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">When the source is open, returns the HTTP response status code associated with the last <a href="../../upstream/HttpDataSource.html#open(com.google.android.exoplayer2.upstream.DataSpec)"><code>HttpDataSource.open(com.google.android.exoplayer2.upstream.DataSpec)</code></a> call.</div>
 </td>
 </tr>
@@ -328,6 +348,7 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getResponseHeaders()">getResponseHeaders</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">When the source is open, returns the response headers associated with the last <a href="../../upstream/DataSource.html#open(com.google.android.exoplayer2.upstream.DataSpec)"><code>DataSource.open(com.google.android.exoplayer2.upstream.DataSpec)</code></a>
  call.</div>
 </td>
@@ -336,6 +357,7 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getUri()">getUri</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">When the source is open, returns the <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a> from which data is being read.</div>
 </td>
 </tr>
@@ -343,6 +365,7 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#open(com.google.android.exoplayer2.upstream.DataSpec)">open</a></span>&#8203;(<a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Opens the source to read the specified data.</div>
 </td>
 </tr>
@@ -352,6 +375,7 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
     int&nbsp;offset,
     int&nbsp;length)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Reads up to <code>length</code> bytes of data from the input.</div>
 </td>
 </tr>
@@ -359,13 +383,14 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#read(java.nio.ByteBuffer)">read</a></span>&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Reads up to <code>buffer.remaining()</code> bytes of data and stores them into <code>buffer</code>,
  starting at <code>buffer.position()</code>.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setContentTypePredicate(com.google.common.base.Predicate)">setContentTypePredicate</a></span>&#8203;(<a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setContentTypePredicate(com.google.common.base.Predicate)">setContentTypePredicate</a></span>&#8203;(<a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span>
 <div class="deprecationComment">Use <a href="CronetDataSource.Factory.html#setContentTypePredicate(com.google.common.base.Predicate)"><code>CronetDataSource.Factory.setContentTypePredicate(Predicate)</code></a> instead.</div>
@@ -377,6 +402,7 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setRequestProperty(java.lang.String,java.lang.String)">setRequestProperty</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
                   <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the value of a request header.</div>
 </td>
 </tr>
@@ -425,6 +451,7 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
 <li class="blockList">
 <h4>DEFAULT_CONNECT_TIMEOUT_MILLIS</h4>
 <pre>public static final&nbsp;int DEFAULT_CONNECT_TIMEOUT_MILLIS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default connection timeout, in milliseconds.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -439,6 +466,7 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
 <li class="blockList">
 <h4>DEFAULT_READ_TIMEOUT_MILLIS</h4>
 <pre>public static final&nbsp;int DEFAULT_READ_TIMEOUT_MILLIS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default read timeout, in milliseconds.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -474,8 +502,9 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
                            @Nullable
                            <a href="../../upstream/HttpDataSource.RequestProperties.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.RequestProperties</a>&nbsp;defaultRequestProperties,
                            @Nullable
-                           <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate,
+                           <a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate,
                            boolean&nbsp;keepPostFor302Redirects)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -496,7 +525,7 @@ implements <a href="../../upstream/HttpDataSource.html" title="interface in com.
 <h4>setContentTypePredicate</h4>
 <pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 public&nbsp;void&nbsp;setContentTypePredicate&#8203;(@Nullable
-                                    <a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</pre>
+                                    <a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/base/Predicate.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Predicate</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;contentTypePredicate)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
 <div class="deprecationComment">Use <a href="CronetDataSource.Factory.html#setContentTypePredicate(com.google.common.base.Predicate)"><code>CronetDataSource.Factory.setContentTypePredicate(Predicate)</code></a> instead.</div>
 </div>
@@ -510,6 +539,7 @@ public&nbsp;void&nbsp;setContentTypePredicate&#8203;(@Nullable
 <h4>setRequestProperty</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setRequestProperty&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../upstream/HttpDataSource.html#setRequestProperty(java.lang.String,java.lang.String)">HttpDataSource</a></code></span></div>
 <div class="block">Sets the value of a request header. The value will be used for subsequent connections
  established by the source.
@@ -533,6 +563,7 @@ public&nbsp;void&nbsp;setContentTypePredicate&#8203;(@Nullable
 <li class="blockList">
 <h4>clearRequestProperty</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;clearRequestProperty&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../upstream/HttpDataSource.html#clearRequestProperty(java.lang.String)">HttpDataSource</a></code></span></div>
 <div class="block">Clears the value of a request header. The change will apply to subsequent connections
  established by the source.</div>
@@ -551,6 +582,7 @@ public&nbsp;void&nbsp;setContentTypePredicate&#8203;(@Nullable
 <li class="blockList">
 <h4>clearAllRequestProperties</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;clearAllRequestProperties()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../upstream/HttpDataSource.html#clearAllRequestProperties()">HttpDataSource</a></code></span></div>
 <div class="block">Clears all request headers that were set by <a href="../../upstream/HttpDataSource.html#setRequestProperty(java.lang.String,java.lang.String)"><code>HttpDataSource.setRequestProperty(String, String)</code></a>.</div>
 <dl>
@@ -566,6 +598,7 @@ public&nbsp;void&nbsp;setContentTypePredicate&#8203;(@Nullable
 <li class="blockList">
 <h4>getResponseCode</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getResponseCode()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../upstream/HttpDataSource.html#getResponseCode()">HttpDataSource</a></code></span></div>
 <div class="block">When the source is open, returns the HTTP response status code associated with the last <a href="../../upstream/HttpDataSource.html#open(com.google.android.exoplayer2.upstream.DataSpec)"><code>HttpDataSource.open(com.google.android.exoplayer2.upstream.DataSpec)</code></a> call. Otherwise, returns a negative value.</div>
 <dl>
@@ -581,6 +614,7 @@ public&nbsp;void&nbsp;setContentTypePredicate&#8203;(@Nullable
 <li class="blockList">
 <h4>getResponseHeaders</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;&nbsp;getResponseHeaders()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../upstream/DataSource.html#getResponseHeaders()">DataSource</a></code></span></div>
 <div class="block">When the source is open, returns the response headers associated with the last <a href="../../upstream/DataSource.html#open(com.google.android.exoplayer2.upstream.DataSpec)"><code>DataSource.open(com.google.android.exoplayer2.upstream.DataSpec)</code></a>
  call. Otherwise, returns an empty map.
@@ -602,6 +636,7 @@ public&nbsp;void&nbsp;setContentTypePredicate&#8203;(@Nullable
 <h4>getUri</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;getUri()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../upstream/DataSource.html#getUri()">DataSource</a></code></span></div>
 <div class="block">When the source is open, returns the <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a> from which data is being read. The returned
  <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink"><code>Uri</code></a> will be identical to the one passed <a href="../../upstream/DataSource.html#open(com.google.android.exoplayer2.upstream.DataSpec)"><code>DataSource.open(DataSpec)</code></a> in the <a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream" target="_top"><code>DataSpec</code></a>
@@ -623,6 +658,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.htm
 <h4>open</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;open&#8203;(<a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)
           throws <a href="../../upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../upstream/HttpDataSource.html#open(com.google.android.exoplayer2.upstream.DataSpec)">HttpDataSource</a></code></span></div>
 <div class="block">Opens the source to read the specified data.
 
@@ -657,6 +693,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.htm
                 int&nbsp;offset,
                 int&nbsp;length)
          throws <a href="../../upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../upstream/DataReader.html#read(byte%5B%5D,int,int)">DataReader</a></code></span></div>
 <div class="block">Reads up to <code>length</code> bytes of data from the input.
 
@@ -690,6 +727,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.htm
 <h4>read</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;read&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer)
          throws <a href="../../upstream/HttpDataSource.HttpDataSourceException.html" title="class in com.google.android.exoplayer2.upstream">HttpDataSource.HttpDataSourceException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Reads up to <code>buffer.remaining()</code> bytes of data and stores them into <code>buffer</code>,
  starting at <code>buffer.position()</code>. Advances the position of the buffer by the number of
  bytes read and returns this length.
@@ -726,6 +764,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.htm
 <li class="blockList">
 <h4>close</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;close()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../upstream/DataSource.html#close()">DataSource</a></code></span></div>
 <div class="block">Closes the source. This method must be called even if the corresponding call to <a href="../../upstream/DataSource.html#open(com.google.android.exoplayer2.upstream.DataSpec)"><code>DataSource.open(DataSpec)</code></a> threw an <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top"><code>IOException</code></a>.</div>
 <dl>
@@ -744,6 +783,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.htm
 <h4>getCurrentUrlRequest</h4>
 <pre class="methodSignature">@Nullable
 protected&nbsp;org.chromium.net.UrlRequest&nbsp;getCurrentUrlRequest()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns current <code>UrlRequest</code>. May be null if the data source is not opened.</div>
 </li>
 </ul>
@@ -755,6 +795,7 @@ protected&nbsp;org.chromium.net.UrlRequest&nbsp;getCurrentUrlRequest()</pre>
 <h4>getCurrentUrlResponseInfo</h4>
 <pre class="methodSignature">@Nullable
 protected&nbsp;org.chromium.net.UrlResponseInfo&nbsp;getCurrentUrlResponseInfo()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns current <code>UrlResponseInfo</code>. May be null if the data source is not opened.</div>
 </li>
 </ul>
@@ -766,6 +807,7 @@ protected&nbsp;org.chromium.net.UrlResponseInfo&nbsp;getCurrentUrlResponseInfo()
 <h4>buildRequestBuilder</h4>
 <pre class="methodSignature">protected&nbsp;org.chromium.net.UrlRequest.Builder&nbsp;buildRequestBuilder&#8203;(<a href="../../upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec)
                                                            throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></code></dd>

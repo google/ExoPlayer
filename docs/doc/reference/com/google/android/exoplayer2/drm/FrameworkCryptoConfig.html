@@ -127,9 +127,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder">CryptoConfig</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">FrameworkCryptoConfig</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">FrameworkCryptoConfig</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder">CryptoConfig</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A <a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder"><code>CryptoConfig</code></a> for <a href="../C.html#CRYPTO_TYPE_FRAMEWORK"><code>C.CRYPTO_TYPE_FRAMEWORK</code></a>. Contains the necessary information to
  build or update a framework <a href="https://developer.android.com/reference/android/media/MediaCrypto.html" title="class or interface in android.media" class="externalLink"><code>MediaCrypto</code></a> that can be used to configure a <a href="https://developer.android.com/reference/android/media/MediaCodec.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</div>
 </li>
@@ -156,6 +162,7 @@ implements <a href="../decoder/CryptoConfig.html" title="interface in com.google
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#forceAllowInsecureDecoderComponents">forceAllowInsecureDecoderComponents</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether to allow use of insecure decoder components even if the underlying platform says
  otherwise.</div>
 </td>
@@ -164,6 +171,7 @@ implements <a href="../decoder/CryptoConfig.html" title="interface in com.google
 <td class="colFirst"><code>byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sessionId">sessionId</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The DRM session id.</div>
 </td>
 </tr>
@@ -171,6 +179,7 @@ implements <a href="../decoder/CryptoConfig.html" title="interface in com.google
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#uuid">uuid</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The DRM scheme UUID.</div>
 </td>
 </tr>
@@ -178,6 +187,7 @@ implements <a href="../decoder/CryptoConfig.html" title="interface in com.google
 <td class="colFirst"><code>static boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#WORKAROUND_DEVICE_NEEDS_KEYS_TO_CONFIGURE_CODEC">WORKAROUND_DEVICE_NEEDS_KEYS_TO_CONFIGURE_CODEC</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the device needs keys to have been loaded into the <a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSession</code></a> before codec
  configuration.</div>
 </td>
@@ -203,7 +213,9 @@ implements <a href="../decoder/CryptoConfig.html" title="interface in com.google
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.util.UUID,byte%5B%5D,boolean)">FrameworkCryptoConfig</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a>&nbsp;uuid,
                      byte[]&nbsp;sessionId,
                      boolean&nbsp;forceAllowInsecureDecoderComponents)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -246,6 +258,7 @@ implements <a href="../decoder/CryptoConfig.html" title="interface in com.google
 <li class="blockList">
 <h4>WORKAROUND_DEVICE_NEEDS_KEYS_TO_CONFIGURE_CODEC</h4>
 <pre>public static final&nbsp;boolean WORKAROUND_DEVICE_NEEDS_KEYS_TO_CONFIGURE_CODEC</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the device needs keys to have been loaded into the <a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSession</code></a> before codec
  configuration.</div>
 </li>
@@ -257,6 +270,7 @@ implements <a href="../decoder/CryptoConfig.html" title="interface in com.google
 <li class="blockList">
 <h4>uuid</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a> uuid</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The DRM scheme UUID.</div>
 </li>
 </ul>
@@ -267,6 +281,7 @@ implements <a href="../decoder/CryptoConfig.html" title="interface in com.google
 <li class="blockList">
 <h4>sessionId</h4>
 <pre>public final&nbsp;byte[] sessionId</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The DRM session id.</div>
 </li>
 </ul>
@@ -277,6 +292,7 @@ implements <a href="../decoder/CryptoConfig.html" title="interface in com.google
 <li class="blockList">
 <h4>forceAllowInsecureDecoderComponents</h4>
 <pre>public final&nbsp;boolean forceAllowInsecureDecoderComponents</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether to allow use of insecure decoder components even if the underlying platform says
  otherwise.</div>
 </li>
@@ -300,6 +316,7 @@ implements <a href="../decoder/CryptoConfig.html" title="interface in com.google
 <pre>public&nbsp;FrameworkCryptoConfig&#8203;(<a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a>&nbsp;uuid,
                              byte[]&nbsp;sessionId,
                              boolean&nbsp;forceAllowInsecureDecoderComponents)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>uuid</code> - The DRM scheme UUID.</dd>

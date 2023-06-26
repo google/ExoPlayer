@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="GlEffect.html" title="interface in com.google.android.exoplayer2.effect">GlEffect</a></code>, <code><a href="../util/Effect.html" title="interface in com.google.android.exoplayer2.util">Effect</a></code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">HslAdjustment</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">HslAdjustment</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="GlEffect.html" title="interface in com.google.android.exoplayer2.effect">GlEffect</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Adjusts the HSL (Hue, Saturation, and Lightness) of a frame.</div>
 </li>
 </ul>
@@ -161,6 +167,7 @@ implements <a href="GlEffect.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="HslAdjustment.Builder.html" title="class in com.google.android.exoplayer2.effect">HslAdjustment.Builder</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A builder for <code>HslAdjustment</code> instances.</div>
 </td>
 </tr>
@@ -186,6 +193,7 @@ implements <a href="GlEffect.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>float</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hueAdjustmentDegrees">hueAdjustmentDegrees</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Indicates the hue adjustment in degrees.</div>
 </td>
 </tr>
@@ -193,6 +201,7 @@ implements <a href="GlEffect.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>float</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#lightnessAdjustment">lightnessAdjustment</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Indicates the lightness adjustment.</div>
 </td>
 </tr>
@@ -200,6 +209,7 @@ implements <a href="GlEffect.html" title="interface in com.google.android.exopla
 <td class="colFirst"><code>float</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#saturationAdjustment">saturationAdjustment</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Indicates the saturation adjustment.</div>
 </td>
 </tr>
@@ -215,18 +225,28 @@ implements <a href="GlEffect.html" title="interface in com.google.android.exopla
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="SingleFrameGlTextureProcessor.html" title="class in com.google.android.exoplayer2.effect">SingleFrameGlTextureProcessor</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toGlTextureProcessor(android.content.Context,boolean)">toGlTextureProcessor</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
-                    boolean&nbsp;useHdr)</code></th>
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isNoOp(int,int)">isNoOp</a></span>&#8203;(int&nbsp;inputWidth,
+      int&nbsp;inputHeight)</code></th>
 <td class="colLast">
-<div class="block">Returns a <a href="SingleFrameGlTextureProcessor.html" title="class in com.google.android.exoplayer2.effect"><code>SingleFrameGlTextureProcessor</code></a> that applies the effect.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns whether a <a href="GlEffect.html" title="interface in com.google.android.exoplayer2.effect"><code>GlEffect</code></a> applies no change at every timestamp.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code><a href="SingleFrameGlShaderProgram.html" title="class in com.google.android.exoplayer2.effect">SingleFrameGlShaderProgram</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toGlShaderProgram(android.content.Context,boolean)">toGlShaderProgram</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                 boolean&nbsp;useHdr)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns a <a href="GlShaderProgram.html" title="interface in com.google.android.exoplayer2.effect"><code>GlShaderProgram</code></a> that applies the effect.</div>
 </td>
 </tr>
 </table>
@@ -260,6 +280,7 @@ implements <a href="GlEffect.html" title="interface in com.google.android.exopla
 <li class="blockList">
 <h4>hueAdjustmentDegrees</h4>
 <pre>public final&nbsp;float hueAdjustmentDegrees</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Indicates the hue adjustment in degrees.</div>
 </li>
 </ul>
@@ -270,6 +291,7 @@ implements <a href="GlEffect.html" title="interface in com.google.android.exopla
 <li class="blockList">
 <h4>saturationAdjustment</h4>
 <pre>public final&nbsp;float saturationAdjustment</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Indicates the saturation adjustment.</div>
 </li>
 </ul>
@@ -280,6 +302,7 @@ implements <a href="GlEffect.html" title="interface in com.google.android.exopla
 <li class="blockList">
 <h4>lightnessAdjustment</h4>
 <pre>public final&nbsp;float lightnessAdjustment</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Indicates the lightness adjustment.</div>
 </li>
 </ul>
@@ -293,26 +316,49 @@ implements <a href="GlEffect.html" title="interface in com.google.android.exopla
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="toGlTextureProcessor(android.content.Context,boolean)">
+<a id="toGlShaderProgram(android.content.Context,boolean)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
-<h4>toGlTextureProcessor</h4>
-<pre class="methodSignature">public&nbsp;<a href="SingleFrameGlTextureProcessor.html" title="class in com.google.android.exoplayer2.effect">SingleFrameGlTextureProcessor</a>&nbsp;toGlTextureProcessor&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
-                                                          boolean&nbsp;useHdr)
-                                                   throws <a href="../util/FrameProcessingException.html" title="class in com.google.android.exoplayer2.util">FrameProcessingException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="GlEffect.html#toGlTextureProcessor(android.content.Context,boolean)">GlEffect</a></code></span></div>
-<div class="block">Returns a <a href="SingleFrameGlTextureProcessor.html" title="class in com.google.android.exoplayer2.effect"><code>SingleFrameGlTextureProcessor</code></a> that applies the effect.</div>
+<h4>toGlShaderProgram</h4>
+<pre class="methodSignature">public&nbsp;<a href="SingleFrameGlShaderProgram.html" title="class in com.google.android.exoplayer2.effect">SingleFrameGlShaderProgram</a>&nbsp;toGlShaderProgram&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                                                    boolean&nbsp;useHdr)
+                                             throws <a href="../util/VideoFrameProcessingException.html" title="class in com.google.android.exoplayer2.util">VideoFrameProcessingException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="GlEffect.html#toGlShaderProgram(android.content.Context,boolean)">GlEffect</a></code></span></div>
+<div class="block">Returns a <a href="GlShaderProgram.html" title="interface in com.google.android.exoplayer2.effect"><code>GlShaderProgram</code></a> that applies the effect.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="GlEffect.html#toGlTextureProcessor(android.content.Context,boolean)">toGlTextureProcessor</a></code>&nbsp;in interface&nbsp;<code><a href="GlEffect.html" title="interface in com.google.android.exoplayer2.effect">GlEffect</a></code></dd>
+<dd><code><a href="GlEffect.html#toGlShaderProgram(android.content.Context,boolean)">toGlShaderProgram</a></code>&nbsp;in interface&nbsp;<code><a href="GlEffect.html" title="interface in com.google.android.exoplayer2.effect">GlEffect</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - A <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a>.</dd>
 <dd><code>useHdr</code> - Whether input textures come from an HDR source. If <code>true</code>, colors will be
      in linear RGB BT.2020. If <code>false</code>, colors will be in linear RGB BT.709.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../util/FrameProcessingException.html" title="class in com.google.android.exoplayer2.util">FrameProcessingException</a></code></dd>
+<dd><code><a href="../util/VideoFrameProcessingException.html" title="class in com.google.android.exoplayer2.util">VideoFrameProcessingException</a></code> - If an error occurs while creating the <a href="GlShaderProgram.html" title="interface in com.google.android.exoplayer2.effect"><code>GlShaderProgram</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="isNoOp(int,int)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>isNoOp</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isNoOp&#8203;(int&nbsp;inputWidth,
+                      int&nbsp;inputHeight)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="GlEffect.html#isNoOp(int,int)">GlEffect</a></code></span></div>
+<div class="block">Returns whether a <a href="GlEffect.html" title="interface in com.google.android.exoplayer2.effect"><code>GlEffect</code></a> applies no change at every timestamp.
+
+ <p>This can be used as a hint to skip this instance.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="GlEffect.html#isNoOp(int,int)">isNoOp</a></code>&nbsp;in interface&nbsp;<code><a href="GlEffect.html" title="interface in com.google.android.exoplayer2.effect">GlEffect</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>inputWidth</code> - The input frame width, in pixels.</dd>
+<dd><code>inputHeight</code> - The input frame height, in pixels.</dd>
 </dl>
 </li>
 </ul>

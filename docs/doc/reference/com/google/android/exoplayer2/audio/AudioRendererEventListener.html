@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":18,"i1":18,"i2":18,"i3":18,"i4":18,"i5":50,"i6":18,"i7":18,"i8":18,"i9":18,"i10":18};
+var data = {"i0":50,"i1":50,"i2":50,"i3":50,"i4":50,"i5":50,"i6":50,"i7":50,"i8":50,"i9":50,"i10":50};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],16:["t5","Default Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -121,7 +121,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public interface <span class="typeNameLabel">AudioRendererEventListener</span></pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">AudioRendererEventListener</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Listener of audio <a href="../Renderer.html" title="interface in com.google.android.exoplayer2"><code>Renderer</code></a> events. All methods have no-op default implementations to
  allow selective overrides.</div>
 </li>
@@ -148,6 +154,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="AudioRendererEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.audio">AudioRendererEventListener.EventDispatcher</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dispatches events to an <a href="AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioRendererEventListener</code></a>.</div>
 </td>
 </tr>
@@ -173,6 +180,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioCodecError(java.lang.Exception)">onAudioCodecError</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;audioCodecError)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when an audio decoder encounters an error.</div>
 </td>
 </tr>
@@ -182,6 +190,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                          long&nbsp;initializedTimestampMs,
                          long&nbsp;initializationDurationMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a decoder is created.</div>
 </td>
 </tr>
@@ -189,6 +198,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioDecoderReleased(java.lang.String)">onAudioDecoderReleased</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a decoder is released.</div>
 </td>
 </tr>
@@ -196,6 +206,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioDisabled(com.google.android.exoplayer2.decoder.DecoderCounters)">onAudioDisabled</a></span>&#8203;(<a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer is disabled.</div>
 </td>
 </tr>
@@ -203,6 +214,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioEnabled(com.google.android.exoplayer2.decoder.DecoderCounters)">onAudioEnabled</a></span>&#8203;(<a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer is enabled.</div>
 </td>
 </tr>
@@ -220,6 +232,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioInputFormatChanged(com.google.android.exoplayer2.Format,com.google.android.exoplayer2.decoder.DecoderReuseEvaluation)">onAudioInputFormatChanged</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                          <a href="../decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a>&nbsp;decoderReuseEvaluation)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the format of the media being consumed by the renderer changes.</div>
 </td>
 </tr>
@@ -227,6 +240,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioPositionAdvancing(long)">onAudioPositionAdvancing</a></span>&#8203;(long&nbsp;playoutStartSystemTimeMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the audio position has increased for the first time since the last pause or
  position reset.</div>
 </td>
@@ -235,6 +249,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioSinkError(java.lang.Exception)">onAudioSinkError</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;audioSinkError)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when <a href="AudioSink.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioSink</code></a> has encountered an error.</div>
 </td>
 </tr>
@@ -244,6 +259,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                long&nbsp;bufferSizeMs,
                long&nbsp;elapsedSinceLastFeedMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when an audio underrun occurs.</div>
 </td>
 </tr>
@@ -251,6 +267,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSkipSilenceEnabledChanged(boolean)">onSkipSilenceEnabledChanged</a></span>&#8203;(boolean&nbsp;skipSilenceEnabled)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when skipping silences is enabled or disabled in the audio stream.</div>
 </td>
 </tr>
@@ -278,6 +295,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>onAudioEnabled</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onAudioEnabled&#8203;(<a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer is enabled.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -295,6 +313,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre class="methodSignature">default&nbsp;void&nbsp;onAudioDecoderInitialized&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName,
                                        long&nbsp;initializedTimestampMs,
                                        long&nbsp;initializationDurationMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a decoder is created.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -327,6 +346,7 @@ default&nbsp;void&nbsp;onAudioInputFormatChanged&#8203;(<a href="../Format.html"
 <pre class="methodSignature">default&nbsp;void&nbsp;onAudioInputFormatChanged&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                        @Nullable
                                        <a href="../decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a>&nbsp;decoderReuseEvaluation)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the format of the media being consumed by the renderer changes.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -344,6 +364,7 @@ default&nbsp;void&nbsp;onAudioInputFormatChanged&#8203;(<a href="../Format.html"
 <li class="blockList">
 <h4>onAudioPositionAdvancing</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onAudioPositionAdvancing&#8203;(long&nbsp;playoutStartSystemTimeMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the audio position has increased for the first time since the last pause or
  position reset.</div>
 <dl>
@@ -362,6 +383,7 @@ default&nbsp;void&nbsp;onAudioInputFormatChanged&#8203;(<a href="../Format.html"
 <pre class="methodSignature">default&nbsp;void&nbsp;onAudioUnderrun&#8203;(int&nbsp;bufferSize,
                              long&nbsp;bufferSizeMs,
                              long&nbsp;elapsedSinceLastFeedMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when an audio underrun occurs.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -379,6 +401,7 @@ default&nbsp;void&nbsp;onAudioInputFormatChanged&#8203;(<a href="../Format.html"
 <li class="blockList">
 <h4>onAudioDecoderReleased</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onAudioDecoderReleased&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a decoder is released.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -393,6 +416,7 @@ default&nbsp;void&nbsp;onAudioInputFormatChanged&#8203;(<a href="../Format.html"
 <li class="blockList">
 <h4>onAudioDisabled</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onAudioDisabled&#8203;(<a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;counters)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer is disabled.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -407,6 +431,7 @@ default&nbsp;void&nbsp;onAudioInputFormatChanged&#8203;(<a href="../Format.html"
 <li class="blockList">
 <h4>onSkipSilenceEnabledChanged</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onSkipSilenceEnabledChanged&#8203;(boolean&nbsp;skipSilenceEnabled)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when skipping silences is enabled or disabled in the audio stream.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -421,6 +446,7 @@ default&nbsp;void&nbsp;onAudioInputFormatChanged&#8203;(<a href="../Format.html"
 <li class="blockList">
 <h4>onAudioCodecError</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onAudioCodecError&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;audioCodecError)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when an audio decoder encounters an error.
 
  <p>This method being called does not indicate that playback has failed, or that it will fail.
@@ -443,6 +469,7 @@ default&nbsp;void&nbsp;onAudioInputFormatChanged&#8203;(<a href="../Format.html"
 <li class="blockList">
 <h4>onAudioSinkError</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onAudioSinkError&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;audioSinkError)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when <a href="AudioSink.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioSink</code></a> has encountered an error.
 
  <p>If the sink writes to a platform <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" class="externalLink"><code>AudioTrack</code></a>, this will be called for all <a href="https://developer.android.com/reference/android/media/AudioTrack.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack</code></a> errors.

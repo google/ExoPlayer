@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -134,9 +134,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 <hr>
 <pre>@RequiresApi(21)
+<a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 public final class <span class="typeNameLabel">PlatformScheduler</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="Scheduler.html" title="interface in com.google.android.exoplayer2.scheduler">Scheduler</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A <a href="Scheduler.html" title="interface in com.google.android.exoplayer2.scheduler"><code>Scheduler</code></a> that uses <a href="https://developer.android.com/reference/android/app/job/JobScheduler.html" title="class or interface in android.app.job" class="externalLink"><code>JobScheduler</code></a>. To use this scheduler, you must add <a href="PlatformScheduler.PlatformSchedulerService.html" title="class in com.google.android.exoplayer2.scheduler" target="_top"><code>PlatformScheduler.PlatformSchedulerService</code></a> to your manifest:
 
  <pre>
@@ -171,6 +177,7 @@ implements <a href="Scheduler.html" title="interface in com.google.android.exopl
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="PlatformScheduler.PlatformSchedulerService.html" title="class in com.google.android.exoplayer2.scheduler">PlatformScheduler.PlatformSchedulerService</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A <a href="https://developer.android.com/reference/android/app/job/JobService.html" title="class or interface in android.app.job" class="externalLink" target="_top"><code>JobService</code></a> that starts the target service if the requirements are met.</div>
 </td>
 </tr>
@@ -194,7 +201,9 @@ implements <a href="Scheduler.html" title="interface in com.google.android.exopl
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,int)">PlatformScheduler</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                  int&nbsp;jobId)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -208,7 +217,7 @@ implements <a href="Scheduler.html" title="interface in com.google.android.exopl
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -218,6 +227,7 @@ implements <a href="Scheduler.html" title="interface in com.google.android.exopl
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#cancel()">cancel</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Cancels anything that was previously scheduled, or else does nothing.</div>
 </td>
 </tr>
@@ -225,6 +235,7 @@ implements <a href="Scheduler.html" title="interface in com.google.android.exopl
 <td class="colFirst"><code><a href="Requirements.html" title="class in com.google.android.exoplayer2.scheduler">Requirements</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSupportedRequirements(com.google.android.exoplayer2.scheduler.Requirements)">getSupportedRequirements</a></span>&#8203;(<a href="Requirements.html" title="class in com.google.android.exoplayer2.scheduler">Requirements</a>&nbsp;requirements)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Checks whether this <a href="Scheduler.html" title="interface in com.google.android.exoplayer2.scheduler"><code>Scheduler</code></a> supports the provided <a href="Requirements.html" title="class in com.google.android.exoplayer2.scheduler"><code>Requirements</code></a>.</div>
 </td>
 </tr>
@@ -234,6 +245,7 @@ implements <a href="Scheduler.html" title="interface in com.google.android.exopl
         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;servicePackage,
         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;serviceAction)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Schedules a service to be started in the foreground when some <a href="Requirements.html" title="class in com.google.android.exoplayer2.scheduler"><code>Requirements</code></a> are met.</div>
 </td>
 </tr>
@@ -270,6 +282,7 @@ implements <a href="Scheduler.html" title="interface in com.google.android.exopl
 <pre>@RequiresPermission("android.permission.RECEIVE_BOOT_COMPLETED")
 public&nbsp;PlatformScheduler&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                          int&nbsp;jobId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - Any context.</dd>
@@ -299,6 +312,7 @@ public&nbsp;PlatformScheduler&#8203;(<a href="https://developer.android.com/refe
 <pre class="methodSignature">public&nbsp;boolean&nbsp;schedule&#8203;(<a href="Requirements.html" title="class in com.google.android.exoplayer2.scheduler">Requirements</a>&nbsp;requirements,
                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;servicePackage,
                         <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;serviceAction)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Scheduler.html#schedule(com.google.android.exoplayer2.scheduler.Requirements,java.lang.String,java.lang.String)">Scheduler</a></code></span></div>
 <div class="block">Schedules a service to be started in the foreground when some <a href="Requirements.html" title="class in com.google.android.exoplayer2.scheduler"><code>Requirements</code></a> are met.
  Anything that was previously scheduled will be canceled.
@@ -326,6 +340,7 @@ public&nbsp;PlatformScheduler&#8203;(<a href="https://developer.android.com/refe
 <li class="blockList">
 <h4>cancel</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;cancel()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Scheduler.html#cancel()">Scheduler</a></code></span></div>
 <div class="block">Cancels anything that was previously scheduled, or else does nothing.</div>
 <dl>
@@ -343,6 +358,7 @@ public&nbsp;PlatformScheduler&#8203;(<a href="https://developer.android.com/refe
 <li class="blockList">
 <h4>getSupportedRequirements</h4>
 <pre class="methodSignature">public&nbsp;<a href="Requirements.html" title="class in com.google.android.exoplayer2.scheduler">Requirements</a>&nbsp;getSupportedRequirements&#8203;(<a href="Requirements.html" title="class in com.google.android.exoplayer2.scheduler">Requirements</a>&nbsp;requirements)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Scheduler.html#getSupportedRequirements(com.google.android.exoplayer2.scheduler.Requirements)">Scheduler</a></code></span></div>
 <div class="block">Checks whether this <a href="Scheduler.html" title="interface in com.google.android.exoplayer2.scheduler"><code>Scheduler</code></a> supports the provided <a href="Requirements.html" title="class in com.google.android.exoplayer2.scheduler"><code>Requirements</code></a>. If all of the
  requirements are supported then the same <a href="Requirements.html" title="class in com.google.android.exoplayer2.scheduler"><code>Requirements</code></a> instance is returned. If not then

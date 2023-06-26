@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="TsPayloadReader.Factory.html" title="interface in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.Factory</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">DefaultTsPayloadReaderFactory</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">DefaultTsPayloadReaderFactory</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="TsPayloadReader.Factory.html" title="interface in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.Factory</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Default <a href="TsPayloadReader.Factory.html" title="interface in com.google.android.exoplayer2.extractor.ts"><code>TsPayloadReader.Factory</code></a> implementation.</div>
 </li>
 </ul>
@@ -161,6 +167,7 @@ implements <a href="TsPayloadReader.Factory.html" title="interface in com.google
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DefaultTsPayloadReaderFactory.Flags.html" title="annotation in com.google.android.exoplayer2.extractor.ts">DefaultTsPayloadReaderFactory.Flags</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Flags controlling elementary stream readers' behavior.</div>
 </td>
 </tr>
@@ -186,6 +193,7 @@ implements <a href="TsPayloadReader.Factory.html" title="interface in com.google
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FLAG_ALLOW_NON_IDR_KEYFRAMES">FLAG_ALLOW_NON_IDR_KEYFRAMES</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">When extracting H.264 samples, whether to treat samples consisting of non-IDR I slices as
  synchronization samples (key-frames).</div>
 </td>
@@ -194,6 +202,7 @@ implements <a href="TsPayloadReader.Factory.html" title="interface in com.google
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FLAG_DETECT_ACCESS_UNITS">FLAG_DETECT_ACCESS_UNITS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">When extracting H.264 samples, whether to split the input stream into access units (samples)
  based on slice headers.</div>
 </td>
@@ -202,6 +211,7 @@ implements <a href="TsPayloadReader.Factory.html" title="interface in com.google
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FLAG_ENABLE_HDMV_DTS_AUDIO_STREAMS">FLAG_ENABLE_HDMV_DTS_AUDIO_STREAMS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether HDMV DTS audio streams will be handled.</div>
 </td>
 </tr>
@@ -209,6 +219,7 @@ implements <a href="TsPayloadReader.Factory.html" title="interface in com.google
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FLAG_IGNORE_AAC_STREAM">FLAG_IGNORE_AAC_STREAM</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Prevents the creation of <a href="AdtsReader.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>AdtsReader</code></a> and <a href="LatmReader.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>LatmReader</code></a> instances.</div>
 </td>
 </tr>
@@ -216,6 +227,7 @@ implements <a href="TsPayloadReader.Factory.html" title="interface in com.google
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FLAG_IGNORE_H264_STREAM">FLAG_IGNORE_H264_STREAM</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Prevents the creation of <a href="H264Reader.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>H264Reader</code></a> instances.</div>
 </td>
 </tr>
@@ -223,6 +235,7 @@ implements <a href="TsPayloadReader.Factory.html" title="interface in com.google
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FLAG_IGNORE_SPLICE_INFO_STREAM">FLAG_IGNORE_SPLICE_INFO_STREAM</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Prevents the creation of <a href="SectionPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts"><code>SectionPayloadReader</code></a>s for splice information sections
  (SCTE-35).</div>
 </td>
@@ -231,6 +244,7 @@ implements <a href="TsPayloadReader.Factory.html" title="interface in com.google
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FLAG_OVERRIDE_CAPTION_DESCRIPTORS">FLAG_OVERRIDE_CAPTION_DESCRIPTORS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the list of <code>closedCaptionFormats</code> passed to <a href="#%3Cinit%3E(@com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flagsint,java.util.List)"><code>DefaultTsPayloadReaderFactory(int, List)</code></a> should be used in spite
  of any closed captions service descriptors.</div>
 </td>
@@ -254,16 +268,22 @@ implements <a href="TsPayloadReader.Factory.html" title="interface in com.google
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">DefaultTsPayloadReaderFactory</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(@com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flagsint)">DefaultTsPayloadReaderFactory</a></span>&#8203;(@com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flags int&nbsp;flags)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(@com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flagsint,java.util.List)">DefaultTsPayloadReaderFactory</a></span>&#8203;(@com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flags int&nbsp;flags,
                              <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;closedCaptionFormats)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -277,7 +297,7 @@ implements <a href="TsPayloadReader.Factory.html" title="interface in com.google
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -287,6 +307,7 @@ implements <a href="TsPayloadReader.Factory.html" title="interface in com.google
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/util/SparseArray.html" title="class or interface in android.util" class="externalLink">SparseArray</a>&lt;<a href="TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts" target="_top">TsPayloadReader</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createInitialPayloadReaders()">createInitialPayloadReaders</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the initial mapping from PIDs to payload readers.</div>
 </td>
 </tr>
@@ -295,6 +316,7 @@ implements <a href="TsPayloadReader.Factory.html" title="interface in com.google
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createPayloadReader(int,com.google.android.exoplayer2.extractor.ts.TsPayloadReader.EsInfo)">createPayloadReader</a></span>&#8203;(int&nbsp;streamType,
                    <a href="TsPayloadReader.EsInfo.html" title="class in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.EsInfo</a>&nbsp;esInfo)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts"><code>TsPayloadReader</code></a> for a given stream type and elementary stream information.</div>
 </td>
 </tr>
@@ -329,6 +351,7 @@ implements <a href="TsPayloadReader.Factory.html" title="interface in com.google
 <li class="blockList">
 <h4>FLAG_ALLOW_NON_IDR_KEYFRAMES</h4>
 <pre>public static final&nbsp;int FLAG_ALLOW_NON_IDR_KEYFRAMES</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">When extracting H.264 samples, whether to treat samples consisting of non-IDR I slices as
  synchronization samples (key-frames).</div>
 <dl>
@@ -344,6 +367,7 @@ implements <a href="TsPayloadReader.Factory.html" title="interface in com.google
 <li class="blockList">
 <h4>FLAG_IGNORE_AAC_STREAM</h4>
 <pre>public static final&nbsp;int FLAG_IGNORE_AAC_STREAM</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Prevents the creation of <a href="AdtsReader.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>AdtsReader</code></a> and <a href="LatmReader.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>LatmReader</code></a> instances. This flag should
  be enabled if the transport stream contains no packets for an AAC elementary stream that is
  declared in the PMT.</div>
@@ -360,6 +384,7 @@ implements <a href="TsPayloadReader.Factory.html" title="interface in com.google
 <li class="blockList">
 <h4>FLAG_IGNORE_H264_STREAM</h4>
 <pre>public static final&nbsp;int FLAG_IGNORE_H264_STREAM</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Prevents the creation of <a href="H264Reader.html" title="class in com.google.android.exoplayer2.extractor.ts"><code>H264Reader</code></a> instances. This flag should be enabled if the
  transport stream contains no packets for an H.264 elementary stream that is declared in the
  PMT.</div>
@@ -376,6 +401,7 @@ implements <a href="TsPayloadReader.Factory.html" title="interface in com.google
 <li class="blockList">
 <h4>FLAG_DETECT_ACCESS_UNITS</h4>
 <pre>public static final&nbsp;int FLAG_DETECT_ACCESS_UNITS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">When extracting H.264 samples, whether to split the input stream into access units (samples)
  based on slice headers. This flag should be disabled if the stream contains access unit
  delimiters (AUDs).</div>
@@ -392,6 +418,7 @@ implements <a href="TsPayloadReader.Factory.html" title="interface in com.google
 <li class="blockList">
 <h4>FLAG_IGNORE_SPLICE_INFO_STREAM</h4>
 <pre>public static final&nbsp;int FLAG_IGNORE_SPLICE_INFO_STREAM</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Prevents the creation of <a href="SectionPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts"><code>SectionPayloadReader</code></a>s for splice information sections
  (SCTE-35).</div>
 <dl>
@@ -407,6 +434,7 @@ implements <a href="TsPayloadReader.Factory.html" title="interface in com.google
 <li class="blockList">
 <h4>FLAG_OVERRIDE_CAPTION_DESCRIPTORS</h4>
 <pre>public static final&nbsp;int FLAG_OVERRIDE_CAPTION_DESCRIPTORS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the list of <code>closedCaptionFormats</code> passed to <a href="#%3Cinit%3E(@com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flagsint,java.util.List)"><code>DefaultTsPayloadReaderFactory(int, List)</code></a> should be used in spite
  of any closed captions service descriptors. If this flag is disabled, <code>
  closedCaptionFormats</code> will be ignored if the PMT contains closed captions service descriptors.</div>
@@ -423,6 +451,7 @@ implements <a href="TsPayloadReader.Factory.html" title="interface in com.google
 <li class="blockList">
 <h4>FLAG_ENABLE_HDMV_DTS_AUDIO_STREAMS</h4>
 <pre>public static final&nbsp;int FLAG_ENABLE_HDMV_DTS_AUDIO_STREAMS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether HDMV DTS audio streams will be handled. If this flag is set, SCTE subtitles will
  not be detected, as they share the same elementary stream type as HDMV DTS.</div>
 <dl>
@@ -448,6 +477,7 @@ implements <a href="TsPayloadReader.Factory.html" title="interface in com.google
 <li class="blockList">
 <h4>DefaultTsPayloadReaderFactory</h4>
 <pre>public&nbsp;DefaultTsPayloadReaderFactory()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="&lt;init&gt;(@com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flagsint)">
@@ -457,6 +487,7 @@ implements <a href="TsPayloadReader.Factory.html" title="interface in com.google
 <li class="blockList">
 <h4>DefaultTsPayloadReaderFactory</h4>
 <pre>public&nbsp;DefaultTsPayloadReaderFactory&#8203;(@com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flags int&nbsp;flags)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>flags</code> - A combination of <code>FLAG_*</code> values that control the behavior of the created
@@ -472,6 +503,7 @@ implements <a href="TsPayloadReader.Factory.html" title="interface in com.google
 <h4>DefaultTsPayloadReaderFactory</h4>
 <pre>public&nbsp;DefaultTsPayloadReaderFactory&#8203;(@com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flags int&nbsp;flags,
                                      <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;closedCaptionFormats)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>flags</code> - A combination of <code>FLAG_*</code> values that control the behavior of the created
@@ -501,6 +533,7 @@ implements <a href="TsPayloadReader.Factory.html" title="interface in com.google
 <li class="blockList">
 <h4>createInitialPayloadReaders</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/util/SparseArray.html" title="class or interface in android.util" class="externalLink">SparseArray</a>&lt;<a href="TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts" target="_top">TsPayloadReader</a>&gt;&nbsp;createInitialPayloadReaders()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="TsPayloadReader.Factory.html#createInitialPayloadReaders()">TsPayloadReader.Factory</a></code></span></div>
 <div class="block">Returns the initial mapping from PIDs to payload readers.
 
@@ -522,6 +555,7 @@ implements <a href="TsPayloadReader.Factory.html" title="interface in com.google
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts">TsPayloadReader</a>&nbsp;createPayloadReader&#8203;(int&nbsp;streamType,
                                            <a href="TsPayloadReader.EsInfo.html" title="class in com.google.android.exoplayer2.extractor.ts">TsPayloadReader.EsInfo</a>&nbsp;esInfo)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="TsPayloadReader.Factory.html#createPayloadReader(int,com.google.android.exoplayer2.extractor.ts.TsPayloadReader.EsInfo)">TsPayloadReader.Factory</a></code></span></div>
 <div class="block">Returns a <a href="TsPayloadReader.html" title="interface in com.google.android.exoplayer2.extractor.ts"><code>TsPayloadReader</code></a> for a given stream type and elementary stream information.
  May return null if the stream type is not supported.</div>

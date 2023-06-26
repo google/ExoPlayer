@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":18,"i1":18,"i2":50,"i3":18,"i4":18,"i5":18,"i6":18,"i7":50,"i8":18,"i9":18,"i10":18,"i11":18,"i12":18,"i13":18,"i14":18,"i15":18,"i16":50,"i17":50,"i18":50,"i19":50,"i20":50,"i21":18,"i22":18,"i23":18,"i24":18,"i25":18,"i26":18,"i27":50,"i28":18,"i29":18,"i30":18,"i31":18,"i32":18,"i33":18,"i34":18,"i35":18,"i36":18,"i37":18,"i38":50,"i39":18,"i40":18,"i41":18,"i42":18,"i43":18,"i44":18,"i45":18,"i46":18,"i47":18,"i48":18,"i49":18,"i50":50,"i51":18,"i52":18,"i53":50,"i54":18,"i55":18,"i56":18,"i57":18,"i58":18,"i59":50,"i60":50,"i61":18,"i62":18,"i63":18,"i64":18,"i65":18,"i66":18,"i67":18,"i68":18,"i69":50,"i70":18,"i71":18,"i72":18,"i73":18,"i74":18,"i75":50,"i76":18,"i77":50,"i78":18,"i79":18};
+var data = {"i0":50,"i1":50,"i2":50,"i3":50,"i4":50,"i5":50,"i6":50,"i7":50,"i8":50,"i9":50,"i10":50,"i11":50,"i12":50,"i13":50,"i14":50,"i15":50,"i16":50,"i17":50,"i18":50,"i19":50,"i20":50,"i21":50,"i22":50,"i23":50,"i24":50,"i25":50,"i26":50,"i27":50,"i28":50,"i29":50,"i30":50,"i31":50,"i32":50,"i33":50,"i34":50,"i35":50,"i36":50,"i37":50,"i38":50,"i39":50,"i40":50,"i41":50,"i42":50,"i43":50,"i44":50,"i45":50,"i46":50,"i47":50,"i48":50,"i49":50,"i50":50,"i51":50,"i52":50,"i53":50,"i54":50,"i55":50,"i56":50,"i57":50,"i58":50,"i59":50,"i60":50,"i61":50,"i62":50,"i63":50,"i64":50,"i65":50,"i66":50,"i67":50,"i68":50,"i69":50,"i70":50,"i71":50,"i72":50,"i73":50,"i74":50};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],16:["t5","Default Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -125,7 +125,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../util/EventLogger.html" title="class in com.google.android.exoplayer2.util">EventLogger</a></code>, <code><a href="../testutil/ExoHostedTest.html" title="class in com.google.android.exoplayer2.testutil">ExoHostedTest</a></code>, <code><a href="MediaMetricsListener.html" title="class in com.google.android.exoplayer2.analytics">MediaMetricsListener</a></code>, <code><a href="PlaybackStatsListener.html" title="class in com.google.android.exoplayer2.analytics">PlaybackStatsListener</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">AnalyticsListener</span></pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">AnalyticsListener</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A listener for analytics events.
 
  <p>All events are recorded with an <a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventTime</code></a> specifying the elapsed real time and media
@@ -159,6 +165,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="AnalyticsListener.EventFlags.html" title="annotation in com.google.android.exoplayer2.analytics">AnalyticsListener.EventFlags</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Events that can be reported via <a href="#onEvents(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.analytics.AnalyticsListener.Events)"><code>onEvents(Player, Events)</code></a>.</div>
 </td>
 </tr>
@@ -166,6 +173,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="AnalyticsListener.Events.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.Events</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A set of <a href="AnalyticsListener.EventFlags.html" title="annotation in com.google.android.exoplayer2.analytics"><code>AnalyticsListener.EventFlags</code></a>.</div>
 </td>
 </tr>
@@ -173,6 +181,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Time information of an event.</div>
 </td>
 </tr>
@@ -198,6 +207,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_AUDIO_ATTRIBUTES_CHANGED">EVENT_AUDIO_ATTRIBUTES_CHANGED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Audio attributes changed.</div>
 </td>
 </tr>
@@ -205,6 +215,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_AUDIO_CODEC_ERROR">EVENT_AUDIO_CODEC_ERROR</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The audio codec encountered an error.</div>
 </td>
 </tr>
@@ -212,6 +223,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_AUDIO_DECODER_INITIALIZED">EVENT_AUDIO_DECODER_INITIALIZED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">An audio renderer created a decoder.</div>
 </td>
 </tr>
@@ -219,6 +231,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_AUDIO_DECODER_RELEASED">EVENT_AUDIO_DECODER_RELEASED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">An audio renderer released a decoder.</div>
 </td>
 </tr>
@@ -226,6 +239,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_AUDIO_DISABLED">EVENT_AUDIO_DISABLED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">An audio renderer was disabled.</div>
 </td>
 </tr>
@@ -233,6 +247,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_AUDIO_ENABLED">EVENT_AUDIO_ENABLED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">An audio renderer was enabled.</div>
 </td>
 </tr>
@@ -240,6 +255,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_AUDIO_INPUT_FORMAT_CHANGED">EVENT_AUDIO_INPUT_FORMAT_CHANGED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The format consumed by an audio renderer changed.</div>
 </td>
 </tr>
@@ -247,6 +263,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_AUDIO_POSITION_ADVANCING">EVENT_AUDIO_POSITION_ADVANCING</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The audio position has increased for the first time since the last pause or position reset.</div>
 </td>
 </tr>
@@ -254,6 +271,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_AUDIO_SESSION_ID">EVENT_AUDIO_SESSION_ID</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">An audio session id was set.</div>
 </td>
 </tr>
@@ -261,6 +279,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_AUDIO_SINK_ERROR">EVENT_AUDIO_SINK_ERROR</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The audio sink encountered a non-fatal error.</div>
 </td>
 </tr>
@@ -268,6 +287,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_AUDIO_UNDERRUN">EVENT_AUDIO_UNDERRUN</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">An audio underrun occurred.</div>
 </td>
 </tr>
@@ -275,6 +295,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_AVAILABLE_COMMANDS_CHANGED">EVENT_AVAILABLE_COMMANDS_CHANGED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getAvailableCommands()"><code>Player.getAvailableCommands()</code></a> changed.</div>
 </td>
 </tr>
@@ -282,6 +303,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_BANDWIDTH_ESTIMATE">EVENT_BANDWIDTH_ESTIMATE</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The bandwidth estimate has been updated.</div>
 </td>
 </tr>
@@ -289,6 +311,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_CUES">EVENT_CUES</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getCurrentCues()"><code>Player.getCurrentCues()</code></a> changed.</div>
 </td>
 </tr>
@@ -296,6 +319,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_DEVICE_INFO_CHANGED">EVENT_DEVICE_INFO_CHANGED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getDeviceInfo()"><code>Player.getDeviceInfo()</code></a> changed.</div>
 </td>
 </tr>
@@ -303,6 +327,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_DEVICE_VOLUME_CHANGED">EVENT_DEVICE_VOLUME_CHANGED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getDeviceVolume()"><code>Player.getDeviceVolume()</code></a> changed.</div>
 </td>
 </tr>
@@ -310,6 +335,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_DOWNSTREAM_FORMAT_CHANGED">EVENT_DOWNSTREAM_FORMAT_CHANGED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The downstream format sent to renderers changed.</div>
 </td>
 </tr>
@@ -317,6 +343,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_DRM_KEYS_LOADED">EVENT_DRM_KEYS_LOADED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">DRM keys were loaded.</div>
 </td>
 </tr>
@@ -324,6 +351,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_DRM_KEYS_REMOVED">EVENT_DRM_KEYS_REMOVED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">DRM keys were removed.</div>
 </td>
 </tr>
@@ -331,6 +359,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_DRM_KEYS_RESTORED">EVENT_DRM_KEYS_RESTORED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">DRM keys were restored.</div>
 </td>
 </tr>
@@ -338,6 +367,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_DRM_SESSION_ACQUIRED">EVENT_DRM_SESSION_ACQUIRED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A DRM session has been acquired.</div>
 </td>
 </tr>
@@ -345,6 +375,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_DRM_SESSION_MANAGER_ERROR">EVENT_DRM_SESSION_MANAGER_ERROR</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A non-fatal DRM session manager error occurred.</div>
 </td>
 </tr>
@@ -352,6 +383,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_DRM_SESSION_RELEASED">EVENT_DRM_SESSION_RELEASED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A DRM session has been released.</div>
 </td>
 </tr>
@@ -359,6 +391,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_DROPPED_VIDEO_FRAMES">EVENT_DROPPED_VIDEO_FRAMES</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Video frames have been dropped.</div>
 </td>
 </tr>
@@ -366,6 +399,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_IS_LOADING_CHANGED">EVENT_IS_LOADING_CHANGED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#isLoading()"><code>Player.isLoading()</code></a> ()} changed.</div>
 </td>
 </tr>
@@ -373,6 +407,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_IS_PLAYING_CHANGED">EVENT_IS_PLAYING_CHANGED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#isPlaying()"><code>Player.isPlaying()</code></a> changed.</div>
 </td>
 </tr>
@@ -380,6 +415,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_LOAD_CANCELED">EVENT_LOAD_CANCELED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A source canceled loading data.</div>
 </td>
 </tr>
@@ -387,6 +423,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_LOAD_COMPLETED">EVENT_LOAD_COMPLETED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A source started completed loading data.</div>
 </td>
 </tr>
@@ -394,6 +431,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_LOAD_ERROR">EVENT_LOAD_ERROR</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A source had a non-fatal error loading data.</div>
 </td>
 </tr>
@@ -401,6 +439,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_LOAD_STARTED">EVENT_LOAD_STARTED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A source started loading data.</div>
 </td>
 </tr>
@@ -408,6 +447,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED">EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getMaxSeekToPreviousPosition()"><code>Player.getMaxSeekToPreviousPosition()</code></a> changed.</div>
 </td>
 </tr>
@@ -415,6 +455,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_MEDIA_ITEM_TRANSITION">EVENT_MEDIA_ITEM_TRANSITION</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getCurrentMediaItem()"><code>Player.getCurrentMediaItem()</code></a> changed or the player started repeating the current item.</div>
 </td>
 </tr>
@@ -422,6 +463,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_MEDIA_METADATA_CHANGED">EVENT_MEDIA_METADATA_CHANGED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getMediaMetadata()"><code>Player.getMediaMetadata()</code></a> changed.</div>
 </td>
 </tr>
@@ -429,6 +471,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_METADATA">EVENT_METADATA</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Metadata associated with the current playback time was reported.</div>
 </td>
 </tr>
@@ -436,6 +479,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_PLAY_WHEN_READY_CHANGED">EVENT_PLAY_WHEN_READY_CHANGED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getPlayWhenReady()"><code>Player.getPlayWhenReady()</code></a> changed.</div>
 </td>
 </tr>
@@ -443,6 +487,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_PLAYBACK_PARAMETERS_CHANGED">EVENT_PLAYBACK_PARAMETERS_CHANGED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getPlaybackParameters()"><code>Player.getPlaybackParameters()</code></a> changed.</div>
 </td>
 </tr>
@@ -450,6 +495,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_PLAYBACK_STATE_CHANGED">EVENT_PLAYBACK_STATE_CHANGED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getPlaybackState()"><code>Player.getPlaybackState()</code></a> changed.</div>
 </td>
 </tr>
@@ -457,6 +503,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED">EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getPlaybackSuppressionReason()"><code>Player.getPlaybackSuppressionReason()</code></a> changed.</div>
 </td>
 </tr>
@@ -464,6 +511,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_PLAYER_ERROR">EVENT_PLAYER_ERROR</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getPlayerError()"><code>Player.getPlayerError()</code></a> changed.</div>
 </td>
 </tr>
@@ -471,6 +519,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_PLAYER_RELEASED">EVENT_PLAYER_RELEASED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The player was released.</div>
 </td>
 </tr>
@@ -478,6 +527,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_PLAYLIST_METADATA_CHANGED">EVENT_PLAYLIST_METADATA_CHANGED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getPlaylistMetadata()"><code>Player.getPlaylistMetadata()</code></a> changed.</div>
 </td>
 </tr>
@@ -485,6 +535,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_POSITION_DISCONTINUITY">EVENT_POSITION_DISCONTINUITY</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A position discontinuity occurred.</div>
 </td>
 </tr>
@@ -492,6 +543,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_RENDERED_FIRST_FRAME">EVENT_RENDERED_FIRST_FRAME</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The first frame has been rendered since setting the surface, since the renderer was reset or
  since the stream changed.</div>
 </td>
@@ -500,6 +552,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_REPEAT_MODE_CHANGED">EVENT_REPEAT_MODE_CHANGED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getRepeatMode()"><code>Player.getRepeatMode()</code></a> changed.</div>
 </td>
 </tr>
@@ -507,6 +560,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_SEEK_BACK_INCREMENT_CHANGED">EVENT_SEEK_BACK_INCREMENT_CHANGED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getSeekBackIncrement()"><code>Player.getSeekBackIncrement()</code></a> changed.</div>
 </td>
 </tr>
@@ -514,6 +568,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_SEEK_FORWARD_INCREMENT_CHANGED">EVENT_SEEK_FORWARD_INCREMENT_CHANGED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getSeekForwardIncrement()"><code>Player.getSeekForwardIncrement()</code></a> changed.</div>
 </td>
 </tr>
@@ -521,6 +576,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_SHUFFLE_MODE_ENABLED_CHANGED">EVENT_SHUFFLE_MODE_ENABLED_CHANGED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getShuffleModeEnabled()"><code>Player.getShuffleModeEnabled()</code></a> changed.</div>
 </td>
 </tr>
@@ -528,6 +584,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_SKIP_SILENCE_ENABLED_CHANGED">EVENT_SKIP_SILENCE_ENABLED_CHANGED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Skipping silences was enabled or disabled in the audio stream.</div>
 </td>
 </tr>
@@ -535,6 +592,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_SURFACE_SIZE_CHANGED">EVENT_SURFACE_SIZE_CHANGED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The surface size changed.</div>
 </td>
 </tr>
@@ -542,6 +600,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_TIMELINE_CHANGED">EVENT_TIMELINE_CHANGED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getCurrentTimeline()"><code>Player.getCurrentTimeline()</code></a> changed.</div>
 </td>
 </tr>
@@ -549,6 +608,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_TRACK_SELECTION_PARAMETERS_CHANGED">EVENT_TRACK_SELECTION_PARAMETERS_CHANGED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getTrackSelectionParameters()"><code>Player.getTrackSelectionParameters()</code></a> changed.</div>
 </td>
 </tr>
@@ -556,6 +616,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_TRACKS_CHANGED">EVENT_TRACKS_CHANGED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getCurrentTracks()"><code>Player.getCurrentTracks()</code></a> changed.</div>
 </td>
 </tr>
@@ -563,6 +624,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_UPSTREAM_DISCARDED">EVENT_UPSTREAM_DISCARDED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Data was removed from the end of the media buffer.</div>
 </td>
 </tr>
@@ -570,6 +632,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_VIDEO_CODEC_ERROR">EVENT_VIDEO_CODEC_ERROR</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The video codec encountered an error.</div>
 </td>
 </tr>
@@ -577,6 +640,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_VIDEO_DECODER_INITIALIZED">EVENT_VIDEO_DECODER_INITIALIZED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A video renderer created a decoder.</div>
 </td>
 </tr>
@@ -584,6 +648,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_VIDEO_DECODER_RELEASED">EVENT_VIDEO_DECODER_RELEASED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A video renderer released a decoder.</div>
 </td>
 </tr>
@@ -591,6 +656,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_VIDEO_DISABLED">EVENT_VIDEO_DISABLED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A video renderer was disabled.</div>
 </td>
 </tr>
@@ -598,6 +664,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_VIDEO_ENABLED">EVENT_VIDEO_ENABLED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A video renderer was enabled.</div>
 </td>
 </tr>
@@ -605,6 +672,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_VIDEO_FRAME_PROCESSING_OFFSET">EVENT_VIDEO_FRAME_PROCESSING_OFFSET</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Video frame processing offset data has been reported.</div>
 </td>
 </tr>
@@ -612,6 +680,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_VIDEO_INPUT_FORMAT_CHANGED">EVENT_VIDEO_INPUT_FORMAT_CHANGED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The format consumed by a video renderer changed.</div>
 </td>
 </tr>
@@ -619,6 +688,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_VIDEO_SIZE_CHANGED">EVENT_VIDEO_SIZE_CHANGED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The video size changed.</div>
 </td>
 </tr>
@@ -626,6 +696,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_VOLUME_CHANGED">EVENT_VOLUME_CHANGED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The volume changed.</div>
 </td>
 </tr>
@@ -652,6 +723,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioAttributesChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.audio.AudioAttributes)">onAudioAttributesChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                         <a href="../audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the audio attributes change.</div>
 </td>
 </tr>
@@ -660,6 +732,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioCodecError(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.Exception)">onAudioCodecError</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                  <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;audioCodecError)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when an audio decoder encounters an error.</div>
 </td>
 </tr>
@@ -681,6 +754,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                          long&nbsp;initializedTimestampMs,
                          long&nbsp;initializationDurationMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when an audio renderer creates a decoder.</div>
 </td>
 </tr>
@@ -689,6 +763,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioDecoderReleased(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.String)">onAudioDecoderReleased</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when an audio renderer releases a decoder.</div>
 </td>
 </tr>
@@ -697,6 +772,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioDisabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.decoder.DecoderCounters)">onAudioDisabled</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                <a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;decoderCounters)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when an audio renderer is disabled.</div>
 </td>
 </tr>
@@ -705,6 +781,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioEnabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.decoder.DecoderCounters)">onAudioEnabled</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
               <a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;decoderCounters)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when an audio renderer is enabled.</div>
 </td>
 </tr>
@@ -724,6 +801,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                          <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                          <a href="../decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a>&nbsp;decoderReuseEvaluation)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the format of the media being consumed by an audio renderer changes.</div>
 </td>
 </tr>
@@ -732,6 +810,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioPositionAdvancing(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,long)">onAudioPositionAdvancing</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                         long&nbsp;playoutStartSystemTimeMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the audio position has increased for the first time since the last pause or
  position reset.</div>
 </td>
@@ -741,6 +820,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioSessionIdChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int)">onAudioSessionIdChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                        int&nbsp;audioSessionId)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the audio session ID changes.</div>
 </td>
 </tr>
@@ -749,6 +829,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAudioSinkError(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.Exception)">onAudioSinkError</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                 <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;audioSinkError)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when <a href="../audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioSink</code></a> has encountered an error.</div>
 </td>
 </tr>
@@ -759,6 +840,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                long&nbsp;bufferSizeMs,
                long&nbsp;elapsedSinceLastFeedMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when an audio underrun occurs.</div>
 </td>
 </tr>
@@ -767,6 +849,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onAvailableCommandsChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.Player.Commands)">onAvailableCommandsChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                           <a href="../Player.Commands.html" title="class in com.google.android.exoplayer2">Player.Commands</a>&nbsp;availableCommands)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the player's available commands changed.</div>
 </td>
 </tr>
@@ -777,6 +860,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                    long&nbsp;totalBytesLoaded,
                    long&nbsp;bitrateEstimate)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the bandwidth estimate for the current data source has been updated.</div>
 </td>
 </tr>
@@ -785,6 +869,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onCues(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.text.CueGroup)">onCues</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
       <a href="../text/CueGroup.html" title="class in com.google.android.exoplayer2.text">CueGroup</a>&nbsp;cueGroup)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when there is a change in the <a href="../text/CueGroup.html" title="class in com.google.android.exoplayer2.text"><code>CueGroup</code></a>.</div>
 </td>
 </tr>
@@ -800,98 +885,57 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr id="i17" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDecoderDisabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,com.google.android.exoplayer2.decoder.DecoderCounters)">onDecoderDisabled</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
-                 int&nbsp;trackType,
-                 <a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;decoderCounters)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#onAudioDisabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.decoder.DecoderCounters)"><code>onAudioDisabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime, com.google.android.exoplayer2.decoder.DecoderCounters)</code></a> and <a href="#onVideoDisabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.decoder.DecoderCounters)"><code>onVideoDisabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime, com.google.android.exoplayer2.decoder.DecoderCounters)</code></a> instead.</div>
-</div>
-</td>
-</tr>
-<tr id="i18" class="altColor">
-<td class="colFirst"><code>default void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDecoderEnabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,com.google.android.exoplayer2.decoder.DecoderCounters)">onDecoderEnabled</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
-                int&nbsp;trackType,
-                <a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;decoderCounters)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#onAudioEnabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.decoder.DecoderCounters)"><code>onAudioEnabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime, com.google.android.exoplayer2.decoder.DecoderCounters)</code></a> and <a href="#onVideoEnabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.decoder.DecoderCounters)"><code>onVideoEnabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime, com.google.android.exoplayer2.decoder.DecoderCounters)</code></a> instead.</div>
-</div>
-</td>
-</tr>
-<tr id="i19" class="rowColor">
-<td class="colFirst"><code>default void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDecoderInitialized(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,java.lang.String,long)">onDecoderInitialized</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
-                    int&nbsp;trackType,
-                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName,
-                    long&nbsp;initializationDurationMs)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#onAudioDecoderInitialized(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.String,long,long)"><code>onAudioDecoderInitialized(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime, java.lang.String, long, long)</code></a> and <a href="#onVideoDecoderInitialized(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.String,long,long)"><code>onVideoDecoderInitialized(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime, java.lang.String, long, long)</code></a>
-     instead.</div>
-</div>
-</td>
-</tr>
-<tr id="i20" class="altColor">
-<td class="colFirst"><code>default void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDecoderInputFormatChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,com.google.android.exoplayer2.Format)">onDecoderInputFormatChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
-                           int&nbsp;trackType,
-                           <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#onAudioInputFormatChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.Format,com.google.android.exoplayer2.decoder.DecoderReuseEvaluation)"><code>onAudioInputFormatChanged(EventTime, Format, DecoderReuseEvaluation)</code></a>
-     and <a href="#onVideoInputFormatChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.Format,com.google.android.exoplayer2.decoder.DecoderReuseEvaluation)"><code>onVideoInputFormatChanged(EventTime, Format, DecoderReuseEvaluation)</code></a>.</div>
-</div>
-</td>
-</tr>
-<tr id="i21" class="rowColor">
-<td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDeviceInfoChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.DeviceInfo)">onDeviceInfoChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                    <a href="../DeviceInfo.html" title="class in com.google.android.exoplayer2">DeviceInfo</a>&nbsp;deviceInfo)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the device information changes</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDeviceVolumeChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,boolean)">onDeviceVolumeChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                      int&nbsp;volume,
                      boolean&nbsp;muted)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the device volume or mute state changes.</div>
 </td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDownstreamFormatChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.source.MediaLoadData)">onDownstreamFormatChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                          <a href="../source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the downstream format sent to the renderers changed.</div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDrmKeysLoaded(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">onDrmKeysLoaded</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called each time drm keys are loaded.</div>
 </td>
 </tr>
-<tr id="i25" class="rowColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDrmKeysRemoved(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">onDrmKeysRemoved</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called each time offline drm keys are removed.</div>
 </td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDrmKeysRestored(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">onDrmKeysRestored</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called each time offline drm keys are restored.</div>
 </td>
 </tr>
-<tr id="i27" class="rowColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDrmSessionAcquired(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">onDrmSessionAcquired</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code></th>
 <td class="colLast">
@@ -900,81 +944,90 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr id="i28" class="altColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDrmSessionAcquired(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.drm.DrmSession.Stateint)">onDrmSessionAcquired</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                     @com.google.android.exoplayer2.drm.DrmSession.State int&nbsp;state)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called each time a drm session is acquired.</div>
 </td>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDrmSessionManagerError(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.Exception)">onDrmSessionManagerError</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                         <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;error)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a drm error occurs.</div>
 </td>
 </tr>
-<tr id="i30" class="altColor">
+<tr id="i26" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDrmSessionReleased(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">onDrmSessionReleased</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called each time a drm session is released.</div>
 </td>
 </tr>
-<tr id="i31" class="rowColor">
+<tr id="i27" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDroppedVideoFrames(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,long)">onDroppedVideoFrames</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                     int&nbsp;droppedFrames,
                     long&nbsp;elapsedMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called after video frames have been dropped.</div>
 </td>
 </tr>
-<tr id="i32" class="altColor">
+<tr id="i28" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onEvents(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.analytics.AnalyticsListener.Events)">onEvents</a></span>&#8203;(<a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
         <a href="AnalyticsListener.Events.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.Events</a>&nbsp;events)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called after one or more events occurred.</div>
 </td>
 </tr>
-<tr id="i33" class="rowColor">
+<tr id="i29" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onIsLoadingChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,boolean)">onIsLoadingChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                   boolean&nbsp;isLoading)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the player starts or stops loading data from a source.</div>
 </td>
 </tr>
-<tr id="i34" class="altColor">
+<tr id="i30" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onIsPlayingChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,boolean)">onIsPlayingChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                   boolean&nbsp;isPlaying)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the player starts or stops playing.</div>
 </td>
 </tr>
-<tr id="i35" class="rowColor">
+<tr id="i31" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onLoadCanceled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.source.LoadEventInfo,com.google.android.exoplayer2.source.MediaLoadData)">onLoadCanceled</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
               <a href="../source/LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
               <a href="../source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a media source canceled loading data.</div>
 </td>
 </tr>
-<tr id="i36" class="altColor">
+<tr id="i32" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onLoadCompleted(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.source.LoadEventInfo,com.google.android.exoplayer2.source.MediaLoadData)">onLoadCompleted</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                <a href="../source/LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
                <a href="../source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a media source completed loading data.</div>
 </td>
 </tr>
-<tr id="i37" class="rowColor">
+<tr id="i33" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onLoadError(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.source.LoadEventInfo,com.google.android.exoplayer2.source.MediaLoadData,java.io.IOException,boolean)">onLoadError</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
            <a href="../source/LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
@@ -982,10 +1035,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
            <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;error,
            boolean&nbsp;wasCanceled)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a media source loading error occurred.</div>
 </td>
 </tr>
-<tr id="i38" class="altColor">
+<tr id="i34" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onLoadingChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,boolean)">onLoadingChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                 boolean&nbsp;isLoading)</code></th>
@@ -995,97 +1049,108 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr id="i39" class="rowColor">
+<tr id="i35" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onLoadStarted(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.source.LoadEventInfo,com.google.android.exoplayer2.source.MediaLoadData)">onLoadStarted</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
              <a href="../source/LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
              <a href="../source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a media source started loading data.</div>
 </td>
 </tr>
-<tr id="i40" class="altColor">
+<tr id="i36" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onMaxSeekToPreviousPositionChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,long)">onMaxSeekToPreviousPositionChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                   long&nbsp;maxSeekToPreviousPositionMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the maximum position for which <a href="../Player.html#seekToPrevious()"><code>Player.seekToPrevious()</code></a> seeks to the
  previous window changes.</div>
 </td>
 </tr>
-<tr id="i41" class="rowColor">
+<tr id="i37" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onMediaItemTransition(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.MediaItem,@com.google.android.exoplayer2.Player.MediaItemTransitionReasonint)">onMediaItemTransition</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                      <a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
                      @com.google.android.exoplayer2.Player.MediaItemTransitionReason int&nbsp;reason)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when playback transitions to a different media item.</div>
 </td>
 </tr>
-<tr id="i42" class="altColor">
+<tr id="i38" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onMediaMetadataChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.MediaMetadata)">onMediaMetadataChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                       <a href="../MediaMetadata.html" title="class in com.google.android.exoplayer2">MediaMetadata</a>&nbsp;mediaMetadata)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the combined <a href="../MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a> changes.</div>
 </td>
 </tr>
-<tr id="i43" class="rowColor">
+<tr id="i39" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onMetadata(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.metadata.Metadata)">onMetadata</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
           <a href="../metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when there is <a href="../metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata"><code>Metadata</code></a> associated with the current playback time.</div>
 </td>
 </tr>
-<tr id="i44" class="altColor">
+<tr id="i40" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlaybackParametersChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.PlaybackParameters)">onPlaybackParametersChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                            <a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the playback parameters changed.</div>
 </td>
 </tr>
-<tr id="i45" class="rowColor">
+<tr id="i41" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlaybackStateChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.Player.Stateint)">onPlaybackStateChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                       @com.google.android.exoplayer2.Player.State int&nbsp;state)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the playback state changed.</div>
 </td>
 </tr>
-<tr id="i46" class="altColor">
+<tr id="i42" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlaybackSuppressionReasonChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.Player.PlaybackSuppressionReasonint)">onPlaybackSuppressionReasonChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                   @com.google.android.exoplayer2.Player.PlaybackSuppressionReason int&nbsp;playbackSuppressionReason)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when playback suppression reason changed.</div>
 </td>
 </tr>
-<tr id="i47" class="rowColor">
+<tr id="i43" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlayerError(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.PlaybackException)">onPlayerError</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
              <a href="../PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a>&nbsp;error)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a fatal player error occurred.</div>
 </td>
 </tr>
-<tr id="i48" class="altColor">
+<tr id="i44" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlayerErrorChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.PlaybackException)">onPlayerErrorChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                     <a href="../PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a>&nbsp;error)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the <a href="../PlaybackException.html" title="class in com.google.android.exoplayer2"><code>PlaybackException</code></a> returned by <a href="../Player.html#getPlayerError()"><code>Player.getPlayerError()</code></a> changes.</div>
 </td>
 </tr>
-<tr id="i49" class="rowColor">
+<tr id="i45" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlayerReleased(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">onPlayerReleased</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the <a href="../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> is released.</div>
 </td>
 </tr>
-<tr id="i50" class="altColor">
+<tr id="i46" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlayerStateChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,boolean,@com.google.android.exoplayer2.Player.Stateint)">onPlayerStateChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                     boolean&nbsp;playWhenReady,
@@ -1096,24 +1161,26 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr id="i51" class="rowColor">
+<tr id="i47" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlaylistMetadataChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.MediaMetadata)">onPlaylistMetadataChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                          <a href="../MediaMetadata.html" title="class in com.google.android.exoplayer2">MediaMetadata</a>&nbsp;playlistMetadata)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the playlist <a href="../MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a> changes.</div>
 </td>
 </tr>
-<tr id="i52" class="altColor">
+<tr id="i48" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlayWhenReadyChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,boolean,@com.google.android.exoplayer2.Player.PlayWhenReadyChangeReasonint)">onPlayWhenReadyChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                       boolean&nbsp;playWhenReady,
                       @com.google.android.exoplayer2.Player.PlayWhenReadyChangeReason int&nbsp;reason)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the value changed that indicates whether playback will proceed when ready.</div>
 </td>
 </tr>
-<tr id="i53" class="rowColor">
+<tr id="i49" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPositionDiscontinuity(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.Player.DiscontinuityReasonint)">onPositionDiscontinuity</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                        @com.google.android.exoplayer2.Player.DiscontinuityReason int&nbsp;reason)</code></th>
@@ -1124,60 +1191,56 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr id="i54" class="altColor">
+<tr id="i50" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPositionDiscontinuity(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.Player.PositionInfo,com.google.android.exoplayer2.Player.PositionInfo,@com.google.android.exoplayer2.Player.DiscontinuityReasonint)">onPositionDiscontinuity</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                        <a href="../Player.PositionInfo.html" title="class in com.google.android.exoplayer2">Player.PositionInfo</a>&nbsp;oldPosition,
                        <a href="../Player.PositionInfo.html" title="class in com.google.android.exoplayer2">Player.PositionInfo</a>&nbsp;newPosition,
                        @com.google.android.exoplayer2.Player.DiscontinuityReason int&nbsp;reason)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a position discontinuity occurred.</div>
 </td>
 </tr>
-<tr id="i55" class="rowColor">
+<tr id="i51" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onRenderedFirstFrame(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.Object,long)">onRenderedFirstFrame</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                     <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;output,
                     long&nbsp;renderTimeMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a frame is rendered for the first time since setting the surface, or since the
  renderer was reset, or since the stream being rendered was changed.</div>
 </td>
 </tr>
-<tr id="i56" class="altColor">
+<tr id="i52" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onRepeatModeChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.Player.RepeatModeint)">onRepeatModeChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                    @com.google.android.exoplayer2.Player.RepeatMode int&nbsp;repeatMode)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the repeat mode changed.</div>
 </td>
 </tr>
-<tr id="i57" class="rowColor">
+<tr id="i53" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSeekBackIncrementChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,long)">onSeekBackIncrementChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                           long&nbsp;seekBackIncrementMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the seek back increment changed.</div>
 </td>
 </tr>
-<tr id="i58" class="altColor">
+<tr id="i54" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSeekForwardIncrementChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,long)">onSeekForwardIncrementChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                              long&nbsp;seekForwardIncrementMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the seek forward increment changed.</div>
 </td>
 </tr>
-<tr id="i59" class="rowColor">
-<td class="colFirst"><code>default void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSeekProcessed(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">onSeekProcessed</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Seeks are processed without delay.</div>
-</div>
-</td>
-</tr>
-<tr id="i60" class="altColor">
+<tr id="i55" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSeekStarted(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">onSeekStarted</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</code></th>
 <td class="colLast">
@@ -1187,73 +1250,81 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr id="i61" class="rowColor">
+<tr id="i56" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onShuffleModeChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,boolean)">onShuffleModeChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                     boolean&nbsp;shuffleModeEnabled)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the shuffle mode changed.</div>
 </td>
 </tr>
-<tr id="i62" class="altColor">
+<tr id="i57" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSkipSilenceEnabledChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,boolean)">onSkipSilenceEnabledChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                            boolean&nbsp;skipSilenceEnabled)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when skipping silences is enabled or disabled in the audio stream.</div>
 </td>
 </tr>
-<tr id="i63" class="rowColor">
+<tr id="i58" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSurfaceSizeChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,int)">onSurfaceSizeChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                     int&nbsp;width,
                     int&nbsp;height)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the output surface size changed.</div>
 </td>
 </tr>
-<tr id="i64" class="altColor">
+<tr id="i59" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTimelineChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.Player.TimelineChangeReasonint)">onTimelineChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                  @com.google.android.exoplayer2.Player.TimelineChangeReason int&nbsp;reason)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the timeline changed.</div>
 </td>
 </tr>
-<tr id="i65" class="rowColor">
+<tr id="i60" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTracksChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.Tracks)">onTracksChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                <a href="../Tracks.html" title="class in com.google.android.exoplayer2">Tracks</a>&nbsp;tracks)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the tracks change.</div>
 </td>
 </tr>
-<tr id="i66" class="altColor">
+<tr id="i61" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTrackSelectionParametersChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.trackselection.TrackSelectionParameters)">onTrackSelectionParametersChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                  <a href="../trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a>&nbsp;trackSelectionParameters)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when track selection parameters change.</div>
 </td>
 </tr>
-<tr id="i67" class="rowColor">
+<tr id="i62" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onUpstreamDiscarded(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.source.MediaLoadData)">onUpstreamDiscarded</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                    <a href="../source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when data is removed from the back of a media buffer, typically so that it can be
  re-buffered in a different format.</div>
 </td>
 </tr>
-<tr id="i68" class="altColor">
+<tr id="i63" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoCodecError(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.Exception)">onVideoCodecError</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                  <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;videoCodecError)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a video decoder encounters an error.</div>
 </td>
 </tr>
-<tr id="i69" class="rowColor">
+<tr id="i64" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoDecoderInitialized(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.String,long)">onVideoDecoderInitialized</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName,
@@ -1264,51 +1335,56 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr id="i70" class="altColor">
+<tr id="i65" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoDecoderInitialized(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.String,long,long)">onVideoDecoderInitialized</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName,
                          long&nbsp;initializedTimestampMs,
                          long&nbsp;initializationDurationMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a video renderer creates a decoder.</div>
 </td>
 </tr>
-<tr id="i71" class="rowColor">
+<tr id="i66" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoDecoderReleased(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.String)">onVideoDecoderReleased</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a video renderer releases a decoder.</div>
 </td>
 </tr>
-<tr id="i72" class="altColor">
+<tr id="i67" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoDisabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.decoder.DecoderCounters)">onVideoDisabled</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                <a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;decoderCounters)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a video renderer is disabled.</div>
 </td>
 </tr>
-<tr id="i73" class="rowColor">
+<tr id="i68" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoEnabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.decoder.DecoderCounters)">onVideoEnabled</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
               <a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;decoderCounters)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a video renderer is enabled.</div>
 </td>
 </tr>
-<tr id="i74" class="altColor">
+<tr id="i69" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoFrameProcessingOffset(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,long,int)">onVideoFrameProcessingOffset</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                             long&nbsp;totalProcessingOffsetUs,
                             int&nbsp;frameCount)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when there is an update to the video frame processing offset reported by a video
  renderer.</div>
 </td>
 </tr>
-<tr id="i75" class="rowColor">
+<tr id="i70" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoInputFormatChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.Format)">onVideoInputFormatChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                          <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
@@ -1318,16 +1394,17 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr id="i76" class="altColor">
+<tr id="i71" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoInputFormatChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.Format,com.google.android.exoplayer2.decoder.DecoderReuseEvaluation)">onVideoInputFormatChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                          <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                          <a href="../decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a>&nbsp;decoderReuseEvaluation)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the format of the media being consumed by a video renderer changes.</div>
 </td>
 </tr>
-<tr id="i77" class="rowColor">
+<tr id="i72" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoSizeChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,int,int,float)">onVideoSizeChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                   int&nbsp;width,
@@ -1340,20 +1417,22 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </div>
 </td>
 </tr>
-<tr id="i78" class="altColor">
+<tr id="i73" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVideoSizeChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.video.VideoSize)">onVideoSizeChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                   <a href="../video/VideoSize.html" title="class in com.google.android.exoplayer2.video">VideoSize</a>&nbsp;videoSize)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called before a frame is rendered for the first time since setting the surface, and each time
  there's a change in the size or pixel aspect ratio of the video being rendered.</div>
 </td>
 </tr>
-<tr id="i79" class="rowColor">
+<tr id="i74" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onVolumeChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,float)">onVolumeChanged</a></span>&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                float&nbsp;volume)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the volume changes.</div>
 </td>
 </tr>
@@ -1381,6 +1460,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_TIMELINE_CHANGED</h4>
 <pre>static final&nbsp;int EVENT_TIMELINE_CHANGED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getCurrentTimeline()"><code>Player.getCurrentTimeline()</code></a> changed.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1395,6 +1475,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_MEDIA_ITEM_TRANSITION</h4>
 <pre>static final&nbsp;int EVENT_MEDIA_ITEM_TRANSITION</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getCurrentMediaItem()"><code>Player.getCurrentMediaItem()</code></a> changed or the player started repeating the current item.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1409,6 +1490,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_TRACKS_CHANGED</h4>
 <pre>static final&nbsp;int EVENT_TRACKS_CHANGED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getCurrentTracks()"><code>Player.getCurrentTracks()</code></a> changed.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1423,6 +1505,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_IS_LOADING_CHANGED</h4>
 <pre>static final&nbsp;int EVENT_IS_LOADING_CHANGED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#isLoading()"><code>Player.isLoading()</code></a> ()} changed.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1437,6 +1520,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_PLAYBACK_STATE_CHANGED</h4>
 <pre>static final&nbsp;int EVENT_PLAYBACK_STATE_CHANGED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getPlaybackState()"><code>Player.getPlaybackState()</code></a> changed.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1451,6 +1535,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_PLAY_WHEN_READY_CHANGED</h4>
 <pre>static final&nbsp;int EVENT_PLAY_WHEN_READY_CHANGED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getPlayWhenReady()"><code>Player.getPlayWhenReady()</code></a> changed.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1465,6 +1550,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED</h4>
 <pre>static final&nbsp;int EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getPlaybackSuppressionReason()"><code>Player.getPlaybackSuppressionReason()</code></a> changed.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1479,6 +1565,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_IS_PLAYING_CHANGED</h4>
 <pre>static final&nbsp;int EVENT_IS_PLAYING_CHANGED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#isPlaying()"><code>Player.isPlaying()</code></a> changed.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1493,6 +1580,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_REPEAT_MODE_CHANGED</h4>
 <pre>static final&nbsp;int EVENT_REPEAT_MODE_CHANGED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getRepeatMode()"><code>Player.getRepeatMode()</code></a> changed.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1507,6 +1595,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_SHUFFLE_MODE_ENABLED_CHANGED</h4>
 <pre>static final&nbsp;int EVENT_SHUFFLE_MODE_ENABLED_CHANGED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getShuffleModeEnabled()"><code>Player.getShuffleModeEnabled()</code></a> changed.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1521,6 +1610,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_PLAYER_ERROR</h4>
 <pre>static final&nbsp;int EVENT_PLAYER_ERROR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getPlayerError()"><code>Player.getPlayerError()</code></a> changed.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1535,6 +1625,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_POSITION_DISCONTINUITY</h4>
 <pre>static final&nbsp;int EVENT_POSITION_DISCONTINUITY</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A position discontinuity occurred. See <a href="../Player.Listener.html#onPositionDiscontinuity(com.google.android.exoplayer2.Player.PositionInfo,com.google.android.exoplayer2.Player.PositionInfo,@com.google.android.exoplayer2.Player.DiscontinuityReasonint)"><code>Player.Listener.onPositionDiscontinuity(Player.PositionInfo, Player.PositionInfo, int)</code></a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1549,6 +1640,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_PLAYBACK_PARAMETERS_CHANGED</h4>
 <pre>static final&nbsp;int EVENT_PLAYBACK_PARAMETERS_CHANGED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getPlaybackParameters()"><code>Player.getPlaybackParameters()</code></a> changed.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1563,6 +1655,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_AVAILABLE_COMMANDS_CHANGED</h4>
 <pre>static final&nbsp;int EVENT_AVAILABLE_COMMANDS_CHANGED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getAvailableCommands()"><code>Player.getAvailableCommands()</code></a> changed.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1577,6 +1670,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_MEDIA_METADATA_CHANGED</h4>
 <pre>static final&nbsp;int EVENT_MEDIA_METADATA_CHANGED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getMediaMetadata()"><code>Player.getMediaMetadata()</code></a> changed.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1591,6 +1685,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_PLAYLIST_METADATA_CHANGED</h4>
 <pre>static final&nbsp;int EVENT_PLAYLIST_METADATA_CHANGED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getPlaylistMetadata()"><code>Player.getPlaylistMetadata()</code></a> changed.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1605,6 +1700,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_SEEK_BACK_INCREMENT_CHANGED</h4>
 <pre>static final&nbsp;int EVENT_SEEK_BACK_INCREMENT_CHANGED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getSeekBackIncrement()"><code>Player.getSeekBackIncrement()</code></a> changed.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1619,6 +1715,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_SEEK_FORWARD_INCREMENT_CHANGED</h4>
 <pre>static final&nbsp;int EVENT_SEEK_FORWARD_INCREMENT_CHANGED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getSeekForwardIncrement()"><code>Player.getSeekForwardIncrement()</code></a> changed.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1633,6 +1730,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED</h4>
 <pre>static final&nbsp;int EVENT_MAX_SEEK_TO_PREVIOUS_POSITION_CHANGED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getMaxSeekToPreviousPosition()"><code>Player.getMaxSeekToPreviousPosition()</code></a> changed.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1647,6 +1745,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_TRACK_SELECTION_PARAMETERS_CHANGED</h4>
 <pre>static final&nbsp;int EVENT_TRACK_SELECTION_PARAMETERS_CHANGED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getTrackSelectionParameters()"><code>Player.getTrackSelectionParameters()</code></a> changed.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1661,6 +1760,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_AUDIO_ATTRIBUTES_CHANGED</h4>
 <pre>static final&nbsp;int EVENT_AUDIO_ATTRIBUTES_CHANGED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Audio attributes changed.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1675,6 +1775,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_AUDIO_SESSION_ID</h4>
 <pre>static final&nbsp;int EVENT_AUDIO_SESSION_ID</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">An audio session id was set.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1689,6 +1790,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_VOLUME_CHANGED</h4>
 <pre>static final&nbsp;int EVENT_VOLUME_CHANGED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The volume changed.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1703,6 +1805,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_SKIP_SILENCE_ENABLED_CHANGED</h4>
 <pre>static final&nbsp;int EVENT_SKIP_SILENCE_ENABLED_CHANGED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Skipping silences was enabled or disabled in the audio stream.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1717,6 +1820,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_SURFACE_SIZE_CHANGED</h4>
 <pre>static final&nbsp;int EVENT_SURFACE_SIZE_CHANGED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The surface size changed.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1731,6 +1835,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_VIDEO_SIZE_CHANGED</h4>
 <pre>static final&nbsp;int EVENT_VIDEO_SIZE_CHANGED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The video size changed.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1745,6 +1850,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_RENDERED_FIRST_FRAME</h4>
 <pre>static final&nbsp;int EVENT_RENDERED_FIRST_FRAME</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The first frame has been rendered since setting the surface, since the renderer was reset or
  since the stream changed.</div>
 <dl>
@@ -1760,6 +1866,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_METADATA</h4>
 <pre>static final&nbsp;int EVENT_METADATA</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Metadata associated with the current playback time was reported.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1774,6 +1881,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_CUES</h4>
 <pre>static final&nbsp;int EVENT_CUES</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getCurrentCues()"><code>Player.getCurrentCues()</code></a> changed.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1788,6 +1896,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_DEVICE_INFO_CHANGED</h4>
 <pre>static final&nbsp;int EVENT_DEVICE_INFO_CHANGED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getDeviceInfo()"><code>Player.getDeviceInfo()</code></a> changed.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1802,6 +1911,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_DEVICE_VOLUME_CHANGED</h4>
 <pre>static final&nbsp;int EVENT_DEVICE_VOLUME_CHANGED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="../Player.html#getDeviceVolume()"><code>Player.getDeviceVolume()</code></a> changed.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1816,6 +1926,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_LOAD_STARTED</h4>
 <pre>static final&nbsp;int EVENT_LOAD_STARTED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A source started loading data.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1830,6 +1941,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_LOAD_COMPLETED</h4>
 <pre>static final&nbsp;int EVENT_LOAD_COMPLETED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A source started completed loading data.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1844,6 +1956,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_LOAD_CANCELED</h4>
 <pre>static final&nbsp;int EVENT_LOAD_CANCELED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A source canceled loading data.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1858,6 +1971,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_LOAD_ERROR</h4>
 <pre>static final&nbsp;int EVENT_LOAD_ERROR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A source had a non-fatal error loading data.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1872,6 +1986,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_DOWNSTREAM_FORMAT_CHANGED</h4>
 <pre>static final&nbsp;int EVENT_DOWNSTREAM_FORMAT_CHANGED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The downstream format sent to renderers changed.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1886,6 +2001,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_UPSTREAM_DISCARDED</h4>
 <pre>static final&nbsp;int EVENT_UPSTREAM_DISCARDED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Data was removed from the end of the media buffer.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1900,6 +2016,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_BANDWIDTH_ESTIMATE</h4>
 <pre>static final&nbsp;int EVENT_BANDWIDTH_ESTIMATE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The bandwidth estimate has been updated.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1914,6 +2031,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_AUDIO_ENABLED</h4>
 <pre>static final&nbsp;int EVENT_AUDIO_ENABLED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">An audio renderer was enabled.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1928,6 +2046,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_AUDIO_DECODER_INITIALIZED</h4>
 <pre>static final&nbsp;int EVENT_AUDIO_DECODER_INITIALIZED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">An audio renderer created a decoder.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1942,6 +2061,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_AUDIO_INPUT_FORMAT_CHANGED</h4>
 <pre>static final&nbsp;int EVENT_AUDIO_INPUT_FORMAT_CHANGED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The format consumed by an audio renderer changed.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1956,6 +2076,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_AUDIO_POSITION_ADVANCING</h4>
 <pre>static final&nbsp;int EVENT_AUDIO_POSITION_ADVANCING</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The audio position has increased for the first time since the last pause or position reset.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1970,6 +2091,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_AUDIO_UNDERRUN</h4>
 <pre>static final&nbsp;int EVENT_AUDIO_UNDERRUN</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">An audio underrun occurred.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1984,6 +2106,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_AUDIO_DECODER_RELEASED</h4>
 <pre>static final&nbsp;int EVENT_AUDIO_DECODER_RELEASED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">An audio renderer released a decoder.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1998,6 +2121,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_AUDIO_DISABLED</h4>
 <pre>static final&nbsp;int EVENT_AUDIO_DISABLED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">An audio renderer was disabled.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -2012,6 +2136,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_AUDIO_SINK_ERROR</h4>
 <pre>static final&nbsp;int EVENT_AUDIO_SINK_ERROR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The audio sink encountered a non-fatal error.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -2026,6 +2151,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_VIDEO_ENABLED</h4>
 <pre>static final&nbsp;int EVENT_VIDEO_ENABLED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A video renderer was enabled.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -2040,6 +2166,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_VIDEO_DECODER_INITIALIZED</h4>
 <pre>static final&nbsp;int EVENT_VIDEO_DECODER_INITIALIZED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A video renderer created a decoder.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -2054,6 +2181,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_VIDEO_INPUT_FORMAT_CHANGED</h4>
 <pre>static final&nbsp;int EVENT_VIDEO_INPUT_FORMAT_CHANGED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The format consumed by a video renderer changed.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -2068,6 +2196,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_DROPPED_VIDEO_FRAMES</h4>
 <pre>static final&nbsp;int EVENT_DROPPED_VIDEO_FRAMES</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Video frames have been dropped.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -2082,6 +2211,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_VIDEO_DECODER_RELEASED</h4>
 <pre>static final&nbsp;int EVENT_VIDEO_DECODER_RELEASED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A video renderer released a decoder.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -2096,6 +2226,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_VIDEO_DISABLED</h4>
 <pre>static final&nbsp;int EVENT_VIDEO_DISABLED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A video renderer was disabled.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -2110,6 +2241,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_VIDEO_FRAME_PROCESSING_OFFSET</h4>
 <pre>static final&nbsp;int EVENT_VIDEO_FRAME_PROCESSING_OFFSET</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Video frame processing offset data has been reported.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -2124,6 +2256,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_DRM_SESSION_ACQUIRED</h4>
 <pre>static final&nbsp;int EVENT_DRM_SESSION_ACQUIRED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A DRM session has been acquired.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -2138,6 +2271,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_DRM_KEYS_LOADED</h4>
 <pre>static final&nbsp;int EVENT_DRM_KEYS_LOADED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">DRM keys were loaded.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -2152,6 +2286,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_DRM_SESSION_MANAGER_ERROR</h4>
 <pre>static final&nbsp;int EVENT_DRM_SESSION_MANAGER_ERROR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A non-fatal DRM session manager error occurred.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -2166,6 +2301,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_DRM_KEYS_RESTORED</h4>
 <pre>static final&nbsp;int EVENT_DRM_KEYS_RESTORED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">DRM keys were restored.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -2180,6 +2316,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_DRM_KEYS_REMOVED</h4>
 <pre>static final&nbsp;int EVENT_DRM_KEYS_REMOVED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">DRM keys were removed.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -2194,6 +2331,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_DRM_SESSION_RELEASED</h4>
 <pre>static final&nbsp;int EVENT_DRM_SESSION_RELEASED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A DRM session has been released.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -2208,6 +2346,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_PLAYER_RELEASED</h4>
 <pre>static final&nbsp;int EVENT_PLAYER_RELEASED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The player was released.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -2222,6 +2361,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_AUDIO_CODEC_ERROR</h4>
 <pre>static final&nbsp;int EVENT_AUDIO_CODEC_ERROR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The audio codec encountered an error.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -2236,6 +2376,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_VIDEO_CODEC_ERROR</h4>
 <pre>static final&nbsp;int EVENT_VIDEO_CODEC_ERROR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The video codec encountered an error.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -2278,6 +2419,7 @@ default&nbsp;void&nbsp;onPlayerStateChanged&#8203;(<a href="AnalyticsListener.Ev
 <pre class="methodSignature">default&nbsp;void&nbsp;onPlaybackStateChanged&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                     <a href="../Player.State.html" title="annotation in com.google.android.exoplayer2">@State</a>
                                     @com.google.android.exoplayer2.Player.State int&nbsp;state)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the playback state changed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -2296,6 +2438,7 @@ default&nbsp;void&nbsp;onPlayerStateChanged&#8203;(<a href="AnalyticsListener.Ev
                                     boolean&nbsp;playWhenReady,
                                     <a href="../Player.PlayWhenReadyChangeReason.html" title="annotation in com.google.android.exoplayer2">@PlayWhenReadyChangeReason</a>
                                     @com.google.android.exoplayer2.Player.PlayWhenReadyChangeReason int&nbsp;reason)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the value changed that indicates whether playback will proceed when ready.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -2314,6 +2457,7 @@ default&nbsp;void&nbsp;onPlayerStateChanged&#8203;(<a href="AnalyticsListener.Ev
 <pre class="methodSignature">default&nbsp;void&nbsp;onPlaybackSuppressionReasonChanged&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                                 <a href="../Player.PlaybackSuppressionReason.html" title="annotation in com.google.android.exoplayer2">@PlaybackSuppressionReason</a>
                                                 @com.google.android.exoplayer2.Player.PlaybackSuppressionReason int&nbsp;playbackSuppressionReason)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when playback suppression reason changed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -2330,6 +2474,7 @@ default&nbsp;void&nbsp;onPlayerStateChanged&#8203;(<a href="AnalyticsListener.Ev
 <h4>onIsPlayingChanged</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onIsPlayingChanged&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                 boolean&nbsp;isPlaying)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the player starts or stops playing.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -2347,6 +2492,7 @@ default&nbsp;void&nbsp;onPlayerStateChanged&#8203;(<a href="AnalyticsListener.Ev
 <pre class="methodSignature">default&nbsp;void&nbsp;onTimelineChanged&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                <a href="../Player.TimelineChangeReason.html" title="annotation in com.google.android.exoplayer2">@TimelineChangeReason</a>
                                @com.google.android.exoplayer2.Player.TimelineChangeReason int&nbsp;reason)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the timeline changed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -2366,6 +2512,7 @@ default&nbsp;void&nbsp;onPlayerStateChanged&#8203;(<a href="AnalyticsListener.Ev
                                    <a href="../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;mediaItem,
                                    <a href="../Player.MediaItemTransitionReason.html" title="annotation in com.google.android.exoplayer2">@MediaItemTransitionReason</a>
                                    @com.google.android.exoplayer2.Player.MediaItemTransitionReason int&nbsp;reason)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when playback transitions to a different media item.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -2402,6 +2549,7 @@ default&nbsp;void&nbsp;onPositionDiscontinuity&#8203;(<a href="AnalyticsListener
                                      <a href="../Player.PositionInfo.html" title="class in com.google.android.exoplayer2">Player.PositionInfo</a>&nbsp;newPosition,
                                      <a href="../Player.DiscontinuityReason.html" title="annotation in com.google.android.exoplayer2">@DiscontinuityReason</a>
                                      @com.google.android.exoplayer2.Player.DiscontinuityReason int&nbsp;reason)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a position discontinuity occurred.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -2426,20 +2574,6 @@ default&nbsp;void&nbsp;onSeekStarted&#8203;(<a href="AnalyticsListener.EventTime
 </div>
 </li>
 </ul>
-<a id="onSeekProcessed(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>onSeekProcessed</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-default&nbsp;void&nbsp;onSeekProcessed&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Seeks are processed without delay. Use <a href="#onPositionDiscontinuity(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,@com.google.android.exoplayer2.Player.DiscontinuityReasonint)"><code>onPositionDiscontinuity(EventTime,
-     int)</code></a> with reason <a href="../Player.html#DISCONTINUITY_REASON_SEEK"><code>Player.DISCONTINUITY_REASON_SEEK</code></a> instead.</div>
-</div>
-</li>
-</ul>
 <a id="onPlaybackParametersChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.PlaybackParameters)">
 <!--   -->
 </a>
@@ -2448,6 +2582,7 @@ default&nbsp;void&nbsp;onSeekProcessed&#8203;(<a href="AnalyticsListener.EventTi
 <h4>onPlaybackParametersChanged</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onPlaybackParametersChanged&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                          <a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the playback parameters changed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -2464,6 +2599,7 @@ default&nbsp;void&nbsp;onSeekProcessed&#8203;(<a href="AnalyticsListener.EventTi
 <h4>onSeekBackIncrementChanged</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onSeekBackIncrementChanged&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                         long&nbsp;seekBackIncrementMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the seek back increment changed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -2480,6 +2616,7 @@ default&nbsp;void&nbsp;onSeekProcessed&#8203;(<a href="AnalyticsListener.EventTi
 <h4>onSeekForwardIncrementChanged</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onSeekForwardIncrementChanged&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                            long&nbsp;seekForwardIncrementMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the seek forward increment changed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -2496,6 +2633,7 @@ default&nbsp;void&nbsp;onSeekProcessed&#8203;(<a href="AnalyticsListener.EventTi
 <h4>onMaxSeekToPreviousPositionChanged</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onMaxSeekToPreviousPositionChanged&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                                 long&nbsp;maxSeekToPreviousPositionMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the maximum position for which <a href="../Player.html#seekToPrevious()"><code>Player.seekToPrevious()</code></a> seeks to the
  previous window changes.</div>
 <dl>
@@ -2514,6 +2652,7 @@ default&nbsp;void&nbsp;onSeekProcessed&#8203;(<a href="AnalyticsListener.EventTi
 <pre class="methodSignature">default&nbsp;void&nbsp;onRepeatModeChanged&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                  <a href="../Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@RepeatMode</a>
                                  @com.google.android.exoplayer2.Player.RepeatMode int&nbsp;repeatMode)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the repeat mode changed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -2530,6 +2669,7 @@ default&nbsp;void&nbsp;onSeekProcessed&#8203;(<a href="AnalyticsListener.EventTi
 <h4>onShuffleModeChanged</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onShuffleModeChanged&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                   boolean&nbsp;shuffleModeEnabled)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the shuffle mode changed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -2546,6 +2686,7 @@ default&nbsp;void&nbsp;onSeekProcessed&#8203;(<a href="AnalyticsListener.EventTi
 <h4>onIsLoadingChanged</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onIsLoadingChanged&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                 boolean&nbsp;isLoading)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the player starts or stops loading data from a source.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -2576,6 +2717,7 @@ default&nbsp;void&nbsp;onLoadingChanged&#8203;(<a href="AnalyticsListener.EventT
 <h4>onAvailableCommandsChanged</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onAvailableCommandsChanged&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                         <a href="../Player.Commands.html" title="class in com.google.android.exoplayer2">Player.Commands</a>&nbsp;availableCommands)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the player's available commands changed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -2592,6 +2734,7 @@ default&nbsp;void&nbsp;onLoadingChanged&#8203;(<a href="AnalyticsListener.EventT
 <h4>onPlayerError</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onPlayerError&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                            <a href="../PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a>&nbsp;error)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a fatal player error occurred.
 
  <p>Implementations of <a href="../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> may pass an instance of a subclass of <a href="../PlaybackException.html" title="class in com.google.android.exoplayer2"><code>PlaybackException</code></a> to this method in order to include more information about the error.</div>
@@ -2611,6 +2754,7 @@ default&nbsp;void&nbsp;onLoadingChanged&#8203;(<a href="AnalyticsListener.EventT
 <pre class="methodSignature">default&nbsp;void&nbsp;onPlayerErrorChanged&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                   @Nullable
                                   <a href="../PlaybackException.html" title="class in com.google.android.exoplayer2">PlaybackException</a>&nbsp;error)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the <a href="../PlaybackException.html" title="class in com.google.android.exoplayer2"><code>PlaybackException</code></a> returned by <a href="../Player.html#getPlayerError()"><code>Player.getPlayerError()</code></a> changes.
 
  <p>Implementations of Player may pass an instance of a subclass of <a href="../PlaybackException.html" title="class in com.google.android.exoplayer2"><code>PlaybackException</code></a> to
@@ -2630,6 +2774,7 @@ default&nbsp;void&nbsp;onLoadingChanged&#8203;(<a href="AnalyticsListener.EventT
 <h4>onTracksChanged</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onTracksChanged&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                              <a href="../Tracks.html" title="class in com.google.android.exoplayer2">Tracks</a>&nbsp;tracks)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the tracks change.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -2646,6 +2791,7 @@ default&nbsp;void&nbsp;onLoadingChanged&#8203;(<a href="AnalyticsListener.EventT
 <h4>onTrackSelectionParametersChanged</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onTrackSelectionParametersChanged&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                                <a href="../trackselection/TrackSelectionParameters.html" title="class in com.google.android.exoplayer2.trackselection">TrackSelectionParameters</a>&nbsp;trackSelectionParameters)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when track selection parameters change.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -2662,6 +2808,7 @@ default&nbsp;void&nbsp;onLoadingChanged&#8203;(<a href="AnalyticsListener.EventT
 <h4>onMediaMetadataChanged</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onMediaMetadataChanged&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                     <a href="../MediaMetadata.html" title="class in com.google.android.exoplayer2">MediaMetadata</a>&nbsp;mediaMetadata)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the combined <a href="../MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a> changes.
 
  <p>The provided <a href="../MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a> is a combination of the <a href="../MediaItem.html#mediaMetadata"><code>MediaItem.mediaMetadata</code></a>
@@ -2682,6 +2829,7 @@ default&nbsp;void&nbsp;onLoadingChanged&#8203;(<a href="AnalyticsListener.EventT
 <h4>onPlaylistMetadataChanged</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onPlaylistMetadataChanged&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                        <a href="../MediaMetadata.html" title="class in com.google.android.exoplayer2">MediaMetadata</a>&nbsp;playlistMetadata)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the playlist <a href="../MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a> changes.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -2699,6 +2847,7 @@ default&nbsp;void&nbsp;onLoadingChanged&#8203;(<a href="AnalyticsListener.EventT
 <pre class="methodSignature">default&nbsp;void&nbsp;onLoadStarted&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                            <a href="../source/LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
                            <a href="../source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a media source started loading data.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -2717,6 +2866,7 @@ default&nbsp;void&nbsp;onLoadingChanged&#8203;(<a href="AnalyticsListener.EventT
 <pre class="methodSignature">default&nbsp;void&nbsp;onLoadCompleted&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                              <a href="../source/LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
                              <a href="../source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a media source completed loading data.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -2735,6 +2885,7 @@ default&nbsp;void&nbsp;onLoadingChanged&#8203;(<a href="AnalyticsListener.EventT
 <pre class="methodSignature">default&nbsp;void&nbsp;onLoadCanceled&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                             <a href="../source/LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
                             <a href="../source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a media source canceled loading data.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -2755,6 +2906,7 @@ default&nbsp;void&nbsp;onLoadingChanged&#8203;(<a href="AnalyticsListener.EventT
                          <a href="../source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData,
                          <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;error,
                          boolean&nbsp;wasCanceled)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a media source loading error occurred.
 
  <p>This method being called does not indicate that playback has failed, or that it will fail.
@@ -2781,6 +2933,7 @@ default&nbsp;void&nbsp;onLoadingChanged&#8203;(<a href="AnalyticsListener.EventT
 <h4>onDownstreamFormatChanged</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onDownstreamFormatChanged&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                        <a href="../source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the downstream format sent to the renderers changed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -2797,6 +2950,7 @@ default&nbsp;void&nbsp;onLoadingChanged&#8203;(<a href="AnalyticsListener.EventT
 <h4>onUpstreamDiscarded</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onUpstreamDiscarded&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                  <a href="../source/MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when data is removed from the back of a media buffer, typically so that it can be
  re-buffered in a different format.</div>
 <dl>
@@ -2816,6 +2970,7 @@ default&nbsp;void&nbsp;onLoadingChanged&#8203;(<a href="AnalyticsListener.EventT
                                  int&nbsp;totalLoadTimeMs,
                                  long&nbsp;totalBytesLoaded,
                                  long&nbsp;bitrateEstimate)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the bandwidth estimate for the current data source has been updated.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -2834,6 +2989,7 @@ default&nbsp;void&nbsp;onLoadingChanged&#8203;(<a href="AnalyticsListener.EventT
 <h4>onMetadata</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onMetadata&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                         <a href="../metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;metadata)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when there is <a href="../metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata"><code>Metadata</code></a> associated with the current playback time.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -2873,6 +3029,7 @@ default&nbsp;void&nbsp;onCues&#8203;(<a href="AnalyticsListener.EventTime.html" 
 <h4>onCues</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onCues&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                     <a href="../text/CueGroup.html" title="class in com.google.android.exoplayer2.text">CueGroup</a>&nbsp;cueGroup)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when there is a change in the <a href="../text/CueGroup.html" title="class in com.google.android.exoplayer2.text"><code>CueGroup</code></a>.
 
  <p>Both <a href="#onCues(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.util.List)"><code>onCues(EventTime, List)</code></a> and <a href="#onCues(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.text.CueGroup)"><code>onCues(EventTime, CueGroup)</code></a> are called
@@ -2884,69 +3041,6 @@ default&nbsp;void&nbsp;onCues&#8203;(<a href="AnalyticsListener.EventTime.html" 
 </dl>
 </li>
 </ul>
-<a id="onDecoderEnabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,com.google.android.exoplayer2.decoder.DecoderCounters)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>onDecoderEnabled</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-default&nbsp;void&nbsp;onDecoderEnabled&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
-                              int&nbsp;trackType,
-                              <a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;decoderCounters)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#onAudioEnabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.decoder.DecoderCounters)"><code>onAudioEnabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime, com.google.android.exoplayer2.decoder.DecoderCounters)</code></a> and <a href="#onVideoEnabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.decoder.DecoderCounters)"><code>onVideoEnabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime, com.google.android.exoplayer2.decoder.DecoderCounters)</code></a> instead.</div>
-</div>
-</li>
-</ul>
-<a id="onDecoderInitialized(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,java.lang.String,long)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>onDecoderInitialized</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-default&nbsp;void&nbsp;onDecoderInitialized&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
-                                  int&nbsp;trackType,
-                                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName,
-                                  long&nbsp;initializationDurationMs)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#onAudioDecoderInitialized(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.String,long,long)"><code>onAudioDecoderInitialized(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime, java.lang.String, long, long)</code></a> and <a href="#onVideoDecoderInitialized(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,java.lang.String,long,long)"><code>onVideoDecoderInitialized(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime, java.lang.String, long, long)</code></a>
-     instead.</div>
-</div>
-</li>
-</ul>
-<a id="onDecoderInputFormatChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,com.google.android.exoplayer2.Format)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>onDecoderInputFormatChanged</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-default&nbsp;void&nbsp;onDecoderInputFormatChanged&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
-                                         int&nbsp;trackType,
-                                         <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#onAudioInputFormatChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.Format,com.google.android.exoplayer2.decoder.DecoderReuseEvaluation)"><code>onAudioInputFormatChanged(EventTime, Format, DecoderReuseEvaluation)</code></a>
-     and <a href="#onVideoInputFormatChanged(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.Format,com.google.android.exoplayer2.decoder.DecoderReuseEvaluation)"><code>onVideoInputFormatChanged(EventTime, Format, DecoderReuseEvaluation)</code></a>. instead.</div>
-</div>
-</li>
-</ul>
-<a id="onDecoderDisabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,int,com.google.android.exoplayer2.decoder.DecoderCounters)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>onDecoderDisabled</h4>
-<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-default&nbsp;void&nbsp;onDecoderDisabled&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
-                               int&nbsp;trackType,
-                               <a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;decoderCounters)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#onAudioDisabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.decoder.DecoderCounters)"><code>onAudioDisabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime, com.google.android.exoplayer2.decoder.DecoderCounters)</code></a> and <a href="#onVideoDisabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.decoder.DecoderCounters)"><code>onVideoDisabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime, com.google.android.exoplayer2.decoder.DecoderCounters)</code></a> instead.</div>
-</div>
-</li>
-</ul>
 <a id="onAudioEnabled(com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime,com.google.android.exoplayer2.decoder.DecoderCounters)">
 <!--   -->
 </a>
@@ -2955,6 +3049,7 @@ default&nbsp;void&nbsp;onDecoderDisabled&#8203;(<a href="AnalyticsListener.Event
 <h4>onAudioEnabled</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onAudioEnabled&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                             <a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;decoderCounters)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when an audio renderer is enabled.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -2974,6 +3069,7 @@ default&nbsp;void&nbsp;onDecoderDisabled&#8203;(<a href="AnalyticsListener.Event
                                        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName,
                                        long&nbsp;initializedTimestampMs,
                                        long&nbsp;initializationDurationMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when an audio renderer creates a decoder.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -3024,6 +3120,7 @@ default&nbsp;void&nbsp;onAudioInputFormatChanged&#8203;(<a href="AnalyticsListen
                                        <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                        @Nullable
                                        <a href="../decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a>&nbsp;decoderReuseEvaluation)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the format of the media being consumed by an audio renderer changes.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -3043,6 +3140,7 @@ default&nbsp;void&nbsp;onAudioInputFormatChanged&#8203;(<a href="AnalyticsListen
 <h4>onAudioPositionAdvancing</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onAudioPositionAdvancing&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                       long&nbsp;playoutStartSystemTimeMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the audio position has increased for the first time since the last pause or
  position reset.</div>
 <dl>
@@ -3063,6 +3161,7 @@ default&nbsp;void&nbsp;onAudioInputFormatChanged&#8203;(<a href="AnalyticsListen
                              int&nbsp;bufferSize,
                              long&nbsp;bufferSizeMs,
                              long&nbsp;elapsedSinceLastFeedMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when an audio underrun occurs.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -3082,6 +3181,7 @@ default&nbsp;void&nbsp;onAudioInputFormatChanged&#8203;(<a href="AnalyticsListen
 <h4>onAudioDecoderReleased</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onAudioDecoderReleased&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when an audio renderer releases a decoder.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -3098,6 +3198,7 @@ default&nbsp;void&nbsp;onAudioInputFormatChanged&#8203;(<a href="AnalyticsListen
 <h4>onAudioDisabled</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onAudioDisabled&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                              <a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;decoderCounters)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when an audio renderer is disabled.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -3114,6 +3215,7 @@ default&nbsp;void&nbsp;onAudioInputFormatChanged&#8203;(<a href="AnalyticsListen
 <h4>onAudioSessionIdChanged</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onAudioSessionIdChanged&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                      int&nbsp;audioSessionId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the audio session ID changes.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -3130,6 +3232,7 @@ default&nbsp;void&nbsp;onAudioInputFormatChanged&#8203;(<a href="AnalyticsListen
 <h4>onAudioAttributesChanged</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onAudioAttributesChanged&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                       <a href="../audio/AudioAttributes.html" title="class in com.google.android.exoplayer2.audio">AudioAttributes</a>&nbsp;audioAttributes)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the audio attributes change.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -3146,6 +3249,7 @@ default&nbsp;void&nbsp;onAudioInputFormatChanged&#8203;(<a href="AnalyticsListen
 <h4>onSkipSilenceEnabledChanged</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onSkipSilenceEnabledChanged&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                          boolean&nbsp;skipSilenceEnabled)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when skipping silences is enabled or disabled in the audio stream.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -3162,6 +3266,7 @@ default&nbsp;void&nbsp;onAudioInputFormatChanged&#8203;(<a href="AnalyticsListen
 <h4>onAudioSinkError</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onAudioSinkError&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                               <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;audioSinkError)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when <a href="../audio/AudioSink.html" title="interface in com.google.android.exoplayer2.audio"><code>AudioSink</code></a> has encountered an error.
 
  <p>This method being called does not indicate that playback has failed, or that it will fail.
@@ -3185,6 +3290,7 @@ default&nbsp;void&nbsp;onAudioInputFormatChanged&#8203;(<a href="AnalyticsListen
 <h4>onAudioCodecError</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onAudioCodecError&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;audioCodecError)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when an audio decoder encounters an error.
 
  <p>This method being called does not indicate that playback has failed, or that it will fail.
@@ -3209,6 +3315,7 @@ default&nbsp;void&nbsp;onAudioInputFormatChanged&#8203;(<a href="AnalyticsListen
 <h4>onVolumeChanged</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onVolumeChanged&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                              float&nbsp;volume)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the volume changes.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -3225,6 +3332,7 @@ default&nbsp;void&nbsp;onAudioInputFormatChanged&#8203;(<a href="AnalyticsListen
 <h4>onDeviceInfoChanged</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onDeviceInfoChanged&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                  <a href="../DeviceInfo.html" title="class in com.google.android.exoplayer2">DeviceInfo</a>&nbsp;deviceInfo)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the device information changes</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -3242,6 +3350,7 @@ default&nbsp;void&nbsp;onAudioInputFormatChanged&#8203;(<a href="AnalyticsListen
 <pre class="methodSignature">default&nbsp;void&nbsp;onDeviceVolumeChanged&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                    int&nbsp;volume,
                                    boolean&nbsp;muted)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the device volume or mute state changes.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -3259,6 +3368,7 @@ default&nbsp;void&nbsp;onAudioInputFormatChanged&#8203;(<a href="AnalyticsListen
 <h4>onVideoEnabled</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onVideoEnabled&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                             <a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;decoderCounters)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a video renderer is enabled.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -3278,6 +3388,7 @@ default&nbsp;void&nbsp;onAudioInputFormatChanged&#8203;(<a href="AnalyticsListen
                                        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName,
                                        long&nbsp;initializedTimestampMs,
                                        long&nbsp;initializationDurationMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a video renderer creates a decoder.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -3328,6 +3439,7 @@ default&nbsp;void&nbsp;onVideoInputFormatChanged&#8203;(<a href="AnalyticsListen
                                        <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                        @Nullable
                                        <a href="../decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a>&nbsp;decoderReuseEvaluation)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the format of the media being consumed by a video renderer changes.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -3348,6 +3460,7 @@ default&nbsp;void&nbsp;onVideoInputFormatChanged&#8203;(<a href="AnalyticsListen
 <pre class="methodSignature">default&nbsp;void&nbsp;onDroppedVideoFrames&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                   int&nbsp;droppedFrames,
                                   long&nbsp;elapsedMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called after video frames have been dropped.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -3367,6 +3480,7 @@ default&nbsp;void&nbsp;onVideoInputFormatChanged&#8203;(<a href="AnalyticsListen
 <h4>onVideoDecoderReleased</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onVideoDecoderReleased&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                     <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;decoderName)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a video renderer releases a decoder.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -3383,6 +3497,7 @@ default&nbsp;void&nbsp;onVideoInputFormatChanged&#8203;(<a href="AnalyticsListen
 <h4>onVideoDisabled</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onVideoDisabled&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                              <a href="../decoder/DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;decoderCounters)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a video renderer is disabled.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -3400,6 +3515,7 @@ default&nbsp;void&nbsp;onVideoInputFormatChanged&#8203;(<a href="AnalyticsListen
 <pre class="methodSignature">default&nbsp;void&nbsp;onVideoFrameProcessingOffset&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                           long&nbsp;totalProcessingOffsetUs,
                                           int&nbsp;frameCount)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when there is an update to the video frame processing offset reported by a video
  renderer.
 
@@ -3425,6 +3541,7 @@ default&nbsp;void&nbsp;onVideoInputFormatChanged&#8203;(<a href="AnalyticsListen
 <h4>onVideoCodecError</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onVideoCodecError&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;videoCodecError)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a video decoder encounters an error.
 
  <p>This method being called does not indicate that playback has failed, or that it will fail.
@@ -3450,6 +3567,7 @@ default&nbsp;void&nbsp;onVideoInputFormatChanged&#8203;(<a href="AnalyticsListen
 <pre class="methodSignature">default&nbsp;void&nbsp;onRenderedFirstFrame&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                   <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;output,
                                   long&nbsp;renderTimeMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a frame is rendered for the first time since setting the surface, or since the
  renderer was reset, or since the stream being rendered was changed.</div>
 <dl>
@@ -3469,6 +3587,7 @@ default&nbsp;void&nbsp;onVideoInputFormatChanged&#8203;(<a href="AnalyticsListen
 <h4>onVideoSizeChanged</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onVideoSizeChanged&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                 <a href="../video/VideoSize.html" title="class in com.google.android.exoplayer2.video">VideoSize</a>&nbsp;videoSize)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called before a frame is rendered for the first time since setting the surface, and each time
  there's a change in the size or pixel aspect ratio of the video being rendered.</div>
 <dl>
@@ -3504,6 +3623,7 @@ default&nbsp;void&nbsp;onVideoSizeChanged&#8203;(<a href="AnalyticsListener.Even
 <pre class="methodSignature">default&nbsp;void&nbsp;onSurfaceSizeChanged&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                   int&nbsp;width,
                                   int&nbsp;height)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the output surface size changed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -3537,6 +3657,7 @@ default&nbsp;void&nbsp;onDrmSessionAcquired&#8203;(<a href="AnalyticsListener.Ev
 <pre class="methodSignature">default&nbsp;void&nbsp;onDrmSessionAcquired&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                   <a href="../drm/DrmSession.State.html" title="annotation in com.google.android.exoplayer2.drm">@State</a>
                                   @com.google.android.exoplayer2.drm.DrmSession.State int&nbsp;state)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called each time a drm session is acquired.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -3552,6 +3673,7 @@ default&nbsp;void&nbsp;onDrmSessionAcquired&#8203;(<a href="AnalyticsListener.Ev
 <li class="blockList">
 <h4>onDrmKeysLoaded</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onDrmKeysLoaded&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called each time drm keys are loaded.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -3567,6 +3689,7 @@ default&nbsp;void&nbsp;onDrmSessionAcquired&#8203;(<a href="AnalyticsListener.Ev
 <h4>onDrmSessionManagerError</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onDrmSessionManagerError&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime,
                                       <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;error)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a drm error occurs.
 
  <p>This method being called does not indicate that playback has failed, or that it will fail.
@@ -3589,6 +3712,7 @@ default&nbsp;void&nbsp;onDrmSessionAcquired&#8203;(<a href="AnalyticsListener.Ev
 <li class="blockList">
 <h4>onDrmKeysRestored</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onDrmKeysRestored&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called each time offline drm keys are restored.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -3603,6 +3727,7 @@ default&nbsp;void&nbsp;onDrmSessionAcquired&#8203;(<a href="AnalyticsListener.Ev
 <li class="blockList">
 <h4>onDrmKeysRemoved</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onDrmKeysRemoved&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called each time offline drm keys are removed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -3617,6 +3742,7 @@ default&nbsp;void&nbsp;onDrmSessionAcquired&#8203;(<a href="AnalyticsListener.Ev
 <li class="blockList">
 <h4>onDrmSessionReleased</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onDrmSessionReleased&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called each time a drm session is released.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -3631,6 +3757,7 @@ default&nbsp;void&nbsp;onDrmSessionAcquired&#8203;(<a href="AnalyticsListener.Ev
 <li class="blockList">
 <h4>onPlayerReleased</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onPlayerReleased&#8203;(<a href="AnalyticsListener.EventTime.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.EventTime</a>&nbsp;eventTime)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the <a href="../Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> is released.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -3646,6 +3773,7 @@ default&nbsp;void&nbsp;onDrmSessionAcquired&#8203;(<a href="AnalyticsListener.Ev
 <h4>onEvents</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;onEvents&#8203;(<a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                       <a href="AnalyticsListener.Events.html" title="class in com.google.android.exoplayer2.analytics">AnalyticsListener.Events</a>&nbsp;events)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called after one or more events occurred.
 
  <p>State changes and events that happen within one <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Looper</code></a> message queue iteration are

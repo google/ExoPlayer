@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9,"i9":9,"i10":9,"i11":9,"i12":9};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":41,"i1":41,"i2":41,"i3":41,"i4":41,"i5":41,"i6":41,"i7":41,"i8":41,"i9":41,"i10":41,"i11":41,"i12":41};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">Log</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">Log</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Wrapper around <a href="https://developer.android.com/reference/android/util/Log.html" title="class or interface in android.util" class="externalLink" target="_top"><code>Log</code></a> which allows to set the log level and to specify a custom
  log output.</div>
 </li>
@@ -157,6 +163,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Log.Logger.html" title="interface in com.google.android.exoplayer2.util">Log.Logger</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Interface for a logger that can output messages with a tag.</div>
 </td>
 </tr>
@@ -164,6 +171,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Log.LogLevel.html" title="annotation in com.google.android.exoplayer2.util">Log.LogLevel</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Log level for ExoPlayer logcat logging.</div>
 </td>
 </tr>
@@ -189,6 +197,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#LOG_LEVEL_ALL">LOG_LEVEL_ALL</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Log level to log all messages.</div>
 </td>
 </tr>
@@ -196,6 +205,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#LOG_LEVEL_ERROR">LOG_LEVEL_ERROR</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Log level to only log error messages.</div>
 </td>
 </tr>
@@ -203,6 +213,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#LOG_LEVEL_INFO">LOG_LEVEL_INFO</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Log level to only log informative, warning and error messages.</div>
 </td>
 </tr>
@@ -210,6 +221,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#LOG_LEVEL_OFF">LOG_LEVEL_OFF</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Log level to disable all logging.</div>
 </td>
 </tr>
@@ -217,6 +229,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#LOG_LEVEL_WARNING">LOG_LEVEL_WARNING</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Log level to only log warning and error messages.</div>
 </td>
 </tr>
@@ -232,7 +245,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -242,32 +255,41 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#d(java.lang.String,java.lang.String)">d</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#d(java.lang.String,java.lang.String,java.lang.Throwable)">d</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
  <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;throwable)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#e(java.lang.String,java.lang.String)">e</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#e(java.lang.String,java.lang.String,java.lang.Throwable)">e</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
  <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;throwable)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>static @com.google.android.exoplayer2.util.Log.LogLevel int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLogLevel()">getLogLevel</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns current <a href="Log.LogLevel.html" title="annotation in com.google.android.exoplayer2.util"><code>Log.LogLevel</code></a> for ExoPlayer logcat logging.</div>
 </td>
 </tr>
@@ -275,6 +297,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getThrowableString(java.lang.Throwable)">getThrowableString</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;throwable)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a string representation of a <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>Throwable</code></a> suitable for logging, taking into
  account whether <a href="#setLogStackTraces(boolean)"><code>setLogStackTraces(boolean)</code></a> stack trace logging} is enabled.</div>
 </td>
@@ -283,19 +306,24 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#i(java.lang.String,java.lang.String)">i</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#i(java.lang.String,java.lang.String,java.lang.Throwable)">i</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
  <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;throwable)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLogger(com.google.android.exoplayer2.util.Log.Logger)">setLogger</a></span>&#8203;(<a href="Log.Logger.html" title="interface in com.google.android.exoplayer2.util">Log.Logger</a>&nbsp;logger)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets a custom <a href="Log.Logger.html" title="interface in com.google.android.exoplayer2.util"><code>Log.Logger</code></a> as the output.</div>
 </td>
 </tr>
@@ -303,6 +331,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLogLevel(@com.google.android.exoplayer2.util.Log.LogLevelint)">setLogLevel</a></span>&#8203;(@com.google.android.exoplayer2.util.Log.LogLevel int&nbsp;logLevel)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="Log.LogLevel.html" title="annotation in com.google.android.exoplayer2.util"><code>Log.LogLevel</code></a> for ExoPlayer logcat logging.</div>
 </td>
 </tr>
@@ -310,6 +339,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLogStackTraces(boolean)">setLogStackTraces</a></span>&#8203;(boolean&nbsp;logStackTraces)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether stack traces of <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>Throwable</code></a>s will be logged to logcat.</div>
 </td>
 </tr>
@@ -317,14 +347,18 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#w(java.lang.String,java.lang.String)">w</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#w(java.lang.String,java.lang.String,java.lang.Throwable)">w</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
  <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;throwable)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -357,6 +391,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>LOG_LEVEL_ALL</h4>
 <pre>public static final&nbsp;int LOG_LEVEL_ALL</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Log level to log all messages.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -371,6 +406,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>LOG_LEVEL_INFO</h4>
 <pre>public static final&nbsp;int LOG_LEVEL_INFO</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Log level to only log informative, warning and error messages.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -385,6 +421,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>LOG_LEVEL_WARNING</h4>
 <pre>public static final&nbsp;int LOG_LEVEL_WARNING</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Log level to only log warning and error messages.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -399,6 +436,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>LOG_LEVEL_ERROR</h4>
 <pre>public static final&nbsp;int LOG_LEVEL_ERROR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Log level to only log error messages.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -413,6 +451,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>LOG_LEVEL_OFF</h4>
 <pre>public static final&nbsp;int LOG_LEVEL_OFF</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Log level to disable all logging.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -438,6 +477,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>getLogLevel</h4>
 <pre class="methodSignature">@Pure
 public static&nbsp;@com.google.android.exoplayer2.util.Log.LogLevel int&nbsp;getLogLevel()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns current <a href="Log.LogLevel.html" title="annotation in com.google.android.exoplayer2.util"><code>Log.LogLevel</code></a> for ExoPlayer logcat logging.</div>
 </li>
 </ul>
@@ -448,6 +488,7 @@ public static&nbsp;@com.google.android.exoplayer2.util.Log.LogLevel int&nbsp;get
 <li class="blockList">
 <h4>setLogLevel</h4>
 <pre class="methodSignature">public static&nbsp;void&nbsp;setLogLevel&#8203;(@com.google.android.exoplayer2.util.Log.LogLevel int&nbsp;logLevel)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="Log.LogLevel.html" title="annotation in com.google.android.exoplayer2.util"><code>Log.LogLevel</code></a> for ExoPlayer logcat logging.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -462,6 +503,7 @@ public static&nbsp;@com.google.android.exoplayer2.util.Log.LogLevel int&nbsp;get
 <li class="blockList">
 <h4>setLogStackTraces</h4>
 <pre class="methodSignature">public static&nbsp;void&nbsp;setLogStackTraces&#8203;(boolean&nbsp;logStackTraces)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether stack traces of <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>Throwable</code></a>s will be logged to logcat. Stack trace logging
  is enabled by default.</div>
 <dl>
@@ -477,6 +519,7 @@ public static&nbsp;@com.google.android.exoplayer2.util.Log.LogLevel int&nbsp;get
 <li class="blockList">
 <h4>setLogger</h4>
 <pre class="methodSignature">public static&nbsp;void&nbsp;setLogger&#8203;(<a href="Log.Logger.html" title="interface in com.google.android.exoplayer2.util">Log.Logger</a>&nbsp;logger)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets a custom <a href="Log.Logger.html" title="interface in com.google.android.exoplayer2.util"><code>Log.Logger</code></a> as the output.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -494,6 +537,7 @@ public static&nbsp;@com.google.android.exoplayer2.util.Log.LogLevel int&nbsp;get
 public static&nbsp;void&nbsp;d&#8203;(@Size(max=23L)
                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="https://developer.android.com/reference/android/util/Log.html#d(java.lang.String,java.lang.String)" title="class or interface in android.util" class="externalLink" target="_top"><code>Log.d(String, String)</code></a></dd>
@@ -512,6 +556,7 @@ public static&nbsp;void&nbsp;d&#8203;(@Size(max=23L)
                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
                      @Nullable
                      <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;throwable)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="https://developer.android.com/reference/android/util/Log.html#d(java.lang.String,java.lang.String,java.lang.Throwable)" title="class or interface in android.util" class="externalLink" target="_top"><code>Log.d(String, String, Throwable)</code></a></dd>
@@ -528,6 +573,7 @@ public static&nbsp;void&nbsp;d&#8203;(@Size(max=23L)
 public static&nbsp;void&nbsp;i&#8203;(@Size(max=23L)
                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="https://developer.android.com/reference/android/util/Log.html#i(java.lang.String,java.lang.String)" title="class or interface in android.util" class="externalLink" target="_top"><code>Log.i(String, String)</code></a></dd>
@@ -546,6 +592,7 @@ public static&nbsp;void&nbsp;i&#8203;(@Size(max=23L)
                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
                      @Nullable
                      <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;throwable)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="https://developer.android.com/reference/android/util/Log.html#i(java.lang.String,java.lang.String,java.lang.Throwable)" title="class or interface in android.util" class="externalLink" target="_top"><code>Log.i(String, String, Throwable)</code></a></dd>
@@ -562,6 +609,7 @@ public static&nbsp;void&nbsp;i&#8203;(@Size(max=23L)
 public static&nbsp;void&nbsp;w&#8203;(@Size(max=23L)
                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="https://developer.android.com/reference/android/util/Log.html#w(java.lang.String,java.lang.String)" title="class or interface in android.util" class="externalLink" target="_top"><code>Log.w(String, String)</code></a></dd>
@@ -580,6 +628,7 @@ public static&nbsp;void&nbsp;w&#8203;(@Size(max=23L)
                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
                      @Nullable
                      <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;throwable)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="https://developer.android.com/reference/android/util/Log.html#w(java.lang.String,java.lang.String,java.lang.Throwable)" title="class or interface in android.util" class="externalLink" target="_top"><code>Log.w(String, String, Throwable)</code></a></dd>
@@ -596,6 +645,7 @@ public static&nbsp;void&nbsp;w&#8203;(@Size(max=23L)
 public static&nbsp;void&nbsp;e&#8203;(@Size(max=23L)
                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;tag,
                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="https://developer.android.com/reference/android/util/Log.html#e(java.lang.String,java.lang.String)" title="class or interface in android.util" class="externalLink" target="_top"><code>Log.e(String, String)</code></a></dd>
@@ -614,6 +664,7 @@ public static&nbsp;void&nbsp;e&#8203;(@Size(max=23L)
                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message,
                      @Nullable
                      <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;throwable)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="https://developer.android.com/reference/android/util/Log.html#e(java.lang.String,java.lang.String,java.lang.Throwable)" title="class or interface in android.util" class="externalLink" target="_top"><code>Log.e(String, String, Throwable)</code></a></dd>
@@ -630,6 +681,7 @@ public static&nbsp;void&nbsp;e&#8203;(@Size(max=23L)
 @Pure
 public static&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;getThrowableString&#8203;(@Nullable
                                         <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;throwable)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a string representation of a <a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>Throwable</code></a> suitable for logging, taking into
  account whether <a href="#setLogStackTraces(boolean)"><code>setLogStackTraces(boolean)</code></a> stack trace logging} is enabled.
 

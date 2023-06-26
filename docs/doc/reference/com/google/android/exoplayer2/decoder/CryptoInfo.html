@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">CryptoInfo</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">CryptoInfo</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Metadata describing the structure of an encrypted input sample.
 
  <p>This class is a compatibility wrapper for <a href="https://developer.android.com/reference/android/media/MediaCodec.CryptoInfo.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.CryptoInfo</code></a>.</div>
@@ -157,17 +163,22 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearBlocks">clearBlocks</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#encryptedBlocks">encryptedBlocks</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#iv">iv</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The 16 byte initialization vector.</div>
 </td>
 </tr>
@@ -175,6 +186,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#key">key</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The 16 byte key id.</div>
 </td>
 </tr>
@@ -182,6 +194,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>@com.google.android.exoplayer2.C.CryptoMode int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#mode">mode</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The type of encryption that has been applied.</div>
 </td>
 </tr>
@@ -189,6 +202,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#numBytesOfClearData">numBytesOfClearData</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of leading unencrypted bytes in each sub-sample.</div>
 </td>
 </tr>
@@ -196,6 +210,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#numBytesOfEncryptedData">numBytesOfEncryptedData</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of trailing encrypted bytes in each sub-sample.</div>
 </td>
 </tr>
@@ -203,6 +218,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#numSubSamples">numSubSamples</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of subSamples that make up the buffer's contents.</div>
 </td>
 </tr>
@@ -225,7 +241,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">CryptoInfo</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -239,7 +257,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -249,6 +267,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/media/MediaCodec.CryptoInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodec.CryptoInfo</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFrameworkCryptoInfo()">getFrameworkCryptoInfo</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an equivalent <a href="https://developer.android.com/reference/android/media/MediaCodec.CryptoInfo.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.CryptoInfo</code></a> instance.</div>
 </td>
 </tr>
@@ -256,6 +275,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#increaseClearDataFirstSubSampleBy(int)">increaseClearDataFirstSubSampleBy</a></span>&#8203;(int&nbsp;count)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Increases the number of clear data for the first sub sample by <code>count</code>.</div>
 </td>
 </tr>
@@ -269,7 +289,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
    @com.google.android.exoplayer2.C.CryptoMode int&nbsp;mode,
    int&nbsp;encryptedBlocks,
    int&nbsp;clearBlocks)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -303,6 +325,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>iv</h4>
 <pre>@Nullable
 public&nbsp;byte[] iv</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The 16 byte initialization vector. If the initialization vector of the content is shorter than
  16 bytes, 0 byte padding is appended to extend the vector to the required 16 byte length.</div>
 <dl>
@@ -319,6 +342,7 @@ public&nbsp;byte[] iv</pre>
 <h4>key</h4>
 <pre>@Nullable
 public&nbsp;byte[] key</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The 16 byte key id.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -333,6 +357,7 @@ public&nbsp;byte[] key</pre>
 <li class="blockList">
 <h4>mode</h4>
 <pre>public&nbsp;@com.google.android.exoplayer2.C.CryptoMode int mode</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The type of encryption that has been applied. Must be one of the <a href="../C.CryptoMode.html" title="annotation in com.google.android.exoplayer2"><code>C.CryptoMode</code></a> values.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -348,6 +373,7 @@ public&nbsp;byte[] key</pre>
 <h4>numBytesOfClearData</h4>
 <pre>@Nullable
 public&nbsp;int[] numBytesOfClearData</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of leading unencrypted bytes in each sub-sample. If null, all bytes are treated as
  encrypted and <a href="#numBytesOfEncryptedData"><code>numBytesOfEncryptedData</code></a> must be specified.</div>
 <dl>
@@ -364,6 +390,7 @@ public&nbsp;int[] numBytesOfClearData</pre>
 <h4>numBytesOfEncryptedData</h4>
 <pre>@Nullable
 public&nbsp;int[] numBytesOfEncryptedData</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of trailing encrypted bytes in each sub-sample. If null, all bytes are treated as
  clear and <a href="#numBytesOfClearData"><code>numBytesOfClearData</code></a> must be specified.</div>
 <dl>
@@ -379,6 +406,7 @@ public&nbsp;int[] numBytesOfEncryptedData</pre>
 <li class="blockList">
 <h4>numSubSamples</h4>
 <pre>public&nbsp;int numSubSamples</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of subSamples that make up the buffer's contents.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -393,6 +421,7 @@ public&nbsp;int[] numBytesOfEncryptedData</pre>
 <li class="blockList">
 <h4>encryptedBlocks</h4>
 <pre>public&nbsp;int encryptedBlocks</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="https://developer.android.com/reference/android/media/MediaCodec.CryptoInfo.Pattern.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.CryptoInfo.Pattern</code></a></dd>
@@ -406,6 +435,7 @@ public&nbsp;int[] numBytesOfEncryptedData</pre>
 <li class="blockList">
 <h4>clearBlocks</h4>
 <pre>public&nbsp;int clearBlocks</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="https://developer.android.com/reference/android/media/MediaCodec.CryptoInfo.Pattern.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.CryptoInfo.Pattern</code></a></dd>
@@ -429,6 +459,7 @@ public&nbsp;int[] numBytesOfEncryptedData</pre>
 <li class="blockList">
 <h4>CryptoInfo</h4>
 <pre>public&nbsp;CryptoInfo()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -455,6 +486,7 @@ public&nbsp;int[] numBytesOfEncryptedData</pre>
                 @com.google.android.exoplayer2.C.CryptoMode int&nbsp;mode,
                 int&nbsp;encryptedBlocks,
                 int&nbsp;clearBlocks)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="https://developer.android.com/reference/android/media/MediaCodec.CryptoInfo.html#set(int,int%5B%5D,int%5B%5D,byte%5B%5D,byte%5B%5D,int)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.CryptoInfo.set(int, int[], int[], byte[], byte[], int)</code></a></dd>
@@ -468,6 +500,7 @@ public&nbsp;int[] numBytesOfEncryptedData</pre>
 <li class="blockList">
 <h4>getFrameworkCryptoInfo</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/media/MediaCodec.CryptoInfo.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCodec.CryptoInfo</a>&nbsp;getFrameworkCryptoInfo()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an equivalent <a href="https://developer.android.com/reference/android/media/MediaCodec.CryptoInfo.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec.CryptoInfo</code></a> instance.
 
  <p>Successive calls to this method on a single <a href="CryptoInfo.html" title="class in com.google.android.exoplayer2.decoder"><code>CryptoInfo</code></a> will return the same
@@ -486,6 +519,7 @@ public&nbsp;int[] numBytesOfEncryptedData</pre>
 <li class="blockList">
 <h4>increaseClearDataFirstSubSampleBy</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;increaseClearDataFirstSubSampleBy&#8203;(int&nbsp;count)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Increases the number of clear data for the first sub sample by <code>count</code>.
 
  <p>If <code>count</code> is 0, this method is a no-op. Otherwise, it adds <code>count</code> to <a href="#numBytesOfClearData"><code>numBytesOfClearData</code></a>[0].

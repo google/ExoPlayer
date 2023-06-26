@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42,"i12":42,"i13":42,"i14":42,"i15":42,"i16":42,"i17":42,"i18":42,"i19":42,"i20":42,"i21":42,"i22":42,"i23":42,"i24":42,"i25":42,"i26":42,"i27":42,"i28":42,"i29":42,"i30":42,"i31":42,"i32":42,"i33":42,"i34":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -143,9 +143,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../PlayerMessage.Target.html" title="interface in com.google.android.exoplayer2">PlayerMessage.Target</a></code>, <code><a href="../Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></code>, <code><a href="../RendererCapabilities.html" title="interface in com.google.android.exoplayer2">RendererCapabilities</a></code>, <code><a href="../util/MediaClock.html" title="interface in com.google.android.exoplayer2.util">MediaClock</a></code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">MediaCodecAudioRenderer</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">MediaCodecAudioRenderer</span>
 extends <a href="../mediacodec/MediaCodecRenderer.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecRenderer</a>
 implements <a href="../util/MediaClock.html" title="interface in com.google.android.exoplayer2.util">MediaClock</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Decodes and renders audio using <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink"><code>MediaCodec</code></a> and an <a href="AudioSink.html" title="interface in com.google.android.exoplayer2.audio" target="_top"><code>AudioSink</code></a>.
 
  <p>This renderer accepts the following messages sent via <a href="../ExoPlayer.html#createMessage(com.google.android.exoplayer2.PlayerMessage.Target)"><code>ExoPlayer.createMessage(Target)</code></a>
@@ -198,7 +204,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <!--   -->
 </a>
 <h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../RendererCapabilities.html" title="interface in com.google.android.exoplayer2">RendererCapabilities</a></h3>
-<code><a href="../RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.AdaptiveSupport</a>, <a href="../RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.Capabilities</a>, <a href="../RendererCapabilities.DecoderSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.DecoderSupport</a>, <a href="../RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.FormatSupport</a>, <a href="../RendererCapabilities.HardwareAccelerationSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.HardwareAccelerationSupport</a>, <a href="../RendererCapabilities.TunnelingSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.TunnelingSupport</a></code></li>
+<code><a href="../RendererCapabilities.AdaptiveSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.AdaptiveSupport</a>, <a href="../RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.Capabilities</a>, <a href="../RendererCapabilities.DecoderSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.DecoderSupport</a>, <a href="../RendererCapabilities.FormatSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.FormatSupport</a>, <a href="../RendererCapabilities.HardwareAccelerationSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.HardwareAccelerationSupport</a>, <a href="../RendererCapabilities.Listener.html" title="interface in com.google.android.exoplayer2">RendererCapabilities.Listener</a>, <a href="../RendererCapabilities.TunnelingSupport.html" title="annotation in com.google.android.exoplayer2">RendererCapabilities.TunnelingSupport</a></code></li>
 </ul>
 </li>
 </ul>
@@ -222,7 +228,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <!--   -->
 </a>
 <h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.<a href="../Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a></h3>
-<code><a href="../Renderer.html#MSG_CUSTOM_BASE">MSG_CUSTOM_BASE</a>, <a href="../Renderer.html#MSG_SET_AUDIO_ATTRIBUTES">MSG_SET_AUDIO_ATTRIBUTES</a>, <a href="../Renderer.html#MSG_SET_AUDIO_SESSION_ID">MSG_SET_AUDIO_SESSION_ID</a>, <a href="../Renderer.html#MSG_SET_AUX_EFFECT_INFO">MSG_SET_AUX_EFFECT_INFO</a>, <a href="../Renderer.html#MSG_SET_CAMERA_MOTION_LISTENER">MSG_SET_CAMERA_MOTION_LISTENER</a>, <a href="../Renderer.html#MSG_SET_CHANGE_FRAME_RATE_STRATEGY">MSG_SET_CHANGE_FRAME_RATE_STRATEGY</a>, <a href="../Renderer.html#MSG_SET_PREFERRED_AUDIO_DEVICE">MSG_SET_PREFERRED_AUDIO_DEVICE</a>, <a href="../Renderer.html#MSG_SET_SCALING_MODE">MSG_SET_SCALING_MODE</a>, <a href="../Renderer.html#MSG_SET_SKIP_SILENCE_ENABLED">MSG_SET_SKIP_SILENCE_ENABLED</a>, <a href="../Renderer.html#MSG_SET_VIDEO_FRAME_METADATA_LISTENER">MSG_SET_VIDEO_FRAME_METADATA_LISTENER</a>, <a href="../Renderer.html#MSG_SET_VIDEO_OUTPUT">MSG_SET_VIDEO_OUTPUT</a>, <a href="../Renderer.html#MSG_SET_VOLUME">MSG_SET_VOLUME</a>, <a href="../Renderer.html#MSG_SET_WAKEUP_LISTENER">MSG_SET_WAKEUP_LISTENER</a>, <a href="../Renderer.html#STATE_DISABLED">STATE_DISABLED</a>, <a href="../Renderer.html#STATE_ENABLED">STATE_ENABLED</a>, <a href="../Renderer.html#STATE_STARTED">STATE_STARTED</a></code></li>
+<code><a href="../Renderer.html#MSG_CUSTOM_BASE">MSG_CUSTOM_BASE</a>, <a href="../Renderer.html#MSG_SET_AUDIO_ATTRIBUTES">MSG_SET_AUDIO_ATTRIBUTES</a>, <a href="../Renderer.html#MSG_SET_AUDIO_SESSION_ID">MSG_SET_AUDIO_SESSION_ID</a>, <a href="../Renderer.html#MSG_SET_AUX_EFFECT_INFO">MSG_SET_AUX_EFFECT_INFO</a>, <a href="../Renderer.html#MSG_SET_CAMERA_MOTION_LISTENER">MSG_SET_CAMERA_MOTION_LISTENER</a>, <a href="../Renderer.html#MSG_SET_CHANGE_FRAME_RATE_STRATEGY">MSG_SET_CHANGE_FRAME_RATE_STRATEGY</a>, <a href="../Renderer.html#MSG_SET_PREFERRED_AUDIO_DEVICE">MSG_SET_PREFERRED_AUDIO_DEVICE</a>, <a href="../Renderer.html#MSG_SET_SCALING_MODE">MSG_SET_SCALING_MODE</a>, <a href="../Renderer.html#MSG_SET_SKIP_SILENCE_ENABLED">MSG_SET_SKIP_SILENCE_ENABLED</a>, <a href="../Renderer.html#MSG_SET_VIDEO_EFFECTS">MSG_SET_VIDEO_EFFECTS</a>, <a href="../Renderer.html#MSG_SET_VIDEO_FRAME_METADATA_LISTENER">MSG_SET_VIDEO_FRAME_METADATA_LISTENER</a>, <a href="../Renderer.html#MSG_SET_VIDEO_OUTPUT">MSG_SET_VIDEO_OUTPUT</a>, <a href="../Renderer.html#MSG_SET_VIDEO_OUTPUT_RESOLUTION">MSG_SET_VIDEO_OUTPUT_RESOLUTION</a>, <a href="../Renderer.html#MSG_SET_VOLUME">MSG_SET_VOLUME</a>, <a href="../Renderer.html#MSG_SET_WAKEUP_LISTENER">MSG_SET_WAKEUP_LISTENER</a>, <a href="../Renderer.html#STATE_DISABLED">STATE_DISABLED</a>, <a href="../Renderer.html#STATE_ENABLED">STATE_ENABLED</a>, <a href="../Renderer.html#STATE_STARTED">STATE_STARTED</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.RendererCapabilities">
@@ -256,13 +262,16 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
                        <a href="AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;eventListener,
                        <a href="AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a>&nbsp;audioSink)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new instance.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,com.google.android.exoplayer2.mediacodec.MediaCodecSelector)">MediaCodecAudioRenderer</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                        <a href="../mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,com.google.android.exoplayer2.mediacodec.MediaCodecSelector,boolean,android.os.Handler,com.google.android.exoplayer2.audio.AudioRendererEventListener,com.google.android.exoplayer2.audio.AudioSink)">MediaCodecAudioRenderer</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
@@ -271,14 +280,18 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
                        <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;eventHandler,
                        <a href="AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;eventListener,
                        <a href="AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a>&nbsp;audioSink)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,com.google.android.exoplayer2.mediacodec.MediaCodecSelector,android.os.Handler,com.google.android.exoplayer2.audio.AudioRendererEventListener)">MediaCodecAudioRenderer</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                        <a href="../mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector,
                        <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;eventHandler,
                        <a href="AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;eventListener)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,com.google.android.exoplayer2.mediacodec.MediaCodecSelector,android.os.Handler,com.google.android.exoplayer2.audio.AudioRendererEventListener,com.google.android.exoplayer2.audio.AudioCapabilities,com.google.android.exoplayer2.audio.AudioProcessor...)">MediaCodecAudioRenderer</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
@@ -287,7 +300,9 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
                        <a href="AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;eventListener,
                        <a href="AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a>&nbsp;audioCapabilities,
                        <a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>...&nbsp;audioProcessors)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,com.google.android.exoplayer2.mediacodec.MediaCodecSelector,android.os.Handler,com.google.android.exoplayer2.audio.AudioRendererEventListener,com.google.android.exoplayer2.audio.AudioSink)">MediaCodecAudioRenderer</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
@@ -295,7 +310,9 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
                        <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;eventHandler,
                        <a href="AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;eventListener,
                        <a href="AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a>&nbsp;audioSink)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -309,7 +326,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -321,6 +338,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
              <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;oldFormat,
              <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;newFormat)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Evaluates whether the existing <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink"><code>MediaCodec</code></a> can be kept for a new <a href="../Format.html" title="class in com.google.android.exoplayer2" target="_top"><code>Format</code></a>, and if
  it can whether it requires reconfiguration.</div>
 </td>
@@ -329,6 +347,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#experimentalSetEnableKeepAudioTrackOnSeek(boolean)">experimentalSetEnableKeepAudioTrackOnSeek</a></span>&#8203;(boolean&nbsp;enableKeepAudioTrackOnSeek)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether to enable the experimental feature that keeps and flushes the <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack</code></a> when a seek occurs, as opposed to releasing and reinitialising.</div>
 </td>
 </tr>
@@ -338,6 +357,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
                     <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                     <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>[]&nbsp;streamFormats)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a maximum input size suitable for configuring a codec for <code>format</code> in a way that
  will allow possible adaptation to other compatible formats in <code>streamFormats</code>.</div>
 </td>
@@ -348,6 +368,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
                         <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                         <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>[]&nbsp;streamFormats)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="https://developer.android.com/reference/android/media/MediaFormat.html#KEY_OPERATING_RATE" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaFormat.KEY_OPERATING_RATE</code></a> value for a given playback speed, current
  <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> and set of possible stream formats.</div>
 </td>
@@ -358,6 +379,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
                <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                boolean&nbsp;requiresSecureDecoder)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a list of decoders that can decode media in the specified format, in priority order.</div>
 </td>
 </tr>
@@ -365,6 +387,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <td class="colFirst"><code><a href="../util/MediaClock.html" title="interface in com.google.android.exoplayer2.util">MediaClock</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMediaClock()">getMediaClock</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If the renderer advances its own playback position then this method returns a corresponding
  <a href="../util/MediaClock.html" title="interface in com.google.android.exoplayer2.util"><code>MediaClock</code></a>.</div>
 </td>
@@ -376,6 +399,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
                           <a href="https://developer.android.com/reference/android/media/MediaCrypto.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCrypto</a>&nbsp;crypto,
                           float&nbsp;codecOperatingRate)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="../mediacodec/MediaCodecAdapter.Configuration.html" title="class in com.google.android.exoplayer2.mediacodec"><code>MediaCodecAdapter.Configuration</code></a> that will be used to create and configure a
  <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink"><code>MediaCodec</code></a> to decode the given <a href="../Format.html" title="class in com.google.android.exoplayer2" target="_top"><code>Format</code></a> for a playback.</div>
 </td>
@@ -387,6 +411,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
               int&nbsp;codecMaxInputSize,
               float&nbsp;codecOperatingRate)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the framework <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink"><code>MediaFormat</code></a> that can be used to configure a <a href="https://developer.android.com/reference/android/media/MediaCodec.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>
  for decoding the given <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> for playback.</div>
 </td>
@@ -395,6 +420,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getName()">getName</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the name of this renderer, for logging and debugging purposes.</div>
 </td>
 </tr>
@@ -402,6 +428,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <td class="colFirst"><code><a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPlaybackParameters()">getPlaybackParameters</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the active playback parameters.</div>
 </td>
 </tr>
@@ -409,6 +436,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPositionUs()">getPositionUs</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current media position in microseconds.</div>
 </td>
 </tr>
@@ -417,6 +445,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#handleMessage(@com.google.android.exoplayer2.Renderer.MessageTypeint,java.lang.Object)">handleMessage</a></span>&#8203;(@com.google.android.exoplayer2.Renderer.MessageType int&nbsp;messageType,
              <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;message)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Handles a message delivered to the target.</div>
 </td>
 </tr>
@@ -424,6 +453,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isEnded()">isEnded</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the renderer is ready for the <a href="../ExoPlayer.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer</code></a> instance to transition to <a href="../Player.html#STATE_ENDED"><code>Player.STATE_ENDED</code></a>.</div>
 </td>
 </tr>
@@ -431,6 +461,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isReady()">isReady</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the renderer is able to immediately render media from the current position.</div>
 </td>
 </tr>
@@ -438,6 +469,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onCodecError(java.lang.Exception)">onCodecError</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;codecError)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a codec error has occurred.</div>
 </td>
 </tr>
@@ -448,6 +480,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
                   long&nbsp;initializedTimestampMs,
                   long&nbsp;initializationDurationMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> has been created and configured.</div>
 </td>
 </tr>
@@ -455,6 +488,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onCodecReleased(java.lang.String)">onCodecReleased</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> has been released.</div>
 </td>
 </tr>
@@ -462,6 +496,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDisabled()">onDisabled</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer is disabled.</div>
 </td>
 </tr>
@@ -470,6 +505,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onEnabled(boolean,boolean)">onEnabled</a></span>&#8203;(boolean&nbsp;joining,
          boolean&nbsp;mayRenderStartOfStream)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the renderer is enabled.</div>
 </td>
 </tr>
@@ -477,6 +513,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <td class="colFirst"><code>protected <a href="../decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onInputFormatChanged(com.google.android.exoplayer2.FormatHolder)">onInputFormatChanged</a></span>&#8203;(<a href="../FormatHolder.html" title="class in com.google.android.exoplayer2">FormatHolder</a>&nbsp;formatHolder)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a new <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> is read from the upstream <a href="../source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a>.</div>
 </td>
 </tr>
@@ -485,6 +522,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onOutputFormatChanged(com.google.android.exoplayer2.Format,android.media.MediaFormat)">onOutputFormatChanged</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                      <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;mediaFormat)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when one of the output formats changes.</div>
 </td>
 </tr>
@@ -492,6 +530,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onOutputStreamOffsetUsChanged(long)">onOutputStreamOffsetUsChanged</a></span>&#8203;(long&nbsp;outputStreamOffsetUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called after the output stream offset changes.</div>
 </td>
 </tr>
@@ -499,6 +538,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPositionDiscontinuity()">onPositionDiscontinuity</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <a href="AudioSink.Listener.html#onPositionDiscontinuity()"><code>AudioSink.Listener.onPositionDiscontinuity()</code></a>.</div>
 </td>
 </tr>
@@ -507,6 +547,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPositionReset(long,boolean)">onPositionReset</a></span>&#8203;(long&nbsp;positionUs,
                boolean&nbsp;joining)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the position is reset.</div>
 </td>
 </tr>
@@ -514,6 +555,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onProcessedStreamChange()">onProcessedStreamChange</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called after the last output buffer before a stream change has been processed.</div>
 </td>
 </tr>
@@ -521,31 +563,43 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onQueueInputBuffer(com.google.android.exoplayer2.decoder.DecoderInputBuffer)">onQueueInputBuffer</a></span>&#8203;(<a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;buffer)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called immediately before an input buffer is queued into the codec.</div>
 </td>
 </tr>
 <tr id="i26" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onReset()">onReset</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onRelease()">onRelease</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Called when the renderer is reset.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Called when the renderer is released.</div>
 </td>
 </tr>
 <tr id="i27" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onStarted()">onStarted</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onReset()">onReset</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Called when the renderer is started.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Called when the renderer is reset.</div>
 </td>
 </tr>
 <tr id="i28" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onStopped()">onStopped</a></span>()</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onStarted()">onStarted</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Called when the renderer is stopped.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Called when the renderer is started.</div>
 </td>
 </tr>
 <tr id="i29" class="rowColor">
+<td class="colFirst"><code>protected void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onStopped()">onStopped</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Called when the renderer is stopped.</div>
+</td>
+</tr>
+<tr id="i30" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#processOutputBuffer(long,long,com.google.android.exoplayer2.mediacodec.MediaCodecAdapter,java.nio.ByteBuffer,int,int,int,long,boolean,boolean,com.google.android.exoplayer2.Format)">processOutputBuffer</a></span>&#8203;(long&nbsp;positionUs,
                    long&nbsp;elapsedRealtimeUs,
@@ -559,35 +613,40 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
                    boolean&nbsp;isLastBuffer,
                    <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Processes an output media buffer.</div>
 </td>
 </tr>
-<tr id="i30" class="altColor">
+<tr id="i31" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#renderToEndOfStream()">renderToEndOfStream</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Incrementally renders any remaining output.</div>
 </td>
 </tr>
-<tr id="i31" class="rowColor">
+<tr id="i32" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)">setPlaybackParameters</a></span>&#8203;(<a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Attempts to set the playback parameters.</div>
 </td>
 </tr>
-<tr id="i32" class="altColor">
+<tr id="i33" class="rowColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#shouldUseBypass(com.google.android.exoplayer2.Format)">shouldUseBypass</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether buffers in the input format can be processed without a codec.</div>
 </td>
 </tr>
-<tr id="i33" class="rowColor">
+<tr id="i34" class="altColor">
 <td class="colFirst"><code>protected @com.google.android.exoplayer2.RendererCapabilities.Capabilities int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#supportsFormat(com.google.android.exoplayer2.mediacodec.MediaCodecSelector,com.google.android.exoplayer2.Format)">supportsFormat</a></span>&#8203;(<a href="../mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector,
               <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="../RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a> for the given <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 </td>
 </tr>
@@ -597,14 +656,14 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.mediacodec.<a href="../mediacodec/MediaCodecRenderer.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecRenderer</a></h3>
-<code><a href="../mediacodec/MediaCodecRenderer.html#createDecoderException(java.lang.Throwable,com.google.android.exoplayer2.mediacodec.MediaCodecInfo)">createDecoderException</a>, <a href="../mediacodec/MediaCodecRenderer.html#flushOrReinitializeCodec()">flushOrReinitializeCodec</a>, <a href="../mediacodec/MediaCodecRenderer.html#flushOrReleaseCodec()">flushOrReleaseCodec</a>, <a href="../mediacodec/MediaCodecRenderer.html#getCodec()">getCodec</a>, <a href="../mediacodec/MediaCodecRenderer.html#getCodecInfo()">getCodecInfo</a>, <a href="../mediacodec/MediaCodecRenderer.html#getCodecNeedsEosPropagation()">getCodecNeedsEosPropagation</a>, <a href="../mediacodec/MediaCodecRenderer.html#getCodecOperatingRate()">getCodecOperatingRate</a>, <a href="../mediacodec/MediaCodecRenderer.html#getCodecOutputMediaFormat()">getCodecOutputMediaFormat</a>, <a href="../mediacodec/MediaCodecRenderer.html#getOutputStreamOffsetUs()">getOutputStreamOffsetUs</a>, <a href="../mediacodec/MediaCodecRenderer.html#getPlaybackSpeed()">getPlaybackSpeed</a>, <a href="../mediacodec/MediaCodecRenderer.html#handleInputBufferSupplementalData(com.google.android.exoplayer2.decoder.DecoderInputBuffer)">handleInputBufferSupplementalData</a>, <a href="../mediacodec/MediaCodecRenderer.html#maybeInitCodecOrBypass()">maybeInitCodecOrBypass</a>, <a href="../mediacodec/MediaCodecRenderer.html#onProcessedOutputBuffer(long)">onProcessedOutputBuffer</a>, <a href="../mediacodec/MediaCodecRenderer.html#onStreamChanged(com.google.android.exoplayer2.Format%5B%5D,long,long)">onStreamChanged</a>, <a href="../mediacodec/MediaCodecRenderer.html#releaseCodec()">releaseCodec</a>, <a href="../mediacodec/MediaCodecRenderer.html#render(long,long)">render</a>, <a href="../mediacodec/MediaCodecRenderer.html#resetCodecStateForFlush()">resetCodecStateForFlush</a>, <a href="../mediacodec/MediaCodecRenderer.html#resetCodecStateForRelease()">resetCodecStateForRelease</a>, <a href="../mediacodec/MediaCodecRenderer.html#setPendingOutputEndOfStream()">setPendingOutputEndOfStream</a>, <a href="../mediacodec/MediaCodecRenderer.html#setPendingPlaybackException(com.google.android.exoplayer2.ExoPlaybackException)">setPendingPlaybackException</a>, <a href="../mediacodec/MediaCodecRenderer.html#setPlaybackSpeed(float,float)">setPlaybackSpeed</a>, <a href="../mediacodec/MediaCodecRenderer.html#setRenderTimeLimitMs(long)">setRenderTimeLimitMs</a>, <a href="../mediacodec/MediaCodecRenderer.html#shouldInitCodec(com.google.android.exoplayer2.mediacodec.MediaCodecInfo)">shouldInitCodec</a>, <a href="../mediacodec/MediaCodecRenderer.html#shouldReinitCodec()">shouldReinitCodec</a>, <a href="../mediacodec/MediaCodecRenderer.html#supportsFormat(com.google.android.exoplayer2.Format)">supportsFormat</a>, <a href="../mediacodec/MediaCodecRenderer.html#supportsFormatDrm(com.google.android.exoplayer2.Format)">supportsFormatDrm</a>, <a href="../mediacodec/MediaCodecRenderer.html#supportsMixedMimeTypeAdaptation()">supportsMixedMimeTypeAdaptation</a>, <a href="../mediacodec/MediaCodecRenderer.html#updateCodecOperatingRate()">updateCodecOperatingRate</a>, <a href="../mediacodec/MediaCodecRenderer.html#updateOutputFormatForTime(long)">updateOutputFormatForTime</a></code></li>
+<code><a href="../mediacodec/MediaCodecRenderer.html#createDecoderException(java.lang.Throwable,com.google.android.exoplayer2.mediacodec.MediaCodecInfo)">createDecoderException</a>, <a href="../mediacodec/MediaCodecRenderer.html#flushOrReinitializeCodec()">flushOrReinitializeCodec</a>, <a href="../mediacodec/MediaCodecRenderer.html#flushOrReleaseCodec()">flushOrReleaseCodec</a>, <a href="../mediacodec/MediaCodecRenderer.html#getCodec()">getCodec</a>, <a href="../mediacodec/MediaCodecRenderer.html#getCodecInfo()">getCodecInfo</a>, <a href="../mediacodec/MediaCodecRenderer.html#getCodecNeedsEosPropagation()">getCodecNeedsEosPropagation</a>, <a href="../mediacodec/MediaCodecRenderer.html#getCodecOperatingRate()">getCodecOperatingRate</a>, <a href="../mediacodec/MediaCodecRenderer.html#getCodecOutputMediaFormat()">getCodecOutputMediaFormat</a>, <a href="../mediacodec/MediaCodecRenderer.html#getOutputStreamOffsetUs()">getOutputStreamOffsetUs</a>, <a href="../mediacodec/MediaCodecRenderer.html#getPlaybackSpeed()">getPlaybackSpeed</a>, <a href="../mediacodec/MediaCodecRenderer.html#handleInputBufferSupplementalData(com.google.android.exoplayer2.decoder.DecoderInputBuffer)">handleInputBufferSupplementalData</a>, <a href="../mediacodec/MediaCodecRenderer.html#isBypassPossible(com.google.android.exoplayer2.Format)">isBypassPossible</a>, <a href="../mediacodec/MediaCodecRenderer.html#maybeInitCodecOrBypass()">maybeInitCodecOrBypass</a>, <a href="../mediacodec/MediaCodecRenderer.html#onProcessedOutputBuffer(long)">onProcessedOutputBuffer</a>, <a href="../mediacodec/MediaCodecRenderer.html#onReadyToInitializeCodec(com.google.android.exoplayer2.Format)">onReadyToInitializeCodec</a>, <a href="../mediacodec/MediaCodecRenderer.html#onStreamChanged(com.google.android.exoplayer2.Format%5B%5D,long,long)">onStreamChanged</a>, <a href="../mediacodec/MediaCodecRenderer.html#releaseCodec()">releaseCodec</a>, <a href="../mediacodec/MediaCodecRenderer.html#render(long,long)">render</a>, <a href="../mediacodec/MediaCodecRenderer.html#resetCodecStateForFlush()">resetCodecStateForFlush</a>, <a href="../mediacodec/MediaCodecRenderer.html#resetCodecStateForRelease()">resetCodecStateForRelease</a>, <a href="../mediacodec/MediaCodecRenderer.html#setPendingOutputEndOfStream()">setPendingOutputEndOfStream</a>, <a href="../mediacodec/MediaCodecRenderer.html#setPendingPlaybackException(com.google.android.exoplayer2.ExoPlaybackException)">setPendingPlaybackException</a>, <a href="../mediacodec/MediaCodecRenderer.html#setPlaybackSpeed(float,float)">setPlaybackSpeed</a>, <a href="../mediacodec/MediaCodecRenderer.html#setRenderTimeLimitMs(long)">setRenderTimeLimitMs</a>, <a href="../mediacodec/MediaCodecRenderer.html#shouldInitCodec(com.google.android.exoplayer2.mediacodec.MediaCodecInfo)">shouldInitCodec</a>, <a href="../mediacodec/MediaCodecRenderer.html#shouldReinitCodec()">shouldReinitCodec</a>, <a href="../mediacodec/MediaCodecRenderer.html#supportsFormat(com.google.android.exoplayer2.Format)">supportsFormat</a>, <a href="../mediacodec/MediaCodecRenderer.html#supportsFormatDrm(com.google.android.exoplayer2.Format)">supportsFormatDrm</a>, <a href="../mediacodec/MediaCodecRenderer.html#supportsMixedMimeTypeAdaptation()">supportsMixedMimeTypeAdaptation</a>, <a href="../mediacodec/MediaCodecRenderer.html#updateCodecOperatingRate()">updateCodecOperatingRate</a>, <a href="../mediacodec/MediaCodecRenderer.html#updateOutputFormatForTime(long)">updateOutputFormatForTime</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.BaseRenderer">
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.<a href="../BaseRenderer.html" title="class in com.google.android.exoplayer2">BaseRenderer</a></h3>
-<code><a href="../BaseRenderer.html#createRendererException(java.lang.Throwable,com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">createRendererException</a>, <a href="../BaseRenderer.html#createRendererException(java.lang.Throwable,com.google.android.exoplayer2.Format,boolean,@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">createRendererException</a>, <a href="../BaseRenderer.html#disable()">disable</a>, <a href="../BaseRenderer.html#enable(com.google.android.exoplayer2.RendererConfiguration,com.google.android.exoplayer2.Format%5B%5D,com.google.android.exoplayer2.source.SampleStream,long,boolean,boolean,long,long)">enable</a>, <a href="../BaseRenderer.html#getCapabilities()">getCapabilities</a>, <a href="../BaseRenderer.html#getConfiguration()">getConfiguration</a>, <a href="../BaseRenderer.html#getFormatHolder()">getFormatHolder</a>, <a href="../BaseRenderer.html#getIndex()">getIndex</a>, <a href="../BaseRenderer.html#getLastResetPositionUs()">getLastResetPositionUs</a>, <a href="../BaseRenderer.html#getPlayerId()">getPlayerId</a>, <a href="../BaseRenderer.html#getReadingPositionUs()">getReadingPositionUs</a>, <a href="../BaseRenderer.html#getState()">getState</a>, <a href="../BaseRenderer.html#getStream()">getStream</a>, <a href="../BaseRenderer.html#getStreamFormats()">getStreamFormats</a>, <a href="../BaseRenderer.html#getTrackType()">getTrackType</a>, <a href="../BaseRenderer.html#hasReadStreamToEnd()">hasReadStreamToEnd</a>, <a href="../BaseRenderer.html#init(int,com.google.android.exoplayer2.analytics.PlayerId)">init</a>, <a href="../BaseRenderer.html#isCurrentStreamFinal()">isCurrentStreamFinal</a>, <a href="../BaseRenderer.html#isSourceReady()">isSourceReady</a>, <a href="../BaseRenderer.html#maybeThrowStreamError()">maybeThrowStreamError</a>, <a href="../BaseRenderer.html#readSource(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,@com.google.android.exoplayer2.source.SampleStream.ReadFlagsint)">readSource</a>, <a href="../BaseRenderer.html#replaceStream(com.google.android.exoplayer2.Format%5B%5D,com.google.android.exoplayer2.source.SampleStream,long,long)">replaceStream</a>, <a href="../BaseRenderer.html#reset()">reset</a>, <a href="../BaseRenderer.html#resetPosition(long)">resetPosition</a>, <a href="../BaseRenderer.html#setCurrentStreamFinal()">setCurrentStreamFinal</a>, <a href="../BaseRenderer.html#skipSource(long)">skipSource</a>, <a href="../BaseRenderer.html#start()">start</a>, <a href="../BaseRenderer.html#stop()">stop</a></code></li>
+<code><a href="../BaseRenderer.html#clearListener()">clearListener</a>, <a href="../BaseRenderer.html#createRendererException(java.lang.Throwable,com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">createRendererException</a>, <a href="../BaseRenderer.html#createRendererException(java.lang.Throwable,com.google.android.exoplayer2.Format,boolean,@com.google.android.exoplayer2.PlaybackException.ErrorCodeint)">createRendererException</a>, <a href="../BaseRenderer.html#disable()">disable</a>, <a href="../BaseRenderer.html#enable(com.google.android.exoplayer2.RendererConfiguration,com.google.android.exoplayer2.Format%5B%5D,com.google.android.exoplayer2.source.SampleStream,long,boolean,boolean,long,long)">enable</a>, <a href="../BaseRenderer.html#getCapabilities()">getCapabilities</a>, <a href="../BaseRenderer.html#getConfiguration()">getConfiguration</a>, <a href="../BaseRenderer.html#getFormatHolder()">getFormatHolder</a>, <a href="../BaseRenderer.html#getIndex()">getIndex</a>, <a href="../BaseRenderer.html#getLastResetPositionUs()">getLastResetPositionUs</a>, <a href="../BaseRenderer.html#getPlayerId()">getPlayerId</a>, <a href="../BaseRenderer.html#getReadingPositionUs()">getReadingPositionUs</a>, <a href="../BaseRenderer.html#getState()">getState</a>, <a href="../BaseRenderer.html#getStream()">getStream</a>, <a href="../BaseRenderer.html#getStreamFormats()">getStreamFormats</a>, <a href="../BaseRenderer.html#getTrackType()">getTrackType</a>, <a href="../BaseRenderer.html#hasReadStreamToEnd()">hasReadStreamToEnd</a>, <a href="../BaseRenderer.html#init(int,com.google.android.exoplayer2.analytics.PlayerId)">init</a>, <a href="../BaseRenderer.html#isCurrentStreamFinal()">isCurrentStreamFinal</a>, <a href="../BaseRenderer.html#isSourceReady()">isSourceReady</a>, <a href="../BaseRenderer.html#maybeThrowStreamError()">maybeThrowStreamError</a>, <a href="../BaseRenderer.html#onRendererCapabilitiesChanged()">onRendererCapabilitiesChanged</a>, <a href="../BaseRenderer.html#readSource(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,@com.google.android.exoplayer2.source.SampleStream.ReadFlagsint)">readSource</a>, <a href="../BaseRenderer.html#release()">release</a>, <a href="../BaseRenderer.html#replaceStream(com.google.android.exoplayer2.Format%5B%5D,com.google.android.exoplayer2.source.SampleStream,long,long)">replaceStream</a>, <a href="../BaseRenderer.html#reset()">reset</a>, <a href="../BaseRenderer.html#resetPosition(long)">resetPosition</a>, <a href="../BaseRenderer.html#setCurrentStreamFinal()">setCurrentStreamFinal</a>, <a href="../BaseRenderer.html#setListener(com.google.android.exoplayer2.RendererCapabilities.Listener)">setListener</a>, <a href="../BaseRenderer.html#skipSource(long)">skipSource</a>, <a href="../BaseRenderer.html#start()">start</a>, <a href="../BaseRenderer.html#stop()">stop</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
@@ -637,6 +696,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <h4>MediaCodecAudioRenderer</h4>
 <pre>public&nbsp;MediaCodecAudioRenderer&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                                <a href="../mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - A context.</dd>
@@ -656,6 +716,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
                                <a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;eventHandler,
                                @Nullable
                                <a href="AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;eventListener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - A context.</dd>
@@ -680,6 +741,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
                                <a href="AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;eventListener,
                                <a href="AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a>&nbsp;audioCapabilities,
                                <a href="AudioProcessor.html" title="interface in com.google.android.exoplayer2.audio">AudioProcessor</a>...&nbsp;audioProcessors)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - A context.</dd>
@@ -707,6 +769,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
                                @Nullable
                                <a href="AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;eventListener,
                                <a href="AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a>&nbsp;audioSink)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - A context.</dd>
@@ -732,6 +795,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
                                @Nullable
                                <a href="AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;eventListener,
                                <a href="AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a>&nbsp;audioSink)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - A context.</dd>
@@ -761,6 +825,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
                                @Nullable
                                <a href="AudioRendererEventListener.html" title="interface in com.google.android.exoplayer2.audio">AudioRendererEventListener</a>&nbsp;eventListener,
                                <a href="AudioSink.html" title="interface in com.google.android.exoplayer2.audio">AudioSink</a>&nbsp;audioSink)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -794,6 +859,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>getName</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;getName()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Renderer.html#getName()">Renderer</a></code></span></div>
 <div class="block">Returns the name of this renderer, for logging and debugging purposes. Should typically be the
  renderer's (un-obfuscated) class name.</div>
@@ -814,6 +880,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>experimentalSetEnableKeepAudioTrackOnSeek</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;experimentalSetEnableKeepAudioTrackOnSeek&#8203;(boolean&nbsp;enableKeepAudioTrackOnSeek)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether to enable the experimental feature that keeps and flushes the <a href="https://developer.android.com/reference/android/media/AudioTrack.html" title="class or interface in android.media" class="externalLink" target="_top"><code>AudioTrack</code></a> when a seek occurs, as opposed to releasing and reinitialising. Off
  by default.
 
@@ -833,6 +900,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <pre class="methodSignature">protected&nbsp;@com.google.android.exoplayer2.RendererCapabilities.Capabilities int&nbsp;supportsFormat&#8203;(<a href="../mediacodec/MediaCodecSelector.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecSelector</a>&nbsp;mediaCodecSelector,
                                                                                               <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)
                                                                                        throws <a href="../mediacodec/MediaCodecUtil.DecoderQueryException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil.DecoderQueryException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#supportsFormat(com.google.android.exoplayer2.mediacodec.MediaCodecSelector,com.google.android.exoplayer2.Format)">MediaCodecRenderer</a></code></span></div>
 <div class="block">Returns the <a href="../RendererCapabilities.Capabilities.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.Capabilities</code></a> for the given <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 <dl>
@@ -858,6 +926,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
                                                <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                                boolean&nbsp;requiresSecureDecoder)
                                         throws <a href="../mediacodec/MediaCodecUtil.DecoderQueryException.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecUtil.DecoderQueryException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#getDecoderInfos(com.google.android.exoplayer2.mediacodec.MediaCodecSelector,com.google.android.exoplayer2.Format,boolean)">MediaCodecRenderer</a></code></span></div>
 <div class="block">Returns a list of decoders that can decode media in the specified format, in priority order.</div>
 <dl>
@@ -881,6 +950,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>shouldUseBypass</h4>
 <pre class="methodSignature">protected&nbsp;boolean&nbsp;shouldUseBypass&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#shouldUseBypass(com.google.android.exoplayer2.Format)">MediaCodecRenderer</a></code></span></div>
 <div class="block">Returns whether buffers in the input format can be processed without a codec.
 
@@ -907,6 +977,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
                                                                      @Nullable
                                                                      <a href="https://developer.android.com/reference/android/media/MediaCrypto.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCrypto</a>&nbsp;crypto,
                                                                      float&nbsp;codecOperatingRate)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#getMediaCodecConfiguration(com.google.android.exoplayer2.mediacodec.MediaCodecInfo,com.google.android.exoplayer2.Format,android.media.MediaCrypto,float)">MediaCodecRenderer</a></code></span></div>
 <div class="block">Returns the <a href="../mediacodec/MediaCodecAdapter.Configuration.html" title="class in com.google.android.exoplayer2.mediacodec"><code>MediaCodecAdapter.Configuration</code></a> that will be used to create and configure a
  <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink"><code>MediaCodec</code></a> to decode the given <a href="../Format.html" title="class in com.google.android.exoplayer2" target="_top"><code>Format</code></a> for a playback.</div>
@@ -933,6 +1004,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <pre class="methodSignature">protected&nbsp;<a href="../decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a>&nbsp;canReuseCodec&#8203;(<a href="../mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;codecInfo,
                                                <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;oldFormat,
                                                <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;newFormat)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#canReuseCodec(com.google.android.exoplayer2.mediacodec.MediaCodecInfo,com.google.android.exoplayer2.Format,com.google.android.exoplayer2.Format)">MediaCodecRenderer</a></code></span></div>
 <div class="block">Evaluates whether the existing <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink"><code>MediaCodec</code></a> can be kept for a new <a href="../Format.html" title="class in com.google.android.exoplayer2" target="_top"><code>Format</code></a>, and if
  it can whether it requires reconfiguration.
@@ -958,6 +1030,7 @@ implements <a href="../util/MediaClock.html" title="interface in com.google.andr
 <h4>getMediaClock</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="../util/MediaClock.html" title="interface in com.google.android.exoplayer2.util">MediaClock</a>&nbsp;getMediaClock()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Renderer.html#getMediaClock()">Renderer</a></code></span></div>
 <div class="block">If the renderer advances its own playback position then this method returns a corresponding
  <a href="../util/MediaClock.html" title="interface in com.google.android.exoplayer2.util"><code>MediaClock</code></a>. If provided, the player will use the returned <a href="../util/MediaClock.html" title="interface in com.google.android.exoplayer2.util"><code>MediaClock</code></a> as its
@@ -981,6 +1054,7 @@ public&nbsp;<a href="../util/MediaClock.html" title="interface in com.google.and
 <pre class="methodSignature">protected&nbsp;float&nbsp;getCodecOperatingRateV23&#8203;(float&nbsp;targetPlaybackSpeed,
                                          <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                          <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>[]&nbsp;streamFormats)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#getCodecOperatingRateV23(float,com.google.android.exoplayer2.Format,com.google.android.exoplayer2.Format%5B%5D)">MediaCodecRenderer</a></code></span></div>
 <div class="block">Returns the <a href="https://developer.android.com/reference/android/media/MediaFormat.html#KEY_OPERATING_RATE" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaFormat.KEY_OPERATING_RATE</code></a> value for a given playback speed, current
  <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> and set of possible stream formats.
@@ -1011,6 +1085,7 @@ public&nbsp;<a href="../util/MediaClock.html" title="interface in com.google.and
                                   <a href="../mediacodec/MediaCodecAdapter.Configuration.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter.Configuration</a>&nbsp;configuration,
                                   long&nbsp;initializedTimestampMs,
                                   long&nbsp;initializationDurationMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#onCodecInitialized(java.lang.String,com.google.android.exoplayer2.mediacodec.MediaCodecAdapter.Configuration,long,long)">MediaCodecRenderer</a></code></span></div>
 <div class="block">Called when a <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> has been created and configured.
 
@@ -1034,6 +1109,7 @@ public&nbsp;<a href="../util/MediaClock.html" title="interface in com.google.and
 <li class="blockList">
 <h4>onCodecReleased</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onCodecReleased&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#onCodecReleased(java.lang.String)">MediaCodecRenderer</a></code></span></div>
 <div class="block">Called when a <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> has been released.
 
@@ -1053,6 +1129,7 @@ public&nbsp;<a href="../util/MediaClock.html" title="interface in com.google.and
 <li class="blockList">
 <h4>onCodecError</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onCodecError&#8203;(<a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&nbsp;codecError)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#onCodecError(java.lang.Exception)">MediaCodecRenderer</a></code></span></div>
 <div class="block">Called when a codec error has occurred.
 
@@ -1074,6 +1151,7 @@ public&nbsp;<a href="../util/MediaClock.html" title="interface in com.google.and
 <pre class="methodSignature">@Nullable
 protected&nbsp;<a href="../decoder/DecoderReuseEvaluation.html" title="class in com.google.android.exoplayer2.decoder">DecoderReuseEvaluation</a>&nbsp;onInputFormatChanged&#8203;(<a href="../FormatHolder.html" title="class in com.google.android.exoplayer2">FormatHolder</a>&nbsp;formatHolder)
                                                throws <a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#onInputFormatChanged(com.google.android.exoplayer2.FormatHolder)">MediaCodecRenderer</a></code></span></div>
 <div class="block">Called when a new <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> is read from the upstream <a href="../source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a>.</div>
 <dl>
@@ -1099,6 +1177,7 @@ protected&nbsp;<a href="../decoder/DecoderReuseEvaluation.html" title="class in 
                                      @Nullable
                                      <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink" target="_top">MediaFormat</a>&nbsp;mediaFormat)
                               throws <a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#onOutputFormatChanged(com.google.android.exoplayer2.Format,android.media.MediaFormat)">MediaCodecRenderer</a></code></span></div>
 <div class="block">Called when one of the output formats changes.
 
@@ -1124,6 +1203,7 @@ protected&nbsp;<a href="../decoder/DecoderReuseEvaluation.html" title="class in 
 <h4>onPositionDiscontinuity</h4>
 <pre class="methodSignature">@CallSuper
 protected&nbsp;void&nbsp;onPositionDiscontinuity()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">See <a href="AudioSink.Listener.html#onPositionDiscontinuity()"><code>AudioSink.Listener.onPositionDiscontinuity()</code></a>.</div>
 </li>
 </ul>
@@ -1136,6 +1216,7 @@ protected&nbsp;void&nbsp;onPositionDiscontinuity()</pre>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onEnabled&#8203;(boolean&nbsp;joining,
                          boolean&nbsp;mayRenderStartOfStream)
                   throws <a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../BaseRenderer.html#onEnabled(boolean,boolean)">BaseRenderer</a></code></span></div>
 <div class="block">Called when the renderer is enabled.
 
@@ -1161,6 +1242,7 @@ protected&nbsp;void&nbsp;onPositionDiscontinuity()</pre>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onPositionReset&#8203;(long&nbsp;positionUs,
                                boolean&nbsp;joining)
                         throws <a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../BaseRenderer.html#onPositionReset(long,boolean)">BaseRenderer</a></code></span></div>
 <div class="block">Called when the position is reset. This occurs when the renderer is enabled after <a href="../BaseRenderer.html#onStreamChanged(com.google.android.exoplayer2.Format%5B%5D,long,long)"><code>BaseRenderer.onStreamChanged(Format[], long, long)</code></a> has been called, and also when a position discontinuity
  is encountered.
@@ -1187,6 +1269,7 @@ protected&nbsp;void&nbsp;onPositionDiscontinuity()</pre>
 <li class="blockList">
 <h4>onStarted</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onStarted()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../BaseRenderer.html#onStarted()">BaseRenderer</a></code></span></div>
 <div class="block">Called when the renderer is started.
 
@@ -1204,6 +1287,7 @@ protected&nbsp;void&nbsp;onPositionDiscontinuity()</pre>
 <li class="blockList">
 <h4>onStopped</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onStopped()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../BaseRenderer.html#onStopped()">BaseRenderer</a></code></span></div>
 <div class="block">Called when the renderer is stopped.
 
@@ -1221,6 +1305,7 @@ protected&nbsp;void&nbsp;onPositionDiscontinuity()</pre>
 <li class="blockList">
 <h4>onDisabled</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onDisabled()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../BaseRenderer.html#onDisabled()">BaseRenderer</a></code></span></div>
 <div class="block">Called when the renderer is disabled.
 
@@ -1238,6 +1323,7 @@ protected&nbsp;void&nbsp;onPositionDiscontinuity()</pre>
 <li class="blockList">
 <h4>onReset</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onReset()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../BaseRenderer.html#onReset()">BaseRenderer</a></code></span></div>
 <div class="block">Called when the renderer is reset.
 
@@ -1248,6 +1334,24 @@ protected&nbsp;void&nbsp;onPositionDiscontinuity()</pre>
 </dl>
 </li>
 </ul>
+<a id="onRelease()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>onRelease</h4>
+<pre class="methodSignature">protected&nbsp;void&nbsp;onRelease()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../BaseRenderer.html#onRelease()">BaseRenderer</a></code></span></div>
+<div class="block">Called when the renderer is released.
+
+ <p>The default implementation is a no-op.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="../BaseRenderer.html#onRelease()">onRelease</a></code>&nbsp;in class&nbsp;<code><a href="../BaseRenderer.html" title="class in com.google.android.exoplayer2">BaseRenderer</a></code></dd>
+</dl>
+</li>
+</ul>
 <a id="isEnded()">
 <!--   -->
 </a>
@@ -1255,6 +1359,7 @@ protected&nbsp;void&nbsp;onPositionDiscontinuity()</pre>
 <li class="blockList">
 <h4>isEnded</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isEnded()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Renderer.html#isEnded()">Renderer</a></code></span></div>
 <div class="block">Whether the renderer is ready for the <a href="../ExoPlayer.html" title="interface in com.google.android.exoplayer2"><code>ExoPlayer</code></a> instance to transition to <a href="../Player.html#STATE_ENDED"><code>Player.STATE_ENDED</code></a>. The player will make this transition as soon as <code>true</code> is returned
  by all of its renderers.
@@ -1277,6 +1382,7 @@ protected&nbsp;void&nbsp;onPositionDiscontinuity()</pre>
 <li class="blockList">
 <h4>isReady</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isReady()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Renderer.html#isReady()">Renderer</a></code></span></div>
 <div class="block">Whether the renderer is able to immediately render media from the current position.
 
@@ -1305,6 +1411,7 @@ protected&nbsp;void&nbsp;onPositionDiscontinuity()</pre>
 <li class="blockList">
 <h4>getPositionUs</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getPositionUs()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../util/MediaClock.html#getPositionUs()">MediaClock</a></code></span></div>
 <div class="block">Returns the current media position in microseconds.</div>
 <dl>
@@ -1320,6 +1427,7 @@ protected&nbsp;void&nbsp;onPositionDiscontinuity()</pre>
 <li class="blockList">
 <h4>setPlaybackParameters</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setPlaybackParameters&#8203;(<a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;playbackParameters)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../util/MediaClock.html#setPlaybackParameters(com.google.android.exoplayer2.PlaybackParameters)">MediaClock</a></code></span></div>
 <div class="block">Attempts to set the playback parameters. The media clock may override the speed if changing the
  playback parameters is not supported.</div>
@@ -1338,6 +1446,7 @@ protected&nbsp;void&nbsp;onPositionDiscontinuity()</pre>
 <li class="blockList">
 <h4>getPlaybackParameters</h4>
 <pre class="methodSignature">public&nbsp;<a href="../PlaybackParameters.html" title="class in com.google.android.exoplayer2">PlaybackParameters</a>&nbsp;getPlaybackParameters()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../util/MediaClock.html#getPlaybackParameters()">MediaClock</a></code></span></div>
 <div class="block">Returns the active playback parameters.</div>
 <dl>
@@ -1353,6 +1462,7 @@ protected&nbsp;void&nbsp;onPositionDiscontinuity()</pre>
 <li class="blockList">
 <h4>onQueueInputBuffer</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onQueueInputBuffer&#8203;(<a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;buffer)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#onQueueInputBuffer(com.google.android.exoplayer2.decoder.DecoderInputBuffer)">MediaCodecRenderer</a></code></span></div>
 <div class="block">Called immediately before an input buffer is queued into the codec.
 
@@ -1372,6 +1482,7 @@ protected&nbsp;void&nbsp;onPositionDiscontinuity()</pre>
 <li class="blockList">
 <h4>onProcessedStreamChange</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onProcessedStreamChange()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#onProcessedStreamChange()">MediaCodecRenderer</a></code></span></div>
 <div class="block">Called after the last output buffer before a stream change has been processed.</div>
 <dl>
@@ -1400,6 +1511,7 @@ protected&nbsp;void&nbsp;onPositionDiscontinuity()</pre>
                                       boolean&nbsp;isLastBuffer,
                                       <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)
                                throws <a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#processOutputBuffer(long,long,com.google.android.exoplayer2.mediacodec.MediaCodecAdapter,java.nio.ByteBuffer,int,int,int,long,boolean,boolean,com.google.android.exoplayer2.Format)">MediaCodecRenderer</a></code></span></div>
 <div class="block">Processes an output media buffer.
 
@@ -1453,6 +1565,7 @@ protected&nbsp;void&nbsp;onPositionDiscontinuity()</pre>
 <h4>renderToEndOfStream</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;renderToEndOfStream()
                             throws <a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#renderToEndOfStream()">MediaCodecRenderer</a></code></span></div>
 <div class="block">Incrementally renders any remaining output.
 
@@ -1472,6 +1585,7 @@ protected&nbsp;void&nbsp;onPositionDiscontinuity()</pre>
 <li class="blockList">
 <h4>onOutputStreamOffsetUsChanged</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onOutputStreamOffsetUsChanged&#8203;(long&nbsp;outputStreamOffsetUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../mediacodec/MediaCodecRenderer.html#onOutputStreamOffsetUsChanged(long)">MediaCodecRenderer</a></code></span></div>
 <div class="block">Called after the output stream offset changes.
 
@@ -1494,6 +1608,7 @@ protected&nbsp;void&nbsp;onPositionDiscontinuity()</pre>
                           @Nullable
                           <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;message)
                    throws <a href="../ExoPlaybackException.html" title="class in com.google.android.exoplayer2">ExoPlaybackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../PlayerMessage.Target.html#handleMessage(@com.google.android.exoplayer2.Renderer.MessageTypeint,java.lang.Object)">PlayerMessage.Target</a></code></span></div>
 <div class="block">Handles a message delivered to the target.</div>
 <dl>
@@ -1519,6 +1634,7 @@ protected&nbsp;void&nbsp;onPositionDiscontinuity()</pre>
 <pre class="methodSignature">protected&nbsp;int&nbsp;getCodecMaxInputSize&#8203;(<a href="../mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a>&nbsp;codecInfo,
                                    <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                    <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>[]&nbsp;streamFormats)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a maximum input size suitable for configuring a codec for <code>format</code> in a way that
  will allow possible adaptation to other compatible formats in <code>streamFormats</code>.</div>
 <dl>
@@ -1541,6 +1657,7 @@ protected&nbsp;void&nbsp;onPositionDiscontinuity()</pre>
                                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;codecMimeType,
                                      int&nbsp;codecMaxInputSize,
                                      float&nbsp;codecOperatingRate)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the framework <a href="https://developer.android.com/reference/android/media/MediaFormat.html" title="class or interface in android.media" class="externalLink"><code>MediaFormat</code></a> that can be used to configure a <a href="https://developer.android.com/reference/android/media/MediaCodec.html?is-external=true" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>
  for decoding the given <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> for playback.</div>
 <dl>

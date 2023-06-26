@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var data = {"i0":38,"i1":38,"i2":38,"i3":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -125,7 +125,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="chunk/ChunkSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk">ChunkSampleStream</a></code>, <code><a href="chunk/ChunkSampleStream.EmbeddedSampleStream.html" title="class in com.google.android.exoplayer2.source.chunk">ChunkSampleStream.EmbeddedSampleStream</a></code>, <code><a href="EmptySampleStream.html" title="class in com.google.android.exoplayer2.source">EmptySampleStream</a></code>, <code><a href="../testutil/FakeSampleStream.html" title="class in com.google.android.exoplayer2.testutil">FakeSampleStream</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">SampleStream</span></pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">SampleStream</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A stream of media samples (and associated format information).</div>
 </li>
 </ul>
@@ -151,6 +157,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="SampleStream.ReadDataResult.html" title="annotation in com.google.android.exoplayer2.source">SampleStream.ReadDataResult</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Return values of <a href="#readData(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,@com.google.android.exoplayer2.source.SampleStream.ReadFlagsint)"><code>readData(com.google.android.exoplayer2.FormatHolder, com.google.android.exoplayer2.decoder.DecoderInputBuffer, @com.google.android.exoplayer2.source.SampleStream.ReadFlags int)</code></a>.</div>
 </td>
 </tr>
@@ -158,6 +165,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="SampleStream.ReadFlags.html" title="annotation in com.google.android.exoplayer2.source">SampleStream.ReadFlags</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Flags that can be specified when calling <a href="#readData(com.google.android.exoplayer2.FormatHolder,com.google.android.exoplayer2.decoder.DecoderInputBuffer,@com.google.android.exoplayer2.source.SampleStream.ReadFlagsint)"><code>readData(com.google.android.exoplayer2.FormatHolder, com.google.android.exoplayer2.decoder.DecoderInputBuffer, @com.google.android.exoplayer2.source.SampleStream.ReadFlags int)</code></a>.</div>
 </td>
 </tr>
@@ -183,6 +191,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FLAG_OMIT_SAMPLE_DATA">FLAG_OMIT_SAMPLE_DATA</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Specifies that <a href="../decoder/DecoderInputBuffer.html#data"><code>DecoderInputBuffer.data</code></a>, <a href="../decoder/DecoderInputBuffer.html#supplementalData"><code>DecoderInputBuffer.supplementalData</code></a> and
  <a href="../decoder/DecoderInputBuffer.html#cryptoInfo"><code>DecoderInputBuffer.cryptoInfo</code></a> should not be populated when reading a sample buffer.</div>
 </td>
@@ -191,6 +200,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FLAG_PEEK">FLAG_PEEK</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Specifies that the read position should not be advanced if a sample buffer is read.</div>
 </td>
 </tr>
@@ -198,6 +208,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FLAG_REQUIRE_FORMAT">FLAG_REQUIRE_FORMAT</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Specifies that if a sample buffer would normally be read next, the format of the stream should
  be read instead.</div>
 </td>
@@ -214,7 +225,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -224,6 +235,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isReady()">isReady</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether data is available to be read.</div>
 </td>
 </tr>
@@ -231,6 +243,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maybeThrowError()">maybeThrowError</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Throws an error that's preventing data from being read.</div>
 </td>
 </tr>
@@ -240,6 +253,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
         <a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;buffer,
         @com.google.android.exoplayer2.source.SampleStream.ReadFlags int&nbsp;readFlags)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Attempts to read from the stream.</div>
 </td>
 </tr>
@@ -247,6 +261,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skipData(long)">skipData</a></span>&#8203;(long&nbsp;positionUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Attempts to skip to the keyframe before the specified position, or to the end of the stream if
  <code>positionUs</code> is beyond it.</div>
 </td>
@@ -275,6 +290,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>FLAG_PEEK</h4>
 <pre>static final&nbsp;int FLAG_PEEK</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Specifies that the read position should not be advanced if a sample buffer is read.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -289,6 +305,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>FLAG_REQUIRE_FORMAT</h4>
 <pre>static final&nbsp;int FLAG_REQUIRE_FORMAT</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Specifies that if a sample buffer would normally be read next, the format of the stream should
  be read instead. In detail, the effect of this flag is as follows:
 
@@ -313,6 +330,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>FLAG_OMIT_SAMPLE_DATA</h4>
 <pre>static final&nbsp;int FLAG_OMIT_SAMPLE_DATA</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Specifies that <a href="../decoder/DecoderInputBuffer.html#data"><code>DecoderInputBuffer.data</code></a>, <a href="../decoder/DecoderInputBuffer.html#supplementalData"><code>DecoderInputBuffer.supplementalData</code></a> and
  <a href="../decoder/DecoderInputBuffer.html#cryptoInfo"><code>DecoderInputBuffer.cryptoInfo</code></a> should not be populated when reading a sample buffer.
 
@@ -342,6 +360,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>isReady</h4>
 <pre class="methodSignature">boolean&nbsp;isReady()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether data is available to be read.
 
  <p>Note: If the stream has ended then a buffer with the end of stream flag can always be read
@@ -360,6 +379,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>maybeThrowError</h4>
 <pre class="methodSignature">void&nbsp;maybeThrowError()
               throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Throws an error that's preventing data from being read. Does nothing if no such error exists.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -376,6 +396,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre class="methodSignature">@com.google.android.exoplayer2.source.SampleStream.ReadDataResult int&nbsp;readData&#8203;(<a href="../FormatHolder.html" title="class in com.google.android.exoplayer2">FormatHolder</a>&nbsp;formatHolder,
                                                                                <a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;buffer,
                                                                                @com.google.android.exoplayer2.source.SampleStream.ReadFlags int&nbsp;readFlags)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Attempts to read from the stream.
 
  <p>If the stream has ended then <a href="../C.html#BUFFER_FLAG_END_OF_STREAM"><code>C.BUFFER_FLAG_END_OF_STREAM</code></a> flag is set on <code>
@@ -404,6 +425,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>skipData</h4>
 <pre class="methodSignature">int&nbsp;skipData&#8203;(long&nbsp;positionUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Attempts to skip to the keyframe before the specified position, or to the end of the stream if
  <code>positionUs</code> is beyond it.</div>
 <dl>

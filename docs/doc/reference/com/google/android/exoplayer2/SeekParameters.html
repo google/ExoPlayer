@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">SeekParameters</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">SeekParameters</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Parameters that apply to seeking.
 
  <p>The predefined <a href="#EXACT"><code>EXACT</code></a>, <a href="#CLOSEST_SYNC"><code>CLOSEST_SYNC</code></a>, <a href="#PREVIOUS_SYNC"><code>PREVIOUS_SYNC</code></a> and <a href="#NEXT_SYNC"><code>NEXT_SYNC</code></a> parameters are suitable for most use cases. Seeking to sync points is typically
@@ -166,6 +172,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static <a href="SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#CLOSEST_SYNC">CLOSEST_SYNC</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parameters for seeking to the closest sync point.</div>
 </td>
 </tr>
@@ -173,6 +180,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static <a href="SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT">DEFAULT</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default parameters.</div>
 </td>
 </tr>
@@ -180,6 +188,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static <a href="SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EXACT">EXACT</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parameters for exact seeking.</div>
 </td>
 </tr>
@@ -187,6 +196,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static <a href="SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#NEXT_SYNC">NEXT_SYNC</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parameters for seeking to the sync point immediately after a requested seek position.</div>
 </td>
 </tr>
@@ -194,6 +204,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static <a href="SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PREVIOUS_SYNC">PREVIOUS_SYNC</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parameters for seeking to the sync point immediately before a requested seek position.</div>
 </td>
 </tr>
@@ -201,6 +212,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toleranceAfterUs">toleranceAfterUs</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The maximum time that the actual position seeked to may exceed the requested seek position, in
  microseconds.</div>
 </td>
@@ -209,6 +221,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toleranceBeforeUs">toleranceBeforeUs</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The maximum time that the actual position seeked to may precede the requested seek position, in
  microseconds.</div>
 </td>
@@ -233,7 +246,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(long,long)">SeekParameters</a></span>&#8203;(long&nbsp;toleranceBeforeUs,
               long&nbsp;toleranceAfterUs)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -247,7 +262,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -256,12 +271,16 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>long</code></td>
@@ -269,6 +288,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                      long&nbsp;firstSyncUs,
                      long&nbsp;secondSyncUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Resolves a seek based on the parameters, given the requested seek position and two candidate
  sync points.</div>
 </td>
@@ -304,6 +324,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>EXACT</h4>
 <pre>public static final&nbsp;<a href="SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a> EXACT</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parameters for exact seeking.</div>
 </li>
 </ul>
@@ -314,6 +335,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>CLOSEST_SYNC</h4>
 <pre>public static final&nbsp;<a href="SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a> CLOSEST_SYNC</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parameters for seeking to the closest sync point.</div>
 </li>
 </ul>
@@ -324,6 +346,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>PREVIOUS_SYNC</h4>
 <pre>public static final&nbsp;<a href="SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a> PREVIOUS_SYNC</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parameters for seeking to the sync point immediately before a requested seek position.</div>
 </li>
 </ul>
@@ -334,6 +357,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>NEXT_SYNC</h4>
 <pre>public static final&nbsp;<a href="SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a> NEXT_SYNC</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parameters for seeking to the sync point immediately after a requested seek position.</div>
 </li>
 </ul>
@@ -344,6 +368,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>DEFAULT</h4>
 <pre>public static final&nbsp;<a href="SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a> DEFAULT</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default parameters.</div>
 </li>
 </ul>
@@ -354,6 +379,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>toleranceBeforeUs</h4>
 <pre>public final&nbsp;long toleranceBeforeUs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The maximum time that the actual position seeked to may precede the requested seek position, in
  microseconds.</div>
 </li>
@@ -365,6 +391,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>toleranceAfterUs</h4>
 <pre>public final&nbsp;long toleranceAfterUs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The maximum time that the actual position seeked to may exceed the requested seek position, in
  microseconds.</div>
 </li>
@@ -387,6 +414,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>SeekParameters</h4>
 <pre>public&nbsp;SeekParameters&#8203;(long&nbsp;toleranceBeforeUs,
                       long&nbsp;toleranceAfterUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>toleranceBeforeUs</code> - The maximum time that the actual position seeked to may precede the
@@ -415,6 +443,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">public&nbsp;long&nbsp;resolveSeekPositionUs&#8203;(long&nbsp;positionUs,
                                   long&nbsp;firstSyncUs,
                                   long&nbsp;secondSyncUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Resolves a seek based on the parameters, given the requested seek position and two candidate
  sync points.</div>
 <dl>
@@ -436,6 +465,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>equals</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;equals&#8203;(@Nullable
                       <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
@@ -449,6 +479,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>hashCode</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;hashCode()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>

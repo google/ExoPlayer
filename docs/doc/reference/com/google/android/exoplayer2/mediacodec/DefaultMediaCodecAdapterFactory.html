@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="MediaCodecAdapter.Factory.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter.Factory</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">DefaultMediaCodecAdapterFactory</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">DefaultMediaCodecAdapterFactory</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="MediaCodecAdapter.Factory.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter.Factory</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">The default <a href="MediaCodecAdapter.Factory.html" title="interface in com.google.android.exoplayer2.mediacodec"><code>MediaCodecAdapter.Factory</code></a>.
 
  <p>By default, this factory <a href="#createAdapter(com.google.android.exoplayer2.mediacodec.MediaCodecAdapter.Configuration)"><code>creates</code></a> <code>AsynchronousMediaCodecAdapter</code>
@@ -181,7 +187,9 @@ implements <a href="MediaCodecAdapter.Factory.html" title="interface in com.goog
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">DefaultMediaCodecAdapterFactory</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -195,7 +203,7 @@ implements <a href="MediaCodecAdapter.Factory.html" title="interface in com.goog
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -205,6 +213,7 @@ implements <a href="MediaCodecAdapter.Factory.html" title="interface in com.goog
 <td class="colFirst"><code><a href="MediaCodecAdapter.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createAdapter(com.google.android.exoplayer2.mediacodec.MediaCodecAdapter.Configuration)">createAdapter</a></span>&#8203;(<a href="MediaCodecAdapter.Configuration.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter.Configuration</a>&nbsp;configuration)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a <a href="MediaCodecAdapter.html" title="interface in com.google.android.exoplayer2.mediacodec"><code>MediaCodecAdapter</code></a> instance.</div>
 </td>
 </tr>
@@ -212,6 +221,7 @@ implements <a href="MediaCodecAdapter.Factory.html" title="interface in com.goog
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#experimentalSetSynchronizeCodecInteractionsWithQueueingEnabled(boolean)">experimentalSetSynchronizeCodecInteractionsWithQueueingEnabled</a></span>&#8203;(boolean&nbsp;enabled)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Enable synchronizing codec interactions with asynchronous buffer queueing.</div>
 </td>
 </tr>
@@ -219,6 +229,7 @@ implements <a href="MediaCodecAdapter.Factory.html" title="interface in com.goog
 <td class="colFirst"><code><a href="DefaultMediaCodecAdapterFactory.html" title="class in com.google.android.exoplayer2.mediacodec">DefaultMediaCodecAdapterFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#forceDisableAsynchronous()">forceDisableAsynchronous</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Forces the factory to always create <a href="SynchronousMediaCodecAdapter.html" title="class in com.google.android.exoplayer2.mediacodec"><code>SynchronousMediaCodecAdapter</code></a> instances.</div>
 </td>
 </tr>
@@ -226,6 +237,7 @@ implements <a href="MediaCodecAdapter.Factory.html" title="interface in com.goog
 <td class="colFirst"><code><a href="DefaultMediaCodecAdapterFactory.html" title="class in com.google.android.exoplayer2.mediacodec">DefaultMediaCodecAdapterFactory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#forceEnableAsynchronous()">forceEnableAsynchronous</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Forces this factory to always create <code>AsynchronousMediaCodecAdapter</code> instances, provided
  the device API level is &gt;= 23.</div>
 </td>
@@ -261,6 +273,7 @@ implements <a href="MediaCodecAdapter.Factory.html" title="interface in com.goog
 <li class="blockList">
 <h4>DefaultMediaCodecAdapterFactory</h4>
 <pre>public&nbsp;DefaultMediaCodecAdapterFactory()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -281,6 +294,7 @@ implements <a href="MediaCodecAdapter.Factory.html" title="interface in com.goog
 <h4>forceEnableAsynchronous</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="DefaultMediaCodecAdapterFactory.html" title="class in com.google.android.exoplayer2.mediacodec">DefaultMediaCodecAdapterFactory</a>&nbsp;forceEnableAsynchronous()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Forces this factory to always create <code>AsynchronousMediaCodecAdapter</code> instances, provided
  the device API level is &gt;= 23. For devices with API level &lt; 23, the factory will create
  <a href="SynchronousMediaCodecAdapter.html" title="class in com.google.android.exoplayer2.mediacodec"><code>SynchronousMediaCodecAdapters</code></a>.</div>
@@ -298,6 +312,7 @@ public&nbsp;<a href="DefaultMediaCodecAdapterFactory.html" title="class in com.g
 <h4>forceDisableAsynchronous</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
 public&nbsp;<a href="DefaultMediaCodecAdapterFactory.html" title="class in com.google.android.exoplayer2.mediacodec">DefaultMediaCodecAdapterFactory</a>&nbsp;forceDisableAsynchronous()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Forces the factory to always create <a href="SynchronousMediaCodecAdapter.html" title="class in com.google.android.exoplayer2.mediacodec"><code>SynchronousMediaCodecAdapter</code></a> instances.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -312,6 +327,7 @@ public&nbsp;<a href="DefaultMediaCodecAdapterFactory.html" title="class in com.g
 <li class="blockList">
 <h4>experimentalSetSynchronizeCodecInteractionsWithQueueingEnabled</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;experimentalSetSynchronizeCodecInteractionsWithQueueingEnabled&#8203;(boolean&nbsp;enabled)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Enable synchronizing codec interactions with asynchronous buffer queueing.
 
  <p>This method is experimental, and will be renamed or removed in a future release.</div>
@@ -330,6 +346,7 @@ public&nbsp;<a href="DefaultMediaCodecAdapterFactory.html" title="class in com.g
 <h4>createAdapter</h4>
 <pre class="methodSignature">public&nbsp;<a href="MediaCodecAdapter.html" title="interface in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter</a>&nbsp;createAdapter&#8203;(<a href="MediaCodecAdapter.Configuration.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecAdapter.Configuration</a>&nbsp;configuration)
                                 throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaCodecAdapter.Factory.html#createAdapter(com.google.android.exoplayer2.mediacodec.MediaCodecAdapter.Configuration)">MediaCodecAdapter.Factory</a></code></span></div>
 <div class="block">Creates a <a href="MediaCodecAdapter.html" title="interface in com.google.android.exoplayer2.mediacodec"><code>MediaCodecAdapter</code></a> instance.</div>
 <dl>
