@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 project.ext {
-    releaseVersion = '1.1.0-'
+    releaseVersion = '1.1.0'
     releaseVersionCode = 1_001_000_3_00
     minSdkVersion = 16
     appTargetSdkVersion = 33
