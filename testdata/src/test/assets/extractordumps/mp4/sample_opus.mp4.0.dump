@@ -22,7 +22,7 @@ track 0:
       data = length 8, hash 72CBCBF5
       data = length 8, hash 79C07075
   sample 0:
-    time = 0
+    time = -6500
     flags = 1
     data = length 3, hash 4732
   sample 1:
