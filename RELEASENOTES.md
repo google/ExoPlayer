@@ -25,9 +25,6 @@
         playback when the playback suppression due to no suitable output has
         been enabled via
         `ExoPlayer.Builder.setSuppressPlaybackOnUnsuitableOutput`.
-    *   Fix seeking issues in AC4 streams caused by not identifying decode-only
-        samples correctly
-        ([#11000](https://github.com/google/ExoPlayer/issues/11000)).
     *   Fix issue in `PlaybackStatsListener` where spurious `PlaybackStats` are
         created after the playlist is cleared.
 *   Transformer:
