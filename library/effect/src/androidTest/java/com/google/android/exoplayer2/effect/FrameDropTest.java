@@ -70,7 +70,6 @@ public class FrameDropTest {
             .setOnOutputFrameAvailableForRenderingListener(actualPresentationTimesUs::add)
             .build();
 
-    videoFrameProcessorTestRunner.registerInputStream(INPUT_TYPE_BITMAP);
     ImmutableList<Integer> timestampsMs = ImmutableList.of(0, 16, 32, 48, 58, 71, 86);
     for (int timestampMs : timestampsMs) {
       videoFrameProcessorTestRunner.queueInputBitmap(
@@ -96,7 +95,6 @@ public class FrameDropTest {
                     /* expectedFrameRate= */ 6, /* targetFrameRate= */ 2))
             .build();
 
-    videoFrameProcessorTestRunner.registerInputStream(INPUT_TYPE_BITMAP);
     videoFrameProcessorTestRunner.queueInputBitmap(
         readBitmap(ORIGINAL_PNG_ASSET_PATH),
         /* durationUs= */ C.MICROS_PER_SECOND,
@@ -123,7 +121,7 @@ public class FrameDropTest {
                     /* expectedFrameRate= */ 3, /* targetFrameRate= */ 3))
             .build();
 
-    videoFrameProcessorTestRunner.registerAndQueueInputBitmap(
+    videoFrameProcessorTestRunner.queueInputBitmap(
         readBitmap(ORIGINAL_PNG_ASSET_PATH),
         /* durationUs= */ C.MICROS_PER_SECOND,
         /* offsetToAddUs= */ 0L,
