@@ -27,7 +27,6 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
 import com.google.android.exoplayer2.transformer.EditedMediaItem;
 import com.google.android.exoplayer2.transformer.ExportTestResult;
-import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
 import java.util.HashSet;
@@ -116,7 +115,6 @@ public final class RepeatedTranscodeTest {
         new TransformerAndroidTestRunner.Builder(
                 context,
                 new Transformer.Builder(context)
-                    .setTransformationRequest(new TransformationRequest.Builder().build())
                     .setEncoderFactory(new AndroidTestUtil.ForceEncodeEncoderFactory(context))
                     .build())
             .build();

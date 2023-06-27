@@ -157,10 +157,7 @@ public final class MediaItemExportTest {
   public void start_audioOnlyTranscoding_completesSuccessfully() throws Exception {
     Transformer transformer =
         createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false)
-            .setTransformationRequest(
-                new TransformationRequest.Builder()
-                    .setAudioMimeType(MimeTypes.AUDIO_AAC) // supported by encoder and muxer
-                    .build())
+            .setAudioMimeType(MimeTypes.AUDIO_AAC) // supported by encoder and muxer
             .build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW);
 
@@ -213,8 +210,7 @@ public final class MediaItemExportTest {
   public void start_withSubtitles_completesSuccessfully() throws Exception {
     Transformer transformer =
         createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false)
-            .setTransformationRequest(
-                new TransformationRequest.Builder().setAudioMimeType(MimeTypes.AUDIO_AAC).build())
+            .setAudioMimeType(MimeTypes.AUDIO_AAC)
             .build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_WITH_SUBTITLES);
 
@@ -482,8 +478,7 @@ public final class MediaItemExportTest {
             .addListener(mockListener1)
             .addListener(mockListener2)
             .addListener(mockListener3)
-            .setTransformationRequest( // Request transcoding so that decoder is used.
-                new TransformationRequest.Builder().setAudioMimeType(MimeTypes.AUDIO_AAC).build())
+            .setAudioMimeType(MimeTypes.AUDIO_AAC) // Request transcoding so that decoder is used.
             .build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_DECODER);
 
@@ -691,11 +686,7 @@ public final class MediaItemExportTest {
   public void start_withAudioEncoderFormatUnsupported_completesWithError() {
     Transformer transformer =
         createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false)
-            .setTransformationRequest(
-                new TransformationRequest.Builder()
-                    .setAudioMimeType(
-                        MimeTypes.AUDIO_AMR_NB) // unsupported by encoder, supported by muxer
-                    .build())
+            .setAudioMimeType(MimeTypes.AUDIO_AMR_NB) // unsupported by encoder, supported by muxer
             .build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_MUXER);
 
@@ -711,10 +702,7 @@ public final class MediaItemExportTest {
   public void start_withAudioDecoderFormatUnsupported_completesWithError() {
     Transformer transformer =
         createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false)
-            .setTransformationRequest(
-                new TransformationRequest.Builder()
-                    .setAudioMimeType(MimeTypes.AUDIO_AAC) // supported by encoder and muxer
-                    .build())
+            .setAudioMimeType(MimeTypes.AUDIO_AAC) // supported by encoder and muxer
             .build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_DECODER);
 

@@ -28,7 +28,6 @@ import com.google.android.exoplayer2.transformer.AndroidTestUtil;
 import com.google.android.exoplayer2.transformer.DefaultEncoderFactory;
 import com.google.android.exoplayer2.transformer.EditedMediaItem;
 import com.google.android.exoplayer2.transformer.ExportTestResult;
-import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
 import com.google.android.exoplayer2.transformer.VideoEncoderSettings;
@@ -58,8 +57,7 @@ public final class TranscodeQualityTest {
 
     Transformer transformer =
         new Transformer.Builder(context)
-            .setTransformationRequest(
-                new TransformationRequest.Builder().setVideoMimeType(MimeTypes.VIDEO_H264).build())
+            .setVideoMimeType(MimeTypes.VIDEO_H264)
             .setEncoderFactory(
                 new DefaultEncoderFactory.Builder(context)
                     .setRequestedVideoEncoderSettings(
@@ -104,10 +102,7 @@ public final class TranscodeQualityTest {
     assumeTrue(!Util.MODEL.equals("SM-F711U1") && !Util.MODEL.equals("SM-F926U1"));
 
     Transformer transformer =
-        new Transformer.Builder(context)
-            .setTransformationRequest(
-                new TransformationRequest.Builder().setVideoMimeType(MimeTypes.VIDEO_H265).build())
-            .build();
+        new Transformer.Builder(context).setVideoMimeType(MimeTypes.VIDEO_H265).build();
     MediaItem mediaItem =
         MediaItem.fromUri(
             Uri.parse(AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING));
@@ -135,8 +130,7 @@ public final class TranscodeQualityTest {
 
     Transformer transformer =
         new Transformer.Builder(context)
-            .setTransformationRequest(
-                new TransformationRequest.Builder().setVideoMimeType(MimeTypes.VIDEO_H264).build())
+            .setVideoMimeType(MimeTypes.VIDEO_H264)
             .setEncoderFactory(new AndroidTestUtil.ForceEncodeEncoderFactory(context))
             .build();
     MediaItem mediaItem =

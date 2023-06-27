@@ -55,7 +55,6 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
 import com.google.android.exoplayer2.transformer.DefaultEncoderFactory;
 import com.google.android.exoplayer2.transformer.EditedMediaItem;
-import com.google.android.exoplayer2.transformer.TransformationRequest;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
 import com.google.android.exoplayer2.transformer.VideoEncoderSettings;
@@ -183,7 +182,7 @@ public class SsimMapperTest {
      * @param testIdPrefix The test ID prefix.
      * @param videoUri The URI of the video to transform.
      * @param outputMimeType The video sample MIME type to output, see {@link
-     *     TransformationRequest.Builder#setVideoMimeType}.
+     *     Transformer.Builder#setVideoMimeType}.
      */
     public SsimBinarySearcher(
         Context context, String testIdPrefix, String videoUri, String outputMimeType) {
@@ -291,8 +290,7 @@ public class SsimMapperTest {
 
       Transformer transformer =
           new Transformer.Builder(context)
-              .setTransformationRequest(
-                  new TransformationRequest.Builder().setVideoMimeType(outputMimeType).build())
+              .setVideoMimeType(outputMimeType)
               .setEncoderFactory(
                   new DefaultEncoderFactory.Builder(context)
                       .setRequestedVideoEncoderSettings(
