@@ -2581,7 +2581,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
     @Nullable
     @Player.DiscontinuityReason
-    Integer positionDiscontinuityReasonIfAny =
+    Integer positionDiscontinuityReason =
         (!oldPlayerInfo.oldPositionInfo.equals(newPlayerInfo.oldPositionInfo)
                 || !oldPlayerInfo.newPositionInfo.equals(newPlayerInfo.newPositionInfo))
             ? finalPlayerInfo.discontinuityReason
@@ -2589,21 +2589,21 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
     @Nullable
     @Player.MediaItemTransitionReason
-    Integer mediaItemTransitionReasonIfAny =
+    Integer mediaItemTransitionReason =
         !Util.areEqual(oldPlayerInfo.getCurrentMediaItem(), finalPlayerInfo.getCurrentMediaItem())
             ? finalPlayerInfo.mediaItemTransitionReason
             : null;
 
     @Nullable
     @Player.TimelineChangeReason
-    Integer timelineChangeReasonIfAny =
+    Integer timelineChangeReason =
         !oldPlayerInfo.timeline.equals(finalPlayerInfo.timeline)
             ? finalPlayerInfo.timelineChangeReason
             : null;
 
     @Nullable
     @Player.PlayWhenReadyChangeReason
-    Integer playWhenReadyChangeReasonIfAny =
+    Integer playWhenReadyChangeReason =
         oldPlayerInfo.playWhenReady != finalPlayerInfo.playWhenReady
             ? finalPlayerInfo.playWhenReadyChangeReason
             : null;
@@ -2611,10 +2611,10 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     notifyPlayerInfoListenersWithReasons(
         oldPlayerInfo,
         finalPlayerInfo,
-        timelineChangeReasonIfAny,
-        playWhenReadyChangeReasonIfAny,
-        positionDiscontinuityReasonIfAny,
-        mediaItemTransitionReasonIfAny);
+        timelineChangeReason,
+        playWhenReadyChangeReason,
+        positionDiscontinuityReason,
+        mediaItemTransitionReason);
   }
 
   void onAvailableCommandsChangedFromSession(
