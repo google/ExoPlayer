@@ -80,7 +80,9 @@ public final class Transformer {
     private final Context context;
 
     // Optional fields.
-    private TransformationRequest transformationRequest;
+    private @MonotonicNonNull String audioMimeType;
+    private @MonotonicNonNull String videoMimeType;
+    private @MonotonicNonNull TransformationRequest transformationRequest;
     private ImmutableList<AudioProcessor> audioProcessors;
     private ImmutableList<Effect> videoEffects;
     private boolean removeAudio;
@@ -102,7 +104,6 @@ public final class Transformer {
      */
     public Builder(Context context) {
       this.context = context.getApplicationContext();
-      transformationRequest = new TransformationRequest.Builder().build();
       audioProcessors = ImmutableList.of();
       videoEffects = ImmutableList.of();
       videoFrameProcessorFactory = new DefaultVideoFrameProcessor.Factory.Builder().build();
@@ -117,6 +118,8 @@ public final class Transformer {
     /** Creates a builder with the values of the provided {@link Transformer}. */
     private Builder(Transformer transformer) {
       this.context = transformer.context;
+      this.audioMimeType = transformer.transformationRequest.audioMimeType;
+      this.videoMimeType = transformer.transformationRequest.videoMimeType;
       this.transformationRequest = transformer.transformationRequest;
       this.audioProcessors = transformer.audioProcessors;
       this.videoEffects = transformer.videoEffects;
@@ -133,15 +136,71 @@ public final class Transformer {
     }
 
     /**
-     * Sets the {@link TransformationRequest} which configures the editing and transcoding options.
+     * Sets the audio {@linkplain MimeTypes MIME type} of the output.
      *
-     * <p>Actual applied values may differ, per device capabilities. {@link
-     * Listener#onFallbackApplied(Composition, TransformationRequest, TransformationRequest)} will
-     * be invoked with the actual applied values.
+     * <p>If no audio MIME type is passed, the output audio MIME type is the same as the first
+     * {@link MediaItem} in the {@link Composition}.
      *
-     * @param transformationRequest The {@link TransformationRequest}.
+     * <p>Supported MIME types are:
+     *
+     * <ul>
+     *   <li>{@link MimeTypes#AUDIO_AAC}
+     *   <li>{@link MimeTypes#AUDIO_AMR_NB}
+     *   <li>{@link MimeTypes#AUDIO_AMR_WB}
+     * </ul>
+     *
+     * If the MIME type is not supported, {@link Transformer} will fallback to a supported MIME type
+     * and {@link Listener#onFallbackApplied(Composition, TransformationRequest,
+     * TransformationRequest)} will be invoked with the fallback value.
+     *
+     * @param audioMimeType The MIME type of the audio samples in the output.
      * @return This builder.
+     * @throws IllegalArgumentException If the audio MIME type passed is not an audio {@linkplain
+     *     MimeTypes MIME type}.
      */
+    @CanIgnoreReturnValue
+    public Builder setAudioMimeType(String audioMimeType) {
+      checkArgument(MimeTypes.isAudio(audioMimeType), "Not an audio MIME type: " + audioMimeType);
+      this.audioMimeType = audioMimeType;
+      return this;
+    }
+
+    /**
+     * Sets the video {@linkplain MimeTypes MIME type} of the output.
+     *
+     * <p>If no video MIME type is passed, the output video MIME type is the same as the first
+     * {@link MediaItem} in the {@link Composition}.
+     *
+     * <p>Supported MIME types are:
+     *
+     * <ul>
+     *   <li>{@link MimeTypes#VIDEO_H263}
+     *   <li>{@link MimeTypes#VIDEO_H264}
+     *   <li>{@link MimeTypes#VIDEO_H265} from API level 24
+     *   <li>{@link MimeTypes#VIDEO_MP4V}
+     * </ul>
+     *
+     * If the MIME type is not supported, {@link Transformer} will fallback to a supported MIME type
+     * and {@link Listener#onFallbackApplied(Composition, TransformationRequest,
+     * TransformationRequest)} will be invoked with the fallback value.
+     *
+     * @param videoMimeType The MIME type of the video samples in the output.
+     * @return This builder.
+     * @throws IllegalArgumentException If the video MIME type passed is not a video {@linkplain
+     *     MimeTypes MIME type}.
+     */
+    @CanIgnoreReturnValue
+    public Builder setVideoMimeType(String videoMimeType) {
+      checkArgument(MimeTypes.isVideo(videoMimeType), "Not a video MIME type: " + videoMimeType);
+      this.videoMimeType = videoMimeType;
+      return this;
+    }
+
+    /**
+     * @deprecated Use {@link #setAudioMimeType(String)}, {@link #setVideoMimeType(String)} and
+     *     {@link Composition.Builder#setHdrMode(int)} instead.
+     */
+    @Deprecated
     @CanIgnoreReturnValue
     public Builder setTransformationRequest(TransformationRequest transformationRequest) {
       this.transformationRequest = transformationRequest;
@@ -376,6 +435,17 @@ public final class Transformer {
      *     type.
      */
     public Transformer build() {
+      TransformationRequest.Builder transformationRequestBuilder =
+          transformationRequest == null
+              ? new TransformationRequest.Builder()
+              : transformationRequest.buildUpon();
+      if (audioMimeType != null) {
+        transformationRequestBuilder.setAudioMimeType(audioMimeType);
+      }
+      if (videoMimeType != null) {
+        transformationRequestBuilder.setVideoMimeType(videoMimeType);
+      }
+      transformationRequest = transformationRequestBuilder.build();
       if (transformationRequest.audioMimeType != null) {
         checkSampleMimeType(transformationRequest.audioMimeType);
       }
@@ -720,6 +790,11 @@ public final class Transformer {
     TransformerInternalListener transformerInternalListener =
         new TransformerInternalListener(composition);
     HandlerWrapper applicationHandler = clock.createHandler(looper, /* callback= */ null);
+    TransformationRequest transformationRequest = this.transformationRequest;
+    if (composition.hdrMode != Composition.HDR_MODE_KEEP_HDR) {
+      transformationRequest =
+          transformationRequest.buildUpon().setHdrMode(composition.hdrMode).build();
+    }
     FallbackListener fallbackListener =
         new FallbackListener(composition, listeners, applicationHandler, transformationRequest);
     DebugTraceUtil.reset();

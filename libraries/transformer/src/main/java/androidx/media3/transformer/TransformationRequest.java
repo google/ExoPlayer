@@ -35,15 +35,7 @@ import java.lang.annotation.Target;
 @UnstableApi
 public final class TransformationRequest {
 
-  /**
-   * The strategy to use to transcode or edit High Dynamic Range (HDR) input video.
-   *
-   * <p>One of {@link #HDR_MODE_KEEP_HDR}, {@link #HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC},
-   * {@link #HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL}, or {@link
-   * #HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR}.
-   *
-   * <p>Standard Dynamic Range (SDR) input video is unaffected by these settings.
-   */
+  /** See {@link Composition.HdrMode}. */
   @Documented
   @Retention(SOURCE)
   @Target(TYPE_USE)
@@ -55,59 +47,20 @@ public final class TransformationRequest {
   })
   public @interface HdrMode {}
 
-  /**
-   * Processes HDR input as HDR, to generate HDR output.
-   *
-   * <p>The HDR output format (ex. color transfer) will be the same as the HDR input format.
-   *
-   * <p>Supported on API 31+, by some device and HDR format combinations.
-   *
-   * <p>If not supported, {@link Transformer} will attempt to use {@link
-   * #HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC}.
-   */
-  public static final int HDR_MODE_KEEP_HDR = 0;
+  /** See {@link Composition#HDR_MODE_KEEP_HDR}. */
+  public static final int HDR_MODE_KEEP_HDR = Composition.HDR_MODE_KEEP_HDR;
 
-  /**
-   * Tone map HDR input to SDR before processing, to generate SDR output, using the {@link
-   * android.media.MediaCodec} decoder tone-mapper.
-   *
-   * <p>Supported on API 31+, by some device and HDR format combinations. Tone-mapping is only
-   * guaranteed to be supported on API 33+, on devices with HDR capture support.
-   *
-   * <p>If not supported, {@link Transformer} throws an {@link ExportException}.
-   */
-  public static final int HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC = 1;
+  /** See {@link Composition#HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC}. */
+  public static final int HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC =
+      Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC;
 
-  /**
-   * Tone map HDR input to SDR before processing, to generate SDR output, using an OpenGL
-   * tone-mapper.
-   *
-   * <p>Supported on API 29+.
-   *
-   * <p>This may exhibit mild differences from {@link
-   * #HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC}, depending on the device's tone-mapping
-   * implementation, but should have much wider support and have more consistent results across
-   * devices.
-   *
-   * <p>If not supported, {@link Transformer} throws an {@link ExportException}.
-   */
-  public static final int HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL = 2;
+  /** See {@link Composition#HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL}. */
+  public static final int HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL =
+      Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL;
 
-  /**
-   * Interpret HDR input as SDR, likely with a washed out look.
-   *
-   * <p>This is much more widely supported than {@link #HDR_MODE_KEEP_HDR} and {@link
-   * #HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC}. However, as HDR transfer functions and
-   * metadata will be ignored, contents will be displayed incorrectly, likely with a washed out
-   * look.
-   *
-   * <p>Using this API may lead to codec errors before API 29.
-   *
-   * <p>Use of this flag may result in {@code ERROR_CODE_DECODING_FORMAT_UNSUPPORTED}.
-   *
-   * <p>This field is experimental, and will be renamed or removed in a future release.
-   */
-  public static final int HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR = 3;
+  /** See {@link Composition#HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR}. */
+  public static final int HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR =
+      Composition.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR;
 
   /** A builder for {@link TransformationRequest} instances. */
   public static final class Builder {
