@@ -23,7 +23,9 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.FrameInfo;
 import com.google.android.exoplayer2.util.GlObjectsProvider;
 import com.google.android.exoplayer2.util.GlTextureInfo;
+import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.OnInputFrameProcessedListener;
+import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
@@ -44,6 +46,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private @MonotonicNonNull OnInputFrameProcessedListener frameProcessedListener;
   private @MonotonicNonNull FrameInfo inputFrameInfo;
+  private long glSyncObject;
 
   /**
    * Creates a new instance.
@@ -71,7 +74,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   public void onInputFrameProcessed(GlTextureInfo inputTexture) {
     videoFrameProcessingTaskExecutor.submit(
-        () -> checkNotNull(frameProcessedListener).onInputFrameProcessed(inputTexture.getTexId()));
+        () -> {
+          glSyncObject = GlUtil.createGlSyncFence();
+          checkNotNull(frameProcessedListener)
+              .onInputFrameProcessed(inputTexture.getTexId(), glSyncObject);
+        });
   }
 
   @Override
@@ -122,7 +129,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public void release() {
-    // Do nothing.
+  public void release() throws VideoFrameProcessingException {
+    try {
+      GlUtil.deleteSyncObject(glSyncObject);
+    } catch (GlUtil.GlException e) {
+      throw new VideoFrameProcessingException(e);
+    }
   }
 }

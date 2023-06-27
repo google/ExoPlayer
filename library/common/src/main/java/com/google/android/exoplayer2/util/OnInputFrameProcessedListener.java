@@ -26,6 +26,13 @@ package com.google.android.exoplayer2.util;
 @Deprecated
 public interface OnInputFrameProcessedListener {
 
-  /** Called when the given input frame has been processed. */
-  void onInputFrameProcessed(int textureId) throws VideoFrameProcessingException;
+  /**
+   * Called when the given input frame has been processed.
+   *
+   * @param textureId The identifier of the processed texture.
+   * @param syncObject A GL sync object that has been inserted into the GL command stream after the
+   *     last write of texture. Value is 0 if and only if the {@code GLES30#glFenceSync} failed or
+   *     the EGL context version is less than openGL 3.0.
+   */
+  void onInputFrameProcessed(int textureId, long syncObject) throws VideoFrameProcessingException;
 }

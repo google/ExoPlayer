@@ -23,6 +23,7 @@ import android.view.Surface;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.FrameInfo;
 import com.google.android.exoplayer2.util.OnInputFrameProcessedListener;
+import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
 
 /**
@@ -114,5 +115,5 @@ import com.google.android.exoplayer2.util.VideoFrameProcessor;
    *
    * @see VideoFrameProcessor#release()
    */
-  void release();
+  void release() throws VideoFrameProcessingException;
 }
