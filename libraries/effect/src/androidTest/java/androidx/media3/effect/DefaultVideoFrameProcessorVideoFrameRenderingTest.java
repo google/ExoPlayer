@@ -299,7 +299,6 @@ public final class DefaultVideoFrameProcessorVideoFrameRenderingTest {
                 .build()
                 .create(
                     getApplicationContext(),
-                    ImmutableList.of((GlEffect) (context, useHdr) -> blankFrameProducer),
                     DebugViewProvider.NONE,
                     /* inputColorInfo= */ ColorInfo.SDR_BT709_LIMITED,
                     /* outputColorInfo= */ ColorInfo.SDR_BT709_LIMITED,
@@ -342,20 +341,17 @@ public final class DefaultVideoFrameProcessorVideoFrameRenderingTest {
                         videoFrameProcessingEndedCountDownLatch.countDown();
                       }
                     }));
-    defaultVideoFrameProcessor
-        .getTaskExecutor()
-        .submit(
-            () -> {
-              blankFrameProducer.configureGlObjects();
-              // A frame needs to be registered despite not queuing any external input to ensure
-              // that the video frame processor knows about the stream offset.
-              checkNotNull(defaultVideoFrameProcessor)
-                  .registerInputStream(INPUT_TYPE_SURFACE, /* effects= */ ImmutableList.of());
-              defaultVideoFrameProcessor.setInputFrameInfo(
-                  new FrameInfo.Builder(WIDTH, HEIGHT).build());
-              blankFrameProducer.produceBlankFramesAndQueueEndOfStream(inputPresentationTimesUs);
-              defaultVideoFrameProcessor.signalEndOfInput();
-            });
+
+    defaultVideoFrameProcessor.getTaskExecutor().submit(blankFrameProducer::configureGlObjects);
+    // A frame needs to be registered despite not queuing any external input to ensure
+    // that the video frame processor knows about the stream offset.
+    checkNotNull(defaultVideoFrameProcessor)
+        .registerInputStream(
+            INPUT_TYPE_SURFACE,
+            /* effects= */ ImmutableList.of((GlEffect) (context, useHdr) -> blankFrameProducer));
+    defaultVideoFrameProcessor.setInputFrameInfo(new FrameInfo.Builder(WIDTH, HEIGHT).build());
+    blankFrameProducer.produceBlankFramesAndQueueEndOfStream(inputPresentationTimesUs);
+    defaultVideoFrameProcessor.signalEndOfInput();
     videoFrameProcessingEndedCountDownLatch.await();
     @Nullable
     Exception videoFrameProcessingException = videoFrameProcessingExceptionReference.get();

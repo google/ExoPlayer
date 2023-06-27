@@ -15,9 +15,7 @@
  */
 package androidx.media3.test.utils;
 
-import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_BITMAP;
 import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_SURFACE;
-import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_TEXTURE_ID;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.createArgb8888BitmapFromRgba8888Image;
@@ -278,7 +276,6 @@ public final class VideoFrameProcessorTestRunner {
     videoFrameProcessor =
         videoFrameProcessorFactory.create(
             getApplicationContext(),
-            effects,
             DebugViewProvider.NONE,
             inputColorInfo,
             outputColorInfo,
@@ -314,7 +311,7 @@ public final class VideoFrameProcessorTestRunner {
                 videoFrameProcessingEnded = true;
               }
             });
-    videoFrameProcessor.registerInputStream(inputType, /* effects= */ ImmutableList.of());
+    videoFrameProcessor.registerInputStream(inputType, effects);
   }
 
   public void processFirstFrameAndEnd() throws Exception {
@@ -329,8 +326,6 @@ public final class VideoFrameProcessorTestRunner {
                         mediaFormat.getInteger(MediaFormat.KEY_HEIGHT))
                     .setPixelWidthHeightRatio(pixelWidthHeightRatio)
                     .build());
-            videoFrameProcessor.registerInputStream(
-                INPUT_TYPE_SURFACE, /* effects= */ ImmutableList.of());
             videoFrameProcessor.registerInputFrame();
           }
 
@@ -343,10 +338,6 @@ public final class VideoFrameProcessorTestRunner {
     endFrameProcessing();
   }
 
-  public void registerInputStream(@InputType int inputType) {
-    videoFrameProcessor.registerInputStream(inputType, ImmutableList.of());
-  }
-
   public void queueInputBitmap(
       Bitmap inputBitmap, long durationUs, long offsetToAddUs, float frameRate) {
     videoFrameProcessor.setInputFrameInfo(
@@ -357,24 +348,11 @@ public final class VideoFrameProcessorTestRunner {
     videoFrameProcessor.queueInputBitmap(inputBitmap, durationUs, frameRate);
   }
 
-  public void registerAndQueueInputBitmap(
-      Bitmap inputBitmap, long durationUs, long offsetToAddUs, float frameRate) {
-    videoFrameProcessor.setInputFrameInfo(
-        new FrameInfo.Builder(inputBitmap.getWidth(), inputBitmap.getHeight())
-            .setPixelWidthHeightRatio(pixelWidthHeightRatio)
-            .setOffsetToAddUs(offsetToAddUs)
-            .build());
-    videoFrameProcessor.registerInputStream(INPUT_TYPE_BITMAP, /* effects= */ ImmutableList.of());
-    videoFrameProcessor.queueInputBitmap(inputBitmap, durationUs, frameRate);
-  }
-
   public void queueInputTexture(GlTextureInfo inputTexture, long pts) {
     videoFrameProcessor.setInputFrameInfo(
         new FrameInfo.Builder(inputTexture.getWidth(), inputTexture.getHeight())
             .setPixelWidthHeightRatio(pixelWidthHeightRatio)
             .build());
-    videoFrameProcessor.registerInputStream(
-        INPUT_TYPE_TEXTURE_ID, /* effects= */ ImmutableList.of());
     videoFrameProcessor.setOnInputFrameProcessedListener(
         texId -> {
           try {

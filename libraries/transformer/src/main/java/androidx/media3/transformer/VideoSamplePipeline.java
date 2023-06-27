@@ -155,7 +155,6 @@ import org.checkerframework.dataflow.qual.Pure;
       videoFrameProcessor =
           videoFrameProcessorFactory.create(
               context,
-              createEffectListWithPresentation(effects, presentation),
               debugViewProvider,
               videoFrameProcessorInputColor,
               videoFrameProcessorOutputColor,

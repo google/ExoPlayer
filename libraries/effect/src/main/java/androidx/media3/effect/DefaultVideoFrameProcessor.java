@@ -183,8 +183,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     /**
      * {@inheritDoc}
      *
-     * <p>All {@link Effect} instances must be {@link GlEffect} instances.
-     *
      * <p>Using HDR {@code inputColorInfo} requires the {@code EXT_YUV_target} OpenGL extension.
      *
      * <p>Using HDR {@code inputColorInfo} or {@code outputColorInfo} requires OpenGL ES 3.0.
@@ -219,7 +217,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     @Override
     public DefaultVideoFrameProcessor create(
         Context context,
-        List<Effect> effects,
         DebugViewProvider debugViewProvider,
         ColorInfo inputColorInfo,
         ColorInfo outputColorInfo,
@@ -256,7 +253,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
               () ->
                   createOpenGlObjectsAndFrameProcessor(
                       context,
-                      effects,
                       debugViewProvider,
                       inputColorInfo,
                       outputColorInfo,
@@ -321,7 +317,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor,
       Listener listener,
       Executor listenerExecutor,
-      ImmutableList<GlShaderProgram> intermediateGlShaderPrograms,
       FinalShaderProgramWrapper finalShaderProgramWrapper,
       boolean renderFramesAutomatically,
       ColorInfo outputColorInfo) {
@@ -354,7 +349,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             DebugTraceUtil.recordVideoFrameProcessorSignalEos();
           }
         });
-    this.intermediateGlShaderPrograms = new ArrayList<>(intermediateGlShaderPrograms);
+    this.intermediateGlShaderPrograms = new ArrayList<>();
   }
 
   /** Returns the task executor that runs video frame processing tasks. */
@@ -373,7 +368,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
    * {@link SurfaceTexture#setDefaultBufferSize(int, int)} for more information.
    *
    * <p>This method must only be called when the {@link VideoFrameProcessor} is {@linkplain
-   * Factory#create created} with {@link #INPUT_TYPE_SURFACE}.
+   * VideoFrameProcessor.Factory#create created} with {@link #INPUT_TYPE_SURFACE}.
    *
    * @param width The default width for input buffers, in pixels.
    * @param height The default height for input buffers, in pixels.
@@ -417,10 +412,9 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   public void registerInputStream(@InputType int inputType, List<Effect> effects) {
     synchronized (lock) {
       if (!processingInput) {
+        videoFrameProcessingTaskExecutor.submitAndBlock(() -> configureEffects(effects));
         inputSwitcher.switchToInput(inputType);
         processingInput = true;
-        activeEffects.clear();
-        activeEffects.addAll(effects);
         return;
       }
     }
@@ -444,35 +438,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       // Shader program recreation must be on GL thread. Currently the calling thread is blocked
       // until all shader programs are recreated, so that DefaultVideoFrameProcessor doesn't receive
       // a new frame from the new input stream prematurely.
-      videoFrameProcessingTaskExecutor.submitAndBlock(
-          () -> {
-            try {
-              for (int i = 0; i < intermediateGlShaderPrograms.size(); i++) {
-                intermediateGlShaderPrograms.get(i).release();
-              }
-              intermediateGlShaderPrograms.clear();
-              intermediateGlShaderPrograms.addAll(
-                  createGlShaderPrograms(
-                      context, effects, outputColorInfo, finalShaderProgramWrapper));
-            } catch (VideoFrameProcessingException e) {
-              listenerExecutor.execute(() -> listener.onError(e));
-              return;
-            }
-
-            inputSwitcher.setDownstreamShaderProgram(
-                getFirst(
-                    intermediateGlShaderPrograms, /* defaultValue= */ finalShaderProgramWrapper));
-            chainShaderProgramsWithListeners(
-                glObjectsProvider,
-                intermediateGlShaderPrograms,
-                finalShaderProgramWrapper,
-                videoFrameProcessingTaskExecutor,
-                listener,
-                listenerExecutor);
-
-            activeEffects.clear();
-            activeEffects.addAll(effects);
-          });
+      videoFrameProcessingTaskExecutor.submitAndBlock(() -> configureEffects(effects));
     }
     inputSwitcher.switchToInput(inputType);
   }
@@ -593,7 +559,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
    */
   private static DefaultVideoFrameProcessor createOpenGlObjectsAndFrameProcessor(
       Context context,
-      List<Effect> effects,
       DebugViewProvider debugViewProvider,
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
@@ -662,12 +627,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             textureOutputListener,
             textureOutputCapacity);
 
-    // TODO(b/269424561): Move effect creation to registerInputStream().
-    // The GlShaderPrograms that should be inserted in between InputSwitcher and
-    // FinalShaderProgramWrapper.
-    ImmutableList<GlShaderProgram> intermediateGlShaderPrograms =
-        createGlShaderPrograms(context, effects, outputColorInfo, finalShaderProgramWrapper);
-
     inputSwitcher.registerInput(inputColorInfo, INPUT_TYPE_SURFACE);
     if (!ColorInfo.isTransferHdr(inputColorInfo)) {
       // HDR bitmap input is not supported. Bitmaps are always sRGB/Full range/BT.709.
@@ -678,17 +637,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       inputSwitcher.registerInput(inputColorInfo, INPUT_TYPE_TEXTURE_ID);
     }
 
-    inputSwitcher.setDownstreamShaderProgram(
-        getFirst(intermediateGlShaderPrograms, /* defaultValue= */ finalShaderProgramWrapper));
-
-    chainShaderProgramsWithListeners(
-        glObjectsProvider,
-        intermediateGlShaderPrograms,
-        finalShaderProgramWrapper,
-        videoFrameProcessingTaskExecutor,
-        listener,
-        videoFrameProcessorListenerExecutor);
-
     return new DefaultVideoFrameProcessor(
         context,
         glObjectsProvider,
@@ -698,7 +646,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
         videoFrameProcessingTaskExecutor,
         listener,
         videoFrameProcessorListenerExecutor,
-        intermediateGlShaderPrograms,
         finalShaderProgramWrapper,
         renderFramesAutomatically,
         outputColorInfo);
@@ -793,6 +740,33 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
           videoFrameProcessorListenerExecutor, videoFrameProcessorListener::onError);
       consumingGlShaderProgram.setInputListener(chainingGlShaderProgramListener);
     }
+  }
+
+  /** Configures the {@link GlShaderProgram} instances for {@code effects}. */
+  private void configureEffects(List<Effect> effects) throws VideoFrameProcessingException {
+    if (!intermediateGlShaderPrograms.isEmpty()) {
+      for (int i = 0; i < intermediateGlShaderPrograms.size(); i++) {
+        intermediateGlShaderPrograms.get(i).release();
+      }
+      intermediateGlShaderPrograms.clear();
+    }
+
+    // The GlShaderPrograms that should be inserted in between InputSwitcher and
+    // FinalShaderProgramWrapper.
+    intermediateGlShaderPrograms.addAll(
+        createGlShaderPrograms(context, effects, outputColorInfo, finalShaderProgramWrapper));
+    inputSwitcher.setDownstreamShaderProgram(
+        getFirst(intermediateGlShaderPrograms, /* defaultValue= */ finalShaderProgramWrapper));
+    chainShaderProgramsWithListeners(
+        glObjectsProvider,
+        intermediateGlShaderPrograms,
+        finalShaderProgramWrapper,
+        videoFrameProcessingTaskExecutor,
+        listener,
+        listenerExecutor);
+
+    activeEffects.clear();
+    activeEffects.addAll(effects);
   }
 
   /**

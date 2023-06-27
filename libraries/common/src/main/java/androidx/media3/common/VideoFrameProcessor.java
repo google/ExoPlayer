@@ -34,14 +34,11 @@ import java.util.concurrent.Executor;
 /**
  * Interface for a video frame processor that applies changes to individual video frames.
  *
- * <p>The changes are specified by {@link Effect} instances passed to {@link Factory#create}.
+ * <p>The changes are specified by {@link Effect} instances passed to {@link #registerInputStream}.
  *
  * <p>Manages its input {@link Surface}, which can be accessed via {@link #getInputSurface()}. The
  * output {@link Surface} must be set by the caller using {@link
  * #setOutputSurfaceInfo(SurfaceInfo)}.
- *
- * <p>The caller must {@linkplain #registerInputFrame() register} input frames before rendering them
- * to the input {@link Surface}.
  */
 @UnstableApi
 public interface VideoFrameProcessor {
@@ -57,7 +54,12 @@ public interface VideoFrameProcessor {
   @IntDef({INPUT_TYPE_SURFACE, INPUT_TYPE_BITMAP, INPUT_TYPE_TEXTURE_ID})
   @interface InputType {}
 
-  /** Input frames come from a {@link #getInputSurface surface}. */
+  /**
+   * Input frames come from a {@link #getInputSurface surface}.
+   *
+   * <p>When receiving input from a Surface, the caller must {@linkplain #registerInputFrame()
+   * register} input frames before rendering them to the input {@link Surface}.
+   */
   int INPUT_TYPE_SURFACE = 1;
 
   /** Input frames come from a {@link Bitmap}. */
@@ -77,8 +79,6 @@ public interface VideoFrameProcessor {
      * Creates a new {@link VideoFrameProcessor} instance.
      *
      * @param context A {@link Context}.
-     * @param effects The {@link Effect} instances to apply to each frame. Applied on the {@code
-     *     outputColorInfo}'s color space.
      * @param debugViewProvider A {@link DebugViewProvider}.
      * @param inputColorInfo The {@link ColorInfo} for the input frames.
      * @param outputColorInfo The {@link ColorInfo} for the output frames.
@@ -95,7 +95,6 @@ public interface VideoFrameProcessor {
      */
     VideoFrameProcessor create(
         Context context,
-        List<Effect> effects,
         DebugViewProvider debugViewProvider,
         ColorInfo inputColorInfo,
         ColorInfo outputColorInfo,
@@ -203,16 +202,14 @@ public interface VideoFrameProcessor {
   Surface getInputSurface();
 
   /**
-   * Informs the {@code VideoFrameProcessor} that a new input stream will be queued.
+   * Informs the {@code VideoFrameProcessor} that a new input stream will be queued with the list of
+   * {@link Effect Effects} to apply to the new input stream.
    *
    * <p>Call {@link #setInputFrameInfo} before this method if the {@link FrameInfo} of the new input
    * stream differs from that of the current input stream.
    *
    * @param inputType The {@link InputType} of the new input stream.
-   * @param effects The list of {@link Effect effects} to apply to the new input stream. The list is
-   *     ignored for the first input stream registered after {@linkplain Factory#create creating the
-   *     VideoFrameProcessor}. The first input stream will use the effects passed in in {@link
-   *     Factory#create}.
+   * @param effects The list of {@link Effect effects} to apply to the new input stream.
    */
   // TODO(b/286032822) Merge this and setInputFrameInfo.
   void registerInputStream(@InputType int inputType, List<Effect> effects);

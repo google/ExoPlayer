@@ -2067,7 +2067,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         videoFrameProcessor =
             videoFrameProcessorFactory.create(
                 renderer.context,
-                checkNotNull(videoEffects),
                 DebugViewProvider.NONE,
                 inputAndOutputColorInfos.first,
                 inputAndOutputColorInfos.second,
@@ -2125,7 +2124,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
                 });
 
         videoFrameProcessor.registerInputStream(
-            VideoFrameProcessor.INPUT_TYPE_SURFACE, /* effects= */ ImmutableList.of());
+            VideoFrameProcessor.INPUT_TYPE_SURFACE, videoEffects);
         this.initialStreamOffsetUs = initialStreamOffsetUs;
       } catch (Exception e) {
         throw renderer.createRendererException(
@@ -2442,7 +2441,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     @Override
     public VideoFrameProcessor create(
         Context context,
-        List<Effect> effects,
         DebugViewProvider debugViewProvider,
         ColorInfo inputColorInfo,
         ColorInfo outputColorInfo,
@@ -2454,7 +2452,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
           .get()
           .create(
               context,
-              effects,
               debugViewProvider,
               inputColorInfo,
               outputColorInfo,
