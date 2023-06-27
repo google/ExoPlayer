@@ -87,7 +87,6 @@ import androidx.media3.transformer.Effects;
 import androidx.media3.transformer.ExportException;
 import androidx.media3.transformer.ExportResult;
 import androidx.media3.transformer.ProgressHolder;
-import androidx.media3.transformer.TransformationRequest;
 import androidx.media3.transformer.Transformer;
 import androidx.media3.ui.AspectRatioFrameLayout;
 import androidx.media3.ui.PlayerView;
@@ -100,7 +99,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -299,17 +297,14 @@ public final class TransformerActivity extends AppCompatActivity {
   private Transformer createTransformer(@Nullable Bundle bundle, Uri inputUri, String filePath) {
     Transformer.Builder transformerBuilder = new Transformer.Builder(/* context= */ this);
     if (bundle != null) {
-      TransformationRequest.Builder requestBuilder = new TransformationRequest.Builder();
       @Nullable String audioMimeType = bundle.getString(ConfigurationActivity.AUDIO_MIME_TYPE);
       if (audioMimeType != null) {
-        requestBuilder.setAudioMimeType(audioMimeType);
+        transformerBuilder.setAudioMimeType(audioMimeType);
       }
       @Nullable String videoMimeType = bundle.getString(ConfigurationActivity.VIDEO_MIME_TYPE);
       if (videoMimeType != null) {
-        requestBuilder.setVideoMimeType(videoMimeType);
+        transformerBuilder.setVideoMimeType(videoMimeType);
       }
-      requestBuilder.setHdrMode(bundle.getInt(ConfigurationActivity.HDR_MODE));
-      transformerBuilder.setTransformationRequest(requestBuilder.build());
 
       transformerBuilder.setEncoderFactory(
           new DefaultEncoderFactory.Builder(this.getApplicationContext())
@@ -368,7 +363,6 @@ public final class TransformerActivity extends AppCompatActivity {
     EditedMediaItem.Builder editedMediaItemBuilder = new EditedMediaItem.Builder(mediaItem);
     // For image inputs. Automatically ignored if input is audio/video.
     editedMediaItemBuilder.setDurationUs(5_000_000).setFrameRate(30);
-    boolean forceAudioTrack = false;
     if (bundle != null) {
       ImmutableList<AudioProcessor> audioProcessors = createAudioProcessorsFromBundle(bundle);
       ImmutableList<Effect> videoEffects = createVideoEffectsFromBundle(bundle);
@@ -378,15 +372,18 @@ public final class TransformerActivity extends AppCompatActivity {
           .setFlattenForSlowMotion(
               bundle.getBoolean(ConfigurationActivity.SHOULD_FLATTEN_FOR_SLOW_MOTION))
           .setEffects(new Effects(audioProcessors, videoEffects));
-      forceAudioTrack = bundle.getBoolean(ConfigurationActivity.FORCE_AUDIO_TRACK);
     }
-    List<EditedMediaItem> editedMediaItems = new ArrayList<>();
-    editedMediaItems.add(editedMediaItemBuilder.build());
-    List<EditedMediaItemSequence> sequences = new ArrayList<>();
-    sequences.add(new EditedMediaItemSequence(editedMediaItems));
-    return new Composition.Builder(sequences)
-        .experimentalSetForceAudioTrack(forceAudioTrack)
-        .build();
+    List<EditedMediaItem> editedMediaItems = ImmutableList.of(editedMediaItemBuilder.build());
+    List<EditedMediaItemSequence> sequences =
+        ImmutableList.of(new EditedMediaItemSequence(editedMediaItems));
+    Composition.Builder compositionBuilder = new Composition.Builder(sequences);
+    if (bundle != null) {
+      compositionBuilder
+          .setHdrMode(bundle.getInt(ConfigurationActivity.HDR_MODE))
+          .experimentalSetForceAudioTrack(
+              bundle.getBoolean(ConfigurationActivity.FORCE_AUDIO_TRACK));
+    }
+    return compositionBuilder.build();
   }
 
   private ImmutableList<AudioProcessor> createAudioProcessorsFromBundle(Bundle bundle) {

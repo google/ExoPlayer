@@ -25,7 +25,6 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.EditedMediaItem;
 import androidx.media3.transformer.ExportTestResult;
-import androidx.media3.transformer.TransformationRequest;
 import androidx.media3.transformer.Transformer;
 import androidx.media3.transformer.TransformerAndroidTestRunner;
 import androidx.test.core.app.ApplicationProvider;
@@ -116,7 +115,6 @@ public final class RepeatedTranscodeTest {
         new TransformerAndroidTestRunner.Builder(
                 context,
                 new Transformer.Builder(context)
-                    .setTransformationRequest(new TransformationRequest.Builder().build())
                     .setEncoderFactory(new AndroidTestUtil.ForceEncodeEncoderFactory(context))
                     .build())
             .build();

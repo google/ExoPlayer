@@ -34,12 +34,15 @@ import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.mediacodec.MediaCodecUtil;
 import androidx.media3.transformer.AndroidTestUtil;
+import androidx.media3.transformer.Composition;
+import androidx.media3.transformer.EditedMediaItem;
+import androidx.media3.transformer.EditedMediaItemSequence;
 import androidx.media3.transformer.ExportTestResult;
-import androidx.media3.transformer.TransformationRequest;
 import androidx.media3.transformer.Transformer;
 import androidx.media3.transformer.TransformerAndroidTestRunner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import org.json.JSONException;
 import org.junit.Test;
@@ -47,7 +50,7 @@ import org.junit.runner.RunWith;
 
 /**
  * {@link Transformer} instrumentation test for applying an {@linkplain
- * TransformationRequest#HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL HDR to SDR tone mapping edit}.
+ * Composition#HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL HDR to SDR tone mapping edit}.
  */
 @RunWith(AndroidJUnit4.class)
 public class ToneMapHdrToSdrUsingOpenGlTest {
@@ -88,17 +91,19 @@ public class ToneMapHdrToSdrUsingOpenGlTest {
   }
 
   private void runTransformerWithOpenGlToneMapping(String testId, String fileUri) throws Exception {
-    Transformer transformer =
-        new Transformer.Builder(context)
-            .setTransformationRequest(
-                new TransformationRequest.Builder()
-                    .setHdrMode(TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL)
-                    .build())
+    Transformer transformer = new Transformer.Builder(context).build();
+    MediaItem mediaItem = MediaItem.fromUri(fileUri);
+    EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(mediaItem).build();
+    EditedMediaItemSequence sequence =
+        new EditedMediaItemSequence(ImmutableList.of(editedMediaItem));
+    Composition composition =
+        new Composition.Builder(ImmutableList.of(sequence))
+            .setHdrMode(Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL)
             .build();
     ExportTestResult exportTestResult =
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .build()
-            .run(testId, MediaItem.fromUri(fileUri));
+            .run(testId, composition);
     assertFileHasColorTransfer(context, exportTestResult.filePath, C.COLOR_TRANSFER_SDR);
   }
 
