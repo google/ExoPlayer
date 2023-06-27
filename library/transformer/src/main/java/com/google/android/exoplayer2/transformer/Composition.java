@@ -16,11 +16,17 @@
 package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+import static java.lang.annotation.ElementType.TYPE_USE;
+import static java.lang.annotation.RetentionPolicy.SOURCE;
 
+import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 import java.util.List;
 
 /**
@@ -46,6 +52,7 @@ public final class Composition {
     private boolean forceAudioTrack;
     private boolean transmuxAudio;
     private boolean transmuxVideo;
+    private @HdrMode int hdrMode;
 
     /**
      * Creates an instance.
@@ -100,8 +107,8 @@ public final class Composition {
      * the {@link Composition} export doesn't produce any audio.
      *
      * <p>The MIME type of the output's audio track can be set using {@link
-     * TransformationRequest.Builder#setAudioMimeType(String)}. The sample rate and channel count
-     * can be set by passing relevant {@link AudioProcessor} instances to the {@link Composition}.
+     * Transformer.Builder#setAudioMimeType(String)}. The sample rate and channel count can be set
+     * by passing relevant {@link AudioProcessor} instances to the {@link Composition}.
      *
      * <p>Forcing an audio track and {@linkplain #setTransmuxAudio(boolean) requesting audio
      * transmuxing} are not allowed together because generating silence requires transcoding.
@@ -167,11 +174,100 @@ public final class Composition {
       return this;
     }
 
+    /**
+     * Sets the {@link HdrMode} for HDR video input.
+     *
+     * <p>The default value is {@link #HDR_MODE_KEEP_HDR}.
+     *
+     * @param hdrMode The {@link HdrMode} used.
+     * @return This builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder setHdrMode(@HdrMode int hdrMode) {
+      this.hdrMode = hdrMode;
+      return this;
+    }
+
     /** Builds a {@link Composition} instance. */
     public Composition build() {
-      return new Composition(sequences, effects, forceAudioTrack, transmuxAudio, transmuxVideo);
+      return new Composition(
+          sequences, effects, forceAudioTrack, transmuxAudio, transmuxVideo, hdrMode);
     }
   }
+
+  /**
+   * The strategy to use to transcode or edit High Dynamic Range (HDR) input video.
+   *
+   * <p>One of {@link #HDR_MODE_KEEP_HDR}, {@link #HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC},
+   * {@link #HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL}, or {@link
+   * #HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR}.
+   *
+   * <p>Standard Dynamic Range (SDR) input video is unaffected by these settings.
+   */
+  @Documented
+  @Retention(SOURCE)
+  @Target(TYPE_USE)
+  @IntDef({
+    HDR_MODE_KEEP_HDR,
+    HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC,
+    HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL,
+    HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR,
+  })
+  public @interface HdrMode {}
+
+  /**
+   * Processes HDR input as HDR, to generate HDR output.
+   *
+   * <p>The HDR output format (ex. color transfer) will be the same as the HDR input format.
+   *
+   * <p>Supported on API 31+, by some device and HDR format combinations.
+   *
+   * <p>If not supported, {@link Transformer} will attempt to use {@link
+   * #HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC}.
+   */
+  public static final int HDR_MODE_KEEP_HDR = 0;
+
+  /**
+   * Tone map HDR input to SDR before processing, to generate SDR output, using the {@link
+   * android.media.MediaCodec} decoder tone-mapper.
+   *
+   * <p>Supported on API 31+, by some device and HDR format combinations. Tone-mapping is only
+   * guaranteed to be supported on API 33+, on devices with HDR capture support.
+   *
+   * <p>If not supported, {@link Transformer} throws an {@link ExportException}.
+   */
+  public static final int HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC = 1;
+
+  /**
+   * Tone map HDR input to SDR before processing, to generate SDR output, using an OpenGL
+   * tone-mapper.
+   *
+   * <p>Supported on API 29+.
+   *
+   * <p>This may exhibit mild differences from {@link
+   * #HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC}, depending on the device's tone-mapping
+   * implementation, but should have much wider support and have more consistent results across
+   * devices.
+   *
+   * <p>If not supported, {@link Transformer} throws an {@link ExportException}.
+   */
+  public static final int HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL = 2;
+
+  /**
+   * Interpret HDR input as SDR, likely with a washed out look.
+   *
+   * <p>This is much more widely supported than {@link #HDR_MODE_KEEP_HDR} and {@link
+   * #HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC}. However, as HDR transfer functions and
+   * metadata will be ignored, contents will be displayed incorrectly, likely with a washed out
+   * look.
+   *
+   * <p>Using this API may lead to codec errors before API 29.
+   *
+   * <p>Use of this flag may result in {@code ERROR_CODE_DECODING_FORMAT_UNSUPPORTED}.
+   *
+   * <p>This field is experimental, and will be renamed or removed in a future release.
+   */
+  public static final int HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR = 3;
 
   /**
    * The {@link EditedMediaItemSequence} instances to compose.
@@ -204,12 +300,20 @@ public final class Composition {
    */
   public final boolean transmuxVideo;
 
+  /**
+   * The {@link HdrMode} specifying how to handle HDR input video.
+   *
+   * <p>For more information, see {@link Builder#setHdrMode(int)}.
+   */
+  public final @HdrMode int hdrMode;
+
   private Composition(
       List<EditedMediaItemSequence> sequences,
       Effects effects,
       boolean forceAudioTrack,
       boolean transmuxAudio,
-      boolean transmuxVideo) {
+      boolean transmuxVideo,
+      @HdrMode int hdrMode) {
     checkArgument(
         !transmuxAudio || !forceAudioTrack,
         "Audio transmuxing and audio track forcing are not allowed together.");
@@ -218,5 +322,6 @@ public final class Composition {
     this.transmuxAudio = transmuxAudio;
     this.transmuxVideo = transmuxVideo;
     this.forceAudioTrack = forceAudioTrack;
+    this.hdrMode = hdrMode;
   }
 }
