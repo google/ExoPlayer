@@ -15,6 +15,7 @@
  */
 package androidx.media3.common.util;
 
+import static android.opengl.EGL14.EGL_CONTEXT_CLIENT_VERSION;
 import static android.opengl.GLU.gluErrorString;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkState;
@@ -370,6 +371,38 @@ public final class GlUtil {
     return eglSurface;
   }
 
+  /**
+   * Returns a newly created sync object and inserts it into the GL command stream.
+   *
+   * <p>Returns 0 if the operation failed or the {@link EGLContext} version is less than 3.0.
+   */
+  public static long createGlSyncFence() throws GlException {
+    int[] currentEglContextVersion = new int[1];
+    EGL14.eglQueryContext(
+        EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY),
+        EGL14.eglGetCurrentContext(),
+        EGL_CONTEXT_CLIENT_VERSION,
+        currentEglContextVersion,
+        /* offset= */ 0);
+    if (currentEglContextVersion[0] < 3) {
+      return 0;
+    }
+    long syncObject = GLES30.glFenceSync(GLES30.GL_SYNC_GPU_COMMANDS_COMPLETE, /* flags= */ 0);
+    checkGlError();
+    // Due to specifics of OpenGL, it might happen that the fence creation command is not yet
+    // sent into the GPU command queue, which can cause other threads to wait infinitely if
+    // the glSyncWait/glClientSyncWait command went into the GPU earlier. Hence, we have to
+    // call glFlush to ensure that glFenceSync is inside of the GPU command queue.
+    GLES20.glFlush();
+    return syncObject;
+  }
+
+  /** Releases the underlying native object. */
+  public static void deleteSyncObject(long syncObject) throws GlException {
+    GLES30.glDeleteSync(syncObject);
+    checkGlError();
+  }
+
   /** Gets the current {@link EGLContext context}. */
   public static EGLContext getCurrentContext() {
     return EGL14.eglGetCurrentContext();
@@ -697,7 +730,7 @@ public final class GlUtil {
     public static EGLContext createEglContext(
         EGLContext sharedContext, EGLDisplay eglDisplay, int version, int[] configAttributes)
         throws GlException {
-      int[] contextAttributes = {EGL14.EGL_CONTEXT_CLIENT_VERSION, version, EGL14.EGL_NONE};
+      int[] contextAttributes = {EGL_CONTEXT_CLIENT_VERSION, version, EGL14.EGL_NONE};
       EGLContext eglContext =
           EGL14.eglCreateContext(
               eglDisplay,

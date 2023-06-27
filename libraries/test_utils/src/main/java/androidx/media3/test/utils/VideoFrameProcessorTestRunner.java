@@ -354,7 +354,7 @@ public final class VideoFrameProcessorTestRunner {
             .setPixelWidthHeightRatio(pixelWidthHeightRatio)
             .build());
     videoFrameProcessor.setOnInputFrameProcessedListener(
-        texId -> {
+        (texId, unused) -> {
           try {
             GlUtil.deleteTexture(texId);
           } catch (GlUtil.GlException e) {

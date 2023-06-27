@@ -130,7 +130,7 @@ public class TextureAssetLoaderTest {
             .setDurationUs(C.MICROS_PER_SECOND)
             .build();
     Format format = new Format.Builder().setWidth(10).setHeight(10).build();
-    OnInputFrameProcessedListener frameProcessedListener = unused -> {};
+    OnInputFrameProcessedListener frameProcessedListener = (unused, unused2) -> {};
     return new TextureAssetLoader(editedMediaItem, listener, format, frameProcessedListener);
   }
 

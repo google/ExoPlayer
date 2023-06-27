@@ -23,6 +23,7 @@ import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.media3.common.FrameInfo;
 import androidx.media3.common.OnInputFrameProcessedListener;
+import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
 
 /** Handles {@code DefaultVideoFrameProcessor}'s input. */
@@ -106,5 +107,5 @@ import androidx.media3.common.VideoFrameProcessor;
    *
    * @see VideoFrameProcessor#release()
    */
-  void release();
+  void release() throws VideoFrameProcessingException;
 }
