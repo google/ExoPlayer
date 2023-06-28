@@ -114,7 +114,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void signalEndOfCurrentInputStream() {
-    videoFrameProcessingTaskExecutor.submit(frameConsumptionManager::signalEndOfCurrentStream);
+    videoFrameProcessingTaskExecutor.submit(
+        () -> {
+          frameConsumptionManager.signalEndOfCurrentStream();
+          DebugTraceUtil.recordTexIdTextureManagerSignalEndOfCurrentInputStream();
+        });
   }
 
   @Override

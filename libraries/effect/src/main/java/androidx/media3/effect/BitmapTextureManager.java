@@ -111,6 +111,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         () -> {
           if (framesToQueueForCurrentBitmap == 0 && pendingBitmaps.isEmpty()) {
             shaderProgram.signalEndOfCurrentInputStream();
+            DebugTraceUtil.recordBitmapTextureManagerSignalEndOfCurrentInputStream();
           } else {
             currentInputStreamEnded = true;
           }
@@ -201,6 +202,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         // Only signal end of stream after all pending bitmaps are processed.
         // TODO(b/269424561): Call signalEndOfCurrentInputStream on every bitmap
         shaderProgram.signalEndOfCurrentInputStream();
+        DebugTraceUtil.recordBitmapTextureManagerSignalEndOfCurrentInputStream();
         currentInputStreamEnded = false;
       }
     }
