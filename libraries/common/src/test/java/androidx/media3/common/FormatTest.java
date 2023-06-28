@@ -104,6 +104,8 @@ public final class FormatTest {
         .setProjectionData(projectionData)
         .setStereoMode(C.STEREO_MODE_TOP_BOTTOM)
         .setColorInfo(colorInfo)
+        .setLumaBitdepth(9)
+        .setChromaBitdepth(11)
         .setChannelCount(6)
         .setSampleRate(44100)
         .setPcmEncoding(C.ENCODING_PCM_24BIT)
