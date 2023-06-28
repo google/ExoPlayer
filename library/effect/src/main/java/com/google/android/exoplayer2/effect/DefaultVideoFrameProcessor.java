@@ -76,14 +76,22 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
   public interface TextureOutputListener {
     /**
-     * Called when a texture has been rendered to. {@code releaseOutputTextureCallback} must be
-     * called to release the {@link GlTextureInfo}.
+     * Called when a texture has been rendered to.
+     *
+     * @param outputTexture The texture that has been rendered.
+     * @param presentationTimeUs The presentation time of the texture.
+     * @param releaseOutputTextureCallback A {@link ReleaseOutputTextureCallback} that must be
+     *     called to release the {@link GlTextureInfo}.
+     * @param syncObject A GL sync object that has been inserted into the GL command stream after
+     *     the last write of the {@code outputTexture}. Value is 0 if and only if the {@link
+     *     GLES30#glFenceSync} failed.
      */
     void onTextureRendered(
         GlTextureInfo outputTexture,
         long presentationTimeUs,
-        ReleaseOutputTextureCallback releaseOutputTextureCallback)
-        throws VideoFrameProcessingException;
+        ReleaseOutputTextureCallback releaseOutputTextureCallback,
+        long syncObject)
+        throws VideoFrameProcessingException, GlUtil.GlException;
   }
 
   /**

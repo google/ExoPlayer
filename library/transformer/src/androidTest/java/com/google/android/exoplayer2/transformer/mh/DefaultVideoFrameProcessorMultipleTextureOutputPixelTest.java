@@ -138,7 +138,11 @@ public class DefaultVideoFrameProcessorMultipleTextureOutputPixelTest {
     VideoFrameProcessor.Factory defaultVideoFrameProcessorFactory =
         new DefaultVideoFrameProcessor.Factory.Builder()
             .setTextureOutput(
-                textureBitmapReader::readBitmapFromTexture, /* textureOutputCapacity= */ 1)
+                (outputTexture, presentationTimeUs, releaseOutputTextureCallback, token) ->
+                    checkNotNull(textureBitmapReader)
+                        .readBitmapFromTexture(
+                            outputTexture, presentationTimeUs, releaseOutputTextureCallback),
+                /* textureOutputCapacity= */ 1)
             .build();
     return new VideoFrameProcessorTestRunner.Builder()
         .setTestId(testId)

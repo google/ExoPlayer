@@ -25,6 +25,7 @@ import android.opengl.EGLDisplay;
 import android.opengl.EGLExt;
 import android.opengl.EGLSurface;
 import android.opengl.GLES20;
+import android.opengl.GLES30;
 import android.util.Pair;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -112,6 +113,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable private SurfaceView debugSurfaceView;
   @Nullable private OnInputStreamProcessedListener onInputStreamProcessedListener;
   private boolean matrixTransformationsChanged;
+  private long syncObject;
 
   @GuardedBy("this")
   private boolean outputSurfaceInfoChanged;
@@ -270,6 +272,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     try {
       outputTexturePool.deleteAllTextures();
       GlUtil.destroyEglSurface(eglDisplay, outputEglSurface);
+      GLES30.glDeleteSync(syncObject);
+      GlUtil.checkGlError();
     } catch (GlUtil.GlException e) {
       throw new VideoFrameProcessingException(e);
     }
@@ -387,13 +391,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         outputTexture.getFboId(), outputTexture.getWidth(), outputTexture.getHeight());
     GlUtil.clearFocusedBuffers();
     checkNotNull(defaultShaderProgram).drawFrame(inputTexture.getTexId(), presentationTimeUs);
-    // TODO(b/262694346): If Compositor's VFPs all use the same context, media3 should be able to
-    //  avoid calling glFinish, and require the onTextureRendered listener to decide whether to
-    //  glFinish. Consider removing glFinish and requiring onTextureRendered to handle
-    //  synchronization.
-    GLES20.glFinish();
+    syncObject = GlUtil.createGlSyncFence();
     checkNotNull(textureOutputListener)
-        .onTextureRendered(outputTexture, presentationTimeUs, this::releaseOutputFrame);
+        .onTextureRendered(outputTexture, presentationTimeUs, this::releaseOutputFrame, syncObject);
   }
 
   /**
