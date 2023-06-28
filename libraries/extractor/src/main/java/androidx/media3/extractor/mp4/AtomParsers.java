@@ -1111,6 +1111,9 @@ import java.util.List;
     int height = parent.readUnsignedShort();
     boolean pixelWidthHeightRatioFromPasp = false;
     float pixelWidthHeightRatio = 1;
+    // Set default luma and chroma bit depths to 8 as old codecs might not even signal them
+    int bitdepthLuma = 8;
+    int bitdepthChroma = 8;
     parent.skipBytes(50);
 
     int childPosition = parent.getPosition();
@@ -1177,6 +1180,8 @@ import java.util.List;
         colorSpace = avcConfig.colorSpace;
         colorRange = avcConfig.colorRange;
         colorTransfer = avcConfig.colorTransfer;
+        bitdepthLuma = avcConfig.bitdepthLuma;
+        bitdepthChroma = avcConfig.bitdepthChroma;
       } else if (childAtomType == Atom.TYPE_hvcC) {
         ExtractorUtil.checkContainerInput(mimeType == null, /* message= */ null);
         mimeType = MimeTypes.VIDEO_H265;
@@ -1191,6 +1196,8 @@ import java.util.List;
         colorSpace = hevcConfig.colorSpace;
         colorRange = hevcConfig.colorRange;
         colorTransfer = hevcConfig.colorTransfer;
+        bitdepthLuma = hevcConfig.bitdepthLuma;
+        bitdepthChroma = hevcConfig.bitdepthChroma;
       } else if (childAtomType == Atom.TYPE_dvcC || childAtomType == Atom.TYPE_dvvC) {
         @Nullable DolbyVisionConfig dolbyVisionConfig = DolbyVisionConfig.parse(parent);
         if (dolbyVisionConfig != null) {
@@ -1203,7 +1210,10 @@ import java.util.List;
         parent.setPosition(childStartPosition + Atom.FULL_HEADER_SIZE);
         // See vpcC atom syntax: https://www.webmproject.org/vp9/mp4/#syntax_1
         parent.skipBytes(2); // profile(8), level(8)
-        boolean fullRangeFlag = (parent.readUnsignedByte() & 1) != 0;
+        int byte3 = parent.readUnsignedByte();
+        bitdepthLuma = byte3 >> 4;
+        bitdepthChroma = bitdepthLuma;
+        boolean fullRangeFlag = (byte3 & 0b1) != 0;
         int colorPrimaries = parent.readUnsignedByte();
         int transferCharacteristics = parent.readUnsignedByte();
         colorSpace = ColorInfo.isoColorPrimariesToColorSpace(colorPrimaries);
@@ -1213,6 +1223,22 @@ import java.util.List;
       } else if (childAtomType == Atom.TYPE_av1C) {
         ExtractorUtil.checkContainerInput(mimeType == null, /* message= */ null);
         mimeType = MimeTypes.VIDEO_AV1;
+        parent.setPosition(childStartPosition + Atom.HEADER_SIZE);
+        if (childAtomSize > Atom.HEADER_SIZE) {
+          parent.skipBytes(1); ;  // marker(1), version(7)
+          int byte2 = parent.readUnsignedByte();
+          int seqProfile = byte2 >> 5;
+          int byte3 = parent.readUnsignedByte();
+          boolean highBitdepth = ((byte3 >> 6) & 0b1) != 0;
+          boolean twelveBit = ((byte3 >> 5) & 0b1) != 0;
+          // From https://aomediacodec.github.io/av1-spec/av1-spec.pdf#page=44
+          if (seqProfile == 2 && highBitdepth) {
+            bitdepthLuma = twelveBit ? 12 : 10;
+          } else if (seqProfile <= 2) {
+            bitdepthLuma = highBitdepth ? 10 : 8;
+          }
+          bitdepthChroma = bitdepthLuma;
+        }
       } else if (childAtomType == Atom.TYPE_clli) {
         if (hdrStaticInfo == null) {
           hdrStaticInfo = allocateHdrStaticInfo();
@@ -1334,6 +1360,8 @@ import java.util.List;
             .setCodecs(codecs)
             .setWidth(width)
             .setHeight(height)
+            .setLumaBitdepth(bitdepthLuma)
+            .setChromaBitdepth(bitdepthChroma)
             .setPixelWidthHeightRatio(pixelWidthHeightRatio)
             .setRotationDegrees(rotationDegrees)
             .setProjectionData(projectionData)

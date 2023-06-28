@@ -139,6 +139,7 @@ public class DebugTextViewHelper {
         + format.width
         + "x"
         + format.height
+        + getBitdepthInfoString(format.lumaBitdepth)
         + getColorInfoString(format.colorInfo)
         + getPixelAspectRatioString(format.pixelWidthHeightRatio)
         + getDecoderCountersBufferCountString(decoderCounters)
@@ -186,6 +187,10 @@ public class DebugTextViewHelper {
         + counters.maxConsecutiveDroppedBufferCount
         + " dk:"
         + counters.droppedToKeyframeCount;
+  }
+
+  private static String getBitdepthInfoString(int lumaBitdepth) {
+    return lumaBitdepth != -1 ? " b:" + lumaBitdepth : "";
   }
 
   private static String getColorInfoString(@Nullable ColorInfo colorInfo) {

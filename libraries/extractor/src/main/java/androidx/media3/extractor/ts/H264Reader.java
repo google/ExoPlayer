@@ -219,6 +219,8 @@ public final class H264Reader implements ElementaryStreamReader {
                   .setCodecs(codecs)
                   .setWidth(spsData.width)
                   .setHeight(spsData.height)
+                  .setLumaBitdepth(spsData.bitDepthLumaMinus8 + 8)
+                  .setChromaBitdepth(spsData.bitDepthChromaMinus8 + 8)
                   .setPixelWidthHeightRatio(spsData.pixelWidthHeightRatio)
                   .setInitializationData(initializationData)
                   .build());

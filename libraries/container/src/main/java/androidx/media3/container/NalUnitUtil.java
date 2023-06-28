@@ -66,6 +66,8 @@ public final class NalUnitUtil {
     public final int width;
     public final int height;
     public final float pixelWidthHeightRatio;
+    public final int bitDepthLumaMinus8;
+    public final int bitDepthChromaMinus8;
     public final boolean separateColorPlaneFlag;
     public final boolean frameMbsOnlyFlag;
     public final int frameNumLength;
@@ -85,6 +87,8 @@ public final class NalUnitUtil {
         int width,
         int height,
         float pixelWidthHeightRatio,
+        int bitDepthLumaMinus8,
+        int bitDepthChromaMinus8,
         boolean separateColorPlaneFlag,
         boolean frameMbsOnlyFlag,
         int frameNumLength,
@@ -102,6 +106,8 @@ public final class NalUnitUtil {
       this.width = width;
       this.height = height;
       this.pixelWidthHeightRatio = pixelWidthHeightRatio;
+      this.bitDepthLumaMinus8 = bitDepthLumaMinus8;
+      this.bitDepthChromaMinus8 = bitDepthChromaMinus8;
       this.separateColorPlaneFlag = separateColorPlaneFlag;
       this.frameMbsOnlyFlag = frameMbsOnlyFlag;
       this.frameNumLength = frameNumLength;
@@ -382,6 +388,8 @@ public final class NalUnitUtil {
 
     int chromaFormatIdc = 1; // Default is 4:2:0
     boolean separateColorPlaneFlag = false;
+    int bitDepthLumaMinus8 = 0;
+    int bitDepthChromaMinus8 = 0;
     if (profileIdc == 100
         || profileIdc == 110
         || profileIdc == 122
@@ -396,8 +404,8 @@ public final class NalUnitUtil {
       if (chromaFormatIdc == 3) {
         separateColorPlaneFlag = data.readBit();
       }
-      data.readUnsignedExpGolombCodedInt(); // bit_depth_luma_minus8
-      data.readUnsignedExpGolombCodedInt(); // bit_depth_chroma_minus8
+      bitDepthLumaMinus8 = data.readUnsignedExpGolombCodedInt();
+      bitDepthChromaMinus8 = data.readUnsignedExpGolombCodedInt();
       data.skipBit(); // qpprime_y_zero_transform_bypass_flag
       boolean seqScalingMatrixPresentFlag = data.readBit();
       if (seqScalingMatrixPresentFlag) {
@@ -511,6 +519,8 @@ public final class NalUnitUtil {
         frameWidth,
         frameHeight,
         pixelWidthHeightRatio,
+        bitDepthLumaMinus8,
+        bitDepthChromaMinus8,
         separateColorPlaneFlag,
         frameMbsOnlyFlag,
         frameNumLength,
