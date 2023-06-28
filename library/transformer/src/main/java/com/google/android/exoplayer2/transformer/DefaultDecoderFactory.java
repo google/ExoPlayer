@@ -43,7 +43,7 @@ import java.util.List;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /**
- * A default implementation of {@link Codec.DecoderFactory}.
+ * Default implementation of {@link Codec.DecoderFactory} that uses {@link MediaCodec} for decoding.
  *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
  *     contains the same ExoPlayer code). See <a
@@ -51,7 +51,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-/* package */ final class DefaultDecoderFactory implements Codec.DecoderFactory {
+public final class DefaultDecoderFactory implements Codec.DecoderFactory {
 
   private static final String TAG = "DefaultDecoderFactory";
 
@@ -59,6 +59,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private final boolean decoderSupportsKeyAllowFrameDrop;
 
+  /** Creates a new factory. */
   public DefaultDecoderFactory(Context context) {
     this.context = context;
 
