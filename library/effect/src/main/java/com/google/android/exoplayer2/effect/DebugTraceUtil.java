@@ -64,6 +64,22 @@ public final class DebugTraceUtil {
       new ArrayDeque<>();
 
   /**
+   * The timestamps at which {@code BitmapTextureManager} signalled end of current input stream, in
+   * milliseconds.
+   */
+  @GuardedBy("DebugTraceUtil.class")
+  private static final Queue<Long> BITMAP_TEXTURE_MANAGER_SIGNAL_EOCIS_TIMES_MS =
+      new ArrayDeque<>();
+
+  /**
+   * The timestamps at which {@code TexIdTextureManager} signalled end of current input stream, in
+   * milliseconds.
+   */
+  @GuardedBy("DebugTraceUtil.class")
+  private static final Queue<Long> TEX_ID_TEXTURE_MANAGER_SIGNAL_EOCIS_TIMES_MS =
+      new ArrayDeque<>();
+
+  /**
    * The timestamps at which {@code VideoFrameProcessor} signalled end of stream, in milliseconds.
    */
   @GuardedBy("DebugTraceUtil.class")
@@ -129,6 +145,8 @@ public final class DebugTraceUtil {
     DECODER_SIGNAL_EOS_TIMES_MS.clear();
     VIDEO_FRAME_PROCESSOR_RECEIVE_DECODER_EOS_TIMES_MS.clear();
     EXTERNAL_TEXTURE_MANAGER_SIGNAL_EOCIS_TIMES_MS.clear();
+    BITMAP_TEXTURE_MANAGER_SIGNAL_EOCIS_TIMES_MS.clear();
+    TEX_ID_TEXTURE_MANAGER_SIGNAL_EOCIS_TIMES_MS.clear();
     VIDEO_FRAME_PROCESSOR_SIGNAL_EOS_TIMES_MS.clear();
     ENCODER_RECEIVE_EOS_TIMES_MS.clear();
     MUXER_CAN_WRITE_VIDEO_SAMPLE.clear();
@@ -181,6 +199,14 @@ public final class DebugTraceUtil {
     EXTERNAL_TEXTURE_MANAGER_SIGNAL_EOCIS_TIMES_MS.add(SystemClock.DEFAULT.elapsedRealtime());
   }
 
+  public static synchronized void recordBitmapTextureManagerSignalEndOfCurrentInputStream() {
+    BITMAP_TEXTURE_MANAGER_SIGNAL_EOCIS_TIMES_MS.add(SystemClock.DEFAULT.elapsedRealtime());
+  }
+
+  public static synchronized void recordTexIdTextureManagerSignalEndOfCurrentInputStream() {
+    TEX_ID_TEXTURE_MANAGER_SIGNAL_EOCIS_TIMES_MS.add(SystemClock.DEFAULT.elapsedRealtime());
+  }
+
   public static synchronized void recordVideoFrameProcessorSignalEos() {
     VIDEO_FRAME_PROCESSOR_SIGNAL_EOS_TIMES_MS.add(SystemClock.DEFAULT.elapsedRealtime());
   }
@@ -228,6 +254,10 @@ public final class DebugTraceUtil {
         + generateString(VIDEO_FRAME_PROCESSOR_RECEIVE_DECODER_EOS_TIMES_MS)
         + ", VFP ExtTexMgr signal EndOfCurrentInputStream: "
         + generateString(EXTERNAL_TEXTURE_MANAGER_SIGNAL_EOCIS_TIMES_MS)
+        + ", VFP BitmapTexMgr signal EndOfCurrentInputStream: "
+        + generateString(BITMAP_TEXTURE_MANAGER_SIGNAL_EOCIS_TIMES_MS)
+        + ", VFP TexIdTexMhr signal EndOfCurrentInputStream: "
+        + generateString(TEX_ID_TEXTURE_MANAGER_SIGNAL_EOCIS_TIMES_MS)
         + ", VFP signal EOS: "
         + generateString(VIDEO_FRAME_PROCESSOR_SIGNAL_EOS_TIMES_MS)
         + ", Encoder receive EOS: "
