@@ -6962,6 +6962,15 @@ public final class ExoPlayerTest {
   }
 
   @Test
+  public void setShuffleOrder_shuffleOrderLengthNotEqualToCurrentPlaylistLength_shouldThrow() {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.addMediaSources(ImmutableList.of(new FakeMediaSource(), new FakeMediaSource()));
+
+    assertThrows(
+        IllegalArgumentException.class, () -> player.setShuffleOrder(new FakeShuffleOrder(3)));
+  }
+
+  @Test
   public void setMediaSources_empty_whenEmpty_correctMaskingMediaItemIndex() throws Exception {
     final int[] currentMediaItemIndices = {C.INDEX_UNSET, C.INDEX_UNSET, C.INDEX_UNSET};
     ActionSchedule actionSchedule =
