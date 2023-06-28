@@ -35,6 +35,7 @@ import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.MediaFormatUtil;
+import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.mediacodec.MediaCodecInfo;
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector;
@@ -42,8 +43,11 @@ import androidx.media3.exoplayer.mediacodec.MediaCodecUtil;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-/** A default implementation of {@link Codec.DecoderFactory}. */
-/* package */ final class DefaultDecoderFactory implements Codec.DecoderFactory {
+/**
+ * Default implementation of {@link Codec.DecoderFactory} that uses {@link MediaCodec} for decoding.
+ */
+@UnstableApi
+public final class DefaultDecoderFactory implements Codec.DecoderFactory {
 
   private static final String TAG = "DefaultDecoderFactory";
 
@@ -51,6 +55,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private final boolean decoderSupportsKeyAllowFrameDrop;
 
+  /** Creates a new factory. */
   public DefaultDecoderFactory(Context context) {
     this.context = context;
 
