@@ -403,6 +403,16 @@ public final class GlUtil {
     checkGlError();
   }
 
+  /**
+   * Ensures that the following commands on the current OpenGL context will not be executed until
+   * the sync point has been reached. This does not block the CPU, and only affects the current
+   * OpenGL context.
+   */
+  public static void waitOnGpu(long syncObject) throws GlException {
+    GLES30.glWaitSync(syncObject, /* flags= */ 0, GLES30.GL_TIMEOUT_IGNORED);
+    checkGlError();
+  }
+
   /** Gets the current {@link EGLContext context}. */
   public static EGLContext getCurrentContext() {
     return EGL14.eglGetCurrentContext();

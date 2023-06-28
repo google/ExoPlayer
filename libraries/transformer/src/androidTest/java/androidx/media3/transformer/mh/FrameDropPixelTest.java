@@ -168,7 +168,10 @@ public class FrameDropPixelTest {
     VideoFrameProcessor.Factory defaultVideoFrameProcessorFactory =
         new DefaultVideoFrameProcessor.Factory.Builder()
             .setTextureOutput(
-                checkNotNull(textureBitmapReader)::readBitmapFromTexture,
+                (outputTexture, presentationTimeUs, releaseOutputTextureCallback, token) ->
+                    checkNotNull(textureBitmapReader)
+                        .readBitmapFromTexture(
+                            outputTexture, presentationTimeUs, releaseOutputTextureCallback),
                 /* textureOutputCapacity= */ 1)
             .build();
     return new VideoFrameProcessorTestRunner.Builder()

@@ -32,6 +32,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.opengl.GLES20;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Effect;
 import androidx.media3.common.Format;
@@ -66,6 +67,10 @@ import org.junit.runner.RunWith;
 // TODO(b/263395272): Move this test to effects/mh tests, and remove @TestOnly dependencies.
 @RunWith(AndroidJUnit4.class)
 public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
+
+  // Documentation reference:
+  // https://registry.khronos.org/OpenGL-Refpages/es3.0/html/glFenceSync.xhtml
+  private static final long GL_FENCE_SYNC_FAILED = 0;
   private static final String ORIGINAL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/original.png";
   private static final String BITMAP_OVERLAY_PNG_ASSET_PATH =
@@ -496,7 +501,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
     DefaultVideoFrameProcessor.Factory defaultVideoFrameProcessorFactory =
         new DefaultVideoFrameProcessor.Factory.Builder()
             .setTextureOutput(
-                (outputTexture, presentationTimeUs, releaseOutputTextureCallback) ->
+                (outputTexture, presentationTimeUs, releaseOutputTextureCallback, syncObject) ->
                     inputTextureIntoVideoFrameProcessor(
                         testId,
                         consumersBitmapReader,
@@ -504,7 +509,8 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
                         effects,
                         outputTexture,
                         presentationTimeUs,
-                        releaseOutputTextureCallback),
+                        releaseOutputTextureCallback,
+                        syncObject),
                 /* textureOutputCapacity= */ 1)
             .build();
     return new VideoFrameProcessorTestRunner.Builder()
@@ -524,13 +530,18 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
       List<Effect> effects,
       GlTextureInfo texture,
       long presentationTimeUs,
-      DefaultVideoFrameProcessor.ReleaseOutputTextureCallback releaseOutputTextureCallback)
-      throws VideoFrameProcessingException {
+      DefaultVideoFrameProcessor.ReleaseOutputTextureCallback releaseOutputTextureCallback,
+      long syncObject)
+      throws VideoFrameProcessingException, GlUtil.GlException {
     GlObjectsProvider contextSharingGlObjectsProvider =
         new DefaultGlObjectsProvider(GlUtil.getCurrentContext());
     DefaultVideoFrameProcessor.Factory defaultVideoFrameProcessorFactory =
         new DefaultVideoFrameProcessor.Factory.Builder()
-            .setTextureOutput(bitmapReader::readBitmapFromTexture, /* textureOutputCapacity= */ 1)
+            .setTextureOutput(
+                (outputTexture, presentationTimeUs1, releaseOutputTextureCallback1, token1) ->
+                    bitmapReader.readBitmapFromTexture(
+                        outputTexture, presentationTimeUs1, releaseOutputTextureCallback1),
+                /* textureOutputCapacity= */ 1)
             .setGlObjectsProvider(contextSharingGlObjectsProvider)
             .build();
     videoFrameProcessorTestRunner =
@@ -543,7 +554,12 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
             .setInputType(VideoFrameProcessor.INPUT_TYPE_TEXTURE_ID)
             .setEffects(effects)
             .build();
-
+    if (syncObject == GL_FENCE_SYNC_FAILED) {
+      // Fallback to using glFinish for synchronization when fence creation failed.
+      GLES20.glFinish();
+    } else {
+      GlUtil.waitOnGpu(syncObject);
+    }
     videoFrameProcessorTestRunner.queueInputTexture(texture, presentationTimeUs);
     try {
       videoFrameProcessorTestRunner.endFrameProcessing(VIDEO_FRAME_PROCESSING_WAIT_MS / 2);
@@ -559,7 +575,10 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
     DefaultVideoFrameProcessor.Factory defaultVideoFrameProcessorFactory =
         new DefaultVideoFrameProcessor.Factory.Builder()
             .setTextureOutput(
-                textureBitmapReader::readBitmapFromTexture, /* textureOutputCapacity= */ 1)
+                (outputTexture, presentationTimeUs, releaseOutputTextureCallback, token) ->
+                    textureBitmapReader.readBitmapFromTexture(
+                        outputTexture, presentationTimeUs, releaseOutputTextureCallback),
+                /* textureOutputCapacity= */ 1)
             .build();
     return new VideoFrameProcessorTestRunner.Builder()
         .setTestId(testId)
