@@ -154,35 +154,6 @@ public final class TransformationRequest {
       return this;
     }
 
-    /**
-     * @deprecated This method is now a no-op if {@code false}, and sets {@code
-     *     setHdrMode(HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC)} if {@code true}. Use {@link
-     *     #setHdrMode} with {@link #HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    public Builder setEnableRequestSdrToneMapping(boolean enableRequestSdrToneMapping) {
-      if (enableRequestSdrToneMapping) {
-        return setHdrMode(HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC);
-      }
-      return this;
-    }
-
-    /**
-     * @deprecated This method is now a no-op if {@code false}, and sets {@code
-     *     setHdrMode(HDR_MODE_KEEP_HDR)} if {@code true}. {@code
-     *     experimental_setEnableHdrEditing(true)} is now the default behavior. Use {@link
-     *     #setHdrMode} with link {@link #HDR_MODE_KEEP_HDR} instead.
-     */
-    @Deprecated
-    @CanIgnoreReturnValue
-    public Builder experimental_setEnableHdrEditing(boolean enableHdrEditing) {
-      if (enableHdrEditing) {
-        return setHdrMode(HDR_MODE_KEEP_HDR);
-      }
-      return this;
-    }
-
     @CanIgnoreReturnValue
     // TODO(b/255953153): remove this method once fallback has been refactored.
     /* package */ Builder setResolution(int outputHeight) {
