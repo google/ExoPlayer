@@ -773,6 +773,7 @@ import java.util.concurrent.TimeoutException;
   @Override
   public void setShuffleOrder(ShuffleOrder shuffleOrder) {
     verifyApplicationThread();
+    checkArgument(shuffleOrder.getLength() == mediaSourceHolderSnapshots.size());
     this.shuffleOrder = shuffleOrder;
     Timeline timeline = createMaskingTimeline();
     PlaybackInfo newPlaybackInfo =
