@@ -393,7 +393,7 @@ public class DashManifestParser extends DefaultHandler
       long timeShiftBufferDepthMs,
       boolean dvbProfileDeclared)
       throws XmlPullParserException, IOException {
-    int id = parseInt(xpp, "id", AdaptationSet.ID_UNSET);
+    int id = parseUnsignedInt(xpp, "id", AdaptationSet.ID_UNSET);
     @C.TrackType int contentType = parseContentType(xpp);
 
     String mimeType = xpp.getAttributeValue(null, "mimeType");
@@ -1925,6 +1925,11 @@ public class DashManifestParser extends DefaultHandler
       }
     } while (!XmlPullParserUtil.isEndTag(xpp, label));
     return text;
+  }
+
+  protected static int parseUnsignedInt(XmlPullParser xpp, String name, int defaultValue) {
+    String value = xpp.getAttributeValue(null, name);
+    return value == null ? defaultValue : Integer.parseUnsignedInt(value);
   }
 
   protected static int parseInt(XmlPullParser xpp, String name, int defaultValue) {
