@@ -90,7 +90,7 @@ public class DefaultHttpDataSource extends BaseDataSource implements HttpDataSou
 
     @CanIgnoreReturnValue
     @Override
-    public final Factory setDefaultRequestProperties(Map<String, String> defaultRequestProperties) {
+    public Factory setDefaultRequestProperties(Map<String, String> defaultRequestProperties) {
       this.defaultRequestProperties.clearAndSet(defaultRequestProperties);
       return this;
     }
