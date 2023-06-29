@@ -1929,7 +1929,7 @@ public class DashManifestParser extends DefaultHandler
 
   protected static int parseUnsignedInt(XmlPullParser xpp, String name, int defaultValue) {
     String value = xpp.getAttributeValue(null, name);
-    return value == null ? defaultValue : Integer.parseUnsignedInt(value);
+    return value == null ? defaultValue : (int) Long.parseLong(value);
   }
 
   protected static int parseInt(XmlPullParser xpp, String name, int defaultValue) {
