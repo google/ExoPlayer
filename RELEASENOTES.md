@@ -19,12 +19,9 @@
         `ExoPlayer.Builder.setSuppressPlaybackOnUnsuitableOutput`. The playback
         suppression reason will be updated as
         `Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT` if playback
-        is attempted when no suitable audio outputs are available.
-    *   Add handling for auto-resume or auto-pause of playback when audio output
-        devices are added or removed dynamically during suppressed or ongoing
-        playback when the playback suppression due to no suitable output has
-        been enabled via
-        `ExoPlayer.Builder.setSuppressPlaybackOnUnsuitableOutput`.
+        is attempted when no suitable audio outputs are available, or if all
+        suitable outputs are disconnected during playback. The suppression
+        reason will be removed when a suitable output is connected.
     *   Fix issue in `PlaybackStatsListener` where spurious `PlaybackStats` are
         created after the playlist is cleared.
 *   Transformer:
@@ -100,12 +97,6 @@
         tests and Compose UI tests. This fixes a bug where playback advances
         non-deterministically during Espresso or Compose view interactions.
 *   Remove deprecated symbols:
-    *   Remove
-        `TransformationRequest.Builder.setEnableRequestSdrToneMapping(boolean)`
-        and
-        `TransformationRequest.Builder.experimental_setEnableHdrEditing(boolean)`.
-        Use `Composition.Builder.setHdrMode(int)` and pass the `Composition` to
-        `Transformer.start(Composition, String)` instead.
 
 ## 1.1
 

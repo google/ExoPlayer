@@ -2748,6 +2748,14 @@ import java.util.concurrent.TimeoutException;
         && playbackInfo.playbackSuppressionReason == playbackSuppressionReason) {
       return;
     }
+    updatePlaybackInfoForPlayWhenReadyAndSuppressionReasonStates(
+        playWhenReady, playWhenReadyChangeReason, playbackSuppressionReason);
+  }
+
+  private void updatePlaybackInfoForPlayWhenReadyAndSuppressionReasonStates(
+      boolean playWhenReady,
+      @Player.PlayWhenReadyChangeReason int playWhenReadyChangeReason,
+      @PlaybackSuppressionReason int playbackSuppressionReason) {
     pendingOperationAcks++;
     // Position estimation and copy must occur before changing/masking playback state.
     PlaybackInfo newPlaybackInfo =
@@ -3368,14 +3376,20 @@ import java.util.concurrent.TimeoutException;
       if (hasSupportedAudioOutput()
           && playbackInfo.playbackSuppressionReason
               == Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT) {
-        play();
+        updatePlaybackInfoForPlayWhenReadyAndSuppressionReasonStates(
+            playbackInfo.playWhenReady,
+            PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
+            Player.PLAYBACK_SUPPRESSION_REASON_NONE);
       }
     }
 
     @Override
     public void onAudioDevicesRemoved(AudioDeviceInfo[] removedDevices) {
       if (!hasSupportedAudioOutput()) {
-        pause();
+        updatePlaybackInfoForPlayWhenReadyAndSuppressionReasonStates(
+            playbackInfo.playWhenReady,
+            PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
+            Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT);
       }
     }
   }
