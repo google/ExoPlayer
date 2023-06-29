@@ -456,15 +456,6 @@ public final class Transformer {
       if (transformationRequest.videoMimeType != null) {
         checkSampleMimeType(transformationRequest.videoMimeType);
       }
-      if (assetLoaderFactory == null) {
-        assetLoaderFactory =
-            new DefaultAssetLoaderFactory(
-                context,
-                new DefaultDecoderFactory(context),
-                /* forceInterpretHdrAsSdr= */ transformationRequest.hdrMode
-                    == TransformationRequest.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR,
-                clock);
-      }
       return new Transformer(
           context,
           transformationRequest,
@@ -643,7 +634,7 @@ public final class Transformer {
   private final boolean removeVideo;
   private final boolean flattenForSlowMotion;
   private final ListenerSet<Transformer.Listener> listeners;
-  private final AssetLoader.Factory assetLoaderFactory;
+  @Nullable private final AssetLoader.Factory assetLoaderFactory;
   private final VideoFrameProcessor.Factory videoFrameProcessorFactory;
   private final Codec.EncoderFactory encoderFactory;
   private final Muxer.Factory muxerFactory;
@@ -662,7 +653,7 @@ public final class Transformer {
       boolean removeVideo,
       boolean flattenForSlowMotion,
       ListenerSet<Listener> listeners,
-      AssetLoader.Factory assetLoaderFactory,
+      @Nullable AssetLoader.Factory assetLoaderFactory,
       VideoFrameProcessor.Factory videoFrameProcessorFactory,
       Codec.EncoderFactory encoderFactory,
       Muxer.Factory muxerFactory,
@@ -801,6 +792,16 @@ public final class Transformer {
     }
     FallbackListener fallbackListener =
         new FallbackListener(composition, listeners, applicationHandler, transformationRequest);
+    AssetLoader.Factory assetLoaderFactory = this.assetLoaderFactory;
+    if (assetLoaderFactory == null) {
+      assetLoaderFactory =
+          new DefaultAssetLoaderFactory(
+              context,
+              new DefaultDecoderFactory(context),
+              /* forceInterpretHdrAsSdr= */ transformationRequest.hdrMode
+                  == TransformationRequest.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR,
+              clock);
+    }
     DebugTraceUtil.reset();
     transformerInternal =
         new TransformerInternal(
