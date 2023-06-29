@@ -19,6 +19,7 @@ package androidx.media3.transformer;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.transformer.TestUtil.ASSET_URI_PREFIX;
 import static androidx.media3.transformer.TestUtil.FILE_AUDIO_RAW;
+import static androidx.media3.transformer.TestUtil.FILE_AUDIO_RAW_STEREO_48000KHZ;
 import static androidx.media3.transformer.TestUtil.FILE_AUDIO_VIDEO;
 import static androidx.media3.transformer.TestUtil.FILE_AUDIO_VIDEO_INCREASING_TIMESTAMPS_15S;
 import static androidx.media3.transformer.TestUtil.FILE_AUDIO_VIDEO_STEREO;
@@ -43,7 +44,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -233,7 +233,7 @@ public final class SequenceExportTest {
   }
 
   @Test
-  public void start_concatenateSameAudioItem_completesSuccessfully() throws Exception {
+  public void concatenateTwoAudioItems_withSameFormat_completesSuccessfully() throws Exception {
     Transformer transformer =
         createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
     MediaItem audioOnlyMediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW);
@@ -253,7 +253,8 @@ public final class SequenceExportTest {
   }
 
   @Test
-  public void start_concatenateSameAudioItemWithEffects_completesSuccessfully() throws Exception {
+  public void concatenateTwoAudioItems_withSameFormatAndSameEffects_completesSuccessfully()
+      throws Exception {
     Transformer transformer =
         createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
     MediaItem audioOnlyMediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW);
@@ -277,8 +278,7 @@ public final class SequenceExportTest {
   }
 
   @Test
-  @Ignore("Handle MediaItem effects changes (See [internal: b/274093424]).")
-  public void start_concatenateSameAudioItemWithDifferentEffects_completesSuccessfully()
+  public void concatenateTwoAudioItems_withSameFormatAndDiffEffects_completesSuccessfully()
       throws Exception {
     Transformer transformer =
         createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
@@ -312,5 +312,100 @@ public final class SequenceExportTest {
         context,
         checkNotNull(testMuxerHolder.testMuxer),
         getDumpFileName(FILE_AUDIO_RAW + ".high_pitch_then_low_pitch"));
+  }
+
+  @Test
+  public void concatenateTwoAudioItems_withDiffFormat_completesSuccessfully() throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+    MediaItem stereo48000Audio =
+        MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_STEREO_48000KHZ);
+    MediaItem mono44100Audio = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW);
+    EditedMediaItemSequence editedMediaItemSequence =
+        new EditedMediaItemSequence(
+            ImmutableList.of(
+                new EditedMediaItem.Builder(stereo48000Audio).build(),
+                new EditedMediaItem.Builder(mono44100Audio).build()));
+    Composition composition =
+        new Composition.Builder(ImmutableList.of(editedMediaItemSequence)).build();
+
+    transformer.start(composition, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    DumpFileAsserts.assertOutput(
+        context,
+        checkNotNull(testMuxerHolder.testMuxer),
+        getDumpFileName(FILE_AUDIO_RAW_STEREO_48000KHZ + "_then_sample.wav"));
+  }
+
+  @Test
+  public void concatenateTwoAudioItems_withDiffFormatAndSameEffects_completesSuccessfully()
+      throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+
+    Effects highPitch =
+        new Effects(
+            ImmutableList.of(createPitchChangingAudioProcessor(/* pitch= */ 2f)),
+            /* videoEffects= */ ImmutableList.of());
+
+    EditedMediaItem stereo48000Audio =
+        new EditedMediaItem.Builder(
+                MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_STEREO_48000KHZ))
+            .setEffects(highPitch)
+            .build();
+    EditedMediaItem mono44100Audio =
+        new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW))
+            .setEffects(highPitch)
+            .build();
+
+    EditedMediaItemSequence editedMediaItemSequence =
+        new EditedMediaItemSequence(ImmutableList.of(stereo48000Audio, mono44100Audio));
+    Composition composition =
+        new Composition.Builder(ImmutableList.of(editedMediaItemSequence)).build();
+
+    transformer.start(composition, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    DumpFileAsserts.assertOutput(
+        context,
+        checkNotNull(testMuxerHolder.testMuxer),
+        getDumpFileName(FILE_AUDIO_RAW_STEREO_48000KHZ + "-high_pitch_then_sample.wav-high_pitch"));
+  }
+
+  @Test
+  public void concatenateTwoAudioItems_withDiffFormatAndDiffEffects_completesSuccessfully()
+      throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+
+    EditedMediaItem stereo48000AudioHighPitch =
+        new EditedMediaItem.Builder(
+                MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_STEREO_48000KHZ))
+            .setEffects(
+                new Effects(
+                    ImmutableList.of(createPitchChangingAudioProcessor(/* pitch= */ 2f)),
+                    /* videoEffects= */ ImmutableList.of()))
+            .build();
+    EditedMediaItem mono44100AudioLowPitch =
+        new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW))
+            .setEffects(
+                new Effects(
+                    ImmutableList.of(createPitchChangingAudioProcessor(/* pitch= */ 0.5f)),
+                    /* videoEffects= */ ImmutableList.of()))
+            .build();
+    EditedMediaItemSequence editedMediaItemSequence =
+        new EditedMediaItemSequence(
+            ImmutableList.of(stereo48000AudioHighPitch, mono44100AudioLowPitch));
+    Composition composition =
+        new Composition.Builder(ImmutableList.of(editedMediaItemSequence)).build();
+
+    transformer.start(composition, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    DumpFileAsserts.assertOutput(
+        context,
+        checkNotNull(testMuxerHolder.testMuxer),
+        getDumpFileName(FILE_AUDIO_RAW_STEREO_48000KHZ + "-high_pitch_then_sample.wav-low_pitch"));
   }
 }

@@ -153,6 +153,7 @@ public final class TestUtil {
   public static final String FILE_AUDIO_VIDEO_INCREASING_TIMESTAMPS_15S =
       "mp4/sample_with_increasing_timestamps_320w_240h.mp4";
   public static final String FILE_AUDIO_RAW = "wav/sample.wav";
+  public static final String FILE_AUDIO_RAW_STEREO_48000KHZ = "wav/sample_rf64.wav";
   public static final String FILE_WITH_SUBTITLES = "mkv/sample_with_srt.mkv";
   public static final String FILE_WITH_SEF_SLOW_MOTION = "mp4/sample_sef_slow_motion.mp4";
   public static final String FILE_AUDIO_UNSUPPORTED_BY_DECODER = "amr/sample_wb.amr";
@@ -168,8 +169,8 @@ public final class TestUtil {
   public static void createEncodersAndDecoders() {
     ShadowMediaCodec.CodecConfig codecConfig =
         new ShadowMediaCodec.CodecConfig(
-            /* inputBufferSize= */ 10_000,
-            /* outputBufferSize= */ 10_000,
+            /* inputBufferSize= */ 100_000,
+            /* outputBufferSize= */ 100_000,
             /* codec= */ (in, out) -> out.put(in));
     addCodec(
         MimeTypes.AUDIO_AAC,
@@ -194,8 +195,8 @@ public final class TestUtil {
 
     ShadowMediaCodec.CodecConfig throwingCodecConfig =
         new ShadowMediaCodec.CodecConfig(
-            /* inputBufferSize= */ 10_000,
-            /* outputBufferSize= */ 10_000,
+            /* inputBufferSize= */ 100_000,
+            /* outputBufferSize= */ 100_000,
             new ShadowMediaCodec.CodecConfig.Codec() {
 
               @Override

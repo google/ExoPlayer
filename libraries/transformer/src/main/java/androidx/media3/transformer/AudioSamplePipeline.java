@@ -19,10 +19,12 @@ package androidx.media3.transformer;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
+import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.decoder.DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT;
 import static androidx.media3.decoder.DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED;
 import static java.lang.Math.min;
 
+import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
@@ -30,7 +32,11 @@ import androidx.media3.common.MimeTypes;
 import androidx.media3.common.audio.AudioProcessingPipeline;
 import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.audio.AudioProcessor.AudioFormat;
+import androidx.media3.common.audio.ChannelMixingAudioProcessor;
+import androidx.media3.common.audio.ChannelMixingMatrix;
+import androidx.media3.common.audio.SonicAudioProcessor;
 import androidx.media3.common.audio.SpeedChangingAudioProcessor;
+import androidx.media3.common.util.NullableType;
 import androidx.media3.common.util.Util;
 import androidx.media3.decoder.DecoderInputBuffer;
 import com.google.common.collect.ImmutableList;
@@ -38,6 +44,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.dataflow.qual.Pure;
 
 /** Pipeline to process, re-encode and mux raw audio samples. */
@@ -49,12 +56,14 @@ import org.checkerframework.dataflow.qual.Pure;
   private final SilentAudioGenerator silentAudioGenerator;
   private final Queue<DecoderInputBuffer> availableInputBuffers;
   private final Queue<DecoderInputBuffer> pendingInputBuffers;
-  private final AudioProcessingPipeline audioProcessingPipeline;
   private final Codec encoder;
   private final AudioFormat encoderInputAudioFormat;
   private final DecoderInputBuffer encoderInputBuffer;
   private final DecoderInputBuffer encoderOutputBuffer;
-
+  private final AtomicReference<@NullableType Pair<EditedMediaItem, @NullableType Format>>
+      pendingMediaItem;
+  private boolean receivedFirstMediaItemCallback;
+  private AudioProcessingPipeline audioProcessingPipeline;
   private long encoderTotalInputBytes;
 
   private volatile boolean queueEndOfStreamAfterSilence;
@@ -64,13 +73,13 @@ import org.checkerframework.dataflow.qual.Pure;
       Format firstAssetLoaderInputFormat,
       Format firstPipelineInputFormat,
       TransformationRequest transformationRequest,
-      boolean flattenForSlowMotion,
-      ImmutableList<AudioProcessor> audioProcessors,
+      EditedMediaItem firstEditedMediaItem,
       Codec.EncoderFactory encoderFactory,
       MuxerWrapper muxerWrapper,
       FallbackListener fallbackListener)
       throws ExportException {
     super(firstAssetLoaderInputFormat, muxerWrapper);
+    checkArgument(firstPipelineInputFormat.pcmEncoding != Format.NO_VALUE);
 
     availableInputBuffers = new ConcurrentLinkedDeque<>();
     ByteBuffer emptyBuffer = ByteBuffer.allocateDirect(0).order(ByteOrder.nativeOrder());
@@ -80,36 +89,21 @@ import org.checkerframework.dataflow.qual.Pure;
       availableInputBuffers.add(inputBuffer);
     }
     pendingInputBuffers = new ConcurrentLinkedDeque<>();
-
     encoderInputBuffer = new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DISABLED);
     encoderOutputBuffer = new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DISABLED);
-
-    checkArgument(firstPipelineInputFormat.pcmEncoding != Format.NO_VALUE);
+    pendingMediaItem = new AtomicReference<>();
     AudioFormat inputAudioFormat = new AudioFormat(firstPipelineInputFormat);
-
     silentAudioGenerator = new SilentAudioGenerator(inputAudioFormat);
+    audioProcessingPipeline =
+        configureProcessing(
+            /* editedMediaItem= */ firstEditedMediaItem,
+            /* trackFormat= */ firstPipelineInputFormat,
+            /* inputAudioFormat= */ inputAudioFormat,
+            /* requiredOutputAudioFormat= */ AudioFormat.NOT_SET);
+    AudioFormat outputAudioFormat = audioProcessingPipeline.getOutputAudioFormat();
+    checkState(!outputAudioFormat.equals(AudioFormat.NOT_SET));
 
-    if (flattenForSlowMotion && firstAssetLoaderInputFormat.metadata != null) {
-      audioProcessors =
-          new ImmutableList.Builder<AudioProcessor>()
-              .add(
-                  new SpeedChangingAudioProcessor(
-                      new SegmentSpeedProvider(firstAssetLoaderInputFormat.metadata)))
-              .addAll(audioProcessors)
-              .build();
-    }
-
-    audioProcessingPipeline = new AudioProcessingPipeline(audioProcessors);
-
-    try {
-      encoderInputAudioFormat = audioProcessingPipeline.configure(inputAudioFormat);
-    } catch (AudioProcessor.UnhandledAudioFormatException unhandledAudioFormatException) {
-      throw ExportException.createForAudioProcessing(
-          unhandledAudioFormatException, inputAudioFormat);
-    }
-
-    audioProcessingPipeline.flush();
-
+    encoderInputAudioFormat = outputAudioFormat;
     Format requestedEncoderFormat =
         new Format.Builder()
             .setSampleMimeType(
@@ -153,16 +147,22 @@ import org.checkerframework.dataflow.qual.Pure;
       if (isLast) {
         queueEndOfStreamAfterSilence = true;
       }
+    } else {
+      checkState(MimeTypes.isAudio(trackFormat.sampleMimeType));
+      checkState(trackFormat.pcmEncoding != Format.NO_VALUE);
+    }
+
+    if (!receivedFirstMediaItemCallback) {
+      receivedFirstMediaItemCallback = true;
       return;
     }
-    checkState(MimeTypes.isAudio(trackFormat.sampleMimeType));
-    checkState(trackFormat.pcmEncoding != Format.NO_VALUE);
+    pendingMediaItem.set(Pair.create(editedMediaItem, trackFormat));
   }
 
   @Override
   @Nullable
   public DecoderInputBuffer getInputBuffer() {
-    if (shouldGenerateSilence()) {
+    if (shouldGenerateSilence() || pendingMediaItem.get() != null) {
       return null;
     }
     return availableInputBuffers.peek();
@@ -170,6 +170,7 @@ import org.checkerframework.dataflow.qual.Pure;
 
   @Override
   public boolean queueInputBuffer() {
+    checkState(pendingMediaItem.get() == null);
     DecoderInputBuffer inputBuffer = availableInputBuffers.remove();
     pendingInputBuffers.add(inputBuffer);
     return true;
@@ -219,9 +220,33 @@ import org.checkerframework.dataflow.qual.Pure;
   }
 
   /**
+   * Reconfigures audio processing based on the pending {@linkplain #onMediaItemChanged media item
+   * change}.
+   *
+   * <p>Before reconfiguration, all pending buffers must be fully processed and drained to the
+   * encoder, however end of stream buffers should be handled so the encoder is not {@link
+   * #queueEndOfStreamToEncoder() queued end of stream}.
+   */
+  private void reconfigureProcessingForPendingMediaItem() throws ExportException {
+    Pair<EditedMediaItem, @NullableType Format> pendingChange =
+        checkStateNotNull(pendingMediaItem.get());
+    AudioFormat pendingAudioFormat =
+        pendingChange.second != null
+            ? new AudioFormat(pendingChange.second)
+            : silentAudioGenerator.audioFormat;
+    audioProcessingPipeline =
+        configureProcessing(
+            /* editedMediaItem= */ pendingChange.first,
+            /* trackFormat= */ pendingChange.second,
+            /* inputAudioFormat= */ pendingAudioFormat,
+            /* requiredOutputAudioFormat= */ encoderInputAudioFormat);
+    pendingMediaItem.set(null);
+  }
+
+  /**
    * Attempts to pass input data to the encoder.
    *
-   * @return Whether it may be possible to feed more data immediately by calling this method again.
+   * @return Whether the {@link AudioSamplePipeline} may be able to continue processing data.
    */
   private boolean feedEncoderFromInput() throws ExportException {
     if (!encoder.maybeDequeueInputBuffer(encoderInputBuffer)) {
@@ -234,6 +259,10 @@ import org.checkerframework.dataflow.qual.Pure;
     }
 
     if (pendingInputBuffers.isEmpty()) {
+      if (pendingMediaItem.get() != null) {
+        reconfigureProcessingForPendingMediaItem();
+        return true;
+      }
       // Only read volatile variable queueEndOfStreamAfterSilence if there is a chance that end of
       // stream should be queued.
       if (!silentAudioGenerator.hasRemaining() && queueEndOfStreamAfterSilence) {
@@ -244,7 +273,9 @@ import org.checkerframework.dataflow.qual.Pure;
 
     DecoderInputBuffer pendingInputBuffer = pendingInputBuffers.element();
     if (pendingInputBuffer.isEndOfStream()) {
-      queueEndOfStreamToEncoder();
+      if (pendingMediaItem.get() == null) {
+        queueEndOfStreamToEncoder();
+      }
       removePendingInputBuffer();
       return false;
     }
@@ -260,7 +291,7 @@ import org.checkerframework.dataflow.qual.Pure;
   /**
    * Attempts to feed audio processor output data to the encoder.
    *
-   * @return Whether it may be possible to feed more data immediately by calling this method again.
+   * @return Whether the {@link AudioSamplePipeline} may be able to continue processing data.
    */
   private boolean feedEncoderFromProcessingPipeline() throws ExportException {
     if (!encoder.maybeDequeueInputBuffer(encoderInputBuffer)) {
@@ -268,9 +299,12 @@ import org.checkerframework.dataflow.qual.Pure;
     }
 
     ByteBuffer processingPipelineOutputBuffer = audioProcessingPipeline.getOutput();
-
     if (!processingPipelineOutputBuffer.hasRemaining()) {
       if (audioProcessingPipeline.isEnded()) {
+        if (pendingMediaItem.get() != null) {
+          reconfigureProcessingForPendingMediaItem();
+          return true;
+        }
         queueEndOfStreamToEncoder();
       }
       return false;
@@ -283,7 +317,7 @@ import org.checkerframework.dataflow.qual.Pure;
   /**
    * Attempts to feed input data to the {@link AudioProcessingPipeline}.
    *
-   * @return Whether it may be possible to feed more data immediately by calling this method again.
+   * @return Whether the {@link AudioSamplePipeline} may be able to continue processing data.
    */
   private boolean feedProcessingPipelineFromInput() {
     if (shouldGenerateSilence()) {
@@ -295,7 +329,8 @@ import org.checkerframework.dataflow.qual.Pure;
     if (pendingInputBuffers.isEmpty()) {
       // Only read volatile variable queueEndOfStreamAfterSilence if there is a chance that end of
       // stream should be queued.
-      if (!silentAudioGenerator.hasRemaining() && queueEndOfStreamAfterSilence) {
+      if (pendingMediaItem.get() != null
+          || (!silentAudioGenerator.hasRemaining() && queueEndOfStreamAfterSilence)) {
         audioProcessingPipeline.queueEndOfStream();
       }
       return false;
@@ -369,5 +404,58 @@ import org.checkerframework.dataflow.qual.Pure;
 
   private boolean shouldGenerateSilence() {
     return silentAudioGenerator.hasRemaining() && pendingInputBuffers.isEmpty();
+  }
+
+  private static AudioProcessingPipeline configureProcessing(
+      EditedMediaItem editedMediaItem,
+      @Nullable Format trackFormat,
+      AudioFormat inputAudioFormat,
+      AudioFormat requiredOutputAudioFormat)
+      throws ExportException {
+    ImmutableList.Builder<AudioProcessor> audioProcessors = new ImmutableList.Builder<>();
+    if (editedMediaItem.flattenForSlowMotion
+        && trackFormat != null
+        && trackFormat.metadata != null) {
+      audioProcessors.add(
+          new SpeedChangingAudioProcessor(new SegmentSpeedProvider(trackFormat.metadata)));
+    }
+    audioProcessors.addAll(editedMediaItem.effects.audioProcessors);
+    // Ensure the output from APP matches what the encoder is configured to receive.
+    if (!requiredOutputAudioFormat.equals(AudioFormat.NOT_SET)) {
+      SonicAudioProcessor sampleRateChanger = new SonicAudioProcessor();
+      sampleRateChanger.setOutputSampleRateHz(requiredOutputAudioFormat.sampleRate);
+      audioProcessors.add(sampleRateChanger);
+
+      // TODO(b/262706549): Handle channel mixing with AudioMixer.
+      if (requiredOutputAudioFormat.channelCount <= 2) {
+        // ChannelMixingMatrix.create only has defaults for mono/stereo input/output.
+        ChannelMixingAudioProcessor channelCountChanger = new ChannelMixingAudioProcessor();
+        channelCountChanger.putChannelMixingMatrix(
+            ChannelMixingMatrix.create(
+                /* inputChannelCount= */ 1, requiredOutputAudioFormat.channelCount));
+        channelCountChanger.putChannelMixingMatrix(
+            ChannelMixingMatrix.create(
+                /* inputChannelCount= */ 2, requiredOutputAudioFormat.channelCount));
+        audioProcessors.add(channelCountChanger);
+      }
+    }
+
+    AudioProcessingPipeline audioProcessingPipeline =
+        new AudioProcessingPipeline(audioProcessors.build());
+    try {
+      AudioFormat outputAudioFormat = audioProcessingPipeline.configure(inputAudioFormat);
+      if (!requiredOutputAudioFormat.equals(AudioFormat.NOT_SET)
+          && !outputAudioFormat.equals(requiredOutputAudioFormat)) {
+        throw new AudioProcessor.UnhandledAudioFormatException(
+            "Audio format can not be modified to match existing downstream format",
+            inputAudioFormat);
+      }
+    } catch (AudioProcessor.UnhandledAudioFormatException unhandledAudioFormatException) {
+      throw ExportException.createForAudioProcessing(
+          unhandledAudioFormatException, inputAudioFormat);
+    }
+
+    audioProcessingPipeline.flush();
+    return audioProcessingPipeline;
   }
 }

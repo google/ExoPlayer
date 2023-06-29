@@ -555,8 +555,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               addedTrackInfo.firstAssetLoaderInputFormat,
               /* firstPipelineInputFormat= */ firstAssetLoaderOutputFormat,
               transformationRequest,
-              firstEditedMediaItem.flattenForSlowMotion,
-              firstEditedMediaItem.effects.audioProcessors,
+              firstEditedMediaItem,
               encoderFactory,
               muxerWrapper,
               fallbackListener);

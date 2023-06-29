@@ -26,7 +26,9 @@ import java.util.concurrent.atomic.AtomicLong;
 /* package */ final class SilentAudioGenerator {
   private static final int DEFAULT_BUFFER_SIZE_FRAMES = 1024;
 
-  private final AudioFormat audioFormat;
+  /** The {@link AudioFormat} of the silent audio generated. */
+  public final AudioFormat audioFormat;
+
   private final ByteBuffer internalBuffer;
   private final AtomicLong remainingBytesToOutput;
 
