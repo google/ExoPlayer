@@ -13303,151 +13303,119 @@ public final class ExoPlayerTest {
     player.release();
   }
 
+  /**
+   * Tests removal of playback suppression reason as {@link
+   * Player#PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT} when a suitable device is added.
+   */
   @Test
-  public void
-      onAudioDeviceAdded_addSuitableDevicesWhenPlaybackSuppressed_shouldResumeSuppressedPlayback()
-          throws Exception {
+  public void addSuitableDevicesWhenPlaybackSuppressed_shouldRemovePlaybackSuppression()
+      throws Exception {
     addWatchAsSystemFeature();
     setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
     ExoPlayer player =
         new TestExoPlayerBuilder(context).setSuppressPlaybackOnUnsuitableOutput(true).build();
     player.setMediaItem(
         MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
+    List<Integer> playbackSuppressionList = new ArrayList<>();
+    player.addListener(
+        new Player.Listener() {
+          @Override
+          public void onPlaybackSuppressionReasonChanged(int playbackSuppressionReason) {
+            playbackSuppressionList.add(playbackSuppressionReason);
+          }
+        });
     player.prepare();
     player.play();
     player.pause();
     runUntilPlaybackState(player, Player.STATE_READY);
-    AtomicBoolean isPlaybackResumed = new AtomicBoolean(false);
-    player.addListener(
-        new Player.Listener() {
-          @Override
-          public void onPlayWhenReadyChanged(
-              boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
-            if (playWhenReady
-                && player.getPlaybackSuppressionReason()
-                    != Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT) {
-              isPlaybackResumed.set(true);
-            }
-          }
-        });
 
     addConnectedAudioOutput(
         AudioDeviceInfo.TYPE_BLUETOOTH_A2DP, /* notifyAudioDeviceCallbacks= */ true);
     player.stop();
     runUntilPlaybackState(player, Player.STATE_IDLE);
 
-    assertThat(isPlaybackResumed.get()).isTrue();
+    assertThat(playbackSuppressionList)
+        .containsExactly(
+            Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT,
+            Player.PLAYBACK_SUPPRESSION_REASON_NONE);
     player.release();
   }
 
+  /**
+   * Tests no change in the playback suppression reason when an unsuitable device is connected while
+   * playback was suppressed earlier.
+   */
   @Test
-  public void
-      onAudioDeviceAdded_addUnsuitableDevicesWithPlaybackSuppressed_shouldNotResumePlayback()
-          throws Exception {
+  public void addUnsuitableDevicesWithPlaybackSuppressed_shouldNotRemovePlaybackSuppression()
+      throws Exception {
     addWatchAsSystemFeature();
     setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
     ExoPlayer player =
         new TestExoPlayerBuilder(context).setSuppressPlaybackOnUnsuitableOutput(true).build();
     player.setMediaItem(
         MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
-    player.prepare();
-    runUntilPlaybackState(player, Player.STATE_READY);
-    AtomicBoolean isPlaybackResumed = new AtomicBoolean(false);
+    List<Integer> playbackSuppressionList = new ArrayList<>();
     player.addListener(
         new Player.Listener() {
           @Override
-          public void onPlayWhenReadyChanged(
-              boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
-            if (playWhenReady
-                && player.getPlaybackSuppressionReason()
-                    != Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT) {
-              isPlaybackResumed.set(true);
-            }
+          public void onPlaybackSuppressionReasonChanged(int playbackSuppressionReason) {
+            playbackSuppressionList.add(playbackSuppressionReason);
           }
         });
+    player.prepare();
+    player.play();
+    runUntilPlaybackState(player, Player.STATE_READY);
 
     addConnectedAudioOutput(AudioDeviceInfo.TYPE_UNKNOWN, /* notifyAudioDeviceCallbacks= */ true);
     player.stop();
     runUntilPlaybackState(player, Player.STATE_IDLE);
 
-    assertThat(isPlaybackResumed.get()).isFalse();
+    assertThat(playbackSuppressionList)
+        .containsExactly(Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT);
     player.release();
   }
 
+  /**
+   * Tests no change in the playback suppression reason when a suitable device is added but playback
+   * was not suppressed earlier.
+   */
   @Test
-  public void
-      onAudioDeviceAdded_addSuitableDevicesWhenPlaybackNotSuppressed_shouldNotResumePlayback()
-          throws Exception {
+  public void addSuitableDevicesWhenPlaybackNotSuppressed_shouldNotRemovePlaybackSuppression()
+      throws Exception {
     addWatchAsSystemFeature();
     setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
     ExoPlayer player =
         new TestExoPlayerBuilder(context).setSuppressPlaybackOnUnsuitableOutput(true).build();
     player.setMediaItem(
         MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
-    player.prepare();
-    runUntilPlaybackState(player, Player.STATE_READY);
-    AtomicBoolean isPlaybackResumed = new AtomicBoolean(false);
+    List<Integer> playbackSuppressionList = new ArrayList<>();
     player.addListener(
         new Player.Listener() {
           @Override
-          public void onPlayWhenReadyChanged(
-              boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
-            if (playWhenReady
-                && player.getPlaybackSuppressionReason()
-                    != Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT) {
-              isPlaybackResumed.set(true);
-            }
+          public void onPlaybackSuppressionReasonChanged(int playbackSuppressionReason) {
+            playbackSuppressionList.add(playbackSuppressionReason);
           }
         });
+    player.prepare();
+    runUntilPlaybackState(player, Player.STATE_READY);
 
     addConnectedAudioOutput(
         AudioDeviceInfo.TYPE_BLUETOOTH_A2DP, /* notifyAudioDeviceCallbacks= */ true);
     player.stop();
     runUntilPlaybackState(player, Player.STATE_IDLE);
 
-    assertThat(isPlaybackResumed.get()).isFalse();
+    assertThat(playbackSuppressionList).isEmpty();
     player.release();
   }
 
+  /**
+   * Tests change in the playback suppression reason as {@link
+   * Player#PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT} when all the suitable audio outputs
+   * have been removed during an ongoing playback.
+   */
   @Test
-  public void onAudioDeviceAdded_addSuitableDevicesOnNonWearSurface_shouldResumeSuppressedPlayback()
+  public void removeAllSuitableDevicesWhenPlaybackOngoing_shouldSetPlaybackSuppression()
       throws Exception {
-    setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
-    ExoPlayer player =
-        new TestExoPlayerBuilder(context).setSuppressPlaybackOnUnsuitableOutput(true).build();
-    player.setMediaItem(
-        MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
-    player.prepare();
-    player.play();
-    player.pause();
-    runUntilPlaybackState(player, Player.STATE_READY);
-    AtomicBoolean isPlaybackResumed = new AtomicBoolean(false);
-    player.addListener(
-        new Player.Listener() {
-          @Override
-          public void onPlayWhenReadyChanged(
-              boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
-            if (playWhenReady
-                && player.getPlaybackSuppressionReason()
-                    != Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT) {
-              isPlaybackResumed.set(true);
-            }
-          }
-        });
-
-    addConnectedAudioOutput(
-        AudioDeviceInfo.TYPE_BLUETOOTH_A2DP, /* notifyAudioDeviceCallbacks= */ true);
-    player.stop();
-    runUntilPlaybackState(player, Player.STATE_IDLE);
-
-    assertThat(isPlaybackResumed.get()).isFalse();
-    player.release();
-  }
-
-  @Test
-  public void
-      onAudioDeviceRemoved_removeSuitableDeviceWhenPlaybackOngoing_shouldPauseOngoingPlayback()
-          throws Exception {
     addWatchAsSystemFeature();
     setupConnectedAudioOutput(
         AudioDeviceInfo.TYPE_BUILTIN_SPEAKER, AudioDeviceInfo.TYPE_BLUETOOTH_A2DP);
@@ -13458,15 +13426,12 @@ public final class ExoPlayerTest {
     player.prepare();
     player.play();
     runUntilPlaybackState(player, Player.STATE_READY);
-    AtomicBoolean isPlaybackPaused = new AtomicBoolean(false);
+    List<Integer> playbackSuppressionList = new ArrayList<>();
     player.addListener(
         new Player.Listener() {
           @Override
-          public void onPlayWhenReadyChanged(
-              boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
-            if (!playWhenReady) {
-              isPlaybackPaused.set(true);
-            }
+          public void onPlaybackSuppressionReasonChanged(int playbackSuppressionReason) {
+            playbackSuppressionList.add(playbackSuppressionReason);
           }
         });
 
@@ -13474,14 +13439,18 @@ public final class ExoPlayerTest {
     player.stop();
     runUntilPlaybackState(player, Player.STATE_IDLE);
 
-    assertThat(isPlaybackPaused.get()).isTrue();
+    assertThat(playbackSuppressionList)
+        .containsExactly(Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT);
     player.release();
   }
 
+  /**
+   * Tests no change in the playback suppression reason when any unsuitable audio outputs has been
+   * removed during an ongoing playback.
+   */
   @Test
-  public void
-      onAudioDeviceRemoved_removeUnsuitableDeviceLeavingOneSuitableDevice_shouldNotPausePlayback()
-          throws Exception {
+  public void removeAnyUnsuitableDevicesWhenPlaybackOngoing_shouldNotSetPlaybackSuppression()
+      throws Exception {
     addWatchAsSystemFeature();
     setupConnectedAudioOutput(
         AudioDeviceInfo.TYPE_BUILTIN_SPEAKER,
@@ -13495,15 +13464,12 @@ public final class ExoPlayerTest {
     player.prepare();
     player.play();
     runUntilPlaybackState(player, Player.STATE_READY);
-    AtomicBoolean isPlaybackPaused = new AtomicBoolean(false);
+    List<Integer> playbackSuppressionList = new ArrayList<>();
     player.addListener(
         new Player.Listener() {
           @Override
-          public void onPlayWhenReadyChanged(
-              boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
-            if (!playWhenReady) {
-              isPlaybackPaused.set(true);
-            }
+          public void onPlaybackSuppressionReasonChanged(int playbackSuppressionReason) {
+            playbackSuppressionList.add(playbackSuppressionReason);
           }
         });
 
@@ -13512,13 +13478,18 @@ public final class ExoPlayerTest {
     player.stop();
     runUntilPlaybackState(player, Player.STATE_IDLE);
 
-    assertThat(isPlaybackPaused.get()).isFalse();
+    assertThat(playbackSuppressionList).isEmpty();
     player.release();
   }
 
+  /**
+   * Tests no change in the playback suppression reason when any suitable audio outputs has been
+   * removed during an ongoing playback but at least one suitable audio output is still connected to
+   * the device.
+   */
   @Test
   public void
-      onAudioDeviceRemoved_removeSuitableDeviceLeavingOneSuitableDevice_shouldNotPausePlayback()
+      removeAnySuitableDeviceButOneSuitableDeviceStillConnected_shouldNotSetPlaybackSuppression()
           throws Exception {
     addWatchAsSystemFeature();
     setupConnectedAudioOutput(
@@ -13532,15 +13503,12 @@ public final class ExoPlayerTest {
     player.prepare();
     player.play();
     runUntilPlaybackState(player, Player.STATE_READY);
-    AtomicBoolean isPlaybackPaused = new AtomicBoolean(false);
+    List<Integer> playbackSuppressionList = new ArrayList<>();
     player.addListener(
         new Player.Listener() {
           @Override
-          public void onPlayWhenReadyChanged(
-              boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
-            if (!playWhenReady) {
-              isPlaybackPaused.set(true);
-            }
+          public void onPlaybackSuppressionReasonChanged(int playbackSuppressionReason) {
+            playbackSuppressionList.add(playbackSuppressionReason);
           }
         });
 
@@ -13548,40 +13516,7 @@ public final class ExoPlayerTest {
     player.stop();
     runUntilPlaybackState(player, Player.STATE_IDLE);
 
-    assertThat(isPlaybackPaused.get()).isFalse();
-    player.release();
-  }
-
-  @Test
-  public void
-      onAudioDeviceRemoved_removeSuitableDeviceOnNonWearSurface_shouldNotPauseOngoingPlayback()
-          throws Exception {
-    setupConnectedAudioOutput(
-        AudioDeviceInfo.TYPE_BUILTIN_SPEAKER, AudioDeviceInfo.TYPE_BLUETOOTH_A2DP);
-    ExoPlayer player =
-        new TestExoPlayerBuilder(context).setSuppressPlaybackOnUnsuitableOutput(true).build();
-    player.setMediaItem(
-        MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
-    player.prepare();
-    player.play();
-    runUntilPlaybackState(player, Player.STATE_READY);
-    AtomicBoolean isPlaybackPaused = new AtomicBoolean(false);
-    player.addListener(
-        new Player.Listener() {
-          @Override
-          public void onPlayWhenReadyChanged(
-              boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
-            if (!playWhenReady) {
-              isPlaybackPaused.set(true);
-            }
-          }
-        });
-
-    removeConnectedAudioOutput(AudioDeviceInfo.TYPE_BLUETOOTH_A2DP);
-    player.stop();
-    runUntilPlaybackState(player, Player.STATE_IDLE);
-
-    assertThat(isPlaybackPaused.get()).isFalse();
+    assertThat(playbackSuppressionList).isEmpty();
     player.release();
   }
 

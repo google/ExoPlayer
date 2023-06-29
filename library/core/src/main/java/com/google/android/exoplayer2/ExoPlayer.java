@@ -712,6 +712,9 @@ public interface ExoPlayer extends Player {
      * Player.Listener#onPlaybackSuppressionReasonChanged(int)} with the value {@link
      * Player#PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT}.
      *
+     * <p>Callers of this may also want to enable {@link #setHandleAudioBecomingNoisy(boolean)} to
+     * prevent playback from continuing on the built-in speaker when a headset is disconnected.
+     *
      * @param suppressPlaybackOnUnsuitableOutput Whether the player should suppress the playback
      *     when it is attempted on an unsuitable output.
      * @return This builder.
