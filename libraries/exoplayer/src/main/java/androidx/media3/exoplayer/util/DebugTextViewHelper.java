@@ -190,7 +190,7 @@ public class DebugTextViewHelper {
   }
 
   private static String getBitdepthInfoString(int lumaBitdepth) {
-    return lumaBitdepth != -1 ? " b:" + lumaBitdepth : "";
+    return lumaBitdepth != Format.NO_VALUE ? " b:" + lumaBitdepth : "";
   }
 
   private static String getColorInfoString(@Nullable ColorInfo colorInfo) {
