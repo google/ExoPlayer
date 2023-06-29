@@ -7,7 +7,7 @@
   type="static"
   mediaPresentationDuration="PT904S">
   <Period id="1" duration="PT904S" start="PT0S">
-    <AdaptationSet id="0" mimeType="video/mp4" contentType="video" segmentAlignment="true" startWithSAP="1">
+    <AdaptationSet id="3000000000" mimeType="video/mp4" contentType="video" segmentAlignment="true" startWithSAP="1">
       <Role schemeIdUri="urn:mpeg:dash:role:2011" value="main"/>
       <SegmentTemplate presentationTimeOffset="0" media="video_$Time$_$Bandwidth$.m4s" timescale="1000" >
         <SegmentTimeline>
@@ -20,7 +20,7 @@
       <Representation id="3" codecs="avc1.42c00c" width="400" height="224" frameRate="25/2" bandwidth="250000"/>
       <Representation id="4" codecs="avc1.42c00b" width="400" height="224" frameRate="5" bandwidth="50000"/>
     </AdaptationSet>
-    <AdaptationSet id="1" lang="fr" mimeType="audio/mp4" contentType="audio" codecs="mp4a.40.2" segmentAlignment="true" startWithSAP="1">
+    <AdaptationSet id="3000000001" lang="fr" mimeType="audio/mp4" contentType="audio" codecs="mp4a.40.2" segmentAlignment="true" startWithSAP="1">
       <AudioChannelConfiguration schemeIdUri="urn:mpeg:mpegB:cicp:ChannelConfiguration" value="2"/>
       <SegmentTemplate presentationTimeOffset="0" media="audio_$Time$_$Bandwidth$.m4s" timescale="1000" >
         <SegmentTimeline>
