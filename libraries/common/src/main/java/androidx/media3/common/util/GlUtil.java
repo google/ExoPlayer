@@ -770,7 +770,7 @@ public final class GlUtil {
               surface,
               windowAttributes,
               /* offset= */ 0);
-      checkEglException("Error creating surface");
+      checkEglException("Error creating a new EGL surface");
       return eglSurface;
     }
 
@@ -783,7 +783,7 @@ public final class GlUtil {
               getEglConfig(eglDisplay, configAttributes),
               pbufferAttributes,
               /* offset= */ 0);
-      checkEglException("Error creating surface");
+      checkEglException("Error creating a new EGL Pbuffer surface");
       return eglSurface;
     }
 
