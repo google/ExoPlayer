@@ -15,9 +15,11 @@
  */
 package androidx.media3.ui;
 
+import static androidx.media3.test.utils.robolectric.TestPlayerRunHelper.runUntilPlayWhenReady;
 import static androidx.media3.test.utils.robolectric.TestPlayerRunHelper.runUntilPlaybackState;
 import static androidx.test.ext.truth.content.IntentSubject.assertThat;
 import static com.google.common.truth.Truth.assertThat;
+import static java.util.Arrays.stream;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.app.Application;
@@ -34,11 +36,14 @@ import android.provider.Settings;
 import androidx.media3.common.FlagSet;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.Player;
-import androidx.media3.common.Player.Listener;
+import androidx.media3.common.Player.PlayWhenReadyChangeReason;
+import androidx.media3.test.utils.FakeClock;
 import androidx.media3.test.utils.TestExoPlayerBuilder;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -63,6 +68,7 @@ public class WearUnsuitableOutputPlaybackSuppressionResolverListenerTest {
   private static final String FAKE_SYSTEM_BT_SETTINGS_PACKAGE_NAME = "com.fake.btsettings";
   private static final String FAKE_SYSTEM_BT_SETTINGS_CLASS_NAME =
       "com.fake.btsettings.BluetoothSettingsActivity";
+  private static final long TEST_TIME_OUT_MS = Duration.ofMinutes(10).toMillis();
 
   private ShadowPackageManager shadowPackageManager;
   private ShadowApplication shadowApplication;
@@ -74,9 +80,6 @@ public class WearUnsuitableOutputPlaybackSuppressionResolverListenerTest {
         new TestExoPlayerBuilder(ApplicationProvider.getApplicationContext())
             .setSuppressPlaybackOnUnsuitableOutput(true)
             .build();
-    testPlayer.addListener(
-        new WearUnsuitableOutputPlaybackSuppressionResolverListener(
-            ApplicationProvider.getApplicationContext()));
     shadowApplication = shadowOf((Application) ApplicationProvider.getApplicationContext());
     shadowPackageManager =
         shadowOf(ApplicationProvider.getApplicationContext().getPackageManager());
@@ -88,13 +91,12 @@ public class WearUnsuitableOutputPlaybackSuppressionResolverListenerTest {
   }
 
   /**
-   * Test for the launch of system Output Switcher app when playback is suppressed due to unsuitable
-   * output and the system Output Switcher is present on the device.
+   * Test end-to-end flow from launch of output switcher to playback getting resumed when the
+   * playback is suppressed and then unsuppressed.
    */
   @Test
-  public void
-      playEventWithPlaybackSuppressionWhenSystemOutputSwitcherPresent_shouldLaunchOutputSwitcher()
-          throws TimeoutException {
+  public void playbackSuppressionFollowedByResolution_shouldLaunchOSwAndChangePlayerStateToPlaying()
+      throws TimeoutException {
     shadowPackageManager.setSystemFeature(PackageManager.FEATURE_WATCH, /* supported= */ true);
     registerFakeActivity(
         OUTPUT_SWITCHER_INTENT_ACTION_NAME,
@@ -102,12 +104,27 @@ public class WearUnsuitableOutputPlaybackSuppressionResolverListenerTest {
         FAKE_SYSTEM_OUTPUT_SWITCHER_CLASS_NAME,
         ApplicationInfo.FLAG_SYSTEM);
     setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
+    testPlayer.addListener(
+        new WearUnsuitableOutputPlaybackSuppressionResolverListener(
+            ApplicationProvider.getApplicationContext()));
     testPlayer.setMediaItem(
         MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
     testPlayer.prepare();
+    List<Boolean> playWhenReadyChangeSequence = new ArrayList<>();
+    testPlayer.addListener(
+        new Player.Listener() {
+          @Override
+          public void onPlayWhenReadyChanged(
+              boolean playWhenReady, @PlayWhenReadyChangeReason int reason) {
+            playWhenReadyChangeSequence.add(playWhenReady);
+          }
+        });
 
     testPlayer.play();
     runUntilPlaybackState(testPlayer, Player.STATE_READY);
+    addConnectedAudioOutput(
+        AudioDeviceInfo.TYPE_BLUETOOTH_A2DP, /* notifyAudioDeviceCallbacks= */ true);
+    runUntilPlayWhenReady(testPlayer, /* expectedPlayWhenReady= */ true);
 
     Intent intentTriggered = shadowApplication.getNextStartedActivity();
     assertThat(intentTriggered).isNotNull();
@@ -115,6 +132,8 @@ public class WearUnsuitableOutputPlaybackSuppressionResolverListenerTest {
     assertThat(intentTriggered)
         .hasComponent(
             FAKE_SYSTEM_OUTPUT_SWITCHER_PACKAGE_NAME, FAKE_SYSTEM_OUTPUT_SWITCHER_CLASS_NAME);
+    assertThat(playWhenReadyChangeSequence).containsExactly(true, false, true);
+    assertThat(testPlayer.isPlaying()).isTrue();
   }
 
   /**
@@ -131,6 +150,9 @@ public class WearUnsuitableOutputPlaybackSuppressionResolverListenerTest {
         FAKE_SYSTEM_OUTPUT_SWITCHER_CLASS_NAME,
         ApplicationInfo.FLAG_UPDATED_SYSTEM_APP);
     setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
+    testPlayer.addListener(
+        new WearUnsuitableOutputPlaybackSuppressionResolverListener(
+            ApplicationProvider.getApplicationContext()));
     testPlayer.setMediaItem(
         MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
     testPlayer.prepare();
@@ -166,6 +188,9 @@ public class WearUnsuitableOutputPlaybackSuppressionResolverListenerTest {
         "com.fake.userinstalled.outputswitcher.OutputSwitcherActivity",
         /* applicationFlags= */ 0);
     setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
+    testPlayer.addListener(
+        new WearUnsuitableOutputPlaybackSuppressionResolverListener(
+            ApplicationProvider.getApplicationContext()));
     testPlayer.setMediaItem(
         MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
     testPlayer.prepare();
@@ -196,6 +221,9 @@ public class WearUnsuitableOutputPlaybackSuppressionResolverListenerTest {
         FAKE_SYSTEM_OUTPUT_SWITCHER_CLASS_NAME,
         ApplicationInfo.FLAG_SYSTEM);
     setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
+    testPlayer.addListener(
+        new WearUnsuitableOutputPlaybackSuppressionResolverListener(
+            ApplicationProvider.getApplicationContext()));
     testPlayer.setMediaItem(
         MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
     testPlayer.prepare();
@@ -236,6 +264,9 @@ public class WearUnsuitableOutputPlaybackSuppressionResolverListenerTest {
         FAKE_SYSTEM_BT_SETTINGS_CLASS_NAME,
         ApplicationInfo.FLAG_SYSTEM);
     setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
+    testPlayer.addListener(
+        new WearUnsuitableOutputPlaybackSuppressionResolverListener(
+            ApplicationProvider.getApplicationContext()));
     testPlayer.setMediaItem(
         MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
     testPlayer.prepare();
@@ -265,6 +296,9 @@ public class WearUnsuitableOutputPlaybackSuppressionResolverListenerTest {
         FAKE_SYSTEM_BT_SETTINGS_CLASS_NAME,
         ApplicationInfo.FLAG_SYSTEM);
     setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
+    testPlayer.addListener(
+        new WearUnsuitableOutputPlaybackSuppressionResolverListener(
+            ApplicationProvider.getApplicationContext()));
     testPlayer.setMediaItem(
         MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
     testPlayer.prepare();
@@ -298,6 +332,9 @@ public class WearUnsuitableOutputPlaybackSuppressionResolverListenerTest {
         FAKE_SYSTEM_BT_SETTINGS_CLASS_NAME,
         ApplicationInfo.FLAG_SYSTEM);
     setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
+    testPlayer.addListener(
+        new WearUnsuitableOutputPlaybackSuppressionResolverListener(
+            ApplicationProvider.getApplicationContext()));
     testPlayer.setMediaItem(
         MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
     testPlayer.prepare();
@@ -333,6 +370,9 @@ public class WearUnsuitableOutputPlaybackSuppressionResolverListenerTest {
         "com.fake.userinstalled.btsettings.BluetoothSettingsActivity",
         /* applicationFlags= */ 0);
     setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
+    testPlayer.addListener(
+        new WearUnsuitableOutputPlaybackSuppressionResolverListener(
+            ApplicationProvider.getApplicationContext()));
     testPlayer.setMediaItem(
         MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
     testPlayer.prepare();
@@ -364,6 +404,9 @@ public class WearUnsuitableOutputPlaybackSuppressionResolverListenerTest {
         ApplicationInfo.FLAG_SYSTEM);
     setupConnectedAudioOutput(
         AudioDeviceInfo.TYPE_BUILTIN_SPEAKER, AudioDeviceInfo.TYPE_BLUETOOTH_A2DP);
+    testPlayer.addListener(
+        new WearUnsuitableOutputPlaybackSuppressionResolverListener(
+            ApplicationProvider.getApplicationContext()));
     testPlayer.setMediaItem(
         MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
     testPlayer.prepare();
@@ -372,6 +415,43 @@ public class WearUnsuitableOutputPlaybackSuppressionResolverListenerTest {
     runUntilPlaybackState(testPlayer, Player.STATE_READY);
 
     assertThat(shadowApplication.getNextStartedActivity()).isNull();
+  }
+
+  /**
+   * Test for no launch of any system media output switching dialog app when playback is suppressed
+   * due to removal of all suitable audio outputs in mid of an ongoing playback.
+   */
+  @Test
+  public void
+      playbackSuppressionDuringOngoingPlayback_shouldOnlyPauseButNotLaunchEitherOSwOrBTSettings()
+          throws TimeoutException {
+    shadowPackageManager.setSystemFeature(PackageManager.FEATURE_WATCH, /* supported= */ true);
+    registerFakeActivity(
+        OUTPUT_SWITCHER_INTENT_ACTION_NAME,
+        FAKE_SYSTEM_OUTPUT_SWITCHER_PACKAGE_NAME,
+        FAKE_SYSTEM_OUTPUT_SWITCHER_CLASS_NAME,
+        ApplicationInfo.FLAG_SYSTEM);
+    registerFakeActivity(
+        Settings.ACTION_BLUETOOTH_SETTINGS,
+        FAKE_SYSTEM_BT_SETTINGS_PACKAGE_NAME,
+        FAKE_SYSTEM_BT_SETTINGS_CLASS_NAME,
+        ApplicationInfo.FLAG_SYSTEM);
+    setupConnectedAudioOutput(
+        AudioDeviceInfo.TYPE_BUILTIN_SPEAKER, AudioDeviceInfo.TYPE_BLUETOOTH_A2DP);
+    testPlayer.addListener(
+        new WearUnsuitableOutputPlaybackSuppressionResolverListener(
+            ApplicationProvider.getApplicationContext()));
+    testPlayer.setMediaItem(
+        MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
+    testPlayer.prepare();
+    testPlayer.play();
+    runUntilPlaybackState(testPlayer, Player.STATE_READY);
+
+    removeConnectedAudioOutput(AudioDeviceInfo.TYPE_BLUETOOTH_A2DP);
+    runUntilPlayWhenReady(testPlayer, /* expectedPlayWhenReady= */ false);
+
+    assertThat(shadowApplication.getNextStartedActivity()).isNull();
+    assertThat(testPlayer.isPlaying()).isFalse();
   }
 
   /** Test for pause on the Player when the playback is suppressed due to unsuitable output. */
@@ -385,12 +465,15 @@ public class WearUnsuitableOutputPlaybackSuppressionResolverListenerTest {
         FAKE_SYSTEM_OUTPUT_SWITCHER_CLASS_NAME,
         ApplicationInfo.FLAG_SYSTEM);
     setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
+    testPlayer.addListener(
+        new WearUnsuitableOutputPlaybackSuppressionResolverListener(
+            ApplicationProvider.getApplicationContext()));
     testPlayer.setMediaItem(
         MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
     testPlayer.prepare();
     AtomicBoolean isPlaybackPaused = new AtomicBoolean(false);
     testPlayer.addListener(
-        new Listener() {
+        new Player.Listener() {
           @Override
           public void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {
             if (!playWhenReady) {
@@ -419,12 +502,15 @@ public class WearUnsuitableOutputPlaybackSuppressionResolverListenerTest {
         ApplicationInfo.FLAG_SYSTEM);
     setupConnectedAudioOutput(
         AudioDeviceInfo.TYPE_BUILTIN_SPEAKER, AudioDeviceInfo.TYPE_BLUETOOTH_A2DP);
+    testPlayer.addListener(
+        new WearUnsuitableOutputPlaybackSuppressionResolverListener(
+            ApplicationProvider.getApplicationContext()));
     testPlayer.setMediaItem(
         MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
     testPlayer.prepare();
     AtomicBoolean isPlaybackPaused = new AtomicBoolean(false);
     testPlayer.addListener(
-        new Listener() {
+        new Player.Listener() {
           @Override
           public void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {
             if (!playWhenReady) {
@@ -437,6 +523,95 @@ public class WearUnsuitableOutputPlaybackSuppressionResolverListenerTest {
     runUntilPlaybackState(testPlayer, Player.STATE_READY);
 
     assertThat(isPlaybackPaused.get()).isFalse();
+  }
+
+  /**
+   * Test to ensure player is not playing when the playback suppression due to unsuitable output is
+   * removed after the default timeout.
+   */
+  @Test
+  public void
+      playbackSuppressionChangeToNoneAfterDefaultTimeout_shouldNotChangePlaybackStateToPlaying()
+          throws TimeoutException {
+    shadowPackageManager.setSystemFeature(PackageManager.FEATURE_WATCH, /* supported= */ true);
+    setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
+    FakeClock fakeClock = new FakeClock(/* isAutoAdvancing= */ true);
+    testPlayer.addListener(
+        new WearUnsuitableOutputPlaybackSuppressionResolverListener(
+            ApplicationProvider.getApplicationContext(),
+            WearUnsuitableOutputPlaybackSuppressionResolverListener
+                .DEFAULT_PLAYBACK_SUPPRESSION_AUTO_RESUME_TIMEOUT_MS,
+            fakeClock));
+    testPlayer.setMediaItem(
+        MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
+    testPlayer.prepare();
+    testPlayer.play();
+    runUntilPlaybackState(testPlayer, Player.STATE_READY);
+
+    fakeClock.advanceTime(
+        WearUnsuitableOutputPlaybackSuppressionResolverListener
+                .DEFAULT_PLAYBACK_SUPPRESSION_AUTO_RESUME_TIMEOUT_MS
+            * 2);
+    addConnectedAudioOutput(
+        AudioDeviceInfo.TYPE_BLUETOOTH_A2DP, /* notifyAudioDeviceCallbacks= */ true);
+    runUntilPlayWhenReady(testPlayer, /* expectedPlayWhenReady= */ false);
+
+    assertThat(testPlayer.isPlaying()).isFalse();
+  }
+
+  /**
+   * Test to ensure player is playing when the playback suppression due to unsuitable output is
+   * removed within the set timeout.
+   */
+  @Test
+  public void playbackSuppressionChangeToNoneWithinSetTimeout_shouldChangePlaybackStateToPlaying()
+      throws TimeoutException {
+    shadowPackageManager.setSystemFeature(PackageManager.FEATURE_WATCH, /* supported= */ true);
+    setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
+    FakeClock fakeClock = new FakeClock(/* isAutoAdvancing= */ true);
+    testPlayer.addListener(
+        new WearUnsuitableOutputPlaybackSuppressionResolverListener(
+            ApplicationProvider.getApplicationContext(), TEST_TIME_OUT_MS, fakeClock));
+    testPlayer.setMediaItem(
+        MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
+    testPlayer.prepare();
+    testPlayer.play();
+    runUntilPlaybackState(testPlayer, Player.STATE_READY);
+
+    fakeClock.advanceTime(TEST_TIME_OUT_MS / 2);
+    addConnectedAudioOutput(
+        AudioDeviceInfo.TYPE_BLUETOOTH_A2DP, /* notifyAudioDeviceCallbacks= */ true);
+    runUntilPlayWhenReady(testPlayer, /* expectedPlayWhenReady= */ true);
+
+    assertThat(testPlayer.isPlaying()).isTrue();
+  }
+
+  /**
+   * Test to ensure player is not playing when the playback suppression due to unsuitable output is
+   * removed after the set timeout.
+   */
+  @Test
+  public void
+      playbackSuppressionChangeToNoneAfterSetTimeout_shouldNotChangeFinalPlaybackStateToPlaying()
+          throws TimeoutException {
+    shadowPackageManager.setSystemFeature(PackageManager.FEATURE_WATCH, /* supported= */ true);
+    setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
+    FakeClock fakeClock = new FakeClock(/* isAutoAdvancing= */ true);
+    testPlayer.addListener(
+        new WearUnsuitableOutputPlaybackSuppressionResolverListener(
+            ApplicationProvider.getApplicationContext(), TEST_TIME_OUT_MS, fakeClock));
+    testPlayer.setMediaItem(
+        MediaItem.fromUri("asset:///media/mp4/sample_with_increasing_timestamps_360p.mp4"));
+    testPlayer.prepare();
+    testPlayer.play();
+    runUntilPlaybackState(testPlayer, Player.STATE_READY);
+
+    fakeClock.advanceTime(TEST_TIME_OUT_MS * 2);
+    addConnectedAudioOutput(
+        AudioDeviceInfo.TYPE_BLUETOOTH_A2DP, /* notifyAudioDeviceCallbacks= */ true);
+    runUntilPlayWhenReady(testPlayer, /* expectedPlayWhenReady= */ false);
+
+    assertThat(testPlayer.isPlaying()).isFalse();
   }
 
   private void registerFakeActivity(
@@ -464,5 +639,25 @@ public class WearUnsuitableOutputPlaybackSuppressionResolverListenerTest {
       deviceListBuilder.add(AudioDeviceInfoBuilder.newBuilder().setType(deviceType).build());
     }
     shadowAudioManager.setOutputDevices(deviceListBuilder.build());
+  }
+
+  private void addConnectedAudioOutput(int deviceTypes, boolean notifyAudioDeviceCallbacks) {
+    ShadowAudioManager shadowAudioManager =
+        shadowOf(ApplicationProvider.getApplicationContext().getSystemService(AudioManager.class));
+    shadowAudioManager.addOutputDevice(
+        AudioDeviceInfoBuilder.newBuilder().setType(deviceTypes).build(),
+        notifyAudioDeviceCallbacks);
+  }
+
+  private void removeConnectedAudioOutput(int deviceType) {
+    ShadowAudioManager shadowAudioManager =
+        shadowOf(ApplicationProvider.getApplicationContext().getSystemService(AudioManager.class));
+    stream(shadowAudioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS))
+        .filter(audioDeviceInfo -> deviceType == audioDeviceInfo.getType())
+        .findFirst()
+        .ifPresent(
+            filteredAudioDeviceInfo ->
+                shadowAudioManager.removeOutputDevice(
+                    filteredAudioDeviceInfo, /* notifyAudioDeviceCallbacks= */ true));
   }
 }

@@ -15,6 +15,9 @@
  */
 package androidx.media3.ui;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
+import static java.util.concurrent.TimeUnit.MINUTES;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -23,9 +26,14 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.provider.Settings;
+import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
+import androidx.media3.common.C;
 import androidx.media3.common.Player;
 import androidx.media3.common.Player.Events;
+import androidx.media3.common.util.Clock;
+import androidx.media3.common.util.SystemClock;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import java.util.List;
@@ -33,7 +41,9 @@ import java.util.List;
 /**
  * A {@link Player.Listener} that launches a system dialog in response to {@link
  * Player#PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT} to allow the user to connect a
- * suitable audio output.
+ * suitable audio output. Also, it auto-resumes the playback when the playback suppression reason is
+ * changed from {@link Player#PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT} to {@link
+ * Player#PLAYBACK_SUPPRESSION_REASON_NONE}.
  *
  * <p>This listener only reacts to {@link
  * Player#PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT} on Wear OS devices, while being no-op
@@ -84,15 +94,56 @@ public final class WearUnsuitableOutputPlaybackSuppressionResolverListener
    */
   private static final int FILTER_TYPE_AUDIO = 1;
 
-  private Context applicationContext;
+  /**
+   * The default timeout for auto-resume of suppressed playback when the playback suppression reason
+   * as {@link Player#PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT} is removed, in
+   * milliseconds.
+   */
+  public static final long DEFAULT_PLAYBACK_SUPPRESSION_AUTO_RESUME_TIMEOUT_MS =
+      MINUTES.toMillis(5);
+
+  private final Context applicationContext;
+  private final long autoResumeTimeoutAfterUnsuitableOutputSuppressionMs;
+  private final Clock clock;
+
+  private long unsuitableOutputPlaybackSuppressionStartRealtimeMs;
 
   /**
-   * Creates a new {@link WearUnsuitableOutputPlaybackSuppressionResolverListener} instance.
+   * Creates a new instance.
+   *
+   * <p>See {@link #WearUnsuitableOutputPlaybackSuppressionResolverListener(Context, long)} for more
+   * details. The auto-resume timeout defaults to {@link
+   * #DEFAULT_PLAYBACK_SUPPRESSION_AUTO_RESUME_TIMEOUT_MS}.
    *
    * @param context Any context.
    */
   public WearUnsuitableOutputPlaybackSuppressionResolverListener(Context context) {
+    this(context, DEFAULT_PLAYBACK_SUPPRESSION_AUTO_RESUME_TIMEOUT_MS);
+  }
+
+  /**
+   * Creates a new instance.
+   *
+   * @param context Any context.
+   * @param autoResumeTimeoutMs Duration in milliseconds after the playback suppression during which
+   *     playback will be resumed automatically if the playback suppression reason is changed from
+   *     {@link Player#PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT} to {@link
+   *     Player#PLAYBACK_SUPPRESSION_REASON_NONE}. Calling with {@code autoResumeTimeoutMs = 0} will
+   *     cause playback to never resume automatically.
+   */
+  public WearUnsuitableOutputPlaybackSuppressionResolverListener(
+      Context context, @IntRange(from = 0) long autoResumeTimeoutMs) {
+    this(context, autoResumeTimeoutMs, SystemClock.DEFAULT);
+  }
+
+  @VisibleForTesting
+  /* package */ WearUnsuitableOutputPlaybackSuppressionResolverListener(
+      Context context, @IntRange(from = 0) long autoResumeTimeoutMs, Clock clock) {
+    checkArgument(autoResumeTimeoutMs >= 0);
     applicationContext = context.getApplicationContext();
+    autoResumeTimeoutAfterUnsuitableOutputSuppressionMs = autoResumeTimeoutMs;
+    this.clock = clock;
+    unsuitableOutputPlaybackSuppressionStartRealtimeMs = C.TIME_UNSET;
   }
 
   @Override
@@ -100,12 +151,23 @@ public final class WearUnsuitableOutputPlaybackSuppressionResolverListener
     if (!Util.isWear(applicationContext)) {
       return;
     }
-    if (events.contains(Player.EVENT_PLAY_WHEN_READY_CHANGED)
+    if ((events.contains(Player.EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED)
+            || events.contains(Player.EVENT_PLAY_WHEN_READY_CHANGED))
         && player.getPlayWhenReady()
         && player.getPlaybackSuppressionReason()
             == Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT) {
       player.pause();
-      launchSystemMediaOutputSwitcherUi(applicationContext);
+      if (events.contains(Player.EVENT_PLAY_WHEN_READY_CHANGED)) {
+        launchSystemMediaOutputSwitcherUi(applicationContext);
+        unsuitableOutputPlaybackSuppressionStartRealtimeMs = clock.elapsedRealtime();
+      }
+    } else if (events.contains(Player.EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED)
+        && player.getPlaybackSuppressionReason() == Player.PLAYBACK_SUPPRESSION_REASON_NONE
+        && unsuitableOutputPlaybackSuppressionStartRealtimeMs != C.TIME_UNSET
+        && (clock.elapsedRealtime() - unsuitableOutputPlaybackSuppressionStartRealtimeMs
+            < autoResumeTimeoutAfterUnsuitableOutputSuppressionMs)) {
+      unsuitableOutputPlaybackSuppressionStartRealtimeMs = C.TIME_UNSET;
+      player.play();
     }
   }
 

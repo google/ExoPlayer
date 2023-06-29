@@ -79,7 +79,9 @@
         playback suppression due to
         `Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT` by
         launching a system dialog to allow a user to connect a suitable audio
-        output (e.g. bluetooth headphones).
+        output (e.g. bluetooth headphones). The listener will auto-resume
+        playback if a suitable device is connected within a configurable timeout
+        (default is 5 minutes).
 *   Downloads:
 *   OkHttp Extension:
 *   Cronet Extension:
