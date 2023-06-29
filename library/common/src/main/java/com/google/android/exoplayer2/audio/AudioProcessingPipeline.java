@@ -174,7 +174,12 @@ public final class AudioProcessingPipeline {
     }
   }
 
-  /** Returns the {@link AudioFormat} currently being output. */
+  /**
+   * Returns the {@link AudioFormat} of data being output through {@link #getOutput()}.
+   *
+   * @return The {@link AudioFormat} currently being output, or {@link AudioFormat#NOT_SET} if no
+   *     {@linkplain #configure(AudioFormat) configuration} has been {@linkplain #flush() applied}.
+   */
   public AudioFormat getOutputAudioFormat() {
     return outputAudioFormat;
   }

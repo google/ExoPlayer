@@ -72,68 +72,68 @@ sample:
   presentationTimeUs = 970680
 sample:
   trackIndex = 0
-  dataHashCode = 2042155098
-  size = 6482
+  dataHashCode = 2002762528
+  size = 6450
   isKeyFrame = true
   presentationTimeUs = 999931
 sample:
   trackIndex = 0
-  dataHashCode = 1417355469
-  size = 8556
+  dataHashCode = -657557348
+  size = 9288
   isKeyFrame = true
-  presentationTimeUs = 1073424
+  presentationTimeUs = 1073061
 sample:
   trackIndex = 0
-  dataHashCode = -2107697498
-  size = 8754
+  dataHashCode = 1101737790
+  size = 8026
   isKeyFrame = true
-  presentationTimeUs = 1170430
+  presentationTimeUs = 1178367
 sample:
   trackIndex = 0
-  dataHashCode = 736072795
-  size = 8908
+  dataHashCode = 942749699
+  size = 9580
   isKeyFrame = true
-  presentationTimeUs = 1269682
+  presentationTimeUs = 1269365
 sample:
   trackIndex = 0
-  dataHashCode = -1913553170
-  size = 9208
+  dataHashCode = 1696779430
+  size = 9176
   isKeyFrame = true
-  presentationTimeUs = 1370680
+  presentationTimeUs = 1377981
 sample:
   trackIndex = 0
-  dataHashCode = 13583718
-  size = 8968
+  dataHashCode = -1146784158
+  size = 7898
   isKeyFrame = true
-  presentationTimeUs = 1475079
+  presentationTimeUs = 1482018
 sample:
   trackIndex = 0
-  dataHashCode = -1444602526
-  size = 8588
+  dataHashCode = -108739018
+  size = 9244
   isKeyFrame = true
-  presentationTimeUs = 1576757
+  presentationTimeUs = 1571564
 sample:
   trackIndex = 0
-  dataHashCode = -1693065958
-  size = 8778
+  dataHashCode = 1527742727
+  size = 8614
   isKeyFrame = true
-  presentationTimeUs = 1674126
+  presentationTimeUs = 1676371
 sample:
   trackIndex = 0
-  dataHashCode = 2071205641
-  size = 8736
+  dataHashCode = -771072152
+  size = 8408
   isKeyFrame = true
-  presentationTimeUs = 1773650
+  presentationTimeUs = 1774036
 sample:
   trackIndex = 0
-  dataHashCode = 1433538831
-  size = 8636
+  dataHashCode = -307907100
+  size = 10212
   isKeyFrame = true
-  presentationTimeUs = 1872698
+  presentationTimeUs = 1869365
 sample:
   trackIndex = 0
-  dataHashCode = 992130724
-  size = 2580
+  dataHashCode = -2024887086
+  size = 1312
   isKeyFrame = true
-  presentationTimeUs = 1970612
+  presentationTimeUs = 1985147
 released = true

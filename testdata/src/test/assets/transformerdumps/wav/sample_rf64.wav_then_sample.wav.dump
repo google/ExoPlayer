@@ -1,0 +1,97 @@
+format 0:
+  averageBitrate = 131072
+  sampleMimeType = audio/mp4a-latm
+  channelCount = 2
+  sampleRate = 48000
+  pcmEncoding = 2
+sample:
+  trackIndex = 0
+  dataHashCode = -278103001
+  size = 19200
+  isKeyFrame = true
+  presentationTimeUs = 0
+sample:
+  trackIndex = 0
+  dataHashCode = 1522105084
+  size = 19200
+  isKeyFrame = true
+  presentationTimeUs = 100000
+sample:
+  trackIndex = 0
+  dataHashCode = 932319027
+  size = 19200
+  isKeyFrame = true
+  presentationTimeUs = 200000
+sample:
+  trackIndex = 0
+  dataHashCode = 325000240
+  size = 9336
+  isKeyFrame = true
+  presentationTimeUs = 300000
+sample:
+  trackIndex = 0
+  dataHashCode = -717358295
+  size = 19196
+  isKeyFrame = true
+  presentationTimeUs = 348625
+sample:
+  trackIndex = 0
+  dataHashCode = -877978019
+  size = 19200
+  isKeyFrame = true
+  presentationTimeUs = 448604
+sample:
+  trackIndex = 0
+  dataHashCode = 903565693
+  size = 19200
+  isKeyFrame = true
+  presentationTimeUs = 548604
+sample:
+  trackIndex = 0
+  dataHashCode = -1424006305
+  size = 19200
+  isKeyFrame = true
+  presentationTimeUs = 648604
+sample:
+  trackIndex = 0
+  dataHashCode = -1450884853
+  size = 19200
+  isKeyFrame = true
+  presentationTimeUs = 748604
+sample:
+  trackIndex = 0
+  dataHashCode = 1566382623
+  size = 19200
+  isKeyFrame = true
+  presentationTimeUs = 848604
+sample:
+  trackIndex = 0
+  dataHashCode = -510424155
+  size = 19200
+  isKeyFrame = true
+  presentationTimeUs = 948604
+sample:
+  trackIndex = 0
+  dataHashCode = 13706341
+  size = 19200
+  isKeyFrame = true
+  presentationTimeUs = 1048604
+sample:
+  trackIndex = 0
+  dataHashCode = -1421600077
+  size = 19200
+  isKeyFrame = true
+  presentationTimeUs = 1148604
+sample:
+  trackIndex = 0
+  dataHashCode = 722747579
+  size = 19200
+  isKeyFrame = true
+  presentationTimeUs = 1248604
+sample:
+  trackIndex = 0
+  dataHashCode = 326119
+  size = 4
+  isKeyFrame = true
+  presentationTimeUs = 1348604
+released = true

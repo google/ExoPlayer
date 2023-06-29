@@ -1,0 +1,109 @@
+format 0:
+  averageBitrate = 131072
+  sampleMimeType = audio/mp4a-latm
+  channelCount = 2
+  sampleRate = 48000
+  pcmEncoding = 2
+sample:
+  trackIndex = 0
+  dataHashCode = -226169394
+  size = 15528
+  isKeyFrame = true
+  presentationTimeUs = 0
+sample:
+  trackIndex = 0
+  dataHashCode = -1654106973
+  size = 17436
+  isKeyFrame = true
+  presentationTimeUs = 80875
+sample:
+  trackIndex = 0
+  dataHashCode = 1078555669
+  size = 19384
+  isKeyFrame = true
+  presentationTimeUs = 171687
+sample:
+  trackIndex = 0
+  dataHashCode = -1783495042
+  size = 8904
+  isKeyFrame = true
+  presentationTimeUs = 272645
+sample:
+  trackIndex = 0
+  dataHashCode = 1369234850
+  size = 5688
+  isKeyFrame = true
+  presentationTimeUs = 319020
+sample:
+  trackIndex = 0
+  dataHashCode = 711439073
+  size = 14040
+  isKeyFrame = true
+  presentationTimeUs = 348645
+sample:
+  trackIndex = 0
+  dataHashCode = -555451391
+  size = 20216
+  isKeyFrame = true
+  presentationTimeUs = 421770
+sample:
+  trackIndex = 0
+  dataHashCode = 1700905759
+  size = 17472
+  isKeyFrame = true
+  presentationTimeUs = 527062
+sample:
+  trackIndex = 0
+  dataHashCode = -416119019
+  size = 20856
+  isKeyFrame = true
+  presentationTimeUs = 618062
+sample:
+  trackIndex = 0
+  dataHashCode = -2060733789
+  size = 19976
+  isKeyFrame = true
+  presentationTimeUs = 726687
+sample:
+  trackIndex = 0
+  dataHashCode = 212454167
+  size = 17192
+  isKeyFrame = true
+  presentationTimeUs = 830729
+sample:
+  trackIndex = 0
+  dataHashCode = 956501205
+  size = 20124
+  isKeyFrame = true
+  presentationTimeUs = 920270
+sample:
+  trackIndex = 0
+  dataHashCode = 299859135
+  size = 18748
+  isKeyFrame = true
+  presentationTimeUs = 1025083
+sample:
+  trackIndex = 0
+  dataHashCode = 636945085
+  size = 18304
+  isKeyFrame = true
+  presentationTimeUs = 1122729
+sample:
+  trackIndex = 0
+  dataHashCode = -754285165
+  size = 22232
+  isKeyFrame = true
+  presentationTimeUs = 1218062
+sample:
+  trackIndex = 0
+  dataHashCode = -1967816889
+  size = 2856
+  isKeyFrame = true
+  presentationTimeUs = 1333854
+sample:
+  trackIndex = 0
+  dataHashCode = 1012987
+  size = 4
+  isKeyFrame = true
+  presentationTimeUs = 1348729
+released = true
