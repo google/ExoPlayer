@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.effect.DefaultVideoFrameProcessor;
 import com.google.android.exoplayer2.effect.FrameDropEffect;
 import com.google.android.exoplayer2.testutil.VideoFrameProcessorTestRunner;
+import com.google.android.exoplayer2.transformer.TextureBitmapReader;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.android.exoplayer2.video.ColorInfo;
@@ -170,7 +171,7 @@ public class FrameDropPixelTest {
             .setTextureOutput(
                 (outputTexture, presentationTimeUs, releaseOutputTextureCallback, token) ->
                     checkNotNull(textureBitmapReader)
-                        .readBitmapFromTexture(
+                        .readBitmapAndReleaseTexture(
                             outputTexture, presentationTimeUs, releaseOutputTextureCallback),
                 /* textureOutputCapacity= */ 1)
             .build();

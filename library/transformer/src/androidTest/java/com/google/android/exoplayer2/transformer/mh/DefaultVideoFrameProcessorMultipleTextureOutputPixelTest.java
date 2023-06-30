@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.effect.DefaultVideoFrameProcessor;
 import com.google.android.exoplayer2.testutil.BitmapPixelTestUtil;
 import com.google.android.exoplayer2.testutil.VideoFrameProcessorTestRunner;
+import com.google.android.exoplayer2.transformer.TextureBitmapReader;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.android.exoplayer2.video.ColorInfo;
 import java.util.Set;
@@ -138,9 +139,12 @@ public class DefaultVideoFrameProcessorMultipleTextureOutputPixelTest {
     VideoFrameProcessor.Factory defaultVideoFrameProcessorFactory =
         new DefaultVideoFrameProcessor.Factory.Builder()
             .setTextureOutput(
-                (outputTexture, presentationTimeUs, releaseOutputTextureCallback, token) ->
+                (outputTexture,
+                    presentationTimeUs,
+                    releaseOutputTextureCallback,
+                    unusedSyncObject) ->
                     checkNotNull(textureBitmapReader)
-                        .readBitmapFromTexture(
+                        .readBitmapAndReleaseTexture(
                             outputTexture, presentationTimeUs, releaseOutputTextureCallback),
                 /* textureOutputCapacity= */ 1)
             .build();

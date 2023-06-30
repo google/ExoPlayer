@@ -42,6 +42,7 @@ import com.google.android.exoplayer2.testutil.BitmapPixelTestUtil;
 import com.google.android.exoplayer2.testutil.VideoFrameProcessorTestRunner;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
 import com.google.android.exoplayer2.transformer.EncoderUtil;
+import com.google.android.exoplayer2.transformer.TextureBitmapReader;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.GlObjectsProvider;
 import com.google.android.exoplayer2.util.GlTextureInfo;
@@ -533,8 +534,11 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
     DefaultVideoFrameProcessor.Factory defaultVideoFrameProcessorFactory =
         new DefaultVideoFrameProcessor.Factory.Builder()
             .setTextureOutput(
-                (outputTexture, presentationTimeUs1, releaseOutputTextureCallback1, token1) ->
-                    bitmapReader.readBitmapFromTexture(
+                (outputTexture,
+                    presentationTimeUs1,
+                    releaseOutputTextureCallback1,
+                    unusedSyncObject) ->
+                    bitmapReader.readBitmapAndReleaseTexture(
                         outputTexture, presentationTimeUs1, releaseOutputTextureCallback1),
                 /* textureOutputCapacity= */ 1)
             .setGlObjectsProvider(contextSharingGlObjectsProvider)
@@ -565,8 +569,11 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
     DefaultVideoFrameProcessor.Factory defaultVideoFrameProcessorFactory =
         new DefaultVideoFrameProcessor.Factory.Builder()
             .setTextureOutput(
-                (outputTexture, presentationTimeUs, releaseOutputTextureCallback, token) ->
-                    textureBitmapReader.readBitmapFromTexture(
+                (outputTexture,
+                    presentationTimeUs,
+                    releaseOutputTextureCallback,
+                    unusedSyncObject) ->
+                    textureBitmapReader.readBitmapAndReleaseTexture(
                         outputTexture, presentationTimeUs, releaseOutputTextureCallback),
                 /* textureOutputCapacity= */ 1)
             .build();
