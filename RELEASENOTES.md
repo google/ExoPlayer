@@ -68,6 +68,10 @@
     *   Allow `MediaCodecVideoRenderer` to use a custom
         `VideoFrameProcessor.Factory`.
 *   Text:
+    *   CEA-608: Change cue truncation logic to only consider visible text.
+        Previously indent and tab offset were included when limiting the cue
+        length to 32 characters (which was technically correct by the spec)
+        ([#11019](https://github.com/google/ExoPlayer/issues/11019)).
 *   Metadata:
 *   DRM:
 *   Effect:
