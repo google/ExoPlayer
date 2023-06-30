@@ -1608,24 +1608,6 @@ public final class Util {
   }
 
   /**
-   * Truncates a sequence of ASCII characters to a maximum length.
-   *
-   * <p>This preserves span styling in the {@link CharSequence}. If that's not important, use {@link
-   * Ascii#truncate(CharSequence, int, String)}.
-   *
-   * <p><b>Note:</b> This is not safe to use in general on Unicode text because it may separate
-   * characters from combining characters or split up surrogate pairs.
-   *
-   * @param sequence The character sequence to truncate.
-   * @param maxLength The max length to truncate to.
-   * @return {@code sequence} directly if {@code sequence.length() <= maxLength}, otherwise {@code
-   *     sequence.subsequence(0, maxLength}.
-   */
-  public static CharSequence truncateAscii(CharSequence sequence, int maxLength) {
-    return sequence.length() <= maxLength ? sequence : sequence.subSequence(0, maxLength);
-  }
-
-  /**
    * Returns a byte array containing values parsed from the hex string provided.
    *
    * @param hexString The hex string to convert to bytes.
