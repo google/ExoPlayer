@@ -13131,11 +13131,11 @@ public final class ExoPlayerTest {
   }
 
   /**
-   * Tests playback suppression for playback with only unsuitable route (e.g. builtin speaker) on
-   * Wear OS.
+   * Tests playback suppression for playback with only unsuitable outputs (e.g. builtin speaker) on
+   * the Wear OS.
    */
   @Test
-  public void play_withNoSuitableMediaRouteOnWear_shouldSuppressPlayback() throws Exception {
+  public void play_withOnlyUnsuitableOutputsOnWear_shouldSuppressPlayback() throws Exception {
     addWatchAsSystemFeature();
     setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
     List<Integer> playbackSuppressionList = new ArrayList<>();
@@ -13165,10 +13165,11 @@ public final class ExoPlayerTest {
   }
 
   /**
-   * Tests playback suppression for playback with suitable route (e.g. BluetoothA2DP) on Wear OS.
+   * Tests no playback suppression for playback with suitable output (e.g. BluetoothA2DP) on the
+   * Wear OS.
    */
   @Test
-  public void play_withNoSuitableMediaRouteOnWear_shouldNotSuppressPlayback() throws Exception {
+  public void play_withAtleastOneSuitableOutputOnWear_shouldNotSuppressPlayback() throws Exception {
     addWatchAsSystemFeature();
     setupConnectedAudioOutput(
         AudioDeviceInfo.TYPE_BUILTIN_SPEAKER, AudioDeviceInfo.TYPE_BLUETOOTH_A2DP);
@@ -13198,12 +13199,12 @@ public final class ExoPlayerTest {
   }
 
   /**
-   * Tests playback suppression for multiple play calls with only unsuitable route (e.g. builtin
-   * speaker) on Wear OS.
+   * Tests same playback suppression reason for multiple play calls with only unsuitable output
+   * (e.g. builtin speaker) on the Wear OS.
    */
   @Test
   public void
-      play_call2TimesWithSubsequentPauseWithNoSuitableRouteOnWear_shouldSuppressionPlayback2Times()
+      play_callMultipleTimesOnUnsuitableOutputFollowedByPause_shouldRetainSameSuppressionReason()
           throws Exception {
     addWatchAsSystemFeature();
     setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
@@ -13239,7 +13240,7 @@ public final class ExoPlayerTest {
 
   /** Tests playback suppression for playback on the built-speaker on non-Wear OS surfaces. */
   @Test
-  public void play_onBuiltinSpeakerWithoutWearSystemFeature_shouldNotSuppressPlayback()
+  public void play_onBuiltinSpeakerWithoutWearPresentAsSystemFeature_shouldNotSuppressPlayback()
       throws Exception {
     setupConnectedAudioOutput(
         AudioDeviceInfo.TYPE_BUILTIN_SPEAKER, AudioDeviceInfo.TYPE_BLUETOOTH_A2DP);
@@ -13269,13 +13270,13 @@ public final class ExoPlayerTest {
   }
 
   /**
-   * Tests playback suppression for playback with only unsuitable route (e.g. builtin speaker) on
-   * Wear OS but {@link ExoPlayer.Builder#setSuppressPlaybackOnUnsuitableOutput(boolean)} is not
-   * called with parameter as TRUE.
+   * Tests playback suppression for playback with only unsuitable audio outputs (e.g. builtin
+   * speaker) on Wear OS but {@link
+   * ExoPlayer.Builder#setSuppressPlaybackOnUnsuitableOutput(boolean)} is not called with true.
    */
   @Test
   public void
-      play_withOnlyUnsuitableRoutesWithoutEnablingPlaybackSuppression_shouldNotSuppressPlayback()
+      play_withOnlyUnsuitableOutputsWithoutEnablingPlaybackSuppression_shouldNotSuppressPlayback()
           throws Exception {
     addWatchAsSystemFeature();
     setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
@@ -13305,10 +13306,11 @@ public final class ExoPlayerTest {
 
   /**
    * Tests removal of playback suppression reason as {@link
-   * Player#PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT} when a suitable device is added.
+   * Player#PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT} when a suitable audio output is
+   * added.
    */
   @Test
-  public void addSuitableDevicesWhenPlaybackSuppressed_shouldRemovePlaybackSuppression()
+  public void addSuitableOutputWhenPlaybackSuppressed_shouldRemovePlaybackSuppression()
       throws Exception {
     addWatchAsSystemFeature();
     setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
@@ -13342,11 +13344,11 @@ public final class ExoPlayerTest {
   }
 
   /**
-   * Tests no change in the playback suppression reason when an unsuitable device is connected while
-   * playback was suppressed earlier.
+   * Tests no change in the playback suppression reason when an unsuitable audio output is connected
+   * while playback was suppressed earlier.
    */
   @Test
-  public void addUnsuitableDevicesWithPlaybackSuppressed_shouldNotRemovePlaybackSuppression()
+  public void addUnsuitableOutputWhenPlaybackIsSuppressed_shouldNotRemovePlaybackSuppression()
       throws Exception {
     addWatchAsSystemFeature();
     setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
@@ -13376,11 +13378,11 @@ public final class ExoPlayerTest {
   }
 
   /**
-   * Tests no change in the playback suppression reason when a suitable device is added but playback
-   * was not suppressed earlier.
+   * Tests no change in the playback suppression reason when a suitable audio output is added but
+   * playback was not suppressed earlier.
    */
   @Test
-  public void addSuitableDevicesWhenPlaybackNotSuppressed_shouldNotRemovePlaybackSuppression()
+  public void addSuitableOutputWhenPlaybackNotSuppressed_shouldNotRemovePlaybackSuppression()
       throws Exception {
     addWatchAsSystemFeature();
     setupConnectedAudioOutput(AudioDeviceInfo.TYPE_BUILTIN_SPEAKER);
@@ -13414,7 +13416,7 @@ public final class ExoPlayerTest {
    * have been removed during an ongoing playback.
    */
   @Test
-  public void removeAllSuitableDevicesWhenPlaybackOngoing_shouldSetPlaybackSuppression()
+  public void removeAllSuitableOutputsWhenPlaybackOngoing_shouldSetPlaybackSuppression()
       throws Exception {
     addWatchAsSystemFeature();
     setupConnectedAudioOutput(
@@ -13446,10 +13448,10 @@ public final class ExoPlayerTest {
 
   /**
    * Tests no change in the playback suppression reason when any unsuitable audio outputs has been
-   * removed during an ongoing playback.
+   * removed during an ongoing playback but some suitable audio outputs are still available.
    */
   @Test
-  public void removeAnyUnsuitableDevicesWhenPlaybackOngoing_shouldNotSetPlaybackSuppression()
+  public void removeAnyUnsuitableOutputWhenPlaybackOngoing_shouldNotSetPlaybackSuppression()
       throws Exception {
     addWatchAsSystemFeature();
     setupConnectedAudioOutput(
@@ -13484,12 +13486,12 @@ public final class ExoPlayerTest {
 
   /**
    * Tests no change in the playback suppression reason when any suitable audio outputs has been
-   * removed during an ongoing playback but at least one suitable audio output is still connected to
-   * the device.
+   * removed during an ongoing playback but at least one another suitable audio output is still
+   * connected to the device.
    */
   @Test
   public void
-      removeAnySuitableDeviceButOneSuitableDeviceStillConnected_shouldNotSetPlaybackSuppression()
+      removeAnySuitableOutputButOneSuitableDeviceStillConnected_shouldNotSetPlaybackSuppression()
           throws Exception {
     addWatchAsSystemFeature();
     setupConnectedAudioOutput(
