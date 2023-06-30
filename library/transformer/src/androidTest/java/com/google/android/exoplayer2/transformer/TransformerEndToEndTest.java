@@ -503,9 +503,10 @@ public class TransformerEndToEndTest {
         EditedMediaItem editedMediaItem, Looper looper, AssetLoader.Listener listener) {
       Format format = new Format.Builder().setWidth(width).setHeight(height).build();
       OnInputFrameProcessedListener frameProcessedListener =
-          (texId, unused) -> {
+          (texId, syncObject) -> {
             try {
               GlUtil.deleteTexture(texId);
+              GlUtil.deleteSyncObject(syncObject);
             } catch (GlUtil.GlException e) {
               throw new VideoFrameProcessingException(e);
             }

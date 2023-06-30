@@ -46,7 +46,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private @MonotonicNonNull OnInputFrameProcessedListener frameProcessedListener;
   private @MonotonicNonNull FrameInfo inputFrameInfo;
-  private long glSyncObject;
 
   /**
    * Creates a new instance.
@@ -74,11 +73,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   public void onInputFrameProcessed(GlTextureInfo inputTexture) {
     videoFrameProcessingTaskExecutor.submit(
-        () -> {
-          glSyncObject = GlUtil.createGlSyncFence();
-          checkNotNull(frameProcessedListener)
-              .onInputFrameProcessed(inputTexture.getTexId(), glSyncObject);
-        });
+        () ->
+            checkNotNull(frameProcessedListener)
+                .onInputFrameProcessed(inputTexture.getTexId(), GlUtil.createGlSyncFence()));
   }
 
   @Override
@@ -134,10 +131,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public void release() throws VideoFrameProcessingException {
-    try {
-      GlUtil.deleteSyncObject(glSyncObject);
-    } catch (GlUtil.GlException e) {
-      throw new VideoFrameProcessingException(e);
-    }
+    // Do nothing.
   }
 }
