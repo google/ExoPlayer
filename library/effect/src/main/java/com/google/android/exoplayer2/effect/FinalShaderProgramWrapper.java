@@ -25,7 +25,6 @@ import android.opengl.EGLDisplay;
 import android.opengl.EGLExt;
 import android.opengl.EGLSurface;
 import android.opengl.GLES20;
-import android.opengl.GLES30;
 import android.util.Pair;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -100,6 +99,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final Queue<Pair<GlTextureInfo, Long>> availableFrames;
   private final TexturePool outputTexturePool;
   private final Queue<Long> outputTextureTimestamps; // Synchronized with outputTexturePool.
+  private final Queue<Long> syncObjects;
   @Nullable private final DefaultVideoFrameProcessor.TextureOutputListener textureOutputListener;
 
   private int inputWidth;
@@ -113,7 +113,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable private SurfaceView debugSurfaceView;
   @Nullable private OnInputStreamProcessedListener onInputStreamProcessedListener;
   private boolean matrixTransformationsChanged;
-  private long syncObject;
 
   @GuardedBy("this")
   private boolean outputSurfaceInfoChanged;
@@ -160,6 +159,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     boolean useHighPrecisionColorComponents = ColorInfo.isTransferHdr(outputColorInfo);
     outputTexturePool = new TexturePool(useHighPrecisionColorComponents, textureOutputCapacity);
     outputTextureTimestamps = new ArrayDeque<>(textureOutputCapacity);
+    syncObjects = new ArrayDeque<>(textureOutputCapacity);
   }
 
   @Override
@@ -244,11 +244,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     videoFrameProcessingTaskExecutor.submit(() -> releaseOutputFrameInternal(presentationTimeUs));
   }
 
-  private void releaseOutputFrameInternal(long presentationTimeUs) {
+  private void releaseOutputFrameInternal(long presentationTimeUs) throws GlUtil.GlException {
     while (outputTexturePool.freeTextureCount() < outputTexturePool.capacity()
         && checkNotNull(outputTextureTimestamps.peek()) <= presentationTimeUs) {
       outputTexturePool.freeTexture();
       outputTextureTimestamps.remove();
+      GlUtil.deleteSyncObject(syncObjects.remove());
       maybeOnReadyToAcceptInputFrame();
     }
   }
@@ -272,7 +273,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     try {
       outputTexturePool.deleteAllTextures();
       GlUtil.destroyEglSurface(eglDisplay, outputEglSurface);
-      GLES30.glDeleteSync(syncObject);
       GlUtil.checkGlError();
     } catch (GlUtil.GlException e) {
       throw new VideoFrameProcessingException(e);
@@ -391,7 +391,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         outputTexture.getFboId(), outputTexture.getWidth(), outputTexture.getHeight());
     GlUtil.clearFocusedBuffers();
     checkNotNull(defaultShaderProgram).drawFrame(inputTexture.getTexId(), presentationTimeUs);
-    syncObject = GlUtil.createGlSyncFence();
+    long syncObject = GlUtil.createGlSyncFence();
+    syncObjects.add(syncObject);
     checkNotNull(textureOutputListener)
         .onTextureRendered(outputTexture, presentationTimeUs, this::releaseOutputFrame, syncObject);
   }

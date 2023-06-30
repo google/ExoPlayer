@@ -66,10 +66,6 @@ import org.junit.runner.RunWith;
 // TODO(b/263395272): Move this test to effects/mh tests, and remove @TestOnly dependencies.
 @RunWith(AndroidJUnit4.class)
 public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
-
-  // Documentation reference:
-  // https://registry.khronos.org/OpenGL-Refpages/es3.0/html/glFenceSync.xhtml
-  private static final long GL_FENCE_SYNC_FAILED = 0;
   private static final String ORIGINAL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/original.png";
   private static final String BITMAP_OVERLAY_PNG_ASSET_PATH =

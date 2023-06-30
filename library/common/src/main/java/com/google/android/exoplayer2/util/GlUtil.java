@@ -92,6 +92,8 @@ public final class GlUtil {
         EGL14.EGL_NONE
       };
 
+  // https://registry.khronos.org/OpenGL-Refpages/es3.0/html/glFenceSync.xhtml
+  private static final long GL_FENCE_SYNC_FAILED = 0;
   // https://www.khronos.org/registry/EGL/extensions/EXT/EGL_EXT_protected_content.txt
   private static final String EXTENSION_PROTECTED_CONTENT = "EGL_EXT_protected_content";
   // https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_surfaceless_context.txt
@@ -417,7 +419,7 @@ public final class GlUtil {
    * CPU, and only affects the current OpenGL context. Otherwise, this will block the CPU.
    */
   public static void awaitSyncObject(long syncObject) throws GlException {
-    if (syncObject == 0) {
+    if (syncObject == GL_FENCE_SYNC_FAILED) {
       // Fallback to using glFinish for synchronization when fence creation failed.
       GLES20.glFinish();
     } else {
