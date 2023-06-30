@@ -728,7 +728,9 @@ public final class GlUtil {
 
   private static void checkEglException(String errorMessage) throws GlException {
     int error = EGL14.eglGetError();
-    checkGlException(error == EGL14.EGL_SUCCESS, errorMessage + ", error code: " + error);
+    if (error != EGL14.EGL_SUCCESS) {
+      throw new GlException(errorMessage + ", error code: 0x" + Integer.toHexString(error));
+    }
   }
 
   @RequiresApi(17)
