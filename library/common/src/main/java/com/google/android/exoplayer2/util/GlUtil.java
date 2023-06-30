@@ -381,7 +381,8 @@ public final class GlUtil {
   /**
    * Returns a newly created sync object and inserts it into the GL command stream.
    *
-   * <p>Returns 0 if the operation failed or the {@link EGLContext} version is less than 3.0.
+   * <p>Returns {@code 0} if the operation failed or the {@link EGLContext} version is less than
+   * 3.0.
    */
   public static long createGlSyncFence() throws GlException {
     int[] currentEglContextVersion = new int[1];
@@ -411,13 +412,18 @@ public final class GlUtil {
   }
 
   /**
-   * Ensures that the following commands on the current OpenGL context will not be executed until
-   * the sync point has been reached. This does not block the CPU, and only affects the current
-   * OpenGL context.
+   * Ensures that following commands on the current OpenGL context will not be executed until the
+   * sync point has been reached. If {@code syncObject} equals {@code 0}, this does not block the
+   * CPU, and only affects the current OpenGL context. Otherwise, this will block the CPU.
    */
-  public static void waitOnGpu(long syncObject) throws GlException {
-    GLES30.glWaitSync(syncObject, /* flags= */ 0, GLES30.GL_TIMEOUT_IGNORED);
-    checkGlError();
+  public static void awaitSyncObject(long syncObject) throws GlException {
+    if (syncObject == 0) {
+      // Fallback to using glFinish for synchronization when fence creation failed.
+      GLES20.glFinish();
+    } else {
+      GLES30.glWaitSync(syncObject, /* flags= */ 0, GLES30.GL_TIMEOUT_IGNORED);
+      checkGlError();
+    }
   }
 
   /** Gets the current {@link EGLContext context}. */
