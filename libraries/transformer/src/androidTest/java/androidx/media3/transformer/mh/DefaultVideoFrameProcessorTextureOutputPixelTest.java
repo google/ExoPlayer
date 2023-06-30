@@ -32,7 +32,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.opengl.GLES20;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Effect;
 import androidx.media3.common.Format;
@@ -554,12 +553,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
             .setInputType(VideoFrameProcessor.INPUT_TYPE_TEXTURE_ID)
             .setEffects(effects)
             .build();
-    if (syncObject == GL_FENCE_SYNC_FAILED) {
-      // Fallback to using glFinish for synchronization when fence creation failed.
-      GLES20.glFinish();
-    } else {
-      GlUtil.waitOnGpu(syncObject);
-    }
+    GlUtil.awaitSyncObject(syncObject);
     videoFrameProcessorTestRunner.queueInputTexture(texture, presentationTimeUs);
     try {
       videoFrameProcessorTestRunner.endFrameProcessing(VIDEO_FRAME_PROCESSING_WAIT_MS / 2);
