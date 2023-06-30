@@ -385,10 +385,12 @@ import java.util.concurrent.TimeoutException;
       audioBecomingNoisyManager.setEnabled(builder.handleAudioBecomingNoisy);
       audioFocusManager = new AudioFocusManager(builder.context, eventHandler, componentListener);
       audioFocusManager.setAudioAttributes(builder.handleAudioFocus ? audioAttributes : null);
-      if (suppressPlaybackOnUnsuitableOutput) {
+      if (suppressPlaybackOnUnsuitableOutput && Util.SDK_INT >= 23) {
         audioManager = (AudioManager) applicationContext.getSystemService(Context.AUDIO_SERVICE);
-        audioManager.registerAudioDeviceCallback(
-            new NoSuitableOutputPlaybackSuppressionAudioDeviceCallback(), /* handler= */ null);
+        Api23.registerAudioDeviceCallback(
+            audioManager,
+            new NoSuitableOutputPlaybackSuppressionAudioDeviceCallback(),
+            new Handler(applicationLooper));
       }
       if (builder.deviceVolumeControlEnabled) {
         streamVolumeManager =
@@ -3328,6 +3330,7 @@ import java.util.concurrent.TimeoutException;
   private static final class Api23 {
     private Api23() {}
 
+    @DoNotInline
     public static boolean isSuitableAudioOutputPresentInAudioDeviceInfoList(
         Context context, AudioDeviceInfo[] audioDeviceInfos) {
       if (!Util.isWear(context)) {
@@ -3359,12 +3362,20 @@ import java.util.concurrent.TimeoutException;
       }
       return false;
     }
+
+    @DoNotInline
+    public static void registerAudioDeviceCallback(
+        AudioManager audioManager, AudioDeviceCallback audioDeviceCallback, Handler handler) {
+      audioManager.registerAudioDeviceCallback(audioDeviceCallback, handler);
+    }
   }
 
   /**
-   * A {@link AudioDeviceCallback} to handle auto-resume and auto-pause for playback suppression due
-   * to no suitable audio output.
+   * A {@link AudioDeviceCallback} to change playback suppression reason when suitable audio outputs
+   * are either added in unsuitable output based playback suppression state or removed during an
+   * ongoing playback.
    */
+  @RequiresApi(23)
   private final class NoSuitableOutputPlaybackSuppressionAudioDeviceCallback
       extends AudioDeviceCallback {
 
