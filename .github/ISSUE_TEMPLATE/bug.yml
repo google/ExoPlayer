@@ -122,7 +122,7 @@ body:
         * Attach a file here
         * Include a media URL
         * Refer to a piece of media from the demo app (e.g. `Misc > Dizzy (MP4)`)
-        * If you don't want to post media publicly please email the info to dev.exoplayer@gmail.com with subject 'Issue #\<issuenumber\>' after filing this issue, and note that you will do this here.
+        * If you don't want to post media publicly please email the info to android-media-github@google.com with subject 'Issue #\<issuenumber\>' after filing this issue, and note that you will do this here.
         * If you are certain the issue does not depend on the media being played, enter "Not applicable" here.
 
         For DRM-protected media please also include the scheme and license server URL.

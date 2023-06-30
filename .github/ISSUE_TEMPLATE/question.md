@@ -39,6 +39,6 @@ Don't forget to check ExoPlayer's supported formats and devices, if applicable
 (https://developer.android.com/guide/topics/media/exoplayer/supported-formats).
 
 If there's something you don't want to post publicly, please submit the issue,
-then email the link/bug report to dev.exoplayer@gmail.com using a subject in the
-format "Issue #1234", where #1234 is your issue number (we don't reply to
-emails).
+then email the link/bug report to android-media-github@google.com using a
+subject in the format "Issue #1234", where #1234 is your issue number (we don't
+reply to emails).
