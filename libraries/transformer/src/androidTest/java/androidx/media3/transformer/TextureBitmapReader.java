@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.media3.transformer.mh;
+package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
@@ -69,10 +69,7 @@ public final class TextureBitmapReader implements VideoFrameProcessorTestRunner.
     return outputTimestampsToBitmaps.keySet();
   }
 
-  public void readBitmapFromTexture(
-      GlTextureInfo outputTexture,
-      long presentationTimeUs,
-      DefaultVideoFrameProcessor.ReleaseOutputTextureCallback releaseOutputTextureCallback)
+  public void readBitmap(GlTextureInfo outputTexture, long presentationTimeUs)
       throws VideoFrameProcessingException {
     try {
       GlUtil.focusFramebufferUsingCurrentContext(
@@ -80,10 +77,18 @@ public final class TextureBitmapReader implements VideoFrameProcessorTestRunner.
       outputBitmap =
           createBitmapFromCurrentGlFrameBuffer(
               outputTexture.getWidth(), outputTexture.getHeight(), useHighPrecisionColorComponents);
+      outputTimestampsToBitmaps.put(presentationTimeUs, outputBitmap);
     } catch (GlUtil.GlException e) {
       throw new VideoFrameProcessingException(e);
     }
-    outputTimestampsToBitmaps.put(presentationTimeUs, outputBitmap);
+  }
+
+  public void readBitmapAndReleaseTexture(
+      GlTextureInfo outputTexture,
+      long presentationTimeUs,
+      DefaultVideoFrameProcessor.ReleaseOutputTextureCallback releaseOutputTextureCallback)
+      throws VideoFrameProcessingException, GlUtil.GlException {
+    readBitmap(outputTexture, presentationTimeUs);
     releaseOutputTextureCallback.release(presentationTimeUs);
   }
 

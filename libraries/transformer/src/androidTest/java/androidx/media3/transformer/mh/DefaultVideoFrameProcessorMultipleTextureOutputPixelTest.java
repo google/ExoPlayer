@@ -29,6 +29,7 @@ import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.effect.DefaultVideoFrameProcessor;
 import androidx.media3.test.utils.BitmapPixelTestUtil;
 import androidx.media3.test.utils.VideoFrameProcessorTestRunner;
+import androidx.media3.transformer.TextureBitmapReader;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.util.Set;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -138,9 +139,12 @@ public class DefaultVideoFrameProcessorMultipleTextureOutputPixelTest {
     VideoFrameProcessor.Factory defaultVideoFrameProcessorFactory =
         new DefaultVideoFrameProcessor.Factory.Builder()
             .setTextureOutput(
-                (outputTexture, presentationTimeUs, releaseOutputTextureCallback, token) ->
+                (outputTexture,
+                    presentationTimeUs,
+                    releaseOutputTextureCallback,
+                    unusedSyncObject) ->
                     checkNotNull(textureBitmapReader)
-                        .readBitmapFromTexture(
+                        .readBitmapAndReleaseTexture(
                             outputTexture, presentationTimeUs, releaseOutputTextureCallback),
                 /* textureOutputCapacity= */ 1)
             .build();

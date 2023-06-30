@@ -31,6 +31,7 @@ import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.effect.DefaultVideoFrameProcessor;
 import androidx.media3.effect.FrameDropEffect;
 import androidx.media3.test.utils.VideoFrameProcessorTestRunner;
+import androidx.media3.transformer.TextureBitmapReader;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -170,7 +171,7 @@ public class FrameDropPixelTest {
             .setTextureOutput(
                 (outputTexture, presentationTimeUs, releaseOutputTextureCallback, token) ->
                     checkNotNull(textureBitmapReader)
-                        .readBitmapFromTexture(
+                        .readBitmapAndReleaseTexture(
                             outputTexture, presentationTimeUs, releaseOutputTextureCallback),
                 /* textureOutputCapacity= */ 1)
             .build();

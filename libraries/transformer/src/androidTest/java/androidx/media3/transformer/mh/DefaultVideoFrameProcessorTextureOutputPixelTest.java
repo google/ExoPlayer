@@ -48,6 +48,7 @@ import androidx.media3.test.utils.BitmapPixelTestUtil;
 import androidx.media3.test.utils.VideoFrameProcessorTestRunner;
 import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.EncoderUtil;
+import androidx.media3.transformer.TextureBitmapReader;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
@@ -533,8 +534,11 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
     DefaultVideoFrameProcessor.Factory defaultVideoFrameProcessorFactory =
         new DefaultVideoFrameProcessor.Factory.Builder()
             .setTextureOutput(
-                (outputTexture, presentationTimeUs1, releaseOutputTextureCallback1, token1) ->
-                    bitmapReader.readBitmapFromTexture(
+                (outputTexture,
+                    presentationTimeUs1,
+                    releaseOutputTextureCallback1,
+                    unusedSyncObject) ->
+                    bitmapReader.readBitmapAndReleaseTexture(
                         outputTexture, presentationTimeUs1, releaseOutputTextureCallback1),
                 /* textureOutputCapacity= */ 1)
             .setGlObjectsProvider(contextSharingGlObjectsProvider)
@@ -565,8 +569,11 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
     DefaultVideoFrameProcessor.Factory defaultVideoFrameProcessorFactory =
         new DefaultVideoFrameProcessor.Factory.Builder()
             .setTextureOutput(
-                (outputTexture, presentationTimeUs, releaseOutputTextureCallback, token) ->
-                    textureBitmapReader.readBitmapFromTexture(
+                (outputTexture,
+                    presentationTimeUs,
+                    releaseOutputTextureCallback,
+                    unusedSyncObject) ->
+                    textureBitmapReader.readBitmapAndReleaseTexture(
                         outputTexture, presentationTimeUs, releaseOutputTextureCallback),
                 /* textureOutputCapacity= */ 1)
             .build();
