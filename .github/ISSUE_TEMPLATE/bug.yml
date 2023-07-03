@@ -132,8 +132,8 @@ body:
     attributes:
       label: Bug Report
       description: |
-        After filing this issue please run `adb bugreport` shortly after reproducing the problem (ideally in the [demo app](https://github.com/androidx/media/tree/release/demos/main)) to capture a zip file, and email this to dev.exoplayer@gmail.com with subject 'Issue #\<issuenumber\>'.
+        After filing this issue please run `adb bugreport` shortly after reproducing the problem (ideally in the [demo app](https://github.com/androidx/media/tree/release/demos/main)) to capture a zip file, and email this to android-media-github@google.com with subject 'Issue #\<issuenumber\>'.
 
         **Note:** Logcat output is **not** the same as a full bug report, and is often missing information that's useful for diagnosing issues. Please ensure you're sending a full bug report zip file.
       options:
-        - label: You will email the zip file produced by `adb bugreport` to dev.exoplayer@gmail.com after filing this issue.
+        - label: You will email the zip file produced by `adb bugreport` to android-media-github@google.com after filing this issue.
