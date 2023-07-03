@@ -32,6 +32,13 @@ import java.util.List;
 @UnstableApi
 public interface SubtitleParser {
 
+  /** Factory for {@link SubtitleParser} instances. */
+  interface Factory {
+
+    /** Creates a {@link SubtitleParser} for the given {@link Format}. */
+    SubtitleParser create(Format format);
+  }
+
   /**
    * Parses {@code data} (and any data stored from previous invocations) and returns any resulting
    * complete {@link CuesWithTiming} instances.
