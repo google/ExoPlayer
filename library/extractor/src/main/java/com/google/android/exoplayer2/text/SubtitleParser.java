@@ -17,13 +17,14 @@
 package com.google.android.exoplayer2.text;
 
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.Format;
 import java.util.List;
 
 /**
- * Parses subtitle data into timed {@linkplain CueGroup cue groups}.
+ * Parses subtitle data into timed {@linkplain CuesWithTiming} instances.
  *
  * <p>Instances are stateful, so samples can be fed in repeated calls to {@link #parse(byte[])}, and
- * one or more complete {@link CueGroup} instances will be returned when enough data has been
+ * one or more complete {@link CuesWithTiming} instances will be returned when enough data has been
  * received. Due to this stateful-ness, {@link #reset()} must be called after a seek or similar
  * discontinuity in the source data.
  *
@@ -37,33 +38,38 @@ public interface SubtitleParser {
 
   /**
    * Parses {@code data} (and any data stored from previous invocations) and returns any resulting
-   * complete {@link CueGroup} instances.
+   * complete {@link CuesWithTiming} instances.
    *
    * <p>Equivalent to {@link #parse(byte[], int, int) parse(data, 0, data.length)}.
    */
   @Nullable
-  default List<CueGroup> parse(byte[] data) {
+  default List<CuesWithTiming> parse(byte[] data) {
     return parse(data, /* offset= */ 0, data.length);
   }
 
   /**
    * Parses {@code data} (and any data stored from previous invocations) and returns any resulting
-   * complete {@link CueGroup} instances.
+   * complete {@link CuesWithTiming} instances.
    *
    * <p>Any samples not used from {@code data} will be persisted and used during subsequent calls to
    * this method.
+   *
+   * <p>{@link CuesWithTiming#startTimeUs} in the returned instance is derived only from the
+   * provided sample data, so has to be considered together with any relevant {@link
+   * Format#subsampleOffsetUs}.
    *
    * @param data The subtitle data to parse. This must contain only complete samples. For subtitles
    *     muxed inside a media container, a sample is usually defined by the container. For subtitles
    *     read from a text file, a sample is usually the entire contents of the text file.
    * @param offset The index in {@code data} to start reading from (inclusive).
    * @param length The number of bytes to read from {@code data}.
-   * @return The {@linkplain CueGroup cue groups} parsed from {@code data} (and possibly previous
-   *     provided samples too), sorted in ascending order by {@link CueGroup#presentationTimeUs}.
-   *     Otherwise null if there is insufficient data to generate a complete {@link CueGroup}.
+   * @return The {@linkplain CuesWithTiming} instances parsed from {@code data} (and possibly
+   *     previous provided samples too), sorted in ascending order by {@link
+   *     CuesWithTiming#startTimeUs}. Otherwise null if there is insufficient data to generate a
+   *     complete {@link CuesWithTiming}.
    */
   @Nullable
-  List<CueGroup> parse(byte[] data, int offset, int length);
+  List<CuesWithTiming> parse(byte[] data, int offset, int length);
 
   /**
    * Clears any data stored inside this parser from previous {@link #parse(byte[])} calls.
