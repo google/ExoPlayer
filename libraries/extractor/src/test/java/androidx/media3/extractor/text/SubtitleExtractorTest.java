@@ -28,6 +28,7 @@ import androidx.media3.test.utils.FakeExtractorInput;
 import androidx.media3.test.utils.FakeExtractorOutput;
 import androidx.media3.test.utils.FakeTrackOutput;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.common.primitives.Ints;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -112,8 +113,8 @@ public class SubtitleExtractorTest {
     FakeTrackOutput trackOutput = output.trackOutputs.get(0);
 
     while (extractor.read(input, null) != Extractor.RESULT_END_OF_INPUT) {}
-    extractor.seek((int) output.seekMap.getSeekPoints(2_445_000L).first.position, 2_445_000L);
-    input.setPosition((int) output.seekMap.getSeekPoints(2_445_000L).first.position);
+    extractor.seek(output.seekMap.getSeekPoints(2_445_000L).first.position, 2_445_000L);
+    input.setPosition(Ints.checkedCast(output.seekMap.getSeekPoints(2_445_000L).first.position));
     trackOutput.clear();
     while (extractor.read(input, null) != Extractor.RESULT_END_OF_INPUT) {}
 
@@ -157,8 +158,8 @@ public class SubtitleExtractorTest {
     FakeTrackOutput trackOutput = output.trackOutputs.get(0);
 
     assertThat(extractor.read(input, null)).isNotEqualTo(Extractor.RESULT_END_OF_INPUT);
-    extractor.seek((int) output.seekMap.getSeekPoints(2_345_000L).first.position, 2_345_000L);
-    input.setPosition((int) output.seekMap.getSeekPoints(2_345_000L).first.position);
+    extractor.seek(output.seekMap.getSeekPoints(2_345_000L).first.position, 2_345_000L);
+    input.setPosition(Ints.checkedCast(output.seekMap.getSeekPoints(2_345_000L).first.position));
     trackOutput.clear();
     while (extractor.read(input, null) != Extractor.RESULT_END_OF_INPUT) {}
 
