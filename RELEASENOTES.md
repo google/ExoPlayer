@@ -103,6 +103,12 @@
         tests and Compose UI tests. This fixes a bug where playback advances
         non-deterministically during Espresso or Compose view interactions.
 *   Remove deprecated symbols:
+    *   Remove
+        `TransformationRequest.Builder.setEnableRequestSdrToneMapping(boolean)`
+        and
+        `TransformationRequest.Builder.experimental_setEnableHdrEditing(boolean)`.
+        Use `Composition.Builder.setHdrMode(int)` and pass the `Composition` to
+        `Transformer.start(Composition, String)` instead.
 
 ## 1.1
 
