@@ -146,6 +146,12 @@ public class FakeClock implements Clock {
   }
 
   @Override
+  public synchronized long nanoTime() {
+    // Milliseconds to nanoseconds
+    return timeSinceBootMs * 1000000L;
+  }
+
+  @Override
   public long uptimeMillis() {
     return elapsedRealtime();
   }
