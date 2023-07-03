@@ -306,6 +306,7 @@ public final class VideoFrameProcessorTestRunner {
               @Override
               public void onError(VideoFrameProcessingException exception) {
                 videoFrameProcessingException.set(exception);
+                checkNotNull(videoFrameProcessingEndedLatch).countDown();
               }
 
               @Override
@@ -376,15 +377,18 @@ public final class VideoFrameProcessorTestRunner {
   public void endFrameProcessing(long videoFrameProcessingWaitTimeMs) throws InterruptedException {
     videoFrameProcessor.signalEndOfInput();
 
+    @Nullable Exception endFrameProcessingException = null;
     try {
-      checkNotNull(videoFrameProcessingEndedLatch)
-          .await(videoFrameProcessingWaitTimeMs, MILLISECONDS);
+      if (!checkNotNull(videoFrameProcessingEndedLatch)
+          .await(videoFrameProcessingWaitTimeMs, MILLISECONDS)) {
+        endFrameProcessingException =
+            new IllegalStateException("Video frame processing timed out.");
+      }
     } catch (InterruptedException e) {
-      // Report videoFrameProcessingException before potentially reporting a timeout
-      // InterruptedException.
-      assertThat(videoFrameProcessingException.get()).isNull();
-      throw e;
+      endFrameProcessingException = e;
     }
+    assertThat(videoFrameProcessingException.get()).isNull();
+    assertThat(endFrameProcessingException).isNull();
   }
 
   /**
