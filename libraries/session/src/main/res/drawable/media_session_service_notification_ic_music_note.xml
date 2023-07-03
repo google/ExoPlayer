@@ -15,11 +15,15 @@
   ~ limitations under the License.
   -->
 
+<!-- The NewApi lint can be safely ignored because vector support is available on pre-21 devices
+     through Android Gradle Plugin 1.4.0+. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         android:width="24dp"
         android:height="24dp"
         android:viewportWidth="24.0"
-        android:viewportHeight="24.0">
+        android:viewportHeight="24.0"
+        tools:ignore="NewApi">
     <path
         android:fillColor="#FFFFFFFF"
         android:pathData="M12,3v10.55c-0.59,-0.34 -1.27,-0.55 -2,-0.55 -2.21,0 -4,1.79 -4,4s1.79,4 4,4 4,-1.79 4,-4V7h4V3h-6z"/>
