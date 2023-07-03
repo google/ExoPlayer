@@ -235,9 +235,19 @@ public class SubtitleExtractor implements Extractor {
         outputBuffer = subtitleDecoder.dequeueOutputBuffer();
       }
       for (int i = 0; i < outputBuffer.getEventTimeCount(); i++) {
-        List<Cue> cues = outputBuffer.getCues(outputBuffer.getEventTime(i));
-        byte[] cuesSample = cueEncoder.encode(cues);
-        timestamps.add(outputBuffer.getEventTime(i));
+        long eventTimeUs = outputBuffer.getEventTime(i);
+        List<Cue> cues = outputBuffer.getCues(eventTimeUs);
+        if (cues.isEmpty() && i != 0) {
+          // An empty cue list has already been implicitly encoded in the duration of the previous
+          // sample (unless there was no previous sample).
+          continue;
+        }
+        long durationUs =
+            i < outputBuffer.getEventTimeCount() - 1
+                ? outputBuffer.getEventTime(i + 1) - eventTimeUs
+                : C.TIME_UNSET;
+        byte[] cuesSample = cueEncoder.encode(cues, durationUs);
+        timestamps.add(eventTimeUs);
         samples.add(new ParsableByteArray(cuesSample));
       }
       outputBuffer.release();

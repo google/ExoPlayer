@@ -32,7 +32,6 @@ import androidx.media3.common.text.Cue;
 import androidx.media3.test.utils.truth.SpannedSubject;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
-import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -63,10 +62,13 @@ public class CueSerializationTest {
             .build();
 
     // encoding and decoding
-    byte[] encodedCues = encoder.encode(ImmutableList.of(cue));
-    List<Cue> cuesAfterDecoding = decoder.decode(encodedCues);
-    Cue cueAfterDecoding = cuesAfterDecoding.get(0);
+    byte[] encodedCues = encoder.encode(ImmutableList.of(cue), /* durationUs= */ 2000);
+    CuesWithTiming cuesAfterDecoding = decoder.decode(/* startTimeUs= */ 1000, encodedCues);
 
+    assertThat(cuesAfterDecoding.startTimeUs).isEqualTo(1000);
+    assertThat(cuesAfterDecoding.durationUs).isEqualTo(2000);
+
+    Cue cueAfterDecoding = cuesAfterDecoding.cues.get(0);
     assertThat(cueAfterDecoding.text.toString()).isEqualTo(cue.text.toString());
     assertThat(cueAfterDecoding.textAlignment).isEqualTo(cue.textAlignment);
     assertThat(cueAfterDecoding.multiRowAlignment).isEqualTo(cue.multiRowAlignment);
@@ -104,13 +106,16 @@ public class CueSerializationTest {
     Cue bitmapCue = new Cue.Builder().setBitmap(bitmap).build();
 
     // encoding and decoding
-    byte[] encodedCues = encoder.encode(ImmutableList.of(textCue, bitmapCue));
-    List<Cue> cuesAfterDecoding = decoder.decode(encodedCues);
+    byte[] encodedCues =
+        encoder.encode(ImmutableList.of(textCue, bitmapCue), /* durationUs= */ 2000);
+    CuesWithTiming cuesAfterDecoding = decoder.decode(/* startTimeUs= */ 1000, encodedCues);
 
-    assertThat(cuesAfterDecoding).hasSize(2);
+    assertThat(cuesAfterDecoding.startTimeUs).isEqualTo(1000);
+    assertThat(cuesAfterDecoding.durationUs).isEqualTo(2000);
 
-    Cue textCueAfterDecoding = cuesAfterDecoding.get(0);
-    Cue bitmapCueAfterDecoding = cuesAfterDecoding.get(1);
+    assertThat(cuesAfterDecoding.cues).hasSize(2);
+    Cue textCueAfterDecoding = cuesAfterDecoding.cues.get(0);
+    Cue bitmapCueAfterDecoding = cuesAfterDecoding.cues.get(1);
 
     assertThat(textCueAfterDecoding.text.toString()).isEqualTo(textCue.text.toString());
     SpannedSubject.assertThat((Spanned) textCueAfterDecoding.text)

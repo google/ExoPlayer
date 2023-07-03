@@ -21,31 +21,38 @@ import androidx.media3.common.text.Cue;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.UnstableApi;
-import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
+import java.util.List;
 
 /** Decodes data encoded by {@link CueEncoder}. */
 @UnstableApi
 public final class CueDecoder {
 
-  // key under which list of cues is saved in the bundle
-  static final String BUNDLED_CUES = "c";
+  /** Key under which the list of cues is saved in the {@link Bundle}. */
+  /* package */ static final String BUNDLE_FIELD_CUES = "c";
+
+  /** Key under which the duration is saved in the {@link Bundle}. */
+  /* package */ static final String BUNDLE_FIELD_DURATION_US = "d";
 
   /**
-   * Decodes byte array into list of {@link Cue} objects.
+   * Decodes a byte array into a {@link CuesWithTiming} instance.
    *
-   * @param bytes byte array produced by {@link CueEncoder}
-   * @return decoded list of {@link Cue} objects.
+   * @param startTimeUs The value for {@link CuesWithTiming#startTimeUs} (this is not encoded in
+   *     {@code bytes}).
+   * @param bytes Byte array produced by {@link CueEncoder#encode(List, long)}
+   * @return Decoded {@link CuesWithTiming} instance.
    */
-  public ImmutableList<Cue> decode(byte[] bytes) {
+  public CuesWithTiming decode(long startTimeUs, byte[] bytes) {
     Parcel parcel = Parcel.obtain();
     parcel.unmarshall(bytes, 0, bytes.length);
     parcel.setDataPosition(0);
     Bundle bundle = parcel.readBundle(Bundle.class.getClassLoader());
     parcel.recycle();
     ArrayList<Bundle> bundledCues =
-        Assertions.checkNotNull(bundle.getParcelableArrayList(BUNDLED_CUES));
-
-    return BundleableUtil.fromBundleList(Cue.CREATOR, bundledCues);
+        Assertions.checkNotNull(bundle.getParcelableArrayList(BUNDLE_FIELD_CUES));
+    return new CuesWithTiming(
+        BundleableUtil.fromBundleList(Cue.CREATOR, bundledCues),
+        startTimeUs,
+        bundle.getLong(BUNDLE_FIELD_DURATION_US));
   }
 }
