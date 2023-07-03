@@ -46,6 +46,9 @@ public interface Clock {
    */
   long uptimeMillis();
 
+  /** See {@link java.lang.System#nanoTime()} */
+  long nanoTime();
+
   /**
    * Creates a {@link HandlerWrapper} using a specified looper and a specified callback for handling
    * messages.

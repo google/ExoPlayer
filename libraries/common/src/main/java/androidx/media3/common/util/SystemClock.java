@@ -45,6 +45,11 @@ public class SystemClock implements Clock {
   }
 
   @Override
+  public long nanoTime() {
+    return System.nanoTime();
+  }
+
+  @Override
   public HandlerWrapper createHandler(Looper looper, @Nullable Callback callback) {
     return new SystemHandlerWrapper(new Handler(looper, callback));
   }

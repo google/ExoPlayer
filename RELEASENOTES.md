@@ -102,6 +102,8 @@
     *   Make `TestExoPlayerBuilder` and `FakeClock` compatible with Espresso UI
         tests and Compose UI tests. This fixes a bug where playback advances
         non-deterministically during Espresso or Compose view interactions.
+    *   Add a `nanoTime()` method to `Clock` to provide override support of
+        `System.nanoTime()`
 *   Remove deprecated symbols:
     *   Remove
         `TransformationRequest.Builder.setEnableRequestSdrToneMapping(boolean)`
