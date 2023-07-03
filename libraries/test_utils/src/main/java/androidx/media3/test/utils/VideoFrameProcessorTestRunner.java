@@ -22,6 +22,7 @@ import static androidx.media3.test.utils.BitmapPixelTestUtil.createArgb8888Bitma
 import static androidx.media3.test.utils.BitmapPixelTestUtil.maybeSaveTestBitmap;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
@@ -47,6 +48,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -246,12 +248,11 @@ public final class VideoFrameProcessorTestRunner {
   private final @MonotonicNonNull String videoAssetPath;
   private final String outputFileLabel;
   private final float pixelWidthHeightRatio;
+  private final @MonotonicNonNull CountDownLatch videoFrameProcessingEndedLatch;
   private final AtomicReference<VideoFrameProcessingException> videoFrameProcessingException;
   private final VideoFrameProcessor videoFrameProcessor;
 
   private @MonotonicNonNull BitmapReader bitmapReader;
-
-  private volatile boolean videoFrameProcessingEnded;
 
   private VideoFrameProcessorTestRunner(
       String testId,
@@ -271,6 +272,7 @@ public final class VideoFrameProcessorTestRunner {
     this.videoAssetPath = videoAssetPath;
     this.outputFileLabel = outputFileLabel;
     this.pixelWidthHeightRatio = pixelWidthHeightRatio;
+    videoFrameProcessingEndedLatch = new CountDownLatch(1);
     videoFrameProcessingException = new AtomicReference<>();
 
     videoFrameProcessor =
@@ -308,7 +310,7 @@ public final class VideoFrameProcessorTestRunner {
 
               @Override
               public void onEnded() {
-                videoFrameProcessingEnded = true;
+                checkNotNull(videoFrameProcessingEndedLatch).countDown();
               }
             });
     videoFrameProcessor.registerInputStream(inputType, effects);
@@ -371,12 +373,18 @@ public final class VideoFrameProcessorTestRunner {
   }
 
   /** Have the {@link VideoFrameProcessor} finish processing. */
-  public void endFrameProcessing(long videoFrameProcessingWaitTime) throws InterruptedException {
+  public void endFrameProcessing(long videoFrameProcessingWaitTimeMs) throws InterruptedException {
     videoFrameProcessor.signalEndOfInput();
-    Thread.sleep(videoFrameProcessingWaitTime);
 
-    assertThat(videoFrameProcessingException.get()).isNull();
-    assertThat(videoFrameProcessingEnded).isTrue();
+    try {
+      checkNotNull(videoFrameProcessingEndedLatch)
+          .await(videoFrameProcessingWaitTimeMs, MILLISECONDS);
+    } catch (InterruptedException e) {
+      // Report videoFrameProcessingException before potentially reporting a timeout
+      // InterruptedException.
+      assertThat(videoFrameProcessingException.get()).isNull();
+      throw e;
+    }
   }
 
   /**
