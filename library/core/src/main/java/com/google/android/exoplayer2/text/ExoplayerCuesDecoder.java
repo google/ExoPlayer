@@ -114,9 +114,9 @@ public final class ExoplayerCuesDecoder implements SubtitleDecoder {
     if (inputBuffer.isEndOfStream()) {
       outputBuffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
     } else {
-      SingleEventSubtitle subtitle =
-          new SingleEventSubtitle(
-              inputBuffer.timeUs, cueDecoder.decode(checkNotNull(inputBuffer.data).array()));
+      SubtitleImpl subtitle =
+          new SubtitleImpl(
+              cueDecoder.decode(inputBuffer.timeUs, checkNotNull(inputBuffer.data).array()));
       outputBuffer.setContent(inputBuffer.timeUs, subtitle, /* subsampleOffsetUs= */ 0);
     }
     inputBuffer.clear();
@@ -148,34 +148,52 @@ public final class ExoplayerCuesDecoder implements SubtitleDecoder {
     availableOutputBuffers.addFirst(outputBuffer);
   }
 
-  private static final class SingleEventSubtitle implements Subtitle {
-    private final long timeUs;
-    private final ImmutableList<Cue> cues;
+  private static final class SubtitleImpl implements Subtitle {
+    private final CuesWithTiming cuesWithTiming;
 
-    public SingleEventSubtitle(long timeUs, ImmutableList<Cue> cues) {
-      this.timeUs = timeUs;
-      this.cues = cues;
+    public SubtitleImpl(CuesWithTiming cuesWithTiming) {
+      this.cuesWithTiming = cuesWithTiming;
     }
 
     @Override
     public int getNextEventTimeIndex(long timeUs) {
-      return this.timeUs > timeUs ? 0 : C.INDEX_UNSET;
+      if (timeUs < cuesWithTiming.startTimeUs) {
+        return 0;
+      } else if (cuesWithTiming.durationUs != C.TIME_UNSET
+          && timeUs < cuesWithTiming.startTimeUs + cuesWithTiming.durationUs) {
+        return 1;
+      } else {
+        return C.INDEX_UNSET;
+      }
     }
 
     @Override
     public int getEventTimeCount() {
-      return 1;
+      return cuesWithTiming.durationUs == C.TIME_UNSET ? 1 : 2;
     }
 
     @Override
     public long getEventTime(int index) {
-      checkArgument(index == 0);
-      return timeUs;
+      if (index == 0) {
+        return cuesWithTiming.startTimeUs;
+      } else if (cuesWithTiming.durationUs != C.TIME_UNSET && index == 1) {
+        return cuesWithTiming.startTimeUs + cuesWithTiming.durationUs;
+      } else {
+        throw new IndexOutOfBoundsException("Invalid index: " + index);
+      }
     }
 
     @Override
     public List<Cue> getCues(long timeUs) {
-      return (timeUs >= this.timeUs) ? cues : ImmutableList.of();
+      if (timeUs < cuesWithTiming.startTimeUs) {
+        return ImmutableList.of();
+      } else if (cuesWithTiming.durationUs == C.TIME_UNSET) {
+        return cuesWithTiming.cues;
+      } else if (timeUs < cuesWithTiming.startTimeUs + cuesWithTiming.durationUs) {
+        return cuesWithTiming.cues;
+      } else {
+        return ImmutableList.of();
+      }
     }
   }
 }

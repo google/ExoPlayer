@@ -28,7 +28,7 @@ import com.google.android.exoplayer2.text.webvtt.WebvttDecoder;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.primitives.Ints;
-import java.util.List;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -47,9 +47,15 @@ public class SubtitleExtractorTest {
           + "00:02.600 --> 00:04.567\n"
           + "This is the third subtitle.\n";
 
+  private CueDecoder decoder;
+
+  @Before
+  public void createDecoder() {
+    decoder = new CueDecoder();
+  }
+
   @Test
   public void extractor_outputsCues() throws Exception {
-    CueDecoder decoder = new CueDecoder();
     FakeExtractorOutput output = new FakeExtractorOutput();
     FakeExtractorInput input =
         new FakeExtractorInput.Builder()
@@ -67,37 +73,32 @@ public class SubtitleExtractorTest {
     FakeTrackOutput trackOutput = output.trackOutputs.get(0);
     assertThat(trackOutput.lastFormat.sampleMimeType).isEqualTo(MimeTypes.TEXT_EXOPLAYER_CUES);
     assertThat(trackOutput.lastFormat.codecs).isEqualTo(MimeTypes.TEXT_VTT);
-    assertThat(trackOutput.getSampleCount()).isEqualTo(6);
-    // Check sample timestamps.
-    assertThat(trackOutput.getSampleTimeUs(0)).isEqualTo(0L);
-    assertThat(trackOutput.getSampleTimeUs(1)).isEqualTo(1_234_000L);
-    assertThat(trackOutput.getSampleTimeUs(2)).isEqualTo(2_345_000L);
-    assertThat(trackOutput.getSampleTimeUs(3)).isEqualTo(2_600_000L);
-    assertThat(trackOutput.getSampleTimeUs(4)).isEqualTo(3_456_000L);
-    assertThat(trackOutput.getSampleTimeUs(5)).isEqualTo(4_567_000L);
-    // Check sample content.
-    List<Cue> cues0 = decoder.decode(trackOutput.getSampleData(0));
-    assertThat(cues0).hasSize(1);
-    assertThat(cues0.get(0).text.toString()).isEqualTo("This is the first subtitle.");
-    List<Cue> cues1 = decoder.decode(trackOutput.getSampleData(1));
-    assertThat(cues1).isEmpty();
-    List<Cue> cues2 = decoder.decode(trackOutput.getSampleData(2));
-    assertThat(cues2).hasSize(1);
-    assertThat(cues2.get(0).text.toString()).isEqualTo("This is the second subtitle.");
-    List<Cue> cues3 = decoder.decode(trackOutput.getSampleData(3));
-    assertThat(cues3).hasSize(2);
-    assertThat(cues3.get(0).text.toString()).isEqualTo("This is the second subtitle.");
-    assertThat(cues3.get(1).text.toString()).isEqualTo("This is the third subtitle.");
-    List<Cue> cues4 = decoder.decode(trackOutput.getSampleData(4));
-    assertThat(cues4).hasSize(1);
-    assertThat(cues4.get(0).text.toString()).isEqualTo("This is the third subtitle.");
-    List<Cue> cues5 = decoder.decode(trackOutput.getSampleData(5));
-    assertThat(cues5).isEmpty();
+    assertThat(trackOutput.getSampleCount()).isEqualTo(4);
+    CuesWithTiming cues0 = decodeSample(trackOutput, 0);
+    assertThat(cues0.startTimeUs).isEqualTo(0);
+    assertThat(cues0.durationUs).isEqualTo(1_234_000);
+    assertThat(cues0.cues).hasSize(1);
+    assertThat(cues0.cues.get(0).text.toString()).isEqualTo("This is the first subtitle.");
+    CuesWithTiming cues1 = decodeSample(trackOutput, 1);
+    assertThat(cues1.startTimeUs).isEqualTo(2_345_000);
+    assertThat(cues1.durationUs).isEqualTo(2_600_000 - 2_345_000);
+    assertThat(cues1.cues).hasSize(1);
+    assertThat(cues1.cues.get(0).text.toString()).isEqualTo("This is the second subtitle.");
+    CuesWithTiming cues2 = decodeSample(trackOutput, 2);
+    assertThat(cues2.startTimeUs).isEqualTo(2_600_000);
+    assertThat(cues2.durationUs).isEqualTo(3_456_000 - 2_600_000);
+    assertThat(cues2.cues).hasSize(2);
+    assertThat(cues2.cues.get(0).text.toString()).isEqualTo("This is the second subtitle.");
+    assertThat(cues2.cues.get(1).text.toString()).isEqualTo("This is the third subtitle.");
+    CuesWithTiming cues3 = decodeSample(trackOutput, 3);
+    assertThat(cues3.startTimeUs).isEqualTo(3_456_000);
+    assertThat(cues3.durationUs).isEqualTo(4_567_000 - 3_456_000);
+    assertThat(cues3.cues).hasSize(1);
+    assertThat(cues3.cues.get(0).text.toString()).isEqualTo("This is the third subtitle.");
   }
 
   @Test
   public void extractor_seekAfterExtracting_outputsCues() throws Exception {
-    CueDecoder decoder = new CueDecoder();
     FakeExtractorOutput output = new FakeExtractorOutput();
     FakeExtractorInput input =
         new FakeExtractorInput.Builder()
@@ -119,30 +120,27 @@ public class SubtitleExtractorTest {
 
     assertThat(trackOutput.lastFormat.sampleMimeType).isEqualTo(MimeTypes.TEXT_EXOPLAYER_CUES);
     assertThat(trackOutput.lastFormat.codecs).isEqualTo(MimeTypes.TEXT_VTT);
-    assertThat(trackOutput.getSampleCount()).isEqualTo(4);
-    // Check sample timestamps.
-    assertThat(trackOutput.getSampleTimeUs(0)).isEqualTo(2_345_000L);
-    assertThat(trackOutput.getSampleTimeUs(1)).isEqualTo(2_600_000L);
-    assertThat(trackOutput.getSampleTimeUs(2)).isEqualTo(3_456_000L);
-    assertThat(trackOutput.getSampleTimeUs(3)).isEqualTo(4_567_000L);
-    // Check sample content.
-    List<Cue> cues0 = decoder.decode(trackOutput.getSampleData(0));
-    assertThat(cues0).hasSize(1);
-    assertThat(cues0.get(0).text.toString()).isEqualTo("This is the second subtitle.");
-    List<Cue> cues1 = decoder.decode(trackOutput.getSampleData(1));
-    assertThat(cues1).hasSize(2);
-    assertThat(cues1.get(0).text.toString()).isEqualTo("This is the second subtitle.");
-    assertThat(cues1.get(1).text.toString()).isEqualTo("This is the third subtitle.");
-    List<Cue> cues2 = decoder.decode(trackOutput.getSampleData(2));
-    assertThat(cues2).hasSize(1);
-    assertThat(cues2.get(0).text.toString()).isEqualTo("This is the third subtitle.");
-    List<Cue> cues3 = decoder.decode(trackOutput.getSampleData(3));
-    assertThat(cues3).isEmpty();
+    assertThat(trackOutput.getSampleCount()).isEqualTo(3);
+    CuesWithTiming cues0 = decodeSample(trackOutput, 0);
+    assertThat(cues0.startTimeUs).isEqualTo(2_345_000L);
+    assertThat(cues0.durationUs).isEqualTo(2_600_000 - 2_345_000L);
+    assertThat(cues0.cues).hasSize(1);
+    assertThat(cues0.cues.get(0).text.toString()).isEqualTo("This is the second subtitle.");
+    CuesWithTiming cues1 = decodeSample(trackOutput, 1);
+    assertThat(cues1.startTimeUs).isEqualTo(2_600_000);
+    assertThat(cues1.durationUs).isEqualTo(3_456_000 - 2_600_000);
+    assertThat(cues1.cues).hasSize(2);
+    assertThat(cues1.cues.get(0).text.toString()).isEqualTo("This is the second subtitle.");
+    assertThat(cues1.cues.get(1).text.toString()).isEqualTo("This is the third subtitle.");
+    CuesWithTiming cues2 = decodeSample(trackOutput, 2);
+    assertThat(cues2.startTimeUs).isEqualTo(3_456_000);
+    assertThat(cues2.durationUs).isEqualTo(4_567_000L - 3_456_000);
+    assertThat(cues2.cues).hasSize(1);
+    assertThat(cues2.cues.get(0).text.toString()).isEqualTo("This is the third subtitle.");
   }
 
   @Test
   public void extractor_seekBetweenReads_outputsCues() throws Exception {
-    CueDecoder decoder = new CueDecoder();
     FakeExtractorOutput output = new FakeExtractorOutput();
     FakeExtractorInput input =
         new FakeExtractorInput.Builder()
@@ -164,25 +162,23 @@ public class SubtitleExtractorTest {
 
     assertThat(trackOutput.lastFormat.sampleMimeType).isEqualTo(MimeTypes.TEXT_EXOPLAYER_CUES);
     assertThat(trackOutput.lastFormat.codecs).isEqualTo(MimeTypes.TEXT_VTT);
-    assertThat(trackOutput.getSampleCount()).isEqualTo(4);
-    // Check sample timestamps.
-    assertThat(trackOutput.getSampleTimeUs(0)).isEqualTo(2_345_000L);
-    assertThat(trackOutput.getSampleTimeUs(1)).isEqualTo(2_600_000L);
-    assertThat(trackOutput.getSampleTimeUs(2)).isEqualTo(3_456_000L);
-    assertThat(trackOutput.getSampleTimeUs(3)).isEqualTo(4_567_000L);
-    // Check sample content.
-    List<Cue> cues0 = decoder.decode(trackOutput.getSampleData(0));
-    assertThat(cues0).hasSize(1);
-    assertThat(cues0.get(0).text.toString()).isEqualTo("This is the second subtitle.");
-    List<Cue> cues1 = decoder.decode(trackOutput.getSampleData(1));
-    assertThat(cues1).hasSize(2);
-    assertThat(cues1.get(0).text.toString()).isEqualTo("This is the second subtitle.");
-    assertThat(cues1.get(1).text.toString()).isEqualTo("This is the third subtitle.");
-    List<Cue> cues2 = decoder.decode(trackOutput.getSampleData(2));
-    assertThat(cues2).hasSize(1);
-    assertThat(cues2.get(0).text.toString()).isEqualTo("This is the third subtitle.");
-    List<Cue> cues3 = decoder.decode(trackOutput.getSampleData(3));
-    assertThat(cues3).isEmpty();
+    assertThat(trackOutput.getSampleCount()).isEqualTo(3);
+    CuesWithTiming cues0 = decodeSample(trackOutput, 0);
+    assertThat(cues0.startTimeUs).isEqualTo(2_345_000L);
+    assertThat(cues0.durationUs).isEqualTo(2_600_000 - 2_345_000L);
+    assertThat(cues0.cues).hasSize(1);
+    assertThat(cues0.cues.get(0).text.toString()).isEqualTo("This is the second subtitle.");
+    CuesWithTiming cues1 = decodeSample(trackOutput, 1);
+    assertThat(cues1.startTimeUs).isEqualTo(2_600_000);
+    assertThat(cues1.durationUs).isEqualTo(3_456_000 - 2_600_000);
+    assertThat(cues1.cues).hasSize(2);
+    assertThat(cues1.cues.get(0).text.toString()).isEqualTo("This is the second subtitle.");
+    assertThat(cues1.cues.get(1).text.toString()).isEqualTo("This is the third subtitle.");
+    CuesWithTiming cues2 = decodeSample(trackOutput, 2);
+    assertThat(cues2.startTimeUs).isEqualTo(3_456_000);
+    assertThat(cues2.durationUs).isEqualTo(4_567_000L - 3_456_000);
+    assertThat(cues2.cues).hasSize(1);
+    assertThat(cues2.cues.get(0).text.toString()).isEqualTo("This is the third subtitle.");
   }
 
   @Test
@@ -237,5 +233,10 @@ public class SubtitleExtractorTest {
     extractor.release();
     extractor.release();
     // Calling realease() twice does not throw an exception.
+  }
+
+  private CuesWithTiming decodeSample(FakeTrackOutput trackOutput, int sampleIndex) {
+    return decoder.decode(
+        trackOutput.getSampleTimeUs(sampleIndex), trackOutput.getSampleData(sampleIndex));
   }
 }
