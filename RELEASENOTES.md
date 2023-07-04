@@ -26,6 +26,9 @@
         created after the playlist is cleared.
 *   Transformer:
     *   Parse EXIF rotation data for image inputs.
+    *   Remove `TransformationRequest.HdrMode` annotation type and its
+        associated constants. Use `Composition.HdrMode` and its associated
+        constants instead.
 *   Track Selection:
 *   Extractors:
     *   MPEG-TS: Ensure the last frame is rendered by passing the last access

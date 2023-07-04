@@ -17,50 +17,17 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
-import static java.lang.annotation.ElementType.TYPE_USE;
-import static java.lang.annotation.RetentionPolicy.SOURCE;
 
-import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
 
 /** A media transformation request. */
 @UnstableApi
 public final class TransformationRequest {
-
-  /** See {@link Composition.HdrMode}. */
-  @Documented
-  @Retention(SOURCE)
-  @Target(TYPE_USE)
-  @IntDef({
-    HDR_MODE_KEEP_HDR,
-    HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC,
-    HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL,
-    HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR,
-  })
-  public @interface HdrMode {}
-
-  /** See {@link Composition#HDR_MODE_KEEP_HDR}. */
-  public static final int HDR_MODE_KEEP_HDR = Composition.HDR_MODE_KEEP_HDR;
-
-  /** See {@link Composition#HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC}. */
-  public static final int HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC =
-      Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC;
-
-  /** See {@link Composition#HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL}. */
-  public static final int HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL =
-      Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL;
-
-  /** See {@link Composition#HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR}. */
-  public static final int HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR =
-      Composition.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR;
 
   /** A builder for {@link TransformationRequest} instances. */
   public static final class Builder {
@@ -68,7 +35,7 @@ public final class TransformationRequest {
     private int outputHeight;
     @Nullable private String audioMimeType;
     @Nullable private String videoMimeType;
-    private @HdrMode int hdrMode;
+    private @Composition.HdrMode int hdrMode;
 
     /**
      * Creates a new instance with default values.
@@ -141,15 +108,15 @@ public final class TransformationRequest {
     }
 
     /**
-     * Sets the {@link HdrMode} for HDR video input.
+     * Sets the {@link Composition.HdrMode} for HDR video input.
      *
-     * <p>The default value is {@link #HDR_MODE_KEEP_HDR}.
+     * <p>The default value is {@link Composition#HDR_MODE_KEEP_HDR}.
      *
-     * @param hdrMode The {@link HdrMode} used.
+     * @param hdrMode The {@link Composition.HdrMode} used.
      * @return This builder.
      */
     @CanIgnoreReturnValue
-    public Builder setHdrMode(@HdrMode int hdrMode) {
+    public Builder setHdrMode(@Composition.HdrMode int hdrMode) {
       this.hdrMode = hdrMode;
       return this;
     }
@@ -200,17 +167,17 @@ public final class TransformationRequest {
   @Nullable public final String videoMimeType;
 
   /**
-   * The {@link HdrMode} specifying how to handle HDR input video.
+   * The {@link Composition.HdrMode} specifying how to handle HDR input video.
    *
    * @see Builder#setHdrMode(int)
    */
-  public final @HdrMode int hdrMode;
+  public final @Composition.HdrMode int hdrMode;
 
   private TransformationRequest(
       int outputHeight,
       @Nullable String audioMimeType,
       @Nullable String videoMimeType,
-      @HdrMode int hdrMode) {
+      @Composition.HdrMode int hdrMode) {
     this.outputHeight = outputHeight;
     this.audioMimeType = audioMimeType;
     this.videoMimeType = videoMimeType;

@@ -18,6 +18,7 @@ package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkState;
+import static androidx.media3.transformer.Composition.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.content.Context;
@@ -795,7 +796,7 @@ public final class Transformer {
               context,
               new DefaultDecoderFactory(context),
               /* forceInterpretHdrAsSdr= */ transformationRequest.hdrMode
-                  == TransformationRequest.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR,
+                  == HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR,
               clock);
     }
     DebugTraceUtil.reset();

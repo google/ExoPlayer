@@ -17,7 +17,7 @@ package androidx.media3.transformer;
 
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
-import androidx.media3.transformer.TransformationRequest.HdrMode;
+import androidx.media3.transformer.Composition.HdrMode;
 import java.util.Objects;
 import org.json.JSONException;
 import org.json.JSONObject;
