@@ -225,6 +225,15 @@ public final class SpliceInsertCommand extends SpliceCommand {
     }
   }
 
+  @Override
+  public String toString() {
+    return "SCTE-35 SpliceInsertCommand { programSplicePts="
+        + programSplicePts
+        + ", programSplicePlaybackPositionUs= "
+        + programSplicePlaybackPositionUs
+        + " }";
+  }
+
   // Parcelable implementation.
 
   @Override

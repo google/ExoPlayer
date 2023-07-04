@@ -58,6 +58,15 @@ public final class PrivateCommand extends SpliceCommand {
     return new PrivateCommand(identifier, privateBytes, ptsAdjustment);
   }
 
+  @Override
+  public String toString() {
+    return "SCTE-35 PrivateCommand { ptsAdjustment="
+        + ptsAdjustment
+        + ", identifier= "
+        + identifier
+        + " }";
+  }
+
   // Parcelable implementation.
 
   @Override

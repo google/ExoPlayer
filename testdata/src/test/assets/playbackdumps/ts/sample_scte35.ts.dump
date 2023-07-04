@@ -13,10 +13,10 @@ MediaCodecAdapter (exotest.video.mpeg2):
 MetadataOutput:
   Metadata[0]:
     presentationTimeUs = 33366
-    entry[0] = SCTE-35 splice command: type=SpliceInsertCommand
+    entry[0] = SCTE-35 SpliceInsertCommand { programSplicePts=200000, programSplicePlaybackPositionUs= 1000000822222 }
   Metadata[1]:
     presentationTimeUs = 33366
-    entry[0] = SCTE-35 splice command: type=SpliceInsertCommand
+    entry[0] = SCTE-35 SpliceInsertCommand { programSplicePts=200000, programSplicePlaybackPositionUs= 1000000822222 }
   Metadata[2]:
     presentationTimeUs = 33366
-    entry[0] = SCTE-35 splice command: type=SpliceInsertCommand
+    entry[0] = SCTE-35 SpliceInsertCommand { programSplicePts=300000, programSplicePlaybackPositionUs= 1000001933333 }
