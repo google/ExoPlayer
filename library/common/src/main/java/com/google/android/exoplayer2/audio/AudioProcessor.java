@@ -118,6 +118,7 @@ public interface AudioProcessor {
 
   /** Exception thrown when the given {@link AudioFormat} can not be handled. */
   final class UnhandledAudioFormatException extends Exception {
+    public final AudioFormat inputAudioFormat;
 
     public UnhandledAudioFormatException(AudioFormat inputAudioFormat) {
       this("Unhandled input format:", inputAudioFormat);
@@ -125,6 +126,7 @@ public interface AudioProcessor {
 
     public UnhandledAudioFormatException(String message, AudioFormat audioFormat) {
       super(message + " " + audioFormat);
+      this.inputAudioFormat = audioFormat;
     }
   }
 
