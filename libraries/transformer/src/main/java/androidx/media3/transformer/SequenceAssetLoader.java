@@ -366,7 +366,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     public boolean queueInputBuffer() {
       DecoderInputBuffer inputBuffer = checkStateNotNull(sampleConsumer.getInputBuffer());
       long globalTimestampUs = totalDurationUs + inputBuffer.timeUs;
-      if (isLooping && globalTimestampUs >= maxSequenceDurationUs) {
+      if (isLooping && (globalTimestampUs >= maxSequenceDurationUs || audioLoopingEnded)) {
         if (isMaxSequenceDurationUsFinal && !audioLoopingEnded) {
           checkNotNull(inputBuffer.data).limit(0);
           inputBuffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);

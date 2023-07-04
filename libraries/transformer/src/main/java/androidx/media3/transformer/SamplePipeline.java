@@ -64,7 +64,7 @@ import java.util.List;
    * this method again.
    */
   public final boolean processData() throws ExportException {
-    return feedMuxer() || processDataUpToMuxer();
+    return feedMuxer() || (!isMuxerInputEnded() && processDataUpToMuxer());
   }
 
   /** Releases all resources held by the pipeline. */
