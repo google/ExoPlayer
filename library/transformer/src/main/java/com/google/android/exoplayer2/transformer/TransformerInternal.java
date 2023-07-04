@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_DECODED;
 import static com.google.android.exoplayer2.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_ENCODED;
+import static com.google.android.exoplayer2.transformer.Composition.HDR_MODE_KEEP_HDR;
 import static com.google.android.exoplayer2.transformer.ExportException.ERROR_CODE_FAILED_RUNTIME_CHECK;
 import static com.google.android.exoplayer2.transformer.ExportException.ERROR_CODE_MUXING_FAILED;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_AVAILABLE;
@@ -700,7 +701,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         if (encoderFactory.videoNeedsEncoding()) {
           return true;
         }
-        if (transformationRequest.hdrMode != TransformationRequest.HDR_MODE_KEEP_HDR) {
+        if (transformationRequest.hdrMode != HDR_MODE_KEEP_HDR) {
           return true;
         }
         if (transformationRequest.videoMimeType != null

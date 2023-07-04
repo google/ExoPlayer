@@ -23,6 +23,8 @@ import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSE
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_DOLBY_VISION_HDR;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_DOLBY_VISION_HDR_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
+import static com.google.android.exoplayer2.transformer.Composition.HDR_MODE_KEEP_HDR;
+import static com.google.android.exoplayer2.transformer.Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC;
 import static com.google.android.exoplayer2.transformer.mh.FileUtil.assertFileHasColorTransfer;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_H265;
 import static com.google.common.truth.Truth.assertThat;
@@ -34,6 +36,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
+import com.google.android.exoplayer2.transformer.Composition;
 import com.google.android.exoplayer2.transformer.EditedMediaItem;
 import com.google.android.exoplayer2.transformer.EncoderUtil;
 import com.google.android.exoplayer2.transformer.ExportException;
@@ -50,7 +53,7 @@ import org.junit.runner.RunWith;
 
 /**
  * {@link Transformer} instrumentation test for applying an {@linkplain
- * TransformationRequest#HDR_MODE_KEEP_HDR HDR frame edit}.
+ * Composition#HDR_MODE_KEEP_HDR HDR frame edit}.
  */
 @RunWith(AndroidJUnit4.class)
 public final class HdrEditingTest {
@@ -246,11 +249,10 @@ public final class HdrEditingTest {
                       TransformationRequest originalTransformationRequest,
                       TransformationRequest fallbackTransformationRequest) {
                     isFallbackListenerInvoked.set(true);
-                    assertThat(originalTransformationRequest.hdrMode)
-                        .isEqualTo(TransformationRequest.HDR_MODE_KEEP_HDR);
+                    assertThat(originalTransformationRequest.hdrMode).isEqualTo(HDR_MODE_KEEP_HDR);
                     isToneMappingFallbackApplied.set(
                         fallbackTransformationRequest.hdrMode
-                            == TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC);
+                            == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC);
                   }
                 })
             .build();
@@ -313,11 +315,10 @@ public final class HdrEditingTest {
                       TransformationRequest originalTransformationRequest,
                       TransformationRequest fallbackTransformationRequest) {
                     isFallbackListenerInvoked.set(true);
-                    assertThat(originalTransformationRequest.hdrMode)
-                        .isEqualTo(TransformationRequest.HDR_MODE_KEEP_HDR);
+                    assertThat(originalTransformationRequest.hdrMode).isEqualTo(HDR_MODE_KEEP_HDR);
                     isToneMappingFallbackApplied.set(
                         fallbackTransformationRequest.hdrMode
-                            == TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC);
+                            == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC);
                   }
                 })
             .build();

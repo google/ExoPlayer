@@ -17,7 +17,7 @@ package com.google.android.exoplayer2.transformer;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.transformer.TransformationRequest.HdrMode;
+import com.google.android.exoplayer2.transformer.Composition.HdrMode;
 import java.util.Objects;
 import org.json.JSONException;
 import org.json.JSONObject;

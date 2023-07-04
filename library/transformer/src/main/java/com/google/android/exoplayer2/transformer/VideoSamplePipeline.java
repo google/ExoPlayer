@@ -16,10 +16,10 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.transformer.Composition.HDR_MODE_KEEP_HDR;
+import static com.google.android.exoplayer2.transformer.Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC;
+import static com.google.android.exoplayer2.transformer.Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL;
 import static com.google.android.exoplayer2.transformer.EncoderUtil.getSupportedEncodersForHdrEditing;
-import static com.google.android.exoplayer2.transformer.TransformationRequest.HDR_MODE_KEEP_HDR;
-import static com.google.android.exoplayer2.transformer.TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC;
-import static com.google.android.exoplayer2.transformer.TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_BITMAP;
@@ -369,7 +369,7 @@ import org.checkerframework.dataflow.qual.Pure;
     private final TransformationRequest transformationRequest;
     private final FallbackListener fallbackListener;
     private final String requestedOutputMimeType;
-    private final @TransformationRequest.HdrMode int hdrModeAfterFallback;
+    private final @Composition.HdrMode int hdrModeAfterFallback;
 
     private @MonotonicNonNull SurfaceInfo encoderSurfaceInfo;
 
@@ -409,7 +409,7 @@ import org.checkerframework.dataflow.qual.Pure;
 
       // HdrMode fallback is only supported from HDR_MODE_KEEP_HDR to
       // HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC.
-      @TransformationRequest.HdrMode int hdrMode = transformationRequest.hdrMode;
+      @Composition.HdrMode int hdrMode = transformationRequest.hdrMode;
       if (hdrMode == HDR_MODE_KEEP_HDR && isTransferHdr(inputFormat.colorInfo)) {
         ImmutableList<MediaCodecInfo> hdrEncoders =
             getSupportedEncodersForHdrEditing(requestedOutputMimeType, inputFormat.colorInfo);
@@ -430,7 +430,7 @@ import org.checkerframework.dataflow.qual.Pure;
       return Pair.create(requestedOutputMimeType, hdrMode);
     }
 
-    public @TransformationRequest.HdrMode int getHdrModeAfterFallback() {
+    public @Composition.HdrMode int getHdrModeAfterFallback() {
       return hdrModeAfterFallback;
     }
 
@@ -521,7 +521,7 @@ import org.checkerframework.dataflow.qual.Pure;
      *     processing, with {@link Format#rotationDegrees} of 90 added to the output format.
      * @param requestedFormat The requested format.
      * @param supportedFormat A format supported by the device.
-     * @param supportedHdrMode A {@link TransformationRequest.HdrMode} supported by the device.
+     * @param supportedHdrMode A {@link Composition.HdrMode} supported by the device.
      * @return The created instance.
      */
     @Pure
@@ -530,7 +530,7 @@ import org.checkerframework.dataflow.qual.Pure;
         boolean hasOutputFormatRotation,
         Format requestedFormat,
         Format supportedFormat,
-        @TransformationRequest.HdrMode int supportedHdrMode) {
+        @Composition.HdrMode int supportedHdrMode) {
       // TODO(b/259570024): Consider including bitrate in the revised fallback design.
 
       TransformationRequest.Builder supportedRequestBuilder = transformationRequest.buildUpon();

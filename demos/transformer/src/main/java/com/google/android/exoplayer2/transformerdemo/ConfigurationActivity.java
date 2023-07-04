@@ -17,6 +17,10 @@ package com.google.android.exoplayer2.transformerdemo;
 
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.READ_MEDIA_VIDEO;
+import static com.google.android.exoplayer2.transformer.Composition.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR;
+import static com.google.android.exoplayer2.transformer.Composition.HDR_MODE_KEEP_HDR;
+import static com.google.android.exoplayer2.transformer.Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC;
+import static com.google.android.exoplayer2.transformer.Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Util.SDK_INT;
@@ -44,7 +48,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.transformer.TransformationRequest;
+import com.google.android.exoplayer2.transformer.Composition;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.material.slider.RangeSlider;
 import com.google.android.material.slider.Slider;
@@ -183,20 +187,13 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "Custom Bitmap Overlay",
     "Custom Text Overlay",
   };
-  private static final ImmutableMap<String, @TransformationRequest.HdrMode Integer>
-      HDR_MODE_DESCRIPTIONS =
-          new ImmutableMap.Builder<String, @TransformationRequest.HdrMode Integer>()
-              .put("Keep HDR", TransformationRequest.HDR_MODE_KEEP_HDR)
-              .put(
-                  "MediaCodec tone-map HDR to SDR",
-                  TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC)
-              .put(
-                  "OpenGL tone-map HDR to SDR",
-                  TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL)
-              .put(
-                  "Force Interpret HDR as SDR",
-                  TransformationRequest.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR)
-              .build();
+  private static final ImmutableMap<String, @Composition.HdrMode Integer> HDR_MODE_DESCRIPTIONS =
+      new ImmutableMap.Builder<String, @Composition.HdrMode Integer>()
+          .put("Keep HDR", HDR_MODE_KEEP_HDR)
+          .put("MediaCodec tone-map HDR to SDR", HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC)
+          .put("OpenGL tone-map HDR to SDR", HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL)
+          .put("Force Interpret HDR as SDR", HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR)
+          .build();
   private static final ImmutableMap<String, Integer> OVERLAY_COLORS =
       new ImmutableMap.Builder<String, Integer>()
           .put("BLACK", Color.BLACK)

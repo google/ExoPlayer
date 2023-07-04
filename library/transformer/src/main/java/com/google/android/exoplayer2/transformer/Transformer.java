@@ -16,6 +16,7 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.transformer.Composition.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.annotation.ElementType.TYPE_USE;
@@ -799,7 +800,7 @@ public final class Transformer {
               context,
               new DefaultDecoderFactory(context),
               /* forceInterpretHdrAsSdr= */ transformationRequest.hdrMode
-                  == TransformationRequest.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR,
+                  == HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR,
               clock);
     }
     DebugTraceUtil.reset();

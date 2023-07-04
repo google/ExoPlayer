@@ -16,7 +16,7 @@
 
 package com.google.android.exoplayer2.transformer;
 
-import static com.google.android.exoplayer2.transformer.TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL;
+import static com.google.android.exoplayer2.transformer.Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
