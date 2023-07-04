@@ -64,6 +64,15 @@ public final class TimeSignalCommand extends SpliceCommand {
     return ptsTime;
   }
 
+  @Override
+  public String toString() {
+    return "SCTE-35 TimeSignalCommand { ptsTime="
+        + ptsTime
+        + ", playbackPositionUs= "
+        + playbackPositionUs
+        + " }";
+  }
+
   // Parcelable implementation.
 
   @Override
