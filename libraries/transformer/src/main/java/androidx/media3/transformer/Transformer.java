@@ -204,6 +204,8 @@ public final class Transformer {
     @Deprecated
     @CanIgnoreReturnValue
     public Builder setTransformationRequest(TransformationRequest transformationRequest) {
+      // TODO(b/289872787): Make TransformationRequest.Builder package private once this method is
+      //  removed.
       this.transformationRequest = transformationRequest;
       return this;
     }
