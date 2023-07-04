@@ -166,6 +166,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private static final int MSG_SET_OFFLOAD_SCHEDULING_ENABLED = 24;
   private static final int MSG_ATTEMPT_RENDERER_ERROR_RECOVERY = 25;
   private static final int MSG_RENDERER_CAPABILITIES_CHANGED = 26;
+  private static final int MSG_UPDATE_MEDIA_SOURCES_WITH_MEDIA_ITEMS = 27;
 
   private static final int ACTIVE_INTERVAL_MS = 10;
   private static final int IDLE_INTERVAL_MS = 1000;
@@ -407,6 +408,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
     handler.obtainMessage(MSG_SET_SHUFFLE_ORDER, shuffleOrder).sendToTarget();
   }
 
+  public void updateMediaSourcesWithMediaItems(
+      int fromIndex, int toIndex, List<MediaItem> mediaItems) {
+    handler
+        .obtainMessage(MSG_UPDATE_MEDIA_SOURCES_WITH_MEDIA_ITEMS, fromIndex, toIndex, mediaItems)
+        .sendToTarget();
+  }
+
   @Override
   public synchronized void sendMessage(PlayerMessage message) {
     if (released || !playbackLooper.getThread().isAlive()) {
@@ -500,6 +508,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   // Handler.Callback implementation.
 
+  @SuppressWarnings("unchecked") // Casting message payload types.
   @Override
   public boolean handleMessage(Message msg) {
     try {
@@ -586,6 +595,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
           break;
         case MSG_RENDERER_CAPABILITIES_CHANGED:
           reselectTracksInternalAndSeek();
+          break;
+        case MSG_UPDATE_MEDIA_SOURCES_WITH_MEDIA_ITEMS:
+          updateMediaSourcesWithMediaItemsInternal(msg.arg1, msg.arg2, (List<MediaItem>) msg.obj);
           break;
         case MSG_RELEASE:
           releaseInternal();
@@ -807,6 +819,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private void setShuffleOrderInternal(ShuffleOrder shuffleOrder) throws ExoPlaybackException {
     playbackInfoUpdate.incrementPendingOperationAcks(/* operationAcks= */ 1);
     Timeline timeline = mediaSourceList.setShuffleOrder(shuffleOrder);
+    handleMediaSourceListInfoRefreshed(timeline, /* isSourceRefresh= */ false);
+  }
+
+  private void updateMediaSourcesWithMediaItemsInternal(
+      int fromIndex, int toIndex, List<MediaItem> mediaItems) throws ExoPlaybackException {
+    playbackInfoUpdate.incrementPendingOperationAcks(/* operationAcks= */ 1);
+    Timeline timeline =
+        mediaSourceList.updateMediaSourcesWithMediaItems(fromIndex, toIndex, mediaItems);
     handleMediaSourceListInfoRefreshed(timeline, /* isSourceRefresh= */ false);
   }
 

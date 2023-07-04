@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
+import com.google.android.exoplayer2.source.TimelineWithUpdatedMediaItem;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.testutil.FakeMediaPeriod.TrackDataFactory;
@@ -96,6 +97,7 @@ public class FakeMediaSource extends BaseMediaSource {
   private final ArrayList<MediaPeriodId> createdMediaPeriods;
   private final DrmSessionManager drmSessionManager;
 
+  private boolean canUpdateMediaItems;
   private boolean preparationAllowed;
   private @MonotonicNonNull Timeline timeline;
   private boolean preparedSource;
@@ -166,6 +168,7 @@ public class FakeMediaSource extends BaseMediaSource {
     this.drmSessionManager = drmSessionManager;
     this.trackDataFactory = trackDataFactory;
     preparationAllowed = true;
+    canUpdateMediaItems = false;
   }
 
   /**
@@ -183,6 +186,15 @@ public class FakeMediaSource extends BaseMediaSource {
     }
   }
 
+  /**
+   * Sets whether the source allows to update its {@link MediaItem} via {@link #updateMediaItem}.
+   *
+   * @param canUpdateMediaItems Whether a {@link MediaItem} update is possible.
+   */
+  public void setCanUpdateMediaItems(boolean canUpdateMediaItems) {
+    this.canUpdateMediaItems = canUpdateMediaItems;
+  }
+
   @Nullable
   protected Timeline getTimeline() {
     return timeline;
@@ -194,6 +206,22 @@ public class FakeMediaSource extends BaseMediaSource {
       return FAKE_MEDIA_ITEM;
     }
     return timeline.getWindow(0, new Timeline.Window()).mediaItem;
+  }
+
+  @Override
+  public boolean canUpdateMediaItem(MediaItem mediaItem) {
+    return canUpdateMediaItems;
+  }
+
+  @Override
+  public void updateMediaItem(MediaItem mediaItem) {
+    if (timeline == null) {
+      return;
+    }
+    timeline = new TimelineWithUpdatedMediaItem(timeline, mediaItem);
+    if (preparedSource && preparationAllowed) {
+      refreshSourceInfo(timeline);
+    }
   }
 
   @Override

@@ -37,6 +37,7 @@ import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeShuffleOrder;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -503,6 +504,40 @@ public class MediaSourceListTest {
         new ShuffleOrder.DefaultShuffleOrder(/* length= */ MEDIA_SOURCE_LIST_SIZE));
     assertTimelineUsesFakeShuffleOrder(
         mediaSourceList.setShuffleOrder(new FakeShuffleOrder(MEDIA_SOURCE_LIST_SIZE)));
+  }
+
+  @Test
+  public void updateMediaSourcesWithMediaItems_updatesMediaItemsForPreparedAndPlaceholderSources() {
+    FakeMediaSource unaffectedSource = new FakeMediaSource();
+    FakeMediaSource preparedSource = new FakeMediaSource();
+    preparedSource.setCanUpdateMediaItems(true);
+    preparedSource.setAllowPreparation(true);
+    FakeMediaSource unpreparedSource = new FakeMediaSource();
+    unpreparedSource.setCanUpdateMediaItems(true);
+    unpreparedSource.setAllowPreparation(false);
+    mediaSourceList.setMediaSources(
+        createFakeHoldersWithSources(
+            /* useLazyPreparation= */ false, unaffectedSource, preparedSource, unpreparedSource),
+        new ShuffleOrder.DefaultShuffleOrder(/* length= */ 3));
+    mediaSourceList.prepare(/* mediaTransferListener= */ null);
+    MediaItem unaffectedMediaItem = unaffectedSource.getMediaItem();
+    MediaItem updatedItem1 = new MediaItem.Builder().setMediaId("1").build();
+    MediaItem updatedItem2 = new MediaItem.Builder().setMediaId("2").build();
+
+    Timeline timeline =
+        mediaSourceList.updateMediaSourcesWithMediaItems(
+            /* fromIndex= */ 1, /* toIndex= */ 3, ImmutableList.of(updatedItem1, updatedItem2));
+
+    assertThat(timeline.getWindow(/* windowIndex= */ 0, new Timeline.Window()).mediaItem)
+        .isEqualTo(unaffectedMediaItem);
+    assertThat(timeline.getWindow(/* windowIndex= */ 1, new Timeline.Window()).mediaItem)
+        .isEqualTo(updatedItem1);
+    assertThat(timeline.getWindow(/* windowIndex= */ 1, new Timeline.Window()).isPlaceholder)
+        .isFalse();
+    assertThat(timeline.getWindow(/* windowIndex= */ 2, new Timeline.Window()).mediaItem)
+        .isEqualTo(updatedItem2);
+    assertThat(timeline.getWindow(/* windowIndex= */ 2, new Timeline.Window()).isPlaceholder)
+        .isTrue();
   }
 
   // Internal methods.

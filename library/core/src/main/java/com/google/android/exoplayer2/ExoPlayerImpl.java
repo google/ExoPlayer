@@ -73,9 +73,11 @@ import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataOutput;
+import com.google.android.exoplayer2.source.MaskingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.ShuffleOrder;
+import com.google.android.exoplayer2.source.TimelineWithUpdatedMediaItem;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.text.Cue;
@@ -750,6 +752,11 @@ import java.util.concurrent.TimeoutException;
       return;
     }
     toIndex = min(toIndex, playlistSize);
+    if (canUpdateMediaSourcesWithMediaItems(fromIndex, toIndex, mediaItems)) {
+      // Update MediaSources directly without creating new ones if possible.
+      updateMediaSourcesWithMediaItems(fromIndex, toIndex, mediaItems);
+      return;
+    }
     List<MediaSource> mediaSources = createMediaSources(mediaItems);
     if (mediaSourceHolderSnapshots.isEmpty()) {
       // Handle initial items in a playlist as a set operation to ensure state changes and initial
@@ -1935,7 +1942,7 @@ import java.util.concurrent.TimeoutException;
         List<Timeline> timelines = ((PlaylistTimeline) newTimeline).getChildTimelines();
         checkState(timelines.size() == mediaSourceHolderSnapshots.size());
         for (int i = 0; i < timelines.size(); i++) {
-          mediaSourceHolderSnapshots.get(i).timeline = timelines.get(i);
+          mediaSourceHolderSnapshots.get(i).updateTimeline(timelines.get(i));
         }
       }
       boolean positionDiscontinuity = false;
@@ -1997,7 +2004,6 @@ import java.util.concurrent.TimeoutException;
             repeatCurrentMediaItem);
     boolean mediaItemTransitioned = mediaItemTransitionInfo.first;
     int mediaItemTransitionReason = mediaItemTransitionInfo.second;
-    MediaMetadata newMediaMetadata = mediaMetadata;
     @Nullable MediaItem mediaItem = null;
     if (mediaItemTransitioned) {
       if (!newPlaybackInfo.timeline.isEmpty()) {
@@ -2008,15 +2014,14 @@ import java.util.concurrent.TimeoutException;
       }
       staticAndDynamicMediaMetadata = MediaMetadata.EMPTY;
     }
-    if (mediaItemTransitioned
-        || !previousPlaybackInfo.staticMetadata.equals(newPlaybackInfo.staticMetadata)) {
+    if (!previousPlaybackInfo.staticMetadata.equals(newPlaybackInfo.staticMetadata)) {
       staticAndDynamicMediaMetadata =
           staticAndDynamicMediaMetadata
               .buildUpon()
               .populateFromMetadata(newPlaybackInfo.staticMetadata)
               .build();
-      newMediaMetadata = buildUpdatedMediaMetadata();
     }
+    MediaMetadata newMediaMetadata = buildUpdatedMediaMetadata();
     boolean metadataChanged = !newMediaMetadata.equals(mediaMetadata);
     mediaMetadata = newMediaMetadata;
     boolean playWhenReadyChanged =
@@ -2358,7 +2363,7 @@ import java.util.concurrent.TimeoutException;
           new MediaSourceList.MediaSourceHolder(mediaSources.get(i), useLazyPreparation);
       holders.add(holder);
       mediaSourceHolderSnapshots.add(
-          i + index, new MediaSourceHolderSnapshot(holder.uid, holder.mediaSource.getTimeline()));
+          i + index, new MediaSourceHolderSnapshot(holder.uid, holder.mediaSource));
     }
     shuffleOrder =
         shuffleOrder.cloneAndInsert(
@@ -2900,6 +2905,43 @@ import java.util.concurrent.TimeoutException;
     }
   }
 
+  private boolean canUpdateMediaSourcesWithMediaItems(
+      int fromIndex, int toIndex, List<MediaItem> mediaItems) {
+    if (toIndex - fromIndex != mediaItems.size()) {
+      // Number of items doesn't match.
+      return false;
+    }
+    for (int i = fromIndex; i < toIndex; i++) {
+      MediaSource mediaSource = mediaSourceHolderSnapshots.get(i).mediaSource;
+      if (!mediaSource.canUpdateMediaItem(mediaItems.get(i - fromIndex))) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private void updateMediaSourcesWithMediaItems(
+      int fromIndex, int toIndex, List<MediaItem> mediaItems) {
+    pendingOperationAcks++;
+    internalPlayer.updateMediaSourcesWithMediaItems(fromIndex, toIndex, mediaItems);
+    for (int i = fromIndex; i < toIndex; i++) {
+      MediaSourceHolderSnapshot snapshot = mediaSourceHolderSnapshots.get(i);
+      snapshot.updateTimeline(
+          new TimelineWithUpdatedMediaItem(snapshot.getTimeline(), mediaItems.get(i - fromIndex)));
+    }
+    Timeline newTimeline = createMaskingTimeline();
+    PlaybackInfo newPlaybackInfo = playbackInfo.copyWithTimeline(newTimeline);
+    updatePlaybackInfo(
+        newPlaybackInfo,
+        /* timelineChangeReason= */ TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED,
+        /* ignored */ PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
+        /* ignored */ false,
+        /* ignored */ DISCONTINUITY_REASON_REMOVE,
+        /* ignored */ C.TIME_UNSET,
+        /* ignored */ C.INDEX_UNSET,
+        /* ignored */ false);
+  }
+
   private static DeviceInfo createDeviceInfo(@Nullable StreamVolumeManager streamVolumeManager) {
     return new DeviceInfo.Builder(DeviceInfo.PLAYBACK_TYPE_LOCAL)
         .setMinVolume(streamVolumeManager != null ? streamVolumeManager.getMinVolume() : 0)
@@ -2916,12 +2958,14 @@ import java.util.concurrent.TimeoutException;
   private static final class MediaSourceHolderSnapshot implements MediaSourceInfoHolder {
 
     private final Object uid;
+    private final MediaSource mediaSource;
 
     private Timeline timeline;
 
-    public MediaSourceHolderSnapshot(Object uid, Timeline timeline) {
+    public MediaSourceHolderSnapshot(Object uid, MaskingMediaSource mediaSource) {
       this.uid = uid;
-      this.timeline = timeline;
+      this.mediaSource = mediaSource;
+      this.timeline = mediaSource.getTimeline();
     }
 
     @Override
@@ -2932,6 +2976,10 @@ import java.util.concurrent.TimeoutException;
     @Override
     public Timeline getTimeline() {
       return timeline;
+    }
+
+    public void updateTimeline(Timeline timeline) {
+      this.timeline = timeline;
     }
   }
 

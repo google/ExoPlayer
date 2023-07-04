@@ -255,6 +255,27 @@ import java.util.Set;
     return createTimeline();
   }
 
+  /**
+   * Updates the specified media sources with new {@link MediaItem media items}.
+   *
+   * @param fromIndex The index of the first media source to update. This index must be in the range
+   *     of 0 &lt;= index &lt;= {@link #getSize()}.
+   * @param toIndex The index after the last media source to update. This index must be in the range
+   *     of {@code fromIndex} &lt;= index &lt;= {@link #getSize()}.
+   * @param mediaItems The new {@link MediaItem media items} for the specified range of media
+   *     sources. Must have a size of {@code toIndex - fromIndex}.
+   * @return The new {@link Timeline}.
+   */
+  public Timeline updateMediaSourcesWithMediaItems(
+      int fromIndex, int toIndex, List<MediaItem> mediaItems) {
+    Assertions.checkArgument(fromIndex >= 0 && fromIndex <= toIndex && toIndex <= getSize());
+    Assertions.checkArgument(mediaItems.size() == toIndex - fromIndex);
+    for (int i = fromIndex; i < toIndex; i++) {
+      mediaSourceHolders.get(i).mediaSource.updateMediaItem(mediaItems.get(i - fromIndex));
+    }
+    return createTimeline();
+  }
+
   /** Clears the playlist. */
   public Timeline clear(@Nullable ShuffleOrder shuffleOrder) {
     this.shuffleOrder = shuffleOrder != null ? shuffleOrder : this.shuffleOrder.cloneAndClear();

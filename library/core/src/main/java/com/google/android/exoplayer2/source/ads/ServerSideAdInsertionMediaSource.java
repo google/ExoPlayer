@@ -223,6 +223,16 @@ public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
   }
 
   @Override
+  public boolean canUpdateMediaItem(MediaItem mediaItem) {
+    return mediaSource.canUpdateMediaItem(mediaItem);
+  }
+
+  @Override
+  public void updateMediaItem(MediaItem mediaItem) {
+    mediaSource.updateMediaItem(mediaItem);
+  }
+
+  @Override
   protected void prepareSourceInternal(@Nullable TransferListener mediaTransferListener) {
     Handler handler = Util.createHandlerForCurrentLooper();
     synchronized (this) {
