@@ -87,6 +87,7 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.content.Context;
@@ -13137,6 +13138,202 @@ public final class ExoPlayerTest {
         .onTimelineChanged(
             player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
     verifyNoMoreInteractions(listener);
+    player.release();
+  }
+
+  @Test
+  public void replaceMediaItems_withOnlyPartiallyReplaceableItemsInMediaSource_createsNewItems() {
+    FakeMediaSource sourceWithoutReplaceableItem = new FakeMediaSource();
+    sourceWithoutReplaceableItem.setCanUpdateMediaItems(false);
+    FakeMediaSource sourceWithReplaceableItem = new FakeMediaSource();
+    sourceWithReplaceableItem.setCanUpdateMediaItems(true);
+    MediaSource.Factory mockFactory = mock(MediaSource.Factory.class);
+    when(mockFactory.createMediaSource(any())).thenReturn(new FakeMediaSource());
+    ExoPlayer player = new TestExoPlayerBuilder(context).setMediaSourceFactory(mockFactory).build();
+    player.addMediaSources(
+        ImmutableList.of(sourceWithoutReplaceableItem, sourceWithReplaceableItem));
+    MediaItem mediaItem0 = new MediaItem.Builder().setMediaId("0").build();
+    MediaItem mediaItem1 = new MediaItem.Builder().setMediaId("1").build();
+
+    player.replaceMediaItems(
+        /* fromIndex= */ 0, /* toIndex= */ 2, ImmutableList.of(mediaItem0, mediaItem1));
+
+    verify(mockFactory).createMediaSource(mediaItem0);
+    verify(mockFactory).createMediaSource(mediaItem1);
+    player.release();
+  }
+
+  @Test
+  public void
+      replaceMediaItems_withReplaceableItemsInMediaSourceBeforePreparation_updatesMediaItems()
+          throws Exception {
+    FakeMediaSource unaffectedSource = new FakeMediaSource();
+    FakeMediaSource source0 = new FakeMediaSource();
+    source0.setCanUpdateMediaItems(true);
+    FakeMediaSource source1 = new FakeMediaSource();
+    source1.setCanUpdateMediaItems(true);
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.addMediaSources(ImmutableList.of(source0, source1, unaffectedSource));
+    MediaItem unaffectedMediaItem = unaffectedSource.getMediaItem();
+    MediaItem mediaItem0 =
+        new MediaItem.Builder()
+            .setMediaId("0")
+            .setMediaMetadata(new MediaMetadata.Builder().setTitle("0").build())
+            .build();
+    MediaItem mediaItem1 =
+        new MediaItem.Builder()
+            .setMediaId("1")
+            .setMediaMetadata(new MediaMetadata.Builder().setTitle("1").build())
+            .build();
+    Player.Listener listener = mock(Player.Listener.class);
+    player.addListener(listener);
+
+    player.replaceMediaItems(
+        /* fromIndex= */ 0, /* toIndex= */ 2, ImmutableList.of(mediaItem0, mediaItem1));
+
+    assertThat(player.getMediaItemAt(0)).isEqualTo(mediaItem0);
+    assertThat(player.getMediaItemAt(1)).isEqualTo(mediaItem1);
+    assertThat(player.getMediaItemAt(2)).isEqualTo(unaffectedMediaItem);
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verify(listener).onMediaMetadataChanged(new MediaMetadata.Builder().setTitle("0").build());
+    verifyNoMoreInteractions(listener);
+
+    // Verify that preparing the source keeps the updated item.
+    reset(listener);
+    player.prepare();
+    runUntilPlaybackState(player, Player.STATE_READY);
+
+    assertThat(player.getMediaItemAt(0)).isEqualTo(mediaItem0);
+    assertThat(player.getMediaItemAt(1)).isEqualTo(mediaItem1);
+    assertThat(player.getMediaItemAt(2)).isEqualTo(unaffectedMediaItem);
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
+    verify(listener, never()).onMediaMetadataChanged(any());
+    verify(listener, never()).onMediaItemTransition(any(), anyInt());
+    player.release();
+  }
+
+  @Test
+  public void
+      replaceMediaItems_withReplaceableItemsInMediaSourceImmediatelyAfterPreparation_updatesMediaItems()
+          throws Exception {
+    FakeMediaSource unaffectedSource = new FakeMediaSource();
+    FakeMediaSource source0 = new FakeMediaSource();
+    source0.setCanUpdateMediaItems(true);
+    FakeMediaSource source1 = new FakeMediaSource();
+    source1.setCanUpdateMediaItems(true);
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.addMediaSources(ImmutableList.of(source0, source1, unaffectedSource));
+    MediaItem unaffectedMediaItem = unaffectedSource.getMediaItem();
+    MediaItem mediaItem0 =
+        new MediaItem.Builder()
+            .setMediaId("0")
+            .setMediaMetadata(new MediaMetadata.Builder().setTitle("0").build())
+            .build();
+    MediaItem mediaItem1 =
+        new MediaItem.Builder()
+            .setMediaId("1")
+            .setMediaMetadata(new MediaMetadata.Builder().setTitle("1").build())
+            .build();
+    Player.Listener listener = mock(Player.Listener.class);
+
+    player.prepare();
+    player.addListener(listener);
+    player.replaceMediaItems(
+        /* fromIndex= */ 0, /* toIndex= */ 2, ImmutableList.of(mediaItem0, mediaItem1));
+
+    // Immediate updates from the prepare and replace operations.
+    assertThat(player.getMediaItemAt(0)).isEqualTo(mediaItem0);
+    assertThat(player.getMediaItemAt(1)).isEqualTo(mediaItem1);
+    assertThat(player.getMediaItemAt(2)).isEqualTo(unaffectedMediaItem);
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verify(listener).onMediaMetadataChanged(new MediaMetadata.Builder().setTitle("0").build());
+    verifyNoMoreInteractions(listener);
+
+    // Verify that the preparation finished without another MediaItem or metadata update.
+    reset(listener);
+    runUntilPendingCommandsAreFullyHandled(player);
+
+    assertThat(player.getMediaItemAt(0)).isEqualTo(mediaItem0);
+    assertThat(player.getMediaItemAt(1)).isEqualTo(mediaItem1);
+    assertThat(player.getMediaItemAt(2)).isEqualTo(unaffectedMediaItem);
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_SOURCE_UPDATE);
+    verify(listener, never()).onMediaMetadataChanged(any());
+    verify(listener, never()).onMediaItemTransition(any(), anyInt());
+    player.release();
+  }
+
+  @Test
+  public void
+      replaceMediaItems_withReplaceableItemsInMediaSourceDuringPlayback_updatesMediaItemsWithoutInterruption()
+          throws Exception {
+    FakeMediaSource unaffectedSource = new FakeMediaSource();
+    FakeMediaSource source0 = new FakeMediaSource();
+    source0.setCanUpdateMediaItems(true);
+    FakeMediaSource source1 = new FakeMediaSource();
+    source1.setCanUpdateMediaItems(true);
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    player.addMediaSources(ImmutableList.of(source0, source1, unaffectedSource));
+    MediaItem unaffectedMediaItem = unaffectedSource.getMediaItem();
+    MediaItem mediaItem0 =
+        new MediaItem.Builder()
+            .setMediaId("0")
+            .setMediaMetadata(new MediaMetadata.Builder().setTitle("0").build())
+            .build();
+    MediaItem mediaItem1 =
+        new MediaItem.Builder()
+            .setMediaId("1")
+            .setMediaMetadata(new MediaMetadata.Builder().setTitle("1").build())
+            .build();
+    player.prepare();
+    runUntilPlaybackState(player, Player.STATE_READY);
+    player.play();
+    Player.Listener listener = mock(Player.Listener.class);
+    player.addListener(listener);
+
+    player.replaceMediaItems(
+        /* fromIndex= */ 0, /* toIndex= */ 2, ImmutableList.of(mediaItem0, mediaItem1));
+
+    // Immediate updates from the replace operation.
+    assertThat(player.getMediaItemAt(0)).isEqualTo(mediaItem0);
+    assertThat(player.getMediaItemAt(1)).isEqualTo(mediaItem1);
+    assertThat(player.getMediaItemAt(2)).isEqualTo(unaffectedMediaItem);
+    verify(listener)
+        .onTimelineChanged(
+            player.getCurrentTimeline(), Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED);
+    verify(listener).onMediaMetadataChanged(new MediaMetadata.Builder().setTitle("0").build());
+    verifyNoMoreInteractions(listener);
+
+    // Verify that the update causes no immediate interruption.
+    reset(listener);
+    runUntilPendingCommandsAreFullyHandled(player);
+    assertThat(player.getMediaItemAt(0)).isEqualTo(mediaItem0);
+    assertThat(player.getMediaItemAt(1)).isEqualTo(mediaItem1);
+    assertThat(player.getMediaItemAt(2)).isEqualTo(unaffectedMediaItem);
+    verify(listener, never()).onTimelineChanged(any(), anyInt());
+    verify(listener, never()).onMediaMetadataChanged(any());
+    verify(listener, never()).onMediaItemTransition(any(), anyInt());
+    verify(listener, never()).onPlaybackStateChanged(Player.STATE_BUFFERING);
+
+    // Verify that playback finishes with the expected item and metadata transitions.
+    reset(listener);
+    runUntilPlaybackState(player, Player.STATE_ENDED);
+
+    verify(listener, never()).onTimelineChanged(any(), anyInt());
+    verify(listener, times(2)).onMediaMetadataChanged(any());
+    verify(listener).onMediaMetadataChanged(new MediaMetadata.Builder().setTitle("1").build());
+    verify(listener).onMediaMetadataChanged(MediaMetadata.EMPTY);
+    verify(listener, times(2)).onMediaItemTransition(any(), anyInt());
+    verify(listener).onMediaItemTransition(mediaItem1, Player.MEDIA_ITEM_TRANSITION_REASON_AUTO);
+    verify(listener)
+        .onMediaItemTransition(unaffectedMediaItem, Player.MEDIA_ITEM_TRANSITION_REASON_AUTO);
     player.release();
   }
 

@@ -281,6 +281,34 @@ public interface MediaSource {
   MediaItem getMediaItem();
 
   /**
+   * Returns whether the {@link MediaItem} for this source can be updated with the provided item.
+   *
+   * <p>Should not be called directly from application code.
+   *
+   * <p>This method must be called on the application thread.
+   *
+   * @param mediaItem The new {@link MediaItem}.
+   * @return Whether the source can be updated using this item.
+   */
+  @UnstableApi
+  default boolean canUpdateMediaItem(MediaItem mediaItem) {
+    return false;
+  }
+
+  /**
+   * Updates the {@link MediaItem} for this source.
+   *
+   * <p>Should not be called directly from application code.
+   *
+   * <p>This method must be called on the playback thread and only if {@link #canUpdateMediaItem}
+   * returns {@code true} for the new {@link MediaItem}.
+   *
+   * @param mediaItem The new {@link MediaItem}.
+   */
+  @UnstableApi
+  default void updateMediaItem(MediaItem mediaItem) {}
+
+  /**
    * @deprecated Implement {@link #prepareSource(MediaSourceCaller, TransferListener, PlayerId)}
    *     instead.
    */

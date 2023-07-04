@@ -1506,6 +1506,27 @@ public interface ExoPlayer extends Player {
   void setShuffleOrder(ShuffleOrder shuffleOrder);
 
   /**
+   * {@inheritDoc}
+   *
+   * <p>ExoPlayer will keep the existing {@link MediaSource} for this {@link MediaItem} if
+   * {@linkplain MediaSource#canUpdateMediaItem supported} by the {@link MediaSource}. If the
+   * current item is replaced, this will also not interrupt the ongoing playback.
+   */
+  @Override
+  void replaceMediaItem(int index, MediaItem mediaItem);
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>ExoPlayer will keep the existing {@link MediaSource} instances for the new {@link MediaItem
+   * MediaItems} if {@linkplain MediaSource#canUpdateMediaItem supported} by all of these {@link
+   * MediaSource} instances. If the current item is replaced, this will also not interrupt the
+   * ongoing playback.
+   */
+  @Override
+  void replaceMediaItems(int fromIndex, int toIndex, List<MediaItem> mediaItems);
+
+  /**
    * Sets the attributes for audio playback, used by the underlying audio track. If not set, the
    * default audio attributes will be used. They are suitable for general media playback.
    *

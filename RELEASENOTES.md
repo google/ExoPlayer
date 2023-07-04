@@ -24,6 +24,9 @@
         reason will be removed when a suitable output is connected.
     *   Fix issue in `PlaybackStatsListener` where spurious `PlaybackStats` are
         created after the playlist is cleared.
+    *   Add `MediaSource.canUpdateMediaItem` and `MediaSource.updateMediaItem`
+        to accept `MediaItem` updates after creation via
+        `Player.replaceMediaItem(s)`.
 *   Transformer:
     *   Parse EXIF rotation data for image inputs.
     *   Remove `TransformationRequest.HdrMode` annotation type and its

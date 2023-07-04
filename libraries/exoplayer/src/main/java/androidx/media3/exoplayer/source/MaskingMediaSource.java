@@ -78,6 +78,23 @@ public final class MaskingMediaSource extends WrappingMediaSource {
   }
 
   @Override
+  public boolean canUpdateMediaItem(MediaItem mediaItem) {
+    return mediaSource.canUpdateMediaItem(mediaItem);
+  }
+
+  @Override
+  public void updateMediaItem(MediaItem mediaItem) {
+    if (hasRealTimeline) {
+      timeline =
+          timeline.cloneWithUpdatedTimeline(
+              new TimelineWithUpdatedMediaItem(timeline.timeline, mediaItem));
+    } else {
+      timeline = MaskingTimeline.createWithPlaceholderTimeline(mediaItem);
+    }
+    mediaSource.updateMediaItem(mediaItem);
+  }
+
+  @Override
   public void prepareSourceInternal() {
     if (!useLazyPreparation) {
       hasStartedPreparing = true;

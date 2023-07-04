@@ -30,7 +30,9 @@ import androidx.media3.exoplayer.upstream.Allocator;
  *
  * <ul>
  *   <li>{@link #getMediaItem()}: Amend the {@link MediaItem} for this media source. This is only
- *       used before the child source is prepared.
+ *       used before the child source is prepared. You may also want to override {@link
+ *       #canUpdateMediaItem} or {@link #updateMediaItem} to intercept further updates to the {@link
+ *       MediaItem}.
  *   <li>{@link #onChildSourceInfoRefreshed(Timeline)}: Called whenever the child source's {@link
  *       Timeline} changed. This {@link Timeline} can be amended if needed, for example using {@link
  *       ForwardingTimeline}. The {@link Timeline} for the wrapping source needs to be published
@@ -88,16 +90,36 @@ public abstract class WrappingMediaSource extends CompositeMediaSource<Void> {
   }
 
   /**
-   * Returns the {@link MediaItem} for this media source.
+   * {@inheritDoc}
    *
    * <p>This method can be overridden to amend the {@link MediaItem} of the child source. It is only
    * used before the child source is prepared.
-   *
-   * @see MediaSource#getMediaItem()
    */
   @Override
   public MediaItem getMediaItem() {
     return mediaSource.getMediaItem();
+  }
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>This method can be overridden to change whether the {@link MediaItem} of the child source
+   * can be updated.
+   */
+  @Override
+  public boolean canUpdateMediaItem(MediaItem mediaItem) {
+    return mediaSource.canUpdateMediaItem(mediaItem);
+  }
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>This method can be overridden to change how the {@link MediaItem} of the child source is
+   * updated.
+   */
+  @Override
+  public void updateMediaItem(MediaItem mediaItem) {
+    mediaSource.updateMediaItem(mediaItem);
   }
 
   /**
