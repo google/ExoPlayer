@@ -25,13 +25,13 @@ import java.util.List;
 public class AdaptationSet {
 
   /** Value of {@link #id} indicating no value is set.= */
-  public static final int ID_UNSET = -1;
+  public static final long ID_UNSET = -1;
 
   /**
    * A non-negative identifier for the adaptation set that's unique in the scope of its containing
    * period, or {@link #ID_UNSET} if not specified.
    */
-  public final int id;
+  public final long id;
 
   /** The {@link C.TrackType track type} of the adaptation set. */
   public final @C.TrackType int type;
@@ -58,7 +58,7 @@ public class AdaptationSet {
    * @param supplementalProperties Supplemental properties in the adaptation set.
    */
   public AdaptationSet(
-      int id,
+      long id,
       @C.TrackType int type,
       List<Representation> representations,
       List<Descriptor> accessibilityDescriptors,
