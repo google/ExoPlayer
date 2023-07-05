@@ -860,6 +860,7 @@ public final class DefaultAudioSink implements AudioSink {
           // not have started yet. Do not call setOffloadEndOfStream as it would throw.
           if (audioTrack.getPlayState() == AudioTrack.PLAYSTATE_PLAYING) {
             audioTrack.setOffloadEndOfStream();
+            audioTrackPositionTracker.expectRawPlaybackHeadReset();
           }
           audioTrack.setOffloadDelayPadding(
               configuration.inputFormat.encoderDelay, configuration.inputFormat.encoderPadding);

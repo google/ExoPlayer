@@ -26,7 +26,9 @@ import android.media.AudioTrack;
 import android.os.SystemClock;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.C;
+import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.Util;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -202,6 +204,19 @@ import java.lang.reflect.Method;
   private long previousModeSystemTimeUs;
 
   /**
+   * Whether to expect a raw playback head reset.
+   *
+   * <p>When an {@link AudioTrack} is reused during offloaded playback, rawPlaybackHeadPosition is
+   * reset upon track transition. {@link AudioTrackPositionTracker} must be notified of the
+   * impending reset and keep track of total accumulated rawPlaybackHeadPosition.
+   */
+  private boolean expectRawPlaybackHeadReset;
+
+  private long sumRawPlaybackHeadPosition;
+
+  private Clock clock = Clock.DEFAULT;
+
+  /**
    * Creates a new audio track position tracker.
    *
    * @param listener A listener for position tracking events.
@@ -245,6 +260,8 @@ import java.lang.reflect.Method;
     bufferSizeUs = isOutputPcm ? framesToDurationUs(bufferSize / outputPcmFrameSize) : C.TIME_UNSET;
     rawPlaybackHeadPosition = 0;
     rawPlaybackHeadWrapCount = 0;
+    expectRawPlaybackHeadReset = false;
+    sumRawPlaybackHeadPosition = 0;
     passthroughWorkaroundPauseOffset = 0;
     hasData = false;
     stopTimestampUs = C.TIME_UNSET;
@@ -271,7 +288,7 @@ import java.lang.reflect.Method;
 
     // If the device supports it, use the playback timestamp from AudioTrack.getTimestamp.
     // Otherwise, derive a smoothed position by sampling the track's frame position.
-    long systemTimeUs = System.nanoTime() / 1000;
+    long systemTimeUs = clock.nanoTime() / 1000;
     long positionUs;
     AudioTimestampPoller audioTimestampPoller = checkNotNull(this.audioTimestampPoller);
     boolean useGetTimestampMode = audioTimestampPoller.hasAdvancingTimestamp();
@@ -446,6 +463,14 @@ import java.lang.reflect.Method;
   }
 
   /**
+   * Sets up the position tracker to expect a reset in raw playback head position due to reusing an
+   * {@link AudioTrack} and an impending track transition.
+   */
+  public void expectRawPlaybackHeadReset() {
+    expectRawPlaybackHeadReset = true;
+  }
+
+  /**
    * Resets the position tracker. Should be called when the audio track previously passed to {@link
    * #setAudioTrack(AudioTrack, boolean, int, int, int)} is no longer in use.
    */
@@ -455,8 +480,18 @@ import java.lang.reflect.Method;
     audioTimestampPoller = null;
   }
 
+  /**
+   * Set clock used for {@code nanoTime()} requests.
+   *
+   * @param clock The clock to be used for {@code nanoTime()} requests.
+   */
+  @VisibleForTesting
+  /* package */ void setClock(Clock clock) {
+    this.clock = clock;
+  }
+
   private void maybeSampleSyncParams() {
-    long systemTimeUs = System.nanoTime() / 1000;
+    long systemTimeUs = clock.nanoTime() / 1000;
     if (systemTimeUs - lastPlayheadSampleTimeUs >= MIN_PLAYHEAD_OFFSET_SAMPLE_INTERVAL_US) {
       long playbackPositionUs = getPlaybackHeadPositionUs();
       if (playbackPositionUs == 0) {
@@ -608,7 +643,7 @@ import java.lang.reflect.Method;
       updateRawPlaybackHeadPosition(currentTimeMs);
       lastRawPlaybackHeadPositionSampleTimeMs = currentTimeMs;
     }
-    return rawPlaybackHeadPosition + (rawPlaybackHeadWrapCount << 32);
+    return rawPlaybackHeadPosition + sumRawPlaybackHeadPosition + (rawPlaybackHeadWrapCount << 32);
   }
 
   private void updateRawPlaybackHeadPosition(long currentTimeMs) {
@@ -648,8 +683,13 @@ import java.lang.reflect.Method;
     }
 
     if (this.rawPlaybackHeadPosition > rawPlaybackHeadPosition) {
-      // The value must have wrapped around.
-      rawPlaybackHeadWrapCount++;
+      if (expectRawPlaybackHeadReset) {
+        sumRawPlaybackHeadPosition += this.rawPlaybackHeadPosition;
+        expectRawPlaybackHeadReset = false;
+      } else {
+        // The value must have wrapped around.
+        rawPlaybackHeadWrapCount++;
+      }
     }
     this.rawPlaybackHeadPosition = rawPlaybackHeadPosition;
   }
