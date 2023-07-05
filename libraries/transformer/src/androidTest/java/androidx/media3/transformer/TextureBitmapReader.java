@@ -73,10 +73,10 @@ public final class TextureBitmapReader implements VideoFrameProcessorTestRunner.
       throws VideoFrameProcessingException {
     try {
       GlUtil.focusFramebufferUsingCurrentContext(
-          outputTexture.getFboId(), outputTexture.getWidth(), outputTexture.getHeight());
+          outputTexture.fboId, outputTexture.width, outputTexture.height);
       outputBitmap =
           createBitmapFromCurrentGlFrameBuffer(
-              outputTexture.getWidth(), outputTexture.getHeight(), useHighPrecisionColorComponents);
+              outputTexture.width, outputTexture.height, useHighPrecisionColorComponents);
       outputTimestampsToBitmaps.put(presentationTimeUs, outputBitmap);
     } catch (GlUtil.GlException e) {
       throw new VideoFrameProcessingException(e);

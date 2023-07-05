@@ -132,25 +132,23 @@ import androidx.media3.common.util.Size;
       GlObjectsProvider glObjectsProvider, GlTextureInfo newTexture, long presentationTimeUs) {
     try {
       if (previousTexture == null) {
-        int texId = GlUtil.createTexture(newTexture.getWidth(), newTexture.getHeight(), useHdr);
+        int texId = GlUtil.createTexture(newTexture.width, newTexture.height, useHdr);
         previousTexture =
-            glObjectsProvider.createBuffersForTexture(
-                texId, newTexture.getWidth(), newTexture.getHeight());
+            glObjectsProvider.createBuffersForTexture(texId, newTexture.width, newTexture.height);
       }
       GlTextureInfo previousTexture = checkNotNull(this.previousTexture);
-      if (previousTexture.getHeight() != newTexture.getHeight()
-          || previousTexture.getWidth() != newTexture.getWidth()) {
+      if (previousTexture.height != newTexture.height
+          || previousTexture.width != newTexture.width) {
         previousTexture.release();
-        int texId = GlUtil.createTexture(newTexture.getWidth(), newTexture.getHeight(), useHdr);
+        int texId = GlUtil.createTexture(newTexture.width, newTexture.height, useHdr);
         previousTexture =
-            glObjectsProvider.createBuffersForTexture(
-                texId, newTexture.getWidth(), newTexture.getHeight());
+            glObjectsProvider.createBuffersForTexture(texId, newTexture.width, newTexture.height);
       }
 
       GlUtil.focusFramebufferUsingCurrentContext(
-          previousTexture.getFboId(), previousTexture.getWidth(), previousTexture.getHeight());
+          previousTexture.fboId, previousTexture.width, previousTexture.height);
       GlUtil.clearFocusedBuffers();
-      drawFrame(newTexture.getTexId(), presentationTimeUs);
+      drawFrame(newTexture.texId, presentationTimeUs);
       previousPresentationTimeUs = presentationTimeUs;
       this.previousTexture = previousTexture;
     } catch (VideoFrameProcessingException | GlUtil.GlException e) {
@@ -174,7 +172,7 @@ import androidx.media3.common.util.Size;
   private void queuePreviousFrame(GlObjectsProvider glObjectsProvider) {
     try {
       GlTextureInfo previousTexture = checkNotNull(this.previousTexture);
-      Size outputTextureSize = configure(previousTexture.getWidth(), previousTexture.getHeight());
+      Size outputTextureSize = configure(previousTexture.width, previousTexture.height);
       outputTexturePool.ensureConfigured(
           glObjectsProvider, outputTextureSize.getWidth(), outputTextureSize.getHeight());
 
@@ -183,10 +181,10 @@ import androidx.media3.common.util.Size;
 
       // Copy frame to fbo.
       GlUtil.focusFramebufferUsingCurrentContext(
-          outputTexture.getFboId(), outputTexture.getWidth(), outputTexture.getHeight());
+          outputTexture.fboId, outputTexture.width, outputTexture.height);
       GlUtil.clearFocusedBuffers();
 
-      drawFrame(previousTexture.getTexId(), previousPresentationTimeUs);
+      drawFrame(previousTexture.texId, previousPresentationTimeUs);
       getOutputListener().onOutputFrameAvailable(outputTexture, previousPresentationTimeUs);
       lastQueuedPresentationTimeUs = previousPresentationTimeUs;
     } catch (VideoFrameProcessingException | GlUtil.GlException e) {

@@ -15,8 +15,6 @@
  */
 package androidx.media3.common;
 
-import static androidx.media3.common.util.Assertions.checkState;
-
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.UnstableApi;
 
@@ -32,13 +30,26 @@ public final class GlTextureInfo {
           /* width= */ C.LENGTH_UNSET,
           /* height= */ C.LENGTH_UNSET);
 
-  private final int texId;
-  private final int fboId;
-  private final int rboId;
-  private final int width;
-  private final int height;
+  /** The OpenGL texture identifier, or {@link C#INDEX_UNSET} if not specified. */
+  public final int texId;
 
-  private boolean isReleased;
+  /**
+   * Identifier of a framebuffer object associated with the texture, or {@link C#INDEX_UNSET} if not
+   * specified.
+   */
+  public final int fboId;
+
+  /**
+   * Identifier of a renderbuffer object attached with the framebuffer, or {@link C#INDEX_UNSET} if
+   * not specified.
+   */
+  public final int rboId;
+
+  /** The width of the texture, in pixels, or {@link C#LENGTH_UNSET} if not specified. */
+  public final int width;
+
+  /** The height of the texture, in pixels, or {@link C#LENGTH_UNSET} if not specified. */
+  public final int height;
 
   /**
    * Creates a new instance.
@@ -59,44 +70,8 @@ public final class GlTextureInfo {
     this.height = height;
   }
 
-  /** The OpenGL texture identifier, or {@link C#INDEX_UNSET} if not specified. */
-  public int getTexId() {
-    checkState(!isReleased);
-    return texId;
-  }
-
-  /**
-   * Identifier of a framebuffer object associated with the texture, or {@link C#INDEX_UNSET} if not
-   * specified.
-   */
-  public int getFboId() {
-    checkState(!isReleased);
-    return fboId;
-  }
-
-  /**
-   * Identifier of a renderbuffer object attached with the framebuffer, or {@link C#INDEX_UNSET} if
-   * not specified.
-   */
-  public int getRboId() {
-    checkState(!isReleased);
-    return rboId;
-  }
-
-  /** The width of the texture, in pixels, or {@link C#LENGTH_UNSET} if not specified. */
-  public int getWidth() {
-    checkState(!isReleased);
-    return width;
-  }
-
-  /** The height of the texture, in pixels, or {@link C#LENGTH_UNSET} if not specified. */
-  public int getHeight() {
-    checkState(!isReleased);
-    return height;
-  }
-
+  /** Releases all information associated with this instance. */
   public void release() throws GlUtil.GlException {
-    isReleased = true;
     if (texId != C.INDEX_UNSET) {
       GlUtil.deleteTexture(texId);
     }

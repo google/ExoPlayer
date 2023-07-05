@@ -119,7 +119,7 @@ public abstract class BaseGlShaderProgram implements GlShaderProgram {
   public void queueInputFrame(
       GlObjectsProvider glObjectsProvider, GlTextureInfo inputTexture, long presentationTimeUs) {
     try {
-      Size outputTextureSize = configure(inputTexture.getWidth(), inputTexture.getHeight());
+      Size outputTextureSize = configure(inputTexture.width, inputTexture.height);
       outputTexturePool.ensureConfigured(
           glObjectsProvider, outputTextureSize.getWidth(), outputTextureSize.getHeight());
 
@@ -128,9 +128,9 @@ public abstract class BaseGlShaderProgram implements GlShaderProgram {
 
       // Copy frame to fbo.
       GlUtil.focusFramebufferUsingCurrentContext(
-          outputTexture.getFboId(), outputTexture.getWidth(), outputTexture.getHeight());
+          outputTexture.fboId, outputTexture.width, outputTexture.height);
       GlUtil.clearFocusedBuffers();
-      drawFrame(inputTexture.getTexId(), presentationTimeUs);
+      drawFrame(inputTexture.texId, presentationTimeUs);
       inputListener.onInputFrameProcessed(inputTexture);
       outputListener.onOutputFrameAvailable(outputTexture, presentationTimeUs);
     } catch (VideoFrameProcessingException | GlUtil.GlException | NoSuchElementException e) {

@@ -132,11 +132,11 @@ public final class VideoCompositor {
     //  * Allow different frame dimensions.
     InputFrameInfo inputFrame1 = framesToComposite.get(0);
     InputFrameInfo inputFrame2 = framesToComposite.get(1);
-    checkState(inputFrame1.texture.getWidth() == inputFrame2.texture.getWidth());
-    checkState(inputFrame1.texture.getHeight() == inputFrame2.texture.getHeight());
+    checkState(inputFrame1.texture.width == inputFrame2.texture.width);
+    checkState(inputFrame1.texture.height == inputFrame2.texture.height);
     try {
       outputTexturePool.ensureConfigured(
-          glObjectsProvider, inputFrame1.texture.getWidth(), inputFrame1.texture.getHeight());
+          glObjectsProvider, inputFrame1.texture.width, inputFrame1.texture.height);
       GlTextureInfo outputTexture = outputTexturePool.useTexture();
 
       drawFrame(inputFrame1.texture, inputFrame2.texture, outputTexture);
@@ -177,15 +177,13 @@ public final class VideoCompositor {
       GlTextureInfo inputTexture1, GlTextureInfo inputTexture2, GlTextureInfo outputTexture)
       throws GlUtil.GlException {
     GlUtil.focusFramebufferUsingCurrentContext(
-        outputTexture.getFboId(), outputTexture.getWidth(), outputTexture.getHeight());
+        outputTexture.fboId, outputTexture.width, outputTexture.height);
     GlUtil.clearFocusedBuffers();
 
     GlProgram glProgram = checkNotNull(this.glProgram);
     glProgram.use();
-    glProgram.setSamplerTexIdUniform(
-        "uTexSampler1", inputTexture1.getTexId(), /* texUnitIndex= */ 0);
-    glProgram.setSamplerTexIdUniform(
-        "uTexSampler2", inputTexture2.getTexId(), /* texUnitIndex= */ 1);
+    glProgram.setSamplerTexIdUniform("uTexSampler1", inputTexture1.texId, /* texUnitIndex= */ 0);
+    glProgram.setSamplerTexIdUniform("uTexSampler2", inputTexture2.texId, /* texUnitIndex= */ 1);
 
     glProgram.setFloatsUniform("uTexTransformationMatrix", GlUtil.create4x4IdentityMatrix());
     glProgram.setFloatsUniform("uTransformationMatrix", GlUtil.create4x4IdentityMatrix());
