@@ -42,8 +42,6 @@ import java.util.concurrent.Executor;
  */
 @UnstableApi
 public interface VideoFrameProcessor {
-  // TODO(b/243036513): Allow effects to be replaced.
-
   /**
    * Specifies how the input frames are made available to the {@link VideoFrameProcessor}. One of
    * {@link #INPUT_TYPE_SURFACE}, {@link #INPUT_TYPE_BITMAP} or {@link #INPUT_TYPE_TEXTURE_ID}.
