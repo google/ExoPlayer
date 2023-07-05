@@ -20,13 +20,21 @@ import com.google.android.exoplayer2.source.SampleQueue;
 import com.google.android.exoplayer2.source.TrackGroup;
 import java.io.IOException;
 
-/** Thrown when it is not possible to map a {@link TrackGroup} to a {@link SampleQueue}. */
+/**
+ * Thrown when it is not possible to map a {@link TrackGroup} to a {@link SampleQueue}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class SampleQueueMappingException extends IOException {
 
   /**
-   * @param mimeType The mime type of the track group whose mapping failed.
+   * @param mimeType The MIME type of the track group whose mapping failed.
    */
   public SampleQueueMappingException(@Nullable String mimeType) {
-    super("Unable to bind a sample queue to TrackGroup with mime type " + mimeType + ".");
+    super("Unable to bind a sample queue to TrackGroup with MIME type " + mimeType + ".");
   }
 }

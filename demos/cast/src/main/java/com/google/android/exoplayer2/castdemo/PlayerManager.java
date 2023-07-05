@@ -33,7 +33,15 @@ import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.gms.cast.framework.CastContext;
 import java.util.ArrayList;
 
-/** Manages players and an internal media queue for the demo app. */
+/**
+ * Manages players and an internal media queue for the demo app.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ class PlayerManager implements Player.Listener, SessionAvailabilityListener {
 
   /** Listener for events. */

@@ -57,7 +57,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * A {@link MediaSource} that inserts ads linearly into a provided content media source.
  *
  * <p>The wrapped content media source must contain a single {@link Timeline.Period}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
 
   /**
@@ -129,6 +135,7 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
       new MediaPeriodId(/* periodUid= */ new Object());
 
   private final MediaSource contentMediaSource;
+  @Nullable final MediaItem.DrmConfiguration contentDrmConfiguration;
   private final MediaSource.Factory adMediaSourceFactory;
   private final AdsLoader adsLoader;
   private final AdViewProvider adViewProvider;
@@ -165,6 +172,8 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
       AdsLoader adsLoader,
       AdViewProvider adViewProvider) {
     this.contentMediaSource = contentMediaSource;
+    this.contentDrmConfiguration =
+        checkNotNull(contentMediaSource.getMediaItem().localConfiguration).drmConfiguration;
     this.adMediaSourceFactory = adMediaSourceFactory;
     this.adsLoader = adsLoader;
     this.adViewProvider = adViewProvider;
@@ -315,11 +324,8 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
           if (adUri != null) {
             MediaItem.Builder adMediaItem = new MediaItem.Builder().setUri(adUri);
             // Propagate the content's DRM config into the ad media source.
-            @Nullable
-            MediaItem.LocalConfiguration contentLocalConfiguration =
-                contentMediaSource.getMediaItem().localConfiguration;
-            if (contentLocalConfiguration != null) {
-              adMediaItem.setDrmConfiguration(contentLocalConfiguration.drmConfiguration);
+            if (contentDrmConfiguration != null) {
+              adMediaItem.setDrmConfiguration(contentDrmConfiguration);
             }
             MediaSource adMediaSource = adMediaSourceFactory.createMediaSource(adMediaItem.build());
             adMediaSourceHolder.initializeWithMediaSource(adMediaSource, adUri);

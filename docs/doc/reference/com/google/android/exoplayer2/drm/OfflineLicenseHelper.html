@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":9,"i3":9,"i4":9,"i5":10,"i6":10,"i7":10};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":41,"i3":41,"i4":41,"i5":42,"i6":42,"i7":42};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -130,8 +130,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <hr>
 <pre>@RequiresApi(18)
+<a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 public final class <span class="typeNameLabel">OfflineLicenseHelper</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Helper class to download, renew and release offline licenses.</div>
 </li>
 </ul>
@@ -156,20 +162,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.drm.DefaultDrmSessionManager,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)">OfflineLicenseHelper</a></span>&#8203;(<a href="DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager</a>&nbsp;defaultDrmSessionManager,
                     <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Constructs an instance.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.util.UUID,com.google.android.exoplayer2.drm.ExoMediaDrm.Provider,com.google.android.exoplayer2.drm.MediaDrmCallback,java.util.Map,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)">OfflineLicenseHelper</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a>&nbsp;uuid,
-                    <a href="ExoMediaDrm.Provider.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.Provider</a>&nbsp;mediaDrmProvider,
-                    <a href="MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
-                    <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;optionalKeyRequestParameters,
-                    <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#%3Cinit%3E(com.google.android.exoplayer2.drm.DefaultDrmSessionManager,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)"><code>OfflineLicenseHelper(DefaultDrmSessionManager,
-     DrmSessionEventListener.EventDispatcher)</code></a> instead.</div>
-</div>
 </td>
 </tr>
 </table>
@@ -184,7 +178,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -194,6 +188,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#downloadLicense(com.google.android.exoplayer2.Format)">downloadLicense</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Downloads an offline license.</div>
 </td>
 </tr>
@@ -201,6 +196,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html?is-external=true" title="class or interface in java.lang" class="externalLink">Long</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/Long.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLicenseDurationRemainingSec(byte%5B%5D)">getLicenseDurationRemainingSec</a></span>&#8203;(byte[]&nbsp;offlineLicenseKeySetId)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the remaining license and playback durations in seconds, for an offline license.</div>
 </td>
 </tr>
@@ -211,6 +207,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                    <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
                    <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Instantiates a new instance which uses Widevine CDM.</div>
 </td>
 </tr>
@@ -222,6 +219,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                    <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;optionalKeyRequestParameters,
                    <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Instantiates a new instance which uses Widevine CDM.</div>
 </td>
 </tr>
@@ -231,6 +229,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                    <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
                    <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Instantiates a new instance which uses Widevine CDM.</div>
 </td>
 </tr>
@@ -238,6 +237,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases the helper.</div>
 </td>
 </tr>
@@ -245,6 +245,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#releaseLicense(byte%5B%5D)">releaseLicense</a></span>&#8203;(byte[]&nbsp;offlineLicenseKeySetId)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases an offline license.</div>
 </td>
 </tr>
@@ -252,6 +253,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#renewLicense(byte%5B%5D)">renewLicense</a></span>&#8203;(byte[]&nbsp;offlineLicenseKeySetId)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Renews an offline license.</div>
 </td>
 </tr>
@@ -279,25 +281,6 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(java.util.UUID,com.google.android.exoplayer2.drm.ExoMediaDrm.Provider,com.google.android.exoplayer2.drm.MediaDrmCallback,java.util.Map,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>OfflineLicenseHelper</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public&nbsp;OfflineLicenseHelper&#8203;(<a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a>&nbsp;uuid,
-                            <a href="ExoMediaDrm.Provider.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.Provider</a>&nbsp;mediaDrmProvider,
-                            <a href="MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
-                            @Nullable
-                            <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;optionalKeyRequestParameters,
-                            <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#%3Cinit%3E(com.google.android.exoplayer2.drm.DefaultDrmSessionManager,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)"><code>OfflineLicenseHelper(DefaultDrmSessionManager,
-     DrmSessionEventListener.EventDispatcher)</code></a> instead.</div>
-</div>
-</li>
-</ul>
 <a id="&lt;init&gt;(com.google.android.exoplayer2.drm.DefaultDrmSessionManager,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)">
 <!--   -->
 </a>
@@ -306,6 +289,7 @@ public&nbsp;OfflineLicenseHelper&#8203;(<a href="https://developer.android.com/r
 <h4>OfflineLicenseHelper</h4>
 <pre>public&nbsp;OfflineLicenseHelper&#8203;(<a href="DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager</a>&nbsp;defaultDrmSessionManager,
                             <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Constructs an instance. Call <a href="#release()"><code>release()</code></a> when the instance is no longer required.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -334,6 +318,7 @@ public&nbsp;OfflineLicenseHelper&#8203;(<a href="https://developer.android.com/r
 <pre class="methodSignature">public static&nbsp;<a href="OfflineLicenseHelper.html" title="class in com.google.android.exoplayer2.drm">OfflineLicenseHelper</a>&nbsp;newWidevineInstance&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;defaultLicenseUrl,
                                                        <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
                                                        <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Instantiates a new instance which uses Widevine CDM. Call <a href="#release()"><code>release()</code></a> when the instance
  is no longer required.</div>
 <dl>
@@ -358,6 +343,7 @@ public&nbsp;OfflineLicenseHelper&#8203;(<a href="https://developer.android.com/r
                                                        boolean&nbsp;forceDefaultLicenseUrl,
                                                        <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory,
                                                        <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Instantiates a new instance which uses Widevine CDM. Call <a href="#release()"><code>release()</code></a> when the instance
  is no longer required.</div>
 <dl>
@@ -386,6 +372,7 @@ public&nbsp;OfflineLicenseHelper&#8203;(<a href="https://developer.android.com/r
                                                        @Nullable
                                                        <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;optionalKeyRequestParameters,
                                                        <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Instantiates a new instance which uses Widevine CDM. Call <a href="#release()"><code>release()</code></a> when the instance
  is no longer required.</div>
 <dl>
@@ -414,6 +401,7 @@ public&nbsp;OfflineLicenseHelper&#8203;(<a href="https://developer.android.com/r
 <h4>downloadLicense</h4>
 <pre class="methodSignature">public&nbsp;byte[]&nbsp;downloadLicense&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)
                        throws <a href="DrmSession.DrmSessionException.html" title="class in com.google.android.exoplayer2.drm">DrmSession.DrmSessionException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Downloads an offline license.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -434,6 +422,7 @@ public&nbsp;OfflineLicenseHelper&#8203;(<a href="https://developer.android.com/r
 <h4>renewLicense</h4>
 <pre class="methodSignature">public&nbsp;byte[]&nbsp;renewLicense&#8203;(byte[]&nbsp;offlineLicenseKeySetId)
                     throws <a href="DrmSession.DrmSessionException.html" title="class in com.google.android.exoplayer2.drm">DrmSession.DrmSessionException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Renews an offline license.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -453,6 +442,7 @@ public&nbsp;OfflineLicenseHelper&#8203;(<a href="https://developer.android.com/r
 <h4>releaseLicense</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;releaseLicense&#8203;(byte[]&nbsp;offlineLicenseKeySetId)
                     throws <a href="DrmSession.DrmSessionException.html" title="class in com.google.android.exoplayer2.drm">DrmSession.DrmSessionException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases an offline license.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -470,6 +460,7 @@ public&nbsp;OfflineLicenseHelper&#8203;(<a href="https://developer.android.com/r
 <h4>getLicenseDurationRemainingSec</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/util/Pair.html" title="class or interface in android.util" class="externalLink">Pair</a>&lt;<a href="https://developer.android.com/reference/java/lang/Long.html?is-external=true" title="class or interface in java.lang" class="externalLink">Long</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/Long.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Long</a>&gt;&nbsp;getLicenseDurationRemainingSec&#8203;(byte[]&nbsp;offlineLicenseKeySetId)
                                                      throws <a href="DrmSession.DrmSessionException.html" title="class in com.google.android.exoplayer2.drm">DrmSession.DrmSessionException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the remaining license and playback durations in seconds, for an offline license.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -488,6 +479,7 @@ public&nbsp;OfflineLicenseHelper&#8203;(<a href="https://developer.android.com/r
 <li class="blockList">
 <h4>release</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;release()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases the helper. Should be called when the helper is no longer required.</div>
 </li>
 </ul>

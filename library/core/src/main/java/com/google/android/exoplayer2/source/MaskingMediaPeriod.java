@@ -34,7 +34,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * on a given source until {@link #createPeriod(MediaPeriodId)} has been called. This is useful if
  * you need to return a media period immediately but the media source that should create it is not
  * yet available or prepared.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class MaskingMediaPeriod implements MediaPeriod, MediaPeriod.Callback {
 
   /** Listener for preparation events. */

@@ -26,7 +26,15 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 
-/** A manager that wraps {@link AudioManager} to control/listen audio stream volume. */
+/**
+ * A manager that wraps {@link AudioManager} to control/listen audio stream volume.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ final class StreamVolumeManager {
 
   /** A listener for changes in the manager. */
@@ -44,9 +52,6 @@ import com.google.android.exoplayer2.util.Util;
   // TODO(b/151280453): Replace the hidden intent action with an official one.
   // Copied from AudioManager#VOLUME_CHANGED_ACTION
   private static final String VOLUME_CHANGED_ACTION = "android.media.VOLUME_CHANGED_ACTION";
-
-  // TODO(b/153317944): Allow users to override these flags.
-  private static final int VOLUME_FLAGS = AudioManager.FLAG_SHOW_UI;
 
   private final Context applicationContext;
   private final Handler eventHandler;
@@ -119,46 +124,58 @@ import com.google.android.exoplayer2.util.Util;
   }
 
   /**
-   * Sets the volume with the given value for the current audio stream. The value should be between
-   * {@link #getMinVolume()} and {@link #getMaxVolume()}, otherwise it will be ignored.
+   * Sets the volume with the given value for the current audio stream with specified volume flags.
+   *
+   * @param volume The value should be between {@link #getMinVolume()} and {@link #getMaxVolume()},
+   *     otherwise the volume will not be changed.
+   * @param flags Either 0 or a bitwise combination of one or more {@link C.VolumeFlags}.
    */
-  public void setVolume(int volume) {
+  public void setVolume(int volume, @C.VolumeFlags int flags) {
     if (volume < getMinVolume() || volume > getMaxVolume()) {
       return;
     }
-    audioManager.setStreamVolume(streamType, volume, VOLUME_FLAGS);
+    audioManager.setStreamVolume(streamType, volume, flags);
     updateVolumeAndNotifyIfChanged();
   }
 
   /**
-   * Increases the volume by one for the current audio stream. It will be ignored if the current
-   * volume is equal to {@link #getMaxVolume()}.
+   * Increases the volume by one for the current audio stream with specified volume flags. If the
+   * current volume is equal to {@link #getMaxVolume()}, it will not be increased.
+   *
+   * @param flags Either 0 or a bitwise combination of one or more {@link C.VolumeFlags}.
    */
-  public void increaseVolume() {
+  public void increaseVolume(@C.VolumeFlags int flags) {
     if (volume >= getMaxVolume()) {
       return;
     }
-    audioManager.adjustStreamVolume(streamType, AudioManager.ADJUST_RAISE, VOLUME_FLAGS);
+    audioManager.adjustStreamVolume(streamType, AudioManager.ADJUST_RAISE, flags);
     updateVolumeAndNotifyIfChanged();
   }
 
   /**
-   * Decreases the volume by one for the current audio stream. It will be ignored if the current
-   * volume is equal to {@link #getMinVolume()}.
+   * Decreases the volume by one for the current audio stream with specified volume flags. If the
+   * current volume is equal to {@link #getMinVolume()}, it will be be decreased.
+   *
+   * @param flags Either 0 or a bitwise combination of one or more {@link C.VolumeFlags}.
    */
-  public void decreaseVolume() {
+  public void decreaseVolume(@C.VolumeFlags int flags) {
     if (volume <= getMinVolume()) {
       return;
     }
-    audioManager.adjustStreamVolume(streamType, AudioManager.ADJUST_LOWER, VOLUME_FLAGS);
+    audioManager.adjustStreamVolume(streamType, AudioManager.ADJUST_LOWER, flags);
     updateVolumeAndNotifyIfChanged();
   }
 
-  /** Sets the mute state of the current audio stream. */
-  public void setMuted(boolean muted) {
+  /**
+   * Sets the mute state of the current audio stream with specified volume flags.
+   *
+   * @param muted Whether to mute or to unmute the stream.
+   * @param flags Either 0 or a bitwise combination of one or more {@link C.VolumeFlags}.
+   */
+  public void setMuted(boolean muted, @C.VolumeFlags int flags) {
     if (Util.SDK_INT >= 23) {
       audioManager.adjustStreamVolume(
-          streamType, muted ? AudioManager.ADJUST_MUTE : AudioManager.ADJUST_UNMUTE, VOLUME_FLAGS);
+          streamType, muted ? AudioManager.ADJUST_MUTE : AudioManager.ADJUST_UNMUTE, flags);
     } else {
       audioManager.setStreamMute(streamType, muted);
     }

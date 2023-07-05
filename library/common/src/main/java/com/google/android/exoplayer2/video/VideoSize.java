@@ -22,7 +22,15 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Bundleable;
 import com.google.android.exoplayer2.util.Util;
 
-/** Represents the video size. */
+/**
+ * Represents the video size.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class VideoSize implements Bundleable {
 
   private static final int DEFAULT_WIDTH = 0;
@@ -76,7 +84,7 @@ public final class VideoSize implements Bundleable {
   }
 
   /**
-   * Creates a VideoSize.
+   * Creates a new instance.
    *
    * @param width The video width in pixels.
    * @param height The video height in pixels.

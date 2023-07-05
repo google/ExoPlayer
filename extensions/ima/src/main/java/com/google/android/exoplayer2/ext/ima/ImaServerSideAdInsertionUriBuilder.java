@@ -36,7 +36,13 @@ import java.util.Map;
  * Builder for URI for IMA DAI streams. The resulting URI can be used to build a {@link
  * com.google.android.exoplayer2.MediaItem#fromUri(Uri) media item} that can be played by the {@link
  * ImaServerSideAdInsertionMediaSource}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class ImaServerSideAdInsertionUriBuilder {
 
   /** The default timeout for loading the video URI, in milliseconds. */
@@ -379,10 +385,6 @@ public final class ImaServerSideAdInsertionUriBuilder {
     if (streamActivityMonitorId != null) {
       streamRequest.setStreamActivityMonitorId(streamActivityMonitorId);
     }
-    checkState(
-        streamRequest.getFormat() != StreamFormat.DASH
-            || TextUtils.isEmpty(streamRequest.getAssetKey()),
-        "DASH live streams are not supported yet.");
     return streamRequest;
   }
 }

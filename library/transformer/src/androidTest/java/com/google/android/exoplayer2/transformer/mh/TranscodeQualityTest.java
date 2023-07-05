@@ -17,6 +17,7 @@
 package com.google.android.exoplayer2.transformer.mh;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assume.assumeTrue;
 
 import android.content.Context;
 import android.net.Uri;
@@ -25,12 +26,14 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.transformer.AndroidTestUtil;
 import com.google.android.exoplayer2.transformer.DefaultEncoderFactory;
+import com.google.android.exoplayer2.transformer.EditedMediaItem;
+import com.google.android.exoplayer2.transformer.ExportTestResult;
 import com.google.android.exoplayer2.transformer.TransformationRequest;
-import com.google.android.exoplayer2.transformer.TransformationTestResult;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
 import com.google.android.exoplayer2.transformer.VideoEncoderSettings;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -38,18 +41,20 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class TranscodeQualityTest {
   @Test
-  public void transformHighQualityTargetingAvcToAvc1920x1080_ssimIsGreaterThan95Percent()
+  public void exportHighQualityTargetingAvcToAvc1920x1080_ssimIsGreaterThan95Percent()
       throws Exception {
     Context context = ApplicationProvider.getApplicationContext();
     String testId = "transformHighQualityTargetingAvcToAvc1920x1080_ssim";
 
-    if (AndroidTestUtil.skipAndLogIfInsufficientCodecSupport(
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
-        /* decodingFormat= */ AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT,
-        /* encodingFormat= */ AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT)) {
+        /* inputFormat= */ AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT,
+        /* outputFormat= */ AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT)) {
       return;
     }
+    // TODO: b/239983127 - Remove this test skip on these devices.
+    assumeTrue(!Util.MODEL.equals("SM-F711U1") && !Util.MODEL.equals("SM-F926U1"));
 
     Transformer transformer =
         new Transformer.Builder(context)
@@ -59,22 +64,23 @@ public final class TranscodeQualityTest {
                 new DefaultEncoderFactory.Builder(context)
                     .setRequestedVideoEncoderSettings(
                         new VideoEncoderSettings.Builder()
-                            .setEnableHighQualityTargeting(true)
+                            .experimentalSetEnableHighQualityTargeting(true)
                             .build())
                     .build())
-            .setRemoveAudio(true)
             .build();
+    MediaItem mediaItem =
+        MediaItem.fromUri(
+            Uri.parse(AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING));
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).build();
 
-    TransformationTestResult result =
+    ExportTestResult result =
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .setRequestCalculateSsim(true)
             .build()
-            .run(
-                testId,
-                MediaItem.fromUri(
-                    Uri.parse(AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING)));
+            .run(testId, editedMediaItem);
 
-    if (result.ssim != TransformationTestResult.SSIM_UNSET) {
+    if (result.ssim != ExportTestResult.SSIM_UNSET) {
       assertThat(result.ssim).isGreaterThan(0.90);
     }
   }
@@ -84,34 +90,37 @@ public final class TranscodeQualityTest {
     Context context = ApplicationProvider.getApplicationContext();
     String testId = "transcodeAvcToHevc_ssim";
 
-    if (AndroidTestUtil.skipAndLogIfInsufficientCodecSupport(
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
-        /* decodingFormat= */ AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT,
-        /* encodingFormat= */ AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT
+        /* inputFormat= */ AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT,
+        /* outputFormat= */ AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT
             .buildUpon()
             .setSampleMimeType(MimeTypes.VIDEO_H265)
             .build())) {
       return;
     }
+    // TODO: b/239983127 - Remove this test skip on these devices.
+    assumeTrue(!Util.MODEL.equals("SM-F711U1") && !Util.MODEL.equals("SM-F926U1"));
 
     Transformer transformer =
         new Transformer.Builder(context)
             .setTransformationRequest(
                 new TransformationRequest.Builder().setVideoMimeType(MimeTypes.VIDEO_H265).build())
-            .setRemoveAudio(true)
             .build();
+    MediaItem mediaItem =
+        MediaItem.fromUri(
+            Uri.parse(AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING));
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).build();
 
-    TransformationTestResult result =
+    ExportTestResult result =
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .setRequestCalculateSsim(true)
             .build()
-            .run(
-                testId,
-                MediaItem.fromUri(
-                    Uri.parse(AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING)));
+            .run(testId, editedMediaItem);
 
-    if (result.ssim != TransformationTestResult.SSIM_UNSET) {
+    if (result.ssim != ExportTestResult.SSIM_UNSET) {
       assertThat(result.ssim).isGreaterThan(0.90);
     }
   }
@@ -129,21 +138,21 @@ public final class TranscodeQualityTest {
             .setTransformationRequest(
                 new TransformationRequest.Builder().setVideoMimeType(MimeTypes.VIDEO_H264).build())
             .setEncoderFactory(new AndroidTestUtil.ForceEncodeEncoderFactory(context))
-            .setRemoveAudio(true)
             .build();
+    MediaItem mediaItem =
+        MediaItem.fromUri(
+            Uri.parse(
+                AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_URI_STRING));
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).build();
 
-    TransformationTestResult result =
+    ExportTestResult result =
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .setRequestCalculateSsim(true)
             .build()
-            .run(
-                testId,
-                MediaItem.fromUri(
-                    Uri.parse(
-                        AndroidTestUtil
-                            .MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_URI_STRING)));
+            .run(testId, editedMediaItem);
 
-    if (result.ssim != TransformationTestResult.SSIM_UNSET) {
+    if (result.ssim != ExportTestResult.SSIM_UNSET) {
       assertThat(result.ssim).isGreaterThan(0.90);
     }
   }

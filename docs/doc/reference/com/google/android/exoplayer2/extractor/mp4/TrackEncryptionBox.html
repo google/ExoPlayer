@@ -123,8 +123,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">TrackEncryptionBox</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">TrackEncryptionBox</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Encapsulates information parsed from a track encryption (tenc) box or sample group description
  (sgpd) box in an MP4 stream.</div>
 </li>
@@ -151,6 +157,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="../TrackOutput.CryptoData.html" title="class in com.google.android.exoplayer2.extractor">TrackOutput.CryptoData</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#cryptoData">cryptoData</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A <a href="../TrackOutput.CryptoData.html" title="class in com.google.android.exoplayer2.extractor"><code>TrackOutput.CryptoData</code></a> instance containing the encryption information from this
  <a href="TrackEncryptionBox.html" title="class in com.google.android.exoplayer2.extractor.mp4"><code>TrackEncryptionBox</code></a>.</div>
 </td>
@@ -159,6 +166,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#defaultInitializationVector">defaultInitializationVector</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If <a href="#perSampleIvSize"><code>perSampleIvSize</code></a> is 0, holds the default initialization vector as defined in the
  track encryption box or sample group description box.</div>
 </td>
@@ -167,6 +175,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isEncrypted">isEncrypted</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Indicates the encryption state of the samples in the sample group.</div>
 </td>
 </tr>
@@ -174,6 +183,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#perSampleIvSize">perSampleIvSize</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The initialization vector size in bytes for the samples in the corresponding sample group.</div>
 </td>
 </tr>
@@ -181,6 +191,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#schemeType">schemeType</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The protection scheme type, as defined by the 'schm' box, or null if unknown.</div>
 </td>
 </tr>
@@ -209,7 +220,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                   int&nbsp;defaultEncryptedBlocks,
                   int&nbsp;defaultClearBlocks,
                   byte[]&nbsp;defaultInitializationVector)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -252,6 +265,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>isEncrypted</h4>
 <pre>public final&nbsp;boolean isEncrypted</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Indicates the encryption state of the samples in the sample group.</div>
 </li>
 </ul>
@@ -263,6 +277,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>schemeType</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> schemeType</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The protection scheme type, as defined by the 'schm' box, or null if unknown.</div>
 </li>
 </ul>
@@ -273,6 +288,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <li class="blockList">
 <h4>cryptoData</h4>
 <pre>public final&nbsp;<a href="../TrackOutput.CryptoData.html" title="class in com.google.android.exoplayer2.extractor">TrackOutput.CryptoData</a> cryptoData</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A <a href="../TrackOutput.CryptoData.html" title="class in com.google.android.exoplayer2.extractor"><code>TrackOutput.CryptoData</code></a> instance containing the encryption information from this
  <a href="TrackEncryptionBox.html" title="class in com.google.android.exoplayer2.extractor.mp4"><code>TrackEncryptionBox</code></a>.</div>
 </li>
@@ -284,6 +300,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <li class="blockList">
 <h4>perSampleIvSize</h4>
 <pre>public final&nbsp;int perSampleIvSize</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The initialization vector size in bytes for the samples in the corresponding sample group.</div>
 </li>
 </ul>
@@ -295,6 +312,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <h4>defaultInitializationVector</h4>
 <pre>@Nullable
 public final&nbsp;byte[] defaultInitializationVector</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If <a href="#perSampleIvSize"><code>perSampleIvSize</code></a> is 0, holds the default initialization vector as defined in the
  track encryption box or sample group description box. Null otherwise.</div>
 </li>
@@ -324,6 +342,7 @@ public final&nbsp;byte[] defaultInitializationVector</pre>
                           int&nbsp;defaultClearBlocks,
                           @Nullable
                           byte[]&nbsp;defaultInitializationVector)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>isEncrypted</code> - See <a href="#isEncrypted"><code>isEncrypted</code></a>.</dd>

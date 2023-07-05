@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.ext.media2;
 
 import static com.google.android.exoplayer2.Player.COMMAND_GET_AUDIO_ATTRIBUTES;
-import static com.google.android.exoplayer2.Player.COMMAND_PLAY_PAUSE;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_MEDIA_ITEM;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT;
@@ -50,7 +49,13 @@ import java.util.List;
 /**
  * Wraps an ExoPlayer {@link Player} instance and provides methods and notifies events like those in
  * the {@link SessionPlayer} API.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 /* package */ final class PlayerWrapper {
   private static final String TAG = "PlayerWrapper";
 
@@ -327,31 +332,17 @@ import java.util.List;
   }
 
   public boolean play() {
-    if (player.getPlaybackState() == Player.STATE_ENDED) {
-      if (!player.isCommandAvailable(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)) {
-        return false;
-      }
-      player.seekTo(player.getCurrentMediaItemIndex(), /* positionMs= */ 0);
+    if (!player.getPlayWhenReady()) {
+      return Util.handlePlayButtonAction(player);
     }
-    boolean playWhenReady = player.getPlayWhenReady();
-    int suppressReason = player.getPlaybackSuppressionReason();
-    if ((playWhenReady && suppressReason == Player.PLAYBACK_SUPPRESSION_REASON_NONE)
-        || !player.isCommandAvailable(COMMAND_PLAY_PAUSE)) {
-      return false;
-    }
-    player.play();
-    return true;
+    return false;
   }
 
   public boolean pause() {
-    boolean playWhenReady = player.getPlayWhenReady();
-    int suppressReason = player.getPlaybackSuppressionReason();
-    if ((!playWhenReady && suppressReason == Player.PLAYBACK_SUPPRESSION_REASON_NONE)
-        || !player.isCommandAvailable(COMMAND_PLAY_PAUSE)) {
-      return false;
+    if (player.getPlayWhenReady()) {
+      return Util.handlePauseButtonAction(player);
     }
-    player.pause();
-    return true;
+    return false;
   }
 
   public boolean seekTo(long position) {

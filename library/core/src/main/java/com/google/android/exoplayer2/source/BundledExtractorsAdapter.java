@@ -36,7 +36,13 @@ import java.util.Map;
 /**
  * {@link ProgressiveMediaExtractor} built on top of {@link Extractor} instances, whose
  * implementation classes are bundled in the app.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class BundledExtractorsAdapter implements ProgressiveMediaExtractor {
 
   private final ExtractorsFactory extractorsFactory;
@@ -113,7 +119,7 @@ public final class BundledExtractorsAdapter implements ProgressiveMediaExtractor
 
   @Override
   public long getCurrentInputPosition() {
-    return extractorInput != null ? extractorInput.getPosition() : C.POSITION_UNSET;
+    return extractorInput != null ? extractorInput.getPosition() : C.INDEX_UNSET;
   }
 
   @Override

@@ -6,9 +6,11 @@ format 0:
   width = 1080
   height = 720
   frameRate = 29.970028
+  metadata = entries=[xyz: latitude=40.68, longitude=-74.5, Creation time: 1464714095000]
   initializationData:
     data = length 29, hash 4746B5D9
     data = length 10, hash 7A0D0F2B
+container metadata = entries=[xyz: latitude=40.68, longitude=-74.5, Creation time: 1464714095000]
 sample:
   trackIndex = 0
   dataHashCode = -770308242

@@ -38,7 +38,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /**
  * Video processor that demonstrates how to overlay a bitmap on video output using a GL shader. The
  * bitmap is drawn using an Android {@link Canvas}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 /* package */ final class BitmapOverlayVideoProcessor
     implements VideoProcessingGLSurfaceView.VideoProcessor {
 

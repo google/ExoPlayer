@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.spherical.CameraMotionListener;
@@ -124,15 +125,6 @@ public class StubExoPlayer extends StubPlayer implements ExoPlayer {
 
   @Override
   public ExoPlaybackException getPlayerError() {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * @deprecated Use {@link #prepare()} instead.
-   */
-  @Deprecated
-  @Override
-  public void retry() {
     throw new UnsupportedOperationException();
   }
 
@@ -247,6 +239,11 @@ public class StubExoPlayer extends StubPlayer implements ExoPlayer {
 
   @Override
   public boolean getSkipSilenceEnabled() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void setVideoEffects(List<Effect> videoEffects) {
     throw new UnsupportedOperationException();
   }
 
@@ -385,15 +382,6 @@ public class StubExoPlayer extends StubPlayer implements ExoPlayer {
 
   @Override
   public void setHandleAudioBecomingNoisy(boolean handleAudioBecomingNoisy) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
-   * @deprecated Use {@link #setWakeMode(int)} instead.
-   */
-  @Deprecated
-  @Override
-  public void setHandleWakeLock(boolean handleWakeLock) {
     throw new UnsupportedOperationException();
   }
 

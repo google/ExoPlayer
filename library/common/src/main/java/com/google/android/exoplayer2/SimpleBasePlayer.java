@@ -96,7 +96,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  *       user-visible state changes look like synchronous operations. The state is then updated
  *       again once the asynchronous method calls have been fully handled.
  * </ul>
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public abstract class SimpleBasePlayer extends BasePlayer {
 
   /** An immutable state description of the player. */
@@ -2104,7 +2110,16 @@ public abstract class SimpleBasePlayer extends BasePlayer {
             placeholderPlaylist.add(
                 i + correctedIndex, getPlaceholderMediaItemData(mediaItems.get(i)));
           }
-          return getStateWithNewPlaylist(state, placeholderPlaylist, period);
+          if (!state.playlist.isEmpty()) {
+            return getStateWithNewPlaylist(state, placeholderPlaylist, period);
+          } else {
+            // Handle initial position update when these are the first items added to the playlist.
+            return getStateWithNewPlaylistAndPosition(
+                state,
+                placeholderPlaylist,
+                state.currentMediaItemIndex,
+                state.contentPositionMsSupplier.get());
+          }
         });
   }
 
@@ -2132,6 +2147,45 @@ public abstract class SimpleBasePlayer extends BasePlayer {
           ArrayList<MediaItemData> placeholderPlaylist = new ArrayList<>(state.playlist);
           Util.moveItems(placeholderPlaylist, fromIndex, correctedToIndex, correctedNewIndex);
           return getStateWithNewPlaylist(state, placeholderPlaylist, period);
+        });
+  }
+
+  @Override
+  public final void replaceMediaItems(int fromIndex, int toIndex, List<MediaItem> mediaItems) {
+    verifyApplicationThreadAndInitState();
+    checkArgument(fromIndex >= 0 && fromIndex <= toIndex);
+    State state = this.state;
+    int playlistSize = state.playlist.size();
+    if (!shouldHandleCommand(Player.COMMAND_CHANGE_MEDIA_ITEMS) || fromIndex > playlistSize) {
+      return;
+    }
+    int correctedToIndex = min(toIndex, playlistSize);
+    updateStateForPendingOperation(
+        /* pendingOperation= */ handleReplaceMediaItems(fromIndex, correctedToIndex, mediaItems),
+        /* placeholderStateSupplier= */ () -> {
+          ArrayList<MediaItemData> placeholderPlaylist = new ArrayList<>(state.playlist);
+          for (int i = 0; i < mediaItems.size(); i++) {
+            placeholderPlaylist.add(
+                i + correctedToIndex, getPlaceholderMediaItemData(mediaItems.get(i)));
+          }
+          State updatedState;
+          if (!state.playlist.isEmpty()) {
+            updatedState = getStateWithNewPlaylist(state, placeholderPlaylist, period);
+          } else {
+            // Handle initial position update when these are the first items added to the playlist.
+            updatedState =
+                getStateWithNewPlaylistAndPosition(
+                    state,
+                    placeholderPlaylist,
+                    state.currentMediaItemIndex,
+                    state.contentPositionMsSupplier.get());
+          }
+          if (fromIndex < correctedToIndex) {
+            Util.removeRange(placeholderPlaylist, fromIndex, correctedToIndex);
+            return getStateWithNewPlaylist(updatedState, placeholderPlaylist, period);
+          } else {
+            return updatedState;
+          }
         });
   }
 
@@ -2329,19 +2383,11 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   }
 
   @Override
-  public final void stop(boolean reset) {
-    stop();
-    if (reset) {
-      clearMediaItems();
-    }
-  }
-
-  @Override
   public final void release() {
     verifyApplicationThreadAndInitState();
     // Use a local copy to ensure the lambda below uses the current state value.
     State state = this.state;
-    if (released) { // TODO(b/261158047): Replace by !shouldHandleCommand(Player.COMMAND_RELEASE)
+    if (!shouldHandleCommand(Player.COMMAND_RELEASE)) {
       return;
     }
     updateStateForPendingOperation(
@@ -2404,7 +2450,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     verifyApplicationThreadAndInitState();
     // Use a local copy to ensure the lambda below uses the current state value.
     State state = this.state;
-    if (!shouldHandleCommand(Player.COMMAND_SET_MEDIA_ITEMS_METADATA)) {
+    if (!shouldHandleCommand(Player.COMMAND_SET_PLAYLIST_METADATA)) {
       return;
     }
     updateStateForPendingOperation(
@@ -2672,6 +2718,10 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     return state.isDeviceMuted;
   }
 
+  /**
+   * @deprecated Use {@link #setDeviceVolume(int, int)} instead.
+   */
+  @Deprecated
   @Override
   public final void setDeviceVolume(int volume) {
     verifyApplicationThreadAndInitState();
@@ -2681,10 +2731,27 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       return;
     }
     updateStateForPendingOperation(
-        /* pendingOperation= */ handleSetDeviceVolume(volume),
+        /* pendingOperation= */ handleSetDeviceVolume(volume, C.VOLUME_FLAG_SHOW_UI),
         /* placeholderStateSupplier= */ () -> state.buildUpon().setDeviceVolume(volume).build());
   }
 
+  @Override
+  public final void setDeviceVolume(int volume, @C.VolumeFlags int flags) {
+    verifyApplicationThreadAndInitState();
+    // Use a local copy to ensure the lambda below uses the current state value.
+    State state = this.state;
+    if (!shouldHandleCommand(Player.COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS)) {
+      return;
+    }
+    updateStateForPendingOperation(
+        /* pendingOperation= */ handleSetDeviceVolume(volume, flags),
+        /* placeholderStateSupplier= */ () -> state.buildUpon().setDeviceVolume(volume).build());
+  }
+
+  /**
+   * @deprecated Use {@link #increaseDeviceVolume(int)} instead.
+   */
+  @Deprecated
   @Override
   public final void increaseDeviceVolume() {
     verifyApplicationThreadAndInitState();
@@ -2694,11 +2761,29 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       return;
     }
     updateStateForPendingOperation(
-        /* pendingOperation= */ handleIncreaseDeviceVolume(),
+        /* pendingOperation= */ handleIncreaseDeviceVolume(C.VOLUME_FLAG_SHOW_UI),
         /* placeholderStateSupplier= */ () ->
             state.buildUpon().setDeviceVolume(state.deviceVolume + 1).build());
   }
 
+  @Override
+  public final void increaseDeviceVolume(@C.VolumeFlags int flags) {
+    verifyApplicationThreadAndInitState();
+    // Use a local copy to ensure the lambda below uses the current state value.
+    State state = this.state;
+    if (!shouldHandleCommand(Player.COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS)) {
+      return;
+    }
+    updateStateForPendingOperation(
+        /* pendingOperation= */ handleIncreaseDeviceVolume(flags),
+        /* placeholderStateSupplier= */ () ->
+            state.buildUpon().setDeviceVolume(state.deviceVolume + 1).build());
+  }
+
+  /**
+   * @deprecated Use {@link #decreaseDeviceVolume(int)} instead.
+   */
+  @Deprecated
   @Override
   public final void decreaseDeviceVolume() {
     verifyApplicationThreadAndInitState();
@@ -2708,11 +2793,29 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       return;
     }
     updateStateForPendingOperation(
-        /* pendingOperation= */ handleDecreaseDeviceVolume(),
+        /* pendingOperation= */ handleDecreaseDeviceVolume(C.VOLUME_FLAG_SHOW_UI),
         /* placeholderStateSupplier= */ () ->
             state.buildUpon().setDeviceVolume(max(0, state.deviceVolume - 1)).build());
   }
 
+  @Override
+  public final void decreaseDeviceVolume(@C.VolumeFlags int flags) {
+    verifyApplicationThreadAndInitState();
+    // Use a local copy to ensure the lambda below uses the current state value.
+    State state = this.state;
+    if (!shouldHandleCommand(Player.COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS)) {
+      return;
+    }
+    updateStateForPendingOperation(
+        /* pendingOperation= */ handleDecreaseDeviceVolume(flags),
+        /* placeholderStateSupplier= */ () ->
+            state.buildUpon().setDeviceVolume(max(0, state.deviceVolume - 1)).build());
+  }
+
+  /**
+   * @deprecated Use {@link #setDeviceMuted(boolean, int)} instead.
+   */
+  @Deprecated
   @Override
   public final void setDeviceMuted(boolean muted) {
     verifyApplicationThreadAndInitState();
@@ -2722,7 +2825,20 @@ public abstract class SimpleBasePlayer extends BasePlayer {
       return;
     }
     updateStateForPendingOperation(
-        /* pendingOperation= */ handleSetDeviceMuted(muted),
+        /* pendingOperation= */ handleSetDeviceMuted(muted, C.VOLUME_FLAG_SHOW_UI),
+        /* placeholderStateSupplier= */ () -> state.buildUpon().setIsDeviceMuted(muted).build());
+  }
+
+  @Override
+  public final void setDeviceMuted(boolean muted, @C.VolumeFlags int flags) {
+    verifyApplicationThreadAndInitState();
+    // Use a local copy to ensure the lambda below uses the current state value.
+    State state = this.state;
+    if (!shouldHandleCommand(Player.COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS)) {
+      return;
+    }
+    updateStateForPendingOperation(
+        /* pendingOperation= */ handleSetDeviceMuted(muted, flags),
         /* placeholderStateSupplier= */ () -> state.buildUpon().setIsDeviceMuted(muted).build());
   }
 
@@ -2840,10 +2956,11 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   /**
    * Handles calls to {@link Player#release}.
    *
+   * <p>Will only be called if {@link Player#COMMAND_RELEASE} is available.
+   *
    * @return A {@link ListenableFuture} indicating the completion of all immediate {@link State}
    *     changes caused by this call.
    */
-  // TODO(b/261158047): Add that this method will only be called if COMMAND_RELEASE is available.
   @ForOverride
   protected ListenableFuture<?> handleRelease() {
     throw new IllegalStateException("Missing implementation to handle COMMAND_RELEASE");
@@ -2910,7 +3027,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   /**
    * Handles calls to {@link Player#setPlaylistMetadata}.
    *
-   * <p>Will only be called if {@link Player#COMMAND_SET_MEDIA_ITEMS_METADATA} is available.
+   * <p>Will only be called if {@link Player#COMMAND_SET_PLAYLIST_METADATA} is available.
    *
    * @param playlistMetadata The requested {@linkplain MediaMetadata playlist metadata}.
    * @return A {@link ListenableFuture} indicating the completion of all immediate {@link State}
@@ -2919,7 +3036,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   @ForOverride
   protected ListenableFuture<?> handleSetPlaylistMetadata(MediaMetadata playlistMetadata) {
     throw new IllegalStateException(
-        "Missing implementation to handle COMMAND_SET_MEDIA_ITEMS_METADATA");
+        "Missing implementation to handle COMMAND_SET_PLAYLIST_METADATA");
   }
 
   /**
@@ -2938,60 +3055,78 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   }
 
   /**
-   * Handles calls to {@link Player#setDeviceVolume}.
+   * Handles calls to {@link Player#setDeviceVolume(int)} and {@link Player#setDeviceVolume(int,
+   * int)}.
    *
-   * <p>Will only be called if {@link Player#COMMAND_SET_DEVICE_VOLUME} is available.
+   * <p>Will only be called if {@link Player#COMMAND_SET_DEVICE_VOLUME} or {@link
+   * Player#COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS} is available.
    *
    * @param deviceVolume The requested device volume.
+   * @param flags Either 0 or a bitwise combination of one or more {@link C.VolumeFlags}.
    * @return A {@link ListenableFuture} indicating the completion of all immediate {@link State}
    *     changes caused by this call.
    */
   @ForOverride
-  protected ListenableFuture<?> handleSetDeviceVolume(@IntRange(from = 0) int deviceVolume) {
-    throw new IllegalStateException("Missing implementation to handle COMMAND_SET_DEVICE_VOLUME");
-  }
-
-  /**
-   * Handles calls to {@link Player#increaseDeviceVolume()}.
-   *
-   * <p>Will only be called if {@link Player#COMMAND_ADJUST_DEVICE_VOLUME} is available.
-   *
-   * @return A {@link ListenableFuture} indicating the completion of all immediate {@link State}
-   *     changes caused by this call.
-   */
-  @ForOverride
-  protected ListenableFuture<?> handleIncreaseDeviceVolume() {
+  protected ListenableFuture<?> handleSetDeviceVolume(
+      @IntRange(from = 0) int deviceVolume, int flags) {
     throw new IllegalStateException(
-        "Missing implementation to handle COMMAND_ADJUST_DEVICE_VOLUME");
+        "Missing implementation to handle COMMAND_SET_DEVICE_VOLUME or"
+            + " COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS");
   }
 
   /**
-   * Handles calls to {@link Player#decreaseDeviceVolume()}.
+   * Handles calls to {@link Player#increaseDeviceVolume()} and {@link
+   * Player#increaseDeviceVolume(int)}.
    *
-   * <p>Will only be called if {@link Player#COMMAND_ADJUST_DEVICE_VOLUME} is available.
+   * <p>Will only be called if {@link Player#COMMAND_ADJUST_DEVICE_VOLUME} or {@link
+   * Player#COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS} is available.
    *
+   * @param flags Either 0 or a bitwise combination of one or more {@link C.VolumeFlags}.
    * @return A {@link ListenableFuture} indicating the completion of all immediate {@link State}
    *     changes caused by this call.
    */
   @ForOverride
-  protected ListenableFuture<?> handleDecreaseDeviceVolume() {
+  protected ListenableFuture<?> handleIncreaseDeviceVolume(@C.VolumeFlags int flags) {
     throw new IllegalStateException(
-        "Missing implementation to handle COMMAND_ADJUST_DEVICE_VOLUME");
+        "Missing implementation to handle COMMAND_ADJUST_DEVICE_VOLUME or"
+            + " COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS");
   }
 
   /**
-   * Handles calls to {@link Player#setDeviceMuted}.
+   * Handles calls to {@link Player#decreaseDeviceVolume()} and {@link
+   * Player#decreaseDeviceVolume(int)}.
    *
-   * <p>Will only be called if {@link Player#COMMAND_ADJUST_DEVICE_VOLUME} is available.
+   * <p>Will only be called if {@link Player#COMMAND_ADJUST_DEVICE_VOLUME} or {@link
+   * Player#COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS} is available.
+   *
+   * @param flags Either 0 or a bitwise combination of one or more {@link C.VolumeFlags}.
+   * @return A {@link ListenableFuture} indicating the completion of all immediate {@link State}
+   *     changes caused by this call.
+   */
+  @ForOverride
+  protected ListenableFuture<?> handleDecreaseDeviceVolume(@C.VolumeFlags int flags) {
+    throw new IllegalStateException(
+        "Missing implementation to handle COMMAND_ADJUST_DEVICE_VOLUME or"
+            + " COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS");
+  }
+
+  /**
+   * Handles calls to {@link Player#setDeviceMuted(boolean)} and {@link
+   * Player#setDeviceMuted(boolean, int)}.
+   *
+   * <p>Will only be called if {@link Player#COMMAND_ADJUST_DEVICE_VOLUME} or {@link
+   * Player#COMMAND_ADJUST_DEVICE_VOLUME} is available.
    *
    * @param muted Whether the device was requested to be muted.
+   * @param flags Either 0 or a bitwise combination of one or more {@link C.VolumeFlags}.
    * @return A {@link ListenableFuture} indicating the completion of all immediate {@link State}
    *     changes caused by this call.
    */
   @ForOverride
-  protected ListenableFuture<?> handleSetDeviceMuted(boolean muted) {
+  protected ListenableFuture<?> handleSetDeviceMuted(boolean muted, @C.VolumeFlags int flags) {
     throw new IllegalStateException(
-        "Missing implementation to handle COMMAND_ADJUST_DEVICE_VOLUME");
+        "Missing implementation to handle COMMAND_ADJUST_DEVICE_VOLUME or"
+            + " COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS");
   }
 
   /**
@@ -3081,6 +3216,27 @@ public abstract class SimpleBasePlayer extends BasePlayer {
   @ForOverride
   protected ListenableFuture<?> handleMoveMediaItems(int fromIndex, int toIndex, int newIndex) {
     throw new IllegalStateException("Missing implementation to handle COMMAND_CHANGE_MEDIA_ITEMS");
+  }
+
+  /**
+   * Handles calls to {@link Player#replaceMediaItem} and {@link Player#replaceMediaItems}.
+   *
+   * <p>Will only be called if {@link Player#COMMAND_CHANGE_MEDIA_ITEMS} is available.
+   *
+   * @param fromIndex The start index of the items to replace. The index is in the range 0 &lt;=
+   *     {@code fromIndex} &lt; {@link #getMediaItemCount()}.
+   * @param toIndex The index of the first item not to be replaced (exclusive). The index is in the
+   *     range {@code fromIndex} &lt; {@code toIndex} &lt;= {@link #getMediaItemCount()}.
+   * @param mediaItems The media items to replace the specified range with.
+   * @return A {@link ListenableFuture} indicating the completion of all immediate {@link State}
+   *     changes caused by this call.
+   */
+  @ForOverride
+  protected ListenableFuture<?> handleReplaceMediaItems(
+      int fromIndex, int toIndex, List<MediaItem> mediaItems) {
+    ListenableFuture<?> addFuture = handleAddMediaItems(toIndex, mediaItems);
+    ListenableFuture<?> removeFuture = handleRemoveMediaItems(fromIndex, toIndex);
+    return Util.transformFutureAsync(addFuture, unused -> removeFuture);
   }
 
   /**
@@ -3338,9 +3494,6 @@ public abstract class SimpleBasePlayer extends BasePlayer {
         && newState.timedMetadata.presentationTimeUs != C.TIME_UNSET) {
       listeners.queueEvent(
           Player.EVENT_METADATA, listener -> listener.onMetadata(newState.timedMetadata));
-    }
-    if (positionDiscontinuityReason == Player.DISCONTINUITY_REASON_SEEK) {
-      listeners.queueEvent(/* eventFlag= */ C.INDEX_UNSET, Listener::onSeekProcessed);
     }
     if (!previousState.availableCommands.equals(newState.availableCommands)) {
       listeners.queueEvent(
@@ -3720,7 +3873,7 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     State.Builder stateBuilder = oldState.buildUpon();
     stateBuilder.setPlaylist(newPlaylist);
     if (oldState.playbackState != Player.STATE_IDLE) {
-      if (newPlaylist.isEmpty()) {
+      if (newPlaylist.isEmpty() || (newIndex != C.INDEX_UNSET && newIndex >= newPlaylist.size())) {
         stateBuilder.setPlaybackState(Player.STATE_ENDED).setIsLoading(false);
       } else {
         stateBuilder.setPlaybackState(Player.STATE_BUFFERING);

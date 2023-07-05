@@ -29,7 +29,15 @@ import java.lang.annotation.Target;
 import java.util.List;
 import java.util.Map;
 
-/** Defines common file type constants and helper methods. */
+/**
+ * Defines common file type constants and helper methods.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class FileTypes {
 
   /**
@@ -132,7 +140,7 @@ public final class FileTypes {
   /**
    * Returns the {@link Type} corresponding to the MIME type provided.
    *
-   * <p>Returns {@link #UNKNOWN} if the mime type is {@code null}.
+   * <p>Returns {@link #UNKNOWN} if the MIME type is {@code null}.
    */
   public static @FileTypes.Type int inferFileTypeFromMimeType(@Nullable String mimeType) {
     if (mimeType == null) {

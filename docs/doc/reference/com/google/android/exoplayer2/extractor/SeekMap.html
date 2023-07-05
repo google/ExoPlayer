@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var data = {"i0":38,"i1":38,"i2":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -125,7 +125,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="BinarySearchSeeker.BinarySearchSeekMap.html" title="class in com.google.android.exoplayer2.extractor">BinarySearchSeeker.BinarySearchSeekMap</a></code>, <code><a href="ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor">ChunkIndex</a></code>, <code><a href="ConstantBitrateSeekMap.html" title="class in com.google.android.exoplayer2.extractor">ConstantBitrateSeekMap</a></code>, <code><a href="FlacSeekTableSeekMap.html" title="class in com.google.android.exoplayer2.extractor">FlacSeekTableSeekMap</a></code>, <code><a href="IndexSeekMap.html" title="class in com.google.android.exoplayer2.extractor">IndexSeekMap</a></code>, <code><a href="mp4/Mp4Extractor.html" title="class in com.google.android.exoplayer2.extractor.mp4">Mp4Extractor</a></code>, <code><a href="SeekMap.Unseekable.html" title="class in com.google.android.exoplayer2.extractor">SeekMap.Unseekable</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">SeekMap</span></pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">SeekMap</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Maps seek positions (in microseconds) to corresponding positions (byte offsets) in the stream.</div>
 </li>
 </ul>
@@ -151,6 +157,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="SeekMap.SeekPoints.html" title="class in com.google.android.exoplayer2.extractor">SeekMap.SeekPoints</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Contains one or two <a href="SeekPoint.html" title="class in com.google.android.exoplayer2.extractor"><code>SeekPoint</code></a>s.</div>
 </td>
 </tr>
@@ -158,6 +165,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="SeekMap.Unseekable.html" title="class in com.google.android.exoplayer2.extractor">SeekMap.Unseekable</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A <a href="SeekMap.html" title="interface in com.google.android.exoplayer2.extractor"><code>SeekMap</code></a> that does not support seeking.</div>
 </td>
 </tr>
@@ -173,7 +181,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -183,6 +191,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDurationUs()">getDurationUs</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the duration of the stream in microseconds.</div>
 </td>
 </tr>
@@ -190,6 +199,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="SeekMap.SeekPoints.html" title="class in com.google.android.exoplayer2.extractor">SeekMap.SeekPoints</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSeekPoints(long)">getSeekPoints</a></span>&#8203;(long&nbsp;timeUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Obtains seek points for the specified seek time in microseconds.</div>
 </td>
 </tr>
@@ -197,6 +207,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isSeekable()">isSeekable</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether seeking is supported.</div>
 </td>
 </tr>
@@ -224,6 +235,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>isSeekable</h4>
 <pre class="methodSignature">boolean&nbsp;isSeekable()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether seeking is supported.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -238,6 +250,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>getDurationUs</h4>
 <pre class="methodSignature">long&nbsp;getDurationUs()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the duration of the stream in microseconds.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -253,6 +266,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>getSeekPoints</h4>
 <pre class="methodSignature"><a href="SeekMap.SeekPoints.html" title="class in com.google.android.exoplayer2.extractor">SeekMap.SeekPoints</a>&nbsp;getSeekPoints&#8203;(long&nbsp;timeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Obtains seek points for the specified seek time in microseconds. The returned <a href="SeekMap.SeekPoints.html" title="class in com.google.android.exoplayer2.extractor"><code>SeekMap.SeekPoints</code></a> will contain one or two distinct seek points.
 
  <p>Two seek points [A, B] are returned in the case that seeking can only be performed to

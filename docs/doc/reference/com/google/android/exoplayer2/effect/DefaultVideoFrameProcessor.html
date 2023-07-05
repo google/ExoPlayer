@@ -1,0 +1,786 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>DefaultVideoFrameProcessor (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="DefaultVideoFrameProcessor (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42,"i12":42,"i13":42,"i14":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.effect</a></div>
+<h2 title="Class DefaultVideoFrameProcessor" class="title">Class DefaultVideoFrameProcessor</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.effect.DefaultVideoFrameProcessor</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><code><a href="../util/VideoFrameProcessor.html" title="interface in com.google.android.exoplayer2.util">VideoFrameProcessor</a></code></dd>
+</dl>
+<hr>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">DefaultVideoFrameProcessor</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
+implements <a href="../util/VideoFrameProcessor.html" title="interface in com.google.android.exoplayer2.util">VideoFrameProcessor</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
+<div class="block">A <a href="../util/VideoFrameProcessor.html" title="interface in com.google.android.exoplayer2.util"><code>VideoFrameProcessor</code></a> implementation that applies <a href="GlEffect.html" title="interface in com.google.android.exoplayer2.effect"><code>GlEffect</code></a> instances using OpenGL
+ on a background thread.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<table class="memberSummary">
+<caption><span>Nested Classes</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Class</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static class&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DefaultVideoFrameProcessor.Factory.html" title="class in com.google.android.exoplayer2.effect">DefaultVideoFrameProcessor.Factory</a></span></code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">A factory for <a href="DefaultVideoFrameProcessor.html" title="class in com.google.android.exoplayer2.effect"><code>DefaultVideoFrameProcessor</code></a> instances.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DefaultVideoFrameProcessor.ReleaseOutputTextureCallback.html" title="interface in com.google.android.exoplayer2.effect">DefaultVideoFrameProcessor.ReleaseOutputTextureCallback</a></span></code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Releases the output information stored for textures before and at <code>presentationTimeUs</code>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DefaultVideoFrameProcessor.TextureOutputListener.html" title="interface in com.google.android.exoplayer2.effect">DefaultVideoFrameProcessor.TextureOutputListener</a></span></code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Listener interface for texture output.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.util.VideoFrameProcessor">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.util.<a href="../util/VideoFrameProcessor.html" title="interface in com.google.android.exoplayer2.util">VideoFrameProcessor</a></h3>
+<code><a href="../util/VideoFrameProcessor.InputType.html" title="annotation in com.google.android.exoplayer2.util">VideoFrameProcessor.InputType</a>, <a href="../util/VideoFrameProcessor.Listener.html" title="interface in com.google.android.exoplayer2.util">VideoFrameProcessor.Listener</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.util.VideoFrameProcessor">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.util.<a href="../util/VideoFrameProcessor.html" title="interface in com.google.android.exoplayer2.util">VideoFrameProcessor</a></h3>
+<code><a href="../util/VideoFrameProcessor.html#DROP_OUTPUT_FRAME">DROP_OUTPUT_FRAME</a>, <a href="../util/VideoFrameProcessor.html#INPUT_TYPE_BITMAP">INPUT_TYPE_BITMAP</a>, <a href="../util/VideoFrameProcessor.html#INPUT_TYPE_SURFACE">INPUT_TYPE_SURFACE</a>, <a href="../util/VideoFrameProcessor.html#INPUT_TYPE_TEXTURE_ID">INPUT_TYPE_TEXTURE_ID</a>, <a href="../util/VideoFrameProcessor.html#RENDER_OUTPUT_FRAME_IMMEDIATELY">RENDER_OUTPUT_FRAME_IMMEDIATELY</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#flush()">flush</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Flushes the <code>VideoFrameProcessor</code>.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getInputSurface()">getInputSurface</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns the input <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink"><code>Surface</code></a>, where <a href="../util/VideoFrameProcessor.html" title="interface in com.google.android.exoplayer2.util" target="_top"><code>VideoFrameProcessor</code></a> consumes input frames
+ from.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPendingInputFrameCount()">getPendingInputFrameCount</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns the number of input frames that have been made available to the <code>
+ VideoFrameProcessor</code> but have not been processed yet.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>com.google.android.exoplayer2.effect.VideoFrameProcessingTaskExecutor</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTaskExecutor()">getTaskExecutor</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns the task executor that runs video frame processing tasks.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#queueInputBitmap(android.graphics.Bitmap,long,float)">queueInputBitmap</a></span>&#8203;(<a href="https://developer.android.com/reference/android/graphics/Bitmap.html" title="class or interface in android.graphics" class="externalLink" target="_top">Bitmap</a>&nbsp;inputBitmap,
+                long&nbsp;durationUs,
+                float&nbsp;frameRate)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Provides an input <a href="https://developer.android.com/reference/android/graphics/Bitmap.html" title="class or interface in android.graphics" class="externalLink"><code>Bitmap</code></a> to the <a href="../util/VideoFrameProcessor.html" title="interface in com.google.android.exoplayer2.util" target="_top"><code>VideoFrameProcessor</code></a>.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#queueInputTexture(int,long)">queueInputTexture</a></span>&#8203;(int&nbsp;textureId,
+                 long&nbsp;presentationTimeUs)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Provides an input texture ID to the <code>VideoFrameProcessor</code>.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#registerInputFrame()">registerInputFrame</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Informs the <code>VideoFrameProcessor</code> that a frame will be queued to its <a href="../util/VideoFrameProcessor.html#getInputSurface()">input surface</a>.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#registerInputStream(@com.google.android.exoplayer2.util.VideoFrameProcessor.InputTypeint)">registerInputStream</a></span>&#8203;(@com.google.android.exoplayer2.util.VideoFrameProcessor.InputType int&nbsp;inputType)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Informs the <code>VideoFrameProcessor</code> that a new input stream will be queued.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Releases all resources.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#renderOutputFrame(long)">renderOutputFrame</a></span>&#8203;(long&nbsp;renderTimeNs)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Renders the oldest unrendered output frame that has become <a href="../util/VideoFrameProcessor.Listener.html#onOutputFrameAvailableForRendering(long)">available for rendering</a> at the given <code>
+ renderTimeNs</code>.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setInputDefaultBufferSize(int,int)">setInputDefaultBufferSize</a></span>&#8203;(int&nbsp;width,
+                         int&nbsp;height)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the default size for input buffers, for the case where the producer providing input does
+ not override the buffer size.</div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setInputFrameInfo(com.google.android.exoplayer2.util.FrameInfo)">setInputFrameInfo</a></span>&#8203;(<a href="../util/FrameInfo.html" title="class in com.google.android.exoplayer2.util">FrameInfo</a>&nbsp;inputFrameInfo)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets information about the input frames.</div>
+</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOnInputFrameProcessedListener(com.google.android.exoplayer2.util.OnInputFrameProcessedListener)">setOnInputFrameProcessedListener</a></span>&#8203;(<a href="../util/OnInputFrameProcessedListener.html" title="interface in com.google.android.exoplayer2.util">OnInputFrameProcessedListener</a>&nbsp;listener)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the <a href="../util/OnInputFrameProcessedListener.html" title="interface in com.google.android.exoplayer2.util"><code>OnInputFrameProcessedListener</code></a>.</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOutputSurfaceInfo(com.google.android.exoplayer2.util.SurfaceInfo)">setOutputSurfaceInfo</a></span>&#8203;(<a href="../util/SurfaceInfo.html" title="class in com.google.android.exoplayer2.util">SurfaceInfo</a>&nbsp;outputSurfaceInfo)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the output surface and supporting information.</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#signalEndOfInput()">signalEndOfInput</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Informs the <code>VideoFrameProcessor</code> that no further input frames should be accepted.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="getTaskExecutor()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getTaskExecutor</h4>
+<pre class="methodSignature">public&nbsp;com.google.android.exoplayer2.effect.VideoFrameProcessingTaskExecutor&nbsp;getTaskExecutor()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns the task executor that runs video frame processing tasks.</div>
+</li>
+</ul>
+<a id="setInputDefaultBufferSize(int,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setInputDefaultBufferSize</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setInputDefaultBufferSize&#8203;(int&nbsp;width,
+                                      int&nbsp;height)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the default size for input buffers, for the case where the producer providing input does
+ not override the buffer size.
+
+ <p>When input comes from a media codec it's not necessary to call this method because the codec
+ (producer) sets the buffer size automatically. For the case where input comes from CameraX,
+ call this method after instantiation to ensure that buffers are handled at full resolution. See
+ <a href="https://developer.android.com/reference/android/graphics/SurfaceTexture.html#setDefaultBufferSize(int,int)" title="class or interface in android.graphics" class="externalLink" target="_top"><code>SurfaceTexture.setDefaultBufferSize(int, int)</code></a> for more information.
+
+ <p>This method must only be called when the <a href="../util/VideoFrameProcessor.html" title="interface in com.google.android.exoplayer2.util"><code>VideoFrameProcessor</code></a> is <a href="DefaultVideoFrameProcessor.Factory.html#create(android.content.Context,java.util.List,com.google.android.exoplayer2.util.DebugViewProvider,com.google.android.exoplayer2.video.ColorInfo,com.google.android.exoplayer2.video.ColorInfo,boolean,java.util.concurrent.Executor,com.google.android.exoplayer2.util.VideoFrameProcessor.Listener)">created</a> with <a href="../util/VideoFrameProcessor.html#INPUT_TYPE_SURFACE"><code>VideoFrameProcessor.INPUT_TYPE_SURFACE</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>width</code> - The default width for input buffers, in pixels.</dd>
+<dd><code>height</code> - The default height for input buffers, in pixels.</dd>
+</dl>
+</li>
+</ul>
+<a id="queueInputBitmap(android.graphics.Bitmap,long,float)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>queueInputBitmap</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;queueInputBitmap&#8203;(<a href="https://developer.android.com/reference/android/graphics/Bitmap.html" title="class or interface in android.graphics" class="externalLink" target="_top">Bitmap</a>&nbsp;inputBitmap,
+                             long&nbsp;durationUs,
+                             float&nbsp;frameRate)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../util/VideoFrameProcessor.html#queueInputBitmap(android.graphics.Bitmap,long,float)">VideoFrameProcessor</a></code></span></div>
+<div class="block">Provides an input <a href="https://developer.android.com/reference/android/graphics/Bitmap.html" title="class or interface in android.graphics" class="externalLink"><code>Bitmap</code></a> to the <a href="../util/VideoFrameProcessor.html" title="interface in com.google.android.exoplayer2.util" target="_top"><code>VideoFrameProcessor</code></a>.
+
+ <p>Can be called on any thread.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../util/VideoFrameProcessor.html#queueInputBitmap(android.graphics.Bitmap,long,float)">queueInputBitmap</a></code>&nbsp;in interface&nbsp;<code><a href="../util/VideoFrameProcessor.html" title="interface in com.google.android.exoplayer2.util">VideoFrameProcessor</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>inputBitmap</code> - The <a href="https://developer.android.com/reference/android/graphics/Bitmap.html" title="class or interface in android.graphics" class="externalLink" target="_top"><code>Bitmap</code></a> queued to the <code>VideoFrameProcessor</code>.</dd>
+<dd><code>durationUs</code> - The duration for which to display the <code>inputBitmap</code>, in microseconds.</dd>
+<dd><code>frameRate</code> - The frame rate at which to display the <code>inputBitmap</code>, in frames per
+     second.</dd>
+</dl>
+</li>
+</ul>
+<a id="queueInputTexture(int,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>queueInputTexture</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;queueInputTexture&#8203;(int&nbsp;textureId,
+                              long&nbsp;presentationTimeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../util/VideoFrameProcessor.html#queueInputTexture(int,long)">VideoFrameProcessor</a></code></span></div>
+<div class="block">Provides an input texture ID to the <code>VideoFrameProcessor</code>.
+
+ <p>It must be called after the <a href="../util/VideoFrameProcessor.html#setOnInputFrameProcessedListener(com.google.android.exoplayer2.util.OnInputFrameProcessedListener)"><code>onInputFrameProcessedListener</code></a> and the <a href="../util/VideoFrameProcessor.html#setInputFrameInfo(com.google.android.exoplayer2.util.FrameInfo)"><code>frameInfo</code></a> have been set.
+
+ <p>Can be called on any thread.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../util/VideoFrameProcessor.html#queueInputTexture(int,long)">queueInputTexture</a></code>&nbsp;in interface&nbsp;<code><a href="../util/VideoFrameProcessor.html" title="interface in com.google.android.exoplayer2.util">VideoFrameProcessor</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>textureId</code> - The ID of the texture queued to the <code>VideoFrameProcessor</code>.</dd>
+<dd><code>presentationTimeUs</code> - The presentation time of the queued texture, in microseconds.</dd>
+</dl>
+</li>
+</ul>
+<a id="setOnInputFrameProcessedListener(com.google.android.exoplayer2.util.OnInputFrameProcessedListener)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setOnInputFrameProcessedListener</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setOnInputFrameProcessedListener&#8203;(<a href="../util/OnInputFrameProcessedListener.html" title="interface in com.google.android.exoplayer2.util">OnInputFrameProcessedListener</a>&nbsp;listener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../util/VideoFrameProcessor.html#setOnInputFrameProcessedListener(com.google.android.exoplayer2.util.OnInputFrameProcessedListener)">VideoFrameProcessor</a></code></span></div>
+<div class="block">Sets the <a href="../util/OnInputFrameProcessedListener.html" title="interface in com.google.android.exoplayer2.util"><code>OnInputFrameProcessedListener</code></a>.
+
+ <p>Can be called on any thread.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../util/VideoFrameProcessor.html#setOnInputFrameProcessedListener(com.google.android.exoplayer2.util.OnInputFrameProcessedListener)">setOnInputFrameProcessedListener</a></code>&nbsp;in interface&nbsp;<code><a href="../util/VideoFrameProcessor.html" title="interface in com.google.android.exoplayer2.util">VideoFrameProcessor</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>listener</code> - The <a href="../util/OnInputFrameProcessedListener.html" title="interface in com.google.android.exoplayer2.util"><code>OnInputFrameProcessedListener</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="getInputSurface()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getInputSurface</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink" target="_top">Surface</a>&nbsp;getInputSurface()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../util/VideoFrameProcessor.html#getInputSurface()">VideoFrameProcessor</a></code></span></div>
+<div class="block">Returns the input <a href="https://developer.android.com/reference/android/view/Surface.html" title="class or interface in android.view" class="externalLink"><code>Surface</code></a>, where <a href="../util/VideoFrameProcessor.html" title="interface in com.google.android.exoplayer2.util" target="_top"><code>VideoFrameProcessor</code></a> consumes input frames
+ from.
+
+ <p>Can be called on any thread.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../util/VideoFrameProcessor.html#getInputSurface()">getInputSurface</a></code>&nbsp;in interface&nbsp;<code><a href="../util/VideoFrameProcessor.html" title="interface in com.google.android.exoplayer2.util">VideoFrameProcessor</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="registerInputStream(@com.google.android.exoplayer2.util.VideoFrameProcessor.InputTypeint)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>registerInputStream</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;registerInputStream&#8203;(@com.google.android.exoplayer2.util.VideoFrameProcessor.InputType int&nbsp;inputType)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../util/VideoFrameProcessor.html#registerInputStream(@com.google.android.exoplayer2.util.VideoFrameProcessor.InputTypeint)">VideoFrameProcessor</a></code></span></div>
+<div class="block">Informs the <code>VideoFrameProcessor</code> that a new input stream will be queued.
+
+ <p>Call <a href="../util/VideoFrameProcessor.html#setInputFrameInfo(com.google.android.exoplayer2.util.FrameInfo)"><code>VideoFrameProcessor.setInputFrameInfo(com.google.android.exoplayer2.util.FrameInfo)</code></a> before this method if the <a href="../util/FrameInfo.html" title="class in com.google.android.exoplayer2.util"><code>FrameInfo</code></a> of the new input
+ stream differs from that of the current input stream.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../util/VideoFrameProcessor.html#registerInputStream(@com.google.android.exoplayer2.util.VideoFrameProcessor.InputTypeint)">registerInputStream</a></code>&nbsp;in interface&nbsp;<code><a href="../util/VideoFrameProcessor.html" title="interface in com.google.android.exoplayer2.util">VideoFrameProcessor</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="setInputFrameInfo(com.google.android.exoplayer2.util.FrameInfo)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setInputFrameInfo</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setInputFrameInfo&#8203;(<a href="../util/FrameInfo.html" title="class in com.google.android.exoplayer2.util">FrameInfo</a>&nbsp;inputFrameInfo)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../util/VideoFrameProcessor.html#setInputFrameInfo(com.google.android.exoplayer2.util.FrameInfo)">VideoFrameProcessor</a></code></span></div>
+<div class="block">Sets information about the input frames.
+
+ <p>The new input information is applied from the next frame <a href="../util/VideoFrameProcessor.html#registerInputFrame()">registered</a> or <a href="../util/VideoFrameProcessor.html#queueInputTexture(int,long)">VideoFrameProcessor.queueInputTexture(int, long)</a> queued} onwards.
+
+ <p>Pixels are expanded using the <a href="../util/FrameInfo.html#pixelWidthHeightRatio"><code>FrameInfo.pixelWidthHeightRatio</code></a> so that the output
+ frames' pixels have a ratio of 1.
+
+ <p>Can be called on any thread.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../util/VideoFrameProcessor.html#setInputFrameInfo(com.google.android.exoplayer2.util.FrameInfo)">setInputFrameInfo</a></code>&nbsp;in interface&nbsp;<code><a href="../util/VideoFrameProcessor.html" title="interface in com.google.android.exoplayer2.util">VideoFrameProcessor</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="registerInputFrame()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>registerInputFrame</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;registerInputFrame()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../util/VideoFrameProcessor.html#registerInputFrame()">VideoFrameProcessor</a></code></span></div>
+<div class="block">Informs the <code>VideoFrameProcessor</code> that a frame will be queued to its <a href="../util/VideoFrameProcessor.html#getInputSurface()">input surface</a>.
+
+ <p>Must be called before rendering a frame to the input surface.
+
+ <p>Can be called on any thread.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../util/VideoFrameProcessor.html#registerInputFrame()">registerInputFrame</a></code>&nbsp;in interface&nbsp;<code><a href="../util/VideoFrameProcessor.html" title="interface in com.google.android.exoplayer2.util">VideoFrameProcessor</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="getPendingInputFrameCount()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getPendingInputFrameCount</h4>
+<pre class="methodSignature">public&nbsp;int&nbsp;getPendingInputFrameCount()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../util/VideoFrameProcessor.html#getPendingInputFrameCount()">VideoFrameProcessor</a></code></span></div>
+<div class="block">Returns the number of input frames that have been made available to the <code>
+ VideoFrameProcessor</code> but have not been processed yet.
+
+ <p>Can be called on any thread.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../util/VideoFrameProcessor.html#getPendingInputFrameCount()">getPendingInputFrameCount</a></code>&nbsp;in interface&nbsp;<code><a href="../util/VideoFrameProcessor.html" title="interface in com.google.android.exoplayer2.util">VideoFrameProcessor</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="setOutputSurfaceInfo(com.google.android.exoplayer2.util.SurfaceInfo)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setOutputSurfaceInfo</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setOutputSurfaceInfo&#8203;(@Nullable
+                                 <a href="../util/SurfaceInfo.html" title="class in com.google.android.exoplayer2.util">SurfaceInfo</a>&nbsp;outputSurfaceInfo)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the output surface and supporting information. When output frames are rendered and not
+ dropped, they will be rendered to this output <a href="../util/SurfaceInfo.html" title="class in com.google.android.exoplayer2.util"><code>SurfaceInfo</code></a>.
+
+ <p>The new output <a href="../util/SurfaceInfo.html" title="class in com.google.android.exoplayer2.util"><code>SurfaceInfo</code></a> is applied from the next output frame rendered onwards.
+ If the output <a href="../util/SurfaceInfo.html" title="class in com.google.android.exoplayer2.util"><code>SurfaceInfo</code></a> is <code>null</code>, the <code>VideoFrameProcessor</code> will stop
+ rendering pending frames and resume rendering once a non-null <a href="../util/SurfaceInfo.html" title="class in com.google.android.exoplayer2.util"><code>SurfaceInfo</code></a> is set.
+
+ <p>If the dimensions given in <a href="../util/SurfaceInfo.html" title="class in com.google.android.exoplayer2.util"><code>SurfaceInfo</code></a> do not match the <a href="../util/VideoFrameProcessor.Listener.html#onOutputSizeChanged(int,int)">output size after applying the final effect</a> the frames
+ are resized before rendering to the surface and letter/pillar-boxing is applied.
+
+ <p>The caller is responsible for tracking the lifecycle of the <a href="../util/SurfaceInfo.html#surface"><code>SurfaceInfo.surface</code></a>
+ including calling this method with a new surface if it is destroyed. When this method returns,
+ the previous output surface is no longer being used and can safely be released by the caller.
+
+ <p>If <a href="DefaultVideoFrameProcessor.Factory.Builder.html#setTextureOutput(com.google.android.exoplayer2.effect.DefaultVideoFrameProcessor.TextureOutputListener,int)">texture output</a> is set, calling this method
+ will be a no-op.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../util/VideoFrameProcessor.html#setOutputSurfaceInfo(com.google.android.exoplayer2.util.SurfaceInfo)">setOutputSurfaceInfo</a></code>&nbsp;in interface&nbsp;<code><a href="../util/VideoFrameProcessor.html" title="interface in com.google.android.exoplayer2.util">VideoFrameProcessor</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="renderOutputFrame(long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>renderOutputFrame</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;renderOutputFrame&#8203;(long&nbsp;renderTimeNs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Renders the oldest unrendered output frame that has become <a href="../util/VideoFrameProcessor.Listener.html#onOutputFrameAvailableForRendering(long)">available for rendering</a> at the given <code>
+ renderTimeNs</code>.
+
+ <p>This will either render the output frame to the <a href="../util/VideoFrameProcessor.html#setOutputSurfaceInfo(com.google.android.exoplayer2.util.SurfaceInfo)">output
+ surface</a>, or drop the frame, per <code>renderTimeNs</code>.
+
+ <p>This method must only be called if <code>renderFramesAutomatically</code> was set to <code>
+ false</code> using the <a href="../util/VideoFrameProcessor.Factory.html" title="interface in com.google.android.exoplayer2.util"><code>VideoFrameProcessor.Factory</code></a> and should be called exactly once for each frame that becomes
+ <a href="../util/VideoFrameProcessor.Listener.html#onOutputFrameAvailableForRendering(long)">available for rendering</a>.
+
+ <p>The <code>renderTimeNs</code> may be passed to <a href="https://developer.android.com/reference/android/opengl/EGLExt.html#eglPresentationTimeANDROID(android.opengl.EGLDisplay,android.opengl.EGLSurface,long)" title="class or interface in android.opengl" class="externalLink" target="_top"><code>EGLExt.eglPresentationTimeANDROID(android.opengl.EGLDisplay, android.opengl.EGLSurface, long)</code></a>
+ depending on the implementation.
+
+ <p>If <a href="DefaultVideoFrameProcessor.Factory.Builder.html#setTextureOutput(com.google.android.exoplayer2.effect.DefaultVideoFrameProcessor.TextureOutputListener,int)">texture output</a> is set, calling this method
+ will be a no-op.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../util/VideoFrameProcessor.html#renderOutputFrame(long)">renderOutputFrame</a></code>&nbsp;in interface&nbsp;<code><a href="../util/VideoFrameProcessor.html" title="interface in com.google.android.exoplayer2.util">VideoFrameProcessor</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>renderTimeNs</code> - The render time to use for the frame, in nanoseconds. The render time can
+     be before or after the current system time. Use <a href="../util/VideoFrameProcessor.html#DROP_OUTPUT_FRAME"><code>VideoFrameProcessor.DROP_OUTPUT_FRAME</code></a> to drop the
+     frame, or <a href="../util/VideoFrameProcessor.html#RENDER_OUTPUT_FRAME_IMMEDIATELY"><code>VideoFrameProcessor.RENDER_OUTPUT_FRAME_IMMEDIATELY</code></a> to render the frame immediately.</dd>
+</dl>
+</li>
+</ul>
+<a id="signalEndOfInput()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>signalEndOfInput</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;signalEndOfInput()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../util/VideoFrameProcessor.html#signalEndOfInput()">VideoFrameProcessor</a></code></span></div>
+<div class="block">Informs the <code>VideoFrameProcessor</code> that no further input frames should be accepted.
+
+ <p>Can be called on any thread.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../util/VideoFrameProcessor.html#signalEndOfInput()">signalEndOfInput</a></code>&nbsp;in interface&nbsp;<code><a href="../util/VideoFrameProcessor.html" title="interface in com.google.android.exoplayer2.util">VideoFrameProcessor</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="flush()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>flush</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;flush()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../util/VideoFrameProcessor.html#flush()">VideoFrameProcessor</a></code></span></div>
+<div class="block">Flushes the <code>VideoFrameProcessor</code>.
+
+ <p>All the frames that are <a href="../util/VideoFrameProcessor.html#registerInputFrame()">registered</a> prior to calling this
+ method are no longer considered to be registered when this method returns.
+
+ <p><a href="../util/VideoFrameProcessor.Listener.html" title="interface in com.google.android.exoplayer2.util"><code>VideoFrameProcessor.Listener</code></a> methods invoked prior to calling this method should be ignored.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../util/VideoFrameProcessor.html#flush()">flush</a></code>&nbsp;in interface&nbsp;<code><a href="../util/VideoFrameProcessor.html" title="interface in com.google.android.exoplayer2.util">VideoFrameProcessor</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="release()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>release</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;release()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../util/VideoFrameProcessor.html#release()">VideoFrameProcessor</a></code></span></div>
+<div class="block">Releases all resources.
+
+ <p>If the <code>VideoFrameProcessor</code> is released before it has <a href="../util/VideoFrameProcessor.Listener.html#onEnded()">ended</a>, it will attempt to cancel processing any input frames that have already become
+ available. Input frames that become available after release are ignored.
+
+ <p>This method blocks until all resources are released or releasing times out.
+
+ <p>Can be called on any thread.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="../util/VideoFrameProcessor.html#release()">release</a></code>&nbsp;in interface&nbsp;<code><a href="../util/VideoFrameProcessor.html" title="interface in com.google.android.exoplayer2.util">VideoFrameProcessor</a></code></dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

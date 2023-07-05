@@ -33,7 +33,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 /**
  * A {@link MediaSource} that masks the {@link Timeline} with a placeholder until the actual media
  * structure is known.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class MaskingMediaSource extends WrappingMediaSource {
 
   private final boolean useLazyPreparation;
@@ -374,7 +380,7 @@ public final class MaskingMediaSource extends WrappingMediaSource {
           /* id= */ setIds ? 0 : null,
           /* uid= */ setIds ? MaskingTimeline.MASKING_EXTERNAL_PERIOD_UID : null,
           /* windowIndex= */ 0,
-          /* durationUs = */ C.TIME_UNSET,
+          /* durationUs= */ C.TIME_UNSET,
           /* positionInWindowUs= */ 0,
           /* adPlaybackState= */ AdPlaybackState.NONE,
           /* isPlaceholder= */ true);

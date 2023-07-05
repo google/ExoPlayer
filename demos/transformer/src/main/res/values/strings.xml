@@ -19,6 +19,7 @@
   <string name="configuration" translatable="false">Configuration</string>
   <string name="select_preset_file_title" translatable="false">Choose preset file</string>
   <string name="select_local_file_title">Choose local file</string>
+  <string name="local_file_picker_failed">File couldn\'t be opened. Please try again.</string>
   <string name="remove_audio" translatable="false">Remove audio</string>
   <string name="remove_video" translatable="false">Remove video</string>
   <string name="flatten_for_slow_motion" translatable="false">Flatten for slow motion</string>
@@ -29,20 +30,20 @@
   <string name="rotate" translatable="false">Rotate video (degrees)</string>
   <string name="enable_fallback" translatable="false">Enable fallback</string>
   <string name="enable_debug_preview" translatable="false">Enable debug preview</string>
+  <string name="abort_slow_export" translatable="false">Abort slow export</string>
   <string name="trim" translatable="false">Trim</string>
-  <string name="request_sdr_tone_mapping" translatable="false">Request SDR tone-mapping (API 31+)</string>
-  <string name="force_interpret_hdr_video_as_sdr" translatable="false">Interpret HDR as SDR (API 29+)</string>
-  <string name="hdr_editing" translatable="false">HDR editing (API 31+)</string>
-  <string name="select_demo_effects" translatable="false">Add demo effects</string>
+  <string name="hdr_mode" translatable="false">HDR mode</string>
+  <string name="select_audio_effects" translatable="false">Add audio effects</string>
+  <string name="select_video_effects" translatable="false">Add video effects</string>
   <string name="periodic_vignette_options" translatable="false">Periodic vignette options</string>
-  <string name="no_media_pipe_error" translatable="false">Failed to load MediaPipe processor. Check the README for instructions.</string>
-  <string name="transform" translatable="false">Transform</string>
+  <string name="no_media_pipe_error" translatable="false">Failed to load MediaPipeShaderProgram. Check the README for instructions.</string>
+  <string name="export" translatable="false">Export</string>
   <string name="debug_preview" translatable="false">Debug preview:</string>
   <string name="debug_preview_not_available" translatable="false">No debug preview available.</string>
-  <string name="transformation_started" translatable="false">Transformation started</string>
-  <string name="transformation_timer" translatable="false">Transformation started %d seconds ago.</string>
-  <string name="transformation_completed" translatable="false">Transformation completed in %d seconds.</string>
-  <string name="transformation_error" translatable="false">Transformation error</string>
+  <string name="export_started" translatable="false">Export started</string>
+  <string name="export_timer" translatable="false">Export started %d seconds ago.</string>
+  <string name="export_completed" translatable="false">Export completed in %d seconds.\nOutput: %s</string>
+  <string name="export_error" translatable="false">Export error</string>
   <string name="trim_range">Bounds in seconds</string>
   <string-array name="color_filter_options">
     <item>Grayscale</item>
@@ -61,9 +62,20 @@
   <string name="hue_adjustment">Hue adjustment</string>
   <string name="saturation_adjustment">Saturation adjustment</string>
   <string name="lightness_adjustment">Lightness adjustment</string>
-  <string name="input_video">Input video:</string>
-  <string name="output_video">Output video:</string>
+  <string name="input_image">Input image:</string>
+  <string name="input_video_no_sound">Input video (tap to play sound):</string>
+  <string name="input_video_playing_sound">Input video (sound playing):</string>
+  <string name="output_video_no_sound">Output video (tap to play sound):</string>
+  <string name="output_video_playing_sound">Output video (sound playing):</string>
   <string name="permission_denied">Permission Denied</string>
   <string name="hide_input_video">Hide input video</string>
   <string name="show_input_video">Show input video</string>
+  <string name="force_audio_track">Force audio track</string>
+  <string name="overlay_alpha">Alpha</string>
+  <string name="overlay_uri">Uri</string>
+  <string name="bitmap_overlay_settings">Specify bitmap overlay settings</string>
+  <string name="select_local_image">Select local image</string>
+  <string name="overlay_text">Text</string>
+  <string name="overlay_text_color">Text color</string>
+  <string name="text_overlay_settings">Specify text overlay settings</string>
 </resources>

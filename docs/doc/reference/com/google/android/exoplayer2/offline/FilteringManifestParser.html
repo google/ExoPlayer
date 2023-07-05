@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -137,9 +137,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;T&gt;</code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">FilteringManifestParser&lt;T extends <a href="FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;T&gt;&gt;</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">FilteringManifestParser&lt;T extends <a href="FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;T&gt;&gt;</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="../upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;T&gt;</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A manifest parser that includes only the streams identified by the given stream keys.</div>
 </li>
 </ul>
@@ -163,7 +169,9 @@ implements <a href="../upstream/ParsingLoadable.Parser.html" title="interface in
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.upstream.ParsingLoadable.Parser,java.util.List)">FilteringManifestParser</a></span>&#8203;(<a href="../upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;? extends <a href="FilteringManifestParser.html" title="type parameter in FilteringManifestParser">T</a>&gt;&nbsp;parser,
                        <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -177,7 +185,7 @@ implements <a href="../upstream/ParsingLoadable.Parser.html" title="interface in
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -188,6 +196,7 @@ implements <a href="../upstream/ParsingLoadable.Parser.html" title="interface in
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parse(android.net.Uri,java.io.InputStream)">parse</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
      <a href="https://developer.android.com/reference/java/io/InputStream.html" title="class or interface in java.io" class="externalLink" target="_top">InputStream</a>&nbsp;inputStream)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses an object from a response.</div>
 </td>
 </tr>
@@ -224,6 +233,7 @@ implements <a href="../upstream/ParsingLoadable.Parser.html" title="interface in
 <pre>public&nbsp;FilteringManifestParser&#8203;(<a href="../upstream/ParsingLoadable.Parser.html" title="interface in com.google.android.exoplayer2.upstream">ParsingLoadable.Parser</a>&lt;? extends <a href="FilteringManifestParser.html" title="type parameter in FilteringManifestParser">T</a>&gt;&nbsp;parser,
                                @Nullable
                                <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>parser</code> - A parser for the manifest that will be filtered.</dd>
@@ -250,6 +260,7 @@ implements <a href="../upstream/ParsingLoadable.Parser.html" title="interface in
 <pre class="methodSignature">public&nbsp;<a href="FilteringManifestParser.html" title="type parameter in FilteringManifestParser">T</a>&nbsp;parse&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri,
                <a href="https://developer.android.com/reference/java/io/InputStream.html" title="class or interface in java.io" class="externalLink" target="_top">InputStream</a>&nbsp;inputStream)
         throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../upstream/ParsingLoadable.Parser.html#parse(android.net.Uri,java.io.InputStream)">ParsingLoadable.Parser</a></code></span></div>
 <div class="block">Parses an object from a response.</div>
 <dl>

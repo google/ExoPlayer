@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":41,"i1":9,"i2":9,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10,"i32":10,"i33":10,"i34":10,"i35":10,"i36":10,"i37":10,"i38":10,"i39":10};
+var data = {"i0":41,"i1":41,"i2":41,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42,"i12":42,"i13":42,"i14":42,"i15":42,"i16":42,"i17":42,"i18":42,"i19":42,"i20":42,"i21":42,"i22":42,"i23":42,"i24":42,"i25":42,"i26":42,"i27":42,"i28":42,"i29":42,"i30":42,"i31":42,"i32":42,"i33":42,"i34":42,"i35":42,"i36":42,"i37":42,"i38":42,"i39":42};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a></code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">SampleQueue</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">SampleQueue</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="../extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A queue of media samples.</div>
 </li>
 </ul>
@@ -161,6 +167,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="SampleQueue.UpstreamFormatChangedListener.html" title="interface in com.google.android.exoplayer2.source">SampleQueue.UpstreamFormatChangedListener</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A listener for changes to the upstream format.</div>
 </td>
 </tr>
@@ -211,7 +218,9 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.upstream.Allocator,com.google.android.exoplayer2.drm.DrmSessionManager,com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)">SampleQueue</a></span>&#8203;(<a href="../upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
            <a href="../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager,
            <a href="../drm/DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;drmEventDispatcher)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -249,6 +258,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
              <a href="../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager,
              <a href="../drm/DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;drmEventDispatcher)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a sample queue with DRM resource management.</div>
 </td>
 </tr>
@@ -256,13 +266,16 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <td class="colFirst"><code>static <a href="SampleQueue.html" title="class in com.google.android.exoplayer2.source">SampleQueue</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createWithoutDrm(com.google.android.exoplayer2.upstream.Allocator)">createWithoutDrm</a></span>&#8203;(<a href="../upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a sample queue without DRM resource management.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#discardSampleMetadataToRead()">discardSampleMetadataToRead</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
@@ -270,6 +283,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
          boolean&nbsp;toKeyframe,
          boolean&nbsp;stopAtReadPosition)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Discards up to but not including the sample immediately before or at the specified time.</div>
 </td>
 </tr>
@@ -277,6 +291,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#discardToEnd()">discardToEnd</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Discards all samples in the queue and advances the read position.</div>
 </td>
 </tr>
@@ -284,6 +299,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#discardToRead()">discardToRead</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Discards up to but not including the read position.</div>
 </td>
 </tr>
@@ -291,6 +307,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#discardUpstreamFrom(long)">discardUpstreamFrom</a></span>&#8203;(long&nbsp;timeUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Discards samples from the write side of the queue.</div>
 </td>
 </tr>
@@ -298,6 +315,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#discardUpstreamSamples(int)">discardUpstreamSamples</a></span>&#8203;(int&nbsp;discardFromIndex)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Discards samples from the write side of the queue.</div>
 </td>
 </tr>
@@ -305,6 +323,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#format(com.google.android.exoplayer2.Format)">format</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> of the track has been extracted from the stream.</div>
 </td>
 </tr>
@@ -312,6 +331,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <td class="colFirst"><code>protected <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdjustedUpstreamFormat(com.google.android.exoplayer2.Format)">getAdjustedUpstreamFormat</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adjusts the upstream <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> (i.e., the <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> that was most recently passed to
  <a href="#format(com.google.android.exoplayer2.Format)"><code>format(Format)</code></a>).</div>
 </td>
@@ -320,6 +340,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFirstIndex()">getFirstIndex</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current absolute start index.</div>
 </td>
 </tr>
@@ -327,6 +348,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFirstTimestampUs()">getFirstTimestampUs</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the timestamp of the first sample, or <a href="https://developer.android.com/reference/java/lang/Long.html#MIN_VALUE" title="class or interface in java.lang" class="externalLink" target="_top"><code>Long.MIN_VALUE</code></a> if the queue is empty.</div>
 </td>
 </tr>
@@ -334,6 +356,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLargestQueuedTimestampUs()">getLargestQueuedTimestampUs</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the largest sample timestamp that has been queued since the last <a href="#reset()"><code>reset()</code></a>.</div>
 </td>
 </tr>
@@ -341,6 +364,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLargestReadTimestampUs()">getLargestReadTimestampUs</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the largest sample timestamp that has been read since the last <a href="#reset()"><code>reset()</code></a>.</div>
 </td>
 </tr>
@@ -348,6 +372,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getReadIndex()">getReadIndex</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current absolute read index.</div>
 </td>
 </tr>
@@ -356,6 +381,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSkipCount(long,boolean)">getSkipCount</a></span>&#8203;(long&nbsp;timeUs,
             boolean&nbsp;allowEndOfQueue)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the number of samples that need to be <a href="#skip(int)"><code>skipped</code></a> to advance the read
  position to the keyframe before or at the specified time.</div>
 </td>
@@ -364,6 +390,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <td class="colFirst"><code><a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getUpstreamFormat()">getUpstreamFormat</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the upstream <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> in which samples are being queued.</div>
 </td>
 </tr>
@@ -371,6 +398,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getWriteIndex()">getWriteIndex</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current absolute write index.</div>
 </td>
 </tr>
@@ -378,6 +406,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#invalidateUpstreamFormatAdjustment()">invalidateUpstreamFormatAdjustment</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Invalidates the last upstream format adjustment.</div>
 </td>
 </tr>
@@ -385,6 +414,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isLastSampleQueued()">isLastSampleQueued</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the last sample of the stream has knowingly been queued.</div>
 </td>
 </tr>
@@ -392,6 +422,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isReady(boolean)">isReady</a></span>&#8203;(boolean&nbsp;loadingFinished)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether there is data available for reading.</div>
 </td>
 </tr>
@@ -399,13 +430,15 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maybeThrowError()">maybeThrowError</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Throws an error that's preventing data from being read.</div>
 </td>
 </tr>
 <tr id="i23" class="rowColor">
-<td class="colFirst"><code>int</code></td>
+<td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#peekSourceId()">peekSourceId</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Peeks the source id of the next sample to be read, or the current upstream source id if the
  queue is empty or if the read position is at the end of the queue.</div>
 </td>
@@ -414,6 +447,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#preRelease()">preRelease</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Calls <a href="#discardToEnd()"><code>discardToEnd()</code></a> and releases any resources owned by the queue.</div>
 </td>
 </tr>
@@ -424,6 +458,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
     @com.google.android.exoplayer2.source.SampleStream.ReadFlags int&nbsp;readFlags,
     boolean&nbsp;loadingFinished)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Attempts to read from the queue.</div>
 </td>
 </tr>
@@ -431,6 +466,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Calls <a href="#reset(boolean)"><code>reset(true)</code></a> and releases any resources owned by the queue.</div>
 </td>
 </tr>
@@ -438,6 +474,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset()">reset</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Convenience method for <code>reset(false)</code>.</div>
 </td>
 </tr>
@@ -445,6 +482,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset(boolean)">reset</a></span>&#8203;(boolean&nbsp;resetUpstreamFormat)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Clears all samples from the queue.</div>
 </td>
 </tr>
@@ -455,6 +493,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
           boolean&nbsp;allowEndOfInput,
           @com.google.android.exoplayer2.extractor.TrackOutput.SampleDataPart int&nbsp;sampleDataPart)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called to write sample data to the output.</div>
 </td>
 </tr>
@@ -464,6 +503,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
           int&nbsp;length,
           @com.google.android.exoplayer2.extractor.TrackOutput.SampleDataPart int&nbsp;sampleDataPart)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called to write sample data to the output.</div>
 </td>
 </tr>
@@ -475,6 +515,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
               int&nbsp;offset,
               <a href="../extractor/TrackOutput.CryptoData.html" title="class in com.google.android.exoplayer2.extractor">TrackOutput.CryptoData</a>&nbsp;cryptoData)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when metadata associated with a sample has been extracted from the stream.</div>
 </td>
 </tr>
@@ -482,6 +523,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekTo(int)">seekTo</a></span>&#8203;(int&nbsp;sampleIndex)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Attempts to seek the read position to the specified sample index.</div>
 </td>
 </tr>
@@ -490,6 +532,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekTo(long,boolean)">seekTo</a></span>&#8203;(long&nbsp;timeUs,
       boolean&nbsp;allowTimeBeyondBuffer)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Attempts to seek the read position to the keyframe before or at the specified time.</div>
 </td>
 </tr>
@@ -497,6 +540,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSampleOffsetUs(long)">setSampleOffsetUs</a></span>&#8203;(long&nbsp;sampleOffsetUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets an offset that will be added to the timestamps (and sub-sample timestamps) of samples that
  are subsequently queued.</div>
 </td>
@@ -505,6 +549,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setStartTimeUs(long)">setStartTimeUs</a></span>&#8203;(long&nbsp;startTimeUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the start time for the queue.</div>
 </td>
 </tr>
@@ -512,6 +557,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUpstreamFormatChangeListener(com.google.android.exoplayer2.source.SampleQueue.UpstreamFormatChangedListener)">setUpstreamFormatChangeListener</a></span>&#8203;(<a href="SampleQueue.UpstreamFormatChangedListener.html" title="interface in com.google.android.exoplayer2.source">SampleQueue.UpstreamFormatChangedListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets a listener to be notified of changes to the upstream format.</div>
 </td>
 </tr>
@@ -519,13 +565,15 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skip(int)">skip</a></span>&#8203;(int&nbsp;count)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Advances the read position by the specified number of samples.</div>
 </td>
 </tr>
 <tr id="i38" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sourceId(int)">sourceId</a></span>&#8203;(int&nbsp;sourceId)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sourceId(long)">sourceId</a></span>&#8203;(long&nbsp;sourceId)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets a source identifier for subsequent samples.</div>
 </td>
 </tr>
@@ -533,6 +581,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#splice()">splice</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Indicates samples that are subsequently queued should be spliced into those already queued.</div>
 </td>
 </tr>
@@ -578,6 +627,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
                       <a href="../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager,
                       @Nullable
                       <a href="../drm/DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;drmEventDispatcher)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -597,6 +647,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <li class="blockList">
 <h4>createWithoutDrm</h4>
 <pre class="methodSignature">public static&nbsp;<a href="SampleQueue.html" title="class in com.google.android.exoplayer2.source">SampleQueue</a>&nbsp;createWithoutDrm&#8203;(<a href="../upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a sample queue without DRM resource management.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -613,6 +664,7 @@ implements <a href="../extractor/TrackOutput.html" title="interface in com.googl
 <pre class="methodSignature">public static&nbsp;<a href="SampleQueue.html" title="class in com.google.android.exoplayer2.source">SampleQueue</a>&nbsp;createWithDrm&#8203;(<a href="../upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;allocator,
                                         <a href="../drm/DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a>&nbsp;drmSessionManager,
                                         <a href="../drm/DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;drmEventDispatcher)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a sample queue with DRM resource management.
 
  <p>For each sample added to the queue, a <a href="../drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSession</code></a> will be attached containing the
@@ -653,6 +705,7 @@ public static&nbsp;<a href="SampleQueue.html" title="class in com.google.android
 <h4>release</h4>
 <pre class="methodSignature">@CallSuper
 public&nbsp;void&nbsp;release()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Calls <a href="#reset(boolean)"><code>reset(true)</code></a> and releases any resources owned by the queue.</div>
 </li>
 </ul>
@@ -663,6 +716,7 @@ public&nbsp;void&nbsp;release()</pre>
 <li class="blockList">
 <h4>reset</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;reset()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Convenience method for <code>reset(false)</code>.</div>
 </li>
 </ul>
@@ -674,6 +728,7 @@ public&nbsp;void&nbsp;release()</pre>
 <h4>reset</h4>
 <pre class="methodSignature">@CallSuper
 public&nbsp;void&nbsp;reset&#8203;(boolean&nbsp;resetUpstreamFormat)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Clears all samples from the queue.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -691,6 +746,7 @@ public&nbsp;void&nbsp;reset&#8203;(boolean&nbsp;resetUpstreamFormat)</pre>
 <li class="blockList">
 <h4>setStartTimeUs</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;setStartTimeUs&#8203;(long&nbsp;startTimeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the start time for the queue. Samples with earlier timestamps will be discarded or have
  the <a href="../C.html#BUFFER_FLAG_DECODE_ONLY"><code>C.BUFFER_FLAG_DECODE_ONLY</code></a> flag set when read.</div>
 <dl>
@@ -699,13 +755,14 @@ public&nbsp;void&nbsp;reset&#8203;(boolean&nbsp;resetUpstreamFormat)</pre>
 </dl>
 </li>
 </ul>
-<a id="sourceId(int)">
+<a id="sourceId(long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>sourceId</h4>
-<pre class="methodSignature">public final&nbsp;void&nbsp;sourceId&#8203;(int&nbsp;sourceId)</pre>
+<pre class="methodSignature">public final&nbsp;void&nbsp;sourceId&#8203;(long&nbsp;sourceId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets a source identifier for subsequent samples.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -720,6 +777,7 @@ public&nbsp;void&nbsp;reset&#8203;(boolean&nbsp;resetUpstreamFormat)</pre>
 <li class="blockList">
 <h4>splice</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;splice()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Indicates samples that are subsequently queued should be spliced into those already queued.</div>
 </li>
 </ul>
@@ -730,6 +788,7 @@ public&nbsp;void&nbsp;reset&#8203;(boolean&nbsp;resetUpstreamFormat)</pre>
 <li class="blockList">
 <h4>getWriteIndex</h4>
 <pre class="methodSignature">public final&nbsp;int&nbsp;getWriteIndex()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current absolute write index.</div>
 </li>
 </ul>
@@ -740,6 +799,7 @@ public&nbsp;void&nbsp;reset&#8203;(boolean&nbsp;resetUpstreamFormat)</pre>
 <li class="blockList">
 <h4>discardUpstreamSamples</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;discardUpstreamSamples&#8203;(int&nbsp;discardFromIndex)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Discards samples from the write side of the queue.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -755,6 +815,7 @@ public&nbsp;void&nbsp;reset&#8203;(boolean&nbsp;resetUpstreamFormat)</pre>
 <li class="blockList">
 <h4>discardUpstreamFrom</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;discardUpstreamFrom&#8203;(long&nbsp;timeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Discards samples from the write side of the queue.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -772,6 +833,7 @@ public&nbsp;void&nbsp;reset&#8203;(boolean&nbsp;resetUpstreamFormat)</pre>
 <h4>preRelease</h4>
 <pre class="methodSignature">@CallSuper
 public&nbsp;void&nbsp;preRelease()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Calls <a href="#discardToEnd()"><code>discardToEnd()</code></a> and releases any resources owned by the queue.</div>
 </li>
 </ul>
@@ -784,6 +846,7 @@ public&nbsp;void&nbsp;preRelease()</pre>
 <pre class="methodSignature">@CallSuper
 public&nbsp;void&nbsp;maybeThrowError()
                      throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Throws an error that's preventing data from being read. Does nothing if no such error exists.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -798,6 +861,7 @@ public&nbsp;void&nbsp;maybeThrowError()
 <li class="blockList">
 <h4>getFirstIndex</h4>
 <pre class="methodSignature">public final&nbsp;int&nbsp;getFirstIndex()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current absolute start index.</div>
 </li>
 </ul>
@@ -808,6 +872,7 @@ public&nbsp;void&nbsp;maybeThrowError()
 <li class="blockList">
 <h4>getReadIndex</h4>
 <pre class="methodSignature">public final&nbsp;int&nbsp;getReadIndex()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current absolute read index.</div>
 </li>
 </ul>
@@ -817,7 +882,8 @@ public&nbsp;void&nbsp;maybeThrowError()
 <ul class="blockList">
 <li class="blockList">
 <h4>peekSourceId</h4>
-<pre class="methodSignature">public final&nbsp;int&nbsp;peekSourceId()</pre>
+<pre class="methodSignature">public final&nbsp;long&nbsp;peekSourceId()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Peeks the source id of the next sample to be read, or the current upstream source id if the
  queue is empty or if the read position is at the end of the queue.</div>
 <dl>
@@ -834,6 +900,7 @@ public&nbsp;void&nbsp;maybeThrowError()
 <h4>getUpstreamFormat</h4>
 <pre class="methodSignature">@Nullable
 public final&nbsp;<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;getUpstreamFormat()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the upstream <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> in which samples are being queued.</div>
 </li>
 </ul>
@@ -844,6 +911,7 @@ public final&nbsp;<a href="../Format.html" title="class in com.google.android.ex
 <li class="blockList">
 <h4>getLargestQueuedTimestampUs</h4>
 <pre class="methodSignature">public final&nbsp;long&nbsp;getLargestQueuedTimestampUs()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the largest sample timestamp that has been queued since the last <a href="#reset()"><code>reset()</code></a>.
 
  <p>Samples that were discarded by calling <a href="#discardUpstreamSamples(int)"><code>discardUpstreamSamples(int)</code></a> are not
@@ -863,6 +931,7 @@ public final&nbsp;<a href="../Format.html" title="class in com.google.android.ex
 <li class="blockList">
 <h4>getLargestReadTimestampUs</h4>
 <pre class="methodSignature">public final&nbsp;long&nbsp;getLargestReadTimestampUs()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the largest sample timestamp that has been read since the last <a href="#reset()"><code>reset()</code></a>.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -878,6 +947,7 @@ public final&nbsp;<a href="../Format.html" title="class in com.google.android.ex
 <li class="blockList">
 <h4>isLastSampleQueued</h4>
 <pre class="methodSignature">public final&nbsp;boolean&nbsp;isLastSampleQueued()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the last sample of the stream has knowingly been queued. A return value of
  <code>false</code> means that the last sample had not been queued or that it's unknown whether the
  last sample has been queued.
@@ -894,6 +964,7 @@ public final&nbsp;<a href="../Format.html" title="class in com.google.android.ex
 <li class="blockList">
 <h4>getFirstTimestampUs</h4>
 <pre class="methodSignature">public final&nbsp;long&nbsp;getFirstTimestampUs()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the timestamp of the first sample, or <a href="https://developer.android.com/reference/java/lang/Long.html#MIN_VALUE" title="class or interface in java.lang" class="externalLink" target="_top"><code>Long.MIN_VALUE</code></a> if the queue is empty.</div>
 </li>
 </ul>
@@ -905,6 +976,7 @@ public final&nbsp;<a href="../Format.html" title="class in com.google.android.ex
 <h4>isReady</h4>
 <pre class="methodSignature">@CallSuper
 public&nbsp;boolean&nbsp;isReady&#8203;(boolean&nbsp;loadingFinished)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether there is data available for reading.
 
  <p>Note: If the stream has ended then a buffer with the end of stream flag can always be read
@@ -929,6 +1001,7 @@ public&nbsp;int&nbsp;read&#8203;(<a href="../FormatHolder.html" title="class in 
                 <a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;buffer,
                 @com.google.android.exoplayer2.source.SampleStream.ReadFlags int&nbsp;readFlags,
                 boolean&nbsp;loadingFinished)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Attempts to read from the queue.
 
  <p><a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Formats</code></a> read from this method may be associated to a <a href="../drm/DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSession</code></a>
@@ -957,6 +1030,7 @@ public&nbsp;int&nbsp;read&#8203;(<a href="../FormatHolder.html" title="class in 
 <li class="blockList">
 <h4>seekTo</h4>
 <pre class="methodSignature">public final&nbsp;boolean&nbsp;seekTo&#8203;(int&nbsp;sampleIndex)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Attempts to seek the read position to the specified sample index.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -974,6 +1048,7 @@ public&nbsp;int&nbsp;read&#8203;(<a href="../FormatHolder.html" title="class in 
 <h4>seekTo</h4>
 <pre class="methodSignature">public final&nbsp;boolean&nbsp;seekTo&#8203;(long&nbsp;timeUs,
                             boolean&nbsp;allowTimeBeyondBuffer)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Attempts to seek the read position to the keyframe before or at the specified time.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -993,6 +1068,7 @@ public&nbsp;int&nbsp;read&#8203;(<a href="../FormatHolder.html" title="class in 
 <h4>getSkipCount</h4>
 <pre class="methodSignature">public final&nbsp;int&nbsp;getSkipCount&#8203;(long&nbsp;timeUs,
                               boolean&nbsp;allowEndOfQueue)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the number of samples that need to be <a href="#skip(int)"><code>skipped</code></a> to advance the read
  position to the keyframe before or at the specified time.</div>
 <dl>
@@ -1012,6 +1088,7 @@ public&nbsp;int&nbsp;read&#8203;(<a href="../FormatHolder.html" title="class in 
 <li class="blockList">
 <h4>skip</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;skip&#8203;(int&nbsp;count)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Advances the read position by the specified number of samples.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1029,6 +1106,7 @@ public&nbsp;int&nbsp;read&#8203;(<a href="../FormatHolder.html" title="class in 
 <pre class="methodSignature">public final&nbsp;void&nbsp;discardTo&#8203;(long&nbsp;timeUs,
                             boolean&nbsp;toKeyframe,
                             boolean&nbsp;stopAtReadPosition)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Discards up to but not including the sample immediately before or at the specified time.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1048,6 +1126,7 @@ public&nbsp;int&nbsp;read&#8203;(<a href="../FormatHolder.html" title="class in 
 <li class="blockList">
 <h4>discardToRead</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;discardToRead()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Discards up to but not including the read position.</div>
 </li>
 </ul>
@@ -1058,6 +1137,7 @@ public&nbsp;int&nbsp;read&#8203;(<a href="../FormatHolder.html" title="class in 
 <li class="blockList">
 <h4>discardToEnd</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;discardToEnd()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Discards all samples in the queue and advances the read position.</div>
 </li>
 </ul>
@@ -1068,6 +1148,7 @@ public&nbsp;int&nbsp;read&#8203;(<a href="../FormatHolder.html" title="class in 
 <li class="blockList">
 <h4>setSampleOffsetUs</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;setSampleOffsetUs&#8203;(long&nbsp;sampleOffsetUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets an offset that will be added to the timestamps (and sub-sample timestamps) of samples that
  are subsequently queued.</div>
 <dl>
@@ -1084,6 +1165,7 @@ public&nbsp;int&nbsp;read&#8203;(<a href="../FormatHolder.html" title="class in 
 <h4>setUpstreamFormatChangeListener</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;setUpstreamFormatChangeListener&#8203;(@Nullable
                                                   <a href="SampleQueue.UpstreamFormatChangedListener.html" title="interface in com.google.android.exoplayer2.source">SampleQueue.UpstreamFormatChangedListener</a>&nbsp;listener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets a listener to be notified of changes to the upstream format.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1098,6 +1180,7 @@ public&nbsp;int&nbsp;read&#8203;(<a href="../FormatHolder.html" title="class in 
 <li class="blockList">
 <h4>format</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;format&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../extractor/TrackOutput.html#format(com.google.android.exoplayer2.Format)">TrackOutput</a></code></span></div>
 <div class="block">Called when the <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> of the track has been extracted from the stream.</div>
 <dl>
@@ -1119,6 +1202,7 @@ public&nbsp;int&nbsp;read&#8203;(<a href="../FormatHolder.html" title="class in 
                             boolean&nbsp;allowEndOfInput,
                             @com.google.android.exoplayer2.extractor.TrackOutput.SampleDataPart int&nbsp;sampleDataPart)
                      throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../extractor/TrackOutput.html#sampleData(com.google.android.exoplayer2.upstream.DataReader,int,boolean,@com.google.android.exoplayer2.extractor.TrackOutput.SampleDataPartint)">TrackOutput</a></code></span></div>
 <div class="block">Called to write sample data to the output.</div>
 <dl>
@@ -1147,6 +1231,7 @@ public&nbsp;int&nbsp;read&#8203;(<a href="../FormatHolder.html" title="class in 
 <pre class="methodSignature">public final&nbsp;void&nbsp;sampleData&#8203;(<a href="../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;data,
                              int&nbsp;length,
                              @com.google.android.exoplayer2.extractor.TrackOutput.SampleDataPart int&nbsp;sampleDataPart)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../extractor/TrackOutput.html#sampleData(com.google.android.exoplayer2.util.ParsableByteArray,int,@com.google.android.exoplayer2.extractor.TrackOutput.SampleDataPartint)">TrackOutput</a></code></span></div>
 <div class="block">Called to write sample data to the output.</div>
 <dl>
@@ -1171,6 +1256,7 @@ public&nbsp;int&nbsp;read&#8203;(<a href="../FormatHolder.html" title="class in 
                            int&nbsp;offset,
                            @Nullable
                            <a href="../extractor/TrackOutput.CryptoData.html" title="class in com.google.android.exoplayer2.extractor">TrackOutput.CryptoData</a>&nbsp;cryptoData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../extractor/TrackOutput.html#sampleMetadata(long,@com.google.android.exoplayer2.C.BufferFlagsint,int,int,com.google.android.exoplayer2.extractor.TrackOutput.CryptoData)">TrackOutput</a></code></span></div>
 <div class="block">Called when metadata associated with a sample has been extracted from the stream.
 
@@ -1197,6 +1283,7 @@ public&nbsp;int&nbsp;read&#8203;(<a href="../FormatHolder.html" title="class in 
 <li class="blockList">
 <h4>invalidateUpstreamFormatAdjustment</h4>
 <pre class="methodSignature">protected final&nbsp;void&nbsp;invalidateUpstreamFormatAdjustment()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Invalidates the last upstream format adjustment. <a href="#getAdjustedUpstreamFormat(com.google.android.exoplayer2.Format)"><code>getAdjustedUpstreamFormat(Format)</code></a>
  will be called to adjust the upstream <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> again before the next sample is queued.</div>
 </li>
@@ -1209,6 +1296,7 @@ public&nbsp;int&nbsp;read&#8203;(<a href="../FormatHolder.html" title="class in 
 <h4>getAdjustedUpstreamFormat</h4>
 <pre class="methodSignature">@CallSuper
 protected&nbsp;<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;getAdjustedUpstreamFormat&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adjusts the upstream <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> (i.e., the <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> that was most recently passed to
  <a href="#format(com.google.android.exoplayer2.Format)"><code>format(Format)</code></a>).
 
@@ -1228,6 +1316,7 @@ protected&nbsp;<a href="../Format.html" title="class in com.google.android.exopl
 <li class="blockList">
 <h4>discardSampleMetadataToRead</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;discardSampleMetadataToRead()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>

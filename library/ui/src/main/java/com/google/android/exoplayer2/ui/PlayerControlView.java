@@ -54,7 +54,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.Events;
-import com.google.android.exoplayer2.Player.State;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
@@ -242,7 +241,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * single instance in a layout file. This is achieved by setting the {@code controller_layout_id}
  * attribute on a PlayerControlView. This will cause the specified layout to be inflated instead of
  * {@code exo_player_control_view.xml} for only the instance on which the attribute is set.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public class PlayerControlView extends FrameLayout {
 
   static {
@@ -825,22 +830,22 @@ public class PlayerControlView extends FrameLayout {
     }
     boolean requestPlayPauseFocus = false;
     boolean requestPlayPauseAccessibilityFocus = false;
-    boolean shouldShowPauseButton = shouldShowPauseButton();
+    boolean shouldShowPlayButton = Util.shouldShowPlayButton(player);
     if (playButton != null) {
-      requestPlayPauseFocus |= shouldShowPauseButton && playButton.isFocused();
+      requestPlayPauseFocus |= !shouldShowPlayButton && playButton.isFocused();
       requestPlayPauseAccessibilityFocus |=
           Util.SDK_INT < 21
               ? requestPlayPauseFocus
-              : (shouldShowPauseButton && Api21.isAccessibilityFocused(playButton));
-      playButton.setVisibility(shouldShowPauseButton ? GONE : VISIBLE);
+              : (!shouldShowPlayButton && Api21.isAccessibilityFocused(playButton));
+      playButton.setVisibility(shouldShowPlayButton ? VISIBLE : GONE);
     }
     if (pauseButton != null) {
-      requestPlayPauseFocus |= !shouldShowPauseButton && pauseButton.isFocused();
+      requestPlayPauseFocus |= shouldShowPlayButton && pauseButton.isFocused();
       requestPlayPauseAccessibilityFocus |=
           Util.SDK_INT < 21
               ? requestPlayPauseFocus
-              : (!shouldShowPauseButton && Api21.isAccessibilityFocused(pauseButton));
-      pauseButton.setVisibility(shouldShowPauseButton ? VISIBLE : GONE);
+              : (shouldShowPlayButton && Api21.isAccessibilityFocused(pauseButton));
+      pauseButton.setVisibility(shouldShowPlayButton ? GONE : VISIBLE);
     }
     if (requestPlayPauseFocus) {
       requestPlayPauseFocus();
@@ -1066,19 +1071,19 @@ public class PlayerControlView extends FrameLayout {
   }
 
   private void requestPlayPauseFocus() {
-    boolean shouldShowPauseButton = shouldShowPauseButton();
-    if (!shouldShowPauseButton && playButton != null) {
+    boolean shouldShowPlayButton = Util.shouldShowPlayButton(player);
+    if (shouldShowPlayButton && playButton != null) {
       playButton.requestFocus();
-    } else if (shouldShowPauseButton && pauseButton != null) {
+    } else if (!shouldShowPlayButton && pauseButton != null) {
       pauseButton.requestFocus();
     }
   }
 
   private void requestPlayPauseAccessibilityFocus() {
-    boolean shouldShowPauseButton = shouldShowPauseButton();
-    if (!shouldShowPauseButton && playButton != null) {
+    boolean shouldShowPlayButton = Util.shouldShowPlayButton(player);
+    if (shouldShowPlayButton && playButton != null) {
       playButton.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED);
-    } else if (shouldShowPauseButton && pauseButton != null) {
+    } else if (!shouldShowPlayButton && pauseButton != null) {
       pauseButton.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED);
     }
   }
@@ -1185,13 +1190,13 @@ public class PlayerControlView extends FrameLayout {
         switch (keyCode) {
           case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
           case KeyEvent.KEYCODE_HEADSETHOOK:
-            dispatchPlayPause(player);
+            Util.handlePlayPauseButtonAction(player);
             break;
           case KeyEvent.KEYCODE_MEDIA_PLAY:
-            dispatchPlay(player);
+            Util.handlePlayButtonAction(player);
             break;
           case KeyEvent.KEYCODE_MEDIA_PAUSE:
-            dispatchPause(player);
+            Util.handlePauseButtonAction(player);
             break;
           case KeyEvent.KEYCODE_MEDIA_NEXT:
             player.seekToNext();
@@ -1205,36 +1210,6 @@ public class PlayerControlView extends FrameLayout {
       }
     }
     return true;
-  }
-
-  private boolean shouldShowPauseButton() {
-    return player != null
-        && player.getPlaybackState() != Player.STATE_ENDED
-        && player.getPlaybackState() != Player.STATE_IDLE
-        && player.getPlayWhenReady();
-  }
-
-  private void dispatchPlayPause(Player player) {
-    @State int state = player.getPlaybackState();
-    if (state == Player.STATE_IDLE || state == Player.STATE_ENDED || !player.getPlayWhenReady()) {
-      dispatchPlay(player);
-    } else {
-      dispatchPause(player);
-    }
-  }
-
-  private void dispatchPlay(Player player) {
-    @State int state = player.getPlaybackState();
-    if (state == Player.STATE_IDLE) {
-      player.prepare();
-    } else if (state == Player.STATE_ENDED) {
-      seekTo(player, player.getCurrentMediaItemIndex(), C.TIME_UNSET);
-    }
-    player.play();
-  }
-
-  private void dispatchPause(Player player) {
-    player.pause();
   }
 
   @SuppressLint("InlinedApi")
@@ -1346,9 +1321,9 @@ public class PlayerControlView extends FrameLayout {
       } else if (rewindButton == view) {
         player.seekBack();
       } else if (playButton == view) {
-        dispatchPlay(player);
+        Util.handlePlayButtonAction(player);
       } else if (pauseButton == view) {
-        dispatchPause(player);
+        Util.handlePauseButtonAction(player);
       } else if (repeatToggleButton == view) {
         player.setRepeatMode(
             RepeatModeUtil.getNextRepeatMode(player.getRepeatMode(), repeatToggleModes));

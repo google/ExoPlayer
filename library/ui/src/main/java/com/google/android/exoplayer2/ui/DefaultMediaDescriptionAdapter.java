@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.ui;
 
-import static com.google.android.exoplayer2.Player.COMMAND_GET_MEDIA_ITEMS_METADATA;
+import static com.google.android.exoplayer2.Player.COMMAND_GET_METADATA;
 
 import android.app.PendingIntent;
 import android.graphics.Bitmap;
@@ -31,7 +31,13 @@ import com.google.android.exoplayer2.ui.PlayerNotificationManager.MediaDescripti
  *
  * <p>Uses values from the {@link Player#getMediaMetadata() player mediaMetadata} to populate the
  * notification.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class DefaultMediaDescriptionAdapter implements MediaDescriptionAdapter {
 
   @Nullable private final PendingIntent pendingIntent;
@@ -48,7 +54,7 @@ public final class DefaultMediaDescriptionAdapter implements MediaDescriptionAda
 
   @Override
   public CharSequence getCurrentContentTitle(Player player) {
-    if (!player.isCommandAvailable(COMMAND_GET_MEDIA_ITEMS_METADATA)) {
+    if (!player.isCommandAvailable(COMMAND_GET_METADATA)) {
       return "";
     }
     @Nullable CharSequence displayTitle = player.getMediaMetadata().displayTitle;
@@ -69,7 +75,7 @@ public final class DefaultMediaDescriptionAdapter implements MediaDescriptionAda
   @Nullable
   @Override
   public CharSequence getCurrentContentText(Player player) {
-    if (!player.isCommandAvailable(COMMAND_GET_MEDIA_ITEMS_METADATA)) {
+    if (!player.isCommandAvailable(COMMAND_GET_METADATA)) {
       return null;
     }
     @Nullable CharSequence artist = player.getMediaMetadata().artist;
@@ -83,7 +89,7 @@ public final class DefaultMediaDescriptionAdapter implements MediaDescriptionAda
   @Nullable
   @Override
   public Bitmap getCurrentLargeIcon(Player player, BitmapCallback callback) {
-    if (!player.isCommandAvailable(COMMAND_GET_MEDIA_ITEMS_METADATA)) {
+    if (!player.isCommandAvailable(COMMAND_GET_METADATA)) {
       return null;
     }
     @Nullable byte[] data = player.getMediaMetadata().artworkData;

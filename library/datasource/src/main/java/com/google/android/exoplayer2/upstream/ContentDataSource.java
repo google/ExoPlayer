@@ -32,7 +32,15 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 
-/** A {@link DataSource} for reading from a content URI. */
+/**
+ * A {@link DataSource} for reading from a content URI.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class ContentDataSource extends BaseDataSource {
 
   /** Thrown when an {@link IOException} is encountered reading from a content URI. */
@@ -73,13 +81,13 @@ public final class ContentDataSource extends BaseDataSource {
   @SuppressWarnings("InlinedApi") // We are inlining EXTRA_ACCEPT_ORIGINAL_MEDIA_FORMAT.
   public long open(DataSpec dataSpec) throws ContentDataSourceException {
     try {
-      Uri uri = dataSpec.uri;
+      Uri uri = dataSpec.uri.normalizeScheme();
       this.uri = uri;
 
       transferInitializing(dataSpec);
 
       AssetFileDescriptor assetFileDescriptor;
-      if ("content".equals(dataSpec.uri.getScheme())) {
+      if ("content".equals(uri.getScheme())) {
         Bundle providerOptions = new Bundle();
         // We don't want compatible media transcoding.
         providerOptions.putBoolean(MediaStore.EXTRA_ACCEPT_ORIGINAL_MEDIA_FORMAT, true);

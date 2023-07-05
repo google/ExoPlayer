@@ -64,7 +64,15 @@ import java.util.regex.Pattern;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.PolyNull;
 
-/** HLS playlists parsing logic. */
+/**
+ * HLS playlists parsing logic.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlaylist> {
 
   /** Exception thrown when merging a delta update fails. */
@@ -235,7 +243,7 @@ public final class HlsPlaylistParser implements ParsingLoadable.Parser<HlsPlayli
   }
 
   /**
-   * Creates an instance where parsed media playlists inherit attributes from the given master
+   * Creates an instance where parsed media playlists inherit attributes from the given multivariant
    * playlist.
    *
    * @param multivariantPlaylist The multivariant playlist from which media playlists will inherit

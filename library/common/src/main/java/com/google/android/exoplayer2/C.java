@@ -42,8 +42,16 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.UUID;
 
-/** Defines constants used by the library. */
+/**
+ * Defines constants used by the library.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
 @SuppressWarnings("InlinedApi")
+@Deprecated
 public final class C {
 
   private C() {}
@@ -60,11 +68,13 @@ public final class C {
    */
   public static final long TIME_UNSET = Long.MIN_VALUE + 1;
 
-  /** Represents an unset or unknown index. */
+  /** Represents an unset or unknown index or byte position. */
   public static final int INDEX_UNSET = -1;
 
-  /** Represents an unset or unknown position. */
-  public static final int POSITION_UNSET = -1;
+  /**
+   * @deprecated Use {@link #INDEX_UNSET}.
+   */
+  @Deprecated public static final int POSITION_UNSET = INDEX_UNSET;
 
   /** Represents an unset or unknown rate. */
   public static final float RATE_UNSET = -Float.MAX_VALUE;
@@ -92,36 +102,6 @@ public final class C {
 
   /** The number of bytes per float. */
   public static final int BYTES_PER_FLOAT = 4;
-
-  /**
-   * @deprecated Use {@link java.nio.charset.StandardCharsets} or {@link
-   *     com.google.common.base.Charsets} instead.
-   */
-  @Deprecated public static final String ASCII_NAME = "US-ASCII";
-
-  /**
-   * @deprecated Use {@link java.nio.charset.StandardCharsets} or {@link
-   *     com.google.common.base.Charsets} instead.
-   */
-  @Deprecated public static final String UTF8_NAME = "UTF-8";
-
-  /**
-   * @deprecated Use {@link java.nio.charset.StandardCharsets} or {@link
-   *     com.google.common.base.Charsets} instead.
-   */
-  @Deprecated public static final String ISO88591_NAME = "ISO-8859-1";
-
-  /**
-   * @deprecated Use {@link java.nio.charset.StandardCharsets} or {@link
-   *     com.google.common.base.Charsets} instead.
-   */
-  @Deprecated public static final String UTF16_NAME = "UTF-16";
-
-  /**
-   * @deprecated Use {@link java.nio.charset.StandardCharsets} or {@link
-   *     com.google.common.base.Charsets} instead.
-   */
-  @Deprecated public static final String UTF16LE_NAME = "UTF-16LE";
 
   /** The name of the serif font family. */
   public static final String SERIF_NAME = "serif";
@@ -169,17 +149,11 @@ public final class C {
   @Target(TYPE_USE)
   @IntDef({CRYPTO_MODE_UNENCRYPTED, CRYPTO_MODE_AES_CTR, CRYPTO_MODE_AES_CBC})
   public @interface CryptoMode {}
-  /**
-   * @see MediaCodec#CRYPTO_MODE_UNENCRYPTED
-   */
+  /** See {@link MediaCodec#CRYPTO_MODE_UNENCRYPTED}. */
   public static final int CRYPTO_MODE_UNENCRYPTED = MediaCodec.CRYPTO_MODE_UNENCRYPTED;
-  /**
-   * @see MediaCodec#CRYPTO_MODE_AES_CTR
-   */
+  /** See {@link MediaCodec#CRYPTO_MODE_AES_CTR}. */
   public static final int CRYPTO_MODE_AES_CTR = MediaCodec.CRYPTO_MODE_AES_CTR;
-  /**
-   * @see MediaCodec#CRYPTO_MODE_AES_CBC
-   */
+  /** See {@link MediaCodec#CRYPTO_MODE_AES_CBC}. */
   public static final int CRYPTO_MODE_AES_CBC = MediaCodec.CRYPTO_MODE_AES_CBC;
 
   /**
@@ -223,6 +197,7 @@ public final class C {
     ENCODING_DTS_HD,
     ENCODING_DOLBY_TRUEHD,
     ENCODING_OPUS,
+    ENCODING_DTS_UHD_P2,
   })
   public @interface Encoding {}
 
@@ -246,17 +221,11 @@ public final class C {
     ENCODING_PCM_FLOAT
   })
   public @interface PcmEncoding {}
-  /**
-   * @see AudioFormat#ENCODING_INVALID
-   */
+  /** See {@link AudioFormat#ENCODING_INVALID}. */
   public static final int ENCODING_INVALID = AudioFormat.ENCODING_INVALID;
-  /**
-   * @see AudioFormat#ENCODING_PCM_8BIT
-   */
+  /** See {@link AudioFormat#ENCODING_PCM_8BIT}. */
   public static final int ENCODING_PCM_8BIT = AudioFormat.ENCODING_PCM_8BIT;
-  /**
-   * @see AudioFormat#ENCODING_PCM_16BIT
-   */
+  /** See {@link AudioFormat#ENCODING_PCM_16BIT}. */
   public static final int ENCODING_PCM_16BIT = AudioFormat.ENCODING_PCM_16BIT;
   /** Like {@link #ENCODING_PCM_16BIT}, but with the bytes in big endian order. */
   public static final int ENCODING_PCM_16BIT_BIG_ENDIAN = 0x10000000;
@@ -264,67 +233,39 @@ public final class C {
   public static final int ENCODING_PCM_24BIT = 0x20000000;
   /** PCM encoding with 32 bits per sample. */
   public static final int ENCODING_PCM_32BIT = 0x30000000;
-  /**
-   * @see AudioFormat#ENCODING_PCM_FLOAT
-   */
+  /** See {@link AudioFormat#ENCODING_PCM_FLOAT}. */
   public static final int ENCODING_PCM_FLOAT = AudioFormat.ENCODING_PCM_FLOAT;
-  /**
-   * @see AudioFormat#ENCODING_MP3
-   */
+  /** See {@link AudioFormat#ENCODING_MP3}. */
   public static final int ENCODING_MP3 = AudioFormat.ENCODING_MP3;
-  /**
-   * @see AudioFormat#ENCODING_AAC_LC
-   */
+  /** See {@link AudioFormat#ENCODING_AAC_LC}. */
   public static final int ENCODING_AAC_LC = AudioFormat.ENCODING_AAC_LC;
-  /**
-   * @see AudioFormat#ENCODING_AAC_HE_V1
-   */
+  /** See {@link AudioFormat#ENCODING_AAC_HE_V1}. */
   public static final int ENCODING_AAC_HE_V1 = AudioFormat.ENCODING_AAC_HE_V1;
-  /**
-   * @see AudioFormat#ENCODING_AAC_HE_V2
-   */
+  /** See {@link AudioFormat#ENCODING_AAC_HE_V2}. */
   public static final int ENCODING_AAC_HE_V2 = AudioFormat.ENCODING_AAC_HE_V2;
-  /**
-   * @see AudioFormat#ENCODING_AAC_XHE
-   */
+  /** See {@link AudioFormat#ENCODING_AAC_XHE}. */
   public static final int ENCODING_AAC_XHE = AudioFormat.ENCODING_AAC_XHE;
-  /**
-   * @see AudioFormat#ENCODING_AAC_ELD
-   */
+  /** See {@link AudioFormat#ENCODING_AAC_ELD}. */
   public static final int ENCODING_AAC_ELD = AudioFormat.ENCODING_AAC_ELD;
   /** AAC Error Resilient Bit-Sliced Arithmetic Coding. */
   public static final int ENCODING_AAC_ER_BSAC = 0x40000000;
-  /**
-   * @see AudioFormat#ENCODING_AC3
-   */
+  /** See {@link AudioFormat#ENCODING_AC3}. */
   public static final int ENCODING_AC3 = AudioFormat.ENCODING_AC3;
-  /**
-   * @see AudioFormat#ENCODING_E_AC3
-   */
+  /** See {@link AudioFormat#ENCODING_E_AC3}. */
   public static final int ENCODING_E_AC3 = AudioFormat.ENCODING_E_AC3;
-  /**
-   * @see AudioFormat#ENCODING_E_AC3_JOC
-   */
+  /** See {@link AudioFormat#ENCODING_E_AC3_JOC}. */
   public static final int ENCODING_E_AC3_JOC = AudioFormat.ENCODING_E_AC3_JOC;
-  /**
-   * @see AudioFormat#ENCODING_AC4
-   */
+  /** See {@link AudioFormat#ENCODING_AC4}. */
   public static final int ENCODING_AC4 = AudioFormat.ENCODING_AC4;
-  /**
-   * @see AudioFormat#ENCODING_DTS
-   */
+  /** See {@link AudioFormat#ENCODING_DTS}. */
   public static final int ENCODING_DTS = AudioFormat.ENCODING_DTS;
-  /**
-   * @see AudioFormat#ENCODING_DTS_HD
-   */
+  /** See {@link AudioFormat#ENCODING_DTS_HD}. */
   public static final int ENCODING_DTS_HD = AudioFormat.ENCODING_DTS_HD;
-  /**
-   * @see AudioFormat#ENCODING_DOLBY_TRUEHD
-   */
+  // TODO(internal b/283949283): Use AudioFormat.ENCODING_DTS_UHD_P2 when Android 14 is released.
+  public static final int ENCODING_DTS_UHD_P2 = 0x0000001e;
+  /** See {@link AudioFormat#ENCODING_DOLBY_TRUEHD}. */
   public static final int ENCODING_DOLBY_TRUEHD = AudioFormat.ENCODING_DOLBY_TRUEHD;
-  /**
-   * @see AudioFormat#ENCODING_OPUS
-   */
+  /** See {@link AudioFormat#ENCODING_OPUS}. */
   public static final int ENCODING_OPUS = AudioFormat.ENCODING_OPUS;
 
   /**
@@ -337,14 +278,10 @@ public final class C {
   @IntDef({SPATIALIZATION_BEHAVIOR_AUTO, SPATIALIZATION_BEHAVIOR_NEVER})
   public @interface SpatializationBehavior {}
 
-  /**
-   * @see AudioAttributes#SPATIALIZATION_BEHAVIOR_AUTO
-   */
+  /** See {@link AudioAttributes#SPATIALIZATION_BEHAVIOR_AUTO}. */
   public static final int SPATIALIZATION_BEHAVIOR_AUTO =
       AudioAttributes.SPATIALIZATION_BEHAVIOR_AUTO;
-  /**
-   * @see AudioAttributes#SPATIALIZATION_BEHAVIOR_NEVER
-   */
+  /** See {@link AudioAttributes#SPATIALIZATION_BEHAVIOR_NEVER}. */
   public static final int SPATIALIZATION_BEHAVIOR_NEVER =
       AudioAttributes.SPATIALIZATION_BEHAVIOR_NEVER;
 
@@ -371,36 +308,53 @@ public final class C {
     STREAM_TYPE_DEFAULT
   })
   public @interface StreamType {}
-  /**
-   * @see AudioManager#STREAM_ALARM
-   */
+  /** See {@link AudioManager#STREAM_ALARM}. */
   public static final int STREAM_TYPE_ALARM = AudioManager.STREAM_ALARM;
-  /**
-   * @see AudioManager#STREAM_DTMF
-   */
+  /** See {@link AudioManager#STREAM_DTMF}. */
   public static final int STREAM_TYPE_DTMF = AudioManager.STREAM_DTMF;
-  /**
-   * @see AudioManager#STREAM_MUSIC
-   */
+  /** See {@link AudioManager#STREAM_MUSIC}. */
   public static final int STREAM_TYPE_MUSIC = AudioManager.STREAM_MUSIC;
-  /**
-   * @see AudioManager#STREAM_NOTIFICATION
-   */
+  /** See {@link AudioManager#STREAM_NOTIFICATION}. */
   public static final int STREAM_TYPE_NOTIFICATION = AudioManager.STREAM_NOTIFICATION;
-  /**
-   * @see AudioManager#STREAM_RING
-   */
+  /** See {@link AudioManager#STREAM_RING}. */
   public static final int STREAM_TYPE_RING = AudioManager.STREAM_RING;
-  /**
-   * @see AudioManager#STREAM_SYSTEM
-   */
+  /** See {@link AudioManager#STREAM_SYSTEM}. */
   public static final int STREAM_TYPE_SYSTEM = AudioManager.STREAM_SYSTEM;
-  /**
-   * @see AudioManager#STREAM_VOICE_CALL
-   */
+  /** See {@link AudioManager#STREAM_VOICE_CALL}. */
   public static final int STREAM_TYPE_VOICE_CALL = AudioManager.STREAM_VOICE_CALL;
   /** The default stream type used by audio renderers. Equal to {@link #STREAM_TYPE_MUSIC}. */
   public static final int STREAM_TYPE_DEFAULT = STREAM_TYPE_MUSIC;
+
+  /**
+   * Volume flags to be used when setting or adjusting device volume. The value can be either 0 or a
+   * combination of the following flags: {@link #VOLUME_FLAG_SHOW_UI}, {@link
+   * #VOLUME_FLAG_ALLOW_RINGER_MODES}, {@link #VOLUME_FLAG_PLAY_SOUND}, {@link
+   * #VOLUME_FLAG_REMOVE_SOUND_AND_VIBRATE}, {@link #VOLUME_FLAG_VIBRATE}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @Target({TYPE_USE})
+  @IntDef(
+      flag = true,
+      value = {
+        VOLUME_FLAG_SHOW_UI,
+        VOLUME_FLAG_ALLOW_RINGER_MODES,
+        VOLUME_FLAG_PLAY_SOUND,
+        VOLUME_FLAG_REMOVE_SOUND_AND_VIBRATE,
+        VOLUME_FLAG_VIBRATE,
+      })
+  public @interface VolumeFlags {}
+  /** See {@link AudioManager#FLAG_SHOW_UI}. */
+  public static final int VOLUME_FLAG_SHOW_UI = AudioManager.FLAG_SHOW_UI;
+  /** See {@link AudioManager#FLAG_ALLOW_RINGER_MODES}. */
+  public static final int VOLUME_FLAG_ALLOW_RINGER_MODES = AudioManager.FLAG_ALLOW_RINGER_MODES;
+  /** See {@link AudioManager#FLAG_PLAY_SOUND}. */
+  public static final int VOLUME_FLAG_PLAY_SOUND = AudioManager.FLAG_PLAY_SOUND;
+  /** See {@link AudioManager#FLAG_REMOVE_SOUND_AND_VIBRATE}. */
+  public static final int VOLUME_FLAG_REMOVE_SOUND_AND_VIBRATE =
+      AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE;
+  /** See {@link AudioManager#FLAG_VIBRATE}. */
+  public static final int VOLUME_FLAG_VIBRATE = AudioManager.FLAG_VIBRATE;
 
   /**
    * Content types for audio attributes. One of:
@@ -473,9 +427,7 @@ public final class C {
       flag = true,
       value = {FLAG_AUDIBILITY_ENFORCED})
   public @interface AudioFlags {}
-  /**
-   * @see android.media.AudioAttributes#FLAG_AUDIBILITY_ENFORCED
-   */
+  /** See {@link android.media.AudioAttributes#FLAG_AUDIBILITY_ENFORCED}. */
   public static final int FLAG_AUDIBILITY_ENFORCED =
       android.media.AudioAttributes.FLAG_AUDIBILITY_ENFORCED;
 
@@ -513,78 +465,46 @@ public final class C {
     USAGE_VOICE_COMMUNICATION_SIGNALLING
   })
   public @interface AudioUsage {}
-  /**
-   * @see android.media.AudioAttributes#USAGE_ALARM
-   */
+  /** See {@link android.media.AudioAttributes#USAGE_ALARM}. */
   public static final int USAGE_ALARM = android.media.AudioAttributes.USAGE_ALARM;
-  /**
-   * @see android.media.AudioAttributes#USAGE_ASSISTANCE_ACCESSIBILITY
-   */
+  /** See {@link android.media.AudioAttributes#USAGE_ASSISTANCE_ACCESSIBILITY}. */
   public static final int USAGE_ASSISTANCE_ACCESSIBILITY =
       android.media.AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY;
-  /**
-   * @see android.media.AudioAttributes#USAGE_ASSISTANCE_NAVIGATION_GUIDANCE
-   */
+  /** See {@link android.media.AudioAttributes#USAGE_ASSISTANCE_NAVIGATION_GUIDANCE}. */
   public static final int USAGE_ASSISTANCE_NAVIGATION_GUIDANCE =
       android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
-  /**
-   * @see android.media.AudioAttributes#USAGE_ASSISTANCE_SONIFICATION
-   */
+  /** See {@link android.media.AudioAttributes#USAGE_ASSISTANCE_SONIFICATION}. */
   public static final int USAGE_ASSISTANCE_SONIFICATION =
       android.media.AudioAttributes.USAGE_ASSISTANCE_SONIFICATION;
-  /**
-   * @see android.media.AudioAttributes#USAGE_ASSISTANT
-   */
+  /** See {@link android.media.AudioAttributes#USAGE_ASSISTANT}. */
   public static final int USAGE_ASSISTANT = android.media.AudioAttributes.USAGE_ASSISTANT;
-  /**
-   * @see android.media.AudioAttributes#USAGE_GAME
-   */
+  /** See {@link android.media.AudioAttributes#USAGE_GAME}. */
   public static final int USAGE_GAME = android.media.AudioAttributes.USAGE_GAME;
-  /**
-   * @see android.media.AudioAttributes#USAGE_MEDIA
-   */
+  /** See {@link android.media.AudioAttributes#USAGE_MEDIA}. */
   public static final int USAGE_MEDIA = android.media.AudioAttributes.USAGE_MEDIA;
-  /**
-   * @see android.media.AudioAttributes#USAGE_NOTIFICATION
-   */
+  /** See {@link android.media.AudioAttributes#USAGE_NOTIFICATION}. */
   public static final int USAGE_NOTIFICATION = android.media.AudioAttributes.USAGE_NOTIFICATION;
-  /**
-   * @see android.media.AudioAttributes#USAGE_NOTIFICATION_COMMUNICATION_DELAYED
-   */
+  /** See {@link android.media.AudioAttributes#USAGE_NOTIFICATION_COMMUNICATION_DELAYED}. */
   public static final int USAGE_NOTIFICATION_COMMUNICATION_DELAYED =
       android.media.AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_DELAYED;
-  /**
-   * @see android.media.AudioAttributes#USAGE_NOTIFICATION_COMMUNICATION_INSTANT
-   */
+  /** See {@link android.media.AudioAttributes#USAGE_NOTIFICATION_COMMUNICATION_INSTANT}. */
   public static final int USAGE_NOTIFICATION_COMMUNICATION_INSTANT =
       android.media.AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT;
-  /**
-   * @see android.media.AudioAttributes#USAGE_NOTIFICATION_COMMUNICATION_REQUEST
-   */
+  /** See {@link android.media.AudioAttributes#USAGE_NOTIFICATION_COMMUNICATION_REQUEST}. */
   public static final int USAGE_NOTIFICATION_COMMUNICATION_REQUEST =
       android.media.AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_REQUEST;
-  /**
-   * @see android.media.AudioAttributes#USAGE_NOTIFICATION_EVENT
-   */
+  /** See {@link android.media.AudioAttributes#USAGE_NOTIFICATION_EVENT}. */
   public static final int USAGE_NOTIFICATION_EVENT =
       android.media.AudioAttributes.USAGE_NOTIFICATION_EVENT;
-  /**
-   * @see android.media.AudioAttributes#USAGE_NOTIFICATION_RINGTONE
-   */
+  /** See {@link android.media.AudioAttributes#USAGE_NOTIFICATION_RINGTONE}. */
   public static final int USAGE_NOTIFICATION_RINGTONE =
       android.media.AudioAttributes.USAGE_NOTIFICATION_RINGTONE;
-  /**
-   * @see android.media.AudioAttributes#USAGE_UNKNOWN
-   */
+  /** See {@link android.media.AudioAttributes#USAGE_UNKNOWN}. */
   public static final int USAGE_UNKNOWN = android.media.AudioAttributes.USAGE_UNKNOWN;
-  /**
-   * @see android.media.AudioAttributes#USAGE_VOICE_COMMUNICATION
-   */
+  /** See {@link android.media.AudioAttributes#USAGE_VOICE_COMMUNICATION}. */
   public static final int USAGE_VOICE_COMMUNICATION =
       android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION;
-  /**
-   * @see android.media.AudioAttributes#USAGE_VOICE_COMMUNICATION_SIGNALLING
-   */
+  /** See {@link android.media.AudioAttributes#USAGE_VOICE_COMMUNICATION_SIGNALLING}. */
   public static final int USAGE_VOICE_COMMUNICATION_SIGNALLING =
       android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING;
 
@@ -1032,48 +952,59 @@ public final class C {
 
   // LINT.IfChange(color_space)
   /**
-   * Video colorspaces. One of {@link Format#NO_VALUE}, {@link #COLOR_SPACE_BT601}, {@link
-   * #COLOR_SPACE_BT709} or {@link #COLOR_SPACE_BT2020}.
+   * Video color spaces, also referred to as color standards. One of {@link Format#NO_VALUE}, {@link
+   * #COLOR_SPACE_BT601}, {@link #COLOR_SPACE_BT709} or {@link #COLOR_SPACE_BT2020}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target(TYPE_USE)
   @IntDef({Format.NO_VALUE, COLOR_SPACE_BT601, COLOR_SPACE_BT709, COLOR_SPACE_BT2020})
   public @interface ColorSpace {}
-  /**
-   * @see MediaFormat#COLOR_STANDARD_BT601_PAL
-   */
+  /** See {@link MediaFormat#COLOR_STANDARD_BT601_PAL}. */
   public static final int COLOR_SPACE_BT601 = MediaFormat.COLOR_STANDARD_BT601_PAL;
-  /**
-   * @see MediaFormat#COLOR_STANDARD_BT709
-   */
+  /** See {@link MediaFormat#COLOR_STANDARD_BT709}. */
   public static final int COLOR_SPACE_BT709 = MediaFormat.COLOR_STANDARD_BT709;
-  /**
-   * @see MediaFormat#COLOR_STANDARD_BT2020
-   */
+  /** See {@link MediaFormat#COLOR_STANDARD_BT2020}. */
   public static final int COLOR_SPACE_BT2020 = MediaFormat.COLOR_STANDARD_BT2020;
 
   // LINT.IfChange(color_transfer)
   /**
-   * Video color transfer characteristics. One of {@link Format#NO_VALUE}, {@link
-   * #COLOR_TRANSFER_SDR}, {@link #COLOR_TRANSFER_ST2084} or {@link #COLOR_TRANSFER_HLG}.
+   * Video/image color transfer characteristics. One of {@link Format#NO_VALUE}, {@link
+   * #COLOR_TRANSFER_LINEAR}, {@link #COLOR_TRANSFER_SDR}, {@link #COLOR_TRANSFER_SRGB}, {@link
+   * #COLOR_TRANSFER_GAMMA_2_2}, {@link #COLOR_TRANSFER_ST2084} or {@link #COLOR_TRANSFER_HLG}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target(TYPE_USE)
-  @IntDef({Format.NO_VALUE, COLOR_TRANSFER_SDR, COLOR_TRANSFER_ST2084, COLOR_TRANSFER_HLG})
+  @IntDef({
+    Format.NO_VALUE,
+    COLOR_TRANSFER_LINEAR,
+    COLOR_TRANSFER_SDR,
+    COLOR_TRANSFER_SRGB,
+    COLOR_TRANSFER_GAMMA_2_2,
+    COLOR_TRANSFER_ST2084,
+    COLOR_TRANSFER_HLG
+  })
   public @interface ColorTransfer {}
-  /**
-   * @see MediaFormat#COLOR_TRANSFER_SDR_VIDEO
-   */
+  /** See {@link MediaFormat#COLOR_TRANSFER_LINEAR}. */
+  public static final int COLOR_TRANSFER_LINEAR = MediaFormat.COLOR_TRANSFER_LINEAR;
+  /** See {@link MediaFormat#COLOR_TRANSFER_SDR_VIDEO}. The SMPTE 170M transfer function. */
   public static final int COLOR_TRANSFER_SDR = MediaFormat.COLOR_TRANSFER_SDR_VIDEO;
   /**
-   * @see MediaFormat#COLOR_TRANSFER_ST2084
+   * See {@link android.hardware.DataSpace#TRANSFER_SRGB}. The standard RGB transfer function, used
+   * for some SDR use-cases like image input.
    */
-  public static final int COLOR_TRANSFER_ST2084 = MediaFormat.COLOR_TRANSFER_ST2084;
+  // Value sourced from ordering here:
+  // https://cs.android.com/android/platform/superproject/+/master:frameworks/native/headers/media_plugin/media/hardware/VideoAPI.h;drc=55e9bd7c487ee235631f302ab8626776547ac913;l=138.
+  public static final int COLOR_TRANSFER_SRGB = 2;
   /**
-   * @see MediaFormat#COLOR_TRANSFER_HLG
+   * See {@link android.hardware.DataSpace#TRANSFER_GAMMA2_2}. The Gamma 2.2 transfer function, used
+   * for some SDR use-cases like tone-mapping.
    */
+  public static final int COLOR_TRANSFER_GAMMA_2_2 = 10;
+  /** See {@link MediaFormat#COLOR_TRANSFER_ST2084}. */
+  public static final int COLOR_TRANSFER_ST2084 = MediaFormat.COLOR_TRANSFER_ST2084;
+  /** See {@link MediaFormat#COLOR_TRANSFER_HLG}. */
   public static final int COLOR_TRANSFER_HLG = MediaFormat.COLOR_TRANSFER_HLG;
 
   // LINT.IfChange(color_range)
@@ -1086,13 +1017,9 @@ public final class C {
   @Target(TYPE_USE)
   @IntDef({Format.NO_VALUE, COLOR_RANGE_LIMITED, COLOR_RANGE_FULL})
   public @interface ColorRange {}
-  /**
-   * @see MediaFormat#COLOR_RANGE_LIMITED
-   */
+  /** See {@link MediaFormat#COLOR_RANGE_LIMITED}. */
   public static final int COLOR_RANGE_LIMITED = MediaFormat.COLOR_RANGE_LIMITED;
-  /**
-   * @see MediaFormat#COLOR_RANGE_FULL
-   */
+  /** See {@link MediaFormat#COLOR_RANGE_FULL}. */
   public static final int COLOR_RANGE_FULL = MediaFormat.COLOR_RANGE_FULL;
 
   /** Video projection types. */

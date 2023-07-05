@@ -17,9 +17,9 @@ package com.google.android.exoplayer2.effect;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.util.Pair;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.util.Size;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -36,10 +36,12 @@ public final class PresentationTest {
     int inputHeight = 150;
     Presentation presentation = Presentation.createForHeight(C.LENGTH_UNSET);
 
-    Pair<Integer, Integer> outputSize = presentation.configure(inputWidth, inputHeight);
+    Size outputSize = presentation.configure(inputWidth, inputHeight);
+    boolean isNoOp = presentation.isNoOp(inputWidth, inputHeight);
 
-    assertThat(outputSize.first).isEqualTo(inputWidth);
-    assertThat(outputSize.second).isEqualTo(inputHeight);
+    assertThat(isNoOp).isTrue();
+    assertThat(outputSize.getWidth()).isEqualTo(inputWidth);
+    assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
   }
 
   @Test
@@ -49,10 +51,12 @@ public final class PresentationTest {
     int requestedHeight = 300;
     Presentation presentation = Presentation.createForHeight(requestedHeight);
 
-    Pair<Integer, Integer> outputSize = presentation.configure(inputWidth, inputHeight);
+    Size outputSize = presentation.configure(inputWidth, inputHeight);
+    boolean isNoOp = presentation.isNoOp(inputWidth, inputHeight);
 
-    assertThat(outputSize.first).isEqualTo(requestedHeight * inputWidth / inputHeight);
-    assertThat(outputSize.second).isEqualTo(requestedHeight);
+    assertThat(isNoOp).isFalse();
+    assertThat(outputSize.getWidth()).isEqualTo(requestedHeight * inputWidth / inputHeight);
+    assertThat(outputSize.getHeight()).isEqualTo(requestedHeight);
   }
 
   @Test
@@ -63,10 +67,12 @@ public final class PresentationTest {
     Presentation presentation =
         Presentation.createForAspectRatio(aspectRatio, Presentation.LAYOUT_SCALE_TO_FIT);
 
-    Pair<Integer, Integer> outputSize = presentation.configure(inputWidth, inputHeight);
+    Size outputSize = presentation.configure(inputWidth, inputHeight);
+    boolean isNoOp = presentation.isNoOp(inputWidth, inputHeight);
 
-    assertThat(outputSize.first).isEqualTo(Math.round(aspectRatio * inputHeight));
-    assertThat(outputSize.second).isEqualTo(inputHeight);
+    assertThat(isNoOp).isFalse();
+    assertThat(outputSize.getWidth()).isEqualTo(Math.round(aspectRatio * inputHeight));
+    assertThat(outputSize.getHeight()).isEqualTo(inputHeight);
   }
 
   @Test
@@ -79,9 +85,11 @@ public final class PresentationTest {
         Presentation.createForWidthAndHeight(
             requestedWidth, requestedHeight, Presentation.LAYOUT_SCALE_TO_FIT);
 
-    Pair<Integer, Integer> outputSize = presentation.configure(inputWidth, inputHeight);
+    Size outputSize = presentation.configure(inputWidth, inputHeight);
+    boolean isNoOp = presentation.isNoOp(inputWidth, inputHeight);
 
-    assertThat(outputSize.first).isEqualTo(requestedWidth);
-    assertThat(outputSize.second).isEqualTo(requestedHeight);
+    assertThat(isNoOp).isFalse();
+    assertThat(outputSize.getWidth()).isEqualTo(requestedWidth);
+    assertThat(outputSize.getHeight()).isEqualTo(requestedHeight);
   }
 }

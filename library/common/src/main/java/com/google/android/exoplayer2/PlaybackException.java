@@ -31,12 +31,21 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/** Thrown when a non locally recoverable playback failure occurs. */
+/**
+ * Thrown when a non locally recoverable playback failure occurs.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public class PlaybackException extends Exception implements Bundleable {
 
   /**
@@ -228,6 +237,13 @@ public class PlaybackException extends Exception implements Bundleable {
   /** Caused by an expired DRM license being loaded into an open DRM session. */
   public static final int ERROR_CODE_DRM_LICENSE_EXPIRED = 6008;
 
+  // Frame processing errors (7xxx).
+
+  /** Caused by a failure when initializing a {@link VideoFrameProcessor}. */
+  public static final int ERROR_CODE_VIDEO_FRAME_PROCESSOR_INIT_FAILED = 7000;
+  /** Caused by a failure when processing a video frame. */
+  public static final int ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED = 7001;
+
   /**
    * Player implementations that want to surface custom errors can use error codes greater than this
    * value, so as to avoid collision with other error codes defined in this class.
@@ -305,6 +321,10 @@ public class PlaybackException extends Exception implements Bundleable {
         return "ERROR_CODE_DRM_DEVICE_REVOKED";
       case ERROR_CODE_DRM_LICENSE_EXPIRED:
         return "ERROR_CODE_DRM_LICENSE_EXPIRED";
+      case ERROR_CODE_VIDEO_FRAME_PROCESSOR_INIT_FAILED:
+        return "ERROR_CODE_VIDEO_FRAME_PROCESSOR_INIT_FAILED";
+      case ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED:
+        return "ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED";
       default:
         if (errorCode >= CUSTOM_ERROR_CODE_BASE) {
           return "custom error code";

@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
+var data = {"i0":10,"i1":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -198,6 +198,13 @@ implements <a href="Muxer.Factory.html" title="interface in com.google.android.e
 <div class="block">Creates an instance.</div>
 </td>
 </tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(long,long)">Factory</a></span>&#8203;(long&nbsp;maxDelayBetweenSamplesMs,
+       long&nbsp;videoDurationMs)</code></th>
+<td class="colLast">
+<div class="block">Creates an instance.</div>
+</td>
+</tr>
 </table>
 </li>
 </ul>
@@ -218,20 +225,13 @@ implements <a href="Muxer.Factory.html" title="interface in com.google.android.e
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="Muxer.html" title="interface in com.google.android.exoplayer2.transformer">Muxer</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#create(android.os.ParcelFileDescriptor)">create</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/ParcelFileDescriptor.html" title="class or interface in android.os" class="externalLink" target="_top">ParcelFileDescriptor</a>&nbsp;parcelFileDescriptor)</code></th>
-<td class="colLast">
-<div class="block">Returns a new muxer writing to a file descriptor.</div>
-</td>
-</tr>
-<tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="Muxer.html" title="interface in com.google.android.exoplayer2.transformer">Muxer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#create(java.lang.String)">create</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;path)</code></th>
 <td class="colLast">
 <div class="block">Returns a new muxer writing to a file.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;</code></td>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code><a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSupportedSampleMimeTypes(@com.google.android.exoplayer2.C.TrackTypeint)">getSupportedSampleMimeTypes</a></span>&#8203;(@com.google.android.exoplayer2.C.TrackType int&nbsp;trackType)</code></th>
 <td class="colLast">
 <div class="block">Returns the supported sample <a href="../util/MimeTypes.html" title="class in com.google.android.exoplayer2.util">MIME types</a> for the given <a href="../C.TrackType.html" title="annotation in com.google.android.exoplayer2"><code>C.TrackType</code></a>.</div>
@@ -299,7 +299,7 @@ implements <a href="Muxer.Factory.html" title="interface in com.google.android.e
 <a id="&lt;init&gt;(long)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>Factory</h4>
 <pre>public&nbsp;Factory&#8203;(long&nbsp;maxDelayBetweenSamplesMs)</pre>
@@ -307,6 +307,24 @@ implements <a href="Muxer.Factory.html" title="interface in com.google.android.e
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>maxDelayBetweenSamplesMs</code> - See <a href="Muxer.html#getMaxDelayBetweenSamplesMs()"><code>Muxer.getMaxDelayBetweenSamplesMs()</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="&lt;init&gt;(long,long)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>Factory</h4>
+<pre>public&nbsp;Factory&#8203;(long&nbsp;maxDelayBetweenSamplesMs,
+               long&nbsp;videoDurationMs)</pre>
+<div class="block">Creates an instance.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>maxDelayBetweenSamplesMs</code> - See <a href="Muxer.html#getMaxDelayBetweenSamplesMs()"><code>Muxer.getMaxDelayBetweenSamplesMs()</code></a>.</dd>
+<dd><code>videoDurationMs</code> - The duration of the video track (in milliseconds) to enforce in the
+     output, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> to not enforce. Only applicable when a video track is
+     <a href="Muxer.html#addTrack(com.google.android.exoplayer2.Format)">added</a>.</dd>
 </dl>
 </li>
 </ul>
@@ -340,36 +358,13 @@ implements <a href="Muxer.Factory.html" title="interface in com.google.android.e
 </dl>
 </li>
 </ul>
-<a id="create(android.os.ParcelFileDescriptor)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>create</h4>
-<pre class="methodSignature">public&nbsp;<a href="Muxer.html" title="interface in com.google.android.exoplayer2.transformer">Muxer</a>&nbsp;create&#8203;(<a href="https://developer.android.com/reference/android/os/ParcelFileDescriptor.html" title="class or interface in android.os" class="externalLink" target="_top">ParcelFileDescriptor</a>&nbsp;parcelFileDescriptor)
-             throws <a href="Muxer.MuxerException.html" title="class in com.google.android.exoplayer2.transformer">Muxer.MuxerException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Muxer.Factory.html#create(android.os.ParcelFileDescriptor)">Muxer.Factory</a></code></span></div>
-<div class="block">Returns a new muxer writing to a file descriptor.</div>
-<dl>
-<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="Muxer.Factory.html#create(android.os.ParcelFileDescriptor)">create</a></code>&nbsp;in interface&nbsp;<code><a href="Muxer.Factory.html" title="interface in com.google.android.exoplayer2.transformer">Muxer.Factory</a></code></dd>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>parcelFileDescriptor</code> - A readable and writable <a href="https://developer.android.com/reference/android/os/ParcelFileDescriptor.html" title="class or interface in android.os" class="externalLink" target="_top"><code>ParcelFileDescriptor</code></a> of the
-     output. The file referenced by this ParcelFileDescriptor should not be used before the
-     muxer is released. It is the responsibility of the caller to close the
-     ParcelFileDescriptor. This can be done after this method returns.</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="Muxer.MuxerException.html" title="class in com.google.android.exoplayer2.transformer">Muxer.MuxerException</a></code> - If an error occurs opening the output file descriptor for writing.</dd>
-</dl>
-</li>
-</ul>
 <a id="getSupportedSampleMimeTypes(@com.google.android.exoplayer2.C.TrackTypeint)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>getSupportedSampleMimeTypes</h4>
-<pre class="methodSignature">public&nbsp;<a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;getSupportedSampleMimeTypes&#8203;(@com.google.android.exoplayer2.C.TrackType int&nbsp;trackType)</pre>
+<pre class="methodSignature">public&nbsp;<a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;getSupportedSampleMimeTypes&#8203;(@com.google.android.exoplayer2.C.TrackType int&nbsp;trackType)</pre>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Muxer.Factory.html#getSupportedSampleMimeTypes(@com.google.android.exoplayer2.C.TrackTypeint)">Muxer.Factory</a></code></span></div>
 <div class="block">Returns the supported sample <a href="../util/MimeTypes.html" title="class in com.google.android.exoplayer2.util">MIME types</a> for the given <a href="../C.TrackType.html" title="annotation in com.google.android.exoplayer2"><code>C.TrackType</code></a>.</div>
 <dl>

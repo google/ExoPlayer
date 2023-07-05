@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":18,"i1":18,"i2":18,"i3":18,"i4":18,"i5":18};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],16:["t5","Default Methods"]};
+var data = {"i0":50,"i1":50,"i2":50,"i3":50,"i4":50,"i5":50};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],16:["t5","Default Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,7 +129,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../analytics/DefaultAnalyticsCollector.html" title="class in com.google.android.exoplayer2.analytics">DefaultAnalyticsCollector</a></code>, <code><a href="ads/ServerSideAdInsertionMediaSource.html" title="class in com.google.android.exoplayer2.source.ads">ServerSideAdInsertionMediaSource</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">MediaSourceEventListener</span></pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">MediaSourceEventListener</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Interface for callbacks to be notified of <a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> events.</div>
 </li>
 </ul>
@@ -155,6 +161,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dispatches events to <a href="MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceEventListeners</code></a>.</div>
 </td>
 </tr>
@@ -170,7 +177,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -182,6 +189,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                          <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
                          <a href="MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a downstream format change occurs (i.e.</div>
 </td>
 </tr>
@@ -192,6 +200,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
               <a href="LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
               <a href="MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a load is canceled.</div>
 </td>
 </tr>
@@ -202,6 +211,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                <a href="LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
                <a href="MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a load ends.</div>
 </td>
 </tr>
@@ -214,6 +224,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
            <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;error,
            boolean&nbsp;wasCanceled)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a load error occurs.</div>
 </td>
 </tr>
@@ -224,6 +235,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
              <a href="LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
              <a href="MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a load begins.</div>
 </td>
 </tr>
@@ -233,6 +245,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                    <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
                    <a href="MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when data is removed from the back of a media buffer, typically so that it can be
  re-buffered in a different format.</div>
 </td>
@@ -265,6 +278,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                            <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
                            <a href="LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
                            <a href="MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a load begins.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -287,6 +301,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                              <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
                              <a href="LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
                              <a href="MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a load ends.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -311,6 +326,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                             <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
                             <a href="LoadEventInfo.html" title="class in com.google.android.exoplayer2.source">LoadEventInfo</a>&nbsp;loadEventInfo,
                             <a href="MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a load is canceled.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -337,6 +353,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                          <a href="MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData,
                          <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a>&nbsp;error,
                          boolean&nbsp;wasCanceled)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a load error occurs.
 
  <p>The error may or may not have resulted in the load being canceled, as indicated by the
@@ -372,6 +389,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre class="methodSignature">default&nbsp;void&nbsp;onUpstreamDiscarded&#8203;(int&nbsp;windowIndex,
                                  <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
                                  <a href="MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when data is removed from the back of a media buffer, typically so that it can be
  re-buffered in a different format.</div>
 <dl>
@@ -392,6 +410,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                                        @Nullable
                                        <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
                                        <a href="MediaLoadData.html" title="class in com.google.android.exoplayer2.source">MediaLoadData</a>&nbsp;mediaLoadData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a downstream format change occurs (i.e. when the format of the media being read
  from one or more <a href="SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>s provided by the source changes).</div>
 <dl>

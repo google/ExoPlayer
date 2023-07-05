@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">DashWrappingSegmentIndex</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">DashWrappingSegmentIndex</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash">DashSegmentIndex</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">An implementation of <a href="DashSegmentIndex.html" title="interface in com.google.android.exoplayer2.source.dash"><code>DashSegmentIndex</code></a> that wraps a <a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor"><code>ChunkIndex</code></a> parsed from a media
  stream.</div>
 </li>
@@ -177,7 +183,9 @@ implements <a href="DashSegmentIndex.html" title="interface in com.google.androi
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.extractor.ChunkIndex,long)">DashWrappingSegmentIndex</a></span>&#8203;(<a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor">ChunkIndex</a>&nbsp;chunkIndex,
                         long&nbsp;timeOffsetUs)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -191,7 +199,7 @@ implements <a href="DashSegmentIndex.html" title="interface in com.google.androi
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -202,6 +210,7 @@ implements <a href="DashSegmentIndex.html" title="interface in com.google.androi
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAvailableSegmentCount(long,long)">getAvailableSegmentCount</a></span>&#8203;(long&nbsp;periodDurationUs,
                         long&nbsp;nowUnixTimeUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the number of available segments in the index.</div>
 </td>
 </tr>
@@ -210,6 +219,7 @@ implements <a href="DashSegmentIndex.html" title="interface in com.google.androi
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDurationUs(long,long)">getDurationUs</a></span>&#8203;(long&nbsp;segmentNum,
              long&nbsp;periodDurationUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the duration of a segment.</div>
 </td>
 </tr>
@@ -218,6 +228,7 @@ implements <a href="DashSegmentIndex.html" title="interface in com.google.androi
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFirstAvailableSegmentNum(long,long)">getFirstAvailableSegmentNum</a></span>&#8203;(long&nbsp;periodDurationUs,
                            long&nbsp;nowUnixTimeUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the segment number of the first available segment in the index.</div>
 </td>
 </tr>
@@ -225,6 +236,7 @@ implements <a href="DashSegmentIndex.html" title="interface in com.google.androi
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFirstSegmentNum()">getFirstSegmentNum</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the segment number of the first defined segment in the index.</div>
 </td>
 </tr>
@@ -233,6 +245,7 @@ implements <a href="DashSegmentIndex.html" title="interface in com.google.androi
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getNextSegmentAvailableTimeUs(long,long)">getNextSegmentAvailableTimeUs</a></span>&#8203;(long&nbsp;periodDurationUs,
                              long&nbsp;nowUnixTimeUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the time, in microseconds, at which a new segment becomes available, or <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not applicable.</div>
 </td>
 </tr>
@@ -240,6 +253,7 @@ implements <a href="DashSegmentIndex.html" title="interface in com.google.androi
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSegmentCount(long)">getSegmentCount</a></span>&#8203;(long&nbsp;periodDurationUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the number of segments defined in the index, or <a href="DashSegmentIndex.html#INDEX_UNBOUNDED"><code>DashSegmentIndex.INDEX_UNBOUNDED</code></a>.</div>
 </td>
 </tr>
@@ -248,6 +262,7 @@ implements <a href="DashSegmentIndex.html" title="interface in com.google.androi
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSegmentNum(long,long)">getSegmentNum</a></span>&#8203;(long&nbsp;timeUs,
              long&nbsp;periodDurationUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns <code>getFirstSegmentNum()</code> if the index has no segments or if the given media time is
  earlier than the start of the first segment.</div>
 </td>
@@ -256,6 +271,7 @@ implements <a href="DashSegmentIndex.html" title="interface in com.google.androi
 <td class="colFirst"><code><a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSegmentUrl(long)">getSegmentUrl</a></span>&#8203;(long&nbsp;segmentNum)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>RangedUri</code></a> defining the location of a segment.</div>
 </td>
 </tr>
@@ -263,6 +279,7 @@ implements <a href="DashSegmentIndex.html" title="interface in com.google.androi
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTimeUs(long)">getTimeUs</a></span>&#8203;(long&nbsp;segmentNum)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the start time of a segment.</div>
 </td>
 </tr>
@@ -270,6 +287,7 @@ implements <a href="DashSegmentIndex.html" title="interface in com.google.androi
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isExplicit()">isExplicit</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns true if segments are defined explicitly by the index.</div>
 </td>
 </tr>
@@ -305,6 +323,7 @@ implements <a href="DashSegmentIndex.html" title="interface in com.google.androi
 <h4>DashWrappingSegmentIndex</h4>
 <pre>public&nbsp;DashWrappingSegmentIndex&#8203;(<a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor">ChunkIndex</a>&nbsp;chunkIndex,
                                 long&nbsp;timeOffsetUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>chunkIndex</code> - The <a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor"><code>ChunkIndex</code></a> to wrap.</dd>
@@ -329,6 +348,7 @@ implements <a href="DashSegmentIndex.html" title="interface in com.google.androi
 <li class="blockList">
 <h4>getFirstSegmentNum</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getFirstSegmentNum()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DashSegmentIndex.html#getFirstSegmentNum()">DashSegmentIndex</a></code></span></div>
 <div class="block">Returns the segment number of the first defined segment in the index.</div>
 <dl>
@@ -345,6 +365,7 @@ implements <a href="DashSegmentIndex.html" title="interface in com.google.androi
 <h4>getFirstAvailableSegmentNum</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getFirstAvailableSegmentNum&#8203;(long&nbsp;periodDurationUs,
                                         long&nbsp;nowUnixTimeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DashSegmentIndex.html#getFirstAvailableSegmentNum(long,long)">DashSegmentIndex</a></code></span></div>
 <div class="block">Returns the segment number of the first available segment in the index.</div>
 <dl>
@@ -365,6 +386,7 @@ implements <a href="DashSegmentIndex.html" title="interface in com.google.androi
 <li class="blockList">
 <h4>getSegmentCount</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getSegmentCount&#8203;(long&nbsp;periodDurationUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DashSegmentIndex.html#getSegmentCount(long)">DashSegmentIndex</a></code></span></div>
 <div class="block">Returns the number of segments defined in the index, or <a href="DashSegmentIndex.html#INDEX_UNBOUNDED"><code>DashSegmentIndex.INDEX_UNBOUNDED</code></a>.
 
@@ -390,6 +412,7 @@ implements <a href="DashSegmentIndex.html" title="interface in com.google.androi
 <h4>getAvailableSegmentCount</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getAvailableSegmentCount&#8203;(long&nbsp;periodDurationUs,
                                      long&nbsp;nowUnixTimeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DashSegmentIndex.html#getAvailableSegmentCount(long,long)">DashSegmentIndex</a></code></span></div>
 <div class="block">Returns the number of available segments in the index.</div>
 <dl>
@@ -411,6 +434,7 @@ implements <a href="DashSegmentIndex.html" title="interface in com.google.androi
 <h4>getNextSegmentAvailableTimeUs</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getNextSegmentAvailableTimeUs&#8203;(long&nbsp;periodDurationUs,
                                           long&nbsp;nowUnixTimeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DashSegmentIndex.html#getNextSegmentAvailableTimeUs(long,long)">DashSegmentIndex</a></code></span></div>
 <div class="block">Returns the time, in microseconds, at which a new segment becomes available, or <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not applicable.</div>
 <dl>
@@ -431,6 +455,7 @@ implements <a href="DashSegmentIndex.html" title="interface in com.google.androi
 <li class="blockList">
 <h4>getTimeUs</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getTimeUs&#8203;(long&nbsp;segmentNum)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DashSegmentIndex.html#getTimeUs(long)">DashSegmentIndex</a></code></span></div>
 <div class="block">Returns the start time of a segment.</div>
 <dl>
@@ -451,6 +476,7 @@ implements <a href="DashSegmentIndex.html" title="interface in com.google.androi
 <h4>getDurationUs</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getDurationUs&#8203;(long&nbsp;segmentNum,
                           long&nbsp;periodDurationUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DashSegmentIndex.html#getDurationUs(long,long)">DashSegmentIndex</a></code></span></div>
 <div class="block">Returns the duration of a segment.</div>
 <dl>
@@ -471,6 +497,7 @@ implements <a href="DashSegmentIndex.html" title="interface in com.google.androi
 <li class="blockList">
 <h4>getSegmentUrl</h4>
 <pre class="methodSignature">public&nbsp;<a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;getSegmentUrl&#8203;(long&nbsp;segmentNum)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DashSegmentIndex.html#getSegmentUrl(long)">DashSegmentIndex</a></code></span></div>
 <div class="block">Returns a <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>RangedUri</code></a> defining the location of a segment.</div>
 <dl>
@@ -491,6 +518,7 @@ implements <a href="DashSegmentIndex.html" title="interface in com.google.androi
 <h4>getSegmentNum</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getSegmentNum&#8203;(long&nbsp;timeUs,
                           long&nbsp;periodDurationUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DashSegmentIndex.html#getSegmentNum(long,long)">DashSegmentIndex</a></code></span></div>
 <div class="block">Returns <code>getFirstSegmentNum()</code> if the index has no segments or if the given media time is
  earlier than the start of the first segment. Returns <code>getFirstSegmentNum() +
@@ -514,6 +542,7 @@ implements <a href="DashSegmentIndex.html" title="interface in com.google.androi
 <li class="blockList">
 <h4>isExplicit</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isExplicit()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DashSegmentIndex.html#isExplicit()">DashSegmentIndex</a></code></span></div>
 <div class="block">Returns true if segments are defined explicitly by the index.
 

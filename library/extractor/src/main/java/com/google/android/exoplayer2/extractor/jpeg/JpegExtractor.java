@@ -40,7 +40,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/** Extracts JPEG image using the Exif format. */
+/**
+ * Extracts JPEG image using the Exif format.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class JpegExtractor implements Extractor {
 
   /** Parser states. */
@@ -94,7 +102,7 @@ public final class JpegExtractor implements Extractor {
 
   public JpegExtractor() {
     scratch = new ParsableByteArray(EXIF_ID_CODE_LENGTH);
-    mp4StartPosition = C.POSITION_UNSET;
+    mp4StartPosition = C.INDEX_UNSET;
   }
 
   @Override
@@ -200,7 +208,7 @@ public final class JpegExtractor implements Extractor {
     input.readFully(scratch.getData(), /* offset= */ 0, /* length= */ 2);
     marker = scratch.readUnsignedShort();
     if (marker == MARKER_SOS) { // Start of scan.
-      if (mp4StartPosition != C.POSITION_UNSET) {
+      if (mp4StartPosition != C.INDEX_UNSET) {
         state = STATE_SNIFFING_MOTION_PHOTO_VIDEO;
       } else {
         endReadingWithImageTrack();

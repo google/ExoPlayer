@@ -24,7 +24,15 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
 
-/** Data object to store header information. */
+/**
+ * Data object to store header information.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ final class OggPageHeader {
 
   public static final int EMPTY_PAGE_HEADER_SIZE = 27;
@@ -79,7 +87,7 @@ import java.io.IOException;
    * *\/ C.POSITION_UNSET)}.
    */
   public boolean skipToNextPage(ExtractorInput input) throws IOException {
-    return skipToNextPage(input, /* limit= */ C.POSITION_UNSET);
+    return skipToNextPage(input, /* limit= */ C.INDEX_UNSET);
   }
 
   /**
@@ -94,7 +102,7 @@ import java.io.IOException;
    *
    * @param input The {@link ExtractorInput} to read from (must have {@code readPosition ==
    *     peekPosition}).
-   * @param limit The max position in {@code input} to peek to, or {@link C#POSITION_UNSET} to allow
+   * @param limit The max position in {@code input} to peek to, or {@link C#INDEX_UNSET} to allow
    *     peeking to the end.
    * @return True if a capture_pattern was found.
    * @throws IOException If reading data fails.
@@ -102,7 +110,7 @@ import java.io.IOException;
   public boolean skipToNextPage(ExtractorInput input, long limit) throws IOException {
     Assertions.checkArgument(input.getPosition() == input.getPeekPosition());
     scratch.reset(/* limit= */ CAPTURE_PATTERN_SIZE);
-    while ((limit == C.POSITION_UNSET || input.getPosition() + CAPTURE_PATTERN_SIZE < limit)
+    while ((limit == C.INDEX_UNSET || input.getPosition() + CAPTURE_PATTERN_SIZE < limit)
         && peekFullyQuietly(
             input, scratch.getData(), 0, CAPTURE_PATTERN_SIZE, /* allowEndOfInput= */ true)) {
       scratch.setPosition(0);
@@ -114,7 +122,7 @@ import java.io.IOException;
       input.skipFully(1);
     }
     // Move the read & peek positions to limit or end-of-input, whichever is closer.
-    while ((limit == C.POSITION_UNSET || input.getPosition() < limit)
+    while ((limit == C.INDEX_UNSET || input.getPosition() < limit)
         && input.skip(1) != C.RESULT_END_OF_INPUT) {}
     return false;
   }

@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":9};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":41};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -137,13 +137,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dt>All Implemented Interfaces:</dt>
 <dd><code><a href="../../../offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;<a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a>&gt;</code></dd>
 </dl>
-<dl>
-<dt>Direct Known Subclasses:</dt>
-<dd><code><a href="HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist</a></code></dd>
-</dl>
 <hr>
-<pre>public class <span class="typeNameLabel">HlsMultivariantPlaylist</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">HlsMultivariantPlaylist</span>
 extends <a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Represents an HLS multivariant playlist.</div>
 </li>
 </ul>
@@ -169,6 +171,7 @@ extends <a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="HlsMultivariantPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMultivariantPlaylist.Rendition</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A rendition (i.e.</div>
 </td>
 </tr>
@@ -176,6 +179,7 @@ extends <a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="HlsMultivariantPlaylist.Variant.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMultivariantPlaylist.Variant</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A variant (i.e.</div>
 </td>
 </tr>
@@ -201,6 +205,7 @@ extends <a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="HlsMultivariantPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist" target="_top">HlsMultivariantPlaylist.Rendition</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#audios">audios</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The audio renditions declared by the playlist.</div>
 </td>
 </tr>
@@ -208,6 +213,7 @@ extends <a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="HlsMultivariantPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist" target="_top">HlsMultivariantPlaylist.Rendition</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#closedCaptions">closedCaptions</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The closed caption renditions declared by the playlist.</div>
 </td>
 </tr>
@@ -215,28 +221,36 @@ extends <a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2
 <td class="colFirst"><code>static <a href="HlsMultivariantPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMultivariantPlaylist</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EMPTY">EMPTY</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Represents an empty multivariant playlist, from which no attributes can be inherited.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#GROUP_INDEX_AUDIO">GROUP_INDEX_AUDIO</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#GROUP_INDEX_SUBTITLE">GROUP_INDEX_SUBTITLE</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#GROUP_INDEX_VARIANT">GROUP_INDEX_VARIANT</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/android/net/Uri.html?is-external=true" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#mediaPlaylistUrls">mediaPlaylistUrls</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">All of the media playlist URLs referenced by the playlist.</div>
 </td>
 </tr>
@@ -244,6 +258,7 @@ extends <a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2
 <td class="colFirst"><code><a href="../../../Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#muxedAudioFormat">muxedAudioFormat</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The format of the audio muxed in the variants.</div>
 </td>
 </tr>
@@ -251,6 +266,7 @@ extends <a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#muxedCaptionFormats">muxedCaptionFormats</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The format of the closed captions declared by the playlist.</div>
 </td>
 </tr>
@@ -258,6 +274,7 @@ extends <a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm" target="_top">DrmInitData</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sessionKeyDrmInitData">sessionKeyDrmInitData</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">DRM initialization data derived from #EXT-X-SESSION-KEY tags.</div>
 </td>
 </tr>
@@ -265,6 +282,7 @@ extends <a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="HlsMultivariantPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist" target="_top">HlsMultivariantPlaylist.Rendition</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#subtitles">subtitles</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The subtitle renditions declared by the playlist.</div>
 </td>
 </tr>
@@ -272,6 +290,7 @@ extends <a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#variableDefinitions">variableDefinitions</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Contains variable definitions, as defined by the #EXT-X-DEFINE tag.</div>
 </td>
 </tr>
@@ -279,6 +298,7 @@ extends <a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="HlsMultivariantPlaylist.Variant.html" title="class in com.google.android.exoplayer2.source.hls.playlist" target="_top">HlsMultivariantPlaylist.Variant</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#variants">variants</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The variants declared by the playlist.</div>
 </td>
 </tr>
@@ -286,6 +306,7 @@ extends <a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="HlsMultivariantPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist" target="_top">HlsMultivariantPlaylist.Rendition</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#videos">videos</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The video renditions declared by the playlist.</div>
 </td>
 </tr>
@@ -326,7 +347,9 @@ extends <a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2
                        boolean&nbsp;hasIndependentSegments,
                        <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;variableDefinitions,
                        <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm" target="_top">DrmInitData</a>&gt;&nbsp;sessionKeyDrmInitData)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -340,7 +363,7 @@ extends <a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -350,6 +373,7 @@ extends <a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2
 <td class="colFirst"><code><a href="HlsMultivariantPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMultivariantPlaylist</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copy(java.util.List)">copy</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy of the manifest including only the streams specified by the given keys.</div>
 </td>
 </tr>
@@ -357,6 +381,7 @@ extends <a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2
 <td class="colFirst"><code>static <a href="HlsMultivariantPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMultivariantPlaylist</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createSingleVariantMultivariantPlaylist(java.lang.String)">createSingleVariantMultivariantPlaylist</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;variantUrl)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a playlist with a single variant.</div>
 </td>
 </tr>
@@ -391,6 +416,7 @@ extends <a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2
 <li class="blockList">
 <h4>EMPTY</h4>
 <pre>public static final&nbsp;<a href="HlsMultivariantPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMultivariantPlaylist</a> EMPTY</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Represents an empty multivariant playlist, from which no attributes can be inherited.</div>
 </li>
 </ul>
@@ -401,6 +427,7 @@ extends <a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2
 <li class="blockList">
 <h4>GROUP_INDEX_VARIANT</h4>
 <pre>public static final&nbsp;int GROUP_INDEX_VARIANT</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../../constant-values.html#com.google.android.exoplayer2.source.hls.playlist.HlsMultivariantPlaylist.GROUP_INDEX_VARIANT">Constant Field Values</a></dd>
@@ -414,6 +441,7 @@ extends <a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2
 <li class="blockList">
 <h4>GROUP_INDEX_AUDIO</h4>
 <pre>public static final&nbsp;int GROUP_INDEX_AUDIO</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../../constant-values.html#com.google.android.exoplayer2.source.hls.playlist.HlsMultivariantPlaylist.GROUP_INDEX_AUDIO">Constant Field Values</a></dd>
@@ -427,6 +455,7 @@ extends <a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2
 <li class="blockList">
 <h4>GROUP_INDEX_SUBTITLE</h4>
 <pre>public static final&nbsp;int GROUP_INDEX_SUBTITLE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../../../constant-values.html#com.google.android.exoplayer2.source.hls.playlist.HlsMultivariantPlaylist.GROUP_INDEX_SUBTITLE">Constant Field Values</a></dd>
@@ -440,6 +469,7 @@ extends <a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2
 <li class="blockList">
 <h4>mediaPlaylistUrls</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/android/net/Uri.html?is-external=true" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&gt; mediaPlaylistUrls</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">All of the media playlist URLs referenced by the playlist.</div>
 </li>
 </ul>
@@ -450,6 +480,7 @@ extends <a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2
 <li class="blockList">
 <h4>variants</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="HlsMultivariantPlaylist.Variant.html" title="class in com.google.android.exoplayer2.source.hls.playlist" target="_top">HlsMultivariantPlaylist.Variant</a>&gt; variants</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The variants declared by the playlist.</div>
 </li>
 </ul>
@@ -460,6 +491,7 @@ extends <a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2
 <li class="blockList">
 <h4>videos</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="HlsMultivariantPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist" target="_top">HlsMultivariantPlaylist.Rendition</a>&gt; videos</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The video renditions declared by the playlist.</div>
 </li>
 </ul>
@@ -470,6 +502,7 @@ extends <a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2
 <li class="blockList">
 <h4>audios</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="HlsMultivariantPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist" target="_top">HlsMultivariantPlaylist.Rendition</a>&gt; audios</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The audio renditions declared by the playlist.</div>
 </li>
 </ul>
@@ -480,6 +513,7 @@ extends <a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2
 <li class="blockList">
 <h4>subtitles</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="HlsMultivariantPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist" target="_top">HlsMultivariantPlaylist.Rendition</a>&gt; subtitles</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The subtitle renditions declared by the playlist.</div>
 </li>
 </ul>
@@ -490,6 +524,7 @@ extends <a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2
 <li class="blockList">
 <h4>closedCaptions</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="HlsMultivariantPlaylist.Rendition.html" title="class in com.google.android.exoplayer2.source.hls.playlist" target="_top">HlsMultivariantPlaylist.Rendition</a>&gt; closedCaptions</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The closed caption renditions declared by the playlist.</div>
 </li>
 </ul>
@@ -501,6 +536,7 @@ extends <a href="HlsPlaylist.html" title="class in com.google.android.exoplayer2
 <h4>muxedAudioFormat</h4>
 <pre>@Nullable
 public final&nbsp;<a href="../../../Format.html" title="class in com.google.android.exoplayer2">Format</a> muxedAudioFormat</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The format of the audio muxed in the variants. May be null if the playlist does not declare any
  muxed audio.</div>
 </li>
@@ -513,6 +549,7 @@ public final&nbsp;<a href="../../../Format.html" title="class in com.google.andr
 <h4>muxedCaptionFormats</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt; muxedCaptionFormats</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The format of the closed captions declared by the playlist. May be empty if the playlist
  explicitly declares no captions are available, or null if the playlist does not declare any
  captions information.</div>
@@ -525,6 +562,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/util/Lis
 <li class="blockList">
 <h4>variableDefinitions</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt; variableDefinitions</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Contains variable definitions, as defined by the #EXT-X-DEFINE tag.</div>
 </li>
 </ul>
@@ -535,6 +573,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/util/Lis
 <li class="blockList">
 <h4>sessionKeyDrmInitData</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm" target="_top">DrmInitData</a>&gt; sessionKeyDrmInitData</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">DRM initialization data derived from #EXT-X-SESSION-KEY tags.</div>
 </li>
 </ul>
@@ -568,6 +607,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/util/Lis
                                boolean&nbsp;hasIndependentSegments,
                                <a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;variableDefinitions,
                                <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../drm/DrmInitData.html" title="class in com.google.android.exoplayer2.drm" target="_top">DrmInitData</a>&gt;&nbsp;sessionKeyDrmInitData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>baseUri</code> - See <a href="HlsPlaylist.html#baseUri"><code>HlsPlaylist.baseUri</code></a>.</dd>
@@ -602,6 +642,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/util/Lis
 <li class="blockList">
 <h4>copy</h4>
 <pre class="methodSignature">public&nbsp;<a href="HlsMultivariantPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMultivariantPlaylist</a>&nbsp;copy&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../offline/FilterableManifest.html#copy(java.util.List)">FilterableManifest</a></code></span></div>
 <div class="block">Returns a copy of the manifest including only the streams specified by the given keys. If the
  manifest is unchanged then the instance may return itself.</div>
@@ -620,6 +661,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/util/Lis
 <li class="blockList">
 <h4>createSingleVariantMultivariantPlaylist</h4>
 <pre class="methodSignature">public static&nbsp;<a href="HlsMultivariantPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMultivariantPlaylist</a>&nbsp;createSingleVariantMultivariantPlaylist&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;variantUrl)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a playlist with a single variant.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

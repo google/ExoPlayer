@@ -46,6 +46,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
+@Deprecated
 /* package */ class SessionCallback extends MediaSession.SessionCallback {
   private static final String TAG = "SessionCallback";
 

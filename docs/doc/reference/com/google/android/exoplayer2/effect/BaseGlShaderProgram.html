@@ -1,0 +1,715 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>BaseGlShaderProgram (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="BaseGlShaderProgram (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":38,"i1":38,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.effect</a></div>
+<h2 title="Class BaseGlShaderProgram" class="title">Class BaseGlShaderProgram</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.effect.BaseGlShaderProgram</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><code><a href="GlShaderProgram.html" title="interface in com.google.android.exoplayer2.effect">GlShaderProgram</a></code></dd>
+</dl>
+<dl>
+<dt>Direct Known Subclasses:</dt>
+<dd><code><a href="SingleFrameGlShaderProgram.html" title="class in com.google.android.exoplayer2.effect">SingleFrameGlShaderProgram</a></code></dd>
+</dl>
+<hr>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public abstract class <span class="typeNameLabel">BaseGlShaderProgram</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
+implements <a href="GlShaderProgram.html" title="interface in com.google.android.exoplayer2.effect">GlShaderProgram</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
+<div class="block">A base implementation of <a href="GlShaderProgram.html" title="interface in com.google.android.exoplayer2.effect"><code>GlShaderProgram</code></a>.
+
+ <p><code>BaseGlShaderProgram</code> manages an output texture pool, whose size is configurable on
+ construction. An implementation should manage a GLSL shader program for processing frames.
+ Override <a href="#drawFrame(int,long)"><code>drawFrame(int, long)</code></a> to customize drawing. Implementations generally copy input pixels
+ into an output frame, with changes to pixels specific to the implementation.
+
+ <p><code>BaseShaderProgram</code> implementations can produce any number of output frames per input
+ frame with the same presentation timestamp. <a href="SingleFrameGlShaderProgram.html" title="class in com.google.android.exoplayer2.effect"><code>SingleFrameGlShaderProgram</code></a> can be used to
+ implement a <a href="GlShaderProgram.html" title="interface in com.google.android.exoplayer2.effect"><code>GlShaderProgram</code></a> that produces exactly one output frame per input frame.
+
+ <p>All methods in this class must be called on the thread that owns the OpenGL context.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.effect.GlShaderProgram">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.effect.<a href="GlShaderProgram.html" title="interface in com.google.android.exoplayer2.effect">GlShaderProgram</a></h3>
+<code><a href="GlShaderProgram.ErrorListener.html" title="interface in com.google.android.exoplayer2.effect">GlShaderProgram.ErrorListener</a>, <a href="GlShaderProgram.InputListener.html" title="interface in com.google.android.exoplayer2.effect">GlShaderProgram.InputListener</a>, <a href="GlShaderProgram.OutputListener.html" title="interface in com.google.android.exoplayer2.effect">GlShaderProgram.OutputListener</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<table class="memberSummary">
+<caption><span>Fields</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Field</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<td class="colFirst"><code>protected <a href="GlShaderProgram.InputListener.html" title="interface in com.google.android.exoplayer2.effect">GlShaderProgram.InputListener</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#inputListener">inputListener</a></span></code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(boolean,int)">BaseGlShaderProgram</a></span>&#8203;(boolean&nbsp;useHdr,
+                   int&nbsp;texturePoolCapacity)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Creates a <code>BaseGlShaderProgram</code> instance.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code>abstract <a href="../util/Size.html" title="class in com.google.android.exoplayer2.util">Size</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#configure(int,int)">configure</a></span>&#8203;(int&nbsp;inputWidth,
+         int&nbsp;inputHeight)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Configures the instance based on the input dimensions.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>abstract void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#drawFrame(int,long)">drawFrame</a></span>&#8203;(int&nbsp;inputTexId,
+         long&nbsp;presentationTimeUs)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Draws one frame.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#flush()">flush</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Flushes the <code>GlShaderProgram</code>.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#queueInputFrame(com.google.android.exoplayer2.util.GlTextureInfo,long)">queueInputFrame</a></span>&#8203;(<a href="../util/GlTextureInfo.html" title="class in com.google.android.exoplayer2.util">GlTextureInfo</a>&nbsp;inputTexture,
+               long&nbsp;presentationTimeUs)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Processes an input frame if possible.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Releases all resources.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#releaseOutputFrame(com.google.android.exoplayer2.util.GlTextureInfo)">releaseOutputFrame</a></span>&#8203;(<a href="../util/GlTextureInfo.html" title="class in com.google.android.exoplayer2.util">GlTextureInfo</a>&nbsp;outputTexture)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Notifies the <code>GlShaderProgram</code> that the frame on the given output texture is no longer
+ used and can be overwritten.</div>
+</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setErrorListener(java.util.concurrent.Executor,com.google.android.exoplayer2.effect.GlShaderProgram.ErrorListener)">setErrorListener</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;errorListenerExecutor,
+                <a href="GlShaderProgram.ErrorListener.html" title="interface in com.google.android.exoplayer2.effect">GlShaderProgram.ErrorListener</a>&nbsp;errorListener)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the <a href="GlShaderProgram.ErrorListener.html" title="interface in com.google.android.exoplayer2.effect"><code>GlShaderProgram.ErrorListener</code></a>.</div>
+</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setGlObjectsProvider(com.google.android.exoplayer2.util.GlObjectsProvider)">setGlObjectsProvider</a></span>&#8203;(<a href="../util/GlObjectsProvider.html" title="interface in com.google.android.exoplayer2.util">GlObjectsProvider</a>&nbsp;glObjectsProvider)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the <a href="../util/GlObjectsProvider.html" title="interface in com.google.android.exoplayer2.util"><code>GlObjectsProvider</code></a>.</div>
+</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setInputListener(com.google.android.exoplayer2.effect.GlShaderProgram.InputListener)">setInputListener</a></span>&#8203;(<a href="GlShaderProgram.InputListener.html" title="interface in com.google.android.exoplayer2.effect">GlShaderProgram.InputListener</a>&nbsp;inputListener)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the <a href="GlShaderProgram.InputListener.html" title="interface in com.google.android.exoplayer2.effect"><code>GlShaderProgram.InputListener</code></a>.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOutputListener(com.google.android.exoplayer2.effect.GlShaderProgram.OutputListener)">setOutputListener</a></span>&#8203;(<a href="GlShaderProgram.OutputListener.html" title="interface in com.google.android.exoplayer2.effect">GlShaderProgram.OutputListener</a>&nbsp;outputListener)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Sets the <a href="GlShaderProgram.OutputListener.html" title="interface in com.google.android.exoplayer2.effect"><code>GlShaderProgram.OutputListener</code></a>.</div>
+</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#signalEndOfCurrentInputStream()">signalEndOfCurrentInputStream</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Notifies the <code>GlShaderProgram</code> that no further input frames belonging to the current
+ input stream will be queued.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ============ FIELD DETAIL =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.detail">
+<!--   -->
+</a>
+<h3>Field Detail</h3>
+<a id="inputListener">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>inputListener</h4>
+<pre>protected&nbsp;<a href="GlShaderProgram.InputListener.html" title="interface in com.google.android.exoplayer2.effect">GlShaderProgram.InputListener</a> inputListener</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;(boolean,int)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>BaseGlShaderProgram</h4>
+<pre>public&nbsp;BaseGlShaderProgram&#8203;(boolean&nbsp;useHdr,
+                           int&nbsp;texturePoolCapacity)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Creates a <code>BaseGlShaderProgram</code> instance.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>useHdr</code> - Whether input textures come from an HDR source. If <code>true</code>, colors will be
+     in linear RGB BT.2020. If <code>false</code>, colors will be in linear RGB BT.709.</dd>
+<dd><code>texturePoolCapacity</code> - The capacity of the texture pool. For example, if implementing a
+     texture cache, the size should be the number of textures to cache.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="configure(int,int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>configure</h4>
+<pre class="methodSignature">public abstract&nbsp;<a href="../util/Size.html" title="class in com.google.android.exoplayer2.util">Size</a>&nbsp;configure&#8203;(int&nbsp;inputWidth,
+                               int&nbsp;inputHeight)
+                        throws <a href="../util/VideoFrameProcessingException.html" title="class in com.google.android.exoplayer2.util">VideoFrameProcessingException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Configures the instance based on the input dimensions.
+
+ <p>This method must be called before <a href="#drawFrame(int,long)">drawing</a> the first frame
+ and before drawing subsequent frames with different input dimensions.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>inputWidth</code> - The input width, in pixels.</dd>
+<dd><code>inputHeight</code> - The input height, in pixels.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The output width and height of frames processed through <a href="#drawFrame(int,long)"><code>drawFrame(int, long)</code></a>.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../util/VideoFrameProcessingException.html" title="class in com.google.android.exoplayer2.util">VideoFrameProcessingException</a></code> - If an error occurs while configuring.</dd>
+</dl>
+</li>
+</ul>
+<a id="drawFrame(int,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>drawFrame</h4>
+<pre class="methodSignature">public abstract&nbsp;void&nbsp;drawFrame&#8203;(int&nbsp;inputTexId,
+                               long&nbsp;presentationTimeUs)
+                        throws <a href="../util/VideoFrameProcessingException.html" title="class in com.google.android.exoplayer2.util">VideoFrameProcessingException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Draws one frame.
+
+ <p>This method may only be called after the shader program has been <a href="#configure(int,int)"><code>configured</code></a>. The caller is responsible for focussing the correct render target before calling
+ this method.
+
+ <p>A minimal implementation should tell OpenGL to use its shader program, bind the shader
+ program's vertex attributes and uniforms, and issue a drawing command.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>inputTexId</code> - Identifier of a 2D OpenGL texture containing the input frame.</dd>
+<dd><code>presentationTimeUs</code> - The presentation timestamp of the current frame, in microseconds.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../util/VideoFrameProcessingException.html" title="class in com.google.android.exoplayer2.util">VideoFrameProcessingException</a></code> - If an error occurs while processing or drawing the frame.</dd>
+</dl>
+</li>
+</ul>
+<a id="setInputListener(com.google.android.exoplayer2.effect.GlShaderProgram.InputListener)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setInputListener</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setInputListener&#8203;(<a href="GlShaderProgram.InputListener.html" title="interface in com.google.android.exoplayer2.effect">GlShaderProgram.InputListener</a>&nbsp;inputListener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="GlShaderProgram.html#setInputListener(com.google.android.exoplayer2.effect.GlShaderProgram.InputListener)">GlShaderProgram</a></code></span></div>
+<div class="block">Sets the <a href="GlShaderProgram.InputListener.html" title="interface in com.google.android.exoplayer2.effect"><code>GlShaderProgram.InputListener</code></a>.
+
+ <p>The <a href="GlShaderProgram.InputListener.html" title="interface in com.google.android.exoplayer2.effect"><code>GlShaderProgram.InputListener</code></a> should be invoked on the thread that owns the parent OpenGL
+ context. For example, <a href="DefaultVideoFrameProcessor.html" title="class in com.google.android.exoplayer2.effect"><code>DefaultVideoFrameProcessor</code></a> invokes the <a href="GlShaderProgram.InputListener.html" title="interface in com.google.android.exoplayer2.effect"><code>GlShaderProgram.InputListener</code></a>
+ methods on its internal thread.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="GlShaderProgram.html#setInputListener(com.google.android.exoplayer2.effect.GlShaderProgram.InputListener)">setInputListener</a></code>&nbsp;in interface&nbsp;<code><a href="GlShaderProgram.html" title="interface in com.google.android.exoplayer2.effect">GlShaderProgram</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="setOutputListener(com.google.android.exoplayer2.effect.GlShaderProgram.OutputListener)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setOutputListener</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setOutputListener&#8203;(<a href="GlShaderProgram.OutputListener.html" title="interface in com.google.android.exoplayer2.effect">GlShaderProgram.OutputListener</a>&nbsp;outputListener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="GlShaderProgram.html#setOutputListener(com.google.android.exoplayer2.effect.GlShaderProgram.OutputListener)">GlShaderProgram</a></code></span></div>
+<div class="block">Sets the <a href="GlShaderProgram.OutputListener.html" title="interface in com.google.android.exoplayer2.effect"><code>GlShaderProgram.OutputListener</code></a>.
+
+ <p>The <a href="GlShaderProgram.OutputListener.html" title="interface in com.google.android.exoplayer2.effect"><code>GlShaderProgram.OutputListener</code></a> should be invoked on the thread that owns the parent OpenGL
+ context. For example, <a href="DefaultVideoFrameProcessor.html" title="class in com.google.android.exoplayer2.effect"><code>DefaultVideoFrameProcessor</code></a> invokes the <a href="GlShaderProgram.OutputListener.html" title="interface in com.google.android.exoplayer2.effect"><code>GlShaderProgram.OutputListener</code></a>
+ methods on its internal thread.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="GlShaderProgram.html#setOutputListener(com.google.android.exoplayer2.effect.GlShaderProgram.OutputListener)">setOutputListener</a></code>&nbsp;in interface&nbsp;<code><a href="GlShaderProgram.html" title="interface in com.google.android.exoplayer2.effect">GlShaderProgram</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="setErrorListener(java.util.concurrent.Executor,com.google.android.exoplayer2.effect.GlShaderProgram.ErrorListener)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setErrorListener</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setErrorListener&#8203;(<a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">Executor</a>&nbsp;errorListenerExecutor,
+                             <a href="GlShaderProgram.ErrorListener.html" title="interface in com.google.android.exoplayer2.effect">GlShaderProgram.ErrorListener</a>&nbsp;errorListener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="GlShaderProgram.html#setErrorListener(java.util.concurrent.Executor,com.google.android.exoplayer2.effect.GlShaderProgram.ErrorListener)">GlShaderProgram</a></code></span></div>
+<div class="block">Sets the <a href="GlShaderProgram.ErrorListener.html" title="interface in com.google.android.exoplayer2.effect"><code>GlShaderProgram.ErrorListener</code></a>.
+
+ <p>The <a href="GlShaderProgram.ErrorListener.html" title="interface in com.google.android.exoplayer2.effect"><code>GlShaderProgram.ErrorListener</code></a> is invoked on the provided <a href="https://developer.android.com/reference/java/util/concurrent/Executor.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top"><code>Executor</code></a>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="GlShaderProgram.html#setErrorListener(java.util.concurrent.Executor,com.google.android.exoplayer2.effect.GlShaderProgram.ErrorListener)">setErrorListener</a></code>&nbsp;in interface&nbsp;<code><a href="GlShaderProgram.html" title="interface in com.google.android.exoplayer2.effect">GlShaderProgram</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="setGlObjectsProvider(com.google.android.exoplayer2.util.GlObjectsProvider)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setGlObjectsProvider</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;setGlObjectsProvider&#8203;(<a href="../util/GlObjectsProvider.html" title="interface in com.google.android.exoplayer2.util">GlObjectsProvider</a>&nbsp;glObjectsProvider)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="GlShaderProgram.html#setGlObjectsProvider(com.google.android.exoplayer2.util.GlObjectsProvider)">GlShaderProgram</a></code></span></div>
+<div class="block">Sets the <a href="../util/GlObjectsProvider.html" title="interface in com.google.android.exoplayer2.util"><code>GlObjectsProvider</code></a>.
+
+ <p>This method should not be called after any of the frame processing methods.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="GlShaderProgram.html#setGlObjectsProvider(com.google.android.exoplayer2.util.GlObjectsProvider)">setGlObjectsProvider</a></code>&nbsp;in interface&nbsp;<code><a href="GlShaderProgram.html" title="interface in com.google.android.exoplayer2.effect">GlShaderProgram</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="queueInputFrame(com.google.android.exoplayer2.util.GlTextureInfo,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>queueInputFrame</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;queueInputFrame&#8203;(<a href="../util/GlTextureInfo.html" title="class in com.google.android.exoplayer2.util">GlTextureInfo</a>&nbsp;inputTexture,
+                            long&nbsp;presentationTimeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="GlShaderProgram.html#queueInputFrame(com.google.android.exoplayer2.util.GlTextureInfo,long)">GlShaderProgram</a></code></span></div>
+<div class="block">Processes an input frame if possible.
+
+ <p>The <code>GlShaderProgram</code> owns the accepted frame until it calls <a href="GlShaderProgram.InputListener.html#onInputFrameProcessed(com.google.android.exoplayer2.util.GlTextureInfo)"><code>GlShaderProgram.InputListener.onInputFrameProcessed(GlTextureInfo)</code></a>. The caller should not overwrite or release
+ the texture before the <code>GlShaderProgram</code> has finished processing it.
+
+ <p>This method must only be called when the <code>GlShaderProgram</code> can <a href="GlShaderProgram.InputListener.html#onReadyToAcceptInputFrame()">accept an input frame</a>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="GlShaderProgram.html#queueInputFrame(com.google.android.exoplayer2.util.GlTextureInfo,long)">queueInputFrame</a></code>&nbsp;in interface&nbsp;<code><a href="GlShaderProgram.html" title="interface in com.google.android.exoplayer2.effect">GlShaderProgram</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>inputTexture</code> - A <a href="../util/GlTextureInfo.html" title="class in com.google.android.exoplayer2.util"><code>GlTextureInfo</code></a> describing the texture containing the input frame.</dd>
+<dd><code>presentationTimeUs</code> - The presentation timestamp of the input frame, in microseconds.</dd>
+</dl>
+</li>
+</ul>
+<a id="releaseOutputFrame(com.google.android.exoplayer2.util.GlTextureInfo)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>releaseOutputFrame</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;releaseOutputFrame&#8203;(<a href="../util/GlTextureInfo.html" title="class in com.google.android.exoplayer2.util">GlTextureInfo</a>&nbsp;outputTexture)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="GlShaderProgram.html#releaseOutputFrame(com.google.android.exoplayer2.util.GlTextureInfo)">GlShaderProgram</a></code></span></div>
+<div class="block">Notifies the <code>GlShaderProgram</code> that the frame on the given output texture is no longer
+ used and can be overwritten.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="GlShaderProgram.html#releaseOutputFrame(com.google.android.exoplayer2.util.GlTextureInfo)">releaseOutputFrame</a></code>&nbsp;in interface&nbsp;<code><a href="GlShaderProgram.html" title="interface in com.google.android.exoplayer2.effect">GlShaderProgram</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="signalEndOfCurrentInputStream()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>signalEndOfCurrentInputStream</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;signalEndOfCurrentInputStream()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="GlShaderProgram.html#signalEndOfCurrentInputStream()">GlShaderProgram</a></code></span></div>
+<div class="block">Notifies the <code>GlShaderProgram</code> that no further input frames belonging to the current
+ input stream will be queued.
+
+ <p>Input frames that are queued after this method is called belong to a different input stream.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="GlShaderProgram.html#signalEndOfCurrentInputStream()">signalEndOfCurrentInputStream</a></code>&nbsp;in interface&nbsp;<code><a href="GlShaderProgram.html" title="interface in com.google.android.exoplayer2.effect">GlShaderProgram</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="flush()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>flush</h4>
+<pre class="methodSignature">@CallSuper
+public&nbsp;void&nbsp;flush()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="GlShaderProgram.html#flush()">GlShaderProgram</a></code></span></div>
+<div class="block">Flushes the <code>GlShaderProgram</code>.
+
+ <p>The <code>GlShaderProgram</code> should reclaim the ownership of its allocated textures,
+ <a href="GlShaderProgram.InputListener.html#onFlush()">notify</a> its <a href="GlShaderProgram.InputListener.html" title="interface in com.google.android.exoplayer2.effect"><code>GlShaderProgram.InputListener</code></a> about the flush event, and
+ <a href="GlShaderProgram.InputListener.html#onReadyToAcceptInputFrame()">report its availability</a> if necessary.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="GlShaderProgram.html#flush()">flush</a></code>&nbsp;in interface&nbsp;<code><a href="GlShaderProgram.html" title="interface in com.google.android.exoplayer2.effect">GlShaderProgram</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="release()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>release</h4>
+<pre class="methodSignature">@CallSuper
+public&nbsp;void&nbsp;release()
+             throws <a href="../util/VideoFrameProcessingException.html" title="class in com.google.android.exoplayer2.util">VideoFrameProcessingException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="GlShaderProgram.html#release()">GlShaderProgram</a></code></span></div>
+<div class="block">Releases all resources.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="GlShaderProgram.html#release()">release</a></code>&nbsp;in interface&nbsp;<code><a href="GlShaderProgram.html" title="interface in com.google.android.exoplayer2.effect">GlShaderProgram</a></code></dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code><a href="../util/VideoFrameProcessingException.html" title="class in com.google.android.exoplayer2.util">VideoFrameProcessingException</a></code> - If an error occurs while releasing resources.</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

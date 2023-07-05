@@ -18,30 +18,37 @@ package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
+import androidx.annotation.IntRange;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.Util;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Listener for fallback {@link TransformationRequest TransformationRequests} from the audio and
  * video renderers.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 /* package */ final class FallbackListener {
 
-  private final MediaItem mediaItem;
-  private final TransformationRequest originalTransformationRequest;
+  private final Composition composition;
   private final ListenerSet<Transformer.Listener> transformerListeners;
   private final HandlerWrapper transformerListenerHandler;
+  private final TransformationRequest originalTransformationRequest;
+  private final AtomicInteger trackCount;
 
   private TransformationRequest fallbackTransformationRequest;
-  private int trackCount;
 
   /**
    * Creates a new instance.
    *
-   * @param mediaItem The {@link MediaItem} to transform.
+   * @param composition The {@link Composition} to export.
    * @param transformerListeners The {@linkplain Transformer.Listener listeners} to call {@link
    *     Transformer.Listener#onFallbackApplied} on.
    * @param transformerListenerHandler The {@link HandlerWrapper} to call {@link
@@ -49,25 +56,28 @@ import com.google.android.exoplayer2.util.Util;
    * @param originalTransformationRequest The original {@link TransformationRequest}.
    */
   public FallbackListener(
-      MediaItem mediaItem,
+      Composition composition,
       ListenerSet<Transformer.Listener> transformerListeners,
       HandlerWrapper transformerListenerHandler,
       TransformationRequest originalTransformationRequest) {
-    this.mediaItem = mediaItem;
+    this.composition = composition;
     this.transformerListeners = transformerListeners;
     this.transformerListenerHandler = transformerListenerHandler;
     this.originalTransformationRequest = originalTransformationRequest;
     this.fallbackTransformationRequest = originalTransformationRequest;
+    trackCount = new AtomicInteger();
   }
 
   /**
-   * Registers an output track.
+   * Sets the number of output tracks.
    *
-   * <p>All tracks must be registered before a transformation request is {@linkplain
+   * <p>The track count must be set before a transformation request is {@linkplain
    * #onTransformationRequestFinalized(TransformationRequest) finalized}.
+   *
+   * <p>Can be called from any thread.
    */
-  public void registerTrack() {
-    trackCount++;
+  public void setTrackCount(@IntRange(from = 1) int trackCount) {
+    this.trackCount.set(trackCount);
   }
 
   /**
@@ -78,15 +88,15 @@ import com.google.android.exoplayer2.util.Util;
    *
    * <p>Fallback is applied if the finalized {@code TransformationRequest} is different from the
    * original {@code TransformationRequest}. If fallback is applied, calls {@link
-   * Transformer.Listener#onFallbackApplied(MediaItem, TransformationRequest,
+   * Transformer.Listener#onFallbackApplied(Composition, TransformationRequest,
    * TransformationRequest)} once this method has been called for each track.
    *
    * @param transformationRequest The final {@link TransformationRequest} for a track.
-   * @throws IllegalStateException If called for more tracks than registered using {@link
-   *     #registerTrack()}.
+   * @throws IllegalStateException If called for more tracks than declared in {@link
+   *     #setTrackCount(int)}.
    */
   public void onTransformationRequestFinalized(TransformationRequest transformationRequest) {
-    checkState(trackCount-- > 0);
+    checkState(trackCount.getAndDecrement() > 0);
 
     TransformationRequest.Builder fallbackRequestBuilder =
         fallbackTransformationRequest.buildUpon();
@@ -101,26 +111,21 @@ import com.google.android.exoplayer2.util.Util;
     if (transformationRequest.outputHeight != originalTransformationRequest.outputHeight) {
       fallbackRequestBuilder.setResolution(transformationRequest.outputHeight);
     }
-    if (transformationRequest.enableHdrEditing != originalTransformationRequest.enableHdrEditing) {
-      fallbackRequestBuilder.experimental_setEnableHdrEditing(
-          transformationRequest.enableHdrEditing);
-    }
-    if (transformationRequest.enableRequestSdrToneMapping
-        != originalTransformationRequest.enableRequestSdrToneMapping) {
-      fallbackRequestBuilder.setEnableRequestSdrToneMapping(
-          transformationRequest.enableRequestSdrToneMapping);
+    if (transformationRequest.hdrMode != originalTransformationRequest.hdrMode) {
+      fallbackRequestBuilder.setHdrMode(transformationRequest.hdrMode);
     }
     TransformationRequest newFallbackTransformationRequest = fallbackRequestBuilder.build();
     fallbackTransformationRequest = newFallbackTransformationRequest;
 
-    if (trackCount == 0 && !originalTransformationRequest.equals(fallbackTransformationRequest)) {
+    if (trackCount.get() == 0
+        && !originalTransformationRequest.equals(fallbackTransformationRequest)) {
       transformerListenerHandler.post(
           () ->
               transformerListeners.sendEvent(
                   /* eventFlag= */ C.INDEX_UNSET,
                   listener ->
                       listener.onFallbackApplied(
-                          mediaItem,
+                          composition,
                           originalTransformationRequest,
                           newFallbackTransformationRequest)));
     }

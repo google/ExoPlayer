@@ -36,7 +36,13 @@ import java.util.ArrayList;
 /**
  * {@link MediaSource} that wraps a source and clips its timeline based on specified start/end
  * positions. The wrapped source must consist of a single period.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class ClippingMediaSource extends WrappingMediaSource {
 
   /** Thrown when a {@link ClippingMediaSource} cannot clip its wrapped source. */

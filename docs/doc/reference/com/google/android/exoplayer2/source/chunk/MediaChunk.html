@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -142,8 +142,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="BaseMediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">BaseMediaChunk</a></code>, <code><a href="../../testutil/FakeMediaChunk.html" title="class in com.google.android.exoplayer2.testutil">FakeMediaChunk</a></code></dd>
 </dl>
 <hr>
-<pre>public abstract class <span class="typeNameLabel">MediaChunk</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public abstract class <span class="typeNameLabel">MediaChunk</span>
 extends <a href="Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">An abstract base class for <a href="Chunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>Chunk</code></a>s that contain media samples.</div>
 </li>
 </ul>
@@ -169,6 +175,7 @@ extends <a href="Chunk.html" title="class in com.google.android.exoplayer2.sourc
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#chunkIndex">chunkIndex</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The chunk index, or <a href="../../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if it is not known.</div>
 </td>
 </tr>
@@ -205,7 +212,9 @@ extends <a href="Chunk.html" title="class in com.google.android.exoplayer2.sourc
           long&nbsp;startTimeUs,
           long&nbsp;endTimeUs,
           long&nbsp;chunkIndex)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -219,7 +228,7 @@ extends <a href="Chunk.html" title="class in com.google.android.exoplayer2.sourc
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -229,6 +238,7 @@ extends <a href="Chunk.html" title="class in com.google.android.exoplayer2.sourc
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getNextChunkIndex()">getNextChunkIndex</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the next chunk index or <a href="../../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if it is not known.</div>
 </td>
 </tr>
@@ -236,6 +246,7 @@ extends <a href="Chunk.html" title="class in com.google.android.exoplayer2.sourc
 <td class="colFirst"><code>abstract boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isLoadCompleted()">isLoadCompleted</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the chunk has been fully loaded.</div>
 </td>
 </tr>
@@ -284,6 +295,7 @@ extends <a href="Chunk.html" title="class in com.google.android.exoplayer2.sourc
 <li class="blockList">
 <h4>chunkIndex</h4>
 <pre>public final&nbsp;long chunkIndex</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The chunk index, or <a href="../../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if it is not known.</div>
 </li>
 </ul>
@@ -312,6 +324,7 @@ extends <a href="Chunk.html" title="class in com.google.android.exoplayer2.sourc
                   long&nbsp;startTimeUs,
                   long&nbsp;endTimeUs,
                   long&nbsp;chunkIndex)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>dataSource</code> - The source from which the data should be loaded.</dd>
@@ -342,6 +355,7 @@ extends <a href="Chunk.html" title="class in com.google.android.exoplayer2.sourc
 <li class="blockList">
 <h4>getNextChunkIndex</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getNextChunkIndex()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the next chunk index or <a href="../../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if it is not known.</div>
 </li>
 </ul>
@@ -352,6 +366,7 @@ extends <a href="Chunk.html" title="class in com.google.android.exoplayer2.sourc
 <li class="blockList">
 <h4>isLoadCompleted</h4>
 <pre class="methodSignature">public abstract&nbsp;boolean&nbsp;isLoadCompleted()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the chunk has been fully loaded.</div>
 </li>
 </ul>

@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":9,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":41,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="https://developer.android.com/reference/android/os/Parcelable.html" title="class or interface in android.os" class="externalLink">Parcelable</a></code>, <code><a href="https://developer.android.com/reference/java/util/Comparator.html?is-external=true" title="class or interface in java.util" class="externalLink">Comparator</a>&lt;<a href="DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm" target="_top">DrmInitData.SchemeData</a>&gt;</code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">DrmInitData</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">DrmInitData</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="https://developer.android.com/reference/java/util/Comparator.html" title="class or interface in java.util" class="externalLink">Comparator</a>&lt;<a href="DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a>&gt;, <a href="https://developer.android.com/reference/android/os/Parcelable.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Initialization data for one or more DRM schemes.</div>
 </li>
 </ul>
@@ -161,6 +167,7 @@ implements <a href="https://developer.android.com/reference/java/util/Comparator
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Scheme initialization data.</div>
 </td>
 </tr>
@@ -192,12 +199,15 @@ implements <a href="https://developer.android.com/reference/java/util/Comparator
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/os/Parcelable.Creator.html" title="class or interface in android.os" class="externalLink">Parcelable.Creator</a>&lt;<a href="DrmInitData.html" title="class in com.google.android.exoplayer2.drm" target="_top">DrmInitData</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#CREATOR">CREATOR</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#schemeDataCount">schemeDataCount</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Number of <a href="DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm"><code>DrmInitData.SchemeData</code></a>s.</div>
 </td>
 </tr>
@@ -205,6 +215,7 @@ implements <a href="https://developer.android.com/reference/java/util/Comparator
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#schemeType">schemeType</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The protection scheme type, or null if not applicable or unknown.</div>
 </td>
 </tr>
@@ -234,21 +245,29 @@ implements <a href="https://developer.android.com/reference/java/util/Comparator
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.drm.DrmInitData.SchemeData...)">DrmInitData</a></span>&#8203;(<a href="DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a>...&nbsp;schemeDatas)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,com.google.android.exoplayer2.drm.DrmInitData.SchemeData...)">DrmInitData</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;schemeType,
            <a href="DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a>...&nbsp;schemeDatas)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,java.util.List)">DrmInitData</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;schemeType,
            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm" target="_top">DrmInitData.SchemeData</a>&gt;&nbsp;schemeDatas)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.util.List)">DrmInitData</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm" target="_top">DrmInitData.SchemeData</a>&gt;&nbsp;schemeDatas)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -262,7 +281,7 @@ implements <a href="https://developer.android.com/reference/java/util/Comparator
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -272,12 +291,15 @@ implements <a href="https://developer.android.com/reference/java/util/Comparator
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#compare(com.google.android.exoplayer2.drm.DrmInitData.SchemeData,com.google.android.exoplayer2.drm.DrmInitData.SchemeData)">compare</a></span>&#8203;(<a href="DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a>&nbsp;first,
        <a href="DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a>&nbsp;second)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyWithSchemeType(java.lang.String)">copyWithSchemeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;schemeType)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy with the specified protection scheme type.</div>
 </td>
 </tr>
@@ -286,35 +308,44 @@ implements <a href="https://developer.android.com/reference/java/util/Comparator
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createSessionCreationData(com.google.android.exoplayer2.drm.DrmInitData,com.google.android.exoplayer2.drm.DrmInitData)">createSessionCreationData</a></span>&#8203;(<a href="DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;manifestData,
                          <a href="DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;mediaData)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Merges <a href="DrmInitData.html" title="class in com.google.android.exoplayer2.drm"><code>DrmInitData</code></a> obtained from a media manifest and a media stream.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#describeContents()">describeContents</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#get(int)">get</a></span>&#8203;(int&nbsp;index)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Retrieves the <a href="DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm"><code>DrmInitData.SchemeData</code></a> at a given index.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#merge(com.google.android.exoplayer2.drm.DrmInitData)">merge</a></span>&#8203;(<a href="DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an instance containing the <a href="#schemeDatas"><code>schemeDatas</code></a> from both this and <code>other</code>.</div>
 </td>
 </tr>
@@ -322,7 +353,9 @@ implements <a href="https://developer.android.com/reference/java/util/Comparator
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#writeToParcel(android.os.Parcel,int)">writeToParcel</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Parcel.html" title="class or interface in android.os" class="externalLink" target="_top">Parcel</a>&nbsp;dest,
              int&nbsp;flags)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -363,6 +396,7 @@ implements <a href="https://developer.android.com/reference/java/util/Comparator
 <h4>schemeType</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> schemeType</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The protection scheme type, or null if not applicable or unknown.</div>
 </li>
 </ul>
@@ -373,6 +407,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <li class="blockList">
 <h4>schemeDataCount</h4>
 <pre>public final&nbsp;int schemeDataCount</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Number of <a href="DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm"><code>DrmInitData.SchemeData</code></a>s.</div>
 </li>
 </ul>
@@ -383,6 +418,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <li class="blockList">
 <h4>CREATOR</h4>
 <pre>public static final&nbsp;<a href="https://developer.android.com/reference/android/os/Parcelable.Creator.html" title="class or interface in android.os" class="externalLink">Parcelable.Creator</a>&lt;<a href="DrmInitData.html" title="class in com.google.android.exoplayer2.drm" target="_top">DrmInitData</a>&gt; CREATOR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -402,6 +438,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <li class="blockList">
 <h4>DrmInitData</h4>
 <pre>public&nbsp;DrmInitData&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm" target="_top">DrmInitData.SchemeData</a>&gt;&nbsp;schemeDatas)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>schemeDatas</code> - Scheme initialization data for possibly multiple DRM schemes.</dd>
@@ -417,6 +454,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <pre>public&nbsp;DrmInitData&#8203;(@Nullable
                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;schemeType,
                    <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm" target="_top">DrmInitData.SchemeData</a>&gt;&nbsp;schemeDatas)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>schemeType</code> - See <a href="#schemeType"><code>schemeType</code></a>.</dd>
@@ -431,6 +469,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <li class="blockList">
 <h4>DrmInitData</h4>
 <pre>public&nbsp;DrmInitData&#8203;(<a href="DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a>...&nbsp;schemeDatas)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>schemeDatas</code> - Scheme initialization data for possibly multiple DRM schemes.</dd>
@@ -446,6 +485,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <pre>public&nbsp;DrmInitData&#8203;(@Nullable
                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;schemeType,
                    <a href="DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a>...&nbsp;schemeDatas)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>schemeType</code> - See <a href="#schemeType"><code>schemeType</code></a>.</dd>
@@ -474,6 +514,7 @@ public static&nbsp;<a href="DrmInitData.html" title="class in com.google.android
                                                     <a href="DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;manifestData,
                                                     @Nullable
                                                     <a href="DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;mediaData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Merges <a href="DrmInitData.html" title="class in com.google.android.exoplayer2.drm"><code>DrmInitData</code></a> obtained from a media manifest and a media stream.
 
  <p>The result is generated as follows.
@@ -502,6 +543,7 @@ public static&nbsp;<a href="DrmInitData.html" title="class in com.google.android
 <li class="blockList">
 <h4>get</h4>
 <pre class="methodSignature">public&nbsp;<a href="DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a>&nbsp;get&#8203;(int&nbsp;index)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Retrieves the <a href="DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm"><code>DrmInitData.SchemeData</code></a> at a given index.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -520,6 +562,7 @@ public static&nbsp;<a href="DrmInitData.html" title="class in com.google.android
 <pre class="methodSignature">@CheckResult
 public&nbsp;<a href="DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;copyWithSchemeType&#8203;(@Nullable
                                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;schemeType)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy with the specified protection scheme type.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -536,6 +579,7 @@ public&nbsp;<a href="DrmInitData.html" title="class in com.google.android.exopla
 <li class="blockList">
 <h4>merge</h4>
 <pre class="methodSignature">public&nbsp;<a href="DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;merge&#8203;(<a href="DrmInitData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData</a>&nbsp;drmInitData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an instance containing the <a href="#schemeDatas"><code>schemeDatas</code></a> from both this and <code>other</code>. The
  <a href="#schemeType"><code>schemeType</code></a> of the instances being merged must either match, or at least one scheme
  type must be <code>null</code>.</div>
@@ -554,6 +598,7 @@ public&nbsp;<a href="DrmInitData.html" title="class in com.google.android.exopla
 <li class="blockList">
 <h4>hashCode</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;hashCode()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
@@ -568,6 +613,7 @@ public&nbsp;<a href="DrmInitData.html" title="class in com.google.android.exopla
 <h4>equals</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;equals&#8203;(@Nullable
                       <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/util/Comparator.html#equals(java.lang.Object)" title="class or interface in java.util" class="externalLink">equals</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/util/Comparator.html?is-external=true" title="class or interface in java.util" class="externalLink">Comparator</a>&lt;<a href="DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm" target="_top">DrmInitData.SchemeData</a>&gt;</code></dd>
@@ -584,6 +630,7 @@ public&nbsp;<a href="DrmInitData.html" title="class in com.google.android.exopla
 <h4>compare</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;compare&#8203;(<a href="DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a>&nbsp;first,
                    <a href="DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm">DrmInitData.SchemeData</a>&nbsp;second)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/util/Comparator.html#compare(T,T)" title="class or interface in java.util" class="externalLink">compare</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/util/Comparator.html?is-external=true" title="class or interface in java.util" class="externalLink">Comparator</a>&lt;<a href="DrmInitData.SchemeData.html" title="class in com.google.android.exoplayer2.drm" target="_top">DrmInitData.SchemeData</a>&gt;</code></dd>
@@ -597,6 +644,7 @@ public&nbsp;<a href="DrmInitData.html" title="class in com.google.android.exopla
 <li class="blockList">
 <h4>describeContents</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;describeContents()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/os/Parcelable.html#describeContents()" title="class or interface in android.os" class="externalLink">describeContents</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/android/os/Parcelable.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a></code></dd>
@@ -611,6 +659,7 @@ public&nbsp;<a href="DrmInitData.html" title="class in com.google.android.exopla
 <h4>writeToParcel</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;writeToParcel&#8203;(<a href="https://developer.android.com/reference/android/os/Parcel.html" title="class or interface in android.os" class="externalLink" target="_top">Parcel</a>&nbsp;dest,
                           int&nbsp;flags)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/os/Parcelable.html#writeToParcel(android.os.Parcel,int)" title="class or interface in android.os" class="externalLink">writeToParcel</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/android/os/Parcelable.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a></code></dd>

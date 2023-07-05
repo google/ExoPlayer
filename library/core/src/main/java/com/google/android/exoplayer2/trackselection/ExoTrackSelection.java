@@ -34,7 +34,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
  * {@link #updateSelectedTrack(long, long, long, List, MediaChunkIterator[])} or {@link
  * #evaluateQueueSize(long, List)}. This only happens between calls to {@link #enable()} and {@link
  * #disable()}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public interface ExoTrackSelection extends TrackSelection {
 
   /** Contains of a subset of selected tracks belonging to a {@link TrackGroup}. */
@@ -278,7 +284,7 @@ public interface ExoTrackSelection extends TrackSelection {
    *     milliseconds.
    * @return Whether exclusion was successful.
    */
-  boolean blacklist(int index, long exclusionDurationMs);
+  boolean excludeTrack(int index, long exclusionDurationMs);
 
   /**
    * Returns whether the track at the specified index in the selection is excluded.
@@ -287,5 +293,5 @@ public interface ExoTrackSelection extends TrackSelection {
    * @param nowMs The current time in the timebase of {@link
    *     android.os.SystemClock#elapsedRealtime()}.
    */
-  boolean isBlacklisted(int index, long nowMs);
+  boolean isTrackExcluded(int index, long nowMs);
 }

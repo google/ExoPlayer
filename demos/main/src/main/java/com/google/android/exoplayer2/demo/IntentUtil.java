@@ -35,7 +35,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/** Util to read from and populate an intent. */
+/**
+ * Util to read from and populate an intent.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public class IntentUtil {
 
   // Actions.
@@ -95,7 +103,7 @@ public class IntentUtil {
       if (mediaItem.mediaMetadata.title != null) {
         intent.putExtra(TITLE_EXTRA, mediaItem.mediaMetadata.title);
       }
-      addPlaybackPropertiesToIntent(localConfiguration, intent, /* extrasKeySuffix= */ "");
+      addLocalConfigurationToIntent(localConfiguration, intent, /* extrasKeySuffix= */ "");
       addClippingConfigurationToIntent(
           mediaItem.clippingConfiguration, intent, /* extrasKeySuffix= */ "");
     } else {
@@ -105,7 +113,7 @@ public class IntentUtil {
         MediaItem.LocalConfiguration localConfiguration =
             checkNotNull(mediaItem.localConfiguration);
         intent.putExtra(URI_EXTRA + ("_" + i), localConfiguration.uri.toString());
-        addPlaybackPropertiesToIntent(localConfiguration, intent, /* extrasKeySuffix= */ "_" + i);
+        addLocalConfigurationToIntent(localConfiguration, intent, /* extrasKeySuffix= */ "_" + i);
         addClippingConfigurationToIntent(
             mediaItem.clippingConfiguration, intent, /* extrasKeySuffix= */ "_" + i);
         if (mediaItem.mediaMetadata.title != null) {
@@ -196,7 +204,7 @@ public class IntentUtil {
     return builder;
   }
 
-  private static void addPlaybackPropertiesToIntent(
+  private static void addLocalConfigurationToIntent(
       MediaItem.LocalConfiguration localConfiguration, Intent intent, String extrasKeySuffix) {
     intent
         .putExtra(MIME_TYPE_EXTRA + extrasKeySuffix, localConfiguration.mimeType)

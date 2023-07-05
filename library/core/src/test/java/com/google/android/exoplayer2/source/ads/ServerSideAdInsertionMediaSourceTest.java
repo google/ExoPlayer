@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source.ads;
 
+import static com.google.android.exoplayer2.C.DATA_TYPE_MEDIA;
 import static com.google.android.exoplayer2.robolectric.RobolectricUtil.runMainLooperUntil;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.playUntilPosition;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilPendingCommandsAreFullyHandled;
@@ -33,12 +34,15 @@ import static org.mockito.Mockito.verify;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
+import android.os.Handler;
 import android.util.Pair;
 import android.view.Surface;
+import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
@@ -47,13 +51,21 @@ import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.robolectric.PlaybackOutput;
 import com.google.android.exoplayer2.robolectric.ShadowMediaCodecConfig;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
+import com.google.android.exoplayer2.source.MediaLoadData;
+import com.google.android.exoplayer2.source.MediaPeriod;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.SinglePeriodTimeline;
 import com.google.android.exoplayer2.testutil.CapturingRenderersFactory;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
+import com.google.android.exoplayer2.upstream.DefaultAllocator;
+import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableMap;
+import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -109,7 +121,8 @@ public final class ServerSideAdInsertionMediaSourceTest {
             .withContentResumeOffsetUs(/* adGroupIndex= */ 1, /* contentResumeOffsetUs= */ 400_000)
             .withContentResumeOffsetUs(/* adGroupIndex= */ 2, /* contentResumeOffsetUs= */ 200_000);
     AtomicReference<Timeline> timelineReference = new AtomicReference<>();
-    mediaSource.setAdPlaybackStates(ImmutableMap.of(new Pair<>(0, 0), adPlaybackState));
+    mediaSource.setAdPlaybackStates(
+        ImmutableMap.of(new Pair<>(0, 0), adPlaybackState), wrappedTimeline);
 
     mediaSource.prepareSource(
         (source, timeline) -> timelineReference.set(timeline),
@@ -149,6 +162,125 @@ public final class ServerSideAdInsertionMediaSourceTest {
   }
 
   @Test
+  public void createPeriod_unpreparedAdMediaPeriodImplReplacesContentPeriod_adPeriodNotSelected()
+      throws Exception {
+    DefaultAllocator allocator =
+        new DefaultAllocator(/* trimOnReset= */ true, /* individualAllocationSize= */ 1024);
+    MediaPeriod.Callback callback =
+        new MediaPeriod.Callback() {
+          @Override
+          public void onPrepared(MediaPeriod mediaPeriod) {}
+
+          @Override
+          public void onContinueLoadingRequested(MediaPeriod source) {}
+        };
+    AdPlaybackState adPlaybackState =
+        new AdPlaybackState("adsId").withLivePostrollPlaceholderAppended();
+    FakeTimeline wrappedTimeline =
+        new FakeTimeline(
+            new FakeTimeline.TimelineWindowDefinition(
+                /* periodCount= */ 1,
+                /* id= */ 0,
+                /* isSeekable= */ true,
+                /* isDynamic= */ false,
+                /* isLive= */ false,
+                /* isPlaceholder= */ false,
+                /* durationUs= */ 10_000_000L,
+                /* defaultPositionUs= */ 3_000_000L,
+                /* windowOffsetInFirstPeriodUs= */ 0L,
+                AdPlaybackState.NONE));
+    ServerSideAdInsertionMediaSource mediaSource =
+        new ServerSideAdInsertionMediaSource(
+            new FakeMediaSource(wrappedTimeline), /* adPlaybackStateUpdater= */ null);
+    AtomicReference<Timeline> timelineReference = new AtomicReference<>();
+    AtomicReference<MediaSource.MediaPeriodId> mediaPeriodIdReference = new AtomicReference<>();
+    mediaSource.setAdPlaybackStates(
+        ImmutableMap.of(new Pair<>(0, 0), adPlaybackState), wrappedTimeline);
+    mediaSource.addEventListener(
+        new Handler(Util.getCurrentOrMainLooper()),
+        new MediaSourceEventListener() {
+          @Override
+          public void onDownstreamFormatChanged(
+              int windowIndex,
+              @Nullable MediaSource.MediaPeriodId mediaPeriodId,
+              MediaLoadData mediaLoadData) {
+            mediaPeriodIdReference.set(mediaPeriodId);
+          }
+        });
+    mediaSource.prepareSource(
+        (source, timeline) -> timelineReference.set(timeline),
+        /* mediaTransferListener= */ null,
+        PlayerId.UNSET);
+    runMainLooperUntil(() -> timelineReference.get() != null);
+    Timeline firstTimeline = timelineReference.get();
+    MediaSource.MediaPeriodId mediaPeriodId1 =
+        new MediaSource.MediaPeriodId(
+            new Pair<>(0, 0), /* windowSequenceNumber= */ 0L, /* nextAdGroupIndex= */ 0);
+    MediaSource.MediaPeriodId mediaPeriodId2 =
+        new MediaSource.MediaPeriodId(
+            new Pair<>(0, 0),
+            /* adGroupIndex= */ 0,
+            /* adIndexInAdGroup= */ 0,
+            /* windowSequenceNumber= */ 0L);
+
+    // Create and prepare the first period.
+    MediaPeriod mediaPeriod1 =
+        mediaSource.createPeriod(mediaPeriodId1, allocator, /* startPositionUs= */ 0L);
+    mediaPeriod1.prepare(callback, /* positionUs= */ 0L);
+
+    // Update the playback state to turn the content period into an ad period.
+    adPlaybackState =
+        adPlaybackState
+            .withNewAdGroup(/* adGroupIndex= */ 0, /* adGroupTimeUs= */ 0L)
+            .withIsServerSideInserted(/* adGroupIndex= */ 0, true)
+            .withAdCount(/* adGroupIndex= */ 0, 1)
+            .withContentResumeOffsetUs(/* adGroupIndex= */ 0, 10_000_000L)
+            .withAdDurationsUs(/* adGroupIndex= */ 0, 10_000_000L);
+    mediaSource.setAdPlaybackStates(
+        ImmutableMap.of(new Pair<>(0, 0), adPlaybackState), wrappedTimeline);
+    runMainLooperUntil(() -> !timelineReference.get().equals(firstTimeline));
+
+    // Create the second period that is tied to the same SharedMediaPeriod internally.
+    mediaSource.createPeriod(mediaPeriodId2, allocator, /* startPositionUs= */ 0L);
+
+    // Issue a onDownstreamFormatChanged event for mediaPeriodId1. The SharedPeriod selects in
+    // `getMediaPeriodForEvent` from the following `MediaPeriodImpl`s for
+    // MediaLoadData.mediaStartTimeMs=0 to 10_000_00.
+    // [
+    //    isPrepared: true,
+    //    startPositionMs: 0,
+    //    endPositionMs: 0,
+    //    adGroupIndex: -1,
+    //    adIndexInAdGroup: -1,
+    //    nextAdGroupIndex: 0,
+    // ],
+    // [
+    //    isPrepared: false,
+    //    startPositionMs: 0,
+    //    endPositionMs: 10_000_000,
+    //    adGroupIndex: 0,
+    //    adIndexInAdGroup: 0,
+    //    nextAdGroupIndex: -1,
+    // ]
+    MediaLoadData mediaLoadData =
+        new MediaLoadData(
+            /* dataType= */ DATA_TYPE_MEDIA,
+            C.TRACK_TYPE_VIDEO,
+            new Format.Builder().build(),
+            C.SELECTION_REASON_INITIAL,
+            /* trackSelectionData= */ null,
+            /* mediaStartTimeMs= */ 123L,
+            /* mediaEndTimeMs= */ 10_000_000L);
+    mediaSource.onDownstreamFormatChanged(/* windowIndex= */ 0, mediaPeriodId1, mediaLoadData);
+    runMainLooperUntil(
+        () -> mediaPeriodId1.equals(mediaPeriodIdReference.get()),
+        /* timeoutMs= */ 500L,
+        Clock.DEFAULT);
+
+    assertThat(mediaPeriodIdReference.get()).isEqualTo(mediaPeriodId1);
+  }
+
+  @Test
   public void timeline_liveSinglePeriodWithUnsetPeriodDuration_containsAdsDefinedInAdPlaybackState()
       throws Exception {
     Timeline wrappedTimeline =
@@ -168,16 +300,19 @@ public final class ServerSideAdInsertionMediaSourceTest {
     // Test with one ad group before the window, and the window starting within the second ad group.
     AdPlaybackState adPlaybackState =
         new AdPlaybackState(
-                /* adsId= */ new Object(), /* adGroupTimesUs= */ 15_000_000, 41_500_000, 42_200_000)
+                /* adsId= */ new Object(), /* adGroupTimesUs...= */
+                15_000_000,
+                41_500_000,
+                42_200_000)
             .withIsServerSideInserted(/* adGroupIndex= */ 0, /* isServerSideInserted= */ true)
             .withIsServerSideInserted(/* adGroupIndex= */ 1, /* isServerSideInserted= */ true)
             .withIsServerSideInserted(/* adGroupIndex= */ 2, /* isServerSideInserted= */ true)
             .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
             .withAdCount(/* adGroupIndex= */ 1, /* adCount= */ 2)
             .withAdCount(/* adGroupIndex= */ 2, /* adCount= */ 1)
-            .withAdDurationsUs(/* adGroupIndex= */ 0, /* adDurationsUs= */ 500_000)
-            .withAdDurationsUs(/* adGroupIndex= */ 1, /* adDurationsUs= */ 300_000, 100_000)
-            .withAdDurationsUs(/* adGroupIndex= */ 2, /* adDurationsUs= */ 400_000)
+            .withAdDurationsUs(/* adGroupIndex= */ 0, /* adDurationsUs...= */ 500_000)
+            .withAdDurationsUs(/* adGroupIndex= */ 1, /* adDurationsUs...= */ 300_000, 100_000)
+            .withAdDurationsUs(/* adGroupIndex= */ 2, /* adDurationsUs...= */ 400_000)
             .withContentResumeOffsetUs(/* adGroupIndex= */ 0, /* contentResumeOffsetUs= */ 100_000)
             .withContentResumeOffsetUs(/* adGroupIndex= */ 1, /* contentResumeOffsetUs= */ 400_000)
             .withContentResumeOffsetUs(/* adGroupIndex= */ 2, /* contentResumeOffsetUs= */ 200_000);
@@ -187,7 +322,8 @@ public final class ServerSideAdInsertionMediaSourceTest {
             wrappedTimeline.getPeriod(
                     /* periodIndex= */ 0, new Timeline.Period(), /* setIds= */ true)
                 .uid,
-            adPlaybackState));
+            adPlaybackState),
+        wrappedTimeline);
 
     mediaSource.prepareSource(
         (source, timeline) -> timelineReference.set(timeline),
@@ -227,12 +363,13 @@ public final class ServerSideAdInsertionMediaSourceTest {
 
   @Test
   public void timeline_missingAdPlaybackStateByPeriodUid_isAssertedAndThrows() {
+    FakeMediaSource contentSource = new FakeMediaSource();
     ServerSideAdInsertionMediaSource mediaSource =
-        new ServerSideAdInsertionMediaSource(
-            new FakeMediaSource(), /* adPlaybackStateUpdater= */ null);
+        new ServerSideAdInsertionMediaSource(contentSource, /* adPlaybackStateUpdater= */ null);
     // The map of adPlaybackStates does not contain a valid period UID as key.
     mediaSource.setAdPlaybackStates(
-        ImmutableMap.of(new Object(), new AdPlaybackState(/* adsId= */ new Object())));
+        ImmutableMap.of(new Object(), new AdPlaybackState(/* adsId= */ new Object())),
+        contentSource.getInitialTimeline());
 
     Assert.assertThrows(
         IllegalStateException.class,
@@ -288,7 +425,8 @@ public final class ServerSideAdInsertionMediaSourceTest {
                           .uid);
               mediaSourceRef
                   .get()
-                  .setAdPlaybackStates(ImmutableMap.of(periodUid, firstAdPlaybackState));
+                  .setAdPlaybackStates(
+                      ImmutableMap.of(periodUid, firstAdPlaybackState), contentTimeline);
               return true;
             }));
 
@@ -334,6 +472,7 @@ public final class ServerSideAdInsertionMediaSourceTest {
             /* contentResumeOffsetUs= */ 0,
             /* adDurationsUs...= */ 100_000);
     AtomicReference<ServerSideAdInsertionMediaSource> mediaSourceRef = new AtomicReference<>();
+    ArrayList<Timeline> contentTimelines = new ArrayList<>();
     mediaSourceRef.set(
         new ServerSideAdInsertionMediaSource(
             new DefaultMediaSourceFactory(context).createMediaSource(MediaItem.fromUri(TEST_ASSET)),
@@ -343,9 +482,11 @@ public final class ServerSideAdInsertionMediaSourceTest {
                       contentTimeline.getPeriod(
                               /* periodIndex= */ 0, new Timeline.Period(), /* setIds= */ true)
                           .uid));
+              contentTimelines.add(contentTimeline);
               mediaSourceRef
                   .get()
-                  .setAdPlaybackStates(ImmutableMap.of(periodUid.get(), firstAdPlaybackState));
+                  .setAdPlaybackStates(
+                      ImmutableMap.of(periodUid.get(), firstAdPlaybackState), contentTimeline);
               return true;
             }));
     AnalyticsListener listener = mock(AnalyticsListener.class);
@@ -363,7 +504,8 @@ public final class ServerSideAdInsertionMediaSourceTest {
             /* adDurationsUs...= */ 500_000);
     mediaSourceRef
         .get()
-        .setAdPlaybackStates(ImmutableMap.of(periodUid.get(), secondAdPlaybackState));
+        .setAdPlaybackStates(
+            ImmutableMap.of(periodUid.get(), secondAdPlaybackState), contentTimelines.get(1));
     runUntilPendingCommandsAreFullyHandled(player);
 
     player.play();
@@ -372,6 +514,7 @@ public final class ServerSideAdInsertionMediaSourceTest {
 
     // Assert all samples have been played.
     DumpFileAsserts.assertOutput(context, playbackOutput, TEST_ASSET_DUMP);
+    assertThat(contentTimelines).hasSize(2);
     // Assert playback has been reported with ads: [content][ad0][content][ad1][content]
     // 5*2(audio+video) format changes, 4 discontinuities between parts.
     verify(listener, times(4))
@@ -405,10 +548,12 @@ public final class ServerSideAdInsertionMediaSourceTest {
             /* contentResumeOffsetUs= */ 0,
             /* adDurationsUs...= */ 500_000);
     AtomicReference<ServerSideAdInsertionMediaSource> mediaSourceRef = new AtomicReference<>();
+    ArrayList<Timeline> contentTimelines = new ArrayList<>();
     mediaSourceRef.set(
         new ServerSideAdInsertionMediaSource(
             new DefaultMediaSourceFactory(context).createMediaSource(MediaItem.fromUri(TEST_ASSET)),
             /* adPlaybackStateUpdater= */ contentTimeline -> {
+              contentTimelines.add(contentTimeline);
               if (periodUid.get() == null) {
                 periodUid.set(
                     checkNotNull(
@@ -417,7 +562,8 @@ public final class ServerSideAdInsertionMediaSourceTest {
                             .uid));
                 mediaSourceRef
                     .get()
-                    .setAdPlaybackStates(ImmutableMap.of(periodUid.get(), firstAdPlaybackState));
+                    .setAdPlaybackStates(
+                        ImmutableMap.of(periodUid.get(), firstAdPlaybackState), contentTimeline);
               }
               return true;
             }));
@@ -436,7 +582,8 @@ public final class ServerSideAdInsertionMediaSourceTest {
                 /* adGroupIndex= */ 0, /* adDurationsUs...= */ 50_000, 250_000, 200_000);
     mediaSourceRef
         .get()
-        .setAdPlaybackStates(ImmutableMap.of(periodUid.get(), secondAdPlaybackState));
+        .setAdPlaybackStates(
+            ImmutableMap.of(periodUid.get(), secondAdPlaybackState), contentTimelines.get(1));
     runUntilPendingCommandsAreFullyHandled(player);
 
     player.play();
@@ -445,6 +592,7 @@ public final class ServerSideAdInsertionMediaSourceTest {
 
     // Assert all samples have been played.
     DumpFileAsserts.assertOutput(context, playbackOutput, TEST_ASSET_DUMP);
+    assertThat(contentTimelines).hasSize(2);
     // Assert playback has been reported with ads: [ad0][ad1][ad2][content]
     // 4*2(audio+video) format changes, 3 discontinuities between parts.
     verify(listener, times(3))
@@ -497,7 +645,8 @@ public final class ServerSideAdInsertionMediaSourceTest {
                           .uid);
               mediaSourceRef
                   .get()
-                  .setAdPlaybackStates(ImmutableMap.of(periodUid, firstAdPlaybackState));
+                  .setAdPlaybackStates(
+                      ImmutableMap.of(periodUid, firstAdPlaybackState), contentTimeline);
               return true;
             }));
 

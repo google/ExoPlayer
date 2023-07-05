@@ -29,7 +29,15 @@ import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 import java.util.concurrent.LinkedBlockingQueue;
 
-/** An {@link RtpDataChannel} that transfers received data in-memory. */
+/**
+ * An {@link RtpDataChannel} that transfers received data in-memory.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ final class TransferRtpDataChannel extends BaseDataSource
     implements RtpDataChannel, RtspMessageChannel.InterleavedBinaryDataListener {
 
@@ -65,6 +73,12 @@ import java.util.concurrent.LinkedBlockingQueue;
   @Override
   public int getLocalPort() {
     return channelNumber;
+  }
+
+  @Override
+  public boolean needsClosingOnLoadCompletion() {
+    // TCP channel is managed by the RTSP mesasge channel and does not need closing from here.
+    return false;
   }
 
   @Override

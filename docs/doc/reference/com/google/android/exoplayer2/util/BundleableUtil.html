@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":41,"i1":41,"i2":41,"i3":41,"i4":41,"i5":41,"i6":41,"i7":41,"i8":41,"i9":41,"i10":41,"i11":41};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">BundleableUtil</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">BundleableUtil</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Utilities for <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2"><code>Bundleable</code></a>.</div>
 </li>
 </ul>
@@ -146,55 +152,109 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/util/HashMap.html" title="class or interface in java.util" class="externalLink">HashMap</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#bundleToStringHashMap(android.os.Bundle)">bundleToStringHashMap</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;bundle)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>static <a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/collect/ImmutableMap.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableMap</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#bundleToStringImmutableMap(android.os.Bundle)">bundleToStringImmutableMap</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;bundle)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ensureClassLoader(android.os.Bundle)">ensureClassLoader</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;bundle)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the application class loader to the given <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> if no class loader is present.</div>
 </td>
 </tr>
-<tr id="i1" class="rowColor">
-<td class="colFirst"><code>static &lt;T extends <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;<br><a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;T&gt;</code></td>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>static &lt;T extends <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;<br><a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;T&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fromBundleList(com.google.android.exoplayer2.Bundleable.Creator,java.util.List)">fromBundleList</a></span>&#8203;(<a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;T&gt;&nbsp;creator,
               <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&gt;&nbsp;bundleList)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Converts a list of <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink"><code>Bundle</code></a> to a list of <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2" target="_top"><code>Bundleable</code></a>.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code>static &lt;T extends <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;<br><a href="https://developer.android.com/reference/android/util/SparseArray.html" title="class or interface in android.util" class="externalLink" target="_top">SparseArray</a>&lt;T&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fromBundleSparseArray(com.google.android.exoplayer2.Bundleable.Creator,android.util.SparseArray)">fromBundleSparseArray</a></span>&#8203;(<a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;T&gt;&nbsp;creator,
                      <a href="https://developer.android.com/reference/android/util/SparseArray.html" title="class or interface in android.util" class="externalLink">SparseArray</a>&lt;<a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&gt;&nbsp;bundleSparseArray)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Converts a <a href="https://developer.android.com/reference/android/util/SparseArray.html" title="class or interface in android.util" class="externalLink"><code>SparseArray</code></a> of <a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink"><code>Bundle</code></a> to a <a href="https://developer.android.com/reference/android/util/SparseArray.html?is-external=true" title="class or interface in android.util" class="externalLink"><code>SparseArray</code></a> of <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2" target="_top"><code>Bundleable</code></a>.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getBundleWithDefault(android.os.Bundle,java.lang.String,android.os.Bundle)">getBundleWithDefault</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;bundle,
+                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;field,
+                    <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;defaultValue)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
+</tr>
+<tr id="i6" class="altColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getIntegerArrayListWithDefault(android.os.Bundle,java.lang.String,java.util.ArrayList)">getIntegerArrayListWithDefault</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;bundle,
+                              <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;field,
+                              <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;&nbsp;defaultValue)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
+</tr>
+<tr id="i7" class="rowColor">
+<td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#stringMapToBundle(java.util.Map)">stringMapToBundle</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;bundleableMap)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
+</tr>
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>static &lt;T extends <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;<br><a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundleArrayList(java.util.Collection)">toBundleArrayList</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/Collection.html" title="class or interface in java.util" class="externalLink" target="_top">Collection</a>&lt;T&gt;&nbsp;bundleables)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Converts a collection of <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2"><code>Bundleable</code></a> to an <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink"><code>ArrayList</code></a> of <a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> so that
  the returned list can be put to <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink"><code>Bundle</code></a> using <a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true#putParcelableArrayList(java.lang.String,java.util.ArrayList)" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle.putParcelableArrayList(java.lang.String, java.util.ArrayList&lt;? extends android.os.Parcelable&gt;)</code></a>
  conveniently.</div>
 </td>
 </tr>
-<tr id="i4" class="altColor">
-<td class="colFirst"><code>static &lt;T extends <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;<br><a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&gt;</code></td>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>static &lt;T extends <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;<br><a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundleList(java.util.List)">toBundleList</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;T&gt;&nbsp;bundleableList)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Converts a list of <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2"><code>Bundleable</code></a> to a list <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>static &lt;T extends <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;<br><a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundleList(java.util.List,com.google.common.base.Function)">toBundleList</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;T&gt;&nbsp;bundleableList,
+            <a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Function</a>&lt;T,&#8203;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&gt;&nbsp;customToBundleFunc)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Converts a list of <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2"><code>Bundleable</code></a> to a list <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a></div>
+</td>
+</tr>
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>static &lt;T extends <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;<br><a href="https://developer.android.com/reference/android/util/SparseArray.html" title="class or interface in android.util" class="externalLink">SparseArray</a>&lt;<a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundleSparseArray(android.util.SparseArray)">toBundleSparseArray</a></span>&#8203;(<a href="https://developer.android.com/reference/android/util/SparseArray.html" title="class or interface in android.util" class="externalLink" target="_top">SparseArray</a>&lt;T&gt;&nbsp;bundleableSparseArray)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Converts a <a href="https://developer.android.com/reference/android/util/SparseArray.html" title="class or interface in android.util" class="externalLink"><code>SparseArray</code></a> of <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2"><code>Bundleable</code></a> to an <a href="https://developer.android.com/reference/android/util/SparseArray.html?is-external=true" title="class or interface in android.util" class="externalLink"><code>SparseArray</code></a> of <a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink"><code>Bundle</code></a> so that the returned <a href="https://developer.android.com/reference/android/util/SparseArray.html?is-external=true" title="class or interface in android.util" class="externalLink"><code>SparseArray</code></a> can be put to <a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink"><code>Bundle</code></a> using <a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true#putSparseParcelableArray(java.lang.String,android.util.SparseArray)" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle.putSparseParcelableArray(java.lang.String, android.util.SparseArray&lt;? extends android.os.Parcelable&gt;)</code></a> conveniently.</div>
 </td>
 </tr>
@@ -228,8 +288,26 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>toBundleList</h4>
-<pre class="methodSignature">public static&nbsp;&lt;T extends <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;&nbsp;<a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink">Bundle</a>&gt;&nbsp;toBundleList&#8203;(<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;T&gt;&nbsp;bundleableList)</pre>
+<pre class="methodSignature">public static&nbsp;&lt;T extends <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;&nbsp;<a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink">Bundle</a>&gt;&nbsp;toBundleList&#8203;(<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;T&gt;&nbsp;bundleableList)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Converts a list of <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2"><code>Bundleable</code></a> to a list <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.</div>
+</li>
+</ul>
+<a id="toBundleList(java.util.List,com.google.common.base.Function)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>toBundleList</h4>
+<pre class="methodSignature">public static&nbsp;&lt;T extends <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;&nbsp;<a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink">Bundle</a>&gt;&nbsp;toBundleList&#8203;(<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;T&gt;&nbsp;bundleableList,
+                                                                        <a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/base/Function.html?is-external=true" title="class or interface in com.google.common.base" class="externalLink">Function</a>&lt;T,&#8203;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&gt;&nbsp;customToBundleFunc)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Converts a list of <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2"><code>Bundleable</code></a> to a list <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a></div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>bundleableList</code> - list of Bundleable items to be converted</dd>
+<dd><code>customToBundleFunc</code> - function that specifies how to bundle up each <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2"><code>Bundleable</code></a></dd>
+</dl>
 </li>
 </ul>
 <a id="fromBundleList(com.google.android.exoplayer2.Bundleable.Creator,java.util.List)">
@@ -238,8 +316,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>fromBundleList</h4>
-<pre class="methodSignature">public static&nbsp;&lt;T extends <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;&nbsp;<a href="https://guava.dev/releases/31.0.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;T&gt;&nbsp;fromBundleList&#8203;(<a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;T&gt;&nbsp;creator,
+<pre class="methodSignature">public static&nbsp;&lt;T extends <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;&nbsp;<a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/collect/ImmutableList.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableList</a>&lt;T&gt;&nbsp;fromBundleList&#8203;(<a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;T&gt;&nbsp;creator,
                                                                      <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&gt;&nbsp;bundleList)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Converts a list of <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink"><code>Bundle</code></a> to a list of <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2" target="_top"><code>Bundleable</code></a>.</div>
 </li>
 </ul>
@@ -250,6 +329,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>toBundleArrayList</h4>
 <pre class="methodSignature">public static&nbsp;&lt;T extends <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;&nbsp;<a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink">Bundle</a>&gt;&nbsp;toBundleArrayList&#8203;(<a href="https://developer.android.com/reference/java/util/Collection.html?is-external=true" title="class or interface in java.util" class="externalLink" target="_top">Collection</a>&lt;T&gt;&nbsp;bundleables)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Converts a collection of <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2"><code>Bundleable</code></a> to an <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink"><code>ArrayList</code></a> of <a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> so that
  the returned list can be put to <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink"><code>Bundle</code></a> using <a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true#putParcelableArrayList(java.lang.String,java.util.ArrayList)" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle.putParcelableArrayList(java.lang.String, java.util.ArrayList&lt;? extends android.os.Parcelable&gt;)</code></a>
  conveniently.</div>
@@ -263,6 +343,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>fromBundleSparseArray</h4>
 <pre class="methodSignature">public static&nbsp;&lt;T extends <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;&nbsp;<a href="https://developer.android.com/reference/android/util/SparseArray.html" title="class or interface in android.util" class="externalLink">SparseArray</a>&lt;T&gt;&nbsp;fromBundleSparseArray&#8203;(<a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2" target="_top">Bundleable.Creator</a>&lt;T&gt;&nbsp;creator,
                                                                           <a href="https://developer.android.com/reference/android/util/SparseArray.html" title="class or interface in android.util" class="externalLink">SparseArray</a>&lt;<a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&gt;&nbsp;bundleSparseArray)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Converts a <a href="https://developer.android.com/reference/android/util/SparseArray.html" title="class or interface in android.util" class="externalLink"><code>SparseArray</code></a> of <a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink"><code>Bundle</code></a> to a <a href="https://developer.android.com/reference/android/util/SparseArray.html?is-external=true" title="class or interface in android.util" class="externalLink"><code>SparseArray</code></a> of <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2" target="_top"><code>Bundleable</code></a>.</div>
 </li>
 </ul>
@@ -273,7 +354,62 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>toBundleSparseArray</h4>
 <pre class="methodSignature">public static&nbsp;&lt;T extends <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a>&gt;&nbsp;<a href="https://developer.android.com/reference/android/util/SparseArray.html" title="class or interface in android.util" class="externalLink">SparseArray</a>&lt;<a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink">Bundle</a>&gt;&nbsp;toBundleSparseArray&#8203;(<a href="https://developer.android.com/reference/android/util/SparseArray.html?is-external=true" title="class or interface in android.util" class="externalLink" target="_top">SparseArray</a>&lt;T&gt;&nbsp;bundleableSparseArray)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Converts a <a href="https://developer.android.com/reference/android/util/SparseArray.html" title="class or interface in android.util" class="externalLink"><code>SparseArray</code></a> of <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2"><code>Bundleable</code></a> to an <a href="https://developer.android.com/reference/android/util/SparseArray.html?is-external=true" title="class or interface in android.util" class="externalLink"><code>SparseArray</code></a> of <a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink"><code>Bundle</code></a> so that the returned <a href="https://developer.android.com/reference/android/util/SparseArray.html?is-external=true" title="class or interface in android.util" class="externalLink"><code>SparseArray</code></a> can be put to <a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink"><code>Bundle</code></a> using <a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true#putSparseParcelableArray(java.lang.String,android.util.SparseArray)" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle.putSparseParcelableArray(java.lang.String, android.util.SparseArray&lt;? extends android.os.Parcelable&gt;)</code></a> conveniently.</div>
+</li>
+</ul>
+<a id="stringMapToBundle(java.util.Map)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>stringMapToBundle</h4>
+<pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink">Bundle</a>&nbsp;stringMapToBundle&#8203;(<a href="https://developer.android.com/reference/java/util/Map.html?is-external=true" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;bundleableMap)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+</li>
+</ul>
+<a id="bundleToStringHashMap(android.os.Bundle)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>bundleToStringHashMap</h4>
+<pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/java/util/HashMap.html" title="class or interface in java.util" class="externalLink">HashMap</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;&nbsp;bundleToStringHashMap&#8203;(<a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;bundle)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+</li>
+</ul>
+<a id="bundleToStringImmutableMap(android.os.Bundle)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>bundleToStringImmutableMap</h4>
+<pre class="methodSignature">public static&nbsp;<a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/collect/ImmutableMap.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableMap</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>&gt;&nbsp;bundleToStringImmutableMap&#8203;(<a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;bundle)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+</li>
+</ul>
+<a id="getBundleWithDefault(android.os.Bundle,java.lang.String,android.os.Bundle)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getBundleWithDefault</h4>
+<pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink">Bundle</a>&nbsp;getBundleWithDefault&#8203;(<a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;bundle,
+                                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;field,
+                                          <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;defaultValue)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+</li>
+</ul>
+<a id="getIntegerArrayListWithDefault(android.os.Bundle,java.lang.String,java.util.ArrayList)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getIntegerArrayListWithDefault</h4>
+<pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink">Integer</a>&gt;&nbsp;getIntegerArrayListWithDefault&#8203;(<a href="https://developer.android.com/reference/android/os/Bundle.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;bundle,
+                                                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;field,
+                                                                <a href="https://developer.android.com/reference/java/util/ArrayList.html" title="class or interface in java.util" class="externalLink">ArrayList</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a>&gt;&nbsp;defaultValue)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="ensureClassLoader(android.os.Bundle)">
@@ -284,6 +420,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>ensureClassLoader</h4>
 <pre class="methodSignature">public static&nbsp;void&nbsp;ensureClassLoader&#8203;(@Nullable
                                      <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;bundle)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the application class loader to the given <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> if no class loader is present.
 
  <p>This assumes that all classes unparceled from <code>bundle</code> are sharing the class loader of

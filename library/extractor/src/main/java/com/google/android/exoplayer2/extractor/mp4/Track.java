@@ -26,7 +26,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/** Encapsulates information describing an MP4 track. */
+/**
+ * Encapsulates information describing an MP4 track.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class Track {
 
   /**
@@ -76,8 +84,8 @@ public final class Track {
   @Nullable public final long[] editListMediaTimes;
 
   /**
-   * For H264 video tracks, the length in bytes of the NALUnitLength field in each sample. 0 for
-   * other track types.
+   * The length in bytes of the NALUnitLength field in each sample. 0 for tracks that don't use
+   * length-delimited NAL units.
    */
   public final int nalUnitLengthFieldLength;
 

@@ -14,10 +14,6 @@
  apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
 android {
-    defaultConfig {
-        multiDexEnabled true
-    }
-
     buildTypes {
         debug {
             testCoverageEnabled = true
@@ -39,7 +35,6 @@ dependencies {
     compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkCompatVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
-    androidTestImplementation 'androidx.multidex:multidex:' + androidxMultidexVersion
     androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
     androidTestImplementation 'com.linkedin.dexmaker:dexmaker:' + dexmakerVersion
     androidTestImplementation 'com.linkedin.dexmaker:dexmaker-mockito:' + dexmakerVersion

@@ -104,9 +104,33 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer">Codec</a></th>
+<th class="colFirst" scope="row"><a href="AssetLoader.html" title="interface in com.google.android.exoplayer2.transformer">AssetLoader</a></th>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="AssetLoader.Factory.html" title="interface in com.google.android.exoplayer2.transformer">AssetLoader.Factory</a></th>
 <td class="colLast">
-<div class="block">Provides a layer of abstraction for interacting with decoders and encoders.</div>
+<div class="block">A factory for <a href="AssetLoader.html" title="interface in com.google.android.exoplayer2.transformer"><code>AssetLoader</code></a> instances.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="AssetLoader.Listener.html" title="interface in com.google.android.exoplayer2.transformer">AssetLoader.Listener</a></th>
+<td class="colLast">
+<div class="block">A listener of <a href="AssetLoader.html" title="interface in com.google.android.exoplayer2.transformer"><code>AssetLoader</code></a> events.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="AudioMixer.html" title="interface in com.google.android.exoplayer2.transformer">AudioMixer</a></th>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer">Codec</a></th>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -122,21 +146,21 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="EncoderBitrateProvider.html" title="interface in com.google.android.exoplayer2.transformer">EncoderBitrateProvider</a></th>
-<td class="colLast">
-<div class="block">Provides bitrates for encoders to use as a target.</div>
+<th class="colFirst" scope="row"><a href="EncoderSelector.html" title="interface in com.google.android.exoplayer2.transformer">EncoderSelector</a></th>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="EncoderSelector.html" title="interface in com.google.android.exoplayer2.transformer">EncoderSelector</a></th>
+<th class="colFirst" scope="row"><a href="InAppMuxer.MetadataProvider.html" title="interface in com.google.android.exoplayer2.transformer">InAppMuxer.MetadataProvider</a></th>
 <td class="colLast">
-<div class="block">Selector of <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> encoder instances.</div>
+<div class="block">Provides <a href="../metadata/Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata">metadata</a> to add in the output MP4 file.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <th class="colFirst" scope="row"><a href="Muxer.html" title="interface in com.google.android.exoplayer2.transformer">Muxer</a></th>
-<td class="colLast">
-<div class="block">Abstracts media muxing operations.</div>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated.</div>
 </td>
 </tr>
 <tr class="altColor">
@@ -146,9 +170,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr class="rowColor">
+<th class="colFirst" scope="row"><a href="SampleConsumer.html" title="interface in com.google.android.exoplayer2.transformer">SampleConsumer</a></th>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated.</div>
+</td>
+</tr>
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="Transformer.Listener.html" title="interface in com.google.android.exoplayer2.transformer">Transformer.Listener</a></th>
 <td class="colLast">
-<div class="block">A listener for the transformation events.</div>
+<div class="block">A listener for the export events.</div>
 </td>
 </tr>
 </tbody>
@@ -163,81 +193,189 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="DefaultCodec.html" title="class in com.google.android.exoplayer2.transformer">DefaultCodec</a></th>
-<td class="colLast">
-<div class="block">A default <a href="Codec.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec</code></a> implementation that uses <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a>.</div>
+<th class="colFirst" scope="row"><a href="Composition.html" title="class in com.google.android.exoplayer2.transformer">Composition</a></th>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="DefaultEncoderFactory.html" title="class in com.google.android.exoplayer2.transformer">DefaultEncoderFactory</a></th>
+<th class="colFirst" scope="row"><a href="Composition.Builder.html" title="class in com.google.android.exoplayer2.transformer">Composition.Builder</a></th>
 <td class="colLast">
-<div class="block">A default implementation of <a href="Codec.EncoderFactory.html" title="interface in com.google.android.exoplayer2.transformer"><code>Codec.EncoderFactory</code></a>.</div>
+<div class="block">A builder for <a href="Composition.html" title="class in com.google.android.exoplayer2.transformer"><code>Composition</code></a> instances.</div>
 </td>
 </tr>
 <tr class="altColor">
+<th class="colFirst" scope="row"><a href="DefaultAssetLoaderFactory.html" title="class in com.google.android.exoplayer2.transformer">DefaultAssetLoaderFactory</a></th>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="DefaultCodec.html" title="class in com.google.android.exoplayer2.transformer">DefaultCodec</a></th>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="DefaultEncoderFactory.html" title="class in com.google.android.exoplayer2.transformer">DefaultEncoderFactory</a></th>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="DefaultEncoderFactory.Builder.html" title="class in com.google.android.exoplayer2.transformer">DefaultEncoderFactory.Builder</a></th>
 <td class="colLast">
 <div class="block">A builder for <a href="DefaultEncoderFactory.html" title="class in com.google.android.exoplayer2.transformer"><code>DefaultEncoderFactory</code></a> instances.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="DefaultMuxer.html" title="class in com.google.android.exoplayer2.transformer">DefaultMuxer</a></th>
-<td class="colLast">
-<div class="block">A default <a href="Muxer.html" title="interface in com.google.android.exoplayer2.transformer"><code>Muxer</code></a> implementation.</div>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="DefaultMuxer.Factory.html" title="class in com.google.android.exoplayer2.transformer">DefaultMuxer.Factory</a></th>
 <td class="colLast">
 <div class="block">A <a href="Muxer.Factory.html" title="interface in com.google.android.exoplayer2.transformer"><code>Muxer.Factory</code></a> for <a href="DefaultMuxer.html" title="class in com.google.android.exoplayer2.transformer"><code>DefaultMuxer</code></a>.</div>
 </td>
 </tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="EditedMediaItem.html" title="class in com.google.android.exoplayer2.transformer">EditedMediaItem</a></th>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated.</div>
+</td>
+</tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="DeviceMappedEncoderBitrateProvider.html" title="class in com.google.android.exoplayer2.transformer">DeviceMappedEncoderBitrateProvider</a></th>
+<th class="colFirst" scope="row"><a href="EditedMediaItem.Builder.html" title="class in com.google.android.exoplayer2.transformer">EditedMediaItem.Builder</a></th>
 <td class="colLast">
-<div class="block">Provides encoder bitrates that should target 0.95 SSIM or higher, accounting for device used.</div>
+<div class="block">A builder for <a href="EditedMediaItem.html" title="class in com.google.android.exoplayer2.transformer"><code>EditedMediaItem</code></a> instances.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="EditedMediaItemSequence.html" title="class in com.google.android.exoplayer2.transformer">EditedMediaItemSequence</a></th>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="Effects.html" title="class in com.google.android.exoplayer2.transformer">Effects</a></th>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated.</div>
 </td>
 </tr>
 <tr class="altColor">
 <th class="colFirst" scope="row"><a href="EncoderUtil.html" title="class in com.google.android.exoplayer2.transformer">EncoderUtil</a></th>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="ExoPlayerAssetLoader.html" title="class in com.google.android.exoplayer2.transformer">ExoPlayerAssetLoader</a></th>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="ExoPlayerAssetLoader.Factory.html" title="class in com.google.android.exoplayer2.transformer">ExoPlayerAssetLoader.Factory</a></th>
 <td class="colLast">
-<div class="block">Utility methods for <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> encoders.</div>
+<div class="block">An <a href="AssetLoader.Factory.html" title="interface in com.google.android.exoplayer2.transformer"><code>AssetLoader.Factory</code></a> for <a href="ExoPlayerAssetLoader.html" title="class in com.google.android.exoplayer2.transformer"><code>ExoPlayerAssetLoader</code></a> instances.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="ExportResult.html" title="class in com.google.android.exoplayer2.transformer">ExportResult</a></th>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="ExportResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">ExportResult.Builder</a></th>
+<td class="colLast">
+<div class="block">A builder for <a href="ExportResult.html" title="class in com.google.android.exoplayer2.transformer"><code>ExportResult</code></a> instances.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="ExportResult.ProcessedInput.html" title="class in com.google.android.exoplayer2.transformer">ExportResult.ProcessedInput</a></th>
+<td class="colLast">
+<div class="block">An input entirely or partially processed.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="ImageAssetLoader.html" title="class in com.google.android.exoplayer2.transformer">ImageAssetLoader</a></th>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="ImageAssetLoader.Factory.html" title="class in com.google.android.exoplayer2.transformer">ImageAssetLoader.Factory</a></th>
+<td class="colLast">
+<div class="block">An <a href="AssetLoader.Factory.html" title="interface in com.google.android.exoplayer2.transformer"><code>AssetLoader.Factory</code></a> for <a href="ImageAssetLoader.html" title="class in com.google.android.exoplayer2.transformer"><code>ImageAssetLoader</code></a> instances.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="InAppMuxer.html" title="class in com.google.android.exoplayer2.transformer">InAppMuxer</a></th>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="InAppMuxer.Factory.html" title="class in com.google.android.exoplayer2.transformer">InAppMuxer.Factory</a></th>
+<td class="colLast">
+<div class="block"><a href="Muxer.Factory.html" title="interface in com.google.android.exoplayer2.transformer"><code>Muxer.Factory</code></a> for <a href="InAppMuxer.html" title="class in com.google.android.exoplayer2.transformer"><code>InAppMuxer</code></a>.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="MssimCalculator.html" title="class in com.google.android.exoplayer2.transformer">MssimCalculator</a></th>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <th class="colFirst" scope="row"><a href="ProgressHolder.html" title="class in com.google.android.exoplayer2.transformer">ProgressHolder</a></th>
-<td class="colLast">
-<div class="block">Holds a progress percentage.</div>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated.</div>
 </td>
 </tr>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest</a></th>
-<td class="colLast">
-<div class="block">A media transformation request.</div>
+<th class="colFirst" scope="row"><a href="TextureAssetLoader.html" title="class in com.google.android.exoplayer2.transformer">TextureAssetLoader</a></th>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated.</div>
 </td>
 </tr>
 <tr class="rowColor">
+<th class="colFirst" scope="row"><a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest</a></th>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated.</div>
+</td>
+</tr>
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a></th>
 <td class="colLast">
 <div class="block">A builder for <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationRequest</code></a> instances.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="TransformationResult.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult</a></th>
-<td class="colLast">
-<div class="block">Information about the result of a successful transformation.</div>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">Use <a href="ExportResult.html" title="class in com.google.android.exoplayer2.transformer"><code>ExportResult</code></a> instead.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a></th>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">Use <a href="ExportResult.Builder.html" title="class in com.google.android.exoplayer2.transformer"><code>ExportResult.Builder</code></a> instead.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<th class="colFirst" scope="row"><a href="TransformationResult.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.Builder</a></th>
-<td class="colLast">
-<div class="block">A builder for <a href="TransformationResult.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationResult</code></a> instances.</div>
+<th class="colFirst" scope="row"><a href="TransformationResult.ProcessedInput.html" title="class in com.google.android.exoplayer2.transformer">TransformationResult.ProcessedInput</a></th>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">Use <a href="ExportResult.ProcessedInput.html" title="class in com.google.android.exoplayer2.transformer"><code>ExportResult.ProcessedInput</code></a> instead.</div>
 </td>
 </tr>
 <tr class="altColor">
 <th class="colFirst" scope="row"><a href="Transformer.html" title="class in com.google.android.exoplayer2.transformer">Transformer</a></th>
-<td class="colLast">
-<div class="block">A transformer to transform media inputs.</div>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -248,8 +386,8 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tr class="altColor">
 <th class="colFirst" scope="row"><a href="VideoEncoderSettings.html" title="class in com.google.android.exoplayer2.transformer">VideoEncoderSettings</a></th>
-<td class="colLast">
-<div class="block">Represents the video encoder settings.</div>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated.</div>
 </td>
 </tr>
 <tr class="rowColor">
@@ -270,15 +408,21 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
+<th class="colFirst" scope="row"><a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer">ExportException</a></th>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated.</div>
+</td>
+</tr>
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="Muxer.MuxerException.html" title="class in com.google.android.exoplayer2.transformer">Muxer.MuxerException</a></th>
 <td class="colLast">
 <div class="block">Thrown when a muxing failure occurs.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="TransformationException.html" title="class in com.google.android.exoplayer2.transformer">TransformationException</a></th>
-<td class="colLast">
-<div class="block">Thrown when a non-locally recoverable transformation failure occurs.</div>
+<td class="colLast">Deprecated.
+<div class="deprecationComment">Use <a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer"><code>ExportException</code></a> instead.</div>
 </td>
 </tr>
 </tbody>
@@ -293,18 +437,36 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </tr>
 <tbody>
 <tr class="altColor">
-<th class="colFirst" scope="row"><a href="TransformationException.ErrorCode.html" title="annotation in com.google.android.exoplayer2.transformer">TransformationException.ErrorCode</a></th>
+<th class="colFirst" scope="row"><a href="AssetLoader.SupportedOutputTypes.html" title="annotation in com.google.android.exoplayer2.transformer">AssetLoader.SupportedOutputTypes</a></th>
 <td class="colLast">
-<div class="block">Codes that identify causes of <a href="Transformer.html" title="class in com.google.android.exoplayer2.transformer"><code>Transformer</code></a> errors.</div>
+<div class="block">Supported output types of an asset loader.</div>
 </td>
 </tr>
 <tr class="rowColor">
+<th class="colFirst" scope="row"><a href="ExportException.ErrorCode.html" title="annotation in com.google.android.exoplayer2.transformer">ExportException.ErrorCode</a></th>
+<td class="colLast">
+<div class="block">Error codes that identify causes of <a href="Transformer.html" title="class in com.google.android.exoplayer2.transformer"><code>Transformer</code></a> errors.</div>
+</td>
+</tr>
+<tr class="altColor">
+<th class="colFirst" scope="row"><a href="TransformationException.ErrorCode.html" title="annotation in com.google.android.exoplayer2.transformer">TransformationException.ErrorCode</a></th>
+<td class="colLast">
+<div class="block">Error codes that identify causes of <a href="Transformer.html" title="class in com.google.android.exoplayer2.transformer"><code>Transformer</code></a> errors.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colFirst" scope="row"><a href="TransformationRequest.HdrMode.html" title="annotation in com.google.android.exoplayer2.transformer">TransformationRequest.HdrMode</a></th>
+<td class="colLast">
+<div class="block">The strategy to use to transcode or edit High Dynamic Range (HDR) input video.</div>
+</td>
+</tr>
+<tr class="altColor">
 <th class="colFirst" scope="row"><a href="Transformer.ProgressState.html" title="annotation in com.google.android.exoplayer2.transformer">Transformer.ProgressState</a></th>
 <td class="colLast">
 <div class="block">Progress state.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <th class="colFirst" scope="row"><a href="VideoEncoderSettings.BitrateMode.html" title="annotation in com.google.android.exoplayer2.transformer">VideoEncoderSettings.BitrateMode</a></th>
 <td class="colLast">
 <div class="block">The allowed values for <code>bitrateMode</code>.</div>

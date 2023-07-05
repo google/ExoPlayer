@@ -277,7 +277,8 @@ public&nbsp;<a href="HslAdjustment.Builder.html" title="class in com.google.andr
 <li class="blockList">
 <h4>adjustSaturation</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
-public&nbsp;<a href="HslAdjustment.Builder.html" title="class in com.google.android.exoplayer2.effect">HslAdjustment.Builder</a>&nbsp;adjustSaturation&#8203;(float&nbsp;saturationAdjustment)</pre>
+public&nbsp;<a href="HslAdjustment.Builder.html" title="class in com.google.android.exoplayer2.effect">HslAdjustment.Builder</a>&nbsp;adjustSaturation&#8203;(@FloatRange(from=-100.0,to=100.0)
+                                              float&nbsp;saturationAdjustment)</pre>
 <div class="block">Adjusts the saturation of the frame by <code>saturationAdjustment</code>.
 
  <p>Saturation is defined in the interval of [0, 100] where a saturation of <code>0</code> will
@@ -298,7 +299,8 @@ public&nbsp;<a href="HslAdjustment.Builder.html" title="class in com.google.andr
 <li class="blockList">
 <h4>adjustLightness</h4>
 <pre class="methodSignature">@CanIgnoreReturnValue
-public&nbsp;<a href="HslAdjustment.Builder.html" title="class in com.google.android.exoplayer2.effect">HslAdjustment.Builder</a>&nbsp;adjustLightness&#8203;(float&nbsp;lightnessAdjustment)</pre>
+public&nbsp;<a href="HslAdjustment.Builder.html" title="class in com.google.android.exoplayer2.effect">HslAdjustment.Builder</a>&nbsp;adjustLightness&#8203;(@FloatRange(from=-100.0,to=100.0)
+                                             float&nbsp;lightnessAdjustment)</pre>
 <div class="block">Adjusts the lightness of the frame by <code>lightnessAdjustment</code>.
 
  <p>Lightness is defined in the interval of [0, 100] where a lightness of <code>0</code> is a black

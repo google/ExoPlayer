@@ -83,8 +83,14 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  *
  * <p>It listens to playback events and forwards them to a {@link PlaybackSession}. The {@link
  * LogSessionId} of the playback session can be obtained with {@link #getLogSessionId()}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
 @RequiresApi(31)
+@Deprecated
 public final class MediaMetricsListener
     implements AnalyticsListener, PlaybackSessionManager.Listener {
 
@@ -528,7 +534,7 @@ public final class MediaMetricsListener
       builder.setTrackState(TrackChangeEvent.TRACK_STATE_ON);
       builder.setTrackChangeReason(getTrackChangeReason(trackSelectionReason));
       if (format.containerMimeType != null) {
-        // TODO(b/181121074): Progressive container mime type is not filled in by MediaSource.
+        // TODO(b/181121074): Progressive container MIME type is not filled in by MediaSource.
         builder.setContainerMimeType(format.containerMimeType);
       }
       if (format.sampleMimeType != null) {

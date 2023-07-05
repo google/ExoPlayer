@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="MediaItemConverter.html" title="interface in com.google.android.exoplayer2.ext.media2">MediaItemConverter</a></code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">DefaultMediaItemConverter</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">DefaultMediaItemConverter</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="MediaItemConverter.html" title="interface in com.google.android.exoplayer2.ext.media2">MediaItemConverter</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Default implementation of <a href="MediaItemConverter.html" title="interface in com.google.android.exoplayer2.ext.media2"><code>MediaItemConverter</code></a>.
 
  <p>Note that <a href="#getMetadata(com.google.android.exoplayer2.MediaItem)"><code>getMetadata(com.google.android.exoplayer2.MediaItem)</code></a> can be overridden to fill in additional metadata when
@@ -161,7 +167,9 @@ implements <a href="MediaItemConverter.html" title="interface in com.google.andr
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">DefaultMediaItemConverter</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -175,7 +183,7 @@ implements <a href="MediaItemConverter.html" title="interface in com.google.andr
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -185,6 +193,7 @@ implements <a href="MediaItemConverter.html" title="interface in com.google.andr
 <td class="colFirst"><code><a href="../../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#convertToExoPlayerMediaItem(androidx.media2.common.MediaItem)">convertToExoPlayerMediaItem</a></span>&#8203;(androidx.media2.common.MediaItem&nbsp;media2MediaItem)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Converts a <code>Media2 MediaItem</code> to an <a href="../../MediaItem.html" title="class in com.google.android.exoplayer2"><code>ExoPlayer MediaItem</code></a>.</div>
 </td>
 </tr>
@@ -192,6 +201,7 @@ implements <a href="MediaItemConverter.html" title="interface in com.google.andr
 <td class="colFirst"><code>androidx.media2.common.MediaItem</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#convertToMedia2MediaItem(com.google.android.exoplayer2.MediaItem)">convertToMedia2MediaItem</a></span>&#8203;(<a href="../../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;exoPlayerMediaItem)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Converts an <a href="../../MediaItem.html" title="class in com.google.android.exoplayer2"><code>ExoPlayer MediaItem</code></a> to a <code>Media2 MediaItem</code>.</div>
 </td>
 </tr>
@@ -199,6 +209,7 @@ implements <a href="MediaItemConverter.html" title="interface in com.google.andr
 <td class="colFirst"><code>protected androidx.media2.common.MediaMetadata</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMetadata(com.google.android.exoplayer2.MediaItem)">getMetadata</a></span>&#8203;(<a href="../../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;exoPlayerMediaItem)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <code>MediaMetadata</code> corresponding to the given <a href="../../MediaItem.html" title="class in com.google.android.exoplayer2"><code>ExoPlayer MediaItem</code></a>.</div>
 </td>
 </tr>
@@ -233,6 +244,7 @@ implements <a href="MediaItemConverter.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>DefaultMediaItemConverter</h4>
 <pre>public&nbsp;DefaultMediaItemConverter()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -252,6 +264,7 @@ implements <a href="MediaItemConverter.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>convertToExoPlayerMediaItem</h4>
 <pre class="methodSignature">public&nbsp;<a href="../../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;convertToExoPlayerMediaItem&#8203;(androidx.media2.common.MediaItem&nbsp;media2MediaItem)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaItemConverter.html#convertToExoPlayerMediaItem(androidx.media2.common.MediaItem)">MediaItemConverter</a></code></span></div>
 <div class="block">Converts a <code>Media2 MediaItem</code> to an <a href="../../MediaItem.html" title="class in com.google.android.exoplayer2"><code>ExoPlayer MediaItem</code></a>.</div>
 <dl>
@@ -267,6 +280,7 @@ implements <a href="MediaItemConverter.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>convertToMedia2MediaItem</h4>
 <pre class="methodSignature">public&nbsp;androidx.media2.common.MediaItem&nbsp;convertToMedia2MediaItem&#8203;(<a href="../../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;exoPlayerMediaItem)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaItemConverter.html#convertToMedia2MediaItem(com.google.android.exoplayer2.MediaItem)">MediaItemConverter</a></code></span></div>
 <div class="block">Converts an <a href="../../MediaItem.html" title="class in com.google.android.exoplayer2"><code>ExoPlayer MediaItem</code></a> to a <code>Media2 MediaItem</code>.</div>
 <dl>
@@ -282,6 +296,7 @@ implements <a href="MediaItemConverter.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>getMetadata</h4>
 <pre class="methodSignature">protected&nbsp;androidx.media2.common.MediaMetadata&nbsp;getMetadata&#8203;(<a href="../../MediaItem.html" title="class in com.google.android.exoplayer2">MediaItem</a>&nbsp;exoPlayerMediaItem)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <code>MediaMetadata</code> corresponding to the given <a href="../../MediaItem.html" title="class in com.google.android.exoplayer2"><code>ExoPlayer MediaItem</code></a>.</div>
 </li>
 </ul>

@@ -69,7 +69,7 @@ app is notified of events via the listener passed to the `Transformer` builder.
 Transformer.Listener transformerListener =
    new Transformer.Listener() {
      @Override
-     public void onTransformationCompleted(MediaItem inputMediaItem, TransformationResult transformationResult) {
+     public void onTransformationCompleted(MediaItem inputMediaItem, TransformationResult result) {
        playOutput();
      }
 

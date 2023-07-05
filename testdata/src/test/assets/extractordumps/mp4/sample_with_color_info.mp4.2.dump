@@ -23,6 +23,7 @@ track 0:
       colorRange = 2
       colorTransfer = 7
       hdrStaticInfo = length 0, hash 0
+    metadata = entries=[mdta: key=com.apple.quicktime.location.accuracy.horizontal, value=3.754789, mdta: key=com.apple.quicktime.location.ISO6709, value=+37.7450-122.4301+066.374/, mdta: key=com.apple.quicktime.make, value=Apple, mdta: key=com.apple.quicktime.model, value=iPhone 12 Pro Max, mdta: key=com.apple.quicktime.software, value=14.5.1, mdta: key=com.apple.quicktime.creationdate, value=2021-05-25T09:21:51-0700, Creation time: 1621959711000]
     initializationData:
       data = length 526, hash 7B3FC433
   sample 0:
@@ -74,6 +75,7 @@ track 1:
     sampleRate = 44100
     encoderPadding = 2204
     language = und
+    metadata = entries=[mdta: key=com.apple.quicktime.location.accuracy.horizontal, value=3.754789, mdta: key=com.apple.quicktime.location.ISO6709, value=+37.7450-122.4301+066.374/, mdta: key=com.apple.quicktime.make, value=Apple, mdta: key=com.apple.quicktime.model, value=iPhone 12 Pro Max, mdta: key=com.apple.quicktime.software, value=14.5.1, mdta: key=com.apple.quicktime.creationdate, value=2021-05-25T09:21:51-0700, Creation time: 1621959711000]
     initializationData:
       data = length 2, hash 5FF
   sample 0:

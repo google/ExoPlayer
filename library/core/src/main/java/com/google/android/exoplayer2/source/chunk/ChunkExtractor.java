@@ -30,7 +30,13 @@ import java.util.List;
  *
  * <p>The {@link TrackOutputProvider} passed to {@link #init} provides the {@link TrackOutput
  * TrackOutputs} that receive the extracted data.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public interface ChunkExtractor {
 
   /** Creates {@link ChunkExtractor} instances. */

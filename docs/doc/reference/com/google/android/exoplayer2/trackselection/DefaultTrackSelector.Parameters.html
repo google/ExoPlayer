@@ -228,33 +228,40 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#allowInvalidateSelectionsOnRendererCapabilitiesChange">allowInvalidateSelectionsOnRendererCapabilitiesChange</a></span></code></th>
+<td class="colLast">
+<div class="block">Whether to allow to invalidate selections on renderer capabilities change.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#allowMultipleAdaptiveSelections">allowMultipleAdaptiveSelections</a></span></code></th>
 <td class="colLast">
 <div class="block">Whether multiple adaptive selections with more than one track are allowed.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#allowVideoMixedDecoderSupportAdaptiveness">allowVideoMixedDecoderSupportAdaptiveness</a></span></code></th>
 <td class="colLast">
 <div class="block">Whether to allow adaptive video selections with mixed levels of <a href="../RendererCapabilities.DecoderSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.DecoderSupport</code></a> and <a href="../RendererCapabilities.HardwareAccelerationSupport.html" title="annotation in com.google.android.exoplayer2"><code>RendererCapabilities.HardwareAccelerationSupport</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#allowVideoMixedMimeTypeAdaptiveness">allowVideoMixedMimeTypeAdaptiveness</a></span></code></th>
 <td class="colLast">
 <div class="block">Whether to allow adaptive video selections containing mixed MIME types.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#allowVideoNonSeamlessAdaptiveness">allowVideoNonSeamlessAdaptiveness</a></span></code></th>
 <td class="colLast">
 <div class="block">Whether to allow adaptive video selections where adaptation may not be completely seamless.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#constrainAudioChannelCountToDeviceCapabilities">constrainAudioChannelCountToDeviceCapabilities</a></span></code></th>
 <td class="colLast">
@@ -262,14 +269,14 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
  not exceed the device's output capabilities.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static <a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#CREATOR">CREATOR</a></span></code></th>
 <td class="colLast">
 <div class="block">Object that can restore <code>Parameters</code> from a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>static <a href="DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT">DEFAULT</a></span></code></th>
 <td class="colLast">
@@ -278,14 +285,14 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 </div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>static <a href="DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.Parameters</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_WITHOUT_CONTEXT">DEFAULT_WITHOUT_CONTEXT</a></span></code></th>
 <td class="colLast">
 <div class="block">An instance with default values, except those obtained from the <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a>.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#exceedAudioConstraintsIfNecessary">exceedAudioConstraintsIfNecessary</a></span></code></th>
 <td class="colLast">
@@ -293,21 +300,21 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
  when no selection can be made otherwise.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#exceedRendererCapabilitiesIfNecessary">exceedRendererCapabilitiesIfNecessary</a></span></code></th>
 <td class="colLast">
 <div class="block">Whether to exceed renderer capabilities when no selection can be made otherwise.</div>
 </td>
 </tr>
-<tr class="altColor">
+<tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#exceedVideoConstraintsIfNecessary">exceedVideoConstraintsIfNecessary</a></span></code></th>
 <td class="colLast">
 <div class="block">Whether to exceed the <a href="TrackSelectionParameters.html#maxVideoWidth"><code>TrackSelectionParameters.maxVideoWidth</code></a>, <a href="TrackSelectionParameters.html#maxVideoHeight"><code>TrackSelectionParameters.maxVideoHeight</code></a> and <a href="TrackSelectionParameters.html#maxVideoBitrate"><code>TrackSelectionParameters.maxVideoBitrate</code></a> constraints when no selection can be made otherwise.</div>
 </td>
 </tr>
-<tr class="rowColor">
+<tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#tunnelingEnabled">tunnelingEnabled</a></span></code></th>
 <td class="colLast">
@@ -611,6 +618,17 @@ public static final&nbsp;<a href="DefaultTrackSelector.Parameters.html" title="c
  <p>Note that tracks are only eligible for adaptation if they define a bitrate, the renderers
  support the tracks and allow adaptation between them, and they are not excluded based on
  other track selection parameters.</div>
+</li>
+</ul>
+<a id="allowInvalidateSelectionsOnRendererCapabilitiesChange">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>allowInvalidateSelectionsOnRendererCapabilitiesChange</h4>
+<pre>public final&nbsp;boolean allowInvalidateSelectionsOnRendererCapabilitiesChange</pre>
+<div class="block">Whether to allow to invalidate selections on renderer capabilities change. The default value
+ is <code>false</code>.</div>
 </li>
 </ul>
 <a id="CREATOR">

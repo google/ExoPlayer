@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="SeekMap.html" title="interface in com.google.android.exoplayer2.extractor">SeekMap</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">ChunkIndex</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">ChunkIndex</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="SeekMap.html" title="interface in com.google.android.exoplayer2.extractor">SeekMap</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Defines chunks of samples within a media stream.</div>
 </li>
 </ul>
@@ -178,6 +184,7 @@ implements <a href="SeekMap.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>long[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#durationsUs">durationsUs</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The chunk durations, in microseconds.</div>
 </td>
 </tr>
@@ -185,6 +192,7 @@ implements <a href="SeekMap.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#length">length</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of chunks.</div>
 </td>
 </tr>
@@ -192,6 +200,7 @@ implements <a href="SeekMap.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>long[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#offsets">offsets</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The chunk byte offsets.</div>
 </td>
 </tr>
@@ -199,6 +208,7 @@ implements <a href="SeekMap.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>int[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sizes">sizes</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The chunk sizes, in bytes.</div>
 </td>
 </tr>
@@ -206,6 +216,7 @@ implements <a href="SeekMap.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>long[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#timesUs">timesUs</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The start time of each chunk, in microseconds.</div>
 </td>
 </tr>
@@ -231,7 +242,9 @@ implements <a href="SeekMap.html" title="interface in com.google.android.exoplay
           long[]&nbsp;offsets,
           long[]&nbsp;durationsUs,
           long[]&nbsp;timesUs)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -245,7 +258,7 @@ implements <a href="SeekMap.html" title="interface in com.google.android.exoplay
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -255,6 +268,7 @@ implements <a href="SeekMap.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getChunkIndex(long)">getChunkIndex</a></span>&#8203;(long&nbsp;timeUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Obtains the index of the chunk corresponding to a given time.</div>
 </td>
 </tr>
@@ -262,6 +276,7 @@ implements <a href="SeekMap.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDurationUs()">getDurationUs</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the duration of the stream in microseconds.</div>
 </td>
 </tr>
@@ -269,6 +284,7 @@ implements <a href="SeekMap.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code><a href="SeekMap.SeekPoints.html" title="class in com.google.android.exoplayer2.extractor">SeekMap.SeekPoints</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSeekPoints(long)">getSeekPoints</a></span>&#8203;(long&nbsp;timeUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Obtains seek points for the specified seek time in microseconds.</div>
 </td>
 </tr>
@@ -276,13 +292,16 @@ implements <a href="SeekMap.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isSeekable()">isSeekable</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether seeking is supported.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -315,6 +334,7 @@ implements <a href="SeekMap.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>length</h4>
 <pre>public final&nbsp;int length</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of chunks.</div>
 </li>
 </ul>
@@ -325,6 +345,7 @@ implements <a href="SeekMap.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>sizes</h4>
 <pre>public final&nbsp;int[] sizes</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The chunk sizes, in bytes.</div>
 </li>
 </ul>
@@ -335,6 +356,7 @@ implements <a href="SeekMap.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>offsets</h4>
 <pre>public final&nbsp;long[] offsets</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The chunk byte offsets.</div>
 </li>
 </ul>
@@ -345,6 +367,7 @@ implements <a href="SeekMap.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>durationsUs</h4>
 <pre>public final&nbsp;long[] durationsUs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The chunk durations, in microseconds.</div>
 </li>
 </ul>
@@ -355,6 +378,7 @@ implements <a href="SeekMap.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>timesUs</h4>
 <pre>public final&nbsp;long[] timesUs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The start time of each chunk, in microseconds.</div>
 </li>
 </ul>
@@ -378,6 +402,7 @@ implements <a href="SeekMap.html" title="interface in com.google.android.exoplay
                   long[]&nbsp;offsets,
                   long[]&nbsp;durationsUs,
                   long[]&nbsp;timesUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>sizes</code> - The chunk sizes, in bytes.</dd>
@@ -404,6 +429,7 @@ implements <a href="SeekMap.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>getChunkIndex</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getChunkIndex&#8203;(long&nbsp;timeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Obtains the index of the chunk corresponding to a given time.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -420,6 +446,7 @@ implements <a href="SeekMap.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>isSeekable</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isSeekable()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="SeekMap.html#isSeekable()">SeekMap</a></code></span></div>
 <div class="block">Returns whether seeking is supported.</div>
 <dl>
@@ -437,6 +464,7 @@ implements <a href="SeekMap.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>getDurationUs</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getDurationUs()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="SeekMap.html#getDurationUs()">SeekMap</a></code></span></div>
 <div class="block">Returns the duration of the stream in microseconds.</div>
 <dl>
@@ -455,6 +483,7 @@ implements <a href="SeekMap.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>getSeekPoints</h4>
 <pre class="methodSignature">public&nbsp;<a href="SeekMap.SeekPoints.html" title="class in com.google.android.exoplayer2.extractor">SeekMap.SeekPoints</a>&nbsp;getSeekPoints&#8203;(long&nbsp;timeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="SeekMap.html#getSeekPoints(long)">SeekMap</a></code></span></div>
 <div class="block">Obtains seek points for the specified seek time in microseconds. The returned <a href="SeekMap.SeekPoints.html" title="class in com.google.android.exoplayer2.extractor"><code>SeekMap.SeekPoints</code></a> will contain one or two distinct seek points.
 
@@ -479,6 +508,7 @@ implements <a href="SeekMap.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>toString</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;toString()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#toString()" title="class or interface in java.lang" class="externalLink">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>

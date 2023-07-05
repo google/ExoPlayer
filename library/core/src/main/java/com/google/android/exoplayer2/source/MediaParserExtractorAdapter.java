@@ -39,8 +39,16 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-/** {@link ProgressiveMediaExtractor} implemented on top of the platform's {@link MediaParser}. */
+/**
+ * {@link ProgressiveMediaExtractor} implemented on top of the platform's {@link MediaParser}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
 @RequiresApi(30)
+@Deprecated
 public final class MediaParserExtractorAdapter implements ProgressiveMediaExtractor {
 
   /**
@@ -126,7 +134,7 @@ public final class MediaParserExtractorAdapter implements ProgressiveMediaExtrac
     positionHolder.position = inputReaderAdapter.getAndResetSeekPosition();
     return !shouldContinue
         ? Extractor.RESULT_END_OF_INPUT
-        : positionHolder.position != C.POSITION_UNSET
+        : positionHolder.position != C.INDEX_UNSET
             ? Extractor.RESULT_SEEK
             : Extractor.RESULT_CONTINUE;
   }

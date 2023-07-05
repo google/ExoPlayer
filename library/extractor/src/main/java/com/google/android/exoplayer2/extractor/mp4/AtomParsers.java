@@ -29,6 +29,8 @@ import com.google.android.exoplayer2.audio.AacUtil;
 import com.google.android.exoplayer2.audio.Ac3Util;
 import com.google.android.exoplayer2.audio.Ac4Util;
 import com.google.android.exoplayer2.audio.OpusUtil;
+import com.google.android.exoplayer2.container.CreationTime;
+import com.google.android.exoplayer2.container.Mp4LocationData;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.extractor.ExtractorUtil;
 import com.google.android.exoplayer2.extractor.GaplessInfoHolder;
@@ -54,9 +56,50 @@ import java.util.Arrays;
 import java.util.List;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
-/** Utility methods for parsing MP4 format atom payloads according to ISO/IEC 14496-12. */
+/**
+ * Utility methods for parsing MP4 format atom payloads according to ISO/IEC 14496-12.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
 @SuppressWarnings("ConstantField")
+@Deprecated
 /* package */ final class AtomParsers {
+
+  /** Stores metadata retrieved from the udta atom. */
+  public static final class UdtaInfo {
+    /** The metadata retrieved from the meta sub atom. */
+    @Nullable public final Metadata metaMetadata;
+    /** The metadata retrieved from the smta sub atom. */
+    @Nullable public final Metadata smtaMetadata;
+    /** The location metadata retrieved from the xyz sub atom. */
+    @Nullable public final Metadata xyzMetadata;
+
+    /** Creates an instance. */
+    public UdtaInfo(
+        @Nullable Metadata metaMetadata,
+        @Nullable Metadata smtaMetadata,
+        @Nullable Metadata xyzMetadata) {
+      this.metaMetadata = metaMetadata;
+      this.smtaMetadata = smtaMetadata;
+      this.xyzMetadata = xyzMetadata;
+    }
+  }
+
+  /** Stores data retrieved from the mvhd atom. */
+  public static final class MvhdInfo {
+    /** The metadata. */
+    public final Metadata metadata;
+    /** The movie timescale. */
+    public final long timescale;
+
+    public MvhdInfo(Metadata metadata, long timescale) {
+      this.metadata = metadata;
+      this.timescale = timescale;
+    }
+  }
 
   private static final String TAG = "AtomParsers";
 
@@ -157,15 +200,15 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    * Parses a udta atom.
    *
    * @param udtaAtom The udta (user data) atom to decode.
-   * @return A {@link Pair} containing the metadata from the meta child atom as first value (if
-   *     any), and the metadata from the smta child atom as second value (if any).
+   * @return A {@link UdtaInfo} containing the metadata extracted from the meta, smta and xyz child
+   *     atoms (if present).
    */
-  public static Pair<@NullableType Metadata, @NullableType Metadata> parseUdta(
-      Atom.LeafAtom udtaAtom) {
+  public static UdtaInfo parseUdta(Atom.LeafAtom udtaAtom) {
     ParsableByteArray udtaData = udtaAtom.data;
     udtaData.setPosition(Atom.HEADER_SIZE);
     @Nullable Metadata metaMetadata = null;
     @Nullable Metadata smtaMetadata = null;
+    @Nullable Metadata xyzMetadata = null;
     while (udtaData.bytesLeft() >= Atom.HEADER_SIZE) {
       int atomPosition = udtaData.getPosition();
       int atomSize = udtaData.readInt();
@@ -176,10 +219,41 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       } else if (atomType == Atom.TYPE_smta) {
         udtaData.setPosition(atomPosition);
         smtaMetadata = parseSmta(udtaData, atomPosition + atomSize);
+      } else if (atomType == Atom.TYPE_xyz) {
+        xyzMetadata = parseXyz(udtaData);
       }
       udtaData.setPosition(atomPosition + atomSize);
     }
-    return Pair.create(metaMetadata, smtaMetadata);
+    return new UdtaInfo(metaMetadata, smtaMetadata, xyzMetadata);
+  }
+
+  /**
+   * Parses a mvhd atom (defined in ISO/IEC 14496-12), returning the timescale for the movie.
+   *
+   * @param mvhd Contents of the mvhd atom to be parsed.
+   * @return An object containing the parsed data.
+   */
+  public static MvhdInfo parseMvhd(ParsableByteArray mvhd) {
+    mvhd.setPosition(Atom.HEADER_SIZE);
+    int fullAtom = mvhd.readInt();
+    int version = Atom.parseFullAtomVersion(fullAtom);
+    long creationTimestampSeconds;
+    if (version == 0) {
+      creationTimestampSeconds = mvhd.readUnsignedInt();
+      mvhd.skipBytes(4); // modification_time
+    } else {
+      creationTimestampSeconds = mvhd.readLong();
+      mvhd.skipBytes(8); // modification_time
+    }
+
+    // Convert creation time from MP4 format to Unix epoch timestamp in Ms.
+    // Time delta between January 1, 1904 (MP4 format) and January 1, 1970 (Unix epoch).
+    // Includes leap year.
+    int timeDeltaSeconds = (66 * 365 + 17) * (24 * 60 * 60);
+    long unixTimestampMs = (creationTimestampSeconds - timeDeltaSeconds) * 1000;
+
+    long timescale = mvhd.readUnsignedInt();
+    return new MvhdInfo(new Metadata(new CreationTime(unixTimestampMs)), timescale);
   }
 
   /**
@@ -295,7 +369,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     if (duration == C.TIME_UNSET) {
       duration = tkhdData.duration;
     }
-    long movieTimescale = parseMvhd(mvhd.data);
+    long movieTimescale = parseMvhd(mvhd.data).timescale;
     long durationUs;
     if (duration == C.TIME_UNSET) {
       durationUs = C.TIME_UNSET;
@@ -760,6 +834,27 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
     return entries.isEmpty() ? null : new Metadata(entries);
   }
 
+  /** Parses the location metadata from the xyz atom. */
+  @Nullable
+  private static Metadata parseXyz(ParsableByteArray xyzBox) {
+    int length = xyzBox.readShort();
+    xyzBox.skipBytes(2); // language code.
+    String location = xyzBox.readString(length);
+    // The location string looks like "+35.1345-15.1020/".
+    int plusSignIndex = location.lastIndexOf('+');
+    int minusSignIndex = location.lastIndexOf('-');
+    int latitudeEndIndex = max(plusSignIndex, minusSignIndex);
+    try {
+      float latitude = Float.parseFloat(location.substring(0, latitudeEndIndex));
+      float longitude =
+          Float.parseFloat(location.substring(latitudeEndIndex, location.length() - 1));
+      return new Metadata(new Mp4LocationData(latitude, longitude));
+    } catch (IndexOutOfBoundsException | NumberFormatException exception) {
+      // Invalid input.
+      return null;
+    }
+  }
+
   /**
    * Parses metadata from a Samsung smta atom.
    *
@@ -792,22 +887,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   }
 
   /**
-   * Parses a mvhd atom (defined in ISO/IEC 14496-12), returning the timescale for the movie.
-   *
-   * @param mvhd Contents of the mvhd atom to be parsed.
-   * @return Timescale for the movie.
-   */
-  private static long parseMvhd(ParsableByteArray mvhd) {
-    mvhd.setPosition(Atom.HEADER_SIZE);
-    int fullAtom = mvhd.readInt();
-    int version = Atom.parseFullAtomVersion(fullAtom);
-    mvhd.skipBytes(version == 0 ? 8 : 16);
-    return mvhd.readUnsignedInt();
-  }
-
-  /**
    * Parses a tkhd atom (defined in ISO/IEC 14496-12).
    *
+   * @param tkhd Contents of the tkhd atom to be parsed.
    * @return An object containing the parsed data.
    */
   private static TkhdData parseTkhd(ParsableByteArray tkhd) {
@@ -1153,6 +1235,9 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           pixelWidthHeightRatio = avcConfig.pixelWidthHeightRatio;
         }
         codecs = avcConfig.codecs;
+        colorSpace = avcConfig.colorSpace;
+        colorRange = avcConfig.colorRange;
+        colorTransfer = avcConfig.colorTransfer;
       } else if (childAtomType == Atom.TYPE_hvcC) {
         ExtractorUtil.checkContainerInput(mimeType == null, /* message= */ null);
         mimeType = MimeTypes.VIDEO_H265;
@@ -1265,12 +1350,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
           }
         }
       } else if (childAtomType == Atom.TYPE_colr) {
-        // Only modify these values if they have not been previously established by the bitstream.
-        // If 'Atom.TYPE_hvcC' atom or 'Atom.TYPE_vpcC' is available, they will take precedence and
-        // overwrite any existing values.
-        if (colorSpace == Format.NO_VALUE
-            && colorRange == Format.NO_VALUE
-            && colorTransfer == Format.NO_VALUE) {
+        // Only modify these values if 'colorSpace' and 'colorTransfer' have not been previously
+        // established by the bitstream. The absence of color descriptors ('colorSpace' and
+        // 'colorTransfer') does not necessarily mean that 'colorRange' has default values, hence it
+        // is not being verified here.
+        // If 'Atom.TYPE_avcC', 'Atom.TYPE_hvcC' or 'Atom.TYPE_vpcC' is available, they will take
+        // precedence and overwrite any existing values.
+        if (colorSpace == Format.NO_VALUE && colorTransfer == Format.NO_VALUE) {
           int colorType = parent.readInt();
           if (colorType == TYPE_nclx || colorType == TYPE_nclc) {
             // For more info on syntax, see Section 8.5.2.2 in ISO/IEC 14496-12:2012(E) and
@@ -1541,7 +1627,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
             childAtomType == Atom.TYPE_esds
                 ? childPosition
                 : findBoxPosition(parent, Atom.TYPE_esds, childPosition, childAtomSize);
-        if (esdsAtomPosition != C.POSITION_UNSET) {
+        if (esdsAtomPosition != C.INDEX_UNSET) {
           esdsData = parseEsdsFromParent(parent, esdsAtomPosition);
           mimeType = esdsData.mimeType;
           @Nullable byte[] initializationDataBytes = esdsData.initializationData;
@@ -1649,7 +1735,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 
   /**
    * Returns the position of the first box with the given {@code boxType} within {@code parent}, or
-   * {@link C#POSITION_UNSET} if no such box is found.
+   * {@link C#INDEX_UNSET} if no such box is found.
    *
    * @param parent The {@link ParsableByteArray} to search. The search will start from the {@link
    *     ParsableByteArray#getPosition() current position}.
@@ -1657,7 +1743,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
    * @param parentBoxPosition The position in {@code parent} of the box we are searching.
    * @param parentBoxSize The size of the parent box we are searching in bytes.
    * @return The position of the first box with the given {@code boxType} within {@code parent}, or
-   *     {@link C#POSITION_UNSET} if no such box is found.
+   *     {@link C#INDEX_UNSET} if no such box is found.
    */
   private static int findBoxPosition(
       ParsableByteArray parent, int boxType, int parentBoxPosition, int parentBoxSize)
@@ -1674,7 +1760,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       }
       childAtomPosition += childAtomSize;
     }
-    return C.POSITION_UNSET;
+    return C.INDEX_UNSET;
   }
 
   /** Returns codec-specific initialization data contained in an esds box. */
@@ -1762,7 +1848,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
   /* package */ static Pair<Integer, TrackEncryptionBox> parseCommonEncryptionSinfFromParent(
       ParsableByteArray parent, int position, int size) throws ParserException {
     int childPosition = position + Atom.HEADER_SIZE;
-    int schemeInformationBoxPosition = C.POSITION_UNSET;
+    int schemeInformationBoxPosition = C.INDEX_UNSET;
     int schemeInformationBoxSize = 0;
     @Nullable String schemeType = null;
     @Nullable Integer dataFormat = null;
@@ -1789,7 +1875,7 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
         || C.CENC_TYPE_cbcs.equals(schemeType)) {
       ExtractorUtil.checkContainerInput(dataFormat != null, "frma atom is mandatory");
       ExtractorUtil.checkContainerInput(
-          schemeInformationBoxPosition != C.POSITION_UNSET, "schi atom is mandatory");
+          schemeInformationBoxPosition != C.INDEX_UNSET, "schi atom is mandatory");
       @Nullable
       TrackEncryptionBox encryptionBox =
           parseSchiFromParent(

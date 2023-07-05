@@ -84,18 +84,20 @@ public final class HlsMediaPeriodTest {
               mockPlaylistTracker,
               mockDataSourceFactory,
               mock(TransferListener.class),
+              /* cmcdConfiguration= */ null,
               mock(DrmSessionManager.class),
               new DrmSessionEventListener.EventDispatcher()
                   .withParameters(/* windowIndex= */ 0, mediaPeriodId),
               mock(LoadErrorHandlingPolicy.class),
               new MediaSourceEventListener.EventDispatcher()
-                  .withParameters(/* windowIndex= */ 0, mediaPeriodId, /* mediaTimeOffsetMs= */ 0),
+                  .withParameters(/* windowIndex= */ 0, mediaPeriodId),
               mock(Allocator.class),
               mock(CompositeSequenceableLoaderFactory.class),
               /* allowChunklessPreparation= */ true,
               HlsMediaSource.METADATA_TYPE_ID3,
               /* useSessionKeys= */ false,
-              PlayerId.UNSET);
+              PlayerId.UNSET,
+              /* timestampAdjusterInitializationTimeoutMs= */ 0);
         };
 
     MediaPeriodAsserts.assertGetStreamKeysAndManifestFilterIntegration(

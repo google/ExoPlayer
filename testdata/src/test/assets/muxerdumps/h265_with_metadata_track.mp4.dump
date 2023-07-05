@@ -1,0 +1,88 @@
+seekMap:
+  isSeekable = true
+  duration = 66700
+  getPosition(0) = [[timeUs=0, position=44]]
+  getPosition(1) = [[timeUs=0, position=44]]
+  getPosition(33350) = [[timeUs=0, position=44]]
+  getPosition(66700) = [[timeUs=0, position=44]]
+numberOfTracks = 3
+track 0:
+  total output bytes = 387
+  sample count = 3
+  format 0:
+    id = 1
+    sampleMimeType = application/meta
+    maxInputSize = 161
+    metadata = entries=[Creation time: 500000000]
+  sample 0:
+    time = 0
+    flags = 1
+    data = length 131, hash 37A90BF3
+  sample 1:
+    time = 33344
+    flags = 1
+    data = length 125, hash 1F92C1BF
+  sample 2:
+    time = 66700
+    flags = 536870913
+    data = length 131, hash 47B06CA4
+track 1:
+  total output bytes = 1726
+  sample count = 3
+  format 0:
+    averageBitrate = 192000
+    peakBitrate = 192000
+    id = 2
+    sampleMimeType = audio/mp4a-latm
+    codecs = mp4a.40.2
+    maxInputSize = 627
+    channelCount = 2
+    sampleRate = 48000
+    language = ```
+    metadata = entries=[Creation time: 500000000]
+    initializationData:
+      data = length 2, hash 560
+  sample 0:
+    time = 0
+    flags = 1
+    data = length 597, hash 36BCB84D
+  sample 1:
+    time = 38041
+    flags = 1
+    data = length 571, hash FD73DCB0
+  sample 2:
+    time = 59375
+    flags = 536870913
+    data = length 558, hash 6A62DD7F
+track 2:
+  total output bytes = 678996
+  sample count = 3
+  format 0:
+    id = 3
+    sampleMimeType = video/hevc
+    codecs = hvc1.1.6.L153.B0
+    maxInputSize = 420494
+    width = 1920
+    height = 1080
+    frameRate = 44.977512
+    colorInfo:
+      colorSpace = 2
+      colorRange = 1
+      colorTransfer = 3
+      hdrStaticInfo = length 0, hash 0
+    metadata = entries=[Creation time: 500000000]
+    initializationData:
+      data = length 85, hash 6F3CAA16
+  sample 0:
+    time = 0
+    flags = 1
+    data = length 420464, hash 9C6E9B09
+  sample 1:
+    time = 33344
+    flags = 0
+    data = length 131591, hash A1895540
+  sample 2:
+    time = 66700
+    flags = 536870912
+    data = length 126941, hash 7B26BBA6
+tracksEnded = true

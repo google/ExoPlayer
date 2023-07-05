@@ -77,7 +77,7 @@ CLASS_MAPPINGS='com.google.android.exoplayer2.text.span androidx.media3.common.t
 com.google.android.exoplayer2.text androidx.media3.common.text CueGroup Cue
 com.google.android.exoplayer2.text com.google.android.exoplayer2.text ExoplayerCuesDecoder SubtitleDecoderFactory TextOutput TextRenderer
 com.google.android.exoplayer2.upstream.crypto com.google.android.exoplayer2.upstream AesCipherDataSource AesCipherDataSink AesFlushingCipher
-com.google.android.exoplayer2.util com.google.android.exoplayer2.util AtomicFile Assertions BitmapLoader BundleableUtil BundleUtil Clock ClosedSource CodecSpecificDataUtil ColorParser ConditionVariable Consumer CopyOnWriteMultiset EGLSurfaceTexture GlProgram GlUtil HandlerWrapper LibraryLoader ListenerSet Log LongArray MediaFormatUtil NalUnitUtil NetworkTypeObserver NonNullApi NotificationUtil ParsableBitArray ParsableByteArray ParsableNalUnitBitArray RepeatModeUtil RunnableFutureTask Size SystemClock SystemHandlerWrapper TimedValueQueue TimestampAdjuster TraceUtil UnknownNull UnstableApi UriUtil Util XmlPullParserUtil
+com.google.android.exoplayer2.util com.google.android.exoplayer2.util AtomicFile Assertions BitmapLoader BundleableUtil BundleUtil Clock ClosedSource CodecSpecificDataUtil ColorParser ConditionVariable Consumer CopyOnWriteMultiset EGLSurfaceTexture GlProgram GlUtil HandlerWrapper LibraryLoader ListenerSet Log LongArray MediaFormatUtil NetworkTypeObserver NonNullApi NotificationUtil ParsableBitArray ParsableByteArray RepeatModeUtil RunnableFutureTask Size SystemClock SystemHandlerWrapper TimedValueQueue TimestampAdjuster TraceUtil UnknownNull UnstableApi UriUtil Util XmlPullParserUtil
 com.google.android.exoplayer2.util androidx.media3.common DebugViewProvider Effect ErrorMessageProvider FlagSet FileTypes FrameInfo GlObjectsProvider GlTextureInfo VideoFrameProcessingException VideoFrameProcessor MimeTypes PriorityTaskManager SurfaceInfo
 com.google.android.exoplayer2.metadata androidx.media3.common Metadata
 com.google.android.exoplayer2.metadata com.google.android.exoplayer2.metadata MetadataDecoderFactory MetadataOutput MetadataRenderer
@@ -93,7 +93,7 @@ com.google.android.exoplayer2.video androidx.media3.common ColorInfo VideoSize
 com.google.android.exoplayer2.upstream androidx.media3.common DataReader
 com.google.android.exoplayer2.upstream com.google.android.exoplayer2.upstream Allocation Allocator BandwidthMeter CachedRegionTracker DefaultAllocator DefaultBandwidthMeter DefaultLoadErrorHandlingPolicy Loader LoaderErrorThrower ParsingLoadable SlidingPercentile TimeToFirstByteEstimator
 com.google.android.exoplayer2.audio com.google.android.exoplayer2.extractor AacUtil Ac3Util Ac4Util DtsUtil MpegAudioUtil OpusUtil WavUtil
-com.google.android.exoplayer2.util com.google.android.exoplayer2.extractor NalUnitUtil ParsableNalUnitBitArray
+com.google.android.exoplayer2.util com.google.android.exoplayer2.container NalUnitUtil ParsableNalUnitBitArray
 com.google.android.exoplayer2.video com.google.android.exoplayer2.extractor AvcConfig DolbyVisionConfig HevcConfig
 com.google.android.exoplayer2.decoder com.google.android.exoplayer2 DecoderCounters DecoderReuseEvaluation
 com.google.android.exoplayer2.util com.google.android.exoplayer2 MediaClock StandaloneMediaClock
@@ -128,8 +128,8 @@ extension-workmanager media3-exoplayer-workmanager'
 # Rewrites classes, packages and dependencies from the legacy ExoPlayer package structure
 # to androidx.media3 structure.
 
-MEDIA3_VERSION="1.0.2"
-LEGACY_PEER_VERSION="2.18.7"
+MEDIA3_VERSION="1.1.0"
+LEGACY_PEER_VERSION="2.19.0"
 
 function usage() {
   echo "usage: $0 [-p|-c|-d|-v]|[-m|-l [-x <path>] [-f] PROJECT_ROOT]"

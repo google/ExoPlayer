@@ -43,7 +43,7 @@ public class DefaultMediaDescriptionAdapterTest {
         PendingIntent.getActivity(context, 0, new Intent(), PendingIntent.FLAG_IMMUTABLE);
     DefaultMediaDescriptionAdapter adapter = new DefaultMediaDescriptionAdapter(pendingIntent);
 
-    when(player.isCommandAvailable(Player.COMMAND_GET_MEDIA_ITEMS_METADATA)).thenReturn(true);
+    when(player.isCommandAvailable(Player.COMMAND_GET_METADATA)).thenReturn(true);
     when(player.getMediaMetadata()).thenReturn(mediaMetadata);
 
     assertThat(adapter.createCurrentContentIntent(player)).isEqualTo(pendingIntent);
@@ -63,7 +63,7 @@ public class DefaultMediaDescriptionAdapterTest {
         PendingIntent.getActivity(context, 0, new Intent(), PendingIntent.FLAG_IMMUTABLE);
     DefaultMediaDescriptionAdapter adapter = new DefaultMediaDescriptionAdapter(pendingIntent);
 
-    when(player.isCommandAvailable(Player.COMMAND_GET_MEDIA_ITEMS_METADATA)).thenReturn(false);
+    when(player.isCommandAvailable(Player.COMMAND_GET_METADATA)).thenReturn(false);
     when(player.getMediaMetadata()).thenReturn(mediaMetadata);
 
     assertThat(adapter.createCurrentContentIntent(player)).isEqualTo(pendingIntent);

@@ -30,10 +30,16 @@ import java.lang.annotation.Target;
  * href="https://www.w3.org/TR/jlreq/?lang=en#term.emphasis-dots">Japanese boutens</a> which can be
  * rendered using the <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/text-emphasis">
  * text-emphasis</a> CSS property.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
 // NOTE: There's no Android layout support for text emphasis, so this span currently doesn't extend
 // any styling superclasses (e.g. MetricAffectingSpan). The only way to render this emphasis is to
 // extract the spans and do the layout manually.
+@Deprecated
 public final class TextEmphasisSpan implements LanguageFeatureSpan {
 
   /**

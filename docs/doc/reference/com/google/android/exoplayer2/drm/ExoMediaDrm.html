@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6,"i8":6,"i9":6,"i10":6,"i11":6,"i12":6,"i13":6,"i14":6,"i15":6,"i16":6,"i17":6,"i18":6,"i19":18,"i20":6,"i21":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
+var data = {"i0":38,"i1":38,"i2":38,"i3":38,"i4":38,"i5":38,"i6":38,"i7":38,"i8":38,"i9":38,"i10":38,"i11":38,"i12":38,"i13":38,"i14":38,"i15":38,"i16":38,"i17":38,"i18":38,"i19":50,"i20":38,"i21":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -125,7 +125,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="DummyExoMediaDrm.html" title="class in com.google.android.exoplayer2.drm">DummyExoMediaDrm</a></code>, <code><a href="../testutil/FakeExoMediaDrm.html" title="class in com.google.android.exoplayer2.testutil">FakeExoMediaDrm</a></code>, <code><a href="FrameworkMediaDrm.html" title="class in com.google.android.exoplayer2.drm">FrameworkMediaDrm</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">ExoMediaDrm</span></pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">ExoMediaDrm</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Used to obtain keys for decrypting protected media streams.
 
  <h2>Reference counting</h2>
@@ -165,6 +171,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="ExoMediaDrm.AppManagedProvider.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.AppManagedProvider</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Provides an <a href="ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaDrm</code></a> instance owned by the app.</div>
 </td>
 </tr>
@@ -172,6 +179,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="ExoMediaDrm.KeyRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyRequest</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Contains data used to request keys from a license server.</div>
 </td>
 </tr>
@@ -179,6 +187,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="ExoMediaDrm.KeyStatus.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyStatus</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Defines the status of a key.</div>
 </td>
 </tr>
@@ -186,6 +195,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="ExoMediaDrm.OnEventListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnEventListener</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a DRM event occurs.</div>
 </td>
 </tr>
@@ -193,6 +203,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="ExoMediaDrm.OnExpirationUpdateListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnExpirationUpdateListener</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a session expiration update occurs.</div>
 </td>
 </tr>
@@ -200,6 +211,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="ExoMediaDrm.OnKeyStatusChangeListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnKeyStatusChangeListener</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when the keys in a DRM session change state.</div>
 </td>
 </tr>
@@ -207,6 +219,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="ExoMediaDrm.Provider.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.Provider</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Provider for <a href="ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaDrm</code></a> instances.</div>
 </td>
 </tr>
@@ -214,6 +227,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="ExoMediaDrm.ProvisionRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.ProvisionRequest</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Contains data to request a certificate from a provisioning server.</div>
 </td>
 </tr>
@@ -239,6 +253,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_KEY_EXPIRED">EVENT_KEY_EXPIRED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Event indicating that keys have expired, and are no longer usable.</div>
 </td>
 </tr>
@@ -246,6 +261,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_KEY_REQUIRED">EVENT_KEY_REQUIRED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Event indicating that keys need to be requested from the license server.</div>
 </td>
 </tr>
@@ -253,6 +269,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EVENT_PROVISION_REQUIRED">EVENT_PROVISION_REQUIRED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Event indicating that a certificate needs to be requested from the provisioning server.</div>
 </td>
 </tr>
@@ -260,6 +277,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#KEY_TYPE_OFFLINE">KEY_TYPE_OFFLINE</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Key request type for keys that will be used for offline use.</div>
 </td>
 </tr>
@@ -267,6 +285,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#KEY_TYPE_RELEASE">KEY_TYPE_RELEASE</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Key request type indicating that saved offline keys should be released.</div>
 </td>
 </tr>
@@ -274,6 +293,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#KEY_TYPE_STREAMING">KEY_TYPE_STREAMING</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Key request type for keys that will be used for online use.</div>
 </td>
 </tr>
@@ -289,7 +309,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -299,6 +319,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#acquire()">acquire</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Increments the reference count.</div>
 </td>
 </tr>
@@ -306,6 +327,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#closeSession(byte%5B%5D)">closeSession</a></span>&#8203;(byte[]&nbsp;sessionId)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Closes a DRM session.</div>
 </td>
 </tr>
@@ -313,6 +335,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder">CryptoConfig</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createCryptoConfig(byte%5B%5D)">createCryptoConfig</a></span>&#8203;(byte[]&nbsp;sessionId)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a <a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder"><code>CryptoConfig</code></a> that can be passed to a compatible decoder to allow decryption
  of protected content using the specified session.</div>
 </td>
@@ -321,6 +344,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>@com.google.android.exoplayer2.C.CryptoType int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCryptoType()">getCryptoType</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="../C.CryptoType.html" title="annotation in com.google.android.exoplayer2"><code>type</code></a> of <a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder"><code>CryptoConfig</code></a> instances returned by <a href="#createCryptoConfig(byte%5B%5D)"><code>createCryptoConfig(byte[])</code></a>.</div>
 </td>
 </tr>
@@ -331,6 +355,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
              int&nbsp;keyType,
              <a href="https://developer.android.com/reference/java/util/HashMap.html" title="class or interface in java.util" class="externalLink">HashMap</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;optionalParameters)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Generates a key request.</div>
 </td>
 </tr>
@@ -338,6 +363,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/PersistableBundle.html" title="class or interface in android.os" class="externalLink" target="_top">PersistableBundle</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMetrics()">getMetrics</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns metrics data for this ExoMediaDrm instance, or <code>null</code> if metrics are unavailable.</div>
 </td>
 </tr>
@@ -345,6 +371,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPropertyByteArray(java.lang.String)">getPropertyByteArray</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;propertyName)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the value of a byte array property.</div>
 </td>
 </tr>
@@ -352,6 +379,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPropertyString(java.lang.String)">getPropertyString</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;propertyName)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the value of a string property.</div>
 </td>
 </tr>
@@ -359,6 +387,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="ExoMediaDrm.ProvisionRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.ProvisionRequest</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getProvisionRequest()">getProvisionRequest</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Generates a provisioning request.</div>
 </td>
 </tr>
@@ -366,6 +395,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#openSession()">openSession</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Opens a new DRM session.</div>
 </td>
 </tr>
@@ -374,6 +404,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#provideKeyResponse(byte%5B%5D,byte%5B%5D)">provideKeyResponse</a></span>&#8203;(byte[]&nbsp;scope,
                   byte[]&nbsp;response)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Provides a key response for the last request to be generated using <a href="#getKeyRequest(byte%5B%5D,java.util.List,int,java.util.HashMap)"><code>getKeyRequest(byte[], java.util.List&lt;com.google.android.exoplayer2.drm.DrmInitData.SchemeData&gt;, int, java.util.HashMap&lt;java.lang.String, java.lang.String&gt;)</code></a>.</div>
 </td>
 </tr>
@@ -381,6 +412,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#provideProvisionResponse(byte%5B%5D)">provideProvisionResponse</a></span>&#8203;(byte[]&nbsp;response)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Provides a provisioning response for the last request to be generated using <a href="#getProvisionRequest()"><code>getProvisionRequest()</code></a>.</div>
 </td>
 </tr>
@@ -388,6 +420,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#queryKeyStatus(byte%5B%5D)">queryKeyStatus</a></span>&#8203;(byte[]&nbsp;sessionId)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the key status for a given session, as {name, value} pairs.</div>
 </td>
 </tr>
@@ -395,6 +428,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Decrements the reference count.</div>
 </td>
 </tr>
@@ -403,6 +437,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#requiresSecureDecoder(byte%5B%5D,java.lang.String)">requiresSecureDecoder</a></span>&#8203;(byte[]&nbsp;sessionId,
                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the given session requires use of a secure decoder for the given MIME type.</div>
 </td>
 </tr>
@@ -411,6 +446,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#restoreKeys(byte%5B%5D,byte%5B%5D)">restoreKeys</a></span>&#8203;(byte[]&nbsp;sessionId,
            byte[]&nbsp;keySetId)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Restores persisted offline keys into a session.</div>
 </td>
 </tr>
@@ -418,6 +454,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOnEventListener(com.google.android.exoplayer2.drm.ExoMediaDrm.OnEventListener)">setOnEventListener</a></span>&#8203;(<a href="ExoMediaDrm.OnEventListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnEventListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the listener for DRM events.</div>
 </td>
 </tr>
@@ -425,6 +462,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOnExpirationUpdateListener(com.google.android.exoplayer2.drm.ExoMediaDrm.OnExpirationUpdateListener)">setOnExpirationUpdateListener</a></span>&#8203;(<a href="ExoMediaDrm.OnExpirationUpdateListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnExpirationUpdateListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the listener for session expiration events.</div>
 </td>
 </tr>
@@ -432,6 +470,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOnKeyStatusChangeListener(com.google.android.exoplayer2.drm.ExoMediaDrm.OnKeyStatusChangeListener)">setOnKeyStatusChangeListener</a></span>&#8203;(<a href="ExoMediaDrm.OnKeyStatusChangeListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnKeyStatusChangeListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the listener for key status change events.</div>
 </td>
 </tr>
@@ -440,6 +479,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlayerIdForSession(byte%5B%5D,com.google.android.exoplayer2.analytics.PlayerId)">setPlayerIdForSession</a></span>&#8203;(byte[]&nbsp;sessionId,
                      <a href="../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics"><code>PlayerId</code></a> of the player using a session.</div>
 </td>
 </tr>
@@ -448,6 +488,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPropertyByteArray(java.lang.String,byte%5B%5D)">setPropertyByteArray</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;propertyName,
                     byte[]&nbsp;value)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the value of a byte array property.</div>
 </td>
 </tr>
@@ -456,6 +497,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPropertyString(java.lang.String,java.lang.String)">setPropertyString</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;propertyName,
                  <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the value of a string property.</div>
 </td>
 </tr>
@@ -483,6 +525,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_KEY_REQUIRED</h4>
 <pre>static final&nbsp;int EVENT_KEY_REQUIRED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Event indicating that keys need to be requested from the license server.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -497,6 +540,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_KEY_EXPIRED</h4>
 <pre>static final&nbsp;int EVENT_KEY_EXPIRED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Event indicating that keys have expired, and are no longer usable.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -511,6 +555,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>EVENT_PROVISION_REQUIRED</h4>
 <pre>static final&nbsp;int EVENT_PROVISION_REQUIRED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Event indicating that a certificate needs to be requested from the provisioning server.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -525,6 +570,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>KEY_TYPE_STREAMING</h4>
 <pre>static final&nbsp;int KEY_TYPE_STREAMING</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Key request type for keys that will be used for online use. Streaming keys will not be saved to
  the device for subsequent use when the device is not connected to a network.</div>
 <dl>
@@ -540,6 +586,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>KEY_TYPE_OFFLINE</h4>
 <pre>static final&nbsp;int KEY_TYPE_OFFLINE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Key request type for keys that will be used for offline use. They will be saved to the device
  for subsequent use when the device is not connected to a network.</div>
 <dl>
@@ -555,6 +602,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>KEY_TYPE_RELEASE</h4>
 <pre>static final&nbsp;int KEY_TYPE_RELEASE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Key request type indicating that saved offline keys should be released.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -580,6 +628,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>setOnEventListener</h4>
 <pre class="methodSignature">void&nbsp;setOnEventListener&#8203;(@Nullable
                         <a href="ExoMediaDrm.OnEventListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnEventListener</a>&nbsp;listener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the listener for DRM events.
 
  <p>This is an optional method, and some implementations may only support it on certain Android
@@ -602,6 +651,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>setOnKeyStatusChangeListener</h4>
 <pre class="methodSignature">void&nbsp;setOnKeyStatusChangeListener&#8203;(@Nullable
                                   <a href="ExoMediaDrm.OnKeyStatusChangeListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnKeyStatusChangeListener</a>&nbsp;listener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the listener for key status change events.
 
  <p>This is an optional method, and some implementations may only support it on certain Android
@@ -624,6 +674,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>setOnExpirationUpdateListener</h4>
 <pre class="methodSignature">void&nbsp;setOnExpirationUpdateListener&#8203;(@Nullable
                                    <a href="ExoMediaDrm.OnExpirationUpdateListener.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm.OnExpirationUpdateListener</a>&nbsp;listener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the listener for session expiration events.
 
  <p>This is an optional method, and some implementations may only support it on certain Android
@@ -646,6 +697,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>openSession</h4>
 <pre class="methodSignature">byte[]&nbsp;openSession()
             throws <a href="https://developer.android.com/reference/android/media/MediaDrmException.html" title="class or interface in android.media" class="externalLink" target="_top">MediaDrmException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Opens a new DRM session. A session ID is returned.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -664,6 +716,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>closeSession</h4>
 <pre class="methodSignature">void&nbsp;closeSession&#8203;(byte[]&nbsp;sessionId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Closes a DRM session.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -679,6 +732,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>setPlayerIdForSession</h4>
 <pre class="methodSignature">default&nbsp;void&nbsp;setPlayerIdForSession&#8203;(byte[]&nbsp;sessionId,
                                    <a href="../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the <a href="../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics"><code>PlayerId</code></a> of the player using a session.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -700,6 +754,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                                      @Nullable
                                      <a href="https://developer.android.com/reference/java/util/HashMap.html" title="class or interface in java.util" class="externalLink">HashMap</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;optionalParameters)
                               throws <a href="https://developer.android.com/reference/android/media/NotProvisionedException.html" title="class or interface in android.media" class="externalLink" target="_top">NotProvisionedException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Generates a key request.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -733,6 +788,7 @@ byte[]&nbsp;provideKeyResponse&#8203;(byte[]&nbsp;scope,
                           byte[]&nbsp;response)
                    throws <a href="https://developer.android.com/reference/android/media/NotProvisionedException.html" title="class or interface in android.media" class="externalLink" target="_top">NotProvisionedException</a>,
                           <a href="https://developer.android.com/reference/android/media/DeniedByServerException.html" title="class or interface in android.media" class="externalLink" target="_top">DeniedByServerException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Provides a key response for the last request to be generated using <a href="#getKeyRequest(byte%5B%5D,java.util.List,int,java.util.HashMap)"><code>getKeyRequest(byte[], java.util.List&lt;com.google.android.exoplayer2.drm.DrmInitData.SchemeData&gt;, int, java.util.HashMap&lt;java.lang.String, java.lang.String&gt;)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -755,6 +811,7 @@ byte[]&nbsp;provideKeyResponse&#8203;(byte[]&nbsp;scope,
 <li class="blockList">
 <h4>getProvisionRequest</h4>
 <pre class="methodSignature"><a href="ExoMediaDrm.ProvisionRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.ProvisionRequest</a>&nbsp;getProvisionRequest()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Generates a provisioning request.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -770,6 +827,7 @@ byte[]&nbsp;provideKeyResponse&#8203;(byte[]&nbsp;scope,
 <h4>provideProvisionResponse</h4>
 <pre class="methodSignature">void&nbsp;provideProvisionResponse&#8203;(byte[]&nbsp;response)
                        throws <a href="https://developer.android.com/reference/android/media/DeniedByServerException.html" title="class or interface in android.media" class="externalLink" target="_top">DeniedByServerException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Provides a provisioning response for the last request to be generated using <a href="#getProvisionRequest()"><code>getProvisionRequest()</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -786,6 +844,7 @@ byte[]&nbsp;provideKeyResponse&#8203;(byte[]&nbsp;scope,
 <li class="blockList">
 <h4>queryKeyStatus</h4>
 <pre class="methodSignature"><a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;queryKeyStatus&#8203;(byte[]&nbsp;sessionId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the key status for a given session, as {name, value} pairs. Since DRM license policies
  vary by vendor, the returned entries depend on the DRM plugin being used. Refer to your DRM
  provider's documentation for more information.</div>
@@ -805,6 +864,7 @@ byte[]&nbsp;provideKeyResponse&#8203;(byte[]&nbsp;scope,
 <h4>requiresSecureDecoder</h4>
 <pre class="methodSignature">boolean&nbsp;requiresSecureDecoder&#8203;(byte[]&nbsp;sessionId,
                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the given session requires use of a secure decoder for the given MIME type.
  Assumes a license policy that requires the highest level of security supported by the session.</div>
 <dl>
@@ -821,6 +881,7 @@ byte[]&nbsp;provideKeyResponse&#8203;(byte[]&nbsp;scope,
 <li class="blockList">
 <h4>acquire</h4>
 <pre class="methodSignature">void&nbsp;acquire()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Increments the reference count. When the caller no longer needs to use the instance, it must
  call <a href="#release()"><code>release()</code></a> to decrement the reference count.
 
@@ -835,6 +896,7 @@ byte[]&nbsp;provideKeyResponse&#8203;(byte[]&nbsp;scope,
 <li class="blockList">
 <h4>release</h4>
 <pre class="methodSignature">void&nbsp;release()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Decrements the reference count. If the reference count drops to 0 underlying resources are
  released, and the instance cannot be re-used.</div>
 </li>
@@ -847,6 +909,7 @@ byte[]&nbsp;provideKeyResponse&#8203;(byte[]&nbsp;scope,
 <h4>restoreKeys</h4>
 <pre class="methodSignature">void&nbsp;restoreKeys&#8203;(byte[]&nbsp;sessionId,
                  byte[]&nbsp;keySetId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Restores persisted offline keys into a session.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -863,6 +926,7 @@ byte[]&nbsp;provideKeyResponse&#8203;(byte[]&nbsp;scope,
 <h4>getMetrics</h4>
 <pre class="methodSignature">@Nullable
 <a href="https://developer.android.com/reference/android/os/PersistableBundle.html" title="class or interface in android.os" class="externalLink" target="_top">PersistableBundle</a>&nbsp;getMetrics()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns metrics data for this ExoMediaDrm instance, or <code>null</code> if metrics are unavailable.</div>
 </li>
 </ul>
@@ -873,6 +937,7 @@ byte[]&nbsp;provideKeyResponse&#8203;(byte[]&nbsp;scope,
 <li class="blockList">
 <h4>getPropertyString</h4>
 <pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink">String</a>&nbsp;getPropertyString&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;propertyName)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the value of a string property. For standard property names, see <a href="https://developer.android.com/reference/android/media/MediaDrm.html#getPropertyString(java.lang.String)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaDrm.getPropertyString(java.lang.String)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -891,6 +956,7 @@ byte[]&nbsp;provideKeyResponse&#8203;(byte[]&nbsp;scope,
 <li class="blockList">
 <h4>getPropertyByteArray</h4>
 <pre class="methodSignature">byte[]&nbsp;getPropertyByteArray&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;propertyName)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the value of a byte array property. For standard property names, see <a href="https://developer.android.com/reference/android/media/MediaDrm.html#getPropertyByteArray(java.lang.String)" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaDrm.getPropertyByteArray(java.lang.String)</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -910,6 +976,7 @@ byte[]&nbsp;provideKeyResponse&#8203;(byte[]&nbsp;scope,
 <h4>setPropertyString</h4>
 <pre class="methodSignature">void&nbsp;setPropertyString&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;propertyName,
                        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the value of a string property.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -928,6 +995,7 @@ byte[]&nbsp;provideKeyResponse&#8203;(byte[]&nbsp;scope,
 <h4>setPropertyByteArray</h4>
 <pre class="methodSignature">void&nbsp;setPropertyByteArray&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;propertyName,
                           byte[]&nbsp;value)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the value of a byte array property.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -946,6 +1014,7 @@ byte[]&nbsp;provideKeyResponse&#8203;(byte[]&nbsp;scope,
 <h4>createCryptoConfig</h4>
 <pre class="methodSignature"><a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder">CryptoConfig</a>&nbsp;createCryptoConfig&#8203;(byte[]&nbsp;sessionId)
                          throws <a href="https://developer.android.com/reference/android/media/MediaCryptoException.html" title="class or interface in android.media" class="externalLink" target="_top">MediaCryptoException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a <a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder"><code>CryptoConfig</code></a> that can be passed to a compatible decoder to allow decryption
  of protected content using the specified session.</div>
 <dl>
@@ -965,6 +1034,7 @@ byte[]&nbsp;provideKeyResponse&#8203;(byte[]&nbsp;scope,
 <li class="blockList">
 <h4>getCryptoType</h4>
 <pre class="methodSignature">@com.google.android.exoplayer2.C.CryptoType int&nbsp;getCryptoType()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="../C.CryptoType.html" title="annotation in com.google.android.exoplayer2"><code>type</code></a> of <a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder"><code>CryptoConfig</code></a> instances returned by <a href="#createCryptoConfig(byte%5B%5D)"><code>createCryptoConfig(byte[])</code></a>.</div>
 </li>
 </ul>

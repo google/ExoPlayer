@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":41,"i1":41,"i2":41,"i3":41,"i4":41};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">ExtractorUtil</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">ExtractorUtil</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Extractor related utility methods.</div>
 </li>
 </ul>
@@ -146,7 +152,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -157,6 +163,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#checkContainerInput(boolean,java.lang.String)">checkContainerInput</a></span>&#8203;(boolean&nbsp;expression,
                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If <code>expression</code> is false, throws a <a href="../ParserException.html#createForMalformedContainer(java.lang.String,java.lang.Throwable)"><code>container malformed ParserException</code></a> with the given message.</div>
 </td>
 </tr>
@@ -168,6 +175,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                 int&nbsp;length,
                 boolean&nbsp;allowEndOfInput)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Peeks data from <code>input</code>, respecting <code>allowEndOfInput</code>.</div>
 </td>
 </tr>
@@ -178,6 +186,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
             int&nbsp;offset,
             int&nbsp;length)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Peeks <code>length</code> bytes from the input peek position, or all the bytes to the end of the
  input if there was less than <code>length</code> bytes left.</div>
 </td>
@@ -189,6 +198,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                 int&nbsp;offset,
                 int&nbsp;length)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Equivalent to <a href="ExtractorInput.html#readFully(byte%5B%5D,int,int)"><code>ExtractorInput.readFully(byte[], int, int)</code></a> except that it returns <code>
  false</code> instead of throwing an <a href="https://developer.android.com/reference/java/io/EOFException.html" title="class or interface in java.io" class="externalLink" target="_top"><code>EOFException</code></a> if the end of input is encountered without
  having fully satisfied the read.</div>
@@ -199,6 +209,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skipFullyQuietly(com.google.android.exoplayer2.extractor.ExtractorInput,int)">skipFullyQuietly</a></span>&#8203;(<a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
                 int&nbsp;length)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Equivalent to <a href="ExtractorInput.html#skipFully(int)"><code>ExtractorInput.skipFully(int)</code></a> except that it returns <code>false</code>
  instead of throwing an <a href="https://developer.android.com/reference/java/io/EOFException.html" title="class or interface in java.io" class="externalLink" target="_top"><code>EOFException</code></a> if the end of input is encountered without having
  fully satisfied the skip.</div>
@@ -239,6 +250,7 @@ public static&nbsp;void&nbsp;checkContainerInput&#8203;(boolean&nbsp;expression,
                                        @Nullable
                                        <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;message)
                                 throws <a href="../ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If <code>expression</code> is false, throws a <a href="../ParserException.html#createForMalformedContainer(java.lang.String,java.lang.Throwable)"><code>container malformed ParserException</code></a> with the given message. Otherwise, does nothing.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -257,6 +269,7 @@ public static&nbsp;void&nbsp;checkContainerInput&#8203;(boolean&nbsp;expression,
                                int&nbsp;offset,
                                int&nbsp;length)
                         throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Peeks <code>length</code> bytes from the input peek position, or all the bytes to the end of the
  input if there was less than <code>length</code> bytes left.
 
@@ -285,6 +298,7 @@ public static&nbsp;void&nbsp;checkContainerInput&#8203;(boolean&nbsp;expression,
                                        int&nbsp;offset,
                                        int&nbsp;length)
                                 throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Equivalent to <a href="ExtractorInput.html#readFully(byte%5B%5D,int,int)"><code>ExtractorInput.readFully(byte[], int, int)</code></a> except that it returns <code>
  false</code> instead of throwing an <a href="https://developer.android.com/reference/java/io/EOFException.html" title="class or interface in java.io" class="externalLink" target="_top"><code>EOFException</code></a> if the end of input is encountered without
  having fully satisfied the read.</div>
@@ -303,6 +317,7 @@ public static&nbsp;void&nbsp;checkContainerInput&#8203;(boolean&nbsp;expression,
 <pre class="methodSignature">public static&nbsp;boolean&nbsp;skipFullyQuietly&#8203;(<a href="ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input,
                                        int&nbsp;length)
                                 throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Equivalent to <a href="ExtractorInput.html#skipFully(int)"><code>ExtractorInput.skipFully(int)</code></a> except that it returns <code>false</code>
  instead of throwing an <a href="https://developer.android.com/reference/java/io/EOFException.html" title="class or interface in java.io" class="externalLink" target="_top"><code>EOFException</code></a> if the end of input is encountered without having
  fully satisfied the skip.</div>
@@ -324,6 +339,7 @@ public static&nbsp;void&nbsp;checkContainerInput&#8203;(boolean&nbsp;expression,
                                        int&nbsp;length,
                                        boolean&nbsp;allowEndOfInput)
                                 throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Peeks data from <code>input</code>, respecting <code>allowEndOfInput</code>. Returns true if the peek is
  successful.
 

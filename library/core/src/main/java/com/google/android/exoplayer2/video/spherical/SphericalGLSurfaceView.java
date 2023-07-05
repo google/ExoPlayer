@@ -53,7 +53,13 @@ import javax.microedition.khronos.opengles.GL10;
  * <p>The primary complexity in this class is related to the various rotations. It is important to
  * apply the touch and sensor rotations in the correct order or the user's touch manipulations won't
  * match what they expect.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class SphericalGLSurfaceView extends GLSurfaceView {
 
   /** Listener for the {@link Surface} to which video frames should be rendered. */

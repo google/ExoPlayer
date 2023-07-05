@@ -29,7 +29,15 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.common.primitives.Ints;
 import java.io.IOException;
 
-/** An {@link RtpDataChannel} for UDP transport. */
+/**
+ * An {@link RtpDataChannel} for UDP transport.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ final class UdpDataSourceRtpDataChannel implements RtpDataChannel {
 
   private static final String DEFAULT_UDP_TRANSPORT_FORMAT = "RTP/AVP;unicast;client_port=%d-%d";
@@ -60,6 +68,11 @@ import java.io.IOException;
   public int getLocalPort() {
     int port = dataSource.getLocalPort();
     return port == UdpDataSource.UDP_PORT_UNSET ? C.INDEX_UNSET : port;
+  }
+
+  @Override
+  public boolean needsClosingOnLoadCompletion() {
+    return true;
   }
 
   @Nullable

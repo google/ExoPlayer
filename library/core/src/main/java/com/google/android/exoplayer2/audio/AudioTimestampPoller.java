@@ -46,7 +46,13 @@ import java.lang.annotation.Target;
  * time since it was sampled. Otherwise, it may be stationary.
  *
  * <p>Call {@link #reset()} when pausing or resuming the track.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 /* package */ final class AudioTimestampPoller {
 
   /** Timestamp polling states. */
@@ -237,7 +243,7 @@ import java.lang.annotation.Target;
    */
   @TargetApi(19) // audioTimestamp will be null if Util.SDK_INT < 19.
   public long getTimestampPositionFrames() {
-    return audioTimestamp != null ? audioTimestamp.getTimestampPositionFrames() : C.POSITION_UNSET;
+    return audioTimestamp != null ? audioTimestamp.getTimestampPositionFrames() : C.INDEX_UNSET;
   }
 
   private void updateState(@State int state) {
@@ -246,7 +252,7 @@ import java.lang.annotation.Target;
       case STATE_INITIALIZING:
         // Force polling a timestamp immediately, and poll quickly.
         lastTimestampSampleTimeUs = 0;
-        initialTimestampPositionFrames = C.POSITION_UNSET;
+        initialTimestampPositionFrames = C.INDEX_UNSET;
         initializeSystemTimeUs = System.nanoTime() / 1000;
         sampleIntervalUs = FAST_POLL_INTERVAL_US;
         break;

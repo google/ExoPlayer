@@ -15,9 +15,9 @@
  */
 package com.google.android.exoplayer2.transformer;
 
-import android.os.ParcelFileDescriptor;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
@@ -26,12 +26,17 @@ import java.nio.ByteBuffer;
  * Abstracts media muxing operations.
  *
  * <p>Query whether {@linkplain Factory#getSupportedSampleMimeTypes(int) sample MIME types} are
- * supported and {@linkplain #addTrack(Format) add all tracks}, then {@linkplain
- * #writeSampleData(int, ByteBuffer, boolean, long) write sample data} to mux samples. Once any
- * sample data has been written, it is not possible to add tracks. After writing all sample data,
- * {@linkplain #release(boolean) release} the instance to finish writing to the output and return
- * any resources to the system.
+ * supported and {@linkplain #addTrack(Format) add all tracks}, then {@linkplain #writeSampleData
+ * write sample data} to mux samples. Once any sample data has been written, it is not possible to
+ * add tracks. After writing all sample data, {@linkplain #release(boolean) release} the instance to
+ * finish writing to the output and return any resources to the system.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public interface Muxer {
 
   /** Thrown when a muxing failure occurs. */
@@ -59,18 +64,6 @@ public interface Muxer {
     Muxer create(String path) throws MuxerException;
 
     /**
-     * Returns a new muxer writing to a file descriptor.
-     *
-     * @param parcelFileDescriptor A readable and writable {@link ParcelFileDescriptor} of the
-     *     output. The file referenced by this ParcelFileDescriptor should not be used before the
-     *     muxer is released. It is the responsibility of the caller to close the
-     *     ParcelFileDescriptor. This can be done after this method returns.
-     * @throws IllegalArgumentException If the file descriptor is invalid.
-     * @throws MuxerException If an error occurs opening the output file descriptor for writing.
-     */
-    Muxer create(ParcelFileDescriptor parcelFileDescriptor) throws MuxerException;
-
-    /**
      * Returns the supported sample {@linkplain MimeTypes MIME types} for the given {@link
      * C.TrackType}.
      */
@@ -78,10 +71,10 @@ public interface Muxer {
   }
 
   /**
-   * Adds a track with the specified format, and returns its index (to be passed in subsequent calls
-   * to {@link #writeSampleData(int, ByteBuffer, boolean, long)}).
+   * Adds a track with the specified format.
    *
    * @param format The {@link Format} of the track.
+   * @return The index for this track, which should be passed to {@link #writeSampleData}.
    * @throws MuxerException If the muxer encounters a problem while adding the track.
    */
   int addTrack(Format format) throws MuxerException;
@@ -91,19 +84,24 @@ public interface Muxer {
    *
    * @param trackIndex The index of the track, previously returned by {@link #addTrack(Format)}.
    * @param data A buffer containing the sample data to write to the container.
-   * @param isKeyFrame Whether the sample is a key frame.
    * @param presentationTimeUs The presentation time of the sample in microseconds.
+   * @param flags The {@link C.BufferFlags} associated with the data. Only {@link
+   *     C#BUFFER_FLAG_KEY_FRAME} and {@link C#BUFFER_FLAG_END_OF_STREAM} are supported.
    * @throws MuxerException If the muxer fails to write the sample.
    */
-  void writeSampleData(int trackIndex, ByteBuffer data, boolean isKeyFrame, long presentationTimeUs)
+  void writeSampleData(
+      int trackIndex, ByteBuffer data, long presentationTimeUs, @C.BufferFlags int flags)
       throws MuxerException;
+
+  /** Adds {@link Metadata} about the output file. */
+  void addMetadata(Metadata metadata);
 
   /**
    * Finishes writing the output and releases any resources associated with muxing.
    *
    * <p>The muxer cannot be used anymore once this method has been called.
    *
-   * @param forCancellation Whether the reason for releasing the resources is the transformation
+   * @param forCancellation Whether the reason for releasing the resources is the export
    *     cancellation.
    * @throws MuxerException If the muxer fails to finish writing the output and {@code
    *     forCancellation} is false.
@@ -117,8 +115,8 @@ public interface Muxer {
    * <p>This is the maximum delay between samples of any track. They can be of the same or of
    * different track types.
    *
-   * <p>This value is used to abort the transformation when the maximum delay is reached. Note that
-   * there is no guarantee that the transformation will be aborted exactly at that time.
+   * <p>This value is used to abort the export when the maximum delay is reached. Note that there is
+   * no guarantee that the export will be aborted exactly at that time.
    */
   long getMaxDelayBetweenSamplesMs();
 }

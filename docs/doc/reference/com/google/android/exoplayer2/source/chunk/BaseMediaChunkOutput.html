@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="ChunkExtractor.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractor.TrackOutputProvider</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">BaseMediaChunkOutput</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">BaseMediaChunkOutput</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="ChunkExtractor.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractor.TrackOutputProvider</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A <a href="ChunkExtractor.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>ChunkExtractor.TrackOutputProvider</code></a> that provides <a href="../../extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutputs</code></a> based on a
  predefined mapping from track type to output.</div>
 </li>
@@ -160,7 +166,9 @@ implements <a href="ChunkExtractor.TrackOutputProvider.html" title="interface in
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int%5B%5D,com.google.android.exoplayer2.source.SampleQueue%5B%5D)">BaseMediaChunkOutput</a></span>&#8203;(int[]&nbsp;trackTypes,
                     <a href="../SampleQueue.html" title="class in com.google.android.exoplayer2.source">SampleQueue</a>[]&nbsp;sampleQueues)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -174,7 +182,7 @@ implements <a href="ChunkExtractor.TrackOutputProvider.html" title="interface in
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -184,6 +192,7 @@ implements <a href="ChunkExtractor.TrackOutputProvider.html" title="interface in
 <td class="colFirst"><code>int[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getWriteIndices()">getWriteIndices</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current absolute write indices of the individual sample queues.</div>
 </td>
 </tr>
@@ -191,6 +200,7 @@ implements <a href="ChunkExtractor.TrackOutputProvider.html" title="interface in
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setSampleOffsetUs(long)">setSampleOffsetUs</a></span>&#8203;(long&nbsp;sampleOffsetUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets an offset that will be added to the timestamps (and sub-sample timestamps) of samples
  subsequently written to the sample queues.</div>
 </td>
@@ -200,6 +210,7 @@ implements <a href="ChunkExtractor.TrackOutputProvider.html" title="interface in
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#track(int,@com.google.android.exoplayer2.C.TrackTypeint)">track</a></span>&#8203;(int&nbsp;id,
      @com.google.android.exoplayer2.C.TrackType int&nbsp;type)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called to get the <a href="../../extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a> for a specific track.</div>
 </td>
 </tr>
@@ -235,6 +246,7 @@ implements <a href="ChunkExtractor.TrackOutputProvider.html" title="interface in
 <h4>BaseMediaChunkOutput</h4>
 <pre>public&nbsp;BaseMediaChunkOutput&#8203;(int[]&nbsp;trackTypes,
                             <a href="../SampleQueue.html" title="class in com.google.android.exoplayer2.source">SampleQueue</a>[]&nbsp;sampleQueues)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>trackTypes</code> - The track types of the individual track outputs.</dd>
@@ -260,6 +272,7 @@ implements <a href="ChunkExtractor.TrackOutputProvider.html" title="interface in
 <h4>track</h4>
 <pre class="methodSignature">public&nbsp;<a href="../../extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a>&nbsp;track&#8203;(int&nbsp;id,
                          @com.google.android.exoplayer2.C.TrackType int&nbsp;type)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ChunkExtractor.TrackOutputProvider.html#track(int,@com.google.android.exoplayer2.C.TrackTypeint)">ChunkExtractor.TrackOutputProvider</a></code></span></div>
 <div class="block">Called to get the <a href="../../extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a> for a specific track.
 
@@ -283,6 +296,7 @@ implements <a href="ChunkExtractor.TrackOutputProvider.html" title="interface in
 <li class="blockList">
 <h4>getWriteIndices</h4>
 <pre class="methodSignature">public&nbsp;int[]&nbsp;getWriteIndices()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current absolute write indices of the individual sample queues.</div>
 </li>
 </ul>
@@ -293,6 +307,7 @@ implements <a href="ChunkExtractor.TrackOutputProvider.html" title="interface in
 <li class="blockList">
 <h4>setSampleOffsetUs</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setSampleOffsetUs&#8203;(long&nbsp;sampleOffsetUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets an offset that will be added to the timestamps (and sub-sample timestamps) of samples
  subsequently written to the sample queues.</div>
 </li>

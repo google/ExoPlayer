@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":9,"i2":10,"i3":10,"i4":10};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":41,"i2":42,"i3":42,"i4":42};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">BaseUrlExclusionList</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">BaseUrlExclusionList</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Holds the state of <a href="#exclude(com.google.android.exoplayer2.source.dash.manifest.BaseUrl,long)"><code>excluded</code></a> base URLs to be used to <a href="#selectBaseUrl(java.util.List)"><code>select</code></a> a base URL based on these exclusions.</div>
 </li>
 </ul>
@@ -154,6 +160,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">BaseUrlExclusionList</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance.</div>
 </td>
 </tr>
@@ -169,7 +176,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -180,6 +187,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#exclude(com.google.android.exoplayer2.source.dash.manifest.BaseUrl,long)">exclude</a></span>&#8203;(<a href="manifest/BaseUrl.html" title="class in com.google.android.exoplayer2.source.dash.manifest">BaseUrl</a>&nbsp;baseUrlToExclude,
        long&nbsp;exclusionDurationMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Excludes the given base URL.</div>
 </td>
 </tr>
@@ -187,6 +195,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPriorityCount(java.util.List)">getPriorityCount</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="manifest/BaseUrl.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">BaseUrl</a>&gt;&nbsp;baseUrls)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the number of priority levels of the given list of base URLs.</div>
 </td>
 </tr>
@@ -194,6 +203,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPriorityCountAfterExclusion(java.util.List)">getPriorityCountAfterExclusion</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="manifest/BaseUrl.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">BaseUrl</a>&gt;&nbsp;baseUrls)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the number of priority levels for the given list of base URLs after exclusion.</div>
 </td>
 </tr>
@@ -201,6 +211,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reset()">reset</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Resets the state.</div>
 </td>
 </tr>
@@ -208,6 +219,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="manifest/BaseUrl.html" title="class in com.google.android.exoplayer2.source.dash.manifest">BaseUrl</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#selectBaseUrl(java.util.List)">selectBaseUrl</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="manifest/BaseUrl.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">BaseUrl</a>&gt;&nbsp;baseUrls)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Selects the base URL to use from the given list.</div>
 </td>
 </tr>
@@ -242,6 +254,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>BaseUrlExclusionList</h4>
 <pre>public&nbsp;BaseUrlExclusionList()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an instance.</div>
 </li>
 </ul>
@@ -263,6 +276,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>exclude</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;exclude&#8203;(<a href="manifest/BaseUrl.html" title="class in com.google.android.exoplayer2.source.dash.manifest">BaseUrl</a>&nbsp;baseUrlToExclude,
                     long&nbsp;exclusionDurationMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Excludes the given base URL.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -279,6 +293,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>selectBaseUrl</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="manifest/BaseUrl.html" title="class in com.google.android.exoplayer2.source.dash.manifest">BaseUrl</a>&nbsp;selectBaseUrl&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="manifest/BaseUrl.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">BaseUrl</a>&gt;&nbsp;baseUrls)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Selects the base URL to use from the given list.
 
  <p>The list is reduced by service location and priority of base URLs that have been passed to
@@ -299,6 +314,7 @@ public&nbsp;<a href="manifest/BaseUrl.html" title="class in com.google.android.e
 <li class="blockList">
 <h4>getPriorityCountAfterExclusion</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getPriorityCountAfterExclusion&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="manifest/BaseUrl.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">BaseUrl</a>&gt;&nbsp;baseUrls)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the number of priority levels for the given list of base URLs after exclusion.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -315,6 +331,7 @@ public&nbsp;<a href="manifest/BaseUrl.html" title="class in com.google.android.e
 <li class="blockList">
 <h4>getPriorityCount</h4>
 <pre class="methodSignature">public static&nbsp;int&nbsp;getPriorityCount&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="manifest/BaseUrl.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">BaseUrl</a>&gt;&nbsp;baseUrls)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the number of priority levels of the given list of base URLs.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -331,6 +348,7 @@ public&nbsp;<a href="manifest/BaseUrl.html" title="class in com.google.android.e
 <li class="blockList">
 <h4>reset</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;reset()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Resets the state.</div>
 </li>
 </ul>

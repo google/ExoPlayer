@@ -36,7 +36,13 @@ import java.io.IOException;
  * stream, which can make PCR values at the beginning of the stream larger than PCR values at the
  * end. This class can only be used once to read duration from a given stream, and the usage of the
  * class is not thread-safe, so all calls should be made from the same thread.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 /* package */ final class TsDurationReader {
 
   private static final String TAG = "TsDurationReader";

@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">VideoSize</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">VideoSize</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Represents the video size.</div>
 </li>
 </ul>
@@ -177,12 +183,15 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="VideoSize.html" title="class in com.google.android.exoplayer2.video">VideoSize</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#CREATOR">CREATOR</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#height">height</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The video height in pixels, 0 when unknown.</div>
 </td>
 </tr>
@@ -190,6 +199,7 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <td class="colFirst"><code>float</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#pixelWidthHeightRatio">pixelWidthHeightRatio</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The width to height ratio of each pixel, 1 if unknown.</div>
 </td>
 </tr>
@@ -197,6 +207,7 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#unappliedRotationDegrees">unappliedRotationDegrees</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Clockwise rotation in degrees that the application should apply for the video for it to be
  rendered in the correct orientation.</div>
 </td>
@@ -204,12 +215,15 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="VideoSize.html" title="class in com.google.android.exoplayer2.video">VideoSize</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#UNKNOWN">UNKNOWN</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#width">width</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The video width in pixels, 0 when unknown.</div>
 </td>
 </tr>
@@ -234,6 +248,7 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,int)">VideoSize</a></span>&#8203;(int&nbsp;width,
          int&nbsp;height)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a VideoSize without unapplied rotation or anamorphic content.</div>
 </td>
 </tr>
@@ -243,7 +258,8 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
          int&nbsp;unappliedRotationDegrees,
          float&nbsp;pixelWidthHeightRatio)</code></th>
 <td class="colLast">
-<div class="block">Creates a VideoSize.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Creates a new instance.</div>
 </td>
 </tr>
 </table>
@@ -258,7 +274,7 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -267,17 +283,22 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundle()">toBundle</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representing the information stored in this object.</div>
 </td>
 </tr>
@@ -312,6 +333,7 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <li class="blockList">
 <h4>UNKNOWN</h4>
 <pre>public static final&nbsp;<a href="VideoSize.html" title="class in com.google.android.exoplayer2.video">VideoSize</a> UNKNOWN</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="width">
@@ -322,6 +344,7 @@ implements <a href="../Bundleable.html" title="interface in com.google.android.e
 <h4>width</h4>
 <pre>@IntRange(from=0L)
 public final&nbsp;int width</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The video width in pixels, 0 when unknown.</div>
 </li>
 </ul>
@@ -333,6 +356,7 @@ public final&nbsp;int width</pre>
 <h4>height</h4>
 <pre>@IntRange(from=0L)
 public final&nbsp;int height</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The video height in pixels, 0 when unknown.</div>
 </li>
 </ul>
@@ -345,6 +369,7 @@ public final&nbsp;int height</pre>
 <pre>@IntRange(from=0L,
           to=359L)
 public final&nbsp;int unappliedRotationDegrees</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Clockwise rotation in degrees that the application should apply for the video for it to be
  rendered in the correct orientation.
 
@@ -367,6 +392,7 @@ public final&nbsp;int unappliedRotationDegrees</pre>
 <pre>@FloatRange(from=0.0,
             fromInclusive=false)
 public final&nbsp;float pixelWidthHeightRatio</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The width to height ratio of each pixel, 1 if unknown.
 
  <p>For the normal case of square pixels this will be equal to 1.0. Different values are
@@ -380,6 +406,7 @@ public final&nbsp;float pixelWidthHeightRatio</pre>
 <li class="blockList">
 <h4>CREATOR</h4>
 <pre>public static final&nbsp;<a href="../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="VideoSize.html" title="class in com.google.android.exoplayer2.video">VideoSize</a>&gt; CREATOR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -402,6 +429,7 @@ public final&nbsp;float pixelWidthHeightRatio</pre>
                  int&nbsp;width,
                  @IntRange(from=0L)
                  int&nbsp;height)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a VideoSize without unapplied rotation or anamorphic content.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -424,7 +452,8 @@ public final&nbsp;float pixelWidthHeightRatio</pre>
                  int&nbsp;unappliedRotationDegrees,
                  @FloatRange(from=0.0,fromInclusive=false)
                  float&nbsp;pixelWidthHeightRatio)</pre>
-<div class="block">Creates a VideoSize.</div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Creates a new instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>width</code> - The video width in pixels.</dd>
@@ -455,6 +484,7 @@ public final&nbsp;float pixelWidthHeightRatio</pre>
 <h4>equals</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;equals&#8203;(@Nullable
                       <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
@@ -468,6 +498,7 @@ public final&nbsp;float pixelWidthHeightRatio</pre>
 <li class="blockList">
 <h4>hashCode</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;hashCode()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
@@ -481,6 +512,7 @@ public final&nbsp;float pixelWidthHeightRatio</pre>
 <li class="blockList">
 <h4>toBundle</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;toBundle()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../Bundleable.html#toBundle()">Bundleable</a></code></span></div>
 <div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representing the information stored in this object.</div>
 <dl>

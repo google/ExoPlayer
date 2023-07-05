@@ -36,7 +36,13 @@ import java.util.List;
 /**
  * A {@link SubtitleDecoder} that decodes subtitle samples of type {@link
  * MimeTypes#TEXT_EXOPLAYER_CUES}
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class ExoplayerCuesDecoder implements SubtitleDecoder {
   @Documented
   @Target(TYPE_USE)
@@ -111,7 +117,7 @@ public final class ExoplayerCuesDecoder implements SubtitleDecoder {
       SingleEventSubtitle subtitle =
           new SingleEventSubtitle(
               inputBuffer.timeUs, cueDecoder.decode(checkNotNull(inputBuffer.data).array()));
-      outputBuffer.setContent(inputBuffer.timeUs, subtitle, /* subsampleOffsetUs=*/ 0);
+      outputBuffer.setContent(inputBuffer.timeUs, subtitle, /* subsampleOffsetUs= */ 0);
     }
     inputBuffer.clear();
     inputBufferState = INPUT_BUFFER_AVAILABLE;

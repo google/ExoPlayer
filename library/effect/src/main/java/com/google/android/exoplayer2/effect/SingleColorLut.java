@@ -24,11 +24,19 @@ import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.util.FrameProcessingException;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Util;
+import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 
-/** Transforms the colors of a frame by applying the same color lookup table to each frame. */
+/**
+ * Transforms the colors of a frame by applying the same color lookup table to each frame.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public class SingleColorLut implements ColorLut {
   private final Bitmap lut;
   private int lutTextureId;
@@ -126,13 +134,13 @@ public class SingleColorLut implements ColorLut {
         Bitmap.Config.ARGB_8888);
   }
 
-  /** Must be called after {@link #toGlTextureProcessor(Context, boolean)}. */
+  /** Must be called after {@link #toGlShaderProgram(Context, boolean)}. */
   @Override
   public int getLutTextureId(long presentationTimeUs) {
     checkState(
         lutTextureId != Format.NO_VALUE,
         "The LUT has not been stored as a texture in OpenGL yet. You must to call"
-            + " #toGlTextureProcessor() first.");
+            + " #toGlShaderProgram() first.");
     return lutTextureId;
   }
 
@@ -147,17 +155,17 @@ public class SingleColorLut implements ColorLut {
   }
 
   @Override
-  public SingleFrameGlTextureProcessor toGlTextureProcessor(Context context, boolean useHdr)
-      throws FrameProcessingException {
+  public SingleFrameGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
+      throws VideoFrameProcessingException {
     checkState(!useHdr, "HDR is currently not supported.");
 
     try {
       lutTextureId = storeLutAsTexture(lut);
     } catch (GlUtil.GlException e) {
-      throw new FrameProcessingException("Could not store the LUT as a texture.", e);
+      throw new VideoFrameProcessingException("Could not store the LUT as a texture.", e);
     }
 
-    return new ColorLutProcessor(context, /* colorLut= */ this, useHdr);
+    return new ColorLutShaderProgram(context, /* colorLut= */ this, useHdr);
   }
 
   private static int storeLutAsTexture(Bitmap bitmap) throws GlUtil.GlException {

@@ -30,11 +30,24 @@ import java.nio.ByteOrder;
  *
  * <p>In addition to being able to modify the format of audio, implementations may allow parameters
  * to be set that affect the output audio and whether the processor is active/inactive.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public interface AudioProcessor {
 
   /** PCM audio format that may be handled by an audio processor. */
   final class AudioFormat {
+    /**
+     * An {@link AudioFormat} instance to represent an unset {@link AudioFormat}. This should not be
+     * returned by {@link #configure(AudioFormat)} if the processor {@link #isActive()}.
+     *
+     * <p>Typically used to represent an inactive {@link AudioProcessor} {@linkplain
+     * #configure(AudioFormat) output format}.
+     */
     public static final AudioFormat NOT_SET =
         new AudioFormat(
             /* sampleRate= */ Format.NO_VALUE,
@@ -92,11 +105,15 @@ public interface AudioProcessor {
     }
   }
 
-  /** Exception thrown when a processor can't be configured for a given input audio format. */
+  /** Exception thrown when the given {@link AudioFormat} can not be handled. */
   final class UnhandledAudioFormatException extends Exception {
 
     public UnhandledAudioFormatException(AudioFormat inputAudioFormat) {
-      super("Unhandled format: " + inputAudioFormat);
+      this("Unhandled input format:", inputAudioFormat);
+    }
+
+    public UnhandledAudioFormatException(String message, AudioFormat audioFormat) {
+      super(message + " " + audioFormat);
     }
   }
 

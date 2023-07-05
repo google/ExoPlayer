@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -138,8 +138,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../../decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="../../decoder/SimpleDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoderOutputBuffer</a>,&#8203;<a href="OpusDecoderException.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoderException</a>&gt;</code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">OpusDecoder</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">OpusDecoder</span>
 extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a>&lt;<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>,&#8203;<a href="../../decoder/SimpleDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoderOutputBuffer</a>,&#8203;<a href="OpusDecoderException.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoderException</a>&gt;</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Opus decoder.</div>
 </li>
 </ul>
@@ -164,12 +170,16 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#channelCount">channelCount</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#outputFloat">outputFloat</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -196,6 +206,7 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
            <a href="../../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder">CryptoConfig</a>&nbsp;cryptoConfig,
            boolean&nbsp;outputFloat)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an Opus decoder.</div>
 </td>
 </tr>
@@ -211,7 +222,7 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -221,6 +232,7 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 <td class="colFirst"><code>protected <a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createInputBuffer()">createInputBuffer</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new input buffer.</div>
 </td>
 </tr>
@@ -228,6 +240,7 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 <td class="colFirst"><code>protected <a href="../../decoder/SimpleDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoderOutputBuffer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createOutputBuffer()">createOutputBuffer</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new output buffer.</div>
 </td>
 </tr>
@@ -235,6 +248,7 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 <td class="colFirst"><code>protected <a href="OpusDecoderException.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoderException</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createUnexpectedDecodeException(java.lang.Throwable)">createUnexpectedDecodeException</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;error)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an exception to propagate for an unexpected decode error.</div>
 </td>
 </tr>
@@ -244,6 +258,7 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
       <a href="../../decoder/SimpleDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoderOutputBuffer</a>&nbsp;outputBuffer,
       boolean&nbsp;reset)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Decodes the <code>inputBuffer</code> and stores any decoded output in <code>outputBuffer</code>.</div>
 </td>
 </tr>
@@ -251,6 +266,7 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#experimentalSetDiscardPaddingEnabled(boolean)">experimentalSetDiscardPaddingEnabled</a></span>&#8203;(boolean&nbsp;enabled)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether discard padding is enabled.</div>
 </td>
 </tr>
@@ -258,6 +274,7 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getName()">getName</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the name of the decoder.</div>
 </td>
 </tr>
@@ -265,6 +282,7 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases the decoder.</div>
 </td>
 </tr>
@@ -306,6 +324,7 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 <li class="blockList">
 <h4>outputFloat</h4>
 <pre>public final&nbsp;boolean outputFloat</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="channelCount">
@@ -315,6 +334,7 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 <li class="blockList">
 <h4>channelCount</h4>
 <pre>public final&nbsp;int channelCount</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -341,6 +361,7 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
                    <a href="../../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder">CryptoConfig</a>&nbsp;cryptoConfig,
                    boolean&nbsp;outputFloat)
             throws <a href="OpusDecoderException.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoderException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates an Opus decoder.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -375,6 +396,7 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 <li class="blockList">
 <h4>experimentalSetDiscardPaddingEnabled</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;experimentalSetDiscardPaddingEnabled&#8203;(boolean&nbsp;enabled)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets whether discard padding is enabled. When enabled, discard padding samples (provided as
  supplemental data on the input buffer) will be removed from the end of the decoder output.
 
@@ -388,6 +410,7 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 <li class="blockList">
 <h4>getName</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;getName()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../decoder/Decoder.html#getName()">Decoder</a></code></span></div>
 <div class="block">Returns the name of the decoder.</div>
 <dl>
@@ -403,6 +426,7 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 <li class="blockList">
 <h4>createInputBuffer</h4>
 <pre class="methodSignature">protected&nbsp;<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;createInputBuffer()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../decoder/SimpleDecoder.html#createInputBuffer()">SimpleDecoder</a></code></span></div>
 <div class="block">Creates a new input buffer.</div>
 <dl>
@@ -418,6 +442,7 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 <li class="blockList">
 <h4>createOutputBuffer</h4>
 <pre class="methodSignature">protected&nbsp;<a href="../../decoder/SimpleDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoderOutputBuffer</a>&nbsp;createOutputBuffer()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../decoder/SimpleDecoder.html#createOutputBuffer()">SimpleDecoder</a></code></span></div>
 <div class="block">Creates a new output buffer.</div>
 <dl>
@@ -433,6 +458,7 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 <li class="blockList">
 <h4>createUnexpectedDecodeException</h4>
 <pre class="methodSignature">protected&nbsp;<a href="OpusDecoderException.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoderException</a>&nbsp;createUnexpectedDecodeException&#8203;(<a href="https://developer.android.com/reference/java/lang/Throwable.html" title="class or interface in java.lang" class="externalLink" target="_top">Throwable</a>&nbsp;error)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../decoder/SimpleDecoder.html#createUnexpectedDecodeException(java.lang.Throwable)">SimpleDecoder</a></code></span></div>
 <div class="block">Creates an exception to propagate for an unexpected decode error.</div>
 <dl>
@@ -455,6 +481,7 @@ extends <a href="../../decoder/SimpleDecoder.html" title="class in com.google.an
 protected&nbsp;<a href="OpusDecoderException.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoderException</a>&nbsp;decode&#8203;(<a href="../../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;inputBuffer,
                                       <a href="../../decoder/SimpleDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoderOutputBuffer</a>&nbsp;outputBuffer,
                                       boolean&nbsp;reset)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../../decoder/SimpleDecoder.html#decode(I,O,boolean)">SimpleDecoder</a></code></span></div>
 <div class="block">Decodes the <code>inputBuffer</code> and stores any decoded output in <code>outputBuffer</code>.</div>
 <dl>
@@ -479,6 +506,7 @@ protected&nbsp;<a href="OpusDecoderException.html" title="class in com.google.an
 <li class="blockList">
 <h4>release</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;release()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../decoder/Decoder.html#release()">Decoder</a></code></span></div>
 <div class="block">Releases the decoder. Must be called when the decoder is no longer needed.</div>
 <dl>

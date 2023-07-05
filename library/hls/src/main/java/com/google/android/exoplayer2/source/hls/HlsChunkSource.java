@@ -41,6 +41,8 @@ import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist.Segmen
 import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker;
 import com.google.android.exoplayer2.trackselection.BaseTrackSelection;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
+import com.google.android.exoplayer2.upstream.CmcdConfiguration;
+import com.google.android.exoplayer2.upstream.CmcdLog;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.TransferListener;
@@ -61,7 +63,15 @@ import java.util.Collections;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/** Source of Hls (possibly adaptive) chunks. */
+/**
+ * Source of Hls (possibly adaptive) chunks.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ class HlsChunkSource {
 
   /** Chunk holder that allows the scheduling of retries. */
@@ -130,8 +140,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable private final List<Format> muxedCaptionFormats;
   private final FullSegmentEncryptionKeyCache keyCache;
   private final PlayerId playerId;
+  @Nullable private final CmcdConfiguration cmcdConfiguration;
+  private final long timestampAdjusterInitializationTimeoutMs;
 
-  private boolean isTimestampMaster;
+  private boolean isPrimaryTimestampSource;
   private byte[] scratchSpace;
   @Nullable private IOException fatalError;
   @Nullable private Uri expectedPlaylistUrl;
@@ -158,6 +170,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param timestampAdjusterProvider A provider of {@link TimestampAdjuster} instances. If multiple
    *     {@link HlsChunkSource}s are used for a single playback, they should all share the same
    *     provider.
+   * @param timestampAdjusterInitializationTimeoutMs The timeout for the loading thread to wait for
+   *     the timestamp adjuster to initialize, in milliseconds. A timeout of zero is interpreted as
+   *     an infinite timeout.
    * @param muxedCaptionFormats List of muxed caption {@link Format}s. Null if no closed caption
    *     information is available in the multivariant playlist.
    */
@@ -169,15 +184,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       HlsDataSourceFactory dataSourceFactory,
       @Nullable TransferListener mediaTransferListener,
       TimestampAdjusterProvider timestampAdjusterProvider,
+      long timestampAdjusterInitializationTimeoutMs,
       @Nullable List<Format> muxedCaptionFormats,
-      PlayerId playerId) {
+      PlayerId playerId,
+      @Nullable CmcdConfiguration cmcdConfiguration) {
     this.extractorFactory = extractorFactory;
     this.playlistTracker = playlistTracker;
     this.playlistUrls = playlistUrls;
     this.playlistFormats = playlistFormats;
     this.timestampAdjusterProvider = timestampAdjusterProvider;
+    this.timestampAdjusterInitializationTimeoutMs = timestampAdjusterInitializationTimeoutMs;
     this.muxedCaptionFormats = muxedCaptionFormats;
     this.playerId = playerId;
+    this.cmcdConfiguration = cmcdConfiguration;
     keyCache = new FullSegmentEncryptionKeyCache(KEY_CACHE_SIZE);
     scratchSpace = Util.EMPTY_BYTE_ARRAY;
     liveEdgeInPeriodTimeUs = C.TIME_UNSET;
@@ -240,11 +259,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   /**
    * Sets whether this chunk source is responsible for initializing timestamp adjusters.
    *
-   * @param isTimestampMaster True if this chunk source is responsible for initializing timestamp
-   *     adjusters.
+   * @param isPrimaryTimestampSource True if this chunk source is responsible for initializing
+   *     timestamp adjusters.
    */
-  public void setIsTimestampMaster(boolean isTimestampMaster) {
-    this.isTimestampMaster = isTimestampMaster;
+  public void setIsPrimaryTimestampSource(boolean isPrimaryTimestampSource) {
+    this.isPrimaryTimestampSource = isPrimaryTimestampSource;
   }
 
   /**
@@ -493,6 +512,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return;
     }
 
+    @Nullable
+    CmcdLog cmcdLog =
+        cmcdConfiguration == null
+            ? null
+            : CmcdLog.createInstance(
+                cmcdConfiguration, trackSelection, playbackPositionUs, loadPositionUs);
+
     out.chunk =
         HlsMediaChunk.createInstance(
             extractorFactory,
@@ -505,13 +531,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             muxedCaptionFormats,
             trackSelection.getSelectionReason(),
             trackSelection.getSelectionData(),
-            isTimestampMaster,
+            isPrimaryTimestampSource,
             timestampAdjusterProvider,
+            timestampAdjusterInitializationTimeoutMs,
             previous,
             /* mediaSegmentKey= */ keyCache.get(mediaSegmentKeyUri),
             /* initSegmentKey= */ keyCache.get(initSegmentKeyUri),
             shouldSpliceIn,
-            playerId);
+            playerId,
+            cmcdLog);
   }
 
   @Nullable
@@ -573,7 +601,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @return Whether the exclusion succeeded.
    */
   public boolean maybeExcludeTrack(Chunk chunk, long exclusionDurationMs) {
-    return trackSelection.blacklist(
+    return trackSelection.excludeTrack(
         trackSelection.indexOf(trackGroup.indexOf(chunk.trackFormat)), exclusionDurationMs);
   }
 
@@ -602,7 +630,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
     seenExpectedPlaylistError |= playlistUrl.equals(expectedPlaylistUrl);
     return exclusionDurationMs == C.TIME_UNSET
-        || (trackSelection.blacklist(trackSelectionIndex, exclusionDurationMs)
+        || (trackSelection.excludeTrack(trackSelectionIndex, exclusionDurationMs)
             && playlistTracker.excludeMediaPlaylist(playlistUrl, exclusionDurationMs));
   }
 
@@ -894,12 +922,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         List<? extends MediaChunk> queue,
         MediaChunkIterator[] mediaChunkIterators) {
       long nowMs = SystemClock.elapsedRealtime();
-      if (!isBlacklisted(selectedIndex, nowMs)) {
+      if (!isTrackExcluded(selectedIndex, nowMs)) {
         return;
       }
       // Try from lowest bitrate to highest.
       for (int i = length - 1; i >= 0; i--) {
-        if (!isBlacklisted(i, nowMs)) {
+        if (!isTrackExcluded(i, nowMs)) {
           selectedIndex = i;
           return;
         }

@@ -26,9 +26,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-/** Represents an HLS multivariant playlist. */
-// TODO(b/211458101): Make non-final once HlsMasterPlaylist is removed.
-public class HlsMultivariantPlaylist extends HlsPlaylist {
+/**
+ * Represents an HLS multivariant playlist.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
+public final class HlsMultivariantPlaylist extends HlsPlaylist {
 
   /** Represents an empty multivariant playlist, from which no attributes can be inherited. */
   public static final HlsMultivariantPlaylist EMPTY =

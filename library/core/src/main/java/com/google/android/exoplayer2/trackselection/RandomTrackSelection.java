@@ -28,7 +28,15 @@ import java.util.List;
 import java.util.Random;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
-/** An {@link ExoTrackSelection} whose selected track is updated randomly. */
+/**
+ * An {@link ExoTrackSelection} whose selected track is updated randomly.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class RandomTrackSelection extends BaseTrackSelection {
 
   /** Factory for {@link RandomTrackSelection} instances. */
@@ -91,7 +99,7 @@ public final class RandomTrackSelection extends BaseTrackSelection {
     long nowMs = SystemClock.elapsedRealtime();
     int allowedFormatCount = 0;
     for (int i = 0; i < length; i++) {
-      if (!isBlacklisted(i, nowMs)) {
+      if (!isTrackExcluded(i, nowMs)) {
         allowedFormatCount++;
       }
     }
@@ -101,7 +109,7 @@ public final class RandomTrackSelection extends BaseTrackSelection {
       // Adjust the format index to account for excluded formats.
       allowedFormatCount = 0;
       for (int i = 0; i < length; i++) {
-        if (!isBlacklisted(i, nowMs) && selectedIndex == allowedFormatCount++) {
+        if (!isTrackExcluded(i, nowMs) && selectedIndex == allowedFormatCount++) {
           selectedIndex = i;
           return;
         }

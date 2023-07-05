@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -138,8 +138,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../MetadataDecoder.html" title="interface in com.google.android.exoplayer2.metadata">MetadataDecoder</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">Id3Decoder</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">Id3Decoder</span>
 extends <a href="../SimpleMetadataDecoder.html" title="class in com.google.android.exoplayer2.metadata">SimpleMetadataDecoder</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Decodes ID3 tags.</div>
 </li>
 </ul>
@@ -165,6 +171,7 @@ extends <a href="../SimpleMetadataDecoder.html" title="class in com.google.andro
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Id3Decoder.FramePredicate.html" title="interface in com.google.android.exoplayer2.metadata.id3">Id3Decoder.FramePredicate</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A predicate for determining whether individual frames should be decoded.</div>
 </td>
 </tr>
@@ -190,6 +197,7 @@ extends <a href="../SimpleMetadataDecoder.html" title="class in com.google.andro
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ID3_HEADER_LENGTH">ID3_HEADER_LENGTH</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Length of an ID3 tag header.</div>
 </td>
 </tr>
@@ -197,6 +205,7 @@ extends <a href="../SimpleMetadataDecoder.html" title="class in com.google.andro
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ID3_TAG">ID3_TAG</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The first three bytes of a well formed ID3 tag header.</div>
 </td>
 </tr>
@@ -204,6 +213,7 @@ extends <a href="../SimpleMetadataDecoder.html" title="class in com.google.andro
 <td class="colFirst"><code>static <a href="Id3Decoder.FramePredicate.html" title="interface in com.google.android.exoplayer2.metadata.id3">Id3Decoder.FramePredicate</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#NO_FRAMES_PREDICATE">NO_FRAMES_PREDICATE</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A predicate that indicates no frames should be decoded.</div>
 </td>
 </tr>
@@ -226,11 +236,15 @@ extends <a href="../SimpleMetadataDecoder.html" title="class in com.google.andro
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">Id3Decoder</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.metadata.id3.Id3Decoder.FramePredicate)">Id3Decoder</a></span>&#8203;(<a href="Id3Decoder.FramePredicate.html" title="interface in com.google.android.exoplayer2.metadata.id3">Id3Decoder.FramePredicate</a>&nbsp;framePredicate)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -244,7 +258,7 @@ extends <a href="../SimpleMetadataDecoder.html" title="class in com.google.andro
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -255,6 +269,7 @@ extends <a href="../SimpleMetadataDecoder.html" title="class in com.google.andro
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decode(byte%5B%5D,int)">decode</a></span>&#8203;(byte[]&nbsp;data,
       int&nbsp;size)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Decodes ID3 tags.</div>
 </td>
 </tr>
@@ -263,6 +278,7 @@ extends <a href="../SimpleMetadataDecoder.html" title="class in com.google.andro
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decode(com.google.android.exoplayer2.metadata.MetadataInputBuffer,java.nio.ByteBuffer)">decode</a></span>&#8203;(<a href="../MetadataInputBuffer.html" title="class in com.google.android.exoplayer2.metadata">MetadataInputBuffer</a>&nbsp;inputBuffer,
       <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called by <a href="../SimpleMetadataDecoder.html#decode(com.google.android.exoplayer2.metadata.MetadataInputBuffer)"><code>SimpleMetadataDecoder.decode(MetadataInputBuffer)</code></a> after input buffer validation has been
  performed, except in the case that <a href="../../decoder/Buffer.html#isDecodeOnly()"><code>Buffer.isDecodeOnly()</code></a> is <code>true</code>.</div>
 </td>
@@ -305,6 +321,7 @@ extends <a href="../SimpleMetadataDecoder.html" title="class in com.google.andro
 <li class="blockList">
 <h4>NO_FRAMES_PREDICATE</h4>
 <pre>public static final&nbsp;<a href="Id3Decoder.FramePredicate.html" title="interface in com.google.android.exoplayer2.metadata.id3">Id3Decoder.FramePredicate</a> NO_FRAMES_PREDICATE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A predicate that indicates no frames should be decoded.</div>
 </li>
 </ul>
@@ -315,6 +332,7 @@ extends <a href="../SimpleMetadataDecoder.html" title="class in com.google.andro
 <li class="blockList">
 <h4>ID3_TAG</h4>
 <pre>public static final&nbsp;int ID3_TAG</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The first three bytes of a well formed ID3 tag header.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -329,6 +347,7 @@ extends <a href="../SimpleMetadataDecoder.html" title="class in com.google.andro
 <li class="blockList">
 <h4>ID3_HEADER_LENGTH</h4>
 <pre>public static final&nbsp;int ID3_HEADER_LENGTH</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Length of an ID3 tag header.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -353,6 +372,7 @@ extends <a href="../SimpleMetadataDecoder.html" title="class in com.google.andro
 <li class="blockList">
 <h4>Id3Decoder</h4>
 <pre>public&nbsp;Id3Decoder()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="&lt;init&gt;(com.google.android.exoplayer2.metadata.id3.Id3Decoder.FramePredicate)">
@@ -363,6 +383,7 @@ extends <a href="../SimpleMetadataDecoder.html" title="class in com.google.andro
 <h4>Id3Decoder</h4>
 <pre>public&nbsp;Id3Decoder&#8203;(@Nullable
                   <a href="Id3Decoder.FramePredicate.html" title="interface in com.google.android.exoplayer2.metadata.id3">Id3Decoder.FramePredicate</a>&nbsp;framePredicate)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>framePredicate</code> - Determines which frames are decoded. May be null to decode all frames.</dd>
@@ -388,6 +409,7 @@ extends <a href="../SimpleMetadataDecoder.html" title="class in com.google.andro
 <pre class="methodSignature">@Nullable
 protected&nbsp;<a href="../Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;decode&#8203;(<a href="../MetadataInputBuffer.html" title="class in com.google.android.exoplayer2.metadata">MetadataInputBuffer</a>&nbsp;inputBuffer,
                           <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../SimpleMetadataDecoder.html#decode(com.google.android.exoplayer2.metadata.MetadataInputBuffer,java.nio.ByteBuffer)">SimpleMetadataDecoder</a></code></span></div>
 <div class="block">Called by <a href="../SimpleMetadataDecoder.html#decode(com.google.android.exoplayer2.metadata.MetadataInputBuffer)"><code>SimpleMetadataDecoder.decode(MetadataInputBuffer)</code></a> after input buffer validation has been
  performed, except in the case that <a href="../../decoder/Buffer.html#isDecodeOnly()"><code>Buffer.isDecodeOnly()</code></a> is <code>true</code>.</div>
@@ -413,6 +435,7 @@ protected&nbsp;<a href="../Metadata.html" title="class in com.google.android.exo
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="../Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;decode&#8203;(byte[]&nbsp;data,
                        int&nbsp;size)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Decodes ID3 tags.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

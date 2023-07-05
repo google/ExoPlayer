@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">AtomicFile</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">AtomicFile</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A helper class for performing atomic operations on a file by creating a backup file until a write
  has successfully completed.
 
@@ -163,6 +169,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.io.File)">AtomicFile</a></span>&#8203;(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a>&nbsp;baseName)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Create a new AtomicFile for a file located at the given File path.</div>
 </td>
 </tr>
@@ -178,7 +185,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -188,6 +195,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#delete()">delete</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Delete the atomic file.</div>
 </td>
 </tr>
@@ -195,6 +203,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#endWrite(java.io.OutputStream)">endWrite</a></span>&#8203;(<a href="https://developer.android.com/reference/java/io/OutputStream.html" title="class or interface in java.io" class="externalLink" target="_top">OutputStream</a>&nbsp;str)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Call when you have successfully finished writing to the stream returned by <a href="#startWrite()"><code>startWrite()</code></a>.</div>
 </td>
 </tr>
@@ -202,6 +211,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#exists()">exists</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the file or its backup exists.</div>
 </td>
 </tr>
@@ -209,6 +219,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/io/InputStream.html" title="class or interface in java.io" class="externalLink" target="_top">InputStream</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#openRead()">openRead</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Open the atomic file for reading.</div>
 </td>
 </tr>
@@ -216,6 +227,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/io/OutputStream.html" title="class or interface in java.io" class="externalLink" target="_top">OutputStream</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#startWrite()">startWrite</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Start a new write operation on the file.</div>
 </td>
 </tr>
@@ -250,6 +262,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>AtomicFile</h4>
 <pre>public&nbsp;AtomicFile&#8203;(<a href="https://developer.android.com/reference/java/io/File.html" title="class or interface in java.io" class="externalLink" target="_top">File</a>&nbsp;baseName)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Create a new AtomicFile for a file located at the given File path. The secondary backup file
  will be the same file path with ".bak" appended.</div>
 </li>
@@ -271,6 +284,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>exists</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;exists()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the file or its backup exists.</div>
 </li>
 </ul>
@@ -281,6 +295,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>delete</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;delete()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Delete the atomic file. This deletes both the base and backup files.</div>
 </li>
 </ul>
@@ -292,6 +307,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>startWrite</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/io/OutputStream.html" title="class or interface in java.io" class="externalLink" target="_top">OutputStream</a>&nbsp;startWrite()
                         throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Start a new write operation on the file. This returns an <a href="https://developer.android.com/reference/java/io/OutputStream.html" title="class or interface in java.io" class="externalLink" target="_top"><code>OutputStream</code></a> to which you can
  write the new file data. If the whole data is written successfully you <em>must</em> call
  <a href="#endWrite(java.io.OutputStream)"><code>endWrite(OutputStream)</code></a>. On failure you should call <a href="https://developer.android.com/reference/java/io/OutputStream.html#close()" title="class or interface in java.io" class="externalLink" target="_top"><code>OutputStream.close()</code></a> only
@@ -332,6 +348,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>endWrite</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;endWrite&#8203;(<a href="https://developer.android.com/reference/java/io/OutputStream.html" title="class or interface in java.io" class="externalLink" target="_top">OutputStream</a>&nbsp;str)
               throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Call when you have successfully finished writing to the stream returned by <a href="#startWrite()"><code>startWrite()</code></a>. This will close, sync, and commit the new data. The next attempt to read the
  atomic file will return the new file stream.</div>
 <dl>
@@ -352,6 +369,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>openRead</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/io/InputStream.html" title="class or interface in java.io" class="externalLink" target="_top">InputStream</a>&nbsp;openRead()
                      throws <a href="https://developer.android.com/reference/java/io/FileNotFoundException.html" title="class or interface in java.io" class="externalLink" target="_top">FileNotFoundException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Open the atomic file for reading. If there previously was an incomplete write, this will roll
  back to the last good data before opening for read.
 

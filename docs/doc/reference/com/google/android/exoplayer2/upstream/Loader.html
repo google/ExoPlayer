@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":9,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":41,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream">LoaderErrorThrower</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">Loader</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">Loader</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream">LoaderErrorThrower</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Manages the background loading of <a href="Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream"><code>Loader.Loadable</code></a>s.</div>
 </li>
 </ul>
@@ -161,6 +167,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Loader.Callback.html" title="interface in com.google.android.exoplayer2.upstream">Loader.Callback</a>&lt;<a href="Loader.Callback.html" title="type parameter in Loader.Callback">T</a> extends <a href="Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream">Loader.Loadable</a>&gt;</span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A callback to be notified of <a href="Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a> events.</div>
 </td>
 </tr>
@@ -168,6 +175,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream">Loader.Loadable</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">An object that can be loaded using a <a href="Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a>.</div>
 </td>
 </tr>
@@ -175,6 +183,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Action that can be taken in response to <a href="Loader.Callback.html#onLoadError(T,long,long,java.io.IOException,int)"><code>Loader.Callback.onLoadError(Loadable, long, long,
  IOException, int)</code></a>.</div>
 </td>
@@ -183,6 +192,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Loader.ReleaseCallback.html" title="interface in com.google.android.exoplayer2.upstream">Loader.ReleaseCallback</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A callback to be notified when a <a href="Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a> has finished being released.</div>
 </td>
 </tr>
@@ -190,6 +200,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Loader.UnexpectedLoaderException.html" title="class in com.google.android.exoplayer2.upstream">Loader.UnexpectedLoaderException</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Thrown when an unexpected exception or error is encountered during loading.</div>
 </td>
 </tr>
@@ -222,6 +233,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <td class="colFirst"><code>static <a href="Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DONT_RETRY">DONT_RETRY</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Discards the failed <a href="Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream"><code>Loader.Loadable</code></a> and ignores any errors that have occurred.</div>
 </td>
 </tr>
@@ -229,6 +241,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <td class="colFirst"><code>static <a href="Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DONT_RETRY_FATAL">DONT_RETRY_FATAL</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Discards the failed <a href="Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream"><code>Loader.Loadable</code></a>.</div>
 </td>
 </tr>
@@ -236,6 +249,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <td class="colFirst"><code>static <a href="Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#RETRY">RETRY</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Retries the load using the default delay.</div>
 </td>
 </tr>
@@ -243,6 +257,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <td class="colFirst"><code>static <a href="Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#RETRY_RESET_ERROR_COUNT">RETRY_RESET_ERROR_COUNT</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Retries the load using the default delay and resets the error count.</div>
 </td>
 </tr>
@@ -265,7 +280,9 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String)">Loader</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;threadNameSuffix)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -279,7 +296,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -289,6 +306,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#cancelLoading()">cancelLoading</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Cancels the current load.</div>
 </td>
 </tr>
@@ -296,6 +314,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearFatalError()">clearFatalError</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Clears any stored fatal error.</div>
 </td>
 </tr>
@@ -304,6 +323,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createRetryAction(boolean,long)">createRetryAction</a></span>&#8203;(boolean&nbsp;resetErrorCount,
                  long&nbsp;retryDelayMillis)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a <a href="Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader.LoadErrorAction</code></a> for retrying with the given parameters.</div>
 </td>
 </tr>
@@ -311,6 +331,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hasFatalError()">hasFatalError</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the last call to <a href="#startLoading(T,com.google.android.exoplayer2.upstream.Loader.Callback,int)"><code>startLoading(T, com.google.android.exoplayer2.upstream.Loader.Callback&lt;T&gt;, int)</code></a> resulted in a fatal error.</div>
 </td>
 </tr>
@@ -318,6 +339,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isLoading()">isLoading</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the loader is currently loading.</div>
 </td>
 </tr>
@@ -325,6 +347,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maybeThrowError()">maybeThrowError</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Throws a fatal error, or a non-fatal error if loading is currently backed off and the current
  <a href="Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream"><code>Loader.Loadable</code></a> has incurred a number of errors greater than the <a href="Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a>s default
  minimum number of retries.</div>
@@ -334,6 +357,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maybeThrowError(int)">maybeThrowError</a></span>&#8203;(int&nbsp;minRetryCount)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Throws a fatal error, or a non-fatal error if loading is currently backed off and the current
  <a href="Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream"><code>Loader.Loadable</code></a> has incurred a number of errors greater than the specified minimum number of
  retries.</div>
@@ -343,6 +367,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases the loader.</div>
 </td>
 </tr>
@@ -350,6 +375,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release(com.google.android.exoplayer2.upstream.Loader.ReleaseCallback)">release</a></span>&#8203;(<a href="Loader.ReleaseCallback.html" title="interface in com.google.android.exoplayer2.upstream">Loader.ReleaseCallback</a>&nbsp;callback)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases the loader.</div>
 </td>
 </tr>
@@ -359,6 +385,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
             <a href="Loader.Callback.html" title="interface in com.google.android.exoplayer2.upstream">Loader.Callback</a>&lt;T&gt;&nbsp;callback,
             int&nbsp;defaultMinRetryCount)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts loading a <a href="Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream"><code>Loader.Loadable</code></a>.</div>
 </td>
 </tr>
@@ -393,6 +420,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>RETRY</h4>
 <pre>public static final&nbsp;<a href="Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a> RETRY</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Retries the load using the default delay.</div>
 </li>
 </ul>
@@ -403,6 +431,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>RETRY_RESET_ERROR_COUNT</h4>
 <pre>public static final&nbsp;<a href="Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a> RETRY_RESET_ERROR_COUNT</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Retries the load using the default delay and resets the error count.</div>
 </li>
 </ul>
@@ -413,6 +442,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>DONT_RETRY</h4>
 <pre>public static final&nbsp;<a href="Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a> DONT_RETRY</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Discards the failed <a href="Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream"><code>Loader.Loadable</code></a> and ignores any errors that have occurred.</div>
 </li>
 </ul>
@@ -423,6 +453,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>DONT_RETRY_FATAL</h4>
 <pre>public static final&nbsp;<a href="Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a> DONT_RETRY_FATAL</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Discards the failed <a href="Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream"><code>Loader.Loadable</code></a>. The next call to <a href="#maybeThrowError()"><code>maybeThrowError()</code></a> will throw
  the last load error.</div>
 </li>
@@ -444,6 +475,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>Loader</h4>
 <pre>public&nbsp;Loader&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;threadNameSuffix)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>threadNameSuffix</code> - A name suffix for the loader's thread. This should be the name of the
@@ -469,6 +501,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <h4>createRetryAction</h4>
 <pre class="methodSignature">public static&nbsp;<a href="Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream">Loader.LoadErrorAction</a>&nbsp;createRetryAction&#8203;(boolean&nbsp;resetErrorCount,
                                                        long&nbsp;retryDelayMillis)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a <a href="Loader.LoadErrorAction.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader.LoadErrorAction</code></a> for retrying with the given parameters.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -486,6 +519,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>hasFatalError</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;hasFatalError()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the last call to <a href="#startLoading(T,com.google.android.exoplayer2.upstream.Loader.Callback,int)"><code>startLoading(T, com.google.android.exoplayer2.upstream.Loader.Callback&lt;T&gt;, int)</code></a> resulted in a fatal error. Calling <a href="#maybeThrowError()"><code>maybeThrowError()</code></a> will throw the fatal error.</div>
 </li>
 </ul>
@@ -496,6 +530,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>clearFatalError</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;clearFatalError()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Clears any stored fatal error.</div>
 </li>
 </ul>
@@ -510,6 +545,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <pre class="methodSignature">public&nbsp;&lt;T extends <a href="Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream">Loader.Loadable</a>&gt;&nbsp;long&nbsp;startLoading&#8203;(T&nbsp;loadable,
                                                      <a href="Loader.Callback.html" title="interface in com.google.android.exoplayer2.upstream">Loader.Callback</a>&lt;T&gt;&nbsp;callback,
                                                      int&nbsp;defaultMinRetryCount)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts loading a <a href="Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream"><code>Loader.Loadable</code></a>.
 
  <p>The calling thread must be a <a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink"><code>Looper</code></a> thread, which is the thread on which the <a href="Loader.Callback.html" title="interface in com.google.android.exoplayer2.upstream" target="_top"><code>Loader.Callback</code></a> will be called.</div>
@@ -534,6 +570,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>isLoading</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isLoading()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the loader is currently loading.</div>
 </li>
 </ul>
@@ -544,6 +581,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>cancelLoading</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;cancelLoading()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Cancels the current load.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -558,6 +596,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <li class="blockList">
 <h4>release</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;release()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases the loader. This method should be called when the loader is no longer required.</div>
 </li>
 </ul>
@@ -569,6 +608,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <h4>release</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;release&#8203;(@Nullable
                     <a href="Loader.ReleaseCallback.html" title="interface in com.google.android.exoplayer2.upstream">Loader.ReleaseCallback</a>&nbsp;callback)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases the loader. This method should be called when the loader is no longer required.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -585,6 +625,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <h4>maybeThrowError</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;maybeThrowError()
                      throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="LoaderErrorThrower.html#maybeThrowError()">LoaderErrorThrower</a></code></span></div>
 <div class="block">Throws a fatal error, or a non-fatal error if loading is currently backed off and the current
  <a href="Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream"><code>Loader.Loadable</code></a> has incurred a number of errors greater than the <a href="Loader.html" title="class in com.google.android.exoplayer2.upstream"><code>Loader</code></a>s default
@@ -605,6 +646,7 @@ implements <a href="LoaderErrorThrower.html" title="interface in com.google.andr
 <h4>maybeThrowError</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;maybeThrowError&#8203;(int&nbsp;minRetryCount)
                      throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="LoaderErrorThrower.html#maybeThrowError(int)">LoaderErrorThrower</a></code></span></div>
 <div class="block">Throws a fatal error, or a non-fatal error if loading is currently backed off and the current
  <a href="Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream"><code>Loader.Loadable</code></a> has incurred a number of errors greater than the specified minimum number of

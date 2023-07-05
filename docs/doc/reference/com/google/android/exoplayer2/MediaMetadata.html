@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">MediaMetadata</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">MediaMetadata</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Metadata of a <a href="MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>, playlist, or a combination of multiple sources of <a href="metadata/Metadata.html" title="class in com.google.android.exoplayer2.metadata"><code>Metadata</code></a>.</div>
 </li>
 </ul>
@@ -161,6 +167,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaMetadata.Builder.html" title="class in com.google.android.exoplayer2">MediaMetadata.Builder</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A builder for <a href="MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a> instances.</div>
 </td>
 </tr>
@@ -168,13 +175,17 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaMetadata.FolderType.html" title="annotation in com.google.android.exoplayer2">MediaMetadata.FolderType</a></span></code></th>
 <td class="colLast">
-<div class="block">The folder type of the media item.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#isBrowsable"><code>isBrowsable</code></a> to indicate if an item is a browsable folder and use
+     <a href="#mediaType"><code>mediaType</code></a> to indicate the type of the folder.</div>
+</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2">MediaMetadata.MediaType</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The type of content described by the media item.</div>
 </td>
 </tr>
@@ -182,6 +193,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="MediaMetadata.PictureType.html" title="annotation in com.google.android.exoplayer2">MediaMetadata.PictureType</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The picture type of the artwork.</div>
 </td>
 </tr>
@@ -214,6 +226,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#albumArtist">albumArtist</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional album artist.</div>
 </td>
 </tr>
@@ -221,6 +234,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#albumTitle">albumTitle</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional album title.</div>
 </td>
 </tr>
@@ -228,6 +242,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#artist">artist</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional artist.</div>
 </td>
 </tr>
@@ -235,6 +250,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#artworkData">artworkData</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional artwork data as a compressed byte array.</div>
 </td>
 </tr>
@@ -242,6 +258,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="MediaMetadata.PictureType.html" title="annotation in com.google.android.exoplayer2">@PictureType</a> <a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#artworkDataType">artworkDataType</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional <a href="MediaMetadata.PictureType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.PictureType</code></a> of the artwork data.</div>
 </td>
 </tr>
@@ -249,6 +266,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#artworkUri">artworkUri</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional artwork <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a>.</div>
 </td>
 </tr>
@@ -256,6 +274,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#compilation">compilation</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional compilation.</div>
 </td>
 </tr>
@@ -263,6 +282,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#composer">composer</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional composer.</div>
 </td>
 </tr>
@@ -270,6 +290,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#conductor">conductor</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional conductor.</div>
 </td>
 </tr>
@@ -277,6 +298,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static <a href="Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="MediaMetadata.html" title="class in com.google.android.exoplayer2">MediaMetadata</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#CREATOR">CREATOR</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Object that can restore <a href="MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a> from a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.</div>
 </td>
 </tr>
@@ -284,6 +306,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#description">description</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional description.</div>
 </td>
 </tr>
@@ -291,6 +314,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#discNumber">discNumber</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional disc number.</div>
 </td>
 </tr>
@@ -298,6 +322,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#displayTitle">displayTitle</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional display title.</div>
 </td>
 </tr>
@@ -305,6 +330,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static <a href="MediaMetadata.html" title="class in com.google.android.exoplayer2">MediaMetadata</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EMPTY">EMPTY</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Empty <a href="MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a>.</div>
 </td>
 </tr>
@@ -312,6 +338,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#extras">extras</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional extras <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.</div>
 </td>
 </tr>
@@ -319,69 +346,89 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOLDER_TYPE_ALBUMS">FOLDER_TYPE_ALBUMS</a></span></code></th>
 <td class="colLast">
-<div class="block">Type for a folder containing media categorized by album.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#isBrowsable"><code>isBrowsable</code></a> set to true and <a href="#mediaType"><code>mediaType</code></a> set to <a href="#MEDIA_TYPE_FOLDER_ALBUMS"><code>MEDIA_TYPE_FOLDER_ALBUMS</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOLDER_TYPE_ARTISTS">FOLDER_TYPE_ARTISTS</a></span></code></th>
 <td class="colLast">
-<div class="block">Type for a folder containing media categorized by artist.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#isBrowsable"><code>isBrowsable</code></a> set to true and <a href="#mediaType"><code>mediaType</code></a> set to <a href="#MEDIA_TYPE_FOLDER_ARTISTS"><code>MEDIA_TYPE_FOLDER_ARTISTS</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOLDER_TYPE_GENRES">FOLDER_TYPE_GENRES</a></span></code></th>
 <td class="colLast">
-<div class="block">Type for a folder containing media categorized by genre.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#isBrowsable"><code>isBrowsable</code></a> set to true and <a href="#mediaType"><code>mediaType</code></a> set to <a href="#MEDIA_TYPE_FOLDER_GENRES"><code>MEDIA_TYPE_FOLDER_GENRES</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOLDER_TYPE_MIXED">FOLDER_TYPE_MIXED</a></span></code></th>
 <td class="colLast">
-<div class="block">Type for a folder containing media of mixed types.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#isBrowsable"><code>isBrowsable</code></a> set to true and <a href="#mediaType"><code>mediaType</code></a> set to <a href="#MEDIA_TYPE_FOLDER_MIXED"><code>MEDIA_TYPE_FOLDER_MIXED</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOLDER_TYPE_NONE">FOLDER_TYPE_NONE</a></span></code></th>
 <td class="colLast">
-<div class="block">Type for an item that is not a folder.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#isBrowsable"><code>isBrowsable</code></a> set to false instead.</div>
+</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOLDER_TYPE_PLAYLISTS">FOLDER_TYPE_PLAYLISTS</a></span></code></th>
 <td class="colLast">
-<div class="block">Type for a folder containing a playlist.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#isBrowsable"><code>isBrowsable</code></a> set to true and <a href="#mediaType"><code>mediaType</code></a> set to <a href="#MEDIA_TYPE_FOLDER_PLAYLISTS"><code>MEDIA_TYPE_FOLDER_PLAYLISTS</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOLDER_TYPE_TITLES">FOLDER_TYPE_TITLES</a></span></code></th>
 <td class="colLast">
-<div class="block">Type for a folder containing only playable media.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#isBrowsable"><code>isBrowsable</code></a> set to true instead.</div>
+</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOLDER_TYPE_YEARS">FOLDER_TYPE_YEARS</a></span></code></th>
 <td class="colLast">
-<div class="block">Type for a folder containing media categorized by year.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#isBrowsable"><code>isBrowsable</code></a> set to true and <a href="#mediaType"><code>mediaType</code></a> set to <a href="#MEDIA_TYPE_FOLDER_YEARS"><code>MEDIA_TYPE_FOLDER_YEARS</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="MediaMetadata.FolderType.html" title="annotation in com.google.android.exoplayer2">@FolderType</a> <a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#folderType">folderType</a></span></code></th>
 <td class="colLast">
-<div class="block">Optional <a href="MediaMetadata.FolderType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.FolderType</code></a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#isBrowsable"><code>isBrowsable</code></a> to indicate if an item is a browsable folder and use
+     <a href="#mediaType"><code>mediaType</code></a> to indicate the type of the folder.</div>
+</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#genre">genre</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional genre.</div>
 </td>
 </tr>
@@ -389,6 +436,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Boolean.html" title="class or interface in java.lang" class="externalLink" target="_top">Boolean</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isBrowsable">isBrowsable</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional boolean to indicate that the media is a browsable folder.</div>
 </td>
 </tr>
@@ -396,6 +444,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Boolean.html" title="class or interface in java.lang" class="externalLink" target="_top">Boolean</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isPlayable">isPlayable</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional boolean to indicate that the media is playable.</div>
 </td>
 </tr>
@@ -403,6 +452,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_ALBUM">MEDIA_TYPE_ALBUM</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a group of items (e.g., <a href="#MEDIA_TYPE_MUSIC"><code>music</code></a>) belonging to an
  album.</div>
 </td>
@@ -411,6 +461,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_ARTIST">MEDIA_TYPE_ARTIST</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a group of items (e.g., <a href="#MEDIA_TYPE_MUSIC"><code>music</code></a>) from the same
  artist.</div>
 </td>
@@ -419,6 +470,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_AUDIO_BOOK">MEDIA_TYPE_AUDIO_BOOK</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a group of items forming an audio book.</div>
 </td>
 </tr>
@@ -426,6 +478,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_AUDIO_BOOK_CHAPTER">MEDIA_TYPE_AUDIO_BOOK_CHAPTER</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for an audio book chapter.</div>
 </td>
 </tr>
@@ -433,6 +486,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_FOLDER_ALBUMS">MEDIA_TYPE_FOLDER_ALBUMS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a folder containing <a href="#MEDIA_TYPE_ALBUM">albums</a>.</div>
 </td>
 </tr>
@@ -440,6 +494,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_FOLDER_ARTISTS">MEDIA_TYPE_FOLDER_ARTISTS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a folder containing <a href="#FIELD_ARTIST">artists</a>.</div>
 </td>
 </tr>
@@ -447,6 +502,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_FOLDER_AUDIO_BOOKS">MEDIA_TYPE_FOLDER_AUDIO_BOOKS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a folder containing <a href="#MEDIA_TYPE_AUDIO_BOOK">audio books</a>.</div>
 </td>
 </tr>
@@ -454,6 +510,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_FOLDER_GENRES">MEDIA_TYPE_FOLDER_GENRES</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a folder containing <a href="#MEDIA_TYPE_GENRE">genres</a>.</div>
 </td>
 </tr>
@@ -461,6 +518,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_FOLDER_MIXED">MEDIA_TYPE_FOLDER_MIXED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a folder with mixed or undetermined content.</div>
 </td>
 </tr>
@@ -468,6 +526,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_FOLDER_MOVIES">MEDIA_TYPE_FOLDER_MOVIES</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a folder containing <a href="#MEDIA_TYPE_MOVIE">movies</a>.</div>
 </td>
 </tr>
@@ -475,6 +534,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_FOLDER_NEWS">MEDIA_TYPE_FOLDER_NEWS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a folder containing <a href="#MEDIA_TYPE_NEWS">news</a>.</div>
 </td>
 </tr>
@@ -482,6 +542,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_FOLDER_PLAYLISTS">MEDIA_TYPE_FOLDER_PLAYLISTS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a folder containing <a href="#MEDIA_TYPE_PLAYLIST">playlists</a>.</div>
 </td>
 </tr>
@@ -489,6 +550,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_FOLDER_PODCASTS">MEDIA_TYPE_FOLDER_PODCASTS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a folder containing <a href="#MEDIA_TYPE_PODCAST">podcasts</a>.</div>
 </td>
 </tr>
@@ -496,6 +558,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_FOLDER_RADIO_STATIONS">MEDIA_TYPE_FOLDER_RADIO_STATIONS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a folder containing <a href="#MEDIA_TYPE_RADIO_STATION">radio
  stations</a>.</div>
 </td>
@@ -504,6 +567,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_FOLDER_TRAILERS">MEDIA_TYPE_FOLDER_TRAILERS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a folder containing <a href="#MEDIA_TYPE_TRAILER">movie trailers</a>.</div>
 </td>
 </tr>
@@ -511,6 +575,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_FOLDER_TV_CHANNELS">MEDIA_TYPE_FOLDER_TV_CHANNELS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a folder containing <a href="#MEDIA_TYPE_TV_CHANNEL">TV channels</a>.</div>
 </td>
 </tr>
@@ -518,6 +583,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_FOLDER_TV_SERIES">MEDIA_TYPE_FOLDER_TV_SERIES</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a folder containing <a href="#MEDIA_TYPE_TV_SERIES">TV series</a>.</div>
 </td>
 </tr>
@@ -525,6 +591,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_FOLDER_TV_SHOWS">MEDIA_TYPE_FOLDER_TV_SHOWS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a folder containing <a href="#MEDIA_TYPE_TV_SHOW">TV shows</a>.</div>
 </td>
 </tr>
@@ -532,6 +599,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_FOLDER_VIDEOS">MEDIA_TYPE_FOLDER_VIDEOS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a folder containing <a href="#MEDIA_TYPE_VIDEO">videos</a>.</div>
 </td>
 </tr>
@@ -539,6 +607,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_FOLDER_YEARS">MEDIA_TYPE_FOLDER_YEARS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a folder containing <a href="#MEDIA_TYPE_YEAR">years</a>.</div>
 </td>
 </tr>
@@ -546,6 +615,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_GENRE">MEDIA_TYPE_GENRE</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a group of items (e.g., <a href="#MEDIA_TYPE_MUSIC"><code>music</code></a>) of the same
  genre.</div>
 </td>
@@ -554,6 +624,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_MIXED">MEDIA_TYPE_MIXED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Media of undetermined type or a mix of multiple <a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2">media types</a>.</div>
 </td>
 </tr>
@@ -561,6 +632,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_MOVIE">MEDIA_TYPE_MOVIE</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a movie.</div>
 </td>
 </tr>
@@ -568,6 +640,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_MUSIC">MEDIA_TYPE_MUSIC</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for music.</div>
 </td>
 </tr>
@@ -575,6 +648,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_NEWS">MEDIA_TYPE_NEWS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for news.</div>
 </td>
 </tr>
@@ -582,6 +656,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_PLAYLIST">MEDIA_TYPE_PLAYLIST</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a group of items (e.g., <a href="#MEDIA_TYPE_MUSIC"><code>music</code></a>) forming a
  playlist.</div>
 </td>
@@ -590,6 +665,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_PODCAST">MEDIA_TYPE_PODCAST</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a group of items belonging to a podcast.</div>
 </td>
 </tr>
@@ -597,6 +673,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_PODCAST_EPISODE">MEDIA_TYPE_PODCAST_EPISODE</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a podcast episode.</div>
 </td>
 </tr>
@@ -604,6 +681,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_RADIO_STATION">MEDIA_TYPE_RADIO_STATION</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a radio station.</div>
 </td>
 </tr>
@@ -611,6 +689,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_TRAILER">MEDIA_TYPE_TRAILER</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a movie trailer.</div>
 </td>
 </tr>
@@ -618,6 +697,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_TV_CHANNEL">MEDIA_TYPE_TV_CHANNEL</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a group of items that are part of a TV channel.</div>
 </td>
 </tr>
@@ -625,6 +705,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_TV_SEASON">MEDIA_TYPE_TV_SEASON</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a group of items that are part of a TV series.</div>
 </td>
 </tr>
@@ -632,6 +713,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_TV_SERIES">MEDIA_TYPE_TV_SERIES</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a group of items that are part of a TV series.</div>
 </td>
 </tr>
@@ -639,6 +721,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_TV_SHOW">MEDIA_TYPE_TV_SHOW</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a TV show.</div>
 </td>
 </tr>
@@ -646,6 +729,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_VIDEO">MEDIA_TYPE_VIDEO</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a video.</div>
 </td>
 </tr>
@@ -653,6 +737,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MEDIA_TYPE_YEAR">MEDIA_TYPE_YEAR</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a group of items (e.g., <a href="#MEDIA_TYPE_MUSIC"><code>music</code></a>) from the same
  year.</div>
 </td>
@@ -661,6 +746,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2">@MediaType</a> <a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#mediaType">mediaType</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional <a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a>.</div>
 </td>
 </tr>
@@ -668,118 +754,162 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="Rating.html" title="class in com.google.android.exoplayer2">Rating</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#overallRating">overallRating</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional overall <a href="Rating.html" title="class in com.google.android.exoplayer2"><code>Rating</code></a>.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_A_BRIGHT_COLORED_FISH">PICTURE_TYPE_A_BRIGHT_COLORED_FISH</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_ARTIST_PERFORMER">PICTURE_TYPE_ARTIST_PERFORMER</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_BACK_COVER">PICTURE_TYPE_BACK_COVER</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_BAND_ARTIST_LOGO">PICTURE_TYPE_BAND_ARTIST_LOGO</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_BAND_ORCHESTRA">PICTURE_TYPE_BAND_ORCHESTRA</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_COMPOSER">PICTURE_TYPE_COMPOSER</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_CONDUCTOR">PICTURE_TYPE_CONDUCTOR</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_DURING_PERFORMANCE">PICTURE_TYPE_DURING_PERFORMANCE</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_DURING_RECORDING">PICTURE_TYPE_DURING_RECORDING</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_FILE_ICON">PICTURE_TYPE_FILE_ICON</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_FILE_ICON_OTHER">PICTURE_TYPE_FILE_ICON_OTHER</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_FRONT_COVER">PICTURE_TYPE_FRONT_COVER</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_ILLUSTRATION">PICTURE_TYPE_ILLUSTRATION</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_LEAD_ARTIST_PERFORMER">PICTURE_TYPE_LEAD_ARTIST_PERFORMER</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_LEAFLET_PAGE">PICTURE_TYPE_LEAFLET_PAGE</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_LYRICIST">PICTURE_TYPE_LYRICIST</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_MEDIA">PICTURE_TYPE_MEDIA</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_MOVIE_VIDEO_SCREEN_CAPTURE">PICTURE_TYPE_MOVIE_VIDEO_SCREEN_CAPTURE</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_OTHER">PICTURE_TYPE_OTHER</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_PUBLISHER_STUDIO_LOGO">PICTURE_TYPE_PUBLISHER_STUDIO_LOGO</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PICTURE_TYPE_RECORDING_LOCATION">PICTURE_TYPE_RECORDING_LOCATION</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#recordingDay">recordingDay</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional day of the recording date.</div>
 </td>
 </tr>
@@ -787,6 +917,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#recordingMonth">recordingMonth</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional month of the recording date.</div>
 </td>
 </tr>
@@ -794,6 +925,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#recordingYear">recordingYear</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional year of the recording date.</div>
 </td>
 </tr>
@@ -801,6 +933,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#releaseDay">releaseDay</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional day of the release date.</div>
 </td>
 </tr>
@@ -808,6 +941,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#releaseMonth">releaseMonth</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional month of the release date.</div>
 </td>
 </tr>
@@ -815,6 +949,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#releaseYear">releaseYear</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional year of the release date.</div>
 </td>
 </tr>
@@ -822,6 +957,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#station">station</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional name of the station streaming the media.</div>
 </td>
 </tr>
@@ -829,6 +965,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#subtitle">subtitle</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional subtitle.</div>
 </td>
 </tr>
@@ -836,6 +973,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#title">title</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional title.</div>
 </td>
 </tr>
@@ -843,6 +981,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#totalDiscCount">totalDiscCount</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional total number of discs.</div>
 </td>
 </tr>
@@ -850,6 +989,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#totalTrackCount">totalTrackCount</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional total number of tracks.</div>
 </td>
 </tr>
@@ -857,6 +997,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#trackNumber">trackNumber</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional track number.</div>
 </td>
 </tr>
@@ -864,6 +1005,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="Rating.html" title="class in com.google.android.exoplayer2">Rating</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#userRating">userRating</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional user <a href="Rating.html" title="class in com.google.android.exoplayer2"><code>Rating</code></a>.</div>
 </td>
 </tr>
@@ -871,6 +1013,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#writer">writer</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional writer.</div>
 </td>
 </tr>
@@ -895,7 +1038,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -905,23 +1048,29 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="MediaMetadata.Builder.html" title="class in com.google.android.exoplayer2">MediaMetadata.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildUpon()">buildUpon</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a new <a href="MediaMetadata.Builder.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata.Builder</code></a> instance with the current <a href="MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a> fields.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundle()">toBundle</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representing the information stored in this object.</div>
 </td>
 </tr>
@@ -956,6 +1105,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_MIXED</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_MIXED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Media of undetermined type or a mix of multiple <a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2">media types</a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -970,6 +1120,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_MUSIC</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_MUSIC</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for music.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -984,6 +1135,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_AUDIO_BOOK_CHAPTER</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_AUDIO_BOOK_CHAPTER</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for an audio book chapter.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -998,6 +1150,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_PODCAST_EPISODE</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_PODCAST_EPISODE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a podcast episode.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1012,6 +1165,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_RADIO_STATION</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_RADIO_STATION</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a radio station.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1026,6 +1180,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_NEWS</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_NEWS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for news.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1040,6 +1195,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_VIDEO</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_VIDEO</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a video.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1054,6 +1210,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_TRAILER</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_TRAILER</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a movie trailer.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1068,6 +1225,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_MOVIE</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_MOVIE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a movie.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1082,6 +1240,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_TV_SHOW</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_TV_SHOW</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a TV show.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1096,6 +1255,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_ALBUM</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_ALBUM</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a group of items (e.g., <a href="#MEDIA_TYPE_MUSIC"><code>music</code></a>) belonging to an
  album.</div>
 <dl>
@@ -1111,6 +1271,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_ARTIST</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_ARTIST</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a group of items (e.g., <a href="#MEDIA_TYPE_MUSIC"><code>music</code></a>) from the same
  artist.</div>
 <dl>
@@ -1126,6 +1287,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_GENRE</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_GENRE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a group of items (e.g., <a href="#MEDIA_TYPE_MUSIC"><code>music</code></a>) of the same
  genre.</div>
 <dl>
@@ -1141,6 +1303,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_PLAYLIST</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_PLAYLIST</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a group of items (e.g., <a href="#MEDIA_TYPE_MUSIC"><code>music</code></a>) forming a
  playlist.</div>
 <dl>
@@ -1156,6 +1319,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_YEAR</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_YEAR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a group of items (e.g., <a href="#MEDIA_TYPE_MUSIC"><code>music</code></a>) from the same
  year.</div>
 <dl>
@@ -1171,6 +1335,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_AUDIO_BOOK</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_AUDIO_BOOK</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a group of items forming an audio book. Items in this group are typically
  of type <a href="#MEDIA_TYPE_AUDIO_BOOK_CHAPTER"><code>MEDIA_TYPE_AUDIO_BOOK_CHAPTER</code></a>.</div>
 <dl>
@@ -1186,6 +1351,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_PODCAST</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_PODCAST</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a group of items belonging to a podcast. Items in this group are
  typically of type <a href="#MEDIA_TYPE_PODCAST_EPISODE"><code>MEDIA_TYPE_PODCAST_EPISODE</code></a>.</div>
 <dl>
@@ -1201,6 +1367,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_TV_CHANNEL</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_TV_CHANNEL</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a group of items that are part of a TV channel. Items in this group are
  typically of type <a href="#MEDIA_TYPE_TV_SHOW"><code>MEDIA_TYPE_TV_SHOW</code></a>, <a href="#MEDIA_TYPE_TV_SERIES"><code>MEDIA_TYPE_TV_SERIES</code></a> or <a href="#MEDIA_TYPE_MOVIE"><code>MEDIA_TYPE_MOVIE</code></a>.</div>
 <dl>
@@ -1216,6 +1383,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_TV_SERIES</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_TV_SERIES</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a group of items that are part of a TV series. Items in this group are
  typically of type <a href="#MEDIA_TYPE_TV_SHOW"><code>MEDIA_TYPE_TV_SHOW</code></a> or <a href="#MEDIA_TYPE_TV_SEASON"><code>MEDIA_TYPE_TV_SEASON</code></a>.</div>
 <dl>
@@ -1231,6 +1399,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_TV_SEASON</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_TV_SEASON</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a group of items that are part of a TV series. Items in this group are
  typically of type <a href="#MEDIA_TYPE_TV_SHOW"><code>MEDIA_TYPE_TV_SHOW</code></a>.</div>
 <dl>
@@ -1246,6 +1415,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_FOLDER_MIXED</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_FOLDER_MIXED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a folder with mixed or undetermined content.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1260,6 +1430,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_FOLDER_ALBUMS</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_FOLDER_ALBUMS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a folder containing <a href="#MEDIA_TYPE_ALBUM">albums</a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1274,6 +1445,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_FOLDER_ARTISTS</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_FOLDER_ARTISTS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a folder containing <a href="#FIELD_ARTIST">artists</a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1288,6 +1460,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_FOLDER_GENRES</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_FOLDER_GENRES</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a folder containing <a href="#MEDIA_TYPE_GENRE">genres</a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1302,6 +1475,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_FOLDER_PLAYLISTS</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_FOLDER_PLAYLISTS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a folder containing <a href="#MEDIA_TYPE_PLAYLIST">playlists</a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1316,6 +1490,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_FOLDER_YEARS</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_FOLDER_YEARS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a folder containing <a href="#MEDIA_TYPE_YEAR">years</a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1330,6 +1505,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_FOLDER_AUDIO_BOOKS</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_FOLDER_AUDIO_BOOKS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a folder containing <a href="#MEDIA_TYPE_AUDIO_BOOK">audio books</a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1344,6 +1520,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_FOLDER_PODCASTS</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_FOLDER_PODCASTS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a folder containing <a href="#MEDIA_TYPE_PODCAST">podcasts</a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1358,6 +1535,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_FOLDER_TV_CHANNELS</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_FOLDER_TV_CHANNELS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a folder containing <a href="#MEDIA_TYPE_TV_CHANNEL">TV channels</a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1372,6 +1550,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_FOLDER_TV_SERIES</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_FOLDER_TV_SERIES</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a folder containing <a href="#MEDIA_TYPE_TV_SERIES">TV series</a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1386,6 +1565,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_FOLDER_TV_SHOWS</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_FOLDER_TV_SHOWS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a folder containing <a href="#MEDIA_TYPE_TV_SHOW">TV shows</a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1400,6 +1580,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_FOLDER_RADIO_STATIONS</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_FOLDER_RADIO_STATIONS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a folder containing <a href="#MEDIA_TYPE_RADIO_STATION">radio
  stations</a>.</div>
 <dl>
@@ -1415,6 +1596,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_FOLDER_NEWS</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_FOLDER_NEWS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a folder containing <a href="#MEDIA_TYPE_NEWS">news</a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1429,6 +1611,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_FOLDER_VIDEOS</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_FOLDER_VIDEOS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a folder containing <a href="#MEDIA_TYPE_VIDEO">videos</a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1443,6 +1626,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_FOLDER_TRAILERS</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_FOLDER_TRAILERS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a folder containing <a href="#MEDIA_TYPE_TRAILER">movie trailers</a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1457,6 +1641,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>MEDIA_TYPE_FOLDER_MOVIES</h4>
 <pre>public static final&nbsp;int MEDIA_TYPE_FOLDER_MOVIES</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a> for a folder containing <a href="#MEDIA_TYPE_MOVIE">movies</a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1470,7 +1655,11 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <ul class="blockList">
 <li class="blockList">
 <h4>FOLDER_TYPE_NONE</h4>
-<pre>public static final&nbsp;int FOLDER_TYPE_NONE</pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static final&nbsp;int FOLDER_TYPE_NONE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#isBrowsable"><code>isBrowsable</code></a> set to false instead.</div>
+</div>
 <div class="block">Type for an item that is not a folder.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1484,7 +1673,11 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <ul class="blockList">
 <li class="blockList">
 <h4>FOLDER_TYPE_MIXED</h4>
-<pre>public static final&nbsp;int FOLDER_TYPE_MIXED</pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static final&nbsp;int FOLDER_TYPE_MIXED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#isBrowsable"><code>isBrowsable</code></a> set to true and <a href="#mediaType"><code>mediaType</code></a> set to <a href="#MEDIA_TYPE_FOLDER_MIXED"><code>MEDIA_TYPE_FOLDER_MIXED</code></a> instead.</div>
+</div>
 <div class="block">Type for a folder containing media of mixed types.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1498,7 +1691,11 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <ul class="blockList">
 <li class="blockList">
 <h4>FOLDER_TYPE_TITLES</h4>
-<pre>public static final&nbsp;int FOLDER_TYPE_TITLES</pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static final&nbsp;int FOLDER_TYPE_TITLES</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#isBrowsable"><code>isBrowsable</code></a> set to true instead.</div>
+</div>
 <div class="block">Type for a folder containing only playable media.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1512,7 +1709,11 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <ul class="blockList">
 <li class="blockList">
 <h4>FOLDER_TYPE_ALBUMS</h4>
-<pre>public static final&nbsp;int FOLDER_TYPE_ALBUMS</pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static final&nbsp;int FOLDER_TYPE_ALBUMS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#isBrowsable"><code>isBrowsable</code></a> set to true and <a href="#mediaType"><code>mediaType</code></a> set to <a href="#MEDIA_TYPE_FOLDER_ALBUMS"><code>MEDIA_TYPE_FOLDER_ALBUMS</code></a> instead.</div>
+</div>
 <div class="block">Type for a folder containing media categorized by album.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1526,7 +1727,11 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <ul class="blockList">
 <li class="blockList">
 <h4>FOLDER_TYPE_ARTISTS</h4>
-<pre>public static final&nbsp;int FOLDER_TYPE_ARTISTS</pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static final&nbsp;int FOLDER_TYPE_ARTISTS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#isBrowsable"><code>isBrowsable</code></a> set to true and <a href="#mediaType"><code>mediaType</code></a> set to <a href="#MEDIA_TYPE_FOLDER_ARTISTS"><code>MEDIA_TYPE_FOLDER_ARTISTS</code></a> instead.</div>
+</div>
 <div class="block">Type for a folder containing media categorized by artist.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1540,7 +1745,11 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <ul class="blockList">
 <li class="blockList">
 <h4>FOLDER_TYPE_GENRES</h4>
-<pre>public static final&nbsp;int FOLDER_TYPE_GENRES</pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static final&nbsp;int FOLDER_TYPE_GENRES</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#isBrowsable"><code>isBrowsable</code></a> set to true and <a href="#mediaType"><code>mediaType</code></a> set to <a href="#MEDIA_TYPE_FOLDER_GENRES"><code>MEDIA_TYPE_FOLDER_GENRES</code></a> instead.</div>
+</div>
 <div class="block">Type for a folder containing media categorized by genre.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1554,7 +1763,11 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <ul class="blockList">
 <li class="blockList">
 <h4>FOLDER_TYPE_PLAYLISTS</h4>
-<pre>public static final&nbsp;int FOLDER_TYPE_PLAYLISTS</pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static final&nbsp;int FOLDER_TYPE_PLAYLISTS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#isBrowsable"><code>isBrowsable</code></a> set to true and <a href="#mediaType"><code>mediaType</code></a> set to <a href="#MEDIA_TYPE_FOLDER_PLAYLISTS"><code>MEDIA_TYPE_FOLDER_PLAYLISTS</code></a> instead.</div>
+</div>
 <div class="block">Type for a folder containing a playlist.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1568,7 +1781,11 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <ul class="blockList">
 <li class="blockList">
 <h4>FOLDER_TYPE_YEARS</h4>
-<pre>public static final&nbsp;int FOLDER_TYPE_YEARS</pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public static final&nbsp;int FOLDER_TYPE_YEARS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#isBrowsable"><code>isBrowsable</code></a> set to true and <a href="#mediaType"><code>mediaType</code></a> set to <a href="#MEDIA_TYPE_FOLDER_YEARS"><code>MEDIA_TYPE_FOLDER_YEARS</code></a> instead.</div>
+</div>
 <div class="block">Type for a folder containing media categorized by year.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -1583,6 +1800,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>PICTURE_TYPE_OTHER</h4>
 <pre>public static final&nbsp;int PICTURE_TYPE_OTHER</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_OTHER">Constant Field Values</a></dd>
@@ -1596,6 +1814,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>PICTURE_TYPE_FILE_ICON</h4>
 <pre>public static final&nbsp;int PICTURE_TYPE_FILE_ICON</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_FILE_ICON">Constant Field Values</a></dd>
@@ -1609,6 +1828,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>PICTURE_TYPE_FILE_ICON_OTHER</h4>
 <pre>public static final&nbsp;int PICTURE_TYPE_FILE_ICON_OTHER</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_FILE_ICON_OTHER">Constant Field Values</a></dd>
@@ -1622,6 +1842,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>PICTURE_TYPE_FRONT_COVER</h4>
 <pre>public static final&nbsp;int PICTURE_TYPE_FRONT_COVER</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_FRONT_COVER">Constant Field Values</a></dd>
@@ -1635,6 +1856,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>PICTURE_TYPE_BACK_COVER</h4>
 <pre>public static final&nbsp;int PICTURE_TYPE_BACK_COVER</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_BACK_COVER">Constant Field Values</a></dd>
@@ -1648,6 +1870,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>PICTURE_TYPE_LEAFLET_PAGE</h4>
 <pre>public static final&nbsp;int PICTURE_TYPE_LEAFLET_PAGE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_LEAFLET_PAGE">Constant Field Values</a></dd>
@@ -1661,6 +1884,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>PICTURE_TYPE_MEDIA</h4>
 <pre>public static final&nbsp;int PICTURE_TYPE_MEDIA</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_MEDIA">Constant Field Values</a></dd>
@@ -1674,6 +1898,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>PICTURE_TYPE_LEAD_ARTIST_PERFORMER</h4>
 <pre>public static final&nbsp;int PICTURE_TYPE_LEAD_ARTIST_PERFORMER</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_LEAD_ARTIST_PERFORMER">Constant Field Values</a></dd>
@@ -1687,6 +1912,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>PICTURE_TYPE_ARTIST_PERFORMER</h4>
 <pre>public static final&nbsp;int PICTURE_TYPE_ARTIST_PERFORMER</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_ARTIST_PERFORMER">Constant Field Values</a></dd>
@@ -1700,6 +1926,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>PICTURE_TYPE_CONDUCTOR</h4>
 <pre>public static final&nbsp;int PICTURE_TYPE_CONDUCTOR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_CONDUCTOR">Constant Field Values</a></dd>
@@ -1713,6 +1940,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>PICTURE_TYPE_BAND_ORCHESTRA</h4>
 <pre>public static final&nbsp;int PICTURE_TYPE_BAND_ORCHESTRA</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_BAND_ORCHESTRA">Constant Field Values</a></dd>
@@ -1726,6 +1954,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>PICTURE_TYPE_COMPOSER</h4>
 <pre>public static final&nbsp;int PICTURE_TYPE_COMPOSER</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_COMPOSER">Constant Field Values</a></dd>
@@ -1739,6 +1968,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>PICTURE_TYPE_LYRICIST</h4>
 <pre>public static final&nbsp;int PICTURE_TYPE_LYRICIST</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_LYRICIST">Constant Field Values</a></dd>
@@ -1752,6 +1982,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>PICTURE_TYPE_RECORDING_LOCATION</h4>
 <pre>public static final&nbsp;int PICTURE_TYPE_RECORDING_LOCATION</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_RECORDING_LOCATION">Constant Field Values</a></dd>
@@ -1765,6 +1996,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>PICTURE_TYPE_DURING_RECORDING</h4>
 <pre>public static final&nbsp;int PICTURE_TYPE_DURING_RECORDING</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_DURING_RECORDING">Constant Field Values</a></dd>
@@ -1778,6 +2010,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>PICTURE_TYPE_DURING_PERFORMANCE</h4>
 <pre>public static final&nbsp;int PICTURE_TYPE_DURING_PERFORMANCE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_DURING_PERFORMANCE">Constant Field Values</a></dd>
@@ -1791,6 +2024,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>PICTURE_TYPE_MOVIE_VIDEO_SCREEN_CAPTURE</h4>
 <pre>public static final&nbsp;int PICTURE_TYPE_MOVIE_VIDEO_SCREEN_CAPTURE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_MOVIE_VIDEO_SCREEN_CAPTURE">Constant Field Values</a></dd>
@@ -1804,6 +2038,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>PICTURE_TYPE_A_BRIGHT_COLORED_FISH</h4>
 <pre>public static final&nbsp;int PICTURE_TYPE_A_BRIGHT_COLORED_FISH</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_A_BRIGHT_COLORED_FISH">Constant Field Values</a></dd>
@@ -1817,6 +2052,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>PICTURE_TYPE_ILLUSTRATION</h4>
 <pre>public static final&nbsp;int PICTURE_TYPE_ILLUSTRATION</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_ILLUSTRATION">Constant Field Values</a></dd>
@@ -1830,6 +2066,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>PICTURE_TYPE_BAND_ARTIST_LOGO</h4>
 <pre>public static final&nbsp;int PICTURE_TYPE_BAND_ARTIST_LOGO</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_BAND_ARTIST_LOGO">Constant Field Values</a></dd>
@@ -1843,6 +2080,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>PICTURE_TYPE_PUBLISHER_STUDIO_LOGO</h4>
 <pre>public static final&nbsp;int PICTURE_TYPE_PUBLISHER_STUDIO_LOGO</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../constant-values.html#com.google.android.exoplayer2.MediaMetadata.PICTURE_TYPE_PUBLISHER_STUDIO_LOGO">Constant Field Values</a></dd>
@@ -1856,6 +2094,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>EMPTY</h4>
 <pre>public static final&nbsp;<a href="MediaMetadata.html" title="class in com.google.android.exoplayer2">MediaMetadata</a> EMPTY</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Empty <a href="MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a>.</div>
 </li>
 </ul>
@@ -1867,6 +2106,7 @@ implements <a href="Bundleable.html" title="interface in com.google.android.exop
 <h4>title</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a> title</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional title.</div>
 </li>
 </ul>
@@ -1878,6 +2118,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Cha
 <h4>artist</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a> artist</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional artist.</div>
 </li>
 </ul>
@@ -1889,6 +2130,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Cha
 <h4>albumTitle</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a> albumTitle</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional album title.</div>
 </li>
 </ul>
@@ -1900,6 +2142,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Cha
 <h4>albumArtist</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a> albumArtist</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional album artist.</div>
 </li>
 </ul>
@@ -1911,6 +2154,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Cha
 <h4>displayTitle</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a> displayTitle</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional display title.</div>
 </li>
 </ul>
@@ -1922,6 +2166,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Cha
 <h4>subtitle</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a> subtitle</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional subtitle.
 
  <p>This is the secondary title of the media, unrelated to closed captions.</div>
@@ -1935,6 +2180,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Cha
 <h4>description</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a> description</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional description.</div>
 </li>
 </ul>
@@ -1946,6 +2192,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Cha
 <h4>userRating</h4>
 <pre>@Nullable
 public final&nbsp;<a href="Rating.html" title="class in com.google.android.exoplayer2">Rating</a> userRating</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional user <a href="Rating.html" title="class in com.google.android.exoplayer2"><code>Rating</code></a>.</div>
 </li>
 </ul>
@@ -1957,6 +2204,7 @@ public final&nbsp;<a href="Rating.html" title="class in com.google.android.exopl
 <h4>overallRating</h4>
 <pre>@Nullable
 public final&nbsp;<a href="Rating.html" title="class in com.google.android.exoplayer2">Rating</a> overallRating</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional overall <a href="Rating.html" title="class in com.google.android.exoplayer2"><code>Rating</code></a>.</div>
 </li>
 </ul>
@@ -1968,6 +2216,7 @@ public final&nbsp;<a href="Rating.html" title="class in com.google.android.exopl
 <h4>artworkData</h4>
 <pre>@Nullable
 public final&nbsp;byte[] artworkData</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional artwork data as a compressed byte array.</div>
 </li>
 </ul>
@@ -1980,6 +2229,7 @@ public final&nbsp;byte[] artworkData</pre>
 <pre>@Nullable
 <a href="MediaMetadata.PictureType.html" title="annotation in com.google.android.exoplayer2">@PictureType</a>
 public final&nbsp;<a href="MediaMetadata.PictureType.html" title="annotation in com.google.android.exoplayer2">@PictureType</a> <a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a> artworkDataType</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional <a href="MediaMetadata.PictureType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.PictureType</code></a> of the artwork data.</div>
 </li>
 </ul>
@@ -1991,6 +2241,7 @@ public final&nbsp;<a href="MediaMetadata.PictureType.html" title="annotation in 
 <h4>artworkUri</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a> artworkUri</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional artwork <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a>.</div>
 </li>
 </ul>
@@ -2002,6 +2253,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/net/U
 <h4>trackNumber</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a> trackNumber</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional track number.</div>
 </li>
 </ul>
@@ -2013,6 +2265,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Int
 <h4>totalTrackCount</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a> totalTrackCount</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional total number of tracks.</div>
 </li>
 </ul>
@@ -2022,13 +2275,15 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Int
 <ul class="blockList">
 <li class="blockList">
 <h4>folderType</h4>
-<pre>@Nullable
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+@Nullable
 <a href="MediaMetadata.FolderType.html" title="annotation in com.google.android.exoplayer2">@FolderType</a>
 public final&nbsp;<a href="MediaMetadata.FolderType.html" title="annotation in com.google.android.exoplayer2">@FolderType</a> <a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a> folderType</pre>
-<div class="block">Optional <a href="MediaMetadata.FolderType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.FolderType</code></a>.
-
- <p>This field will be deprecated. Use <a href="#isBrowsable"><code>isBrowsable</code></a> to indicate if an item is a
- browsable folder and use <a href="#mediaType"><code>mediaType</code></a> to indicate the type of the folder.</div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#isBrowsable"><code>isBrowsable</code></a> to indicate if an item is a browsable folder and use
+     <a href="#mediaType"><code>mediaType</code></a> to indicate the type of the folder.</div>
+</div>
+<div class="block">Optional <a href="MediaMetadata.FolderType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.FolderType</code></a>.</div>
 </li>
 </ul>
 <a id="isBrowsable">
@@ -2039,6 +2294,7 @@ public final&nbsp;<a href="MediaMetadata.FolderType.html" title="annotation in c
 <h4>isBrowsable</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Boolean.html" title="class or interface in java.lang" class="externalLink" target="_top">Boolean</a> isBrowsable</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional boolean to indicate that the media is a browsable folder.</div>
 </li>
 </ul>
@@ -2050,6 +2306,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Boo
 <h4>isPlayable</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Boolean.html" title="class or interface in java.lang" class="externalLink" target="_top">Boolean</a> isPlayable</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional boolean to indicate that the media is playable.</div>
 </li>
 </ul>
@@ -2075,6 +2332,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Int
 <h4>recordingYear</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a> recordingYear</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional year of the recording date.</div>
 </li>
 </ul>
@@ -2086,6 +2344,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Int
 <h4>recordingMonth</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a> recordingMonth</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional month of the recording date.
 
  <p>Note that there is no guarantee that the month and day are a valid combination.</div>
@@ -2099,6 +2358,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Int
 <h4>recordingDay</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a> recordingDay</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional day of the recording date.
 
  <p>Note that there is no guarantee that the month and day are a valid combination.</div>
@@ -2112,6 +2372,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Int
 <h4>releaseYear</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a> releaseYear</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional year of the release date.</div>
 </li>
 </ul>
@@ -2123,6 +2384,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Int
 <h4>releaseMonth</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a> releaseMonth</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional month of the release date.
 
  <p>Note that there is no guarantee that the month and day are a valid combination.</div>
@@ -2136,6 +2398,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Int
 <h4>releaseDay</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a> releaseDay</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional day of the release date.
 
  <p>Note that there is no guarantee that the month and day are a valid combination.</div>
@@ -2149,6 +2412,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Int
 <h4>writer</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a> writer</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional writer.</div>
 </li>
 </ul>
@@ -2160,6 +2424,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Cha
 <h4>composer</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a> composer</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional composer.</div>
 </li>
 </ul>
@@ -2171,6 +2436,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Cha
 <h4>conductor</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a> conductor</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional conductor.</div>
 </li>
 </ul>
@@ -2182,6 +2448,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Cha
 <h4>discNumber</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a> discNumber</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional disc number.</div>
 </li>
 </ul>
@@ -2193,6 +2460,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Int
 <h4>totalDiscCount</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a> totalDiscCount</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional total number of discs.</div>
 </li>
 </ul>
@@ -2204,6 +2472,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Int
 <h4>genre</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a> genre</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional genre.</div>
 </li>
 </ul>
@@ -2215,6 +2484,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Cha
 <h4>compilation</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a> compilation</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional compilation.</div>
 </li>
 </ul>
@@ -2226,6 +2496,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Cha
 <h4>station</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a> station</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional name of the station streaming the media.</div>
 </li>
 </ul>
@@ -2237,6 +2508,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Cha
 <h4>mediaType</h4>
 <pre>@Nullable
 public final&nbsp;<a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2">@MediaType</a> <a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink" target="_top">Integer</a> mediaType</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional <a href="MediaMetadata.MediaType.html" title="annotation in com.google.android.exoplayer2"><code>MediaMetadata.MediaType</code></a>.</div>
 </li>
 </ul>
@@ -2248,6 +2520,7 @@ public final&nbsp;<a href="MediaMetadata.MediaType.html" title="annotation in co
 <h4>extras</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a> extras</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Optional extras <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.
 
  <p>Given the complexities of checking the equality of two <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>s, this is not
@@ -2261,6 +2534,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/os/Bu
 <li class="blockList">
 <h4>CREATOR</h4>
 <pre>public static final&nbsp;<a href="Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="MediaMetadata.html" title="class in com.google.android.exoplayer2">MediaMetadata</a>&gt; CREATOR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Object that can restore <a href="MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a> from a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.</div>
 </li>
 </ul>
@@ -2281,6 +2555,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/os/Bu
 <li class="blockList">
 <h4>buildUpon</h4>
 <pre class="methodSignature">public&nbsp;<a href="MediaMetadata.Builder.html" title="class in com.google.android.exoplayer2">MediaMetadata.Builder</a>&nbsp;buildUpon()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a new <a href="MediaMetadata.Builder.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata.Builder</code></a> instance with the current <a href="MediaMetadata.html" title="class in com.google.android.exoplayer2"><code>MediaMetadata</code></a> fields.</div>
 </li>
 </ul>
@@ -2292,6 +2567,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/os/Bu
 <h4>equals</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;equals&#8203;(@Nullable
                       <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
@@ -2305,6 +2581,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/os/Bu
 <li class="blockList">
 <h4>hashCode</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;hashCode()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
@@ -2318,6 +2595,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/os/Bu
 <li class="blockList">
 <h4>toBundle</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;toBundle()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="Bundleable.html#toBundle()">Bundleable</a></code></span></div>
 <div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representing the information stored in this object.</div>
 <dl>

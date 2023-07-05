@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":10,"i29":10,"i30":10,"i31":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42,"i12":42,"i13":42,"i14":42,"i15":42,"i16":42,"i17":42,"i18":42,"i19":42,"i20":42,"i21":42,"i22":42,"i23":42,"i24":42,"i25":42,"i26":42,"i27":42,"i28":42,"i29":42,"i30":42,"i31":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -138,9 +138,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="https://developer.android.com/reference/android/graphics/drawable/Drawable.Callback.html" title="class or interface in android.graphics.drawable" class="externalLink">Drawable.Callback</a></code>, <code><a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityEventSource.html?is-external=true" title="class or interface in android.view.accessibility" class="externalLink">AccessibilityEventSource</a></code>, <code><a href="https://developer.android.com/reference/android/view/KeyEvent.Callback.html?is-external=true" title="class or interface in android.view" class="externalLink">KeyEvent.Callback</a></code>, <code><a href="TimeBar.html" title="interface in com.google.android.exoplayer2.ui" target="_top">TimeBar</a></code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">DefaultTimeBar</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">DefaultTimeBar</span>
 extends <a href="https://developer.android.com/reference/android/view/View.html" title="class or interface in android.view" class="externalLink" target="_top">View</a>
 implements <a href="TimeBar.html" title="interface in com.google.android.exoplayer2.ui">TimeBar</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A time bar that shows a current position, buffered position, duration and ad markers.
 
  <p>A DefaultTimeBar can be customized by setting attributes, as outlined below.
@@ -266,6 +272,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#BAR_GRAVITY_BOTTOM">BAR_GRAVITY_BOTTOM</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Vertical gravity for progress bar to be located at the bottom in the view.</div>
 </td>
 </tr>
@@ -273,6 +280,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#BAR_GRAVITY_CENTER">BAR_GRAVITY_CENTER</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Vertical gravity for progress bar to be located at the center in the view.</div>
 </td>
 </tr>
@@ -280,6 +288,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_AD_MARKER_COLOR">DEFAULT_AD_MARKER_COLOR</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default color for ad markers.</div>
 </td>
 </tr>
@@ -287,6 +296,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_AD_MARKER_WIDTH_DP">DEFAULT_AD_MARKER_WIDTH_DP</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default width for ad markers, in dp.</div>
 </td>
 </tr>
@@ -294,6 +304,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_BAR_HEIGHT_DP">DEFAULT_BAR_HEIGHT_DP</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default height for the time bar, in dp.</div>
 </td>
 </tr>
@@ -301,6 +312,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_BUFFERED_COLOR">DEFAULT_BUFFERED_COLOR</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default color for the buffered portion of the time bar.</div>
 </td>
 </tr>
@@ -308,6 +320,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_PLAYED_AD_MARKER_COLOR">DEFAULT_PLAYED_AD_MARKER_COLOR</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default color for played ad markers.</div>
 </td>
 </tr>
@@ -315,6 +328,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_PLAYED_COLOR">DEFAULT_PLAYED_COLOR</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default color for the played portion of the time bar.</div>
 </td>
 </tr>
@@ -322,6 +336,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_SCRUBBER_COLOR">DEFAULT_SCRUBBER_COLOR</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default color for the scrubber handle.</div>
 </td>
 </tr>
@@ -329,6 +344,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_SCRUBBER_DISABLED_SIZE_DP">DEFAULT_SCRUBBER_DISABLED_SIZE_DP</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default diameter for the scrubber when disabled, in dp.</div>
 </td>
 </tr>
@@ -336,6 +352,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_SCRUBBER_DRAGGED_SIZE_DP">DEFAULT_SCRUBBER_DRAGGED_SIZE_DP</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default diameter for the scrubber when dragged, in dp.</div>
 </td>
 </tr>
@@ -343,6 +360,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_SCRUBBER_ENABLED_SIZE_DP">DEFAULT_SCRUBBER_ENABLED_SIZE_DP</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default diameter for the scrubber when enabled, in dp.</div>
 </td>
 </tr>
@@ -350,6 +368,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_TOUCH_TARGET_HEIGHT_DP">DEFAULT_TOUCH_TARGET_HEIGHT_DP</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default height for the touch target, in dp.</div>
 </td>
 </tr>
@@ -357,6 +376,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_UNPLAYED_COLOR">DEFAULT_UNPLAYED_COLOR</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default color for the unplayed portion of the time bar.</div>
 </td>
 </tr>
@@ -386,25 +406,33 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context)">DefaultTimeBar</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,android.util.AttributeSet)">DefaultTimeBar</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
               <a href="https://developer.android.com/reference/android/util/AttributeSet.html" title="class or interface in android.util" class="externalLink" target="_top">AttributeSet</a>&nbsp;attrs)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,android.util.AttributeSet,int)">DefaultTimeBar</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
               <a href="https://developer.android.com/reference/android/util/AttributeSet.html" title="class or interface in android.util" class="externalLink" target="_top">AttributeSet</a>&nbsp;attrs,
               int&nbsp;defStyleAttr)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,android.util.AttributeSet,int,android.util.AttributeSet)">DefaultTimeBar</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
               <a href="https://developer.android.com/reference/android/util/AttributeSet.html" title="class or interface in android.util" class="externalLink" target="_top">AttributeSet</a>&nbsp;attrs,
               int&nbsp;defStyleAttr,
               <a href="https://developer.android.com/reference/android/util/AttributeSet.html" title="class or interface in android.util" class="externalLink" target="_top">AttributeSet</a>&nbsp;timebarAttrs)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,android.util.AttributeSet,int,android.util.AttributeSet,int)">DefaultTimeBar</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
@@ -412,7 +440,9 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
               int&nbsp;defStyleAttr,
               <a href="https://developer.android.com/reference/android/util/AttributeSet.html" title="class or interface in android.util" class="externalLink" target="_top">AttributeSet</a>&nbsp;timebarAttrs,
               int&nbsp;defStyleRes)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -426,7 +456,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -436,18 +466,22 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addListener(com.google.android.exoplayer2.ui.TimeBar.OnScrubListener)">addListener</a></span>&#8203;(<a href="TimeBar.OnScrubListener.html" title="interface in com.google.android.exoplayer2.ui">TimeBar.OnScrubListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a listener for scrubbing events.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#drawableStateChanged()">drawableStateChanged</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPreferredUpdateDelay()">getPreferredUpdateDelay</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the preferred delay in milliseconds of media time after which the time bar position
  should be updated.</div>
 </td>
@@ -456,6 +490,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hideScrubber(boolean)">hideScrubber</a></span>&#8203;(boolean&nbsp;disableScrubberPadding)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Hides the scrubber handle.</div>
 </td>
 </tr>
@@ -463,41 +498,54 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hideScrubber(long)">hideScrubber</a></span>&#8203;(long&nbsp;hideAnimationDurationMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Hides the scrubber handle with animation.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#jumpDrawablesToCurrentState()">jumpDrawablesToCurrentState</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDraw(android.graphics.Canvas)">onDraw</a></span>&#8203;(<a href="https://developer.android.com/reference/android/graphics/Canvas.html" title="class or interface in android.graphics" class="externalLink" target="_top">Canvas</a>&nbsp;canvas)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onFocusChanged(boolean,int,android.graphics.Rect)">onFocusChanged</a></span>&#8203;(boolean&nbsp;gainFocus,
               int&nbsp;direction,
               <a href="https://developer.android.com/reference/android/graphics/Rect.html" title="class or interface in android.graphics" class="externalLink" target="_top">Rect</a>&nbsp;previouslyFocusedRect)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onInitializeAccessibilityEvent(android.view.accessibility.AccessibilityEvent)">onInitializeAccessibilityEvent</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityEvent.html" title="class or interface in android.view.accessibility" class="externalLink" target="_top">AccessibilityEvent</a>&nbsp;event)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onInitializeAccessibilityNodeInfo(android.view.accessibility.AccessibilityNodeInfo)">onInitializeAccessibilityNodeInfo</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo.html" title="class or interface in android.view.accessibility" class="externalLink" target="_top">AccessibilityNodeInfo</a>&nbsp;info)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onKeyDown(int,android.view.KeyEvent)">onKeyDown</a></span>&#8203;(int&nbsp;keyCode,
          <a href="https://developer.android.com/reference/android/view/KeyEvent.html" title="class or interface in android.view" class="externalLink" target="_top">KeyEvent</a>&nbsp;event)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
@@ -506,34 +554,45 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
         int&nbsp;top,
         int&nbsp;right,
         int&nbsp;bottom)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onMeasure(int,int)">onMeasure</a></span>&#8203;(int&nbsp;widthMeasureSpec,
          int&nbsp;heightMeasureSpec)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i13" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onRtlPropertiesChanged(int)">onRtlPropertiesChanged</a></span>&#8203;(int&nbsp;layoutDirection)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i14" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTouchEvent(android.view.MotionEvent)">onTouchEvent</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/MotionEvent.html" title="class or interface in android.view" class="externalLink" target="_top">MotionEvent</a>&nbsp;event)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i15" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#performAccessibilityAction(int,android.os.Bundle)">performAccessibilityAction</a></span>&#8203;(int&nbsp;action,
                           <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;args)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeListener(com.google.android.exoplayer2.ui.TimeBar.OnScrubListener)">removeListener</a></span>&#8203;(<a href="TimeBar.OnScrubListener.html" title="interface in com.google.android.exoplayer2.ui">TimeBar.OnScrubListener</a>&nbsp;listener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Removes a listener for scrubbing events.</div>
 </td>
 </tr>
@@ -543,6 +602,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
                  boolean[]&nbsp;playedAdGroups,
                  int&nbsp;adGroupCount)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the times of ad groups and whether each ad group has been played.</div>
 </td>
 </tr>
@@ -550,6 +610,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAdMarkerColor(int)">setAdMarkerColor</a></span>&#8203;(int&nbsp;adMarkerColor)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the color for unplayed ad markers.</div>
 </td>
 </tr>
@@ -557,6 +618,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setBufferedColor(int)">setBufferedColor</a></span>&#8203;(int&nbsp;bufferedColor)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the color for the portion of the time bar after the current played position up to the
  current buffered position.</div>
 </td>
@@ -565,6 +627,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setBufferedPosition(long)">setBufferedPosition</a></span>&#8203;(long&nbsp;bufferedPosition)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the buffered position.</div>
 </td>
 </tr>
@@ -572,18 +635,22 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDuration(long)">setDuration</a></span>&#8203;(long&nbsp;duration)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the duration.</div>
 </td>
 </tr>
 <tr id="i22" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setEnabled(boolean)">setEnabled</a></span>&#8203;(boolean&nbsp;enabled)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i23" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setKeyCountIncrement(int)">setKeyCountIncrement</a></span>&#8203;(int&nbsp;count)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the position increment for key presses and accessibility actions, as a number of
  increments that divide the duration of the media.</div>
 </td>
@@ -592,6 +659,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setKeyTimeIncrement(long)">setKeyTimeIncrement</a></span>&#8203;(long&nbsp;time)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the position increment for key presses and accessibility actions, in milliseconds.</div>
 </td>
 </tr>
@@ -599,6 +667,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlayedAdMarkerColor(int)">setPlayedAdMarkerColor</a></span>&#8203;(int&nbsp;playedAdMarkerColor)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the color for played ad markers.</div>
 </td>
 </tr>
@@ -606,6 +675,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlayedColor(int)">setPlayedColor</a></span>&#8203;(int&nbsp;playedColor)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the color for the portion of the time bar representing media before the playback position.</div>
 </td>
 </tr>
@@ -613,6 +683,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPosition(long)">setPosition</a></span>&#8203;(long&nbsp;position)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the current position.</div>
 </td>
 </tr>
@@ -620,6 +691,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setScrubberColor(int)">setScrubberColor</a></span>&#8203;(int&nbsp;scrubberColor)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the color for the scrubber handle.</div>
 </td>
 </tr>
@@ -627,6 +699,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setUnplayedColor(int)">setUnplayedColor</a></span>&#8203;(int&nbsp;unplayedColor)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the color for the portion of the time bar after the current played position.</div>
 </td>
 </tr>
@@ -634,6 +707,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#showScrubber()">showScrubber</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Shows the scrubber handle.</div>
 </td>
 </tr>
@@ -641,6 +715,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#showScrubber(long)">showScrubber</a></span>&#8203;(long&nbsp;showAnimationDurationMs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Shows the scrubber handle with animation.</div>
 </td>
 </tr>
@@ -682,6 +757,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>DEFAULT_BAR_HEIGHT_DP</h4>
 <pre>public static final&nbsp;int DEFAULT_BAR_HEIGHT_DP</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default height for the time bar, in dp.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -696,6 +772,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>DEFAULT_TOUCH_TARGET_HEIGHT_DP</h4>
 <pre>public static final&nbsp;int DEFAULT_TOUCH_TARGET_HEIGHT_DP</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default height for the touch target, in dp.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -710,6 +787,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>DEFAULT_AD_MARKER_WIDTH_DP</h4>
 <pre>public static final&nbsp;int DEFAULT_AD_MARKER_WIDTH_DP</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default width for ad markers, in dp.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -724,6 +802,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>DEFAULT_SCRUBBER_ENABLED_SIZE_DP</h4>
 <pre>public static final&nbsp;int DEFAULT_SCRUBBER_ENABLED_SIZE_DP</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default diameter for the scrubber when enabled, in dp.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -738,6 +817,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>DEFAULT_SCRUBBER_DISABLED_SIZE_DP</h4>
 <pre>public static final&nbsp;int DEFAULT_SCRUBBER_DISABLED_SIZE_DP</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default diameter for the scrubber when disabled, in dp.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -752,6 +832,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>DEFAULT_SCRUBBER_DRAGGED_SIZE_DP</h4>
 <pre>public static final&nbsp;int DEFAULT_SCRUBBER_DRAGGED_SIZE_DP</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default diameter for the scrubber when dragged, in dp.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -766,6 +847,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>DEFAULT_PLAYED_COLOR</h4>
 <pre>public static final&nbsp;int DEFAULT_PLAYED_COLOR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default color for the played portion of the time bar.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -780,6 +862,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>DEFAULT_UNPLAYED_COLOR</h4>
 <pre>public static final&nbsp;int DEFAULT_UNPLAYED_COLOR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default color for the unplayed portion of the time bar.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -794,6 +877,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>DEFAULT_BUFFERED_COLOR</h4>
 <pre>public static final&nbsp;int DEFAULT_BUFFERED_COLOR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default color for the buffered portion of the time bar.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -808,6 +892,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>DEFAULT_SCRUBBER_COLOR</h4>
 <pre>public static final&nbsp;int DEFAULT_SCRUBBER_COLOR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default color for the scrubber handle.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -822,6 +907,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>DEFAULT_AD_MARKER_COLOR</h4>
 <pre>public static final&nbsp;int DEFAULT_AD_MARKER_COLOR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default color for ad markers.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -836,6 +922,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>DEFAULT_PLAYED_AD_MARKER_COLOR</h4>
 <pre>public static final&nbsp;int DEFAULT_PLAYED_AD_MARKER_COLOR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default color for played ad markers.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -850,6 +937,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>BAR_GRAVITY_CENTER</h4>
 <pre>public static final&nbsp;int BAR_GRAVITY_CENTER</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Vertical gravity for progress bar to be located at the center in the view.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -864,6 +952,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>BAR_GRAVITY_BOTTOM</h4>
 <pre>public static final&nbsp;int BAR_GRAVITY_BOTTOM</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Vertical gravity for progress bar to be located at the bottom in the view.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -888,6 +977,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>DefaultTimeBar</h4>
 <pre>public&nbsp;DefaultTimeBar&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="&lt;init&gt;(android.content.Context,android.util.AttributeSet)">
@@ -899,6 +989,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <pre>public&nbsp;DefaultTimeBar&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                       @Nullable
                       <a href="https://developer.android.com/reference/android/util/AttributeSet.html" title="class or interface in android.util" class="externalLink" target="_top">AttributeSet</a>&nbsp;attrs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="&lt;init&gt;(android.content.Context,android.util.AttributeSet,int)">
@@ -911,6 +1002,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
                       @Nullable
                       <a href="https://developer.android.com/reference/android/util/AttributeSet.html" title="class or interface in android.util" class="externalLink" target="_top">AttributeSet</a>&nbsp;attrs,
                       int&nbsp;defStyleAttr)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="&lt;init&gt;(android.content.Context,android.util.AttributeSet,int,android.util.AttributeSet)">
@@ -925,6 +1017,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
                       int&nbsp;defStyleAttr,
                       @Nullable
                       <a href="https://developer.android.com/reference/android/util/AttributeSet.html" title="class or interface in android.util" class="externalLink" target="_top">AttributeSet</a>&nbsp;timebarAttrs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="&lt;init&gt;(android.content.Context,android.util.AttributeSet,int,android.util.AttributeSet,int)">
@@ -940,6 +1033,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
                       @Nullable
                       <a href="https://developer.android.com/reference/android/util/AttributeSet.html" title="class or interface in android.util" class="externalLink" target="_top">AttributeSet</a>&nbsp;timebarAttrs,
                       int&nbsp;defStyleRes)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -959,6 +1053,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>showScrubber</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;showScrubber()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Shows the scrubber handle.</div>
 </li>
 </ul>
@@ -969,6 +1064,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>showScrubber</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;showScrubber&#8203;(long&nbsp;showAnimationDurationMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Shows the scrubber handle with animation.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -983,6 +1079,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>hideScrubber</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;hideScrubber&#8203;(boolean&nbsp;disableScrubberPadding)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Hides the scrubber handle.</div>
 </li>
 </ul>
@@ -993,6 +1090,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>hideScrubber</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;hideScrubber&#8203;(long&nbsp;hideAnimationDurationMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Hides the scrubber handle with animation.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1008,6 +1106,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <h4>setPlayedColor</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setPlayedColor&#8203;(@ColorInt
                            int&nbsp;playedColor)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the color for the portion of the time bar representing media before the playback position.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1024,6 +1123,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <h4>setScrubberColor</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setScrubberColor&#8203;(@ColorInt
                              int&nbsp;scrubberColor)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the color for the scrubber handle.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1039,6 +1139,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <h4>setBufferedColor</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setBufferedColor&#8203;(@ColorInt
                              int&nbsp;bufferedColor)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the color for the portion of the time bar after the current played position up to the
  current buffered position.</div>
 <dl>
@@ -1056,6 +1157,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <h4>setUnplayedColor</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setUnplayedColor&#8203;(@ColorInt
                              int&nbsp;unplayedColor)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the color for the portion of the time bar after the current played position.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1072,6 +1174,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <h4>setAdMarkerColor</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setAdMarkerColor&#8203;(@ColorInt
                              int&nbsp;adMarkerColor)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the color for unplayed ad markers.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1087,6 +1190,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <h4>setPlayedAdMarkerColor</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setPlayedAdMarkerColor&#8203;(@ColorInt
                                    int&nbsp;playedAdMarkerColor)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the color for played ad markers.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1101,6 +1205,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>addListener</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;addListener&#8203;(<a href="TimeBar.OnScrubListener.html" title="interface in com.google.android.exoplayer2.ui">TimeBar.OnScrubListener</a>&nbsp;listener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="TimeBar.html#addListener(com.google.android.exoplayer2.ui.TimeBar.OnScrubListener)">TimeBar</a></code></span></div>
 <div class="block">Adds a listener for scrubbing events.</div>
 <dl>
@@ -1118,6 +1223,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>removeListener</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;removeListener&#8203;(<a href="TimeBar.OnScrubListener.html" title="interface in com.google.android.exoplayer2.ui">TimeBar.OnScrubListener</a>&nbsp;listener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="TimeBar.html#removeListener(com.google.android.exoplayer2.ui.TimeBar.OnScrubListener)">TimeBar</a></code></span></div>
 <div class="block">Removes a listener for scrubbing events.</div>
 <dl>
@@ -1135,6 +1241,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>setKeyTimeIncrement</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setKeyTimeIncrement&#8203;(long&nbsp;time)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="TimeBar.html#setKeyTimeIncrement(long)">TimeBar</a></code></span></div>
 <div class="block">Sets the position increment for key presses and accessibility actions, in milliseconds.
 
@@ -1154,6 +1261,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>setKeyCountIncrement</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setKeyCountIncrement&#8203;(int&nbsp;count)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="TimeBar.html#setKeyCountIncrement(int)">TimeBar</a></code></span></div>
 <div class="block">Sets the position increment for key presses and accessibility actions, as a number of
  increments that divide the duration of the media. For example, passing 20 will cause key
@@ -1175,6 +1283,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>setPosition</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setPosition&#8203;(long&nbsp;position)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="TimeBar.html#setPosition(long)">TimeBar</a></code></span></div>
 <div class="block">Sets the current position.</div>
 <dl>
@@ -1192,6 +1301,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>setBufferedPosition</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setBufferedPosition&#8203;(long&nbsp;bufferedPosition)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="TimeBar.html#setBufferedPosition(long)">TimeBar</a></code></span></div>
 <div class="block">Sets the buffered position.</div>
 <dl>
@@ -1209,6 +1319,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>setDuration</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setDuration&#8203;(long&nbsp;duration)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="TimeBar.html#setDuration(long)">TimeBar</a></code></span></div>
 <div class="block">Sets the duration.</div>
 <dl>
@@ -1226,6 +1337,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>getPreferredUpdateDelay</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getPreferredUpdateDelay()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="TimeBar.html#getPreferredUpdateDelay()">TimeBar</a></code></span></div>
 <div class="block">Returns the preferred delay in milliseconds of media time after which the time bar position
  should be updated.</div>
@@ -1248,6 +1360,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
                               @Nullable
                               boolean[]&nbsp;playedAdGroups,
                               int&nbsp;adGroupCount)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="TimeBar.html#setAdGroupTimesMs(long%5B%5D,boolean%5B%5D,int)">TimeBar</a></code></span></div>
 <div class="block">Sets the times of ad groups and whether each ad group has been played.</div>
 <dl>
@@ -1270,6 +1383,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>setEnabled</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setEnabled&#8203;(boolean&nbsp;enabled)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="TimeBar.html#setEnabled(boolean)">setEnabled</a></code>&nbsp;in interface&nbsp;<code><a href="TimeBar.html" title="interface in com.google.android.exoplayer2.ui">TimeBar</a></code></dd>
@@ -1287,6 +1401,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>onDraw</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onDraw&#8203;(<a href="https://developer.android.com/reference/android/graphics/Canvas.html" title="class or interface in android.graphics" class="externalLink" target="_top">Canvas</a>&nbsp;canvas)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/view/View.html#onDraw(android.graphics.Canvas)" title="class or interface in android.view" class="externalLink">onDraw</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/view/View.html?is-external=true" title="class or interface in android.view" class="externalLink" target="_top">View</a></code></dd>
@@ -1300,6 +1415,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>onTouchEvent</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;onTouchEvent&#8203;(<a href="https://developer.android.com/reference/android/view/MotionEvent.html" title="class or interface in android.view" class="externalLink" target="_top">MotionEvent</a>&nbsp;event)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/view/View.html#onTouchEvent(android.view.MotionEvent)" title="class or interface in android.view" class="externalLink">onTouchEvent</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/view/View.html?is-external=true" title="class or interface in android.view" class="externalLink" target="_top">View</a></code></dd>
@@ -1314,6 +1430,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <h4>onKeyDown</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;onKeyDown&#8203;(int&nbsp;keyCode,
                          <a href="https://developer.android.com/reference/android/view/KeyEvent.html" title="class or interface in android.view" class="externalLink" target="_top">KeyEvent</a>&nbsp;event)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/view/KeyEvent.Callback.html#onKeyDown(int,android.view.KeyEvent)" title="class or interface in android.view" class="externalLink">onKeyDown</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/android/view/KeyEvent.Callback.html?is-external=true" title="class or interface in android.view" class="externalLink" target="_top">KeyEvent.Callback</a></code></dd>
@@ -1332,6 +1449,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
                               int&nbsp;direction,
                               @Nullable
                               <a href="https://developer.android.com/reference/android/graphics/Rect.html" title="class or interface in android.graphics" class="externalLink" target="_top">Rect</a>&nbsp;previouslyFocusedRect)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/view/View.html#onFocusChanged(boolean,int,android.graphics.Rect)" title="class or interface in android.view" class="externalLink">onFocusChanged</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/view/View.html?is-external=true" title="class or interface in android.view" class="externalLink" target="_top">View</a></code></dd>
@@ -1345,6 +1463,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>drawableStateChanged</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;drawableStateChanged()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/view/View.html#drawableStateChanged()" title="class or interface in android.view" class="externalLink">drawableStateChanged</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/view/View.html?is-external=true" title="class or interface in android.view" class="externalLink" target="_top">View</a></code></dd>
@@ -1358,6 +1477,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>jumpDrawablesToCurrentState</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;jumpDrawablesToCurrentState()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/view/View.html#jumpDrawablesToCurrentState()" title="class or interface in android.view" class="externalLink">jumpDrawablesToCurrentState</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/view/View.html?is-external=true" title="class or interface in android.view" class="externalLink" target="_top">View</a></code></dd>
@@ -1372,6 +1492,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <h4>onMeasure</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;onMeasure&#8203;(int&nbsp;widthMeasureSpec,
                          int&nbsp;heightMeasureSpec)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/view/View.html#onMeasure(int,int)" title="class or interface in android.view" class="externalLink">onMeasure</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/view/View.html?is-external=true" title="class or interface in android.view" class="externalLink" target="_top">View</a></code></dd>
@@ -1389,6 +1510,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
                         int&nbsp;top,
                         int&nbsp;right,
                         int&nbsp;bottom)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/view/View.html#onLayout(boolean,int,int,int,int)" title="class or interface in android.view" class="externalLink">onLayout</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/view/View.html?is-external=true" title="class or interface in android.view" class="externalLink" target="_top">View</a></code></dd>
@@ -1402,6 +1524,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>onRtlPropertiesChanged</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onRtlPropertiesChanged&#8203;(int&nbsp;layoutDirection)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/view/View.html#onRtlPropertiesChanged(int)" title="class or interface in android.view" class="externalLink">onRtlPropertiesChanged</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/view/View.html?is-external=true" title="class or interface in android.view" class="externalLink" target="_top">View</a></code></dd>
@@ -1415,6 +1538,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>onInitializeAccessibilityEvent</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onInitializeAccessibilityEvent&#8203;(<a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityEvent.html" title="class or interface in android.view.accessibility" class="externalLink" target="_top">AccessibilityEvent</a>&nbsp;event)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/view/View.html#onInitializeAccessibilityEvent(android.view.accessibility.AccessibilityEvent)" title="class or interface in android.view" class="externalLink">onInitializeAccessibilityEvent</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/view/View.html?is-external=true" title="class or interface in android.view" class="externalLink" target="_top">View</a></code></dd>
@@ -1428,6 +1552,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <li class="blockList">
 <h4>onInitializeAccessibilityNodeInfo</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onInitializeAccessibilityNodeInfo&#8203;(<a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo.html" title="class or interface in android.view.accessibility" class="externalLink" target="_top">AccessibilityNodeInfo</a>&nbsp;info)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/view/View.html#onInitializeAccessibilityNodeInfo(android.view.accessibility.AccessibilityNodeInfo)" title="class or interface in android.view" class="externalLink">onInitializeAccessibilityNodeInfo</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/view/View.html?is-external=true" title="class or interface in android.view" class="externalLink" target="_top">View</a></code></dd>
@@ -1443,6 +1568,7 @@ implements <a href="TimeBar.html" title="interface in com.google.android.exoplay
 <pre class="methodSignature">public&nbsp;boolean&nbsp;performAccessibilityAction&#8203;(int&nbsp;action,
                                           @Nullable
                                           <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;args)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/view/View.html#performAccessibilityAction(int,android.os.Bundle)" title="class or interface in android.view" class="externalLink">performAccessibilityAction</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/view/View.html?is-external=true" title="class or interface in android.view" class="externalLink" target="_top">View</a></code></dd>

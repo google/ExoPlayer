@@ -56,8 +56,16 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-/** A {@link DrmSession} that supports playbacks using {@link ExoMediaDrm}. */
+/**
+ * A {@link DrmSession} that supports playbacks using {@link ExoMediaDrm}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
 @RequiresApi(18)
+@Deprecated
 /* package */ class DefaultDrmSession implements DrmSession {
 
   /** Thrown when an unexpected exception or error is thrown during provisioning or key requests. */
@@ -219,7 +227,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     return Arrays.equals(this.sessionId, sessionId);
   }
 
-  public void onMediaDrmEvent(int what) {
+  /* package */ void onMediaDrmEvent(int what) {
     switch (what) {
       case ExoMediaDrm.EVENT_KEY_REQUIRED:
         onKeysRequired();
@@ -231,7 +239,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   // Provisioning implementation.
 
-  public void provision() {
+  /* package */ void provision() {
     currentProvisionRequest = mediaDrm.getProvisionRequest();
     Util.castNonNull(requestHandler)
         .post(
@@ -240,13 +248,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
             /* allowRetry= */ true);
   }
 
-  public void onProvisionCompleted() {
+  /* package */ void onProvisionCompleted() {
     if (openInternal()) {
       doLicense(true);
     }
   }
 
-  public void onProvisionError(Exception error, boolean thrownByExoMediaDrm) {
+  /* package */ void onProvisionError(Exception error, boolean thrownByExoMediaDrm) {
     onError(
         error,
         thrownByExoMediaDrm

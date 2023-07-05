@@ -34,7 +34,13 @@ import java.util.HashSet;
  *
  * <p>Whenever an implementing subclass needs to provide a new timeline, it must call {@link
  * #refreshSourceInfo(Timeline)} to notify all listeners.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public abstract class BaseMediaSource implements MediaSource {
 
   private final ArrayList<MediaSourceCaller> mediaSourceCallers;
@@ -99,37 +105,46 @@ public abstract class BaseMediaSource implements MediaSource {
    */
   protected final MediaSourceEventListener.EventDispatcher createEventDispatcher(
       @Nullable MediaPeriodId mediaPeriodId) {
-    return eventDispatcher.withParameters(
-        /* windowIndex= */ 0, mediaPeriodId, /* mediaTimeOffsetMs= */ 0);
+    return eventDispatcher.withParameters(/* windowIndex= */ 0, mediaPeriodId);
   }
 
   /**
    * Returns a {@link MediaSourceEventListener.EventDispatcher} which dispatches all events to the
-   * registered listeners with the specified {@link MediaPeriodId} and time offset.
-   *
-   * @param mediaPeriodId The {@link MediaPeriodId} to be reported with the events.
-   * @param mediaTimeOffsetMs The offset to be added to all media times, in milliseconds.
-   * @return An event dispatcher with pre-configured media period id and time offset.
-   */
-  protected final MediaSourceEventListener.EventDispatcher createEventDispatcher(
-      MediaPeriodId mediaPeriodId, long mediaTimeOffsetMs) {
-    Assertions.checkNotNull(mediaPeriodId);
-    return eventDispatcher.withParameters(/* windowIndex= */ 0, mediaPeriodId, mediaTimeOffsetMs);
-  }
-
-  /**
-   * Returns a {@link MediaSourceEventListener.EventDispatcher} which dispatches all events to the
-   * registered listeners with the specified window index, {@link MediaPeriodId} and time offset.
+   * registered listeners with the specified window index and {@link MediaPeriodId}.
    *
    * @param windowIndex The timeline window index to be reported with the events.
    * @param mediaPeriodId The {@link MediaPeriodId} to be reported with the events. May be null, if
    *     the events do not belong to a specific media period.
-   * @param mediaTimeOffsetMs The offset to be added to all media times, in milliseconds.
-   * @return An event dispatcher with pre-configured media period id and time offset.
+   * @return An event dispatcher with pre-configured media period id.
    */
   protected final MediaSourceEventListener.EventDispatcher createEventDispatcher(
+      int windowIndex, @Nullable MediaPeriodId mediaPeriodId) {
+    return eventDispatcher.withParameters(windowIndex, mediaPeriodId);
+  }
+
+  /**
+   * Note: The {@code mediaTimeOffsetMs} passed to this method is ignored and not added to media
+   * times in any way.
+   *
+   * @deprecated Use {@link #createEventDispatcher(MediaPeriodId)} instead.
+   */
+  @Deprecated
+  protected final MediaSourceEventListener.EventDispatcher createEventDispatcher(
+      MediaPeriodId mediaPeriodId, long mediaTimeOffsetMs) {
+    Assertions.checkNotNull(mediaPeriodId);
+    return eventDispatcher.withParameters(/* windowIndex= */ 0, mediaPeriodId);
+  }
+
+  /**
+   * Note: The {@code mediaTimeOffsetMs} passed to this method is ignored and not added to media
+   * times in any way.
+   *
+   * @deprecated Use {@link #createEventDispatcher(int, MediaPeriodId)} instead.
+   */
+  @Deprecated
+  protected final MediaSourceEventListener.EventDispatcher createEventDispatcher(
       int windowIndex, @Nullable MediaPeriodId mediaPeriodId, long mediaTimeOffsetMs) {
-    return eventDispatcher.withParameters(windowIndex, mediaPeriodId, mediaTimeOffsetMs);
+    return eventDispatcher.withParameters(windowIndex, mediaPeriodId);
   }
 
   /**

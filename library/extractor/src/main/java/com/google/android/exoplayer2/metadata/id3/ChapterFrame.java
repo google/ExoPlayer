@@ -23,7 +23,15 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
 
-/** Chapter information ID3 frame. */
+/**
+ * Chapter information ID3 frame.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class ChapterFrame extends Id3Frame {
 
   public static final String ID = "CHAP";
@@ -31,9 +39,9 @@ public final class ChapterFrame extends Id3Frame {
   public final String chapterId;
   public final int startTimeMs;
   public final int endTimeMs;
-  /** The byte offset of the start of the chapter, or {@link C#POSITION_UNSET} if not set. */
+  /** The byte offset of the start of the chapter, or {@link C#INDEX_UNSET} if not set. */
   public final long startOffset;
-  /** The byte offset of the end of the chapter, or {@link C#POSITION_UNSET} if not set. */
+  /** The byte offset of the end of the chapter, or {@link C#INDEX_UNSET} if not set. */
   public final long endOffset;
 
   private final Id3Frame[] subFrames;

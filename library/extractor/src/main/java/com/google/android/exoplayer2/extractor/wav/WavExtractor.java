@@ -45,7 +45,15 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-/** Extracts data from WAV byte streams. */
+/**
+ * Extracts data from WAV byte streams.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class WavExtractor implements Extractor {
 
   private static final String TAG = "WavExtractor";
@@ -90,8 +98,8 @@ public final class WavExtractor implements Extractor {
   public WavExtractor() {
     state = STATE_READING_FILE_TYPE;
     rf64SampleDataSize = C.LENGTH_UNSET;
-    dataStartPosition = C.POSITION_UNSET;
-    dataEndPosition = C.POSITION_UNSET;
+    dataStartPosition = C.INDEX_UNSET;
+    dataEndPosition = C.INDEX_UNSET;
   }
 
   @Override
@@ -151,7 +159,7 @@ public final class WavExtractor implements Extractor {
 
   private void readFileType(ExtractorInput input) throws IOException {
     Assertions.checkState(input.getPosition() == 0);
-    if (dataStartPosition != C.POSITION_UNSET) {
+    if (dataStartPosition != C.INDEX_UNSET) {
       input.skipFully(dataStartPosition);
       state = STATE_READING_SAMPLE_DATA;
       return;
@@ -226,7 +234,7 @@ public final class WavExtractor implements Extractor {
   }
 
   private @ReadResult int readSampleData(ExtractorInput input) throws IOException {
-    Assertions.checkState(dataEndPosition != C.POSITION_UNSET);
+    Assertions.checkState(dataEndPosition != C.INDEX_UNSET);
     long bytesLeft = dataEndPosition - input.getPosition();
     return Assertions.checkNotNull(outputWriter).sampleData(input, bytesLeft)
         ? RESULT_END_OF_INPUT

@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -139,8 +139,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public class <span class="typeNameLabel">VideoDecoderOutputBuffer</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">VideoDecoderOutputBuffer</span>
 extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderOutputBuffer</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Video decoder output buffer containing video frame data.</div>
 </li>
 </ul>
@@ -182,32 +188,43 @@ extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.ex
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#colorspace">colorspace</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#COLORSPACE_BT2020">COLORSPACE_BT2020</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#COLORSPACE_BT601">COLORSPACE_BT601</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#COLORSPACE_BT709">COLORSPACE_BT709</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#COLORSPACE_UNKNOWN">COLORSPACE_UNKNOWN</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#data">data</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">RGB buffer for RGB mode.</div>
 </td>
 </tr>
@@ -215,6 +232,7 @@ extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.ex
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decoderPrivate">decoderPrivate</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Decoder private data.</div>
 </td>
 </tr>
@@ -222,18 +240,22 @@ extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.ex
 <td class="colFirst"><code><a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#format">format</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The format of the input from which this output buffer was decoded.</div>
 </td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#height">height</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>@com.google.android.exoplayer2.C.VideoOutputMode int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#mode">mode</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Output mode.</div>
 </td>
 </tr>
@@ -241,25 +263,31 @@ extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.ex
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#supplementalData">supplementalData</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Supplemental data related to the output frame, if <a href="Buffer.html#hasSupplementalData()"><code>Buffer.hasSupplementalData()</code></a> returns true.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#width">width</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#yuvPlanes">yuvPlanes</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">YUV planes for YUV mode.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>int[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#yuvStrides">yuvStrides</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -288,6 +316,7 @@ extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.ex
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.decoder.DecoderOutputBuffer.Owner)">VideoDecoderOutputBuffer</a></span>&#8203;(<a href="DecoderOutputBuffer.Owner.html" title="interface in com.google.android.exoplayer2.decoder">DecoderOutputBuffer.Owner</a>&lt;<a href="VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">VideoDecoderOutputBuffer</a>&gt;&nbsp;owner)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates VideoDecoderOutputBuffer.</div>
 </td>
 </tr>
@@ -303,7 +332,7 @@ extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.ex
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -315,6 +344,7 @@ extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.ex
     @com.google.android.exoplayer2.C.VideoOutputMode int&nbsp;mode,
     <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;supplementalData)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Initializes the buffer.</div>
 </td>
 </tr>
@@ -323,6 +353,7 @@ extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.ex
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#initForPrivateFrame(int,int)">initForPrivateFrame</a></span>&#8203;(int&nbsp;width,
                    int&nbsp;height)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Configures the buffer for the given frame dimensions when passing actual frame data via <a href="#decoderPrivate"><code>decoderPrivate</code></a>.</div>
 </td>
 </tr>
@@ -334,6 +365,7 @@ extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.ex
                int&nbsp;uvStride,
                int&nbsp;colorspace)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Resizes the buffer based on the given stride.</div>
 </td>
 </tr>
@@ -341,6 +373,7 @@ extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.ex
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases the output buffer for reuse.</div>
 </td>
 </tr>
@@ -382,6 +415,7 @@ extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.ex
 <li class="blockList">
 <h4>COLORSPACE_UNKNOWN</h4>
 <pre>public static final&nbsp;int COLORSPACE_UNKNOWN</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.decoder.VideoDecoderOutputBuffer.COLORSPACE_UNKNOWN">Constant Field Values</a></dd>
@@ -395,6 +429,7 @@ extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.ex
 <li class="blockList">
 <h4>COLORSPACE_BT601</h4>
 <pre>public static final&nbsp;int COLORSPACE_BT601</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.decoder.VideoDecoderOutputBuffer.COLORSPACE_BT601">Constant Field Values</a></dd>
@@ -408,6 +443,7 @@ extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.ex
 <li class="blockList">
 <h4>COLORSPACE_BT709</h4>
 <pre>public static final&nbsp;int COLORSPACE_BT709</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.decoder.VideoDecoderOutputBuffer.COLORSPACE_BT709">Constant Field Values</a></dd>
@@ -421,6 +457,7 @@ extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.ex
 <li class="blockList">
 <h4>COLORSPACE_BT2020</h4>
 <pre>public static final&nbsp;int COLORSPACE_BT2020</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.decoder.VideoDecoderOutputBuffer.COLORSPACE_BT2020">Constant Field Values</a></dd>
@@ -434,6 +471,7 @@ extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.ex
 <li class="blockList">
 <h4>decoderPrivate</h4>
 <pre>public&nbsp;int decoderPrivate</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Decoder private data. Used from native code.</div>
 </li>
 </ul>
@@ -444,6 +482,7 @@ extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.ex
 <li class="blockList">
 <h4>mode</h4>
 <pre>public&nbsp;@com.google.android.exoplayer2.C.VideoOutputMode int mode</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Output mode.</div>
 </li>
 </ul>
@@ -455,6 +494,7 @@ extends <a href="DecoderOutputBuffer.html" title="class in com.google.android.ex
 <h4>data</h4>
 <pre>@Nullable
 public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a> data</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">RGB buffer for RGB mode.</div>
 </li>
 </ul>
@@ -465,6 +505,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <li class="blockList">
 <h4>width</h4>
 <pre>public&nbsp;int width</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="height">
@@ -474,6 +515,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <li class="blockList">
 <h4>height</h4>
 <pre>public&nbsp;int height</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="format">
@@ -484,6 +526,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <h4>format</h4>
 <pre>@Nullable
 public&nbsp;<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a> format</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The format of the input from which this output buffer was decoded.</div>
 </li>
 </ul>
@@ -495,6 +538,7 @@ public&nbsp;<a href="../Format.html" title="class in com.google.android.exoplaye
 <h4>yuvPlanes</h4>
 <pre>@Nullable
 public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>[] yuvPlanes</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">YUV planes for YUV mode.</div>
 </li>
 </ul>
@@ -506,6 +550,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <h4>yuvStrides</h4>
 <pre>@Nullable
 public&nbsp;int[] yuvStrides</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="colorspace">
@@ -515,6 +560,7 @@ public&nbsp;int[] yuvStrides</pre>
 <li class="blockList">
 <h4>colorspace</h4>
 <pre>public&nbsp;int colorspace</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="supplementalData">
@@ -525,6 +571,7 @@ public&nbsp;int[] yuvStrides</pre>
 <h4>supplementalData</h4>
 <pre>@Nullable
 public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a> supplementalData</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Supplemental data related to the output frame, if <a href="Buffer.html#hasSupplementalData()"><code>Buffer.hasSupplementalData()</code></a> returns true.
  If present, the buffer is populated with supplemental data from position 0 to its limit.</div>
 </li>
@@ -546,6 +593,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <li class="blockList">
 <h4>VideoDecoderOutputBuffer</h4>
 <pre>public&nbsp;VideoDecoderOutputBuffer&#8203;(<a href="DecoderOutputBuffer.Owner.html" title="interface in com.google.android.exoplayer2.decoder">DecoderOutputBuffer.Owner</a>&lt;<a href="VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">VideoDecoderOutputBuffer</a>&gt;&nbsp;owner)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates VideoDecoderOutputBuffer.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -570,6 +618,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <li class="blockList">
 <h4>release</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;release()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="DecoderOutputBuffer.html#release()">DecoderOutputBuffer</a></code></span></div>
 <div class="block">Releases the output buffer for reuse. Must be called when the buffer is no longer needed.</div>
 <dl>
@@ -588,6 +637,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
                  @com.google.android.exoplayer2.C.VideoOutputMode int&nbsp;mode,
                  @Nullable
                  <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;supplementalData)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Initializes the buffer.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -609,6 +659,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
                                int&nbsp;yStride,
                                int&nbsp;uvStride,
                                int&nbsp;colorspace)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Resizes the buffer based on the given stride. Called via JNI after decoding completes.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -624,6 +675,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/nio/ByteBuffer
 <h4>initForPrivateFrame</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;initForPrivateFrame&#8203;(int&nbsp;width,
                                 int&nbsp;height)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Configures the buffer for the given frame dimensions when passing actual frame data via <a href="#decoderPrivate"><code>decoderPrivate</code></a>. Called via JNI after decoding completes.</div>
 </li>
 </ul>

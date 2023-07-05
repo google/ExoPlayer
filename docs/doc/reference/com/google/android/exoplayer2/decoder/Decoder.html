@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var data = {"i0":38,"i1":38,"i2":38,"i3":38,"i4":38,"i5":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -135,7 +135,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../text/cea/Cea608Decoder.html" title="class in com.google.android.exoplayer2.text.cea">Cea608Decoder</a></code>, <code><a href="../text/cea/Cea708Decoder.html" title="class in com.google.android.exoplayer2.text.cea">Cea708Decoder</a></code>, <code><a href="../text/dvb/DvbDecoder.html" title="class in com.google.android.exoplayer2.text.dvb">DvbDecoder</a></code>, <code><a href="../text/ExoplayerCuesDecoder.html" title="class in com.google.android.exoplayer2.text">ExoplayerCuesDecoder</a></code>, <code><a href="../ext/flac/FlacDecoder.html" title="class in com.google.android.exoplayer2.ext.flac">FlacDecoder</a></code>, <code><a href="../ext/av1/Gav1Decoder.html" title="class in com.google.android.exoplayer2.ext.av1">Gav1Decoder</a></code>, <code><a href="../text/webvtt/Mp4WebvttDecoder.html" title="class in com.google.android.exoplayer2.text.webvtt">Mp4WebvttDecoder</a></code>, <code><a href="../ext/opus/OpusDecoder.html" title="class in com.google.android.exoplayer2.ext.opus">OpusDecoder</a></code>, <code><a href="../text/pgs/PgsDecoder.html" title="class in com.google.android.exoplayer2.text.pgs">PgsDecoder</a></code>, <code><a href="SimpleDecoder.html" title="class in com.google.android.exoplayer2.decoder">SimpleDecoder</a></code>, <code><a href="../text/SimpleSubtitleDecoder.html" title="class in com.google.android.exoplayer2.text">SimpleSubtitleDecoder</a></code>, <code><a href="../text/ssa/SsaDecoder.html" title="class in com.google.android.exoplayer2.text.ssa">SsaDecoder</a></code>, <code><a href="../text/subrip/SubripDecoder.html" title="class in com.google.android.exoplayer2.text.subrip">SubripDecoder</a></code>, <code><a href="../text/ttml/TtmlDecoder.html" title="class in com.google.android.exoplayer2.text.ttml">TtmlDecoder</a></code>, <code><a href="../text/tx3g/Tx3gDecoder.html" title="class in com.google.android.exoplayer2.text.tx3g">Tx3gDecoder</a></code>, <code><a href="../ext/vp9/VpxDecoder.html" title="class in com.google.android.exoplayer2.ext.vp9">VpxDecoder</a></code>, <code><a href="../text/webvtt/WebvttDecoder.html" title="class in com.google.android.exoplayer2.text.webvtt">WebvttDecoder</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">Decoder&lt;I,&#8203;O,&#8203;E extends <a href="DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;</span></pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">Decoder&lt;I,&#8203;O,&#8203;E extends <a href="DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a>&gt;</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A media decoder.</div>
 </li>
 </ul>
@@ -151,7 +157,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -161,6 +167,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="Decoder.html" title="type parameter in Decoder">I</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dequeueInputBuffer()">dequeueInputBuffer</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dequeues the next input buffer to be filled and queued to the decoder.</div>
 </td>
 </tr>
@@ -168,6 +175,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="Decoder.html" title="type parameter in Decoder">O</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dequeueOutputBuffer()">dequeueOutputBuffer</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dequeues the next output buffer from the decoder.</div>
 </td>
 </tr>
@@ -175,6 +183,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#flush()">flush</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Flushes the decoder.</div>
 </td>
 </tr>
@@ -182,6 +191,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getName()">getName</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the name of the decoder.</div>
 </td>
 </tr>
@@ -189,6 +199,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#queueInputBuffer(I)">queueInputBuffer</a></span>&#8203;(<a href="Decoder.html" title="type parameter in Decoder">I</a>&nbsp;inputBuffer)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Queues an input buffer to the decoder.</div>
 </td>
 </tr>
@@ -196,6 +207,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases the decoder.</div>
 </td>
 </tr>
@@ -223,6 +235,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>getName</h4>
 <pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;getName()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the name of the decoder.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -239,6 +252,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre class="methodSignature">@Nullable
 <a href="Decoder.html" title="type parameter in Decoder">I</a>&nbsp;dequeueInputBuffer()
               throws <a href="Decoder.html" title="type parameter in Decoder">E</a> extends <a href="DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dequeues the next input buffer to be filled and queued to the decoder.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -259,6 +273,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>queueInputBuffer</h4>
 <pre class="methodSignature">void&nbsp;queueInputBuffer&#8203;(<a href="Decoder.html" title="type parameter in Decoder">I</a>&nbsp;inputBuffer)
                throws <a href="Decoder.html" title="type parameter in Decoder">E</a> extends <a href="DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Queues an input buffer to the decoder.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -278,6 +293,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre class="methodSignature">@Nullable
 <a href="Decoder.html" title="type parameter in Decoder">O</a>&nbsp;dequeueOutputBuffer()
                throws <a href="Decoder.html" title="type parameter in Decoder">E</a> extends <a href="DecoderException.html" title="class in com.google.android.exoplayer2.decoder">DecoderException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Dequeues the next output buffer from the decoder.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -295,6 +311,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>flush</h4>
 <pre class="methodSignature">void&nbsp;flush()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Flushes the decoder. Ownership of dequeued input buffers is returned to the decoder. The caller
  is still responsible for releasing any dequeued output buffers.</div>
 </li>
@@ -306,6 +323,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>release</h4>
 <pre class="methodSignature">void&nbsp;release()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases the decoder. Must be called when the decoder is no longer needed.</div>
 </li>
 </ul>

@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var data = {"i0":38,"i1":38,"i2":38,"i3":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -126,6 +126,11 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 <hr>
 <pre>public interface <span class="typeNameLabel">RtpPayloadReader</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Extracts media samples from the payload of received RTP packets.</div>
 </li>
 </ul>
@@ -151,6 +156,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="RtpPayloadReader.Factory.html" title="interface in com.google.android.exoplayer2.source.rtsp.reader">RtpPayloadReader.Factory</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Factory of <a href="RtpPayloadReader.html" title="interface in com.google.android.exoplayer2.source.rtsp.reader"><code>RtpPayloadReader</code></a> instances.</div>
 </td>
 </tr>
@@ -166,7 +172,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -179,6 +185,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
        int&nbsp;sequenceNumber,
        boolean&nbsp;rtpMarker)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Consumes the payload from the an RTP packet.</div>
 </td>
 </tr>
@@ -187,6 +194,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createTracks(com.google.android.exoplayer2.extractor.ExtractorOutput,int)">createTracks</a></span>&#8203;(<a href="../../../extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;extractorOutput,
             int&nbsp;trackId)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Initializes the reader by providing its output and track id.</div>
 </td>
 </tr>
@@ -195,6 +203,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onReceivingFirstPacket(long,int)">onReceivingFirstPacket</a></span>&#8203;(long&nbsp;timestamp,
                       int&nbsp;sequenceNumber)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">This method should be called on reading the first packet in a stream of incoming packets.</div>
 </td>
 </tr>
@@ -203,6 +212,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seek(long,long)">seek</a></span>&#8203;(long&nbsp;nextRtpTimestamp,
     long&nbsp;timeUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Seeks the reader.</div>
 </td>
 </tr>
@@ -231,6 +241,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>createTracks</h4>
 <pre class="methodSignature">void&nbsp;createTracks&#8203;(<a href="../../../extractor/ExtractorOutput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorOutput</a>&nbsp;extractorOutput,
                   int&nbsp;trackId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Initializes the reader by providing its output and track id.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -247,6 +258,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>onReceivingFirstPacket</h4>
 <pre class="methodSignature">void&nbsp;onReceivingFirstPacket&#8203;(long&nbsp;timestamp,
                             int&nbsp;sequenceNumber)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">This method should be called on reading the first packet in a stream of incoming packets.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -268,6 +280,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
              int&nbsp;sequenceNumber,
              boolean&nbsp;rtpMarker)
       throws <a href="../../../ParserException.html" title="class in com.google.android.exoplayer2">ParserException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Consumes the payload from the an RTP packet.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -291,6 +304,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>seek</h4>
 <pre class="methodSignature">void&nbsp;seek&#8203;(long&nbsp;nextRtpTimestamp,
           long&nbsp;timeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Seeks the reader.
 
  <p>This method must only be invoked after the PLAY request for seeking is acknowledged by the

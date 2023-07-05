@@ -30,7 +30,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * A {@link SectionPayloadReader} that directly outputs the section bytes as sample data.
  *
  * <p>Timestamp adjustment is provided through {@link Format#subsampleOffsetUs}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class PassthroughSectionPayloadReader implements SectionPayloadReader {
 
   private Format format;

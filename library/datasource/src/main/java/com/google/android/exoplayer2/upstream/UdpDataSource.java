@@ -30,7 +30,15 @@ import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.net.SocketTimeoutException;
 
-/** A UDP {@link DataSource}. */
+/**
+ * A UDP {@link DataSource}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class UdpDataSource extends BaseDataSource {
 
   /** Thrown when an error is encountered when trying to read from a {@link UdpDataSource}. */

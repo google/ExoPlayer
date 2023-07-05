@@ -16,7 +16,7 @@
 package com.google.android.exoplayer2.ui;
 
 import static com.google.android.exoplayer2.Player.COMMAND_GET_CURRENT_MEDIA_ITEM;
-import static com.google.android.exoplayer2.Player.COMMAND_GET_MEDIA_ITEMS_METADATA;
+import static com.google.android.exoplayer2.Player.COMMAND_GET_METADATA;
 import static com.google.android.exoplayer2.Player.COMMAND_GET_TEXT;
 import static com.google.android.exoplayer2.Player.COMMAND_GET_TIMELINE;
 import static com.google.android.exoplayer2.Player.COMMAND_GET_TRACKS;
@@ -90,10 +90,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * The following attributes can be set on a StyledPlayerView when used in a layout XML file:
  *
  * <ul>
- *   <li><b>{@code use_artwork}</b> - Whether artwork is used if available in audio streams.
+ *   <li><b>{@code artwork_display_mode}</b> - Whether artwork is used if available in audio streams
+ *       and {@link ArtworkDisplayMode how it is displayed}.
  *       <ul>
- *         <li>Corresponding method: {@link #setUseArtwork(boolean)}
- *         <li>Default: {@code true}
+ *         <li>Corresponding method: {@link #setArtworkDisplayMode(int)}
+ *         <li>Default: {@link #ARTWORK_DISPLAY_MODE_FIT}
  *       </ul>
  *   <li><b>{@code default_artwork}</b> - Default artwork to use if no artwork available in audio
  *       streams.
@@ -169,7 +170,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * The drawables used by {@link StyledPlayerControlView} can be overridden by drawables with the
  * same names defined in your application. See the {@link StyledPlayerControlView} documentation for
  * a list of drawables that can be overridden.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public class StyledPlayerView extends FrameLayout implements AdViewProvider {
 
   /** Listener to be notified about changes of the visibility of the UI controls. */
@@ -197,6 +204,26 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
      */
     void onFullscreenButtonClick(boolean isFullScreen);
   }
+
+  /**
+   * Determines the artwork display mode. One of {@link #ARTWORK_DISPLAY_MODE_OFF}, {@link
+   * #ARTWORK_DISPLAY_MODE_FIT} or {@link #ARTWORK_DISPLAY_MODE_FILL}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
+  @IntDef({ARTWORK_DISPLAY_MODE_OFF, ARTWORK_DISPLAY_MODE_FIT, ARTWORK_DISPLAY_MODE_FILL})
+  public @interface ArtworkDisplayMode {}
+
+  /** No artwork is shown. */
+  public static final int ARTWORK_DISPLAY_MODE_OFF = 0;
+  /** The artwork is fit into the player view and centered creating a letterbox style. */
+  public static final int ARTWORK_DISPLAY_MODE_FIT = 1;
+  /**
+   * The artwork covers the entire space of the player view. If the aspect ratio of the image is
+   * different than the player view some areas of the image are cropped.
+   */
+  public static final int ARTWORK_DISPLAY_MODE_FILL = 2;
 
   /**
    * Determines when the buffering view is shown. One of {@link #SHOW_BUFFERING_NEVER}, {@link
@@ -251,7 +278,8 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
 
   @Nullable private FullscreenButtonClickListener fullscreenButtonClickListener;
 
-  private boolean useArtwork;
+  private @ArtworkDisplayMode int artworkDisplayMode;
+
   @Nullable private Drawable defaultArtwork;
   private @ShowBuffering int showBuffering;
   private boolean keepContentOnPlayerReset;
@@ -304,6 +332,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
     int shutterColor = 0;
     int playerLayoutId = R.layout.exo_styled_player_view;
     boolean useArtwork = true;
+    int artworkDisplayMode = ARTWORK_DISPLAY_MODE_FIT;
     int defaultArtworkId = 0;
     boolean useController = true;
     int surfaceType = SURFACE_TYPE_SURFACE_VIEW;
@@ -326,6 +355,8 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
         playerLayoutId =
             a.getResourceId(R.styleable.StyledPlayerView_player_layout_id, playerLayoutId);
         useArtwork = a.getBoolean(R.styleable.StyledPlayerView_use_artwork, useArtwork);
+        artworkDisplayMode =
+            a.getInt(R.styleable.StyledPlayerView_artwork_display_mode, artworkDisplayMode);
         defaultArtworkId =
             a.getResourceId(R.styleable.StyledPlayerView_default_artwork, defaultArtworkId);
         useController = a.getBoolean(R.styleable.StyledPlayerView_use_controller, useController);
@@ -420,7 +451,9 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
 
     // Artwork view.
     artworkView = findViewById(R.id.exo_artwork);
-    this.useArtwork = useArtwork && artworkView != null;
+    boolean isArtworkEnabled =
+        useArtwork && artworkDisplayMode != ARTWORK_DISPLAY_MODE_OFF && artworkView != null;
+    this.artworkDisplayMode = isArtworkEnabled ? artworkDisplayMode : ARTWORK_DISPLAY_MODE_OFF;
     if (defaultArtworkId != 0) {
       defaultArtwork = ContextCompat.getDrawable(getContext(), defaultArtworkId);
     }
@@ -558,7 +591,10 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
         } else if (surfaceView instanceof SurfaceView) {
           player.setVideoSurfaceView((SurfaceView) surfaceView);
         }
-        updateAspectRatio();
+        if (player.getCurrentTracks().isTypeSupported(C.TRACK_TYPE_VIDEO)) {
+          // If the player already is or was playing a video, onVideoSizeChanged isn't called.
+          updateAspectRatio();
+        }
       }
       if (subtitleView != null && player.isCommandAvailable(COMMAND_GET_TEXT)) {
         subtitleView.setCues(player.getCurrentCues().cues);
@@ -595,22 +631,34 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
     return contentFrame.getResizeMode();
   }
 
-  /** Returns whether artwork is displayed if present in the media. */
+  /**
+   * @deprecated Use {@link #getArtworkDisplayMode()} instead.
+   */
+  @Deprecated
   public boolean getUseArtwork() {
-    return useArtwork;
+    return this.artworkDisplayMode != ARTWORK_DISPLAY_MODE_OFF;
   }
 
   /**
-   * Sets whether artwork is displayed if present in the media.
-   *
-   * @param useArtwork Whether artwork is displayed.
+   * @deprecated Use {@link #setArtworkDisplayMode(int)} instead.
    */
+  @Deprecated
   public void setUseArtwork(boolean useArtwork) {
-    Assertions.checkState(!useArtwork || artworkView != null);
-    if (this.useArtwork != useArtwork) {
-      this.useArtwork = useArtwork;
+    setArtworkDisplayMode(useArtwork ? ARTWORK_DISPLAY_MODE_OFF : ARTWORK_DISPLAY_MODE_FIT);
+  }
+
+  /** Sets whether and how artwork is displayed if present in the media. */
+  public void setArtworkDisplayMode(@ArtworkDisplayMode int artworkDisplayMode) {
+    Assertions.checkState(artworkDisplayMode == ARTWORK_DISPLAY_MODE_OFF || artworkView != null);
+    if (this.artworkDisplayMode != artworkDisplayMode) {
+      this.artworkDisplayMode = artworkDisplayMode;
       updateForCurrentTrackSelections(/* isNewPlayer= */ false);
     }
+  }
+
+  /** Returns the {@link ArtworkDisplayMode artwork display mode}. */
+  public @ArtworkDisplayMode int getArtworkDisplayMode() {
+    return artworkDisplayMode;
   }
 
   /** Returns the default artwork to display. */
@@ -1208,7 +1256,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
 
   @EnsuresNonNullIf(expression = "artworkView", result = true)
   private boolean useArtwork() {
-    if (useArtwork) {
+    if (artworkDisplayMode != ARTWORK_DISPLAY_MODE_OFF) {
       Assertions.checkStateNotNull(artworkView);
       return true;
     }
@@ -1310,7 +1358,7 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
 
   @RequiresNonNull("artworkView")
   private boolean setArtworkFromMediaMetadata(Player player) {
-    if (!player.isCommandAvailable(COMMAND_GET_MEDIA_ITEMS_METADATA)) {
+    if (!player.isCommandAvailable(COMMAND_GET_METADATA)) {
       return false;
     }
     MediaMetadata mediaMetadata = player.getMediaMetadata();
@@ -1329,8 +1377,14 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
       int drawableWidth = drawable.getIntrinsicWidth();
       int drawableHeight = drawable.getIntrinsicHeight();
       if (drawableWidth > 0 && drawableHeight > 0) {
-        float artworkAspectRatio = (float) drawableWidth / drawableHeight;
-        onContentAspectRatioChanged(contentFrame, artworkAspectRatio);
+        float artworkLayoutAspectRatio = (float) drawableWidth / drawableHeight;
+        ImageView.ScaleType scaleStyle = ImageView.ScaleType.FIT_XY;
+        if (artworkDisplayMode == ARTWORK_DISPLAY_MODE_FILL) {
+          artworkLayoutAspectRatio = (float) getWidth() / getHeight();
+          scaleStyle = ImageView.ScaleType.CENTER_CROP;
+        }
+        onContentAspectRatioChanged(contentFrame, artworkLayoutAspectRatio);
+        artworkView.setScaleType(scaleStyle);
         artworkView.setImageDrawable(drawable);
         artworkView.setVisibility(VISIBLE);
         return true;
@@ -1516,6 +1570,11 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
 
     @Override
     public void onVideoSizeChanged(VideoSize videoSize) {
+      if (videoSize.equals(VideoSize.UNKNOWN)
+          || player == null
+          || player.getPlaybackState() == Player.STATE_IDLE) {
+        return;
+      }
       updateAspectRatio();
     }
 

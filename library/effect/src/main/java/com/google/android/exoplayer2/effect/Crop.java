@@ -19,15 +19,21 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
 import android.graphics.Matrix;
-import android.util.Pair;
 import com.google.android.exoplayer2.util.GlUtil;
+import com.google.android.exoplayer2.util.Size;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Specifies a crop to apply in the vertex shader.
  *
  * <p>The background color of the output frame will be black, with alpha = 0 if applicable.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class Crop implements MatrixTransformation {
 
   private final float left;
@@ -64,14 +70,14 @@ public final class Crop implements MatrixTransformation {
   }
 
   @Override
-  public Pair<Integer, Integer> configure(int inputWidth, int inputHeight) {
+  public Size configure(int inputWidth, int inputHeight) {
     checkArgument(inputWidth > 0, "inputWidth must be positive");
     checkArgument(inputHeight > 0, "inputHeight must be positive");
 
     transformationMatrix = new Matrix();
     if (left == -1f && right == 1f && bottom == -1f && top == 1f) {
       // No crop needed.
-      return Pair.create(inputWidth, inputHeight);
+      return new Size(inputWidth, inputHeight);
     }
 
     float scaleX = (right - left) / GlUtil.LENGTH_NDC;
@@ -84,11 +90,19 @@ public final class Crop implements MatrixTransformation {
 
     int outputWidth = Math.round(inputWidth * scaleX);
     int outputHeight = Math.round(inputHeight * scaleY);
-    return Pair.create(outputWidth, outputHeight);
+    return new Size(outputWidth, outputHeight);
   }
 
   @Override
   public Matrix getMatrix(long presentationTimeUs) {
     return checkStateNotNull(transformationMatrix, "configure must be called first");
+  }
+
+  @Override
+  public boolean isNoOp(int inputWidth, int inputHeight) {
+    Size outputSize = configure(inputWidth, inputHeight);
+    return checkStateNotNull(transformationMatrix).isIdentity()
+        && inputWidth == outputSize.getWidth()
+        && inputHeight == outputSize.getHeight();
   }
 }

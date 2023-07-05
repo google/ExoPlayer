@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2;
 
+import com.google.android.exoplayer2.source.ForwardingTimeline;
 import com.google.android.exoplayer2.source.ShuffleOrder;
 import com.google.android.exoplayer2.util.Util;
 import java.util.Arrays;
@@ -22,7 +23,15 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-/** Timeline exposing concatenated timelines of playlist media sources. */
+/**
+ * Timeline exposing concatenated timelines of playlist media sources.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ final class PlaylistTimeline extends AbstractConcatenatedTimeline {
 
   private final int windowCount;
@@ -37,23 +46,26 @@ import java.util.List;
   public PlaylistTimeline(
       Collection<? extends MediaSourceInfoHolder> mediaSourceInfoHolders,
       ShuffleOrder shuffleOrder) {
+    this(getTimelines(mediaSourceInfoHolders), getUids(mediaSourceInfoHolders), shuffleOrder);
+  }
+
+  private PlaylistTimeline(Timeline[] timelines, Object[] uids, ShuffleOrder shuffleOrder) {
     super(/* isAtomic= */ false, shuffleOrder);
-    int childCount = mediaSourceInfoHolders.size();
+    int childCount = timelines.length;
+    this.timelines = timelines;
     firstPeriodInChildIndices = new int[childCount];
     firstWindowInChildIndices = new int[childCount];
-    timelines = new Timeline[childCount];
-    uids = new Object[childCount];
+    this.uids = uids;
     childIndexByUid = new HashMap<>();
     int index = 0;
     int windowCount = 0;
     int periodCount = 0;
-    for (MediaSourceInfoHolder mediaSourceInfoHolder : mediaSourceInfoHolders) {
-      timelines[index] = mediaSourceInfoHolder.getTimeline();
+    for (Timeline timeline : timelines) {
+      this.timelines[index] = timeline;
       firstWindowInChildIndices[index] = windowCount;
       firstPeriodInChildIndices[index] = periodCount;
-      windowCount += timelines[index].getWindowCount();
-      periodCount += timelines[index].getPeriodCount();
-      uids[index] = mediaSourceInfoHolder.getUid();
+      windowCount += this.timelines[index].getWindowCount();
+      periodCount += this.timelines[index].getPeriodCount();
       childIndexByUid.put(uids[index], index++);
     }
     this.windowCount = windowCount;
@@ -109,5 +121,41 @@ import java.util.List;
   @Override
   public int getPeriodCount() {
     return periodCount;
+  }
+
+  public PlaylistTimeline copyWithPlaceholderTimeline(ShuffleOrder shuffleOrder) {
+    Timeline[] newTimelines = new Timeline[timelines.length];
+    for (int i = 0; i < timelines.length; i++) {
+      newTimelines[i] =
+          new ForwardingTimeline(timelines[i]) {
+            @Override
+            public Period getPeriod(int periodIndex, Period period, boolean setIds) {
+              Period superPeriod = super.getPeriod(periodIndex, period, setIds);
+              superPeriod.isPlaceholder = true;
+              return superPeriod;
+            }
+          };
+    }
+    return new PlaylistTimeline(newTimelines, uids, shuffleOrder);
+  }
+
+  private static Object[] getUids(
+      Collection<? extends MediaSourceInfoHolder> mediaSourceInfoHolders) {
+    Object[] uids = new Object[mediaSourceInfoHolders.size()];
+    int i = 0;
+    for (MediaSourceInfoHolder holder : mediaSourceInfoHolders) {
+      uids[i++] = holder.getUid();
+    }
+    return uids;
+  }
+
+  private static Timeline[] getTimelines(
+      Collection<? extends MediaSourceInfoHolder> mediaSourceInfoHolders) {
+    Timeline[] timelines = new Timeline[mediaSourceInfoHolders.size()];
+    int i = 0;
+    for (MediaSourceInfoHolder holder : mediaSourceInfoHolders) {
+      timelines[i++] = holder.getTimeline();
+    }
+    return timelines;
   }
 }

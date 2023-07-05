@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -205,7 +205,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -391,12 +391,22 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i18" class="altColor">
 <td class="colFirst"><code><a href="MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withParameters(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">withParameters</a></span>&#8203;(int&nbsp;windowIndex,
+              <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId)</code></th>
+<td class="colLast">
+<div class="block">Creates a view of the event dispatcher with pre-configured window index, media period id, and
+ media time offset.</div>
+</td>
+</tr>
+<tr id="i19" class="rowColor">
+<td class="colFirst"><code><a href="MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withParameters(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,long)">withParameters</a></span>&#8203;(int&nbsp;windowIndex,
               <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
               long&nbsp;mediaTimeOffsetMs)</code></th>
 <td class="colLast">
-<div class="block">Creates a view of the event dispatcher with pre-configured window index, media period id, and
- media time offset.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#withParameters(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)"><code>withParameters(int, MediaPeriodId)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 </table>
@@ -474,7 +484,7 @@ public final&nbsp;<a href="MediaSource.MediaPeriodId.html" title="class in com.g
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="withParameters(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,long)">
+<a id="withParameters(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -483,18 +493,35 @@ public final&nbsp;<a href="MediaSource.MediaPeriodId.html" title="class in com.g
 <pre class="methodSignature">@CheckResult
 public&nbsp;<a href="MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;withParameters&#8203;(int&nbsp;windowIndex,
                                                                @Nullable
-                                                               <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
-                                                               long&nbsp;mediaTimeOffsetMs)</pre>
+                                                               <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId)</pre>
 <div class="block">Creates a view of the event dispatcher with pre-configured window index, media period id, and
  media time offset.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>windowIndex</code> - The timeline window index to be reported with the events.</dd>
 <dd><code>mediaPeriodId</code> - The <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a> to be reported with the events.</dd>
-<dd><code>mediaTimeOffsetMs</code> - The offset to be added to all media times, in milliseconds.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>A view of the event dispatcher with the pre-configured parameters.</dd>
 </dl>
+</li>
+</ul>
+<a id="withParameters(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>withParameters</h4>
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+@CheckResult
+public&nbsp;<a href="MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;withParameters&#8203;(int&nbsp;windowIndex,
+                                                               @Nullable
+                                                               <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
+                                                               long&nbsp;mediaTimeOffsetMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#withParameters(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)"><code>withParameters(int, MediaPeriodId)</code></a> instead.</div>
+</div>
+<div class="block">Note: The <code>mediaTimeOffsetMs</code> passed to this method is ignored and not added to media
+ times in any way.</div>
 </li>
 </ul>
 <a id="addEventListener(android.os.Handler,com.google.android.exoplayer2.source.MediaSourceEventListener)">

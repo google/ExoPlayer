@@ -40,7 +40,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * <p>If the {@link DataSpec} passed to {@link #open(DataSpec)} has the {@code length} field set to
  * {@link C#LENGTH_UNSET} and {@link DataSpec#FLAG_DONT_CACHE_IF_LENGTH_UNKNOWN} set, then {@link
  * #write(byte[], int, int)} calls are ignored.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class CacheDataSink implements DataSink {
 
   /** {@link DataSink.Factory} for {@link CacheDataSink} instances. */

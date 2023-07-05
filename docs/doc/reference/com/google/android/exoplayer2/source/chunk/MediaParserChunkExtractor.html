@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -134,9 +134,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 <hr>
 <pre>@RequiresApi(30)
+<a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 public final class <span class="typeNameLabel">MediaParserChunkExtractor</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="ChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractor</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block"><a href="ChunkExtractor.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>ChunkExtractor</code></a> implemented on top of the platform's <a href="https://developer.android.com/reference/android/media/MediaParser.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaParser</code></a>.</div>
 </li>
 </ul>
@@ -178,7 +184,9 @@ implements <a href="ChunkExtractor.html" title="interface in com.google.android.
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="ChunkExtractor.Factory.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractor.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FACTORY">FACTORY</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -203,6 +211,7 @@ implements <a href="ChunkExtractor.html" title="interface in com.google.android.
                          <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;closedCaptionFormats,
                          <a href="../../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new instance.</div>
 </td>
 </tr>
@@ -218,7 +227,7 @@ implements <a href="ChunkExtractor.html" title="interface in com.google.android.
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -228,6 +237,7 @@ implements <a href="ChunkExtractor.html" title="interface in com.google.android.
 <td class="colFirst"><code><a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor">ChunkIndex</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getChunkIndex()">getChunkIndex</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor"><code>ChunkIndex</code></a> most recently obtained from the chunks, or null if a <a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor"><code>ChunkIndex</code></a> has not been obtained.</div>
 </td>
 </tr>
@@ -235,6 +245,7 @@ implements <a href="ChunkExtractor.html" title="interface in com.google.android.
 <td class="colFirst"><code><a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSampleFormats()">getSampleFormats</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the sample <a href="../../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>s for the tracks identified by the extractor, or null if the
  extractor has not finished identifying tracks.</div>
 </td>
@@ -245,6 +256,7 @@ implements <a href="ChunkExtractor.html" title="interface in com.google.android.
     long&nbsp;startTimeUs,
     long&nbsp;endTimeUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Initializes the wrapper to output to <a href="../../extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a>s provided by the specified <a href="ChunkExtractor.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>ChunkExtractor.TrackOutputProvider</code></a>, and configures the extractor to receive data from a new chunk.</div>
 </td>
 </tr>
@@ -252,6 +264,7 @@ implements <a href="ChunkExtractor.html" title="interface in com.google.android.
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#read(com.google.android.exoplayer2.extractor.ExtractorInput)">read</a></span>&#8203;(<a href="../../extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Reads from the given <a href="../../extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a>.</div>
 </td>
 </tr>
@@ -259,6 +272,7 @@ implements <a href="ChunkExtractor.html" title="interface in com.google.android.
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases any held resources.</div>
 </td>
 </tr>
@@ -293,6 +307,7 @@ implements <a href="ChunkExtractor.html" title="interface in com.google.android.
 <li class="blockList">
 <h4>FACTORY</h4>
 <pre>public static final&nbsp;<a href="ChunkExtractor.Factory.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractor.Factory</a> FACTORY</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -315,6 +330,7 @@ implements <a href="ChunkExtractor.html" title="interface in com.google.android.
                                  <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;manifestFormat,
                                  <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../Format.html" title="class in com.google.android.exoplayer2" target="_top">Format</a>&gt;&nbsp;closedCaptionFormats,
                                  <a href="../../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -346,6 +362,7 @@ implements <a href="ChunkExtractor.html" title="interface in com.google.android.
                  <a href="ChunkExtractor.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk">ChunkExtractor.TrackOutputProvider</a>&nbsp;trackOutputProvider,
                  long&nbsp;startTimeUs,
                  long&nbsp;endTimeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ChunkExtractor.html#init(com.google.android.exoplayer2.source.chunk.ChunkExtractor.TrackOutputProvider,long,long)">ChunkExtractor</a></code></span></div>
 <div class="block">Initializes the wrapper to output to <a href="../../extractor/TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor"><code>TrackOutput</code></a>s provided by the specified <a href="ChunkExtractor.TrackOutputProvider.html" title="interface in com.google.android.exoplayer2.source.chunk"><code>ChunkExtractor.TrackOutputProvider</code></a>, and configures the extractor to receive data from a new chunk.</div>
 <dl>
@@ -367,6 +384,7 @@ implements <a href="ChunkExtractor.html" title="interface in com.google.android.
 <li class="blockList">
 <h4>release</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;release()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ChunkExtractor.html#release()">ChunkExtractor</a></code></span></div>
 <div class="block">Releases any held resources.</div>
 <dl>
@@ -383,6 +401,7 @@ implements <a href="ChunkExtractor.html" title="interface in com.google.android.
 <h4>read</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;read&#8203;(<a href="../../extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor">ExtractorInput</a>&nbsp;input)
              throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ChunkExtractor.html#read(com.google.android.exoplayer2.extractor.ExtractorInput)">ChunkExtractor</a></code></span></div>
 <div class="block">Reads from the given <a href="../../extractor/ExtractorInput.html" title="interface in com.google.android.exoplayer2.extractor"><code>ExtractorInput</code></a>.</div>
 <dl>
@@ -406,6 +425,7 @@ implements <a href="ChunkExtractor.html" title="interface in com.google.android.
 <h4>getChunkIndex</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor">ChunkIndex</a>&nbsp;getChunkIndex()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ChunkExtractor.html#getChunkIndex()">ChunkExtractor</a></code></span></div>
 <div class="block">Returns the <a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor"><code>ChunkIndex</code></a> most recently obtained from the chunks, or null if a <a href="../../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor"><code>ChunkIndex</code></a> has not been obtained.</div>
 <dl>
@@ -422,6 +442,7 @@ public&nbsp;<a href="../../extractor/ChunkIndex.html" title="class in com.google
 <h4>getSampleFormats</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>[]&nbsp;getSampleFormats()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ChunkExtractor.html#getSampleFormats()">ChunkExtractor</a></code></span></div>
 <div class="block">Returns the sample <a href="../../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>s for the tracks identified by the extractor, or null if the
  extractor has not finished identifying tracks.</div>

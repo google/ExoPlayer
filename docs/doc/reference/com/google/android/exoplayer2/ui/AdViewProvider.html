@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":18,"i1":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
+var data = {"i0":50,"i1":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -125,7 +125,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="PlayerView.html" title="class in com.google.android.exoplayer2.ui">PlayerView</a></code>, <code><a href="StyledPlayerView.html" title="class in com.google.android.exoplayer2.ui">StyledPlayerView</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">AdViewProvider</span></pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">AdViewProvider</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Provides information about views for the ad playback UI.</div>
 </li>
 </ul>
@@ -141,7 +147,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -151,6 +157,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>default <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="AdOverlayInfo.html" title="class in com.google.android.exoplayer2.ui" target="_top">AdOverlayInfo</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdOverlayInfos()">getAdOverlayInfos</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a list of <a href="AdOverlayInfo.html" title="class in com.google.android.exoplayer2.ui"><code>AdOverlayInfo</code></a> instances describing views that are on top of the ad
  view group, but that are essential for controlling playback and should be excluded from ad
  viewability measurements.</div>
@@ -160,6 +167,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/view/ViewGroup.html" title="class or interface in android.view" class="externalLink" target="_top">ViewGroup</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdViewGroup()">getAdViewGroup</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="https://developer.android.com/reference/android/view/ViewGroup.html" title="class or interface in android.view" class="externalLink" target="_top"><code>ViewGroup</code></a> on top of the player that will show any ad UI, or <code>null</code> if
  playing audio-only ads.</div>
 </td>
@@ -189,6 +197,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>getAdViewGroup</h4>
 <pre class="methodSignature">@Nullable
 <a href="https://developer.android.com/reference/android/view/ViewGroup.html" title="class or interface in android.view" class="externalLink" target="_top">ViewGroup</a>&nbsp;getAdViewGroup()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="https://developer.android.com/reference/android/view/ViewGroup.html" title="class or interface in android.view" class="externalLink" target="_top"><code>ViewGroup</code></a> on top of the player that will show any ad UI, or <code>null</code> if
  playing audio-only ads. Any views on top of the returned view group must be described by <a href="AdOverlayInfo.html" title="class in com.google.android.exoplayer2.ui"><code>AdOverlayInfos</code></a> returned by <a href="#getAdOverlayInfos()"><code>getAdOverlayInfos()</code></a>, for accurate
  viewability measurement.</div>
@@ -201,6 +210,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>getAdOverlayInfos</h4>
 <pre class="methodSignature">default&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="AdOverlayInfo.html" title="class in com.google.android.exoplayer2.ui" target="_top">AdOverlayInfo</a>&gt;&nbsp;getAdOverlayInfos()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a list of <a href="AdOverlayInfo.html" title="class in com.google.android.exoplayer2.ui"><code>AdOverlayInfo</code></a> instances describing views that are on top of the ad
  view group, but that are essential for controlling playback and should be excluded from ad
  viewability measurements.

@@ -1,0 +1,510 @@
+<!DOCTYPE HTML>
+<!-- NewPage -->
+<html lang="en">
+<head><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico"><meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml"><meta name="theme-color" content="#ffffff"><!-- end favicons snippet -->
+<title>TextureAssetLoader (ExoPlayer library)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+<link rel="stylesheet" type="text/css" href="../../../../../jquery/jquery-ui.css" title="Style">
+<script type="text/javascript" src="../../../../../script.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip/dist/jszip.min.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils.min.js"></script>
+<!--[if IE]>
+<script type="text/javascript" src="../../../../../jquery/jszip-utils/dist/jszip-utils-ie.min.js"></script>
+<![endif]-->
+<script type="text/javascript" src="../../../../../jquery/jquery-3.5.1.js"></script>
+<script type="text/javascript" src="../../../../../jquery/jquery-ui.js"></script>
+</head>
+<body>
+<script type="text/javascript"><!--
+    try {
+        if (location.href.indexOf('is-external=true') == -1) {
+            parent.document.title="TextureAssetLoader (ExoPlayer library)";
+        }
+    }
+    catch(err) {
+    }
+//-->
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
+var altColor = "altColor";
+var rowColor = "rowColor";
+var tableTab = "tableTab";
+var activeTableTab = "activeTableTab";
+var pathtoroot = "../../../../../";
+var useModuleDirectories = false;
+loadScripts(document, 'script');</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+<header role="banner">
+<nav role="navigation">
+<div class="fixedNav">
+<!-- ========= START OF TOP NAVBAR ======= -->
+<div class="topNav"><a id="navbar.top">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.top" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.top.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_top">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<ul class="navListSearch">
+<li><label for="search">SEARCH:</label>
+<input type="text" id="search" value="search" disabled="disabled">
+<input type="reset" id="reset" value="reset" disabled="disabled">
+</li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_top");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.top">
+<!--   -->
+</a></div>
+<!-- ========= END OF TOP NAVBAR ========= -->
+</div>
+<div class="navPadding">&nbsp;</div>
+<script type="text/javascript"><!--
+$('.navPadding').css('padding-top', $('.fixedNav').css("height"));
+//-->
+</script>
+</nav>
+</header>
+<!-- ======== START OF CLASS DATA ======== -->
+<main role="main">
+<div class="header">
+<div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">com.google.android.exoplayer2.transformer</a></div>
+<h2 title="Class TextureAssetLoader" class="title">Class TextureAssetLoader</h2>
+</div>
+<div class="contentContainer">
+<ul class="inheritance">
+<li><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">java.lang.Object</a></li>
+<li>
+<ul class="inheritance">
+<li>com.google.android.exoplayer2.transformer.TextureAssetLoader</li>
+</ul>
+</li>
+</ul>
+<div class="description">
+<ul class="blockList">
+<li class="blockList">
+<dl>
+<dt>All Implemented Interfaces:</dt>
+<dd><code><a href="AssetLoader.html" title="interface in com.google.android.exoplayer2.transformer">AssetLoader</a></code></dd>
+</dl>
+<hr>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">TextureAssetLoader</span>
+extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
+implements <a href="AssetLoader.html" title="interface in com.google.android.exoplayer2.transformer">AssetLoader</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
+<div class="block">An <a href="AssetLoader.html" title="interface in com.google.android.exoplayer2.transformer"><code>AssetLoader</code></a> implementation that loads videos from <a href="https://developer.android.com/reference/android/opengl/GLES10.html#GL_TEXTURE_2D" title="class or interface in android.opengl" class="externalLink" target="_top">traditional GLES texture</a> instances.
+
+ <p>Typically instantiated in a custom <a href="AssetLoader.Factory.html" title="interface in com.google.android.exoplayer2.transformer"><code>AssetLoader.Factory</code></a> saving a reference to the
+ created <a href="TextureAssetLoader.html" title="class in com.google.android.exoplayer2.transformer"><code>TextureAssetLoader</code></a>. Input is provided calling <a href="#queueInputTexture(int,long)"><code>queueInputTexture(int, long)</code></a> to
+ provide all the video frames, then <a href="#signalEndOfVideoInput()"><code>signalling the end of input</code></a>
+ when finished.</div>
+</li>
+</ul>
+</div>
+<div class="summary">
+<ul class="blockList">
+<li class="blockList">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="nested.class.summary">
+<!--   -->
+</a>
+<h3>Nested Class Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a id="nested.classes.inherited.from.class.com.google.android.exoplayer2.transformer.AssetLoader">
+<!--   -->
+</a>
+<h3>Nested classes/interfaces inherited from interface&nbsp;com.google.android.exoplayer2.transformer.<a href="AssetLoader.html" title="interface in com.google.android.exoplayer2.transformer">AssetLoader</a></h3>
+<code><a href="AssetLoader.Factory.html" title="interface in com.google.android.exoplayer2.transformer">AssetLoader.Factory</a>, <a href="AssetLoader.Listener.html" title="interface in com.google.android.exoplayer2.transformer">AssetLoader.Listener</a>, <a href="AssetLoader.SupportedOutputTypes.html" title="annotation in com.google.android.exoplayer2.transformer">AssetLoader.SupportedOutputTypes</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- =========== FIELD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="field.summary">
+<!--   -->
+</a>
+<h3>Field Summary</h3>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.transformer.AssetLoader">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.transformer.<a href="AssetLoader.html" title="interface in com.google.android.exoplayer2.transformer">AssetLoader</a></h3>
+<code><a href="AssetLoader.html#SUPPORTED_OUTPUT_TYPE_DECODED">SUPPORTED_OUTPUT_TYPE_DECODED</a>, <a href="AssetLoader.html#SUPPORTED_OUTPUT_TYPE_ENCODED">SUPPORTED_OUTPUT_TYPE_ENCODED</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.summary">
+<!--   -->
+</a>
+<h3>Constructor Summary</h3>
+<table class="memberSummary">
+<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
+<tr>
+<th class="colFirst" scope="col">Constructor</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr class="altColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.transformer.EditedMediaItem,com.google.android.exoplayer2.transformer.AssetLoader.Listener,com.google.android.exoplayer2.Format,com.google.android.exoplayer2.util.OnInputFrameProcessedListener)">TextureAssetLoader</a></span>&#8203;(<a href="EditedMediaItem.html" title="class in com.google.android.exoplayer2.transformer">EditedMediaItem</a>&nbsp;editedMediaItem,
+                  <a href="AssetLoader.Listener.html" title="interface in com.google.android.exoplayer2.transformer">AssetLoader.Listener</a>&nbsp;assetLoaderListener,
+                  <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+                  <a href="../util/OnInputFrameProcessedListener.html" title="interface in com.google.android.exoplayer2.util">OnInputFrameProcessedListener</a>&nbsp;frameProcessedListener)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Creates an instance.</div>
+</td>
+</tr>
+</table>
+</li>
+</ul>
+</section>
+<!-- ========== METHOD SUMMARY =========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.summary">
+<!--   -->
+</a>
+<h3>Method Summary</h3>
+<table class="memberSummary">
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<tr>
+<th class="colFirst" scope="col">Modifier and Type</th>
+<th class="colSecond" scope="col">Method</th>
+<th class="colLast" scope="col">Description</th>
+</tr>
+<tr id="i0" class="altColor">
+<td class="colFirst"><code><a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/collect/ImmutableMap.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableMap</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink">Integer</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDecoderNames()">getDecoderNames</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Return the used decoders' names.</div>
+</td>
+</tr>
+<tr id="i1" class="rowColor">
+<td class="colFirst"><code>@com.google.android.exoplayer2.transformer.Transformer.ProgressState int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getProgress(com.google.android.exoplayer2.transformer.ProgressHolder)">getProgress</a></span>&#8203;(<a href="ProgressHolder.html" title="class in com.google.android.exoplayer2.transformer">ProgressHolder</a>&nbsp;progressHolder)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns the current <a href="Transformer.ProgressState.html" title="annotation in com.google.android.exoplayer2.transformer"><code>Transformer.ProgressState</code></a> and updates <code>progressHolder</code> with
+ the current progress if it is <a href="Transformer.html#PROGRESS_STATE_AVAILABLE"><code>available</code></a>.</div>
+</td>
+</tr>
+<tr id="i2" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#queueInputTexture(int,long)">queueInputTexture</a></span>&#8203;(int&nbsp;texId,
+                 long&nbsp;presentationTimeUs)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Attempts to provide an input texture.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Stops loading data and releases all resources associated with the asset loader.</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#signalEndOfVideoInput()">signalEndOfVideoInput</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Signals that no further input frames will be rendered.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#start()">start</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Starts the asset loader.</div>
+</td>
+</tr>
+</table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
+<!--   -->
+</a>
+<h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+<div class="details">
+<ul class="blockList">
+<li class="blockList">
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="constructor.detail">
+<!--   -->
+</a>
+<h3>Constructor Detail</h3>
+<a id="&lt;init&gt;(com.google.android.exoplayer2.transformer.EditedMediaItem,com.google.android.exoplayer2.transformer.AssetLoader.Listener,com.google.android.exoplayer2.Format,com.google.android.exoplayer2.util.OnInputFrameProcessedListener)">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>TextureAssetLoader</h4>
+<pre>public&nbsp;TextureAssetLoader&#8203;(<a href="EditedMediaItem.html" title="class in com.google.android.exoplayer2.transformer">EditedMediaItem</a>&nbsp;editedMediaItem,
+                          <a href="AssetLoader.Listener.html" title="interface in com.google.android.exoplayer2.transformer">AssetLoader.Listener</a>&nbsp;assetLoaderListener,
+                          <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
+                          <a href="../util/OnInputFrameProcessedListener.html" title="interface in com.google.android.exoplayer2.util">OnInputFrameProcessedListener</a>&nbsp;frameProcessedListener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Creates an instance.
+
+ <p>The <a href="EditedMediaItem.html#durationUs"><code>EditedMediaItem.durationUs</code></a>, <a href="../Format.html#width"><code>Format.width</code></a> and <a href="../Format.html#height"><code>Format.height</code></a> must
+ be set.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<!-- ============ METHOD DETAIL ========== -->
+<section role="region">
+<ul class="blockList">
+<li class="blockList"><a id="method.detail">
+<!--   -->
+</a>
+<h3>Method Detail</h3>
+<a id="start()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>start</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;start()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AssetLoader.html#start()">AssetLoader</a></code></span></div>
+<div class="block">Starts the asset loader.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="AssetLoader.html#start()">start</a></code>&nbsp;in interface&nbsp;<code><a href="AssetLoader.html" title="interface in com.google.android.exoplayer2.transformer">AssetLoader</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="getProgress(com.google.android.exoplayer2.transformer.ProgressHolder)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getProgress</h4>
+<pre class="methodSignature">public&nbsp;@com.google.android.exoplayer2.transformer.Transformer.ProgressState int&nbsp;getProgress&#8203;(<a href="ProgressHolder.html" title="class in com.google.android.exoplayer2.transformer">ProgressHolder</a>&nbsp;progressHolder)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AssetLoader.html#getProgress(com.google.android.exoplayer2.transformer.ProgressHolder)">AssetLoader</a></code></span></div>
+<div class="block">Returns the current <a href="Transformer.ProgressState.html" title="annotation in com.google.android.exoplayer2.transformer"><code>Transformer.ProgressState</code></a> and updates <code>progressHolder</code> with
+ the current progress if it is <a href="Transformer.html#PROGRESS_STATE_AVAILABLE"><code>available</code></a>.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="AssetLoader.html#getProgress(com.google.android.exoplayer2.transformer.ProgressHolder)">getProgress</a></code>&nbsp;in interface&nbsp;<code><a href="AssetLoader.html" title="interface in com.google.android.exoplayer2.transformer">AssetLoader</a></code></dd>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>progressHolder</code> - A <a href="ProgressHolder.html" title="class in com.google.android.exoplayer2.transformer"><code>ProgressHolder</code></a>, updated to hold the percentage progress if
+     <a href="Transformer.html#PROGRESS_STATE_AVAILABLE"><code>available</code></a>.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The <a href="Transformer.ProgressState.html" title="annotation in com.google.android.exoplayer2.transformer"><code>Transformer.ProgressState</code></a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="getDecoderNames()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getDecoderNames</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://guava.dev/releases/31.1-android/api/docs/com/google/common/collect/ImmutableMap.html?is-external=true" title="class or interface in com.google.common.collect" class="externalLink">ImmutableMap</a>&lt;<a href="https://developer.android.com/reference/java/lang/Integer.html" title="class or interface in java.lang" class="externalLink">Integer</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;getDecoderNames()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AssetLoader.html#getDecoderNames()">AssetLoader</a></code></span></div>
+<div class="block">Return the used decoders' names.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="AssetLoader.html#getDecoderNames()">getDecoderNames</a></code>&nbsp;in interface&nbsp;<code><a href="AssetLoader.html" title="interface in com.google.android.exoplayer2.transformer">AssetLoader</a></code></dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The decoders' names keyed by <a href="../C.TrackType.html" title="annotation in com.google.android.exoplayer2">track type</a>.</dd>
+</dl>
+</li>
+</ul>
+<a id="release()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>release</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;release()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="AssetLoader.html#release()">AssetLoader</a></code></span></div>
+<div class="block">Stops loading data and releases all resources associated with the asset loader.</div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
+<dd><code><a href="AssetLoader.html#release()">release</a></code>&nbsp;in interface&nbsp;<code><a href="AssetLoader.html" title="interface in com.google.android.exoplayer2.transformer">AssetLoader</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="queueInputTexture(int,long)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>queueInputTexture</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;queueInputTexture&#8203;(int&nbsp;texId,
+                                 long&nbsp;presentationTimeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Attempts to provide an input texture.
+
+ <p>Must be called on the same thread as <a href="#signalEndOfVideoInput()"><code>signalEndOfVideoInput()</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>texId</code> - The ID of the texture to queue.</dd>
+<dd><code>presentationTimeUs</code> - The presentation time for the texture, in microseconds.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether the texture was successfully queued. If <code>false</code>, the caller should try
+     again later.</dd>
+</dl>
+</li>
+</ul>
+<a id="signalEndOfVideoInput()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>signalEndOfVideoInput</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;signalEndOfVideoInput()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Signals that no further input frames will be rendered.
+
+ <p>Must be called on the same thread as <a href="#queueInputTexture(int,long)"><code>queueInputTexture(int, long)</code></a>.</div>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+</li>
+</ul>
+</div>
+</div>
+</main>
+<!-- ========= END OF CLASS DATA ========= -->
+<footer role="contentinfo">
+<nav role="navigation">
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<div class="bottomNav"><a id="navbar.bottom">
+<!--   -->
+</a>
+<div class="skipNav"><a href="#skip.navbar.bottom" title="Skip navigation links">Skip navigation links</a></div>
+<a id="navbar.bottom.firstrow">
+<!--   -->
+</a>
+<ul class="navList" title="Navigation">
+<li><a href="../../../../../index.html">Overview</a></li>
+<li><a href="package-summary.html">Package</a></li>
+<li class="navBarCell1Rev">Class</li>
+<li><a href="package-tree.html">Tree</a></li>
+<li><a href="../../../../../deprecated-list.html">Deprecated</a></li>
+<li><a href="../../../../../index-all.html">Index</a></li>
+<li><a href="../../../../../help-doc.html">Help</a></li>
+</ul>
+</div>
+<div class="subNav">
+<ul class="navList" id="allclasses_navbar_bottom">
+<li><a href="../../../../../allclasses.html">All&nbsp;Classes</a></li>
+</ul>
+<div>
+<script type="text/javascript"><!--
+  allClassesLink = document.getElementById("allclasses_navbar_bottom");
+  if(window==top) {
+    allClassesLink.style.display = "block";
+  }
+  else {
+    allClassesLink.style.display = "none";
+  }
+  //-->
+</script>
+<noscript>
+<div>JavaScript is disabled on your browser.</div>
+</noscript>
+</div>
+<div>
+<ul class="subNavList">
+<li>Summary:&nbsp;</li>
+<li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
+<li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
+<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.summary">Method</a></li>
+</ul>
+<ul class="subNavList">
+<li>Detail:&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li><a href="#method.detail">Method</a></li>
+</ul>
+</div>
+<a id="skip.navbar.bottom">
+<!--   -->
+</a></div>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+</nav>
+</footer>
+</body>
+</html>

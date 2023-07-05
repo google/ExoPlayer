@@ -37,7 +37,13 @@ import java.lang.annotation.Target;
  * seek time, the seeker will find the corresponding target timestamp, and perform a search
  * operation within the stream to identify the target frame and return the byte position in the
  * stream of the target frame.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public abstract class BinarySearchSeeker {
 
   /** A seeker that looks for a given timestamp from an input. */
@@ -418,7 +424,7 @@ public abstract class BinarySearchSeeker {
     @interface Type {}
 
     public static final TimestampSearchResult NO_TIMESTAMP_IN_RANGE_RESULT =
-        new TimestampSearchResult(TYPE_NO_TIMESTAMP, C.TIME_UNSET, C.POSITION_UNSET);
+        new TimestampSearchResult(TYPE_NO_TIMESTAMP, C.TIME_UNSET, C.INDEX_UNSET);
 
     /** The type of the result. */
     private final @Type int type;

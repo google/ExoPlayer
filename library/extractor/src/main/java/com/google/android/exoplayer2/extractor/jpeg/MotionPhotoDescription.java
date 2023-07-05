@@ -21,7 +21,15 @@ import com.google.android.exoplayer2.metadata.mp4.MotionPhotoMetadata;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.List;
 
-/** Describes the layout and metadata of a motion photo file. */
+/**
+ * Describes the layout and metadata of a motion photo file.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ final class MotionPhotoDescription {
 
   /** Describes a media item in the motion photo. */
@@ -81,9 +89,9 @@ import java.util.List;
     // Iterate backwards through the items to find the earlier video in the list. If we find a video
     // item with length zero, we need to keep scanning backwards to find the preceding item with
     // non-zero length, which is the item that contains the video data.
-    long photoStartPosition = C.POSITION_UNSET;
+    long photoStartPosition = C.INDEX_UNSET;
     long photoLength = C.LENGTH_UNSET;
-    long mp4StartPosition = C.POSITION_UNSET;
+    long mp4StartPosition = C.INDEX_UNSET;
     long mp4Length = C.LENGTH_UNSET;
     boolean itemContainsMp4 = false;
     long itemStartPosition = motionPhotoLength;
@@ -110,9 +118,9 @@ import java.util.List;
         photoLength = itemEndPosition;
       }
     }
-    if (mp4StartPosition == C.POSITION_UNSET
+    if (mp4StartPosition == C.INDEX_UNSET
         || mp4Length == C.LENGTH_UNSET
-        || photoStartPosition == C.POSITION_UNSET
+        || photoStartPosition == C.INDEX_UNSET
         || photoLength == C.LENGTH_UNSET) {
       return null;
     }

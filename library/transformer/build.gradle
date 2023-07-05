@@ -20,7 +20,6 @@ android {
         // "pm clear" command after each test invocation. This command ensures
         // that the app's state is completely cleared between tests.
         testInstrumentationRunnerArguments clearPackageData: 'true'
-        multiDexEnabled true
     }
 
     buildTypes {
@@ -37,8 +36,11 @@ android {
 
 dependencies {
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
+    implementation project(modulePrefix + 'library-datasource')
+    implementation project(modulePrefix + 'library-container')
     implementation project(modulePrefix + 'library-core')
     implementation project(modulePrefix + 'library-effect')
+    implementation project(modulePrefix + 'library-muxer')
     compileOnly 'com.google.errorprone:error_prone_annotations:' + errorProneVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkCompatVersion
@@ -48,10 +50,12 @@ dependencies {
     testImplementation project(modulePrefix + 'testdata')
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
     testImplementation 'com.google.truth:truth:' + truthVersion
+    testCompileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkCompatVersion
     androidTestImplementation 'junit:junit:' + junitVersion
     androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
     androidTestImplementation 'com.google.truth:truth:' + truthVersion
     androidTestImplementation project(modulePrefix + 'testutils')
+    androidTestCompileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkCompatVersion
 }
 
 ext {

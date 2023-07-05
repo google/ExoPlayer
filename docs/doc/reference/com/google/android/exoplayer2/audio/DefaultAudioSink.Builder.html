@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":10,"i1":42,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -158,6 +158,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">Builder</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#%3Cinit%3E(android.content.Context)"><code>Builder(Context)</code></a> instead.</div>
+</div>
+</td>
+</tr>
+<tr class="rowColor">
+<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context)">Builder</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</code></th>
+<td class="colLast">
 <div class="block">Creates a new builder.</div>
 </td>
 </tr>
@@ -173,7 +181,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -190,7 +198,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setAudioCapabilities(com.google.android.exoplayer2.audio.AudioCapabilities)">setAudioCapabilities</a></span>&#8203;(<a href="AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a>&nbsp;audioCapabilities)</code></th>
 <td class="colLast">
-<div class="block">Sets audio capabilities for playback on this device.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">These <a href="AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">audio capabilities</a> are only used in the
+     absence of a <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">context</a>.</div>
+</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
@@ -272,11 +283,28 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <a id="&lt;init&gt;()">
 <!--   -->
 </a>
+<ul class="blockList">
+<li class="blockList">
+<h4>Builder</h4>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public&nbsp;Builder()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#%3Cinit%3E(android.content.Context)"><code>Builder(Context)</code></a> instead.</div>
+</div>
+</li>
+</ul>
+<a id="&lt;init&gt;(android.content.Context)">
+<!--   -->
+</a>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>Builder</h4>
-<pre>public&nbsp;Builder()</pre>
+<pre>public&nbsp;Builder&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</pre>
 <div class="block">Creates a new builder.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>context</code> - The <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a>.</dd>
+</dl>
 </li>
 </ul>
 </li>
@@ -295,12 +323,15 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <ul class="blockList">
 <li class="blockList">
 <h4>setAudioCapabilities</h4>
-<pre class="methodSignature">@CanIgnoreReturnValue
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+@CanIgnoreReturnValue
 public&nbsp;<a href="DefaultAudioSink.Builder.html" title="class in com.google.android.exoplayer2.audio">DefaultAudioSink.Builder</a>&nbsp;setAudioCapabilities&#8203;(<a href="AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">AudioCapabilities</a>&nbsp;audioCapabilities)</pre>
-<div class="block">Sets audio capabilities for playback on this device. May be <code>null</code> if the default
- capabilities (no encoded audio passthrough support) should be assumed.
-
- <p>Default is <a href="AudioCapabilities.html#DEFAULT_AUDIO_CAPABILITIES"><code>AudioCapabilities.DEFAULT_AUDIO_CAPABILITIES</code></a>.</div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">These <a href="AudioCapabilities.html" title="class in com.google.android.exoplayer2.audio">audio capabilities</a> are only used in the
+     absence of a <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">context</a>. In the case when the <code>Context</code> is <code>
+     null</code> and the <code>audioCapabilities</code> is not set to the <code>Builder</code>, the default
+     capabilities (no encoded audio passthrough support) should be assumed.</div>
+</div>
 </li>
 </ul>
 <a id="setAudioProcessors(com.google.android.exoplayer2.audio.AudioProcessor[])">

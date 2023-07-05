@@ -19,17 +19,12 @@ android {
         // "pm clear" command after each test invocation. This command ensures
         // that the app's state is completely cleared between tests.
         testInstrumentationRunnerArguments clearPackageData: 'true'
-        multiDexEnabled true
     }
 
     buildTypes {
         debug {
             testCoverageEnabled = true
         }
-    }
-
-    lint {
-        baseline = file("lint-baseline.xml")
     }
 
     sourceSets {
@@ -40,6 +35,7 @@ android {
 
 dependencies {
     api project(modulePrefix + 'library-common')
+    api project(modulePrefix + 'library-container')
     // TODO(b/203754886): Revisit which modules are exported as API dependencies.
     api project(modulePrefix + 'library-datasource')
     api project(modulePrefix + 'library-decoder')
@@ -52,7 +48,6 @@ dependencies {
     compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkCompatVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
     compileOnly 'com.google.errorprone:error_prone_annotations:' + errorProneVersion
-    androidTestImplementation 'androidx.multidex:multidex:' + androidxMultidexVersion
     androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
     androidTestImplementation 'com.linkedin.dexmaker:dexmaker:' + dexmakerVersion
     androidTestImplementation 'com.linkedin.dexmaker:dexmaker-mockito:' + dexmakerVersion
@@ -60,6 +55,7 @@ dependencies {
         exclude module: modulePrefix.substring(1) + 'library-core'
     }
     androidTestImplementation 'com.squareup.okhttp3:mockwebserver:' + okhttpVersion
+    testCompileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkCompatVersion
     testImplementation 'com.squareup.okhttp3:mockwebserver:' + okhttpVersion
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
     testImplementation project(modulePrefix + 'testutils')

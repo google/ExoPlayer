@@ -30,6 +30,8 @@ import com.google.android.exoplayer2.metadata.id3.Id3Decoder;
 import com.google.android.exoplayer2.metadata.id3.PrivFrame;
 import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.hls.playlist.HlsMediaPlaylist;
+import com.google.android.exoplayer2.upstream.CmcdConfiguration;
+import com.google.android.exoplayer2.upstream.CmcdLog;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -39,17 +41,27 @@ import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.UriUtil;
 import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-/** An HLS {@link MediaChunk}. */
+/**
+ * An HLS {@link MediaChunk}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ final class HlsMediaChunk extends MediaChunk {
 
   /**
@@ -67,9 +79,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    *     information is available in the multivariant playlist.
    * @param trackSelectionReason See {@link #trackSelectionReason}.
    * @param trackSelectionData See {@link #trackSelectionData}.
-   * @param isMasterTimestampSource True if the chunk can initialize the timestamp adjuster.
+   * @param isPrimaryTimestampSource True if the chunk can initialize the timestamp adjuster.
    * @param timestampAdjusterProvider The provider from which to obtain the {@link
    *     TimestampAdjuster}.
+   * @param timestampAdjusterInitializationTimeoutMs The timeout for the loading thread to wait for
+   *     the timestamp adjuster to initialize, in milliseconds. A timeout of zero is interpreted as
+   *     an infinite timeout.
    * @param previousChunk The {@link HlsMediaChunk} that preceded this one. May be null.
    * @param mediaSegmentKey The media segment decryption key, if fully encrypted. Null otherwise.
    * @param initSegmentKey The initialization segment decryption key, if fully encrypted. Null
@@ -87,21 +102,26 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       @Nullable List<Format> muxedCaptionFormats,
       @C.SelectionReason int trackSelectionReason,
       @Nullable Object trackSelectionData,
-      boolean isMasterTimestampSource,
+      boolean isPrimaryTimestampSource,
       TimestampAdjusterProvider timestampAdjusterProvider,
+      long timestampAdjusterInitializationTimeoutMs,
       @Nullable HlsMediaChunk previousChunk,
       @Nullable byte[] mediaSegmentKey,
       @Nullable byte[] initSegmentKey,
       boolean shouldSpliceIn,
-      PlayerId playerId) {
+      PlayerId playerId,
+      @Nullable CmcdLog cmcdLog) {
     // Media segment.
     HlsMediaPlaylist.SegmentBase mediaSegment = segmentBaseHolder.segmentBase;
+    ImmutableMap<@CmcdConfiguration.HeaderKey String, String> httpRequestHeaders =
+        cmcdLog == null ? ImmutableMap.of() : cmcdLog.getHttpRequestHeaders();
     DataSpec dataSpec =
         new DataSpec.Builder()
             .setUri(UriUtil.resolveToUri(mediaPlaylist.baseUri, mediaSegment.url))
             .setPosition(mediaSegment.byteRangeOffset)
             .setLength(mediaSegment.byteRangeLength)
             .setFlags(segmentBaseHolder.isPreload ? FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED : 0)
+            .setHttpRequestHeaders(httpRequestHeaders)
             .build();
     boolean mediaSegmentEncrypted = mediaSegmentKey != null;
     @Nullable
@@ -180,8 +200,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         /* isPublished= */ !segmentBaseHolder.isPreload,
         discontinuitySequenceNumber,
         mediaSegment.hasGapTag,
-        isMasterTimestampSource,
+        isPrimaryTimestampSource,
         /* timestampAdjuster= */ timestampAdjusterProvider.getAdjuster(discontinuitySequenceNumber),
+        timestampAdjusterInitializationTimeoutMs,
         mediaSegment.drmInitData,
         previousExtractor,
         id3Decoder,
@@ -249,7 +270,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @Nullable private final DataSpec initDataSpec;
   @Nullable private final HlsMediaChunkExtractor previousExtractor;
 
-  private final boolean isMasterTimestampSource;
+  private final boolean isPrimaryTimestampSource;
   private final boolean hasGapTag;
   private final TimestampAdjuster timestampAdjuster;
   private final HlsExtractorFactory extractorFactory;
@@ -260,6 +281,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private final boolean mediaSegmentEncrypted;
   private final boolean initSegmentEncrypted;
   private final PlayerId playerId;
+  private final long timestampAdjusterInitializationTimeoutMs;
 
   private @MonotonicNonNull HlsMediaChunkExtractor extractor;
   private @MonotonicNonNull HlsSampleStreamWrapper output;
@@ -293,8 +315,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       boolean isPublished,
       int discontinuitySequenceNumber,
       boolean hasGapTag,
-      boolean isMasterTimestampSource,
+      boolean isPrimaryTimestampSource,
       TimestampAdjuster timestampAdjuster,
+      long timestampAdjusterInitializationTimeoutMs,
       @Nullable DrmInitData drmInitData,
       @Nullable HlsMediaChunkExtractor previousExtractor,
       Id3Decoder id3Decoder,
@@ -319,8 +342,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     this.initDataLoadRequired = initDataSpec != null;
     this.initSegmentEncrypted = initSegmentEncrypted;
     this.playlistUrl = playlistUrl;
-    this.isMasterTimestampSource = isMasterTimestampSource;
+    this.isPrimaryTimestampSource = isPrimaryTimestampSource;
     this.timestampAdjuster = timestampAdjuster;
+    this.timestampAdjusterInitializationTimeoutMs = timestampAdjusterInitializationTimeoutMs;
     this.hasGapTag = hasGapTag;
     this.extractorFactory = extractorFactory;
     this.muxedCaptionFormats = muxedCaptionFormats;
@@ -495,9 +519,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     long bytesToRead = dataSource.open(dataSpec);
     if (initializeTimestampAdjuster) {
       try {
-        timestampAdjuster.sharedInitializeOrWait(isMasterTimestampSource, startTimeUs);
+        timestampAdjuster.sharedInitializeOrWait(
+            isPrimaryTimestampSource, startTimeUs, timestampAdjusterInitializationTimeoutMs);
       } catch (InterruptedException e) {
         throw new InterruptedIOException();
+      } catch (TimeoutException e) {
+        throw new IOException(e);
       }
     }
     DefaultExtractorInput extractorInput =

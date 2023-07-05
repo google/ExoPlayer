@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -88,13 +88,13 @@ loadScripts(document, 'script');</script>
 <li>Summary:&nbsp;</li>
 <li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
-<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
-<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
@@ -134,9 +134,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 <hr>
 <pre>@RequiresApi(18)
+<a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
 public class <span class="typeNameLabel">DefaultDrmSessionManager</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A <a href="DrmSessionManager.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionManager</code></a> that supports playbacks using <a href="ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaDrm</code></a>.
 
  <p>This implementation supports pre-acquisition of sessions using <a href="#preacquireSession(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)"><code>preacquireSession(DrmSessionEventListener.EventDispatcher, Format)</code></a>.</div>
@@ -164,6 +170,7 @@ implements <a href="DrmSessionManager.html" title="interface in com.google.andro
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Builder</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builder for <a href="DefaultDrmSessionManager.html" title="class in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionManager</code></a> instances.</div>
 </td>
 </tr>
@@ -171,6 +178,7 @@ implements <a href="DrmSessionManager.html" title="interface in com.google.andro
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DefaultDrmSessionManager.MissingSchemeDataException.html" title="class in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.MissingSchemeDataException</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Signals that the <a href="../Format.html#drmInitData"><code>Format.drmInitData</code></a> passed to <a href="#acquireSession(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)"><code>acquireSession(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher, com.google.android.exoplayer2.Format)</code></a> does not contain
  scheme data for the required UUID.</div>
 </td>
@@ -179,6 +187,7 @@ implements <a href="DrmSessionManager.html" title="interface in com.google.andro
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DefaultDrmSessionManager.Mode.html" title="annotation in com.google.android.exoplayer2.drm">DefaultDrmSessionManager.Mode</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Determines the action to be done after a session acquired.</div>
 </td>
 </tr>
@@ -211,6 +220,7 @@ implements <a href="DrmSessionManager.html" title="interface in com.google.andro
 <td class="colFirst"><code>static long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_SESSION_KEEPALIVE_MS">DEFAULT_SESSION_KEEPALIVE_MS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default value for <a href="DefaultDrmSessionManager.Builder.html#setSessionKeepaliveMs(long)"><code>DefaultDrmSessionManager.Builder.setSessionKeepaliveMs(long)</code></a>.</div>
 </td>
 </tr>
@@ -218,6 +228,7 @@ implements <a href="DrmSessionManager.html" title="interface in com.google.andro
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#INITIAL_DRM_REQUEST_RETRY_COUNT">INITIAL_DRM_REQUEST_RETRY_COUNT</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Number of times to retry for initial provisioning and key request for reporting error.</div>
 </td>
 </tr>
@@ -225,6 +236,7 @@ implements <a href="DrmSessionManager.html" title="interface in com.google.andro
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MODE_DOWNLOAD">MODE_DOWNLOAD</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Downloads an offline license or renews an existing one.</div>
 </td>
 </tr>
@@ -232,6 +244,7 @@ implements <a href="DrmSessionManager.html" title="interface in com.google.andro
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MODE_PLAYBACK">MODE_PLAYBACK</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Loads and refreshes (if necessary) a license for playback.</div>
 </td>
 </tr>
@@ -239,6 +252,7 @@ implements <a href="DrmSessionManager.html" title="interface in com.google.andro
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MODE_QUERY">MODE_QUERY</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Restores an offline license to allow its status to be queried.</div>
 </td>
 </tr>
@@ -246,6 +260,7 @@ implements <a href="DrmSessionManager.html" title="interface in com.google.andro
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MODE_RELEASE">MODE_RELEASE</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases an existing offline license.</div>
 </td>
 </tr>
@@ -253,6 +268,7 @@ implements <a href="DrmSessionManager.html" title="interface in com.google.andro
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PLAYREADY_CUSTOM_DATA_KEY">PLAYREADY_CUSTOM_DATA_KEY</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A key for specifying PlayReady custom data in the key request parameters passed to <a href="DefaultDrmSessionManager.Builder.html#setKeyRequestParameters(java.util.Map)"><code>DefaultDrmSessionManager.Builder.setKeyRequestParameters(Map)</code></a>.</div>
 </td>
 </tr>
@@ -267,59 +283,6 @@ implements <a href="DrmSessionManager.html" title="interface in com.google.andro
 </li>
 </ul>
 </section>
-<!-- ======== CONSTRUCTOR SUMMARY ======== -->
-<section role="region">
-<ul class="blockList">
-<li class="blockList"><a id="constructor.summary">
-<!--   -->
-</a>
-<h3>Constructor Summary</h3>
-<table class="memberSummary">
-<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Constructor</th>
-<th class="colLast" scope="col">Description</th>
-</tr>
-<tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.util.UUID,com.google.android.exoplayer2.drm.ExoMediaDrm,com.google.android.exoplayer2.drm.MediaDrmCallback,java.util.HashMap)">DefaultDrmSessionManager</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a>&nbsp;uuid,
-                        <a href="ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&nbsp;exoMediaDrm,
-                        <a href="MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
-                        <a href="https://developer.android.com/reference/java/util/HashMap.html" title="class or interface in java.util" class="externalLink">HashMap</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;keyRequestParameters)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionManager.Builder</code></a> instead.</div>
-</div>
-</td>
-</tr>
-<tr class="rowColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.util.UUID,com.google.android.exoplayer2.drm.ExoMediaDrm,com.google.android.exoplayer2.drm.MediaDrmCallback,java.util.HashMap,boolean)">DefaultDrmSessionManager</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a>&nbsp;uuid,
-                        <a href="ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&nbsp;exoMediaDrm,
-                        <a href="MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
-                        <a href="https://developer.android.com/reference/java/util/HashMap.html" title="class or interface in java.util" class="externalLink">HashMap</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;keyRequestParameters,
-                        boolean&nbsp;multiSession)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionManager.Builder</code></a> instead.</div>
-</div>
-</td>
-</tr>
-<tr class="altColor">
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.util.UUID,com.google.android.exoplayer2.drm.ExoMediaDrm,com.google.android.exoplayer2.drm.MediaDrmCallback,java.util.HashMap,boolean,int)">DefaultDrmSessionManager</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a>&nbsp;uuid,
-                        <a href="ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&nbsp;exoMediaDrm,
-                        <a href="MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
-                        <a href="https://developer.android.com/reference/java/util/HashMap.html" title="class or interface in java.util" class="externalLink">HashMap</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;keyRequestParameters,
-                        boolean&nbsp;multiSession,
-                        int&nbsp;initialDrmRequestRetryCount)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionManager.Builder</code></a> instead.</div>
-</div>
-</td>
-</tr>
-</table>
-</li>
-</ul>
-</section>
 <!-- ========== METHOD SUMMARY =========== -->
 <section role="region">
 <ul class="blockList">
@@ -328,7 +291,7 @@ implements <a href="DrmSessionManager.html" title="interface in com.google.andro
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -339,6 +302,7 @@ implements <a href="DrmSessionManager.html" title="interface in com.google.andro
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#acquireSession(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)">acquireSession</a></span>&#8203;(<a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
               <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSession</code></a> for the specified <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>, with an incremented reference
  count.</div>
 </td>
@@ -347,6 +311,7 @@ implements <a href="DrmSessionManager.html" title="interface in com.google.andro
 <td class="colFirst"><code>@com.google.android.exoplayer2.C.CryptoType int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCryptoType(com.google.android.exoplayer2.Format)">getCryptoType</a></span>&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="../C.CryptoType.html" title="annotation in com.google.android.exoplayer2"><code>C.CryptoType</code></a> that the DRM session manager will use for a given <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 </td>
 </tr>
@@ -355,6 +320,7 @@ implements <a href="DrmSessionManager.html" title="interface in com.google.andro
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#preacquireSession(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)">preacquireSession</a></span>&#8203;(<a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
                  <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Pre-acquires a DRM session for the specified <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 </td>
 </tr>
@@ -362,6 +328,7 @@ implements <a href="DrmSessionManager.html" title="interface in com.google.andro
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#prepare()">prepare</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Acquires any required resources.</div>
 </td>
 </tr>
@@ -369,6 +336,7 @@ implements <a href="DrmSessionManager.html" title="interface in com.google.andro
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases any acquired resources.</div>
 </td>
 </tr>
@@ -377,6 +345,7 @@ implements <a href="DrmSessionManager.html" title="interface in com.google.andro
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setMode(@com.google.android.exoplayer2.drm.DefaultDrmSessionManager.Modeint,byte%5B%5D)">setMode</a></span>&#8203;(@com.google.android.exoplayer2.drm.DefaultDrmSessionManager.Mode int&nbsp;mode,
        byte[]&nbsp;offlineLicenseKeySetId)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the mode, which determines the role of sessions acquired from the instance.</div>
 </td>
 </tr>
@@ -385,6 +354,7 @@ implements <a href="DrmSessionManager.html" title="interface in com.google.andro
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setPlayer(android.os.Looper,com.google.android.exoplayer2.analytics.PlayerId)">setPlayer</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;playbackLooper,
          <a href="../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets information about the player using this DRM session manager.</div>
 </td>
 </tr>
@@ -419,6 +389,7 @@ implements <a href="DrmSessionManager.html" title="interface in com.google.andro
 <li class="blockList">
 <h4>PLAYREADY_CUSTOM_DATA_KEY</h4>
 <pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> PLAYREADY_CUSTOM_DATA_KEY</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A key for specifying PlayReady custom data in the key request parameters passed to <a href="DefaultDrmSessionManager.Builder.html#setKeyRequestParameters(java.util.Map)"><code>DefaultDrmSessionManager.Builder.setKeyRequestParameters(Map)</code></a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -433,6 +404,7 @@ implements <a href="DrmSessionManager.html" title="interface in com.google.andro
 <li class="blockList">
 <h4>MODE_PLAYBACK</h4>
 <pre>public static final&nbsp;int MODE_PLAYBACK</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Loads and refreshes (if necessary) a license for playback. Supports streaming and offline
  licenses.</div>
 <dl>
@@ -448,6 +420,7 @@ implements <a href="DrmSessionManager.html" title="interface in com.google.andro
 <li class="blockList">
 <h4>MODE_QUERY</h4>
 <pre>public static final&nbsp;int MODE_QUERY</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Restores an offline license to allow its status to be queried.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -462,6 +435,7 @@ implements <a href="DrmSessionManager.html" title="interface in com.google.andro
 <li class="blockList">
 <h4>MODE_DOWNLOAD</h4>
 <pre>public static final&nbsp;int MODE_DOWNLOAD</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Downloads an offline license or renews an existing one.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -476,6 +450,7 @@ implements <a href="DrmSessionManager.html" title="interface in com.google.andro
 <li class="blockList">
 <h4>MODE_RELEASE</h4>
 <pre>public static final&nbsp;int MODE_RELEASE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases an existing offline license.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -490,6 +465,7 @@ implements <a href="DrmSessionManager.html" title="interface in com.google.andro
 <li class="blockList">
 <h4>INITIAL_DRM_REQUEST_RETRY_COUNT</h4>
 <pre>public static final&nbsp;int INITIAL_DRM_REQUEST_RETRY_COUNT</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Number of times to retry for initial provisioning and key request for reporting error.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -504,104 +480,11 @@ implements <a href="DrmSessionManager.html" title="interface in com.google.andro
 <li class="blockList">
 <h4>DEFAULT_SESSION_KEEPALIVE_MS</h4>
 <pre>public static final&nbsp;long DEFAULT_SESSION_KEEPALIVE_MS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default value for <a href="DefaultDrmSessionManager.Builder.html#setSessionKeepaliveMs(long)"><code>DefaultDrmSessionManager.Builder.setSessionKeepaliveMs(long)</code></a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.drm.DefaultDrmSessionManager.DEFAULT_SESSION_KEEPALIVE_MS">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-</li>
-</ul>
-</section>
-<!-- ========= CONSTRUCTOR DETAIL ======== -->
-<section role="region">
-<ul class="blockList">
-<li class="blockList"><a id="constructor.detail">
-<!--   -->
-</a>
-<h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(java.util.UUID,com.google.android.exoplayer2.drm.ExoMediaDrm,com.google.android.exoplayer2.drm.MediaDrmCallback,java.util.HashMap)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>DefaultDrmSessionManager</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public&nbsp;DefaultDrmSessionManager&#8203;(<a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a>&nbsp;uuid,
-                                <a href="ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&nbsp;exoMediaDrm,
-                                <a href="MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
-                                @Nullable
-                                <a href="https://developer.android.com/reference/java/util/HashMap.html" title="class or interface in java.util" class="externalLink">HashMap</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;keyRequestParameters)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionManager.Builder</code></a> instead.</div>
-</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>uuid</code> - The UUID of the drm scheme.</dd>
-<dd><code>exoMediaDrm</code> - An underlying <a href="ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaDrm</code></a> for use by the manager.</dd>
-<dd><code>callback</code> - Performs key and provisioning requests.</dd>
-<dd><code>keyRequestParameters</code> - An optional map of parameters to pass as the last argument to
-     <a href="ExoMediaDrm.html#getKeyRequest(byte%5B%5D,java.util.List,int,java.util.HashMap)"><code>ExoMediaDrm.getKeyRequest(byte[], List, int, HashMap)</code></a>. May be null.</dd>
-</dl>
-</li>
-</ul>
-<a id="&lt;init&gt;(java.util.UUID,com.google.android.exoplayer2.drm.ExoMediaDrm,com.google.android.exoplayer2.drm.MediaDrmCallback,java.util.HashMap,boolean)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>DefaultDrmSessionManager</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public&nbsp;DefaultDrmSessionManager&#8203;(<a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a>&nbsp;uuid,
-                                <a href="ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&nbsp;exoMediaDrm,
-                                <a href="MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
-                                @Nullable
-                                <a href="https://developer.android.com/reference/java/util/HashMap.html" title="class or interface in java.util" class="externalLink">HashMap</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;keyRequestParameters,
-                                boolean&nbsp;multiSession)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionManager.Builder</code></a> instead.</div>
-</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>uuid</code> - The UUID of the drm scheme.</dd>
-<dd><code>exoMediaDrm</code> - An underlying <a href="ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaDrm</code></a> for use by the manager.</dd>
-<dd><code>callback</code> - Performs key and provisioning requests.</dd>
-<dd><code>keyRequestParameters</code> - An optional map of parameters to pass as the last argument to
-     <a href="ExoMediaDrm.html#getKeyRequest(byte%5B%5D,java.util.List,int,java.util.HashMap)"><code>ExoMediaDrm.getKeyRequest(byte[], List, int, HashMap)</code></a>. May be null.</dd>
-<dd><code>multiSession</code> - A boolean that specify whether multiple key session support is enabled.
-     Default is false.</dd>
-</dl>
-</li>
-</ul>
-<a id="&lt;init&gt;(java.util.UUID,com.google.android.exoplayer2.drm.ExoMediaDrm,com.google.android.exoplayer2.drm.MediaDrmCallback,java.util.HashMap,boolean,int)">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>DefaultDrmSessionManager</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-public&nbsp;DefaultDrmSessionManager&#8203;(<a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a>&nbsp;uuid,
-                                <a href="ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm">ExoMediaDrm</a>&nbsp;exoMediaDrm,
-                                <a href="MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a>&nbsp;callback,
-                                @Nullable
-                                <a href="https://developer.android.com/reference/java/util/HashMap.html" title="class or interface in java.util" class="externalLink">HashMap</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;keyRequestParameters,
-                                boolean&nbsp;multiSession,
-                                int&nbsp;initialDrmRequestRetryCount)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="DefaultDrmSessionManager.Builder.html" title="class in com.google.android.exoplayer2.drm"><code>DefaultDrmSessionManager.Builder</code></a> instead.</div>
-</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>uuid</code> - The UUID of the drm scheme.</dd>
-<dd><code>exoMediaDrm</code> - An underlying <a href="ExoMediaDrm.html" title="interface in com.google.android.exoplayer2.drm"><code>ExoMediaDrm</code></a> for use by the manager.</dd>
-<dd><code>callback</code> - Performs key and provisioning requests.</dd>
-<dd><code>keyRequestParameters</code> - An optional map of parameters to pass as the last argument to
-     <a href="ExoMediaDrm.html#getKeyRequest(byte%5B%5D,java.util.List,int,java.util.HashMap)"><code>ExoMediaDrm.getKeyRequest(byte[], List, int, HashMap)</code></a>. May be null.</dd>
-<dd><code>multiSession</code> - A boolean that specify whether multiple key session support is enabled.
-     Default is false.</dd>
-<dd><code>initialDrmRequestRetryCount</code> - The number of times to retry for initial provisioning and
-     key request before reporting error.</dd>
 </dl>
 </li>
 </ul>
@@ -624,6 +507,7 @@ public&nbsp;DefaultDrmSessionManager&#8203;(<a href="https://developer.android.c
 <pre class="methodSignature">public&nbsp;void&nbsp;setMode&#8203;(@com.google.android.exoplayer2.drm.DefaultDrmSessionManager.Mode int&nbsp;mode,
                     @Nullable
                     byte[]&nbsp;offlineLicenseKeySetId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the mode, which determines the role of sessions acquired from the instance. This must be
  called before <a href="#acquireSession(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)"><code>acquireSession(DrmSessionEventListener.EventDispatcher, Format)</code></a> is
  called.
@@ -657,6 +541,7 @@ public&nbsp;DefaultDrmSessionManager&#8203;(<a href="https://developer.android.c
 <li class="blockList">
 <h4>prepare</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;prepare()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DrmSessionManager.html#prepare()">DrmSessionManager</a></code></span></div>
 <div class="block">Acquires any required resources.
 
@@ -675,6 +560,7 @@ public&nbsp;DefaultDrmSessionManager&#8203;(<a href="https://developer.android.c
 <li class="blockList">
 <h4>release</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;release()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DrmSessionManager.html#release()">DrmSessionManager</a></code></span></div>
 <div class="block">Releases any acquired resources.</div>
 <dl>
@@ -691,6 +577,7 @@ public&nbsp;DefaultDrmSessionManager&#8203;(<a href="https://developer.android.c
 <h4>setPlayer</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setPlayer&#8203;(<a href="https://developer.android.com/reference/android/os/Looper.html" title="class or interface in android.os" class="externalLink" target="_top">Looper</a>&nbsp;playbackLooper,
                       <a href="../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DrmSessionManager.html#setPlayer(android.os.Looper,com.google.android.exoplayer2.analytics.PlayerId)">DrmSessionManager</a></code></span></div>
 <div class="block">Sets information about the player using this DRM session manager.</div>
 <dl>
@@ -711,6 +598,7 @@ public&nbsp;DefaultDrmSessionManager&#8203;(<a href="https://developer.android.c
 <pre class="methodSignature">public&nbsp;<a href="DrmSessionManager.DrmSessionReference.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManager.DrmSessionReference</a>&nbsp;preacquireSession&#8203;(@Nullable
                                                                <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
                                                                <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DrmSessionManager.html#preacquireSession(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)">DrmSessionManager</a></code></span></div>
 <div class="block">Pre-acquires a DRM session for the specified <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.
 
@@ -761,6 +649,7 @@ public&nbsp;DefaultDrmSessionManager&#8203;(<a href="https://developer.android.c
 public&nbsp;<a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a>&nbsp;acquireSession&#8203;(@Nullable
                                  <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher,
                                  <a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DrmSessionManager.html#acquireSession(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)">DrmSessionManager</a></code></span></div>
 <div class="block">Returns a <a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSession</code></a> for the specified <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>, with an incremented reference
  count. May return null if the <a href="../Format.html#drmInitData"><code>Format.drmInitData</code></a> is null and the DRM session manager is
@@ -791,6 +680,7 @@ public&nbsp;<a href="DrmSession.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>getCryptoType</h4>
 <pre class="methodSignature">public&nbsp;@com.google.android.exoplayer2.C.CryptoType int&nbsp;getCryptoType&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DrmSessionManager.html#getCryptoType(com.google.android.exoplayer2.Format)">DrmSessionManager</a></code></span></div>
 <div class="block">Returns the <a href="../C.CryptoType.html" title="annotation in com.google.android.exoplayer2"><code>C.CryptoType</code></a> that the DRM session manager will use for a given <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>. Returns <a href="../C.html#CRYPTO_TYPE_UNSUPPORTED"><code>C.CRYPTO_TYPE_UNSUPPORTED</code></a> if the manager does not support any of the
  DRM schemes defined in the <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>. Returns <a href="../C.html#CRYPTO_TYPE_NONE"><code>C.CRYPTO_TYPE_NONE</code></a> if <a href="../Format.html#drmInitData"><code>Format.drmInitData</code></a> is null and <a href="DrmSessionManager.html#acquireSession(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher,com.google.android.exoplayer2.Format)"><code>DrmSessionManager.acquireSession(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher, com.google.android.exoplayer2.Format)</code></a> will return <code>null</code> for the given
@@ -860,13 +750,13 @@ public&nbsp;<a href="DrmSession.html" title="interface in com.google.android.exo
 <li>Summary:&nbsp;</li>
 <li><a href="#nested.class.summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
-<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
-<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>

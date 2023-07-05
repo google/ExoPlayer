@@ -85,7 +85,13 @@ import java.lang.annotation.RetentionPolicy;
  *       message payload should be a session ID {@link Integer} that will be attached to the
  *       underlying audio track.
  * </ul>
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public abstract class DecoderAudioRenderer<
         T extends
             Decoder<
@@ -394,8 +400,11 @@ public abstract class DecoderAudioRenderer<
   }
 
   private boolean drainOutputBuffer()
-      throws ExoPlaybackException, DecoderException, AudioSink.ConfigurationException,
-          AudioSink.InitializationException, AudioSink.WriteException {
+      throws ExoPlaybackException,
+          DecoderException,
+          AudioSink.ConfigurationException,
+          AudioSink.InitializationException,
+          AudioSink.WriteException {
     if (outputBuffer == null) {
       outputBuffer = decoder.dequeueOutputBuffer();
       if (outputBuffer == null) {

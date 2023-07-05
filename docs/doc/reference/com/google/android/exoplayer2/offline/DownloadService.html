@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9,"i9":6,"i10":6,"i11":6,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":9,"i19":9,"i20":9,"i21":9,"i22":9,"i23":9,"i24":9,"i25":9,"i26":9,"i27":9};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":41,"i1":41,"i2":41,"i3":41,"i4":41,"i5":41,"i6":41,"i7":41,"i8":41,"i9":38,"i10":38,"i11":38,"i12":42,"i13":42,"i14":42,"i15":42,"i16":42,"i17":42,"i18":41,"i19":41,"i20":41,"i21":41,"i22":41,"i23":41,"i24":41,"i25":41,"i26":41,"i27":41};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -148,8 +148,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="https://developer.android.com/reference/android/content/ComponentCallbacks.html" title="class or interface in android.content" class="externalLink">ComponentCallbacks</a></code>, <code><a href="https://developer.android.com/reference/android/content/ComponentCallbacks2.html?is-external=true" title="class or interface in android.content" class="externalLink" target="_top">ComponentCallbacks2</a></code></dd>
 </dl>
 <hr>
-<pre>public abstract class <span class="typeNameLabel">DownloadService</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public abstract class <span class="typeNameLabel">DownloadService</span>
 extends <a href="https://developer.android.com/reference/android/app/Service.html" title="class or interface in android.app" class="externalLink" target="_top">Service</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A <a href="https://developer.android.com/reference/android/app/Service.html" title="class or interface in android.app" class="externalLink" target="_top"><code>Service</code></a> for downloading media.
 
  <p>Apps with target SDK 33 and greater need to add the <code>
@@ -181,6 +187,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ACTION_ADD_DOWNLOAD">ACTION_ADD_DOWNLOAD</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a new download.</div>
 </td>
 </tr>
@@ -188,6 +195,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ACTION_INIT">ACTION_INIT</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts a download service to resume any ongoing downloads.</div>
 </td>
 </tr>
@@ -195,6 +203,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ACTION_PAUSE_DOWNLOADS">ACTION_PAUSE_DOWNLOADS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Pauses all downloads.</div>
 </td>
 </tr>
@@ -202,6 +211,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ACTION_REMOVE_ALL_DOWNLOADS">ACTION_REMOVE_ALL_DOWNLOADS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Removes all downloads.</div>
 </td>
 </tr>
@@ -209,6 +219,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ACTION_REMOVE_DOWNLOAD">ACTION_REMOVE_DOWNLOAD</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Removes a download.</div>
 </td>
 </tr>
@@ -216,6 +227,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ACTION_RESUME_DOWNLOADS">ACTION_RESUME_DOWNLOADS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Resumes all downloads except those that have a non-zero <a href="Download.html#stopReason"><code>Download.stopReason</code></a>.</div>
 </td>
 </tr>
@@ -223,6 +235,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ACTION_SET_REQUIREMENTS">ACTION_SET_REQUIREMENTS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the requirements that need to be met for downloads to progress.</div>
 </td>
 </tr>
@@ -230,6 +243,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ACTION_SET_STOP_REASON">ACTION_SET_STOP_REASON</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the stop reason for one or all downloads.</div>
 </td>
 </tr>
@@ -237,6 +251,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <td class="colFirst"><code>static long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_FOREGROUND_NOTIFICATION_UPDATE_INTERVAL">DEFAULT_FOREGROUND_NOTIFICATION_UPDATE_INTERVAL</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default foreground notification update interval in milliseconds.</div>
 </td>
 </tr>
@@ -244,6 +259,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FOREGROUND_NOTIFICATION_ID_NONE">FOREGROUND_NOTIFICATION_ID_NONE</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Invalid foreground notification id that can be used to run the service in the background.</div>
 </td>
 </tr>
@@ -251,6 +267,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#KEY_CONTENT_ID">KEY_CONTENT_ID</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Key for the <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink"><code>String</code></a> content id in <a href="#ACTION_SET_STOP_REASON"><code>ACTION_SET_STOP_REASON</code></a> and <a href="#ACTION_REMOVE_DOWNLOAD" target="_top"><code>ACTION_REMOVE_DOWNLOAD</code></a> intents.</div>
 </td>
 </tr>
@@ -258,6 +275,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#KEY_DOWNLOAD_REQUEST">KEY_DOWNLOAD_REQUEST</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Key for the <a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadRequest</code></a> in <a href="#ACTION_ADD_DOWNLOAD"><code>ACTION_ADD_DOWNLOAD</code></a> intents.</div>
 </td>
 </tr>
@@ -265,6 +283,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#KEY_FOREGROUND">KEY_FOREGROUND</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Key for a boolean extra that can be set on any intent to indicate whether the service was
  started in the foreground.</div>
 </td>
@@ -273,6 +292,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#KEY_REQUIREMENTS">KEY_REQUIREMENTS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Key for the <a href="../scheduler/Requirements.html" title="class in com.google.android.exoplayer2.scheduler"><code>Requirements</code></a> in <a href="#ACTION_SET_REQUIREMENTS"><code>ACTION_SET_REQUIREMENTS</code></a> intents.</div>
 </td>
 </tr>
@@ -280,6 +300,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#KEY_STOP_REASON">KEY_STOP_REASON</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Key for the integer stop reason in <a href="#ACTION_SET_STOP_REASON"><code>ACTION_SET_STOP_REASON</code></a> and <a href="#ACTION_ADD_DOWNLOAD"><code>ACTION_ADD_DOWNLOAD</code></a> intents.</div>
 </td>
 </tr>
@@ -326,6 +347,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <td class="colFirst"><code>protected </code></td>
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int)">DownloadService</a></span>&#8203;(int&nbsp;foregroundNotificationId)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a DownloadService.</div>
 </td>
 </tr>
@@ -334,22 +356,11 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,long)">DownloadService</a></span>&#8203;(int&nbsp;foregroundNotificationId,
                long&nbsp;foregroundNotificationUpdateInterval)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a DownloadService.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>protected </code></td>
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,long,java.lang.String,int)">DownloadService</a></span>&#8203;(int&nbsp;foregroundNotificationId,
-               long&nbsp;foregroundNotificationUpdateInterval,
-               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;channelId,
-               int&nbsp;channelNameResourceId)</code></th>
-<td class="colLast">
-<div class="block"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#%3Cinit%3E(int,long,java.lang.String,int,int)"><code>DownloadService(int, long, String, int, int)</code></a>.</div>
-</div>
-</td>
-</tr>
-<tr class="rowColor">
 <td class="colFirst"><code>protected </code></td>
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(int,long,java.lang.String,int,int)">DownloadService</a></span>&#8203;(int&nbsp;foregroundNotificationId,
                long&nbsp;foregroundNotificationUpdateInterval,
@@ -357,6 +368,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
                int&nbsp;channelNameResourceId,
                int&nbsp;channelDescriptionResourceId)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a DownloadService.</div>
 </td>
 </tr>
@@ -372,7 +384,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -385,6 +397,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
                       <a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a>&nbsp;downloadRequest,
                       boolean&nbsp;foreground)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builds an <a href="https://developer.android.com/reference/android/content/Intent.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Intent</code></a> for adding a new download.</div>
 </td>
 </tr>
@@ -396,6 +409,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
                       int&nbsp;stopReason,
                       boolean&nbsp;foreground)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builds an <a href="https://developer.android.com/reference/android/content/Intent.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Intent</code></a> for adding a new download.</div>
 </td>
 </tr>
@@ -405,6 +419,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
                          <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="DownloadService.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadService</a>&gt;&nbsp;clazz,
                          boolean&nbsp;foreground)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builds an <a href="https://developer.android.com/reference/android/content/Intent.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Intent</code></a> to pause all downloads.</div>
 </td>
 </tr>
@@ -414,6 +429,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
                              <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="DownloadService.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadService</a>&gt;&nbsp;clazz,
                              boolean&nbsp;foreground)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builds an <a href="https://developer.android.com/reference/android/content/Intent.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Intent</code></a> for removing all downloads.</div>
 </td>
 </tr>
@@ -424,6 +440,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
                          boolean&nbsp;foreground)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builds an <a href="https://developer.android.com/reference/android/content/Intent.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Intent</code></a> for removing the download with the <code>id</code>.</div>
 </td>
 </tr>
@@ -433,6 +450,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
                           <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="DownloadService.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadService</a>&gt;&nbsp;clazz,
                           boolean&nbsp;foreground)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builds an <a href="https://developer.android.com/reference/android/content/Intent.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Intent</code></a> for resuming all downloads.</div>
 </td>
 </tr>
@@ -443,6 +461,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
                           <a href="../scheduler/Requirements.html" title="class in com.google.android.exoplayer2.scheduler">Requirements</a>&nbsp;requirements,
                           boolean&nbsp;foreground)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builds an <a href="https://developer.android.com/reference/android/content/Intent.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Intent</code></a> for setting the requirements that need to be met for downloads to
  progress.</div>
 </td>
@@ -455,6 +474,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
                         int&nbsp;stopReason,
                         boolean&nbsp;foreground)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builds an <a href="https://developer.android.com/reference/android/content/Intent.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Intent</code></a> for setting the stop reason for one or all downloads.</div>
 </td>
 </tr>
@@ -462,6 +482,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearDownloadManagerHelpers()">clearDownloadManagerHelpers</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Clear all download manager helpers before restarting the
  service.</div>
 </td>
@@ -470,6 +491,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <td class="colFirst"><code>protected abstract <a href="DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDownloadManager()">getDownloadManager</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="DownloadManager.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadManager</code></a> to be used to downloaded content.</div>
 </td>
 </tr>
@@ -478,6 +500,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getForegroundNotification(java.util.List,@com.google.android.exoplayer2.scheduler.Requirements.RequirementFlagsint)">getForegroundNotification</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Download.html" title="class in com.google.android.exoplayer2.offline" target="_top">Download</a>&gt;&nbsp;downloads,
                          @com.google.android.exoplayer2.scheduler.Requirements.RequirementFlags int&nbsp;notMetRequirements)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a notification to be displayed when this service running in the foreground.</div>
 </td>
 </tr>
@@ -485,6 +508,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <td class="colFirst"><code>protected abstract <a href="../scheduler/Scheduler.html" title="interface in com.google.android.exoplayer2.scheduler">Scheduler</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getScheduler()">getScheduler</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="../scheduler/Scheduler.html" title="interface in com.google.android.exoplayer2.scheduler"><code>Scheduler</code></a> to restart the service when requirements for downloads to continue
  are met.</div>
 </td>
@@ -493,6 +517,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#invalidateForegroundNotification()">invalidateForegroundNotification</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Invalidates the current foreground notification and causes <a href="#getForegroundNotification(java.util.List,@com.google.android.exoplayer2.scheduler.Requirements.RequirementFlagsint)"><code>getForegroundNotification(List, int)</code></a> to be invoked again if the service isn't stopped.</div>
 </td>
 </tr>
@@ -500,30 +525,39 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/IBinder.html" title="class or interface in android.os" class="externalLink" target="_top">IBinder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onBind(android.content.Intent)">onBind</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Intent.html" title="class or interface in android.content" class="externalLink" target="_top">Intent</a>&nbsp;intent)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Throws <a href="https://developer.android.com/reference/java/lang/UnsupportedOperationException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>UnsupportedOperationException</code></a> because this service is not designed to be bound.</div>
 </td>
 </tr>
 <tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onCreate()">onCreate</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDestroy()">onDestroy</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i16" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onStartCommand(android.content.Intent,int,int)">onStartCommand</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Intent.html" title="class or interface in android.content" class="externalLink" target="_top">Intent</a>&nbsp;intent,
               int&nbsp;flags,
               int&nbsp;startId)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i17" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTaskRemoved(android.content.Intent)">onTaskRemoved</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Intent.html" title="class or interface in android.content" class="externalLink" target="_top">Intent</a>&nbsp;rootIntent)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i18" class="altColor">
 <td class="colFirst"><code>static void</code></td>
@@ -532,6 +566,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
                <a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a>&nbsp;downloadRequest,
                boolean&nbsp;foreground)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts the service if not started already and adds a new download.</div>
 </td>
 </tr>
@@ -543,6 +578,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
                int&nbsp;stopReason,
                boolean&nbsp;foreground)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts the service if not started already and adds a new download.</div>
 </td>
 </tr>
@@ -552,6 +588,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
                   <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="DownloadService.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadService</a>&gt;&nbsp;clazz,
                   boolean&nbsp;foreground)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts the service if not started already and pauses all downloads.</div>
 </td>
 </tr>
@@ -561,6 +598,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
                       <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="DownloadService.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadService</a>&gt;&nbsp;clazz,
                       boolean&nbsp;foreground)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts the service if not started already and removes all downloads.</div>
 </td>
 </tr>
@@ -571,6 +609,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
                   <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
                   boolean&nbsp;foreground)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts the service if not started already and removes a download.</div>
 </td>
 </tr>
@@ -580,6 +619,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
                    <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="DownloadService.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadService</a>&gt;&nbsp;clazz,
                    boolean&nbsp;foreground)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts the service if not started already and resumes all downloads.</div>
 </td>
 </tr>
@@ -590,6 +630,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
                    <a href="../scheduler/Requirements.html" title="class in com.google.android.exoplayer2.scheduler">Requirements</a>&nbsp;requirements,
                    boolean&nbsp;foreground)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts the service if not started already and sets the requirements that need to be met for
  downloads to progress.</div>
 </td>
@@ -602,6 +643,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
                  int&nbsp;stopReason,
                  boolean&nbsp;foreground)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts the service if not started already and sets the stop reason for one or all downloads.</div>
 </td>
 </tr>
@@ -610,6 +652,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#start(android.content.Context,java.lang.Class)">start</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
      <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="DownloadService.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadService</a>&gt;&nbsp;clazz)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts a download service to resume any ongoing downloads.</div>
 </td>
 </tr>
@@ -618,6 +661,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#startForeground(android.content.Context,java.lang.Class)">startForeground</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="DownloadService.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadService</a>&gt;&nbsp;clazz)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts the service in the foreground without adding a new download request.</div>
 </td>
 </tr>
@@ -673,6 +717,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <li class="blockList">
 <h4>ACTION_INIT</h4>
 <pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> ACTION_INIT</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts a download service to resume any ongoing downloads. Extras:
 
  <ul>
@@ -691,6 +736,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <li class="blockList">
 <h4>ACTION_ADD_DOWNLOAD</h4>
 <pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> ACTION_ADD_DOWNLOAD</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a new download. Extras:
 
  <ul>
@@ -712,6 +758,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <li class="blockList">
 <h4>ACTION_REMOVE_DOWNLOAD</h4>
 <pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> ACTION_REMOVE_DOWNLOAD</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Removes a download. Extras:
 
  <ul>
@@ -731,6 +778,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <li class="blockList">
 <h4>ACTION_REMOVE_ALL_DOWNLOADS</h4>
 <pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> ACTION_REMOVE_ALL_DOWNLOADS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Removes all downloads. Extras:
 
  <ul>
@@ -749,6 +797,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <li class="blockList">
 <h4>ACTION_RESUME_DOWNLOADS</h4>
 <pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> ACTION_RESUME_DOWNLOADS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Resumes all downloads except those that have a non-zero <a href="Download.html#stopReason"><code>Download.stopReason</code></a>. Extras:
 
  <ul>
@@ -767,6 +816,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <li class="blockList">
 <h4>ACTION_PAUSE_DOWNLOADS</h4>
 <pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> ACTION_PAUSE_DOWNLOADS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Pauses all downloads. Extras:
 
  <ul>
@@ -785,6 +835,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <li class="blockList">
 <h4>ACTION_SET_STOP_REASON</h4>
 <pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> ACTION_SET_STOP_REASON</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the stop reason for one or all downloads. To clear the stop reason, pass <a href="Download.html#STOP_REASON_NONE"><code>Download.STOP_REASON_NONE</code></a>. Extras:
 
  <ul>
@@ -807,6 +858,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <li class="blockList">
 <h4>ACTION_SET_REQUIREMENTS</h4>
 <pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> ACTION_SET_REQUIREMENTS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the requirements that need to be met for downloads to progress. Extras:
 
  <ul>
@@ -826,6 +878,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <li class="blockList">
 <h4>KEY_DOWNLOAD_REQUEST</h4>
 <pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> KEY_DOWNLOAD_REQUEST</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Key for the <a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadRequest</code></a> in <a href="#ACTION_ADD_DOWNLOAD"><code>ACTION_ADD_DOWNLOAD</code></a> intents.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -840,6 +893,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <li class="blockList">
 <h4>KEY_CONTENT_ID</h4>
 <pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> KEY_CONTENT_ID</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Key for the <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink"><code>String</code></a> content id in <a href="#ACTION_SET_STOP_REASON"><code>ACTION_SET_STOP_REASON</code></a> and <a href="#ACTION_REMOVE_DOWNLOAD" target="_top"><code>ACTION_REMOVE_DOWNLOAD</code></a> intents.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -854,6 +908,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <li class="blockList">
 <h4>KEY_STOP_REASON</h4>
 <pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> KEY_STOP_REASON</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Key for the integer stop reason in <a href="#ACTION_SET_STOP_REASON"><code>ACTION_SET_STOP_REASON</code></a> and <a href="#ACTION_ADD_DOWNLOAD"><code>ACTION_ADD_DOWNLOAD</code></a> intents.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -868,6 +923,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <li class="blockList">
 <h4>KEY_REQUIREMENTS</h4>
 <pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> KEY_REQUIREMENTS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Key for the <a href="../scheduler/Requirements.html" title="class in com.google.android.exoplayer2.scheduler"><code>Requirements</code></a> in <a href="#ACTION_SET_REQUIREMENTS"><code>ACTION_SET_REQUIREMENTS</code></a> intents.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -882,6 +938,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <li class="blockList">
 <h4>KEY_FOREGROUND</h4>
 <pre>public static final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> KEY_FOREGROUND</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Key for a boolean extra that can be set on any intent to indicate whether the service was
  started in the foreground. If set, the service is guaranteed to call <a href="https://developer.android.com/reference/android/app/Service.html#startForeground(int,android.app.Notification)" title="class or interface in android.app" class="externalLink" target="_top"><code>Service.startForeground(int, Notification)</code></a>.</div>
 <dl>
@@ -897,6 +954,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <li class="blockList">
 <h4>FOREGROUND_NOTIFICATION_ID_NONE</h4>
 <pre>public static final&nbsp;int FOREGROUND_NOTIFICATION_ID_NONE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Invalid foreground notification id that can be used to run the service in the background.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -911,6 +969,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <li class="blockList">
 <h4>DEFAULT_FOREGROUND_NOTIFICATION_UPDATE_INTERVAL</h4>
 <pre>public static final&nbsp;long DEFAULT_FOREGROUND_NOTIFICATION_UPDATE_INTERVAL</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default foreground notification update interval in milliseconds.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -935,6 +994,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <li class="blockList">
 <h4>DownloadService</h4>
 <pre>protected&nbsp;DownloadService&#8203;(int&nbsp;foregroundNotificationId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a DownloadService.
 
  <p>If <code>foregroundNotificationId</code> is <a href="#FOREGROUND_NOTIFICATION_ID_NONE"><code>FOREGROUND_NOTIFICATION_ID_NONE</code></a> then the
@@ -957,6 +1017,7 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
 <h4>DownloadService</h4>
 <pre>protected&nbsp;DownloadService&#8203;(int&nbsp;foregroundNotificationId,
                           long&nbsp;foregroundNotificationUpdateInterval)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a DownloadService.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -965,24 +1026,6 @@ extends <a href="https://developer.android.com/reference/android/app/Service.htm
      foreground notification, in milliseconds. Ignored if <code>foregroundNotificationId</code> is
      <a href="#FOREGROUND_NOTIFICATION_ID_NONE"><code>FOREGROUND_NOTIFICATION_ID_NONE</code></a>.</dd>
 </dl>
-</li>
-</ul>
-<a id="&lt;init&gt;(int,long,java.lang.String,int)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>DownloadService</h4>
-<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
-protected&nbsp;DownloadService&#8203;(int&nbsp;foregroundNotificationId,
-                          long&nbsp;foregroundNotificationUpdateInterval,
-                          @Nullable
-                          <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;channelId,
-                          @StringRes
-                          int&nbsp;channelNameResourceId)</pre>
-<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
-<div class="deprecationComment">Use <a href="#%3Cinit%3E(int,long,java.lang.String,int,int)"><code>DownloadService(int, long, String, int, int)</code></a>.</div>
-</div>
 </li>
 </ul>
 <a id="&lt;init&gt;(int,long,java.lang.String,int,int)">
@@ -999,6 +1042,7 @@ protected&nbsp;DownloadService&#8203;(int&nbsp;foregroundNotificationId,
                           int&nbsp;channelNameResourceId,
                           @StringRes
                           int&nbsp;channelDescriptionResourceId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a DownloadService.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1041,6 +1085,7 @@ protected&nbsp;DownloadService&#8203;(int&nbsp;foregroundNotificationId,
                                             <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="DownloadService.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadService</a>&gt;&nbsp;clazz,
                                             <a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a>&nbsp;downloadRequest,
                                             boolean&nbsp;foreground)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builds an <a href="https://developer.android.com/reference/android/content/Intent.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Intent</code></a> for adding a new download.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1064,6 +1109,7 @@ protected&nbsp;DownloadService&#8203;(int&nbsp;foregroundNotificationId,
                                             <a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a>&nbsp;downloadRequest,
                                             int&nbsp;stopReason,
                                             boolean&nbsp;foreground)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builds an <a href="https://developer.android.com/reference/android/content/Intent.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Intent</code></a> for adding a new download.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1088,6 +1134,7 @@ protected&nbsp;DownloadService&#8203;(int&nbsp;foregroundNotificationId,
                                                <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="DownloadService.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadService</a>&gt;&nbsp;clazz,
                                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
                                                boolean&nbsp;foreground)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builds an <a href="https://developer.android.com/reference/android/content/Intent.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Intent</code></a> for removing the download with the <code>id</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1109,6 +1156,7 @@ protected&nbsp;DownloadService&#8203;(int&nbsp;foregroundNotificationId,
 <pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/android/content/Intent.html" title="class or interface in android.content" class="externalLink">Intent</a>&nbsp;buildRemoveAllDownloadsIntent&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html?is-external=true" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                                                    <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="DownloadService.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadService</a>&gt;&nbsp;clazz,
                                                    boolean&nbsp;foreground)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builds an <a href="https://developer.android.com/reference/android/content/Intent.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Intent</code></a> for removing all downloads.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1129,6 +1177,7 @@ protected&nbsp;DownloadService&#8203;(int&nbsp;foregroundNotificationId,
 <pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/android/content/Intent.html" title="class or interface in android.content" class="externalLink">Intent</a>&nbsp;buildResumeDownloadsIntent&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html?is-external=true" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                                                 <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="DownloadService.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadService</a>&gt;&nbsp;clazz,
                                                 boolean&nbsp;foreground)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builds an <a href="https://developer.android.com/reference/android/content/Intent.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Intent</code></a> for resuming all downloads.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1149,6 +1198,7 @@ protected&nbsp;DownloadService&#8203;(int&nbsp;foregroundNotificationId,
 <pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/android/content/Intent.html" title="class or interface in android.content" class="externalLink">Intent</a>&nbsp;buildPauseDownloadsIntent&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html?is-external=true" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                                                <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="DownloadService.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadService</a>&gt;&nbsp;clazz,
                                                boolean&nbsp;foreground)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builds an <a href="https://developer.android.com/reference/android/content/Intent.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Intent</code></a> to pause all downloads.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1172,6 +1222,7 @@ protected&nbsp;DownloadService&#8203;(int&nbsp;foregroundNotificationId,
                                               <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
                                               int&nbsp;stopReason,
                                               boolean&nbsp;foreground)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builds an <a href="https://developer.android.com/reference/android/content/Intent.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Intent</code></a> for setting the stop reason for one or all downloads. To clear the
  stop reason, pass <a href="Download.html#STOP_REASON_NONE"><code>Download.STOP_REASON_NONE</code></a>.</div>
 <dl>
@@ -1196,6 +1247,7 @@ protected&nbsp;DownloadService&#8203;(int&nbsp;foregroundNotificationId,
                                                 <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="DownloadService.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadService</a>&gt;&nbsp;clazz,
                                                 <a href="../scheduler/Requirements.html" title="class in com.google.android.exoplayer2.scheduler">Requirements</a>&nbsp;requirements,
                                                 boolean&nbsp;foreground)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builds an <a href="https://developer.android.com/reference/android/content/Intent.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Intent</code></a> for setting the requirements that need to be met for downloads to
  progress.</div>
 <dl>
@@ -1219,6 +1271,7 @@ protected&nbsp;DownloadService&#8203;(int&nbsp;foregroundNotificationId,
                                    <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="DownloadService.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadService</a>&gt;&nbsp;clazz,
                                    <a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a>&nbsp;downloadRequest,
                                    boolean&nbsp;foreground)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts the service if not started already and adds a new download.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1240,6 +1293,7 @@ protected&nbsp;DownloadService&#8203;(int&nbsp;foregroundNotificationId,
                                    <a href="DownloadRequest.html" title="class in com.google.android.exoplayer2.offline">DownloadRequest</a>&nbsp;downloadRequest,
                                    int&nbsp;stopReason,
                                    boolean&nbsp;foreground)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts the service if not started already and adds a new download.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1262,6 +1316,7 @@ protected&nbsp;DownloadService&#8203;(int&nbsp;foregroundNotificationId,
                                       <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="DownloadService.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadService</a>&gt;&nbsp;clazz,
                                       <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
                                       boolean&nbsp;foreground)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts the service if not started already and removes a download.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1281,6 +1336,7 @@ protected&nbsp;DownloadService&#8203;(int&nbsp;foregroundNotificationId,
 <pre class="methodSignature">public static&nbsp;void&nbsp;sendRemoveAllDownloads&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                                           <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="DownloadService.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadService</a>&gt;&nbsp;clazz,
                                           boolean&nbsp;foreground)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts the service if not started already and removes all downloads.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1299,6 +1355,7 @@ protected&nbsp;DownloadService&#8203;(int&nbsp;foregroundNotificationId,
 <pre class="methodSignature">public static&nbsp;void&nbsp;sendResumeDownloads&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                                        <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="DownloadService.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadService</a>&gt;&nbsp;clazz,
                                        boolean&nbsp;foreground)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts the service if not started already and resumes all downloads.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1317,6 +1374,7 @@ protected&nbsp;DownloadService&#8203;(int&nbsp;foregroundNotificationId,
 <pre class="methodSignature">public static&nbsp;void&nbsp;sendPauseDownloads&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                                       <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="DownloadService.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadService</a>&gt;&nbsp;clazz,
                                       boolean&nbsp;foreground)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts the service if not started already and pauses all downloads.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1338,6 +1396,7 @@ protected&nbsp;DownloadService&#8203;(int&nbsp;foregroundNotificationId,
                                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;id,
                                      int&nbsp;stopReason,
                                      boolean&nbsp;foreground)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts the service if not started already and sets the stop reason for one or all downloads. To
  clear stop reason, pass <a href="Download.html#STOP_REASON_NONE"><code>Download.STOP_REASON_NONE</code></a>.</div>
 <dl>
@@ -1360,6 +1419,7 @@ protected&nbsp;DownloadService&#8203;(int&nbsp;foregroundNotificationId,
                                        <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="DownloadService.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadService</a>&gt;&nbsp;clazz,
                                        <a href="../scheduler/Requirements.html" title="class in com.google.android.exoplayer2.scheduler">Requirements</a>&nbsp;requirements,
                                        boolean&nbsp;foreground)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts the service if not started already and sets the requirements that need to be met for
  downloads to progress.</div>
 <dl>
@@ -1379,6 +1439,7 @@ protected&nbsp;DownloadService&#8203;(int&nbsp;foregroundNotificationId,
 <h4>start</h4>
 <pre class="methodSignature">public static&nbsp;void&nbsp;start&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                          <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="DownloadService.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadService</a>&gt;&nbsp;clazz)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts a download service to resume any ongoing downloads.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1397,6 +1458,7 @@ protected&nbsp;DownloadService&#8203;(int&nbsp;foregroundNotificationId,
 <h4>startForeground</h4>
 <pre class="methodSignature">public static&nbsp;void&nbsp;startForeground&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                                    <a href="https://developer.android.com/reference/java/lang/Class.html" title="class or interface in java.lang" class="externalLink">Class</a>&lt;? extends <a href="DownloadService.html" title="class in com.google.android.exoplayer2.offline" target="_top">DownloadService</a>&gt;&nbsp;clazz)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts the service in the foreground without adding a new download request. If there are any
  not finished downloads and the requirements are met, the service resumes downloading. Otherwise
  it stops immediately.</div>
@@ -1416,6 +1478,7 @@ protected&nbsp;DownloadService&#8203;(int&nbsp;foregroundNotificationId,
 <li class="blockList">
 <h4>clearDownloadManagerHelpers</h4>
 <pre class="methodSignature">public static&nbsp;void&nbsp;clearDownloadManagerHelpers()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Clear all download manager helpers before restarting the
  service.
 
@@ -1430,6 +1493,7 @@ protected&nbsp;DownloadService&#8203;(int&nbsp;foregroundNotificationId,
 <li class="blockList">
 <h4>onCreate</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onCreate()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/app/Service.html#onCreate()" title="class or interface in android.app" class="externalLink">onCreate</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/app/Service.html?is-external=true" title="class or interface in android.app" class="externalLink" target="_top">Service</a></code></dd>
@@ -1446,6 +1510,7 @@ protected&nbsp;DownloadService&#8203;(int&nbsp;foregroundNotificationId,
                           <a href="https://developer.android.com/reference/android/content/Intent.html" title="class or interface in android.content" class="externalLink" target="_top">Intent</a>&nbsp;intent,
                           int&nbsp;flags,
                           int&nbsp;startId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/app/Service.html#onStartCommand(android.content.Intent,int,int)" title="class or interface in android.app" class="externalLink">onStartCommand</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/app/Service.html?is-external=true" title="class or interface in android.app" class="externalLink" target="_top">Service</a></code></dd>
@@ -1459,6 +1524,7 @@ protected&nbsp;DownloadService&#8203;(int&nbsp;foregroundNotificationId,
 <li class="blockList">
 <h4>onTaskRemoved</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onTaskRemoved&#8203;(<a href="https://developer.android.com/reference/android/content/Intent.html" title="class or interface in android.content" class="externalLink" target="_top">Intent</a>&nbsp;rootIntent)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/app/Service.html#onTaskRemoved(android.content.Intent)" title="class or interface in android.app" class="externalLink">onTaskRemoved</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/app/Service.html?is-external=true" title="class or interface in android.app" class="externalLink" target="_top">Service</a></code></dd>
@@ -1472,6 +1538,7 @@ protected&nbsp;DownloadService&#8203;(int&nbsp;foregroundNotificationId,
 <li class="blockList">
 <h4>onDestroy</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onDestroy()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/app/Service.html#onDestroy()" title="class or interface in android.app" class="externalLink">onDestroy</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/android/app/Service.html?is-external=true" title="class or interface in android.app" class="externalLink" target="_top">Service</a></code></dd>
@@ -1486,6 +1553,7 @@ protected&nbsp;DownloadService&#8203;(int&nbsp;foregroundNotificationId,
 <h4>onBind</h4>
 <pre class="methodSignature">@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/android/os/IBinder.html" title="class or interface in android.os" class="externalLink">IBinder</a>&nbsp;onBind&#8203;(<a href="https://developer.android.com/reference/android/content/Intent.html?is-external=true" title="class or interface in android.content" class="externalLink" target="_top">Intent</a>&nbsp;intent)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Throws <a href="https://developer.android.com/reference/java/lang/UnsupportedOperationException.html" title="class or interface in java.lang" class="externalLink" target="_top"><code>UnsupportedOperationException</code></a> because this service is not designed to be bound.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
@@ -1500,6 +1568,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/os/IB
 <li class="blockList">
 <h4>getDownloadManager</h4>
 <pre class="methodSignature">protected abstract&nbsp;<a href="DownloadManager.html" title="class in com.google.android.exoplayer2.offline">DownloadManager</a>&nbsp;getDownloadManager()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="DownloadManager.html" title="class in com.google.android.exoplayer2.offline"><code>DownloadManager</code></a> to be used to downloaded content. For each concrete download
  service subclass, this is called once in the lifecycle of the process when <a href="#onCreate()"><code>onCreate()</code></a> is
  called on the first instance of the service. If the service is destroyed and a new instance is
@@ -1515,6 +1584,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/os/IB
 <h4>getScheduler</h4>
 <pre class="methodSignature">@Nullable
 protected abstract&nbsp;<a href="../scheduler/Scheduler.html" title="interface in com.google.android.exoplayer2.scheduler">Scheduler</a>&nbsp;getScheduler()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="../scheduler/Scheduler.html" title="interface in com.google.android.exoplayer2.scheduler"><code>Scheduler</code></a> to restart the service when requirements for downloads to continue
  are met.
 
@@ -1552,6 +1622,7 @@ protected abstract&nbsp;<a href="../scheduler/Scheduler.html" title="interface i
 <pre class="methodSignature">protected abstract&nbsp;<a href="https://developer.android.com/reference/android/app/Notification.html" title="class or interface in android.app" class="externalLink">Notification</a>&nbsp;getForegroundNotification&#8203;(<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Download.html" title="class in com.google.android.exoplayer2.offline" target="_top">Download</a>&gt;&nbsp;downloads,
                                                           <a href="../scheduler/Requirements.RequirementFlags.html" title="annotation in com.google.android.exoplayer2.scheduler">@RequirementFlags</a>
                                                           @com.google.android.exoplayer2.scheduler.Requirements.RequirementFlags int&nbsp;notMetRequirements)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a notification to be displayed when this service running in the foreground.
 
  <p>Download services that do not wish to run in the foreground should be created by setting the
@@ -1573,6 +1644,7 @@ protected abstract&nbsp;<a href="../scheduler/Scheduler.html" title="interface i
 <li class="blockList">
 <h4>invalidateForegroundNotification</h4>
 <pre class="methodSignature">protected final&nbsp;void&nbsp;invalidateForegroundNotification()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Invalidates the current foreground notification and causes <a href="#getForegroundNotification(java.util.List,@com.google.android.exoplayer2.scheduler.Requirements.RequirementFlagsint)"><code>getForegroundNotification(List, int)</code></a> to be invoked again if the service isn't stopped.</div>
 </li>
 </ul>

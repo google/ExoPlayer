@@ -32,7 +32,15 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
-/** Holds a {@link MediaPeriod} with information required to play it as part of a timeline. */
+/**
+ * Holds a {@link MediaPeriod} with information required to play it as part of a timeline.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ final class MediaPeriodHolder {
 
   private static final String TAG = "MediaPeriodHolder";

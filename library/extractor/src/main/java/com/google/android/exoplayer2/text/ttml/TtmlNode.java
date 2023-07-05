@@ -32,7 +32,15 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/** A package internal representation of TTML node. */
+/**
+ * A package internal representation of TTML node.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ final class TtmlNode {
 
   public static final String TAG_TT = "tt";

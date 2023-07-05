@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":42,"i1":10};
+var data = {"i0":42,"i1":42};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -148,9 +148,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="https://developer.android.com/reference/android/graphics/drawable/Drawable.Callback.html" title="class or interface in android.graphics.drawable" class="externalLink">Drawable.Callback</a></code>, <code><a href="https://developer.android.com/reference/android/view/accessibility/AccessibilityEventSource.html?is-external=true" title="class or interface in android.view.accessibility" class="externalLink">AccessibilityEventSource</a></code>, <code><a href="https://developer.android.com/reference/android/view/KeyEvent.Callback.html?is-external=true" title="class or interface in android.view" class="externalLink">KeyEvent.Callback</a></code>, <code><a href="https://developer.android.com/reference/android/view/SurfaceHolder.Callback.html?is-external=true" title="class or interface in android.view" class="externalLink">SurfaceHolder.Callback</a></code>, <code><a href="https://developer.android.com/reference/android/view/SurfaceHolder.Callback2.html?is-external=true" title="class or interface in android.view" class="externalLink">SurfaceHolder.Callback2</a></code>, <code><a href="VideoDecoderOutputBufferRenderer.html" title="interface in com.google.android.exoplayer2.video" target="_top">VideoDecoderOutputBufferRenderer</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">VideoDecoderGLSurfaceView</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">VideoDecoderGLSurfaceView</span>
 extends <a href="https://developer.android.com/reference/android/opengl/GLSurfaceView.html" title="class or interface in android.opengl" class="externalLink" target="_top">GLSurfaceView</a>
 implements <a href="VideoDecoderOutputBufferRenderer.html" title="interface in com.google.android.exoplayer2.video">VideoDecoderOutputBufferRenderer</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">GLSurfaceView implementing <a href="VideoDecoderOutputBufferRenderer.html" title="interface in com.google.android.exoplayer2.video"><code>VideoDecoderOutputBufferRenderer</code></a> for rendering <a href="../decoder/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder"><code>VideoDecoderOutputBuffers</code></a>.
 
  <p>This view is intended for use only with decoders that produce <a href="../decoder/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder"><code>VideoDecoderOutputBuffers</code></a>. For other use cases a <a href="https://developer.android.com/reference/android/view/SurfaceView.html" title="class or interface in android.view" class="externalLink"><code>SurfaceView</code></a> or <a href="https://developer.android.com/reference/android/view/TextureView.html?is-external=true" title="class or interface in android.view" class="externalLink" target="_top"><code>TextureView</code></a> should be used instead.</div>
@@ -223,12 +229,16 @@ implements <a href="VideoDecoderOutputBufferRenderer.html" title="interface in c
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context)">VideoDecoderGLSurfaceView</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.content.Context,android.util.AttributeSet)">VideoDecoderGLSurfaceView</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                          <a href="https://developer.android.com/reference/android/util/AttributeSet.html" title="class or interface in android.util" class="externalLink" target="_top">AttributeSet</a>&nbsp;attrs)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -261,6 +271,7 @@ implements <a href="VideoDecoderOutputBufferRenderer.html" title="interface in c
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setOutputBuffer(com.google.android.exoplayer2.decoder.VideoDecoderOutputBuffer)">setOutputBuffer</a></span>&#8203;(<a href="../decoder/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">VideoDecoderOutputBuffer</a>&nbsp;outputBuffer)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets the output buffer to be rendered.</div>
 </td>
 </tr>
@@ -316,6 +327,7 @@ implements <a href="VideoDecoderOutputBufferRenderer.html" title="interface in c
 <li class="blockList">
 <h4>VideoDecoderGLSurfaceView</h4>
 <pre>public&nbsp;VideoDecoderGLSurfaceView&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - A <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a>.</dd>
@@ -331,6 +343,7 @@ implements <a href="VideoDecoderOutputBufferRenderer.html" title="interface in c
 <pre>public&nbsp;VideoDecoderGLSurfaceView&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
                                  @Nullable
                                  <a href="https://developer.android.com/reference/android/util/AttributeSet.html" title="class or interface in android.util" class="externalLink" target="_top">AttributeSet</a>&nbsp;attrs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - A <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a>.</dd>
@@ -355,6 +368,7 @@ implements <a href="VideoDecoderOutputBufferRenderer.html" title="interface in c
 <li class="blockList">
 <h4>setOutputBuffer</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setOutputBuffer&#8203;(<a href="../decoder/VideoDecoderOutputBuffer.html" title="class in com.google.android.exoplayer2.decoder">VideoDecoderOutputBuffer</a>&nbsp;outputBuffer)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="VideoDecoderOutputBufferRenderer.html#setOutputBuffer(com.google.android.exoplayer2.decoder.VideoDecoderOutputBuffer)">VideoDecoderOutputBufferRenderer</a></code></span></div>
 <div class="block">Sets the output buffer to be rendered. The renderer is responsible for releasing the buffer.</div>
 <dl>

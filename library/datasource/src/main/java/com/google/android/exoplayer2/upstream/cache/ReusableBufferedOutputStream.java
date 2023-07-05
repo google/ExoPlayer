@@ -24,7 +24,13 @@ import java.io.OutputStream;
 /**
  * This is a subclass of {@link BufferedOutputStream} with a {@link #reset(OutputStream)} method
  * that allows an instance to be re-used with another underlying output stream.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 /* package */ final class ReusableBufferedOutputStream extends BufferedOutputStream {
 
   private boolean closed;

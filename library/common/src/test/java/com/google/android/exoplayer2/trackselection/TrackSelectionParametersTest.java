@@ -185,9 +185,9 @@ public final class TrackSelectionParametersTest {
     TrackSelectionParameters parameters =
         new TrackSelectionParameters.Builder(getApplicationContext())
             .setViewportSize(
-                /*viewportWidth=*/ 1,
-                /*viewportHeight=*/ 2,
-                /*viewportOrientationMayChange=*/ false)
+                /* viewportWidth= */ 1,
+                /* viewportHeight= */ 2,
+                /* viewportOrientationMayChange= */ false)
             .clearViewportSizeConstraints()
             .build();
 

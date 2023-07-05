@@ -80,7 +80,13 @@ import java.util.List;
  * <p>Listeners can choose to implement individual events (e.g. {@link
  * #onIsPlayingChanged(EventTime, boolean)}) or {@link #onEvents(Player, Events)}, which is called
  * after one or more events occurred together.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public interface AnalyticsListener {
 
   /** A set of {@link EventFlags}. */
@@ -603,13 +609,6 @@ public interface AnalyticsListener {
   default void onSeekStarted(EventTime eventTime) {}
 
   /**
-   * @deprecated Seeks are processed without delay. Use {@link #onPositionDiscontinuity(EventTime,
-   *     int)} with reason {@link Player#DISCONTINUITY_REASON_SEEK} instead.
-   */
-  @Deprecated
-  default void onSeekProcessed(EventTime eventTime) {}
-
-  /**
    * Called when the playback parameters changed.
    *
    * @param eventTime The event time.
@@ -853,35 +852,6 @@ public interface AnalyticsListener {
    * @param cueGroup The {@link CueGroup}.
    */
   default void onCues(EventTime eventTime, CueGroup cueGroup) {}
-
-  /**
-   * @deprecated Use {@link #onAudioEnabled} and {@link #onVideoEnabled} instead.
-   */
-  @Deprecated
-  default void onDecoderEnabled(
-      EventTime eventTime, int trackType, DecoderCounters decoderCounters) {}
-
-  /**
-   * @deprecated Use {@link #onAudioDecoderInitialized} and {@link #onVideoDecoderInitialized}
-   *     instead.
-   */
-  @Deprecated
-  default void onDecoderInitialized(
-      EventTime eventTime, int trackType, String decoderName, long initializationDurationMs) {}
-
-  /**
-   * @deprecated Use {@link #onAudioInputFormatChanged(EventTime, Format, DecoderReuseEvaluation)}
-   *     and {@link #onVideoInputFormatChanged(EventTime, Format, DecoderReuseEvaluation)}. instead.
-   */
-  @Deprecated
-  default void onDecoderInputFormatChanged(EventTime eventTime, int trackType, Format format) {}
-
-  /**
-   * @deprecated Use {@link #onAudioDisabled} and {@link #onVideoDisabled} instead.
-   */
-  @Deprecated
-  default void onDecoderDisabled(
-      EventTime eventTime, int trackType, DecoderCounters decoderCounters) {}
 
   /**
    * Called when an audio renderer is enabled.

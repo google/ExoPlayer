@@ -26,7 +26,15 @@ import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaPeriodId;
 import com.google.android.exoplayer2.util.Util;
 
-/** A static utility class with methods to work with server-side inserted ads. */
+/**
+ * A static utility class with methods to work with server-side inserted ads.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class ServerSideAdInsertionUtil {
 
   private ServerSideAdInsertionUtil() {}

@@ -33,7 +33,13 @@ import java.util.zip.Inflater;
  * Spherical Video V2 RFC</a>.
  *
  * <p>The decoder does not perform CRC checks at the moment.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 /* package */ final class ProjectionDecoder {
 
   private static final int TYPE_YTMP = 0x79746d70;

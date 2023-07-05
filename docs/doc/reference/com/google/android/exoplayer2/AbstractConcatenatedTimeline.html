@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":9,"i4":9,"i5":6,"i6":9,"i7":6,"i8":10,"i9":6,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":6,"i17":10,"i18":10};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":38,"i1":38,"i2":38,"i3":41,"i4":41,"i5":38,"i6":41,"i7":38,"i8":42,"i9":38,"i10":42,"i11":42,"i12":42,"i13":42,"i14":42,"i15":42,"i16":38,"i17":42,"i18":42};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -138,8 +138,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></code></dd>
 </dl>
 <hr>
-<pre>public abstract class <span class="typeNameLabel">AbstractConcatenatedTimeline</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public abstract class <span class="typeNameLabel">AbstractConcatenatedTimeline</span>
 extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Abstract base class for the concatenation of one or more <a href="Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a>s.</div>
 </li>
 </ul>
@@ -205,6 +211,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(boolean,com.google.android.exoplayer2.source.ShuffleOrder)">AbstractConcatenatedTimeline</a></span>&#8203;(boolean&nbsp;isAtomic,
                             <a href="source/ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source">ShuffleOrder</a>&nbsp;shuffleOrder)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets up a concatenated timeline with a shuffle order of child timelines.</div>
 </td>
 </tr>
@@ -220,7 +227,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -230,6 +237,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <td class="colFirst"><code>protected abstract int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getChildIndexByChildUid(java.lang.Object)">getChildIndexByChildUid</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;childUid)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the index of the child timeline with the given UID or <a href="C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if not
  found.</div>
 </td>
@@ -238,6 +246,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <td class="colFirst"><code>protected abstract int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getChildIndexByPeriodIndex(int)">getChildIndexByPeriodIndex</a></span>&#8203;(int&nbsp;periodIndex)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the index of the child timeline containing the given period index.</div>
 </td>
 </tr>
@@ -245,6 +254,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <td class="colFirst"><code>protected abstract int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getChildIndexByWindowIndex(int)">getChildIndexByWindowIndex</a></span>&#8203;(int&nbsp;windowIndex)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the index of the child timeline containing the given window index.</div>
 </td>
 </tr>
@@ -252,6 +262,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getChildPeriodUidFromConcatenatedUid(java.lang.Object)">getChildPeriodUidFromConcatenatedUid</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;concatenatedUid)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns UID of the period in the child timeline from a concatenated period UID.</div>
 </td>
 </tr>
@@ -259,6 +270,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getChildTimelineUidFromConcatenatedUid(java.lang.Object)">getChildTimelineUidFromConcatenatedUid</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;concatenatedUid)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns UID of child timeline from a concatenated period UID.</div>
 </td>
 </tr>
@@ -266,6 +278,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <td class="colFirst"><code>protected abstract <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getChildUidByChildIndex(int)">getChildUidByChildIndex</a></span>&#8203;(int&nbsp;childIndex)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the UID of the child timeline with the given index.</div>
 </td>
 </tr>
@@ -274,6 +287,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getConcatenatedUid(java.lang.Object,java.lang.Object)">getConcatenatedUid</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;childTimelineUid,
                   <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;childPeriodOrWindowUid)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a concatenated UID for a period or window in a child timeline.</div>
 </td>
 </tr>
@@ -281,6 +295,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <td class="colFirst"><code>protected abstract int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFirstPeriodIndexByChildIndex(int)">getFirstPeriodIndexByChildIndex</a></span>&#8203;(int&nbsp;childIndex)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the first period index belonging to the child timeline with the given index.</div>
 </td>
 </tr>
@@ -288,6 +303,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFirstWindowIndex(boolean)">getFirstWindowIndex</a></span>&#8203;(boolean&nbsp;shuffleModeEnabled)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the index of the first window in the playback order depending on whether shuffling is
  enabled.</div>
 </td>
@@ -296,6 +312,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <td class="colFirst"><code>protected abstract int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFirstWindowIndexByChildIndex(int)">getFirstWindowIndexByChildIndex</a></span>&#8203;(int&nbsp;childIndex)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the first window index belonging to the child timeline with the given index.</div>
 </td>
 </tr>
@@ -303,6 +320,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getIndexOfPeriod(java.lang.Object)">getIndexOfPeriod</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;uid)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the index of the period identified by its unique <a href="Timeline.Period.html#uid"><code>Timeline.Period.uid</code></a>, or <a href="C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the period is not in the timeline.</div>
 </td>
 </tr>
@@ -310,6 +328,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLastWindowIndex(boolean)">getLastWindowIndex</a></span>&#8203;(boolean&nbsp;shuffleModeEnabled)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the index of the last window in the playback order depending on whether shuffling is
  enabled.</div>
 </td>
@@ -320,6 +339,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
                   @com.google.android.exoplayer2.Player.RepeatMode int&nbsp;repeatMode,
                   boolean&nbsp;shuffleModeEnabled)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the index of the window after the window at index <code>windowIndex</code> depending on the
  <code>repeatMode</code> and whether shuffling is enabled.</div>
 </td>
@@ -330,6 +350,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
          <a href="Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a>&nbsp;period,
          boolean&nbsp;setIds)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Populates a <a href="Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a> with data for the period at the specified index.</div>
 </td>
 </tr>
@@ -338,6 +359,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPeriodByUid(java.lang.Object,com.google.android.exoplayer2.Timeline.Period)">getPeriodByUid</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;periodUid,
               <a href="Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a>&nbsp;period)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Populates a <a href="Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a> with data for the period with the specified unique identifier.</div>
 </td>
 </tr>
@@ -347,6 +369,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
                       @com.google.android.exoplayer2.Player.RepeatMode int&nbsp;repeatMode,
                       boolean&nbsp;shuffleModeEnabled)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the index of the window before the window at index <code>windowIndex</code> depending on the
  <code>repeatMode</code> and whether shuffling is enabled.</div>
 </td>
@@ -355,6 +378,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <td class="colFirst"><code>protected abstract <a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTimelineByChildIndex(int)">getTimelineByChildIndex</a></span>&#8203;(int&nbsp;childIndex)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the child timeline for the child with the given index.</div>
 </td>
 </tr>
@@ -362,6 +386,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getUidOfPeriod(int)">getUidOfPeriod</a></span>&#8203;(int&nbsp;periodIndex)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the unique id of the period identified by its index in the timeline.</div>
 </td>
 </tr>
@@ -371,6 +396,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
          <a href="Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;window,
          long&nbsp;defaultPositionProjectionUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Populates a <a href="Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> with data for the window at the specified index.</div>
 </td>
 </tr>
@@ -413,6 +439,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <h4>AbstractConcatenatedTimeline</h4>
 <pre>public&nbsp;AbstractConcatenatedTimeline&#8203;(boolean&nbsp;isAtomic,
                                     <a href="source/ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source">ShuffleOrder</a>&nbsp;shuffleOrder)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets up a concatenated timeline with a shuffle order of child timelines.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -440,6 +467,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <li class="blockList">
 <h4>getChildTimelineUidFromConcatenatedUid</h4>
 <pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink">Object</a>&nbsp;getChildTimelineUidFromConcatenatedUid&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;concatenatedUid)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns UID of child timeline from a concatenated period UID.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -456,6 +484,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <li class="blockList">
 <h4>getChildPeriodUidFromConcatenatedUid</h4>
 <pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink">Object</a>&nbsp;getChildPeriodUidFromConcatenatedUid&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;concatenatedUid)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns UID of the period in the child timeline from a concatenated period UID.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -473,6 +502,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <h4>getConcatenatedUid</h4>
 <pre class="methodSignature">public static&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink">Object</a>&nbsp;getConcatenatedUid&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;childTimelineUid,
                                         <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;childPeriodOrWindowUid)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a concatenated UID for a period or window in a child timeline.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -493,6 +523,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
                               <a href="Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@RepeatMode</a>
                               @com.google.android.exoplayer2.Player.RepeatMode int&nbsp;repeatMode,
                               boolean&nbsp;shuffleModeEnabled)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="Timeline.html#getNextWindowIndex(int,@com.google.android.exoplayer2.Player.RepeatModeint,boolean)">Timeline</a></code></span></div>
 <div class="block">Returns the index of the window after the window at index <code>windowIndex</code> depending on the
  <code>repeatMode</code> and whether shuffling is enabled.</div>
@@ -518,6 +549,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
                                   <a href="Player.RepeatMode.html" title="annotation in com.google.android.exoplayer2">@RepeatMode</a>
                                   @com.google.android.exoplayer2.Player.RepeatMode int&nbsp;repeatMode,
                                   boolean&nbsp;shuffleModeEnabled)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="Timeline.html#getPreviousWindowIndex(int,@com.google.android.exoplayer2.Player.RepeatModeint,boolean)">Timeline</a></code></span></div>
 <div class="block">Returns the index of the window before the window at index <code>windowIndex</code> depending on the
  <code>repeatMode</code> and whether shuffling is enabled.</div>
@@ -540,6 +572,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <li class="blockList">
 <h4>getLastWindowIndex</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getLastWindowIndex&#8203;(boolean&nbsp;shuffleModeEnabled)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="Timeline.html#getLastWindowIndex(boolean)">Timeline</a></code></span></div>
 <div class="block">Returns the index of the last window in the playback order depending on whether shuffling is
  enabled.</div>
@@ -561,6 +594,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <li class="blockList">
 <h4>getFirstWindowIndex</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getFirstWindowIndex&#8203;(boolean&nbsp;shuffleModeEnabled)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="Timeline.html#getFirstWindowIndex(boolean)">Timeline</a></code></span></div>
 <div class="block">Returns the index of the first window in the playback order depending on whether shuffling is
  enabled.</div>
@@ -584,6 +618,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <pre class="methodSignature">public final&nbsp;<a href="Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;getWindow&#8203;(int&nbsp;windowIndex,
                                        <a href="Timeline.Window.html" title="class in com.google.android.exoplayer2">Timeline.Window</a>&nbsp;window,
                                        long&nbsp;defaultPositionProjectionUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="Timeline.html#getWindow(int,com.google.android.exoplayer2.Timeline.Window,long)">Timeline</a></code></span></div>
 <div class="block">Populates a <a href="Timeline.Window.html" title="class in com.google.android.exoplayer2"><code>Timeline.Window</code></a> with data for the window at the specified index.</div>
 <dl>
@@ -607,6 +642,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <h4>getPeriodByUid</h4>
 <pre class="methodSignature">public final&nbsp;<a href="Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a>&nbsp;getPeriodByUid&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;periodUid,
                                             <a href="Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a>&nbsp;period)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="Timeline.html#getPeriodByUid(java.lang.Object,com.google.android.exoplayer2.Timeline.Period)">Timeline</a></code></span></div>
 <div class="block">Populates a <a href="Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a> with data for the period with the specified unique identifier.</div>
 <dl>
@@ -629,6 +665,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <pre class="methodSignature">public final&nbsp;<a href="Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a>&nbsp;getPeriod&#8203;(int&nbsp;periodIndex,
                                        <a href="Timeline.Period.html" title="class in com.google.android.exoplayer2">Timeline.Period</a>&nbsp;period,
                                        boolean&nbsp;setIds)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="Timeline.html#getPeriod(int,com.google.android.exoplayer2.Timeline.Period,boolean)">Timeline</a></code></span></div>
 <div class="block">Populates a <a href="Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a> with data for the period at the specified index.</div>
 <dl>
@@ -652,6 +689,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <li class="blockList">
 <h4>getIndexOfPeriod</h4>
 <pre class="methodSignature">public final&nbsp;int&nbsp;getIndexOfPeriod&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;uid)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="Timeline.html#getIndexOfPeriod(java.lang.Object)">Timeline</a></code></span></div>
 <div class="block">Returns the index of the period identified by its unique <a href="Timeline.Period.html#uid"><code>Timeline.Period.uid</code></a>, or <a href="C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the period is not in the timeline.</div>
 <dl>
@@ -671,6 +709,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <li class="blockList">
 <h4>getUidOfPeriod</h4>
 <pre class="methodSignature">public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;getUidOfPeriod&#8203;(int&nbsp;periodIndex)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="Timeline.html#getUidOfPeriod(int)">Timeline</a></code></span></div>
 <div class="block">Returns the unique id of the period identified by its index in the timeline.</div>
 <dl>
@@ -690,6 +729,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <li class="blockList">
 <h4>getChildIndexByPeriodIndex</h4>
 <pre class="methodSignature">protected abstract&nbsp;int&nbsp;getChildIndexByPeriodIndex&#8203;(int&nbsp;periodIndex)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the index of the child timeline containing the given period index.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -704,6 +744,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <li class="blockList">
 <h4>getChildIndexByWindowIndex</h4>
 <pre class="methodSignature">protected abstract&nbsp;int&nbsp;getChildIndexByWindowIndex&#8203;(int&nbsp;windowIndex)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the index of the child timeline containing the given window index.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -718,6 +759,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <li class="blockList">
 <h4>getChildIndexByChildUid</h4>
 <pre class="methodSignature">protected abstract&nbsp;int&nbsp;getChildIndexByChildUid&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;childUid)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the index of the child timeline with the given UID or <a href="C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if not
  found.</div>
 <dl>
@@ -735,6 +777,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <li class="blockList">
 <h4>getTimelineByChildIndex</h4>
 <pre class="methodSignature">protected abstract&nbsp;<a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;getTimelineByChildIndex&#8203;(int&nbsp;childIndex)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the child timeline for the child with the given index.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -749,6 +792,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <li class="blockList">
 <h4>getFirstPeriodIndexByChildIndex</h4>
 <pre class="methodSignature">protected abstract&nbsp;int&nbsp;getFirstPeriodIndexByChildIndex&#8203;(int&nbsp;childIndex)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the first period index belonging to the child timeline with the given index.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -763,6 +807,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <li class="blockList">
 <h4>getFirstWindowIndexByChildIndex</h4>
 <pre class="methodSignature">protected abstract&nbsp;int&nbsp;getFirstWindowIndexByChildIndex&#8203;(int&nbsp;childIndex)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the first window index belonging to the child timeline with the given index.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -777,6 +822,7 @@ extends <a href="Timeline.html" title="class in com.google.android.exoplayer2">T
 <li class="blockList">
 <h4>getChildUidByChildIndex</h4>
 <pre class="methodSignature">protected abstract&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;getChildUidByChildIndex&#8203;(int&nbsp;childIndex)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the UID of the child timeline with the given index.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

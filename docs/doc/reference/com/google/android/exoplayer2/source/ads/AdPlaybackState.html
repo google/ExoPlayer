@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":9,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":41,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42,"i12":42,"i13":42,"i14":42,"i15":42,"i16":42,"i17":42,"i18":42,"i19":42,"i20":42,"i21":42,"i22":42,"i23":42,"i24":42,"i25":42,"i26":42,"i27":42,"i28":42,"i29":42,"i30":42};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">AdPlaybackState</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">AdPlaybackState</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="../../Bundleable.html" title="interface in com.google.android.exoplayer2">Bundleable</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Represents ad group times and information on the state and URIs of ads within each ad group.
 
  <p>Instances are immutable. Call the <code>with*</code> methods to get new instances that have the
@@ -164,6 +170,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState.AdGroup</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Represents a group of ads, with information about their states.</div>
 </td>
 </tr>
@@ -171,6 +178,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="AdPlaybackState.AdState.html" title="annotation in com.google.android.exoplayer2.source.ads">AdPlaybackState.AdState</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Represents the state of an ad in an ad group.</div>
 </td>
 </tr>
@@ -203,6 +211,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AD_STATE_AVAILABLE">AD_STATE_AVAILABLE</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">State for an ad that has a URL but has not yet been played.</div>
 </td>
 </tr>
@@ -210,6 +219,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AD_STATE_ERROR">AD_STATE_ERROR</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">State for an ad that could not be loaded.</div>
 </td>
 </tr>
@@ -217,6 +227,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AD_STATE_PLAYED">AD_STATE_PLAYED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">State for an ad that was played in full.</div>
 </td>
 </tr>
@@ -224,6 +235,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AD_STATE_SKIPPED">AD_STATE_SKIPPED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">State for an ad that was skipped.</div>
 </td>
 </tr>
@@ -231,6 +243,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AD_STATE_UNAVAILABLE">AD_STATE_UNAVAILABLE</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">State for an ad that does not yet have a URL.</div>
 </td>
 </tr>
@@ -238,6 +251,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#adGroupCount">adGroupCount</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of ad groups.</div>
 </td>
 </tr>
@@ -245,6 +259,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#adResumePositionUs">adResumePositionUs</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The position offset in the first unplayed ad at which to begin playback, in microseconds.</div>
 </td>
 </tr>
@@ -252,6 +267,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#adsId">adsId</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The opaque identifier for ads with which this instance is associated, or <code>null</code> if unset.</div>
 </td>
 </tr>
@@ -259,6 +275,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#contentDurationUs">contentDurationUs</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The duration of the content period in microseconds, if known.</div>
 </td>
 </tr>
@@ -266,6 +283,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <td class="colFirst"><code>static <a href="../../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#CREATOR">CREATOR</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Object that can restore <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdPlaybackState</code></a> from a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.</div>
 </td>
 </tr>
@@ -273,6 +291,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <td class="colFirst"><code>static <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#NONE">NONE</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Ad playback state with no ads.</div>
 </td>
 </tr>
@@ -280,6 +299,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removedAdGroupCount">removedAdGroupCount</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of ad groups that have been removed.</div>
 </td>
 </tr>
@@ -304,6 +324,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.Object,long...)">AdPlaybackState</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;adsId,
                long...&nbsp;adGroupTimesUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new ad playback state with the specified ad group times.</div>
 </td>
 </tr>
@@ -319,7 +340,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -327,217 +348,272 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;o)</code></th>
-<td class="colLast">&nbsp;</td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#endsWithLivePostrollPlaceHolder()">endsWithLivePostrollPlaceHolder</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns whether the last ad group is a live postroll placeholder as inserted by <a href="#withLivePostrollPlaceholderAppended()"><code>withLivePostrollPlaceholderAppended()</code></a>.</div>
+</td>
 </tr>
 <tr id="i1" class="rowColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;o)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
+</tr>
+<tr id="i2" class="altColor">
 <td class="colFirst"><code>static <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fromAdPlaybackState(java.lang.Object,com.google.android.exoplayer2.source.ads.AdPlaybackState)">fromAdPlaybackState</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;adsId,
                    <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;adPlaybackState)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy of the ad playback state with the given ads ID.</div>
 </td>
 </tr>
-<tr id="i2" class="altColor">
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState.AdGroup</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdGroup(int)">getAdGroup</a></span>&#8203;(int&nbsp;adGroupIndex)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the specified <a href="AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdPlaybackState.AdGroup</code></a>.</div>
-</td>
-</tr>
-<tr id="i3" class="rowColor">
-<td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdGroupIndexAfterPositionUs(long,long)">getAdGroupIndexAfterPositionUs</a></span>&#8203;(long&nbsp;positionUs,
-                              long&nbsp;periodDurationUs)</code></th>
-<td class="colLast">
-<div class="block">Returns the index of the next ad group after <code>positionUs</code> that should be played.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdGroupIndexForPositionUs(long,long)">getAdGroupIndexForPositionUs</a></span>&#8203;(long&nbsp;positionUs,
-                            long&nbsp;periodDurationUs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdGroupIndexAfterPositionUs(long,long)">getAdGroupIndexAfterPositionUs</a></span>&#8203;(long&nbsp;positionUs,
+                              long&nbsp;periodDurationUs)</code></th>
 <td class="colLast">
-<div class="block">Returns the index of the ad group at or before <code>positionUs</code> that should be played before
- the content at <code>positionUs</code>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns the index of the next ad group after <code>positionUs</code> that should be played.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdGroupIndexForPositionUs(long,long)">getAdGroupIndexForPositionUs</a></span>&#8203;(long&nbsp;positionUs,
+                            long&nbsp;periodDurationUs)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns the index of the ad group at or before <code>positionUs</code> that should be played before
+ the content at <code>positionUs</code>.</div>
+</td>
 </tr>
 <tr id="i6" class="altColor">
+<td class="colFirst"><code>int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
+</tr>
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isAdInErrorState(int,int)">isAdInErrorState</a></span>&#8203;(int&nbsp;adGroupIndex,
                 int&nbsp;adIndexInAdGroup)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the specified ad has been marked as in <a href="#AD_STATE_ERROR"><code>AD_STATE_ERROR</code></a>.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isLivePostrollPlaceholder(int)">isLivePostrollPlaceholder</a></span>&#8203;(int&nbsp;adGroupIndex)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Whether the <a href="AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdPlaybackState.AdGroup</code></a> at the given ad group index is a live postroll placeholder.</div>
+</td>
+</tr>
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toBundle()">toBundle</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representing the information stored in this object.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withAdCount(int,int)">withAdCount</a></span>&#8203;(int&nbsp;adGroupIndex,
            int&nbsp;adCount)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an instance with the number of ads in <code>adGroupIndex</code> resolved to <code>adCount</code>.</div>
-</td>
-</tr>
-<tr id="i10" class="altColor">
-<td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withAdDurationsUs(int,long...)">withAdDurationsUs</a></span>&#8203;(int&nbsp;adGroupIndex,
-                 long...&nbsp;adDurationsUs)</code></th>
-<td class="colLast">
-<div class="block">Returns an instance with the specified ad durations, in microseconds, in the specified ad
- group.</div>
-</td>
-</tr>
-<tr id="i11" class="rowColor">
-<td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withAdDurationsUs(long%5B%5D%5B%5D)">withAdDurationsUs</a></span>&#8203;(long[][]&nbsp;adDurationUs)</code></th>
-<td class="colLast">
-<div class="block">Returns an instance with the specified ad durations, in microseconds.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withAdGroupTimeUs(int,long)">withAdGroupTimeUs</a></span>&#8203;(int&nbsp;adGroupIndex,
-                 long&nbsp;adGroupTimeUs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withAdDurationsUs(int,long...)">withAdDurationsUs</a></span>&#8203;(int&nbsp;adGroupIndex,
+                 long...&nbsp;adDurationsUs)</code></th>
 <td class="colLast">
-<div class="block">Returns an instance with the specified ad group time.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns an instance with the specified ad durations, in microseconds, in the specified ad
+ group.</div>
 </td>
 </tr>
 <tr id="i13" class="rowColor">
 <td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withAdLoadError(int,int)">withAdLoadError</a></span>&#8203;(int&nbsp;adGroupIndex,
-               int&nbsp;adIndexInAdGroup)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withAdDurationsUs(long%5B%5D%5B%5D)">withAdDurationsUs</a></span>&#8203;(long[][]&nbsp;adDurationUs)</code></th>
 <td class="colLast">
-<div class="block">Returns an instance with the specified ad marked <a href="#AD_STATE_ERROR">as having a load
- error</a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns an instance with the specified ad durations, in microseconds.</div>
 </td>
 </tr>
 <tr id="i14" class="altColor">
 <td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withAdResumePositionUs(long)">withAdResumePositionUs</a></span>&#8203;(long&nbsp;adResumePositionUs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withAdGroupTimeUs(int,long)">withAdGroupTimeUs</a></span>&#8203;(int&nbsp;adGroupIndex,
+                 long&nbsp;adGroupTimeUs)</code></th>
 <td class="colLast">
-<div class="block">Returns an instance with the specified ad resume position, in microseconds, relative to the
- start of the current ad.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns an instance with the specified ad group time.</div>
 </td>
 </tr>
 <tr id="i15" class="rowColor">
 <td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withAvailableAd(int,int)">withAvailableAd</a></span>&#8203;(int&nbsp;adGroupIndex,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withAdLoadError(int,int)">withAdLoadError</a></span>&#8203;(int&nbsp;adGroupIndex,
                int&nbsp;adIndexInAdGroup)</code></th>
 <td class="colLast">
-<div class="block">Returns an instance with the specified ad marked as <a href="#AD_STATE_AVAILABLE">available</a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns an instance with the specified ad marked <a href="#AD_STATE_ERROR">as having a load
+ error</a>.</div>
 </td>
 </tr>
 <tr id="i16" class="altColor">
+<td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withAdResumePositionUs(long)">withAdResumePositionUs</a></span>&#8203;(long&nbsp;adResumePositionUs)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns an instance with the specified ad resume position, in microseconds, relative to the
+ start of the current ad.</div>
+</td>
+</tr>
+<tr id="i17" class="rowColor">
+<td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withAvailableAd(int,int)">withAvailableAd</a></span>&#8203;(int&nbsp;adGroupIndex,
+               int&nbsp;adIndexInAdGroup)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns an instance with the specified ad marked as <a href="#AD_STATE_AVAILABLE">available</a>.</div>
+</td>
+</tr>
+<tr id="i18" class="altColor">
 <td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withAvailableAdUri(int,int,android.net.Uri)">withAvailableAdUri</a></span>&#8203;(int&nbsp;adGroupIndex,
                   int&nbsp;adIndexInAdGroup,
                   <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an instance with the specified ad URI and the ad marked as <a href="#AD_STATE_AVAILABLE">available</a>.</div>
-</td>
-</tr>
-<tr id="i17" class="rowColor">
-<td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withContentDurationUs(long)">withContentDurationUs</a></span>&#8203;(long&nbsp;contentDurationUs)</code></th>
-<td class="colLast">
-<div class="block">Returns an instance with the specified content duration, in microseconds.</div>
-</td>
-</tr>
-<tr id="i18" class="altColor">
-<td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withContentResumeOffsetUs(int,long)">withContentResumeOffsetUs</a></span>&#8203;(int&nbsp;adGroupIndex,
-                         long&nbsp;contentResumeOffsetUs)</code></th>
-<td class="colLast">
-<div class="block">Returns an instance with the specified <a href="AdPlaybackState.AdGroup.html#contentResumeOffsetUs"><code>AdPlaybackState.AdGroup.contentResumeOffsetUs</code></a>, in microseconds,
- for the specified ad group.</div>
 </td>
 </tr>
 <tr id="i19" class="rowColor">
 <td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withIsServerSideInserted(int,boolean)">withIsServerSideInserted</a></span>&#8203;(int&nbsp;adGroupIndex,
-                        boolean&nbsp;isServerSideInserted)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withContentDurationUs(long)">withContentDurationUs</a></span>&#8203;(long&nbsp;contentDurationUs)</code></th>
 <td class="colLast">
-<div class="block">Returns an instance with the specified value for <a href="AdPlaybackState.AdGroup.html#isServerSideInserted"><code>AdPlaybackState.AdGroup.isServerSideInserted</code></a> in the
- specified ad group.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns an instance with the specified content duration, in microseconds.</div>
 </td>
 </tr>
 <tr id="i20" class="altColor">
 <td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withLastAdRemoved(int)">withLastAdRemoved</a></span>&#8203;(int&nbsp;adGroupIndex)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withContentResumeOffsetUs(int,long)">withContentResumeOffsetUs</a></span>&#8203;(int&nbsp;adGroupIndex,
+                         long&nbsp;contentResumeOffsetUs)</code></th>
 <td class="colLast">
-<div class="block">Returns an instance with the last ad of the given ad group removed.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns an instance with the specified <a href="AdPlaybackState.AdGroup.html#contentResumeOffsetUs"><code>AdPlaybackState.AdGroup.contentResumeOffsetUs</code></a>, in microseconds,
+ for the specified ad group.</div>
 </td>
 </tr>
 <tr id="i21" class="rowColor">
 <td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withNewAdGroup(int,long)">withNewAdGroup</a></span>&#8203;(int&nbsp;adGroupIndex,
-              long&nbsp;adGroupTimeUs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withIsServerSideInserted(int,boolean)">withIsServerSideInserted</a></span>&#8203;(int&nbsp;adGroupIndex,
+                        boolean&nbsp;isServerSideInserted)</code></th>
 <td class="colLast">
-<div class="block">Returns an instance with a new ad group.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns an instance with the specified value for <a href="AdPlaybackState.AdGroup.html#isServerSideInserted"><code>AdPlaybackState.AdGroup.isServerSideInserted</code></a> in the
+ specified ad group.</div>
 </td>
 </tr>
 <tr id="i22" class="altColor">
 <td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withOriginalAdCount(int,int)">withOriginalAdCount</a></span>&#8203;(int&nbsp;adGroupIndex,
-                   int&nbsp;originalAdCount)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withLastAdRemoved(int)">withLastAdRemoved</a></span>&#8203;(int&nbsp;adGroupIndex)</code></th>
 <td class="colLast">
-<div class="block">Returns an instance with the specified value for <a href="AdPlaybackState.AdGroup.html#originalCount"><code>AdPlaybackState.AdGroup.originalCount</code></a> in the specified
- ad group.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns an instance with the last ad of the given ad group removed.</div>
 </td>
 </tr>
 <tr id="i23" class="rowColor">
 <td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withPlayedAd(int,int)">withPlayedAd</a></span>&#8203;(int&nbsp;adGroupIndex,
-            int&nbsp;adIndexInAdGroup)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withLivePostrollPlaceholderAppended()">withLivePostrollPlaceholderAppended</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns an instance with the specified ad marked as <a href="#AD_STATE_PLAYED">played</a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Appends a live postroll placeholder ad group to the ad playback state.</div>
 </td>
 </tr>
 <tr id="i24" class="altColor">
 <td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withRemovedAdGroupCount(int)">withRemovedAdGroupCount</a></span>&#8203;(int&nbsp;removedAdGroupCount)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withNewAdGroup(int,long)">withNewAdGroup</a></span>&#8203;(int&nbsp;adGroupIndex,
+              long&nbsp;adGroupTimeUs)</code></th>
 <td class="colLast">
-<div class="block">Returns an instance with the specified number of <a href="#removedAdGroupCount"><code>removed ad
- groups</code></a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns an instance with a new ad group.</div>
 </td>
 </tr>
 <tr id="i25" class="rowColor">
 <td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withResetAdGroup(int)">withResetAdGroup</a></span>&#8203;(int&nbsp;adGroupIndex)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withOriginalAdCount(int,int)">withOriginalAdCount</a></span>&#8203;(int&nbsp;adGroupIndex,
+                   int&nbsp;originalAdCount)</code></th>
 <td class="colLast">
-<div class="block">Returns an instance with all ads in the specified ad group reset from final states (played,
- skipped, error) to either available or unavailable, which allows to play them again.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns an instance with the specified value for <a href="AdPlaybackState.AdGroup.html#originalCount"><code>AdPlaybackState.AdGroup.originalCount</code></a> in the specified
+ ad group.</div>
 </td>
 </tr>
 <tr id="i26" class="altColor">
 <td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withSkippedAd(int,int)">withSkippedAd</a></span>&#8203;(int&nbsp;adGroupIndex,
-             int&nbsp;adIndexInAdGroup)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withPlayedAd(int,int)">withPlayedAd</a></span>&#8203;(int&nbsp;adGroupIndex,
+            int&nbsp;adIndexInAdGroup)</code></th>
 <td class="colLast">
-<div class="block">Returns an instance with the specified ad marked as <a href="#AD_STATE_SKIPPED">skipped</a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns an instance with the specified ad marked as <a href="#AD_STATE_PLAYED">played</a>.</div>
 </td>
 </tr>
 <tr id="i27" class="rowColor">
 <td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withRemovedAdGroupCount(int)">withRemovedAdGroupCount</a></span>&#8203;(int&nbsp;removedAdGroupCount)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns an instance with the specified number of <a href="#removedAdGroupCount"><code>removed ad
+ groups</code></a>.</div>
+</td>
+</tr>
+<tr id="i28" class="altColor">
+<td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withResetAdGroup(int)">withResetAdGroup</a></span>&#8203;(int&nbsp;adGroupIndex)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns an instance with all ads in the specified ad group reset from final states (played,
+ skipped, error) to either available or unavailable, which allows to play them again.</div>
+</td>
+</tr>
+<tr id="i29" class="rowColor">
+<td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withSkippedAd(int,int)">withSkippedAd</a></span>&#8203;(int&nbsp;adGroupIndex,
+             int&nbsp;adIndexInAdGroup)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns an instance with the specified ad marked as <a href="#AD_STATE_SKIPPED">skipped</a>.</div>
+</td>
+</tr>
+<tr id="i30" class="altColor">
+<td class="colFirst"><code><a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#withSkippedAdGroup(int)">withSkippedAdGroup</a></span>&#8203;(int&nbsp;adGroupIndex)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an instance with all ads in the specified ad group skipped (except for those already
  marked as played or in the error state).</div>
 </td>
@@ -573,6 +649,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <li class="blockList">
 <h4>AD_STATE_UNAVAILABLE</h4>
 <pre>public static final&nbsp;int AD_STATE_UNAVAILABLE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">State for an ad that does not yet have a URL.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -587,6 +664,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <li class="blockList">
 <h4>AD_STATE_AVAILABLE</h4>
 <pre>public static final&nbsp;int AD_STATE_AVAILABLE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">State for an ad that has a URL but has not yet been played.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -601,6 +679,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <li class="blockList">
 <h4>AD_STATE_SKIPPED</h4>
 <pre>public static final&nbsp;int AD_STATE_SKIPPED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">State for an ad that was skipped.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -615,6 +694,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <li class="blockList">
 <h4>AD_STATE_PLAYED</h4>
 <pre>public static final&nbsp;int AD_STATE_PLAYED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">State for an ad that was played in full.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -629,6 +709,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <li class="blockList">
 <h4>AD_STATE_ERROR</h4>
 <pre>public static final&nbsp;int AD_STATE_ERROR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">State for an ad that could not be loaded.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -643,6 +724,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <li class="blockList">
 <h4>NONE</h4>
 <pre>public static final&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a> NONE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Ad playback state with no ads.</div>
 </li>
 </ul>
@@ -654,6 +736,7 @@ implements <a href="../../Bundleable.html" title="interface in com.google.androi
 <h4>adsId</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a> adsId</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The opaque identifier for ads with which this instance is associated, or <code>null</code> if unset.</div>
 </li>
 </ul>
@@ -664,6 +747,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <li class="blockList">
 <h4>adGroupCount</h4>
 <pre>public final&nbsp;int adGroupCount</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of ad groups.</div>
 </li>
 </ul>
@@ -674,6 +758,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <li class="blockList">
 <h4>adResumePositionUs</h4>
 <pre>public final&nbsp;long adResumePositionUs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The position offset in the first unplayed ad at which to begin playback, in microseconds.</div>
 </li>
 </ul>
@@ -684,6 +769,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <li class="blockList">
 <h4>contentDurationUs</h4>
 <pre>public final&nbsp;long contentDurationUs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The duration of the content period in microseconds, if known. <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> otherwise.</div>
 </li>
 </ul>
@@ -694,6 +780,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <li class="blockList">
 <h4>removedAdGroupCount</h4>
 <pre>public final&nbsp;int removedAdGroupCount</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of ad groups that have been removed. Ad groups with indices between <code>0</code>
  (inclusive) and <code>removedAdGroupCount</code> (exclusive) will be empty and must not be modified
  by any of the <code>with*</code> methods.</div>
@@ -706,6 +793,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <li class="blockList">
 <h4>CREATOR</h4>
 <pre>public static final&nbsp;<a href="../../Bundleable.Creator.html" title="interface in com.google.android.exoplayer2">Bundleable.Creator</a>&lt;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&gt; CREATOR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Object that can restore <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdPlaybackState</code></a> from a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a>.
 
  <p>The <a href="#adsId"><code>adsId</code></a> of restored instances will always be <code>null</code>.</div>
@@ -729,6 +817,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <h4>AdPlaybackState</h4>
 <pre>public&nbsp;AdPlaybackState&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;adsId,
                        long...&nbsp;adGroupTimesUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new ad playback state with the specified ad group times.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -756,6 +845,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <h4>getAdGroup</h4>
 <pre class="methodSignature">public&nbsp;<a href="AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState.AdGroup</a>&nbsp;getAdGroup&#8203;(@IntRange(from=0L)
                                           int&nbsp;adGroupIndex)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the specified <a href="AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdPlaybackState.AdGroup</code></a>.</div>
 </li>
 </ul>
@@ -767,6 +857,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <h4>getAdGroupIndexForPositionUs</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getAdGroupIndexForPositionUs&#8203;(long&nbsp;positionUs,
                                         long&nbsp;periodDurationUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the index of the ad group at or before <code>positionUs</code> that should be played before
  the content at <code>positionUs</code>. Returns <a href="../../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the ad group at or before
  <code>positionUs</code> has no ads remaining to be played, or if there is no such ad group.</div>
@@ -790,6 +881,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 <h4>getAdGroupIndexAfterPositionUs</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getAdGroupIndexAfterPositionUs&#8203;(long&nbsp;positionUs,
                                           long&nbsp;periodDurationUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the index of the next ad group after <code>positionUs</code> that should be played. Returns
  <a href="../../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if there is no such ad group.</div>
 <dl>
@@ -814,6 +906,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
                                 int&nbsp;adGroupIndex,
                                 @IntRange(from=0L)
                                 int&nbsp;adIndexInAdGroup)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the specified ad has been marked as in <a href="#AD_STATE_ERROR"><code>AD_STATE_ERROR</code></a>.</div>
 </li>
 </ul>
@@ -827,6 +920,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Obj
 public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withAdGroupTimeUs&#8203;(@IntRange(from=0L)
                                          int&nbsp;adGroupIndex,
                                          long&nbsp;adGroupTimeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an instance with the specified ad group time.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -848,6 +942,7 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
 public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withNewAdGroup&#8203;(@IntRange(from=0L)
                                       int&nbsp;adGroupIndex,
                                       long&nbsp;adGroupTimeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an instance with a new ad group.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -870,6 +965,7 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
                                    int&nbsp;adGroupIndex,
                                    @IntRange(from=1L)
                                    int&nbsp;adCount)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an instance with the number of ads in <code>adGroupIndex</code> resolved to <code>adCount</code>.
  The ad count must be greater than zero.</div>
 </li>
@@ -886,6 +982,7 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
                                           @IntRange(from=0L)
                                           int&nbsp;adIndexInAdGroup,
                                           <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an instance with the specified ad URI and the ad marked as <a href="#AD_STATE_AVAILABLE">available</a>.</div>
 <dl>
 <dt><span class="throwsLabel">Throws:</span></dt>
@@ -905,6 +1002,7 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
                                        int&nbsp;adGroupIndex,
                                        @IntRange(from=0L)
                                        int&nbsp;adIndexInAdGroup)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an instance with the specified ad marked as <a href="#AD_STATE_AVAILABLE">available</a>.
 
  <p>Must not be called with client side inserted ad groups. Client side inserted ads should use
@@ -926,6 +1024,7 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
                                     int&nbsp;adGroupIndex,
                                     @IntRange(from=0L)
                                     int&nbsp;adIndexInAdGroup)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an instance with the specified ad marked as <a href="#AD_STATE_PLAYED">played</a>.</div>
 </li>
 </ul>
@@ -940,6 +1039,7 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
                                      int&nbsp;adGroupIndex,
                                      @IntRange(from=0L)
                                      int&nbsp;adIndexInAdGroup)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an instance with the specified ad marked as <a href="#AD_STATE_SKIPPED">skipped</a>.</div>
 </li>
 </ul>
@@ -952,6 +1052,7 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
 <pre class="methodSignature">@CheckResult
 public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withLastAdRemoved&#8203;(@IntRange(from=0L)
                                          int&nbsp;adGroupIndex)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an instance with the last ad of the given ad group removed.</div>
 </li>
 </ul>
@@ -966,6 +1067,7 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
                                        int&nbsp;adGroupIndex,
                                        @IntRange(from=0L)
                                        int&nbsp;adIndexInAdGroup)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an instance with the specified ad marked <a href="#AD_STATE_ERROR">as having a load
  error</a>.</div>
 </li>
@@ -979,6 +1081,7 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
 <pre class="methodSignature">@CheckResult
 public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withSkippedAdGroup&#8203;(@IntRange(from=0L)
                                           int&nbsp;adGroupIndex)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an instance with all ads in the specified ad group skipped (except for those already
  marked as played or in the error state).</div>
 </li>
@@ -991,6 +1094,7 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
 <h4>withAdDurationsUs</h4>
 <pre class="methodSignature">@CheckResult
 public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withAdDurationsUs&#8203;(long[][]&nbsp;adDurationUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an instance with the specified ad durations, in microseconds.
 
  <p>Must only be used if <a href="#removedAdGroupCount"><code>removedAdGroupCount</code></a> is 0.</div>
@@ -1006,6 +1110,7 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
 public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withAdDurationsUs&#8203;(@IntRange(from=0L)
                                          int&nbsp;adGroupIndex,
                                          long...&nbsp;adDurationsUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an instance with the specified ad durations, in microseconds, in the specified ad
  group.</div>
 </li>
@@ -1018,6 +1123,7 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
 <h4>withAdResumePositionUs</h4>
 <pre class="methodSignature">@CheckResult
 public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withAdResumePositionUs&#8203;(long&nbsp;adResumePositionUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an instance with the specified ad resume position, in microseconds, relative to the
  start of the current ad.</div>
 </li>
@@ -1030,6 +1136,7 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
 <h4>withContentDurationUs</h4>
 <pre class="methodSignature">@CheckResult
 public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withContentDurationUs&#8203;(long&nbsp;contentDurationUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an instance with the specified content duration, in microseconds.</div>
 </li>
 </ul>
@@ -1042,6 +1149,7 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
 <pre class="methodSignature">@CheckResult
 public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withRemovedAdGroupCount&#8203;(@IntRange(from=0L)
                                                int&nbsp;removedAdGroupCount)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an instance with the specified number of <a href="#removedAdGroupCount"><code>removed ad
  groups</code></a>.
 
@@ -1059,6 +1167,7 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
 public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withContentResumeOffsetUs&#8203;(@IntRange(from=0L)
                                                  int&nbsp;adGroupIndex,
                                                  long&nbsp;contentResumeOffsetUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an instance with the specified <a href="AdPlaybackState.AdGroup.html#contentResumeOffsetUs"><code>AdPlaybackState.AdGroup.contentResumeOffsetUs</code></a>, in microseconds,
  for the specified ad group.</div>
 </li>
@@ -1073,6 +1182,7 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
 public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withOriginalAdCount&#8203;(@IntRange(from=0L)
                                            int&nbsp;adGroupIndex,
                                            int&nbsp;originalAdCount)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an instance with the specified value for <a href="AdPlaybackState.AdGroup.html#originalCount"><code>AdPlaybackState.AdGroup.originalCount</code></a> in the specified
  ad group.</div>
 </li>
@@ -1087,6 +1197,7 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
 public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withIsServerSideInserted&#8203;(@IntRange(from=0L)
                                                 int&nbsp;adGroupIndex,
                                                 boolean&nbsp;isServerSideInserted)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an instance with the specified value for <a href="AdPlaybackState.AdGroup.html#isServerSideInserted"><code>AdPlaybackState.AdGroup.isServerSideInserted</code></a> in the
  specified ad group.</div>
 </li>
@@ -1100,8 +1211,67 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
 <pre class="methodSignature">@CheckResult
 public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withResetAdGroup&#8203;(@IntRange(from=0L)
                                         int&nbsp;adGroupIndex)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an instance with all ads in the specified ad group reset from final states (played,
  skipped, error) to either available or unavailable, which allows to play them again.</div>
+</li>
+</ul>
+<a id="withLivePostrollPlaceholderAppended()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>withLivePostrollPlaceholderAppended</h4>
+<pre class="methodSignature">public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;withLivePostrollPlaceholderAppended()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Appends a live postroll placeholder ad group to the ad playback state.
+
+ <p>Adding such a placeholder is only required for periods of server side ad insertion live
+ streams.
+
+ <p>When building the media period queue, it sets <a href="../MediaPeriodId.html#nextAdGroupIndex"><code>MediaPeriodId.nextAdGroupIndex</code></a> of a
+ content period to the index of the placeholder. However, the placeholder will not produce a
+ period in the media period queue. This only happens when an actual ad group is inserted at the
+ given <code>nextAdGroupIndex</code>. In this case the newly inserted ad group will be used to insert
+ an ad period into the media period queue following the content period with the given <a href="../MediaPeriodId.html#nextAdGroupIndex"><code>MediaPeriodId.nextAdGroupIndex</code></a>.
+
+ <p>See <a href="#endsWithLivePostrollPlaceHolder()"><code>endsWithLivePostrollPlaceHolder()</code></a> also.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>The new ad playback state instance ending with a live postroll placeholder.</dd>
+</dl>
+</li>
+</ul>
+<a id="endsWithLivePostrollPlaceHolder()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>endsWithLivePostrollPlaceHolder</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;endsWithLivePostrollPlaceHolder()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns whether the last ad group is a live postroll placeholder as inserted by <a href="#withLivePostrollPlaceholderAppended()"><code>withLivePostrollPlaceholderAppended()</code></a>.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Whether the ad playback state ends with a live postroll placeholder.</dd>
+</dl>
+</li>
+</ul>
+<a id="isLivePostrollPlaceholder(int)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>isLivePostrollPlaceholder</h4>
+<pre class="methodSignature">public&nbsp;boolean&nbsp;isLivePostrollPlaceholder&#8203;(int&nbsp;adGroupIndex)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Whether the <a href="AdPlaybackState.AdGroup.html" title="class in com.google.android.exoplayer2.source.ads"><code>AdPlaybackState.AdGroup</code></a> at the given ad group index is a live postroll placeholder.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>adGroupIndex</code> - The ad group index.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>True if the ad group at the given index is a live postroll placeholder, false if not.</dd>
+</dl>
 </li>
 </ul>
 <a id="fromAdPlaybackState(java.lang.Object,com.google.android.exoplayer2.source.ads.AdPlaybackState)">
@@ -1112,6 +1282,7 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
 <h4>fromAdPlaybackState</h4>
 <pre class="methodSignature">public static&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;fromAdPlaybackState&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;adsId,
                                                   <a href="AdPlaybackState.html" title="class in com.google.android.exoplayer2.source.ads">AdPlaybackState</a>&nbsp;adPlaybackState)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy of the ad playback state with the given ads ID.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -1130,6 +1301,7 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
 <h4>equals</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;equals&#8203;(@Nullable
                       <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;o)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
@@ -1143,6 +1315,7 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
 <li class="blockList">
 <h4>hashCode</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;hashCode()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
@@ -1156,6 +1329,7 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
 <li class="blockList">
 <h4>toString</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;toString()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#toString()" title="class or interface in java.lang" class="externalLink">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
@@ -1169,6 +1343,7 @@ public&nbsp;<a href="AdPlaybackState.html" title="class in com.google.android.ex
 <li class="blockList">
 <h4>toBundle</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top">Bundle</a>&nbsp;toBundle()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="https://developer.android.com/reference/android/os/Bundle.html" title="class or interface in android.os" class="externalLink" target="_top"><code>Bundle</code></a> representing the information stored in this object.
 
  <p>It omits the <a href="#adsId"><code>adsId</code></a> field so the <a href="#adsId"><code>adsId</code></a> of instances restored by <a href="#CREATOR"><code>CREATOR</code></a> will always be <code>null</code>.</div>

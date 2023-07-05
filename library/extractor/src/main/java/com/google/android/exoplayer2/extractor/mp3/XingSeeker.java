@@ -24,7 +24,15 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 
-/** MP3 seeker that uses metadata from a Xing header. */
+/**
+ * MP3 seeker that uses metadata from a Xing header.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ final class XingSeeker implements Seeker {
 
   private static final String TAG = "XingSeeker";
@@ -114,7 +122,7 @@ import com.google.android.exoplayer2.util.Util;
     this.durationUs = durationUs;
     this.tableOfContents = tableOfContents;
     this.dataSize = dataSize;
-    dataEndPosition = dataSize == C.LENGTH_UNSET ? C.POSITION_UNSET : dataStartPosition + dataSize;
+    dataEndPosition = dataSize == C.LENGTH_UNSET ? C.INDEX_UNSET : dataStartPosition + dataSize;
   }
 
   @Override

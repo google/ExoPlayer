@@ -34,7 +34,15 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.common.collect.ImmutableList;
 import org.checkerframework.checker.nullness.compatqual.NullableType;
 
-/** Utilities for handling metadata in MP4. */
+/**
+ * Utilities for handling metadata in MP4.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ final class MetadataUtil {
 
   private static final String TAG = "MetadataUtil";
@@ -299,17 +307,20 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       if (udtaMetaMetadata != null) {
         formatMetadata = udtaMetaMetadata;
       }
-    } else if (trackType == C.TRACK_TYPE_VIDEO) {
-      // Populate only metadata keys that are known to be specific to video.
-      if (mdtaMetadata != null) {
-        for (int i = 0; i < mdtaMetadata.length(); i++) {
-          Metadata.Entry entry = mdtaMetadata.get(i);
-          if (entry instanceof MdtaMetadataEntry) {
-            MdtaMetadataEntry mdtaMetadataEntry = (MdtaMetadataEntry) entry;
-            if (MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS.equals(mdtaMetadataEntry.key)) {
-              formatMetadata = new Metadata(mdtaMetadataEntry);
-              break;
+    }
+
+    if (mdtaMetadata != null) {
+      for (int i = 0; i < mdtaMetadata.length(); i++) {
+        Metadata.Entry entry = mdtaMetadata.get(i);
+        if (entry instanceof MdtaMetadataEntry) {
+          MdtaMetadataEntry mdtaMetadataEntry = (MdtaMetadataEntry) entry;
+          // This key is present in the container level meta box.
+          if (mdtaMetadataEntry.key.equals(MdtaMetadataEntry.KEY_ANDROID_CAPTURE_FPS)) {
+            if (trackType == C.TRACK_TYPE_VIDEO) {
+              formatMetadata = formatMetadata.copyWithAppendedEntries(mdtaMetadataEntry);
             }
+          } else {
+            formatMetadata = formatMetadata.copyWithAppendedEntries(mdtaMetadataEntry);
           }
         }
       }

@@ -48,7 +48,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  * posted by this service are not displayed. See <a
  * href="https://developer.android.com/develop/ui/views/notifications/notification-permission">the
  * official UI guide</a> for more detailed information.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public abstract class DownloadService extends Service {
 
   /**
@@ -232,23 +238,6 @@ public abstract class DownloadService extends Service {
         foregroundNotificationUpdateInterval,
         /* channelId= */ null,
         /* channelNameResourceId= */ 0,
-        /* channelDescriptionResourceId= */ 0);
-  }
-
-  /**
-   * @deprecated Use {@link #DownloadService(int, long, String, int, int)}.
-   */
-  @Deprecated
-  protected DownloadService(
-      int foregroundNotificationId,
-      long foregroundNotificationUpdateInterval,
-      @Nullable String channelId,
-      @StringRes int channelNameResourceId) {
-    this(
-        foregroundNotificationId,
-        foregroundNotificationUpdateInterval,
-        channelId,
-        channelNameResourceId,
         /* channelDescriptionResourceId= */ 0);
   }
 

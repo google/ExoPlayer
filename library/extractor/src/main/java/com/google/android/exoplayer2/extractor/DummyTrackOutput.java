@@ -25,7 +25,15 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.EOFException;
 import java.io.IOException;
 
-/** A fake {@link TrackOutput} implementation. */
+/**
+ * A fake {@link TrackOutput} implementation.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class DummyTrackOutput implements TrackOutput {
 
   // Even though read data is discarded, data source implementations could be making use of the

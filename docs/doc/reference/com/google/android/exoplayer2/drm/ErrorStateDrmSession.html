@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">ErrorStateDrmSession</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">ErrorStateDrmSession</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm">DrmSession</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A <a href="DrmSession.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSession</code></a> that's in a terminal error state.</div>
 </li>
 </ul>
@@ -192,7 +198,9 @@ implements <a href="DrmSession.html" title="interface in com.google.android.exop
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.drm.DrmSession.DrmSessionException)">ErrorStateDrmSession</a></span>&#8203;(<a href="DrmSession.DrmSessionException.html" title="class in com.google.android.exoplayer2.drm">DrmSession.DrmSessionException</a>&nbsp;error)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -206,7 +214,7 @@ implements <a href="DrmSession.html" title="interface in com.google.android.exop
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -216,6 +224,7 @@ implements <a href="DrmSession.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#acquire(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)">acquire</a></span>&#8203;(<a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Increments the reference count.</div>
 </td>
 </tr>
@@ -223,6 +232,7 @@ implements <a href="DrmSession.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder">CryptoConfig</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCryptoConfig()">getCryptoConfig</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder"><code>CryptoConfig</code></a> for the open session, or null if called before the session has
  been opened or after it's been released.</div>
 </td>
@@ -231,6 +241,7 @@ implements <a href="DrmSession.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="DrmSession.DrmSessionException.html" title="class in com.google.android.exoplayer2.drm">DrmSession.DrmSessionException</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getError()">getError</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the cause of the error state, or null if <a href="DrmSession.html#getState()"><code>DrmSession.getState()</code></a> is not <a href="DrmSession.html#STATE_ERROR"><code>DrmSession.STATE_ERROR</code></a>.</div>
 </td>
 </tr>
@@ -238,6 +249,7 @@ implements <a href="DrmSession.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getOfflineLicenseKeySetId()">getOfflineLicenseKeySetId</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the key set id of the offline license loaded into this session, or null if there isn't
  one.</div>
 </td>
@@ -246,6 +258,7 @@ implements <a href="DrmSession.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSchemeUuid()">getSchemeUuid</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the DRM scheme UUID for this session.</div>
 </td>
 </tr>
@@ -253,6 +266,7 @@ implements <a href="DrmSession.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getState()">getState</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the current state of the session, which is one of <a href="DrmSession.html#STATE_ERROR"><code>DrmSession.STATE_ERROR</code></a>, <a href="DrmSession.html#STATE_RELEASED"><code>DrmSession.STATE_RELEASED</code></a>, <a href="DrmSession.html#STATE_OPENING"><code>DrmSession.STATE_OPENING</code></a>, <a href="DrmSession.html#STATE_OPENED"><code>DrmSession.STATE_OPENED</code></a> and <a href="DrmSession.html#STATE_OPENED_WITH_KEYS"><code>DrmSession.STATE_OPENED_WITH_KEYS</code></a>.</div>
 </td>
 </tr>
@@ -260,6 +274,7 @@ implements <a href="DrmSession.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#playClearSamplesWithoutKeys()">playClearSamplesWithoutKeys</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether this session allows playback of clear samples prior to keys being loaded.</div>
 </td>
 </tr>
@@ -267,6 +282,7 @@ implements <a href="DrmSession.html" title="interface in com.google.android.exop
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#queryKeyStatus()">queryKeyStatus</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a map describing the key status for the session, or null if called before the session
  has been opened or after it's been released.</div>
 </td>
@@ -275,6 +291,7 @@ implements <a href="DrmSession.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)">release</a></span>&#8203;(<a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Decrements the reference count.</div>
 </td>
 </tr>
@@ -282,6 +299,7 @@ implements <a href="DrmSession.html" title="interface in com.google.android.exop
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#requiresSecureDecoder(java.lang.String)">requiresSecureDecoder</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether this session requires use of a secure decoder for the given MIME type.</div>
 </td>
 </tr>
@@ -316,6 +334,7 @@ implements <a href="DrmSession.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>ErrorStateDrmSession</h4>
 <pre>public&nbsp;ErrorStateDrmSession&#8203;(<a href="DrmSession.DrmSessionException.html" title="class in com.google.android.exoplayer2.drm">DrmSession.DrmSessionException</a>&nbsp;error)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -335,6 +354,7 @@ implements <a href="DrmSession.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>getState</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getState()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DrmSession.html#getState()">DrmSession</a></code></span></div>
 <div class="block">Returns the current state of the session, which is one of <a href="DrmSession.html#STATE_ERROR"><code>DrmSession.STATE_ERROR</code></a>, <a href="DrmSession.html#STATE_RELEASED"><code>DrmSession.STATE_RELEASED</code></a>, <a href="DrmSession.html#STATE_OPENING"><code>DrmSession.STATE_OPENING</code></a>, <a href="DrmSession.html#STATE_OPENED"><code>DrmSession.STATE_OPENED</code></a> and <a href="DrmSession.html#STATE_OPENED_WITH_KEYS"><code>DrmSession.STATE_OPENED_WITH_KEYS</code></a>.</div>
 <dl>
@@ -350,6 +370,7 @@ implements <a href="DrmSession.html" title="interface in com.google.android.exop
 <li class="blockList">
 <h4>playClearSamplesWithoutKeys</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;playClearSamplesWithoutKeys()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DrmSession.html#playClearSamplesWithoutKeys()">DrmSession</a></code></span></div>
 <div class="block">Returns whether this session allows playback of clear samples prior to keys being loaded.</div>
 <dl>
@@ -366,6 +387,7 @@ implements <a href="DrmSession.html" title="interface in com.google.android.exop
 <h4>getError</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="DrmSession.DrmSessionException.html" title="class in com.google.android.exoplayer2.drm">DrmSession.DrmSessionException</a>&nbsp;getError()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DrmSession.html#getError()">DrmSession</a></code></span></div>
 <div class="block">Returns the cause of the error state, or null if <a href="DrmSession.html#getState()"><code>DrmSession.getState()</code></a> is not <a href="DrmSession.html#STATE_ERROR"><code>DrmSession.STATE_ERROR</code></a>.</div>
 <dl>
@@ -381,6 +403,7 @@ public&nbsp;<a href="DrmSession.DrmSessionException.html" title="class in com.go
 <li class="blockList">
 <h4>getSchemeUuid</h4>
 <pre class="methodSignature">public final&nbsp;<a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a>&nbsp;getSchemeUuid()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DrmSession.html#getSchemeUuid()">DrmSession</a></code></span></div>
 <div class="block">Returns the DRM scheme UUID for this session.</div>
 <dl>
@@ -397,6 +420,7 @@ public&nbsp;<a href="DrmSession.DrmSessionException.html" title="class in com.go
 <h4>getCryptoConfig</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder">CryptoConfig</a>&nbsp;getCryptoConfig()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DrmSession.html#getCryptoConfig()">DrmSession</a></code></span></div>
 <div class="block">Returns a <a href="../decoder/CryptoConfig.html" title="interface in com.google.android.exoplayer2.decoder"><code>CryptoConfig</code></a> for the open session, or null if called before the session has
  been opened or after it's been released.</div>
@@ -414,6 +438,7 @@ public&nbsp;<a href="../decoder/CryptoConfig.html" title="interface in com.googl
 <h4>queryKeyStatus</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&nbsp;queryKeyStatus()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DrmSession.html#queryKeyStatus()">DrmSession</a></code></span></div>
 <div class="block">Returns a map describing the key status for the session, or null if called before the session
  has been opened or after it's been released.
@@ -440,6 +465,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/util/Map.html"
 <h4>getOfflineLicenseKeySetId</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;byte[]&nbsp;getOfflineLicenseKeySetId()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DrmSession.html#getOfflineLicenseKeySetId()">DrmSession</a></code></span></div>
 <div class="block">Returns the key set id of the offline license loaded into this session, or null if there isn't
  one.</div>
@@ -456,6 +482,7 @@ public&nbsp;byte[]&nbsp;getOfflineLicenseKeySetId()</pre>
 <li class="blockList">
 <h4>requiresSecureDecoder</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;requiresSecureDecoder&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DrmSession.html#requiresSecureDecoder(java.lang.String)">DrmSession</a></code></span></div>
 <div class="block">Returns whether this session requires use of a secure decoder for the given MIME type. Assumes
  a license policy that requires the highest level of security supported by the session.
@@ -475,6 +502,7 @@ public&nbsp;byte[]&nbsp;getOfflineLicenseKeySetId()</pre>
 <h4>acquire</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;acquire&#8203;(@Nullable
                     <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DrmSession.html#acquire(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)">DrmSession</a></code></span></div>
 <div class="block">Increments the reference count. When the caller no longer needs to use the instance, it must
  call <a href="DrmSession.html#release(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)"><code>DrmSession.release(DrmSessionEventListener.EventDispatcher)</code></a> to decrement the reference
@@ -496,6 +524,7 @@ public&nbsp;byte[]&nbsp;getOfflineLicenseKeySetId()</pre>
 <h4>release</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;release&#8203;(@Nullable
                     <a href="DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;eventDispatcher)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="DrmSession.html#release(com.google.android.exoplayer2.drm.DrmSessionEventListener.EventDispatcher)">DrmSession</a></code></span></div>
 <div class="block">Decrements the reference count. If the reference count drops to 0 underlying resources are
  released, and the instance cannot be re-used.</div>

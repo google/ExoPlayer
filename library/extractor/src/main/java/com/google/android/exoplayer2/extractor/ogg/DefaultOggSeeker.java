@@ -28,8 +28,17 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
 import java.io.EOFException;
 import java.io.IOException;
+import java.math.BigInteger;
 
-/** Seeks in an Ogg stream. */
+/**
+ * Seeks in an Ogg stream.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ final class DefaultOggSeeker implements OggSeeker {
 
   private static final int MATCH_RANGE = 72_000;
@@ -109,7 +118,7 @@ import java.io.IOException;
         return positionBeforeSeekToEnd;
       case STATE_SEEK:
         long position = getNextSeekPosition(input);
-        if (position != C.POSITION_UNSET) {
+        if (position != C.INDEX_UNSET) {
           return position;
         }
         state = STATE_SKIP;
@@ -142,18 +151,18 @@ import java.io.IOException;
 
   /**
    * Performs a single step of a seeking binary search, returning the byte position from which data
-   * should be provided for the next step, or {@link C#POSITION_UNSET} if the search has converged.
-   * If the search has converged then {@link #skipToPageOfTargetGranule(ExtractorInput)} should be
+   * should be provided for the next step, or {@link C#INDEX_UNSET} if the search has converged. If
+   * the search has converged then {@link #skipToPageOfTargetGranule(ExtractorInput)} should be
    * called to skip to the target page.
    *
    * @param input The {@link ExtractorInput} to read from.
    * @return The byte position from which data should be provided for the next step, or {@link
-   *     C#POSITION_UNSET} if the search has converged.
+   *     C#INDEX_UNSET} if the search has converged.
    * @throws IOException If reading from the input fails.
    */
   private long getNextSeekPosition(ExtractorInput input) throws IOException {
     if (start == end) {
-      return C.POSITION_UNSET;
+      return C.INDEX_UNSET;
     }
 
     long currentPosition = input.getPosition();
@@ -170,7 +179,7 @@ import java.io.IOException;
     long granuleDistance = targetGranule - pageHeader.granulePosition;
     int pageSize = pageHeader.headerSize + pageHeader.bodySize;
     if (0 <= granuleDistance && granuleDistance < MATCH_RANGE) {
-      return C.POSITION_UNSET;
+      return C.INDEX_UNSET;
     }
 
     if (granuleDistance < 0) {
@@ -260,7 +269,12 @@ import java.io.IOException;
       long targetGranule = streamReader.convertTimeToGranule(timeUs);
       long estimatedPosition =
           payloadStartPosition
-              + (targetGranule * (payloadEndPosition - payloadStartPosition) / totalGranules)
+              // Use BigInteger arithmetic to avoid long overflow
+              // https://github.com/androidx/media/issues/391
+              + BigInteger.valueOf(targetGranule)
+                  .multiply(BigInteger.valueOf(payloadEndPosition - payloadStartPosition))
+                  .divide(BigInteger.valueOf(totalGranules))
+                  .longValue()
               - DEFAULT_OFFSET;
       estimatedPosition =
           Util.constrainValue(estimatedPosition, payloadStartPosition, payloadEndPosition - 1);

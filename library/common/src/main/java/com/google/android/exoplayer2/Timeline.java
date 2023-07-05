@@ -37,6 +37,9 @@ import com.google.errorprone.annotations.InlineMe;
 import java.util.ArrayList;
 import java.util.List;
 
+// TODO(b/276289331): Revert to media3-hosted SVG links below once they're available on
+// developer.android.com.
+
 /**
  * A flexible representation of the structure of media. A timeline is able to represent the
  * structure of a wide variety of media, from simple cases like a single media file through to
@@ -137,9 +140,13 @@ import java.util.List;
  *
  * <p>This case includes mid-roll ad groups, which are defined as part of the timeline's single
  * period. The period can be queried for information about the ad groups and the ads they contain.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
-// TODO(b/276289331): Revert to media3-hosted SVG links above once they're available on
-// developer.android.com.
+@Deprecated
 public abstract class Timeline implements Bundleable {
 
   /**
@@ -149,8 +156,9 @@ public abstract class Timeline implements Bundleable {
    * shows some of the information defined by a window, as well as how this information relates to
    * corresponding {@link Period Periods} in the timeline.
    *
-   * <p style="align:center"><img src="doc-files/timeline-window.svg" alt="Information defined by a
-   * timeline window">
+   * <p style="align:center"><img
+   * src="https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/doc-files/timeline-window.svg"
+   * alt="Information defined by a timeline window">
    */
   public static final class Window implements Bundleable {
 
@@ -555,8 +563,9 @@ public abstract class Timeline implements Bundleable {
    * <p>The figure below shows some of the information defined by a period, as well as how this
    * information relates to a corresponding {@link Window} in the timeline.
    *
-   * <p style="align:center"><img src="doc-files/timeline-period.svg" alt="Information defined by a
-   * period">
+   * <p style="align:center"><img
+   * src="https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/doc-files/timeline-period.svg"
+   * alt="Information defined by a period">
    */
   public static final class Period implements Bundleable {
 
@@ -827,6 +836,17 @@ public abstract class Timeline implements Bundleable {
       return adGroup.count != C.LENGTH_UNSET
           ? adGroup.states[adIndexInAdGroup]
           : AD_STATE_UNAVAILABLE;
+    }
+
+    /**
+     * Returns whether the ad group at the given ad group index is a live postroll placeholder.
+     *
+     * @param adGroupIndex The ad group index.
+     * @return True if the ad group at the given index is a live postroll placeholder.
+     */
+    public boolean isLivePostrollPlaceholder(int adGroupIndex) {
+      return adGroupIndex == getAdGroupCount() - 1
+          && adPlaybackState.isLivePostrollPlaceholder(adGroupIndex);
     }
 
     /**

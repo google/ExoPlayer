@@ -18,16 +18,24 @@ package com.google.android.exoplayer2.util;
 import android.annotation.SuppressLint;
 import android.os.Looper;
 import android.widget.TextView;
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.video.ColorInfo;
 import java.util.Locale;
 
 /**
  * A helper class for periodically updating a {@link TextView} with debug information obtained from
  * an {@link ExoPlayer}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public class DebugTextViewHelper {
 
   private static final int REFRESH_INTERVAL_MS = 1000;
@@ -131,6 +139,7 @@ public class DebugTextViewHelper {
         + format.width
         + "x"
         + format.height
+        + getColorInfoString(format.colorInfo)
         + getPixelAspectRatioString(format.pixelWidthHeightRatio)
         + getDecoderCountersBufferCountString(decoderCounters)
         + " vfpo: "
@@ -176,6 +185,10 @@ public class DebugTextViewHelper {
         + counters.maxConsecutiveDroppedBufferCount
         + " dk:"
         + counters.droppedToKeyframeCount;
+  }
+
+  private static String getColorInfoString(@Nullable ColorInfo colorInfo) {
+    return colorInfo != null && colorInfo.isValid() ? " colr:" + colorInfo.toLogString() : "";
   }
 
   private static String getPixelAspectRatioString(float pixelAspectRatio) {

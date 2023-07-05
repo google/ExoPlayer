@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">HttpMediaDrmCallback</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">HttpMediaDrmCallback</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm">MediaDrmCallback</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A <a href="MediaDrmCallback.html" title="interface in com.google.android.exoplayer2.drm"><code>MediaDrmCallback</code></a> that makes requests using <a href="../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream"><code>DataSource</code></a> instances.</div>
 </li>
 </ul>
@@ -161,6 +167,7 @@ implements <a href="MediaDrmCallback.html" title="interface in com.google.androi
                     boolean&nbsp;forceDefaultLicenseUrl,
                     <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Constructs an instance.</div>
 </td>
 </tr>
@@ -168,6 +175,7 @@ implements <a href="MediaDrmCallback.html" title="interface in com.google.androi
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.lang.String,com.google.android.exoplayer2.upstream.DataSource.Factory)">HttpMediaDrmCallback</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;defaultLicenseUrl,
                     <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Constructs an instance.</div>
 </td>
 </tr>
@@ -183,7 +191,7 @@ implements <a href="MediaDrmCallback.html" title="interface in com.google.androi
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -193,6 +201,7 @@ implements <a href="MediaDrmCallback.html" title="interface in com.google.androi
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearAllKeyRequestProperties()">clearAllKeyRequestProperties</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Clears all headers for key requests made by the callback.</div>
 </td>
 </tr>
@@ -200,6 +209,7 @@ implements <a href="MediaDrmCallback.html" title="interface in com.google.androi
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearKeyRequestProperty(java.lang.String)">clearKeyRequestProperty</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Clears a header for key requests made by the callback.</div>
 </td>
 </tr>
@@ -208,6 +218,7 @@ implements <a href="MediaDrmCallback.html" title="interface in com.google.androi
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#executeKeyRequest(java.util.UUID,com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest)">executeKeyRequest</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a>&nbsp;uuid,
                  <a href="ExoMediaDrm.KeyRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyRequest</a>&nbsp;request)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Executes a key request.</div>
 </td>
 </tr>
@@ -216,6 +227,7 @@ implements <a href="MediaDrmCallback.html" title="interface in com.google.androi
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#executeProvisionRequest(java.util.UUID,com.google.android.exoplayer2.drm.ExoMediaDrm.ProvisionRequest)">executeProvisionRequest</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a>&nbsp;uuid,
                        <a href="ExoMediaDrm.ProvisionRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.ProvisionRequest</a>&nbsp;request)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Executes a provisioning request.</div>
 </td>
 </tr>
@@ -224,6 +236,7 @@ implements <a href="MediaDrmCallback.html" title="interface in com.google.androi
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setKeyRequestProperty(java.lang.String,java.lang.String)">setKeyRequestProperty</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
                      <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets a header for key requests made by the callback.</div>
 </td>
 </tr>
@@ -260,6 +273,7 @@ implements <a href="MediaDrmCallback.html" title="interface in com.google.androi
 <pre>public&nbsp;HttpMediaDrmCallback&#8203;(@Nullable
                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;defaultLicenseUrl,
                             <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Constructs an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -281,6 +295,7 @@ implements <a href="MediaDrmCallback.html" title="interface in com.google.androi
                             <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;defaultLicenseUrl,
                             boolean&nbsp;forceDefaultLicenseUrl,
                             <a href="../upstream/DataSource.Factory.html" title="interface in com.google.android.exoplayer2.upstream">DataSource.Factory</a>&nbsp;dataSourceFactory)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Constructs an instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -313,6 +328,7 @@ implements <a href="MediaDrmCallback.html" title="interface in com.google.androi
 <h4>setKeyRequestProperty</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setKeyRequestProperty&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name,
                                   <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;value)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets a header for key requests made by the callback.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -328,6 +344,7 @@ implements <a href="MediaDrmCallback.html" title="interface in com.google.androi
 <li class="blockList">
 <h4>clearKeyRequestProperty</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;clearKeyRequestProperty&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;name)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Clears a header for key requests made by the callback.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -342,6 +359,7 @@ implements <a href="MediaDrmCallback.html" title="interface in com.google.androi
 <li class="blockList">
 <h4>clearAllKeyRequestProperties</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;clearAllKeyRequestProperties()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Clears all headers for key requests made by the callback.</div>
 </li>
 </ul>
@@ -354,6 +372,7 @@ implements <a href="MediaDrmCallback.html" title="interface in com.google.androi
 <pre class="methodSignature">public&nbsp;byte[]&nbsp;executeProvisionRequest&#8203;(<a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a>&nbsp;uuid,
                                       <a href="ExoMediaDrm.ProvisionRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.ProvisionRequest</a>&nbsp;request)
                                throws <a href="MediaDrmCallbackException.html" title="class in com.google.android.exoplayer2.drm">MediaDrmCallbackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaDrmCallback.html#executeProvisionRequest(java.util.UUID,com.google.android.exoplayer2.drm.ExoMediaDrm.ProvisionRequest)">MediaDrmCallback</a></code></span></div>
 <div class="block">Executes a provisioning request.</div>
 <dl>
@@ -378,6 +397,7 @@ implements <a href="MediaDrmCallback.html" title="interface in com.google.androi
 <pre class="methodSignature">public&nbsp;byte[]&nbsp;executeKeyRequest&#8203;(<a href="https://developer.android.com/reference/java/util/UUID.html" title="class or interface in java.util" class="externalLink" target="_top">UUID</a>&nbsp;uuid,
                                 <a href="ExoMediaDrm.KeyRequest.html" title="class in com.google.android.exoplayer2.drm">ExoMediaDrm.KeyRequest</a>&nbsp;request)
                          throws <a href="MediaDrmCallbackException.html" title="class in com.google.android.exoplayer2.drm">MediaDrmCallbackException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaDrmCallback.html#executeKeyRequest(java.util.UUID,com.google.android.exoplayer2.drm.ExoMediaDrm.KeyRequest)">MediaDrmCallback</a></code></span></div>
 <div class="block">Executes a key request.</div>
 <dl>

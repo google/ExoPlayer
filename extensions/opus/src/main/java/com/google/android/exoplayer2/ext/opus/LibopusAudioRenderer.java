@@ -29,7 +29,15 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
 
-/** Decodes and renders audio using the native Opus decoder. */
+/**
+ * Decodes and renders audio using the native Opus decoder.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public class LibopusAudioRenderer extends DecoderAudioRenderer<OpusDecoder> {
 
   private static final String TAG = "LibopusAudioRenderer";

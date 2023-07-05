@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2;
 
+import static com.google.android.exoplayer2.testutil.FakeMultiPeriodLiveTimeline.AD_PERIOD_DURATION_MS;
+import static com.google.android.exoplayer2.testutil.FakeMultiPeriodLiveTimeline.PERIOD_DURATION_MS;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Bundle;
@@ -23,6 +25,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.MediaItem.LiveConfiguration;
 import com.google.android.exoplayer2.source.ShuffleOrder.DefaultShuffleOrder;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
+import com.google.android.exoplayer2.testutil.FakeMultiPeriodLiveTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.testutil.TimelineAsserts;
@@ -430,6 +433,34 @@ public class TimelineTest {
     assertThat(restoredPeriod.uid).isNull();
     TimelineAsserts.assertPeriodEqualsExceptIds(
         /* expectedPeriod= */ period, /* actualPeriod= */ restoredPeriod);
+  }
+
+  @Test
+  public void periodIsLivePostrollPlaceholder_recognizesLivePostrollPlaceholder() {
+    FakeMultiPeriodLiveTimeline timeline =
+        new FakeMultiPeriodLiveTimeline(
+            /* availabilityStartTimeMs= */ 0,
+            /* liveWindowDurationUs= */ 60_000_000,
+            /* nowUs= */ 60_000_000,
+            /* adSequencePattern= */ new boolean[] {false, true, true},
+            /* periodDurationMsPattern= */ new long[] {
+              PERIOD_DURATION_MS, AD_PERIOD_DURATION_MS, AD_PERIOD_DURATION_MS
+            },
+            /* isContentTimeline= */ false,
+            /* populateAds= */ true,
+            /* playedAds= */ false);
+
+    assertThat(timeline.getPeriodCount()).isEqualTo(4);
+    assertThat(
+            timeline
+                .getPeriod(/* periodIndex= */ 1, new Timeline.Period())
+                .isLivePostrollPlaceholder(/* adGroupIndex= */ 0))
+        .isFalse();
+    assertThat(
+            timeline
+                .getPeriod(/* periodIndex= */ 1, new Timeline.Period())
+                .isLivePostrollPlaceholder(/* adGroupIndex= */ 1))
+        .isTrue();
   }
 
   @SuppressWarnings("deprecation") // Populates the deprecated window.tag property.

@@ -35,7 +35,15 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-/** A queue of media sample data. */
+/**
+ * A queue of media sample data.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ class SampleDataQueue {
 
   private static final int INITIAL_SCRATCH_SIZE = 32;
@@ -146,11 +154,11 @@ import java.util.Arrays;
   /**
    * Advances the read position to the specified absolute position.
    *
-   * @param absolutePosition The new absolute read position. May be {@link C#POSITION_UNSET}, in
-   *     which case calling this method is a no-op.
+   * @param absolutePosition The new absolute read position. May be {@link C#INDEX_UNSET}, in which
+   *     case calling this method is a no-op.
    */
   public void discardDownstreamTo(long absolutePosition) {
-    if (absolutePosition == C.POSITION_UNSET) {
+    if (absolutePosition == C.INDEX_UNSET) {
       return;
     }
     while (absolutePosition >= firstAllocationNode.endPosition) {

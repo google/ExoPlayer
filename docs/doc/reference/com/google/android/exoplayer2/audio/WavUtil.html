@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":41,"i1":41};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">WavUtil</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">WavUtil</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Utilities for handling WAVE files.</div>
 </li>
 </ul>
@@ -156,6 +162,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DATA_FOURCC">DATA_FOURCC</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Four character code for "data".</div>
 </td>
 </tr>
@@ -163,6 +170,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DS64_FOURCC">DS64_FOURCC</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Four character code for "ds64".</div>
 </td>
 </tr>
@@ -170,6 +178,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FMT_FOURCC">FMT_FOURCC</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Four character code for "fmt ".</div>
 </td>
 </tr>
@@ -177,6 +186,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#RF64_FOURCC">RF64_FOURCC</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Four character code for "RF64".</div>
 </td>
 </tr>
@@ -184,6 +194,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#RIFF_FOURCC">RIFF_FOURCC</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Four character code for "RIFF".</div>
 </td>
 </tr>
@@ -191,6 +202,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TYPE_ALAW">TYPE_ALAW</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">WAVE type value for 8-bit ITU-T G.711 A-law audio data.</div>
 </td>
 </tr>
@@ -198,6 +210,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TYPE_FLOAT">TYPE_FLOAT</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">WAVE type value for float PCM audio data.</div>
 </td>
 </tr>
@@ -205,6 +218,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TYPE_IMA_ADPCM">TYPE_IMA_ADPCM</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">WAVE type value for IMA ADPCM audio data.</div>
 </td>
 </tr>
@@ -212,6 +226,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TYPE_MLAW">TYPE_MLAW</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">WAVE type value for 8-bit ITU-T G.711 mu-law audio data.</div>
 </td>
 </tr>
@@ -219,6 +234,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TYPE_PCM">TYPE_PCM</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">WAVE type value for integer PCM audio data.</div>
 </td>
 </tr>
@@ -226,6 +242,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TYPE_WAVE_FORMAT_EXTENSIBLE">TYPE_WAVE_FORMAT_EXTENSIBLE</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">WAVE type value for extended WAVE format.</div>
 </td>
 </tr>
@@ -233,6 +250,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#WAVE_FOURCC">WAVE_FOURCC</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Four character code for "WAVE".</div>
 </td>
 </tr>
@@ -248,7 +266,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -259,6 +277,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPcmEncodingForType(int,int)">getPcmEncodingForType</a></span>&#8203;(int&nbsp;type,
                      int&nbsp;bitsPerSample)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="../C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2"><code>C.PcmEncoding</code></a> for the given WAVE format type value, or <a href="../C.html#ENCODING_INVALID"><code>C.ENCODING_INVALID</code></a> if the type is not a known PCM type.</div>
 </td>
 </tr>
@@ -266,6 +285,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTypeForPcmEncoding(@com.google.android.exoplayer2.C.PcmEncodingint)">getTypeForPcmEncoding</a></span>&#8203;(@com.google.android.exoplayer2.C.PcmEncoding int&nbsp;pcmEncoding)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the WAVE format type value for the given <a href="../C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2"><code>C.PcmEncoding</code></a>.</div>
 </td>
 </tr>
@@ -300,6 +320,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>RIFF_FOURCC</h4>
 <pre>public static final&nbsp;int RIFF_FOURCC</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Four character code for "RIFF".</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -314,6 +335,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>WAVE_FOURCC</h4>
 <pre>public static final&nbsp;int WAVE_FOURCC</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Four character code for "WAVE".</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -328,6 +350,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>FMT_FOURCC</h4>
 <pre>public static final&nbsp;int FMT_FOURCC</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Four character code for "fmt ".</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -342,6 +365,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>DATA_FOURCC</h4>
 <pre>public static final&nbsp;int DATA_FOURCC</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Four character code for "data".</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -356,6 +380,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>RF64_FOURCC</h4>
 <pre>public static final&nbsp;int RF64_FOURCC</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Four character code for "RF64".</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -370,6 +395,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>DS64_FOURCC</h4>
 <pre>public static final&nbsp;int DS64_FOURCC</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Four character code for "ds64".</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -384,6 +410,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>TYPE_PCM</h4>
 <pre>public static final&nbsp;int TYPE_PCM</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">WAVE type value for integer PCM audio data.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -398,6 +425,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>TYPE_FLOAT</h4>
 <pre>public static final&nbsp;int TYPE_FLOAT</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">WAVE type value for float PCM audio data.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -412,6 +440,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>TYPE_ALAW</h4>
 <pre>public static final&nbsp;int TYPE_ALAW</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">WAVE type value for 8-bit ITU-T G.711 A-law audio data.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -426,6 +455,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>TYPE_MLAW</h4>
 <pre>public static final&nbsp;int TYPE_MLAW</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">WAVE type value for 8-bit ITU-T G.711 mu-law audio data.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -440,6 +470,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>TYPE_IMA_ADPCM</h4>
 <pre>public static final&nbsp;int TYPE_IMA_ADPCM</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">WAVE type value for IMA ADPCM audio data.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -454,6 +485,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>TYPE_WAVE_FORMAT_EXTENSIBLE</h4>
 <pre>public static final&nbsp;int TYPE_WAVE_FORMAT_EXTENSIBLE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">WAVE type value for extended WAVE format.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -478,6 +510,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>getTypeForPcmEncoding</h4>
 <pre class="methodSignature">public static&nbsp;int&nbsp;getTypeForPcmEncoding&#8203;(@com.google.android.exoplayer2.C.PcmEncoding int&nbsp;pcmEncoding)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the WAVE format type value for the given <a href="../C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2"><code>C.PcmEncoding</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -498,6 +531,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>getPcmEncodingForType</h4>
 <pre class="methodSignature">public static&nbsp;@com.google.android.exoplayer2.C.PcmEncoding int&nbsp;getPcmEncodingForType&#8203;(int&nbsp;type,
                                                                                      int&nbsp;bitsPerSample)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="../C.PcmEncoding.html" title="annotation in com.google.android.exoplayer2"><code>C.PcmEncoding</code></a> for the given WAVE format type value, or <a href="../C.html#ENCODING_INVALID"><code>C.ENCODING_INVALID</code></a> if the type is not a known PCM type.</div>
 </li>
 </ul>

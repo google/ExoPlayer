@@ -14,11 +14,6 @@
  apply from: "$gradle.ext.exoplayerSettingsDir/common_library_config.gradle"
 
 android {
-    defaultConfig {
-        // Enable multidex for androidTests.
-        multiDexEnabled true
-    }
-
     sourceSets {
  androidTest.assets.srcDir '../../testdata/src/test/assets/'
     }
@@ -32,7 +27,6 @@ dependencies {
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
     androidTestImplementation project(modulePrefix + 'testutils')
-    androidTestImplementation 'androidx.multidex:multidex:' + androidxMultidexVersion
     androidTestImplementation 'androidx.test:rules:' + androidxTestRulesVersion
     androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
     androidTestCompileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion

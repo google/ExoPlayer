@@ -19,7 +19,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
@@ -61,7 +60,6 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
-import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import java.io.IOException;
@@ -91,7 +89,13 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  *   <li>Create a download request for the selected track using {@link #getDownloadRequest(byte[])}.
  *   <li>Release the helper using {@link #release()}.
  * </ol>
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class DownloadHelper {
 
   /**
@@ -161,153 +165,6 @@ public final class DownloadHelper {
       capabilities[i] = renderers[i].getCapabilities();
     }
     return capabilities;
-  }
-
-  /**
-   * @deprecated Use {@link #forMediaItem(Context, MediaItem)}
-   */
-  @Deprecated
-  public static DownloadHelper forProgressive(Context context, Uri uri) {
-    return forMediaItem(context, new MediaItem.Builder().setUri(uri).build());
-  }
-
-  /**
-   * @deprecated Use {@link #forMediaItem(Context, MediaItem)}
-   */
-  @Deprecated
-  public static DownloadHelper forProgressive(Context context, Uri uri, @Nullable String cacheKey) {
-    return forMediaItem(
-        context, new MediaItem.Builder().setUri(uri).setCustomCacheKey(cacheKey).build());
-  }
-
-  /**
-   * @deprecated Use {@link #forMediaItem(MediaItem, TrackSelectionParameters, RenderersFactory,
-   *     DataSource.Factory)} instead.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public static DownloadHelper forDash(
-      Context context,
-      Uri uri,
-      DataSource.Factory dataSourceFactory,
-      RenderersFactory renderersFactory) {
-    return forDash(
-        uri,
-        dataSourceFactory,
-        renderersFactory,
-        /* drmSessionManager= */ null,
-        getDefaultTrackSelectorParameters(context));
-  }
-
-  /**
-   * @deprecated Use {@link #forMediaItem(MediaItem, TrackSelectionParameters, RenderersFactory,
-   *     DataSource.Factory, DrmSessionManager)} instead.
-   */
-  @Deprecated
-  public static DownloadHelper forDash(
-      Uri uri,
-      DataSource.Factory dataSourceFactory,
-      RenderersFactory renderersFactory,
-      @Nullable DrmSessionManager drmSessionManager,
-      TrackSelectionParameters trackSelectionParameters) {
-    return forMediaItem(
-        new MediaItem.Builder().setUri(uri).setMimeType(MimeTypes.APPLICATION_MPD).build(),
-        trackSelectionParameters,
-        renderersFactory,
-        dataSourceFactory,
-        drmSessionManager);
-  }
-
-  /**
-   * @deprecated Use {@link #forMediaItem(MediaItem, TrackSelectionParameters, RenderersFactory,
-   *     DataSource.Factory)} instead.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public static DownloadHelper forHls(
-      Context context,
-      Uri uri,
-      DataSource.Factory dataSourceFactory,
-      RenderersFactory renderersFactory) {
-    return forHls(
-        uri,
-        dataSourceFactory,
-        renderersFactory,
-        /* drmSessionManager= */ null,
-        getDefaultTrackSelectorParameters(context));
-  }
-
-  /**
-   * @deprecated Use {@link #forMediaItem(MediaItem, TrackSelectionParameters, RenderersFactory,
-   *     DataSource.Factory, DrmSessionManager)} instead.
-   */
-  @Deprecated
-  public static DownloadHelper forHls(
-      Uri uri,
-      DataSource.Factory dataSourceFactory,
-      RenderersFactory renderersFactory,
-      @Nullable DrmSessionManager drmSessionManager,
-      TrackSelectionParameters trackSelectionParameters) {
-    return forMediaItem(
-        new MediaItem.Builder().setUri(uri).setMimeType(MimeTypes.APPLICATION_M3U8).build(),
-        trackSelectionParameters,
-        renderersFactory,
-        dataSourceFactory,
-        drmSessionManager);
-  }
-
-  /**
-   * @deprecated Use {@link #forMediaItem(MediaItem, TrackSelectionParameters, RenderersFactory,
-   *     DataSource.Factory)} instead.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public static DownloadHelper forSmoothStreaming(
-      Uri uri, DataSource.Factory dataSourceFactory, RenderersFactory renderersFactory) {
-    return forSmoothStreaming(
-        uri,
-        dataSourceFactory,
-        renderersFactory,
-        /* drmSessionManager= */ null,
-        DEFAULT_TRACK_SELECTOR_PARAMETERS_WITHOUT_CONTEXT);
-  }
-
-  /**
-   * @deprecated Use {@link #forMediaItem(MediaItem, TrackSelectionParameters, RenderersFactory,
-   *     DataSource.Factory)} instead.
-   */
-  @SuppressWarnings("deprecation")
-  @Deprecated
-  public static DownloadHelper forSmoothStreaming(
-      Context context,
-      Uri uri,
-      DataSource.Factory dataSourceFactory,
-      RenderersFactory renderersFactory) {
-    return forSmoothStreaming(
-        uri,
-        dataSourceFactory,
-        renderersFactory,
-        /* drmSessionManager= */ null,
-        getDefaultTrackSelectorParameters(context));
-  }
-
-  /**
-   * @deprecated Use {@link #forMediaItem(MediaItem, TrackSelectionParameters, RenderersFactory,
-   *     DataSource.Factory, DrmSessionManager)} instead.
-   */
-  @Deprecated
-  public static DownloadHelper forSmoothStreaming(
-      Uri uri,
-      DataSource.Factory dataSourceFactory,
-      RenderersFactory renderersFactory,
-      @Nullable DrmSessionManager drmSessionManager,
-      TrackSelectionParameters trackSelectionParameters) {
-    return forMediaItem(
-        new MediaItem.Builder().setUri(uri).setMimeType(MimeTypes.APPLICATION_SS).build(),
-        trackSelectionParameters,
-        renderersFactory,
-        dataSourceFactory,
-        drmSessionManager);
   }
 
   /**

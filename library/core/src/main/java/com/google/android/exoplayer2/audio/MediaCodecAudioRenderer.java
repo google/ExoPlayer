@@ -84,7 +84,13 @@ import java.util.List;
  *       message payload should be a session ID {@link Integer} that will be attached to the
  *       underlying audio track.
  * </ul>
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public class MediaCodecAudioRenderer extends MediaCodecRenderer implements MediaClock {
 
   private static final String TAG = "MediaCodecAudioRenderer";
@@ -393,20 +399,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         return ImmutableList.of(codecInfo);
       }
     }
-    List<MediaCodecInfo> decoderInfos =
-        mediaCodecSelector.getDecoderInfos(
-            mimeType, requiresSecureDecoder, /* requiresTunnelingDecoder= */ false);
-    @Nullable String alternativeMimeType = MediaCodecUtil.getAlternativeCodecMimeType(format);
-    if (alternativeMimeType == null) {
-      return ImmutableList.copyOf(decoderInfos);
-    }
-    List<MediaCodecInfo> alternativeDecoderInfos =
-        mediaCodecSelector.getDecoderInfos(
-            alternativeMimeType, requiresSecureDecoder, /* requiresTunnelingDecoder= */ false);
-    return ImmutableList.<MediaCodecInfo>builder()
-        .addAll(decoderInfos)
-        .addAll(alternativeDecoderInfos)
-        .build();
+    return MediaCodecUtil.getDecoderInfosSoftMatch(
+        mediaCodecSelector, format, requiresSecureDecoder, /* requiresTunnelingDecoder= */ false);
   }
 
   @Override
@@ -439,6 +433,11 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     DecoderReuseEvaluation evaluation = codecInfo.canReuseCodec(oldFormat, newFormat);
 
     @DecoderDiscardReasons int discardReasons = evaluation.discardReasons;
+    if (isBypassPossible(newFormat)) {
+      // We prefer direct audio playback so that for multi-channel tracks the audio is not downmixed
+      // to stereo.
+      discardReasons |= DecoderReuseEvaluation.DISCARD_REASON_AUDIO_BYPASS_POSSIBLE;
+    }
     if (getCodecMaxInputSize(codecInfo, newFormat) > codecMaxInputSize) {
       discardReasons |= DISCARD_REASON_MAX_INPUT_SIZE_EXCEEDED;
     }
@@ -623,6 +622,11 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         audioSink.reset();
       }
     }
+  }
+
+  @Override
+  protected void onRelease() {
+    audioSink.release();
   }
 
   @Override
@@ -952,6 +956,11 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     public void onAudioSinkError(Exception audioSinkError) {
       Log.e(TAG, "Audio sink error", audioSinkError);
       eventDispatcher.audioSinkError(audioSinkError);
+    }
+
+    @Override
+    public void onAudioCapabilitiesChanged() {
+      MediaCodecAudioRenderer.this.onRendererCapabilitiesChanged();
     }
   }
 

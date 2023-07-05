@@ -232,7 +232,7 @@ public class FakeMediaPeriod implements MediaPeriod {
         C.SELECTION_REASON_UNKNOWN,
         /* trackSelectionData= */ null,
         /* mediaStartTimeUs= */ 0,
-        /* mediaEndTimeUs = */ C.TIME_UNSET);
+        /* mediaEndTimeUs= */ C.TIME_UNSET);
     prepareCallback = callback;
     if (deferOnPrepared) {
       playerHandler = Util.createHandlerForCurrentLooper();
@@ -418,7 +418,7 @@ public class FakeMediaPeriod implements MediaPeriod {
         C.SELECTION_REASON_UNKNOWN,
         /* trackSelectionData= */ null,
         /* mediaStartTimeUs= */ 0,
-        /* mediaEndTimeUs = */ C.TIME_UNSET);
+        /* mediaEndTimeUs= */ C.TIME_UNSET);
   }
 
   private boolean isLoadingFinished() {

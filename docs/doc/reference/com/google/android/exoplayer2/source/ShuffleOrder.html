@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6,"i4":6,"i5":6,"i6":6,"i7":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var data = {"i0":38,"i1":38,"i2":38,"i3":38,"i4":38,"i5":38,"i6":38,"i7":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -125,7 +125,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../testutil/FakeShuffleOrder.html" title="class in com.google.android.exoplayer2.testutil">FakeShuffleOrder</a></code>, <code><a href="ShuffleOrder.DefaultShuffleOrder.html" title="class in com.google.android.exoplayer2.source">ShuffleOrder.DefaultShuffleOrder</a></code>, <code><a href="ShuffleOrder.UnshuffledShuffleOrder.html" title="class in com.google.android.exoplayer2.source">ShuffleOrder.UnshuffledShuffleOrder</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">ShuffleOrder</span></pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">ShuffleOrder</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Shuffled order of indices.
 
  <p>The shuffle order must be immutable to ensure thread safety.
@@ -156,6 +162,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="ShuffleOrder.DefaultShuffleOrder.html" title="class in com.google.android.exoplayer2.source">ShuffleOrder.DefaultShuffleOrder</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default <a href="ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source"><code>ShuffleOrder</code></a> implementation for random shuffle order.</div>
 </td>
 </tr>
@@ -163,6 +170,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="ShuffleOrder.UnshuffledShuffleOrder.html" title="class in com.google.android.exoplayer2.source">ShuffleOrder.UnshuffledShuffleOrder</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A <a href="ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source"><code>ShuffleOrder</code></a> implementation which does not shuffle.</div>
 </td>
 </tr>
@@ -178,7 +186,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -188,6 +196,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source">ShuffleOrder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#cloneAndClear()">cloneAndClear</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy of the shuffle order with all elements removed.</div>
 </td>
 </tr>
@@ -196,6 +205,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#cloneAndInsert(int,int)">cloneAndInsert</a></span>&#8203;(int&nbsp;insertionIndex,
               int&nbsp;insertionCount)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy of the shuffle order with newly inserted elements.</div>
 </td>
 </tr>
@@ -204,6 +214,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#cloneAndRemove(int,int)">cloneAndRemove</a></span>&#8203;(int&nbsp;indexFrom,
               int&nbsp;indexToExclusive)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy of the shuffle order with a range of elements removed.</div>
 </td>
 </tr>
@@ -211,6 +222,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFirstIndex()">getFirstIndex</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the first index in the shuffle order, or <a href="../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the shuffle order is
  empty.</div>
 </td>
@@ -219,6 +231,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLastIndex()">getLastIndex</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the last index in the shuffle order, or <a href="../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the shuffle order is
  empty.</div>
 </td>
@@ -227,6 +240,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLength()">getLength</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns length of shuffle order.</div>
 </td>
 </tr>
@@ -234,6 +248,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getNextIndex(int)">getNextIndex</a></span>&#8203;(int&nbsp;index)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the next index in the shuffle order.</div>
 </td>
 </tr>
@@ -241,6 +256,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPreviousIndex(int)">getPreviousIndex</a></span>&#8203;(int&nbsp;index)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the previous index in the shuffle order.</div>
 </td>
 </tr>
@@ -268,6 +284,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>getLength</h4>
 <pre class="methodSignature">int&nbsp;getLength()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns length of shuffle order.</div>
 </li>
 </ul>
@@ -278,6 +295,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>getNextIndex</h4>
 <pre class="methodSignature">int&nbsp;getNextIndex&#8203;(int&nbsp;index)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the next index in the shuffle order.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -295,6 +313,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>getPreviousIndex</h4>
 <pre class="methodSignature">int&nbsp;getPreviousIndex&#8203;(int&nbsp;index)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the previous index in the shuffle order.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -312,6 +331,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>getLastIndex</h4>
 <pre class="methodSignature">int&nbsp;getLastIndex()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the last index in the shuffle order, or <a href="../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the shuffle order is
  empty.</div>
 </li>
@@ -323,6 +343,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>getFirstIndex</h4>
 <pre class="methodSignature">int&nbsp;getFirstIndex()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the first index in the shuffle order, or <a href="../C.html#INDEX_UNSET"><code>C.INDEX_UNSET</code></a> if the shuffle order is
  empty.</div>
 </li>
@@ -335,6 +356,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>cloneAndInsert</h4>
 <pre class="methodSignature"><a href="ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source">ShuffleOrder</a>&nbsp;cloneAndInsert&#8203;(int&nbsp;insertionIndex,
                             int&nbsp;insertionCount)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy of the shuffle order with newly inserted elements.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -353,6 +375,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <h4>cloneAndRemove</h4>
 <pre class="methodSignature"><a href="ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source">ShuffleOrder</a>&nbsp;cloneAndRemove&#8203;(int&nbsp;indexFrom,
                             int&nbsp;indexToExclusive)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy of the shuffle order with a range of elements removed.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -371,6 +394,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>cloneAndClear</h4>
 <pre class="methodSignature"><a href="ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source">ShuffleOrder</a>&nbsp;cloneAndClear()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy of the shuffle order with all elements removed.</div>
 </li>
 </ul>

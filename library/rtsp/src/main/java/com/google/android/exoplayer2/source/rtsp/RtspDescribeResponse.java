@@ -15,8 +15,18 @@
  */
 package com.google.android.exoplayer2.source.rtsp;
 
-/** Represents an RTSP DESCRIBE response. */
+/**
+ * Represents an RTSP DESCRIBE response.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ final class RtspDescribeResponse {
+  /** The response's headers. */
+  public final RtspHeaders headers;
   /** The response's status code. */
   public final int status;
   /** The {@link SessionDescription} (see RFC2327) in the DESCRIBE response. */
@@ -25,10 +35,13 @@ package com.google.android.exoplayer2.source.rtsp;
   /**
    * Creates a new instance.
    *
+   * @param headers The response's headers.
    * @param status The response's status code.
    * @param sessionDescription The {@link SessionDescription} in the DESCRIBE response.
    */
-  public RtspDescribeResponse(int status, SessionDescription sessionDescription) {
+  public RtspDescribeResponse(
+      RtspHeaders headers, int status, SessionDescription sessionDescription) {
+    this.headers = headers;
     this.status = status;
     this.sessionDescription = sessionDescription;
   }

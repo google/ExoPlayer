@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":6,"i16":10,"i17":10,"i18":6,"i19":10,"i20":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42,"i12":42,"i13":42,"i14":42,"i15":42,"i16":38,"i17":42,"i18":42,"i19":38,"i20":42,"i21":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -137,9 +137,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="CompositeMediaSource.html" title="class in com.google.android.exoplayer2.source">CompositeMediaSource</a></code>, <code><a href="dash/DashMediaSource.html" title="class in com.google.android.exoplayer2.source.dash">DashMediaSource</a></code>, <code><a href="../testutil/FakeMediaSource.html" title="class in com.google.android.exoplayer2.testutil">FakeMediaSource</a></code>, <code><a href="hls/HlsMediaSource.html" title="class in com.google.android.exoplayer2.source.hls">HlsMediaSource</a></code>, <code><a href="ProgressiveMediaSource.html" title="class in com.google.android.exoplayer2.source">ProgressiveMediaSource</a></code>, <code><a href="rtsp/RtspMediaSource.html" title="class in com.google.android.exoplayer2.source.rtsp">RtspMediaSource</a></code>, <code><a href="ads/ServerSideAdInsertionMediaSource.html" title="class in com.google.android.exoplayer2.source.ads">ServerSideAdInsertionMediaSource</a></code>, <code><a href="SilenceMediaSource.html" title="class in com.google.android.exoplayer2.source">SilenceMediaSource</a></code>, <code><a href="SingleSampleMediaSource.html" title="class in com.google.android.exoplayer2.source">SingleSampleMediaSource</a></code>, <code><a href="smoothstreaming/SsMediaSource.html" title="class in com.google.android.exoplayer2.source.smoothstreaming">SsMediaSource</a></code></dd>
 </dl>
 <hr>
-<pre>public abstract class <span class="typeNameLabel">BaseMediaSource</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public abstract class <span class="typeNameLabel">BaseMediaSource</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Base <a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource</code></a> implementation to handle parallel reuse and to keep a list of <a href="MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceEventListener</code></a>s.
 
  <p>Whenever an implementing subclass needs to provide a new timeline, it must call <a href="#refreshSourceInfo(com.google.android.exoplayer2.Timeline)"><code>refreshSourceInfo(Timeline)</code></a> to notify all listeners.</div>
@@ -181,7 +187,9 @@ implements <a href="MediaSource.html" title="interface in com.google.android.exo
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">BaseMediaSource</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -195,7 +203,7 @@ implements <a href="MediaSource.html" title="interface in com.google.android.exo
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -206,6 +214,7 @@ implements <a href="MediaSource.html" title="interface in com.google.android.exo
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addDrmEventListener(android.os.Handler,com.google.android.exoplayer2.drm.DrmSessionEventListener)">addDrmEventListener</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;handler,
                    <a href="../drm/DrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionEventListener</a>&nbsp;eventListener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a <a href="../drm/DrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionEventListener</code></a> to the list of listeners which are notified of DRM
  events for this media source.</div>
 </td>
@@ -215,6 +224,7 @@ implements <a href="MediaSource.html" title="interface in com.google.android.exo
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addEventListener(android.os.Handler,com.google.android.exoplayer2.source.MediaSourceEventListener)">addEventListener</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;handler,
                 <a href="MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a>&nbsp;eventListener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a <a href="MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceEventListener</code></a> to the list of listeners which are notified of media
  source events.</div>
 </td>
@@ -224,6 +234,7 @@ implements <a href="MediaSource.html" title="interface in com.google.android.exo
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createDrmEventDispatcher(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">createDrmEventDispatcher</a></span>&#8203;(int&nbsp;windowIndex,
                         <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="../drm/DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm"><code>DrmSessionEventListener.EventDispatcher</code></a> which dispatches all events to the
  registered listeners with the specified window index and <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a>.</div>
 </td>
@@ -232,135 +243,164 @@ implements <a href="MediaSource.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>protected <a href="../drm/DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createDrmEventDispatcher(com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">createDrmEventDispatcher</a></span>&#8203;(<a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="../drm/DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm"><code>DrmSessionEventListener.EventDispatcher</code></a> which dispatches all events to the
  registered listeners with the specified <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a></div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>protected <a href="MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createEventDispatcher(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,long)">createEventDispatcher</a></span>&#8203;(int&nbsp;windowIndex,
-                     <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
-                     long&nbsp;mediaTimeOffsetMs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createEventDispatcher(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">createEventDispatcher</a></span>&#8203;(int&nbsp;windowIndex,
+                     <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source"><code>MediaSourceEventListener.EventDispatcher</code></a> which dispatches all events to the
- registered listeners with the specified window index, <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a> and time offset.</div>
+ registered listeners with the specified window index and <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a>.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>protected <a href="MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createEventDispatcher(com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">createEventDispatcher</a></span>&#8203;(<a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createEventDispatcher(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,long)">createEventDispatcher</a></span>&#8203;(int&nbsp;windowIndex,
+                     <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
+                     long&nbsp;mediaTimeOffsetMs)</code></th>
 <td class="colLast">
-<div class="block">Returns a <a href="MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source"><code>MediaSourceEventListener.EventDispatcher</code></a> which dispatches all events to the
- registered listeners with the specified <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#createEventDispatcher(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)"><code>createEventDispatcher(int, MediaPeriodId)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>protected <a href="MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createEventDispatcher(com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,long)">createEventDispatcher</a></span>&#8203;(<a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
-                     long&nbsp;mediaTimeOffsetMs)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createEventDispatcher(com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">createEventDispatcher</a></span>&#8203;(<a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source"><code>MediaSourceEventListener.EventDispatcher</code></a> which dispatches all events to the
- registered listeners with the specified <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a> and time offset.</div>
+ registered listeners with the specified <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a>.</div>
 </td>
 </tr>
 <tr id="i7" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#disable(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)">disable</a></span>&#8203;(<a href="MediaSource.MediaSourceCaller.html" title="interface in com.google.android.exoplayer2.source">MediaSource.MediaSourceCaller</a>&nbsp;caller)</code></th>
+<td class="colFirst"><code>protected <a href="MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createEventDispatcher(com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,long)">createEventDispatcher</a></span>&#8203;(<a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
+                     long&nbsp;mediaTimeOffsetMs)</code></th>
 <td class="colLast">
-<div class="block">Disables the source for the creation of <a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriods</code></a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#createEventDispatcher(com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)"><code>createEventDispatcher(MediaPeriodId)</code></a> instead.</div>
+</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
-<td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#disableInternal()">disableInternal</a></span>()</code></th>
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#disable(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)">disable</a></span>&#8203;(<a href="MediaSource.MediaSourceCaller.html" title="interface in com.google.android.exoplayer2.source">MediaSource.MediaSourceCaller</a>&nbsp;caller)</code></th>
 <td class="colLast">
-<div class="block">Disables the source, see <a href="#disable(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)"><code>disable(MediaSourceCaller)</code></a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Disables the source for the creation of <a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriods</code></a>.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#enable(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)">enable</a></span>&#8203;(<a href="MediaSource.MediaSourceCaller.html" title="interface in com.google.android.exoplayer2.source">MediaSource.MediaSourceCaller</a>&nbsp;caller)</code></th>
+<td class="colFirst"><code>protected void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#disableInternal()">disableInternal</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Enables the source for the creation of <a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriods</code></a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Disables the source, see <a href="#disable(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)"><code>disable(MediaSourceCaller)</code></a>.</div>
 </td>
 </tr>
 <tr id="i10" class="altColor">
-<td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#enableInternal()">enableInternal</a></span>()</code></th>
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#enable(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)">enable</a></span>&#8203;(<a href="MediaSource.MediaSourceCaller.html" title="interface in com.google.android.exoplayer2.source">MediaSource.MediaSourceCaller</a>&nbsp;caller)</code></th>
 <td class="colLast">
-<div class="block">Enables the source, see <a href="#enable(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)"><code>enable(MediaSourceCaller)</code></a>.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Enables the source for the creation of <a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriods</code></a>.</div>
 </td>
 </tr>
 <tr id="i11" class="rowColor">
-<td class="colFirst"><code>protected <a href="../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPlayerId()">getPlayerId</a></span>()</code></th>
+<td class="colFirst"><code>protected void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#enableInternal()">enableInternal</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns the <a href="../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics"><code>PlayerId</code></a> of the player using this media source.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Enables the source, see <a href="#enable(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)"><code>enable(MediaSourceCaller)</code></a>.</div>
 </td>
 </tr>
 <tr id="i12" class="altColor">
-<td class="colFirst"><code>protected boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isEnabled()">isEnabled</a></span>()</code></th>
+<td class="colFirst"><code>protected <a href="../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPlayerId()">getPlayerId</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Returns whether the source is enabled.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns the <a href="../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics"><code>PlayerId</code></a> of the player using this media source.</div>
 </td>
 </tr>
 <tr id="i13" class="rowColor">
+<td class="colFirst"><code>protected boolean</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isEnabled()">isEnabled</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns whether the source is enabled.</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener)">prepareSource</a></span>&#8203;(<a href="MediaSource.MediaSourceCaller.html" title="interface in com.google.android.exoplayer2.source">MediaSource.MediaSourceCaller</a>&nbsp;caller,
              <a href="../upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.analytics.PlayerId)">prepareSource</a></span>&#8203;(<a href="MediaSource.MediaSourceCaller.html" title="interface in com.google.android.exoplayer2.source">MediaSource.MediaSourceCaller</a>&nbsp;caller,
              <a href="../upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener,
              <a href="../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Registers a <a href="MediaSource.MediaSourceCaller.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource.MediaSourceCaller</code></a>.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>protected abstract void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#prepareSourceInternal(com.google.android.exoplayer2.upstream.TransferListener)">prepareSourceInternal</a></span>&#8203;(<a href="../upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts source preparation and enables the source, see <a href="#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.analytics.PlayerId)"><code>prepareSource(MediaSourceCaller,
  TransferListener, PlayerId)</code></a>.</div>
 </td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#refreshSourceInfo(com.google.android.exoplayer2.Timeline)">refreshSourceInfo</a></span>&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates timeline and manifest and notifies all listeners of the update.</div>
 </td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#releaseSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)">releaseSource</a></span>&#8203;(<a href="MediaSource.MediaSourceCaller.html" title="interface in com.google.android.exoplayer2.source">MediaSource.MediaSourceCaller</a>&nbsp;caller)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Unregisters a caller, and disables and releases the source if no longer required.</div>
 </td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code>protected abstract void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#releaseSourceInternal()">releaseSourceInternal</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases the source, see <a href="#releaseSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)"><code>releaseSource(MediaSourceCaller)</code></a>.</div>
-</td>
-</tr>
-<tr id="i19" class="rowColor">
-<td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeDrmEventListener(com.google.android.exoplayer2.drm.DrmSessionEventListener)">removeDrmEventListener</a></span>&#8203;(<a href="../drm/DrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionEventListener</a>&nbsp;eventListener)</code></th>
-<td class="colLast">
-<div class="block">Removes a <a href="../drm/DrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionEventListener</code></a> from the list of listeners which are notified of DRM
- events for this media source.</div>
 </td>
 </tr>
 <tr id="i20" class="altColor">
 <td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeDrmEventListener(com.google.android.exoplayer2.drm.DrmSessionEventListener)">removeDrmEventListener</a></span>&#8203;(<a href="../drm/DrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionEventListener</a>&nbsp;eventListener)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Removes a <a href="../drm/DrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionEventListener</code></a> from the list of listeners which are notified of DRM
+ events for this media source.</div>
+</td>
+</tr>
+<tr id="i21" class="rowColor">
+<td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#removeEventListener(com.google.android.exoplayer2.source.MediaSourceEventListener)">removeEventListener</a></span>&#8203;(<a href="MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a>&nbsp;eventListener)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Removes a <a href="MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceEventListener</code></a> from the list of listeners which are notified of
  media source events.</div>
 </td>
@@ -403,6 +443,7 @@ implements <a href="MediaSource.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>BaseMediaSource</h4>
 <pre>public&nbsp;BaseMediaSource()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -423,6 +464,7 @@ implements <a href="MediaSource.html" title="interface in com.google.android.exo
 <h4>prepareSourceInternal</h4>
 <pre class="methodSignature">protected abstract&nbsp;void&nbsp;prepareSourceInternal&#8203;(@Nullable
                                               <a href="../upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Starts source preparation and enables the source, see <a href="#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.analytics.PlayerId)"><code>prepareSource(MediaSourceCaller,
  TransferListener, PlayerId)</code></a>. This method is called at most once until the next call to <a href="#releaseSourceInternal()"><code>releaseSourceInternal()</code></a>.</div>
 <dl>
@@ -441,6 +483,7 @@ implements <a href="MediaSource.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>enableInternal</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;enableInternal()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Enables the source, see <a href="#enable(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)"><code>enable(MediaSourceCaller)</code></a>.</div>
 </li>
 </ul>
@@ -451,6 +494,7 @@ implements <a href="MediaSource.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>disableInternal</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;disableInternal()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Disables the source, see <a href="#disable(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)"><code>disable(MediaSourceCaller)</code></a>.</div>
 </li>
 </ul>
@@ -461,6 +505,7 @@ implements <a href="MediaSource.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>releaseSourceInternal</h4>
 <pre class="methodSignature">protected abstract&nbsp;void&nbsp;releaseSourceInternal()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Releases the source, see <a href="#releaseSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)"><code>releaseSource(MediaSourceCaller)</code></a>. This method is called
  exactly once after each call to <a href="#prepareSourceInternal(com.google.android.exoplayer2.upstream.TransferListener)"><code>prepareSourceInternal(TransferListener)</code></a>.</div>
 </li>
@@ -472,6 +517,7 @@ implements <a href="MediaSource.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>refreshSourceInfo</h4>
 <pre class="methodSignature">protected final&nbsp;void&nbsp;refreshSourceInfo&#8203;(<a href="../Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates timeline and manifest and notifies all listeners of the update.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -487,10 +533,33 @@ implements <a href="MediaSource.html" title="interface in com.google.android.exo
 <h4>createEventDispatcher</h4>
 <pre class="methodSignature">protected final&nbsp;<a href="MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;createEventDispatcher&#8203;(@Nullable
                                                                                <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source"><code>MediaSourceEventListener.EventDispatcher</code></a> which dispatches all events to the
  registered listeners with the specified <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>mediaPeriodId</code> - The <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a> to be reported with the events. May be null, if
+     the events do not belong to a specific media period.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>An event dispatcher with pre-configured media period id.</dd>
+</dl>
+</li>
+</ul>
+<a id="createEventDispatcher(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>createEventDispatcher</h4>
+<pre class="methodSignature">protected final&nbsp;<a href="MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;createEventDispatcher&#8203;(int&nbsp;windowIndex,
+                                                                               @Nullable
+                                                                               <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns a <a href="MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source"><code>MediaSourceEventListener.EventDispatcher</code></a> which dispatches all events to the
+ registered listeners with the specified window index and <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a>.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>windowIndex</code> - The timeline window index to be reported with the events.</dd>
 <dd><code>mediaPeriodId</code> - The <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a> to be reported with the events. May be null, if
      the events do not belong to a specific media period.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -504,17 +573,14 @@ implements <a href="MediaSource.html" title="interface in com.google.android.exo
 <ul class="blockList">
 <li class="blockList">
 <h4>createEventDispatcher</h4>
-<pre class="methodSignature">protected final&nbsp;<a href="MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;createEventDispatcher&#8203;(<a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+protected final&nbsp;<a href="MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;createEventDispatcher&#8203;(<a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
                                                                                long&nbsp;mediaTimeOffsetMs)</pre>
-<div class="block">Returns a <a href="MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source"><code>MediaSourceEventListener.EventDispatcher</code></a> which dispatches all events to the
- registered listeners with the specified <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a> and time offset.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>mediaPeriodId</code> - The <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a> to be reported with the events.</dd>
-<dd><code>mediaTimeOffsetMs</code> - The offset to be added to all media times, in milliseconds.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>An event dispatcher with pre-configured media period id and time offset.</dd>
-</dl>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#createEventDispatcher(com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)"><code>createEventDispatcher(MediaPeriodId)</code></a> instead.</div>
+</div>
+<div class="block">Note: The <code>mediaTimeOffsetMs</code> passed to this method is ignored and not added to media
+ times in any way.</div>
 </li>
 </ul>
 <a id="createEventDispatcher(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,long)">
@@ -523,21 +589,16 @@ implements <a href="MediaSource.html" title="interface in com.google.android.exo
 <ul class="blockList">
 <li class="blockList">
 <h4>createEventDispatcher</h4>
-<pre class="methodSignature">protected final&nbsp;<a href="MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;createEventDispatcher&#8203;(int&nbsp;windowIndex,
+<pre class="methodSignature"><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+protected final&nbsp;<a href="MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source">MediaSourceEventListener.EventDispatcher</a>&nbsp;createEventDispatcher&#8203;(int&nbsp;windowIndex,
                                                                                @Nullable
                                                                                <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId,
                                                                                long&nbsp;mediaTimeOffsetMs)</pre>
-<div class="block">Returns a <a href="MediaSourceEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.source"><code>MediaSourceEventListener.EventDispatcher</code></a> which dispatches all events to the
- registered listeners with the specified window index, <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a> and time offset.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>windowIndex</code> - The timeline window index to be reported with the events.</dd>
-<dd><code>mediaPeriodId</code> - The <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a> to be reported with the events. May be null, if
-     the events do not belong to a specific media period.</dd>
-<dd><code>mediaTimeOffsetMs</code> - The offset to be added to all media times, in milliseconds.</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>An event dispatcher with pre-configured media period id and time offset.</dd>
-</dl>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Use <a href="#createEventDispatcher(int,com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)"><code>createEventDispatcher(int, MediaPeriodId)</code></a> instead.</div>
+</div>
+<div class="block">Note: The <code>mediaTimeOffsetMs</code> passed to this method is ignored and not added to media
+ times in any way.</div>
 </li>
 </ul>
 <a id="createDrmEventDispatcher(com.google.android.exoplayer2.source.MediaSource.MediaPeriodId)">
@@ -548,6 +609,7 @@ implements <a href="MediaSource.html" title="interface in com.google.android.exo
 <h4>createDrmEventDispatcher</h4>
 <pre class="methodSignature">protected final&nbsp;<a href="../drm/DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;createDrmEventDispatcher&#8203;(@Nullable
                                                                                  <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="../drm/DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm"><code>DrmSessionEventListener.EventDispatcher</code></a> which dispatches all events to the
  registered listeners with the specified <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a></div>
 <dl>
@@ -568,6 +630,7 @@ implements <a href="MediaSource.html" title="interface in com.google.android.exo
 <pre class="methodSignature">protected final&nbsp;<a href="../drm/DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm">DrmSessionEventListener.EventDispatcher</a>&nbsp;createDrmEventDispatcher&#8203;(int&nbsp;windowIndex,
                                                                                  @Nullable
                                                                                  <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaSource.MediaPeriodId</a>&nbsp;mediaPeriodId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a <a href="../drm/DrmSessionEventListener.EventDispatcher.html" title="class in com.google.android.exoplayer2.drm"><code>DrmSessionEventListener.EventDispatcher</code></a> which dispatches all events to the
  registered listeners with the specified window index and <a href="MediaSource.MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaSource.MediaPeriodId</code></a>.</div>
 <dl>
@@ -587,6 +650,7 @@ implements <a href="MediaSource.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>isEnabled</h4>
 <pre class="methodSignature">protected final&nbsp;boolean&nbsp;isEnabled()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the source is enabled.</div>
 </li>
 </ul>
@@ -597,6 +661,7 @@ implements <a href="MediaSource.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>getPlayerId</h4>
 <pre class="methodSignature">protected final&nbsp;<a href="../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;getPlayerId()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics"><code>PlayerId</code></a> of the player using this media source.
 
  <p>Must only be used when the media source is <a href="#prepareSourceInternal(com.google.android.exoplayer2.upstream.TransferListener)"><code>prepared</code></a>.</div>
@@ -610,9 +675,14 @@ implements <a href="MediaSource.html" title="interface in com.google.android.exo
 <h4>addEventListener</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;addEventListener&#8203;(<a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;handler,
                                    <a href="MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a>&nbsp;eventListener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSource.html#addEventListener(android.os.Handler,com.google.android.exoplayer2.source.MediaSourceEventListener)">MediaSource</a></code></span></div>
 <div class="block">Adds a <a href="MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceEventListener</code></a> to the list of listeners which are notified of media
- source events.</div>
+ source events.
+
+ <p>Should not be called directly from application code.
+
+ <p>This method must be called on the playback thread.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="MediaSource.html#addEventListener(android.os.Handler,com.google.android.exoplayer2.source.MediaSourceEventListener)">addEventListener</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></code></dd>
@@ -629,9 +699,14 @@ implements <a href="MediaSource.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>removeEventListener</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;removeEventListener&#8203;(<a href="MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source">MediaSourceEventListener</a>&nbsp;eventListener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSource.html#removeEventListener(com.google.android.exoplayer2.source.MediaSourceEventListener)">MediaSource</a></code></span></div>
 <div class="block">Removes a <a href="MediaSourceEventListener.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSourceEventListener</code></a> from the list of listeners which are notified of
- media source events.</div>
+ media source events.
+
+ <p>Should not be called directly from application code.
+
+ <p>This method must be called on the playback thread.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="MediaSource.html#removeEventListener(com.google.android.exoplayer2.source.MediaSourceEventListener)">removeEventListener</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></code></dd>
@@ -648,9 +723,14 @@ implements <a href="MediaSource.html" title="interface in com.google.android.exo
 <h4>addDrmEventListener</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;addDrmEventListener&#8203;(<a href="https://developer.android.com/reference/android/os/Handler.html" title="class or interface in android.os" class="externalLink" target="_top">Handler</a>&nbsp;handler,
                                       <a href="../drm/DrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionEventListener</a>&nbsp;eventListener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSource.html#addDrmEventListener(android.os.Handler,com.google.android.exoplayer2.drm.DrmSessionEventListener)">MediaSource</a></code></span></div>
 <div class="block">Adds a <a href="../drm/DrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionEventListener</code></a> to the list of listeners which are notified of DRM
- events for this media source.</div>
+ events for this media source.
+
+ <p>Should not be called directly from application code.
+
+ <p>This method must be called on the playback thread.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="MediaSource.html#addDrmEventListener(android.os.Handler,com.google.android.exoplayer2.drm.DrmSessionEventListener)">addDrmEventListener</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></code></dd>
@@ -667,9 +747,14 @@ implements <a href="MediaSource.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>removeDrmEventListener</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;removeDrmEventListener&#8203;(<a href="../drm/DrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionEventListener</a>&nbsp;eventListener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSource.html#removeDrmEventListener(com.google.android.exoplayer2.drm.DrmSessionEventListener)">MediaSource</a></code></span></div>
 <div class="block">Removes a <a href="../drm/DrmSessionEventListener.html" title="interface in com.google.android.exoplayer2.drm"><code>DrmSessionEventListener</code></a> from the list of listeners which are notified of DRM
- events for this media source.</div>
+ events for this media source.
+
+ <p>Should not be called directly from application code.
+
+ <p>This method must be called on the playback thread.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="MediaSource.html#removeDrmEventListener(com.google.android.exoplayer2.drm.DrmSessionEventListener)">removeDrmEventListener</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></code></dd>
@@ -687,6 +772,7 @@ implements <a href="MediaSource.html" title="interface in com.google.android.exo
 <pre class="methodSignature">public final&nbsp;void&nbsp;prepareSource&#8203;(<a href="MediaSource.MediaSourceCaller.html" title="interface in com.google.android.exoplayer2.source">MediaSource.MediaSourceCaller</a>&nbsp;caller,
                                 @Nullable
                                 <a href="../upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="MediaSource.html#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener)">prepareSource</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></code></dd>
@@ -703,6 +789,7 @@ implements <a href="MediaSource.html" title="interface in com.google.android.exo
                                 @Nullable
                                 <a href="../upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;mediaTransferListener,
                                 <a href="../analytics/PlayerId.html" title="class in com.google.android.exoplayer2.analytics">PlayerId</a>&nbsp;playerId)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSource.html#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.analytics.PlayerId)">MediaSource</a></code></span></div>
 <div class="block">Registers a <a href="MediaSource.MediaSourceCaller.html" title="interface in com.google.android.exoplayer2.source"><code>MediaSource.MediaSourceCaller</code></a>. Starts source preparation if needed and enables the
  source for the creation of <a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPerods</code></a>.
@@ -713,7 +800,9 @@ implements <a href="MediaSource.html" title="interface in com.google.android.exo
  the source has a <a href="../Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a>.
 
  <p>For each call to this method, a call to <a href="MediaSource.html#releaseSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)"><code>MediaSource.releaseSource(MediaSourceCaller)</code></a> is needed
- to remove the caller and to release the source if no longer required.</div>
+ to remove the caller and to release the source if no longer required.
+
+ <p>This method must be called on the playback thread.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="MediaSource.html#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.analytics.PlayerId)">prepareSource</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></code></dd>
@@ -734,13 +823,13 @@ implements <a href="MediaSource.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>enable</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;enable&#8203;(<a href="MediaSource.MediaSourceCaller.html" title="interface in com.google.android.exoplayer2.source">MediaSource.MediaSourceCaller</a>&nbsp;caller)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSource.html#enable(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)">MediaSource</a></code></span></div>
 <div class="block">Enables the source for the creation of <a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriods</code></a>.
 
  <p>Should not be called directly from application code.
 
- <p>Must only be called after <a href="MediaSource.html#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.analytics.PlayerId)"><code>MediaSource.prepareSource(MediaSourceCaller, TransferListener,
- PlayerId)</code></a>.</div>
+ <p>This method must be called on the playback thread and only after <a href="MediaSource.html#prepareSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.analytics.PlayerId)"><code>MediaSource.prepareSource(MediaSourceCaller, TransferListener, PlayerId)</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="MediaSource.html#enable(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)">enable</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></code></dd>
@@ -756,13 +845,15 @@ implements <a href="MediaSource.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>disable</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;disable&#8203;(<a href="MediaSource.MediaSourceCaller.html" title="interface in com.google.android.exoplayer2.source">MediaSource.MediaSourceCaller</a>&nbsp;caller)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSource.html#disable(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)">MediaSource</a></code></span></div>
 <div class="block">Disables the source for the creation of <a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriods</code></a>. The implementation
  should not hold onto limited resources used for the creation of media periods.
 
  <p>Should not be called directly from application code.
 
- <p>Must only be called after all <a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriods</code></a> previously created by <a href="MediaSource.html#createPeriod(com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,com.google.android.exoplayer2.upstream.Allocator,long)"><code>MediaSource.createPeriod(MediaPeriodId, Allocator, long)</code></a> have been released by <a href="MediaSource.html#releasePeriod(com.google.android.exoplayer2.source.MediaPeriod)"><code>MediaSource.releasePeriod(MediaPeriod)</code></a>.</div>
+ <p>This method must be called on the playback thread and only after all <a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriods</code></a> previously created by <a href="MediaSource.html#createPeriod(com.google.android.exoplayer2.source.MediaSource.MediaPeriodId,com.google.android.exoplayer2.upstream.Allocator,long)"><code>MediaSource.createPeriod(MediaPeriodId, Allocator, long)</code></a> have
+ been released by <a href="MediaSource.html#releasePeriod(com.google.android.exoplayer2.source.MediaPeriod)"><code>MediaSource.releasePeriod(MediaPeriod)</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="MediaSource.html#disable(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)">disable</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></code></dd>
@@ -778,13 +869,13 @@ implements <a href="MediaSource.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>releaseSource</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;releaseSource&#8203;(<a href="MediaSource.MediaSourceCaller.html" title="interface in com.google.android.exoplayer2.source">MediaSource.MediaSourceCaller</a>&nbsp;caller)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaSource.html#releaseSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)">MediaSource</a></code></span></div>
 <div class="block">Unregisters a caller, and disables and releases the source if no longer required.
 
  <p>Should not be called directly from application code.
 
- <p>Must only be called if all created <a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriods</code></a> have been released by
- <a href="MediaSource.html#releasePeriod(com.google.android.exoplayer2.source.MediaPeriod)"><code>MediaSource.releasePeriod(MediaPeriod)</code></a>.</div>
+ <p>This method must be called on the playback thread and only if all created <a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriods</code></a> have been released by <a href="MediaSource.html#releasePeriod(com.google.android.exoplayer2.source.MediaPeriod)"><code>MediaSource.releasePeriod(MediaPeriod)</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="MediaSource.html#releaseSource(com.google.android.exoplayer2.source.MediaSource.MediaSourceCaller)">releaseSource</a></code>&nbsp;in interface&nbsp;<code><a href="MediaSource.html" title="interface in com.google.android.exoplayer2.source">MediaSource</a></code></dd>

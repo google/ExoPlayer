@@ -44,7 +44,13 @@ import java.lang.reflect.Method;
  * #start()} immediately before calling {@link AudioTrack#play()}. Call {@link #pause()} when
  * pausing the track. Call {@link #handleEndOfStream(long)} when no more data will be written to the
  * track. When the audio track will no longer be used, call {@link #reset()}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 /* package */ final class AudioTrackPositionTracker {
 
   /** Listener for position tracker events. */
@@ -420,7 +426,8 @@ import java.lang.reflect.Method;
    * @return Whether the audio track has any pending data to play out.
    */
   public boolean hasPendingData(long writtenFrames) {
-    return writtenFrames > getPlaybackHeadPosition() || forceHasPendingData();
+    return writtenFrames > durationUsToFrames(getCurrentPositionUs(/* sourceEnded= */ false))
+        || forceHasPendingData();
   }
 
   /**
@@ -542,6 +549,10 @@ import java.lang.reflect.Method;
     return (frameCount * C.MICROS_PER_SECOND) / outputSampleRate;
   }
 
+  private long durationUsToFrames(long durationUs) {
+    return (durationUs * outputSampleRate) / C.MICROS_PER_SECOND;
+  }
+
   private void resetSyncParams() {
     smoothedPlayheadOffsetUs = 0;
     playheadOffsetCount = 0;
@@ -591,7 +602,7 @@ import java.lang.reflect.Method;
       long elapsedTimeSinceStopUs = (currentTimeMs * 1000) - stopTimestampUs;
       long mediaTimeSinceStopUs =
           Util.getMediaDurationForPlayoutDuration(elapsedTimeSinceStopUs, audioTrackPlaybackSpeed);
-      long framesSinceStop = (mediaTimeSinceStopUs * outputSampleRate) / C.MICROS_PER_SECOND;
+      long framesSinceStop = durationUsToFrames(mediaTimeSinceStopUs);
       return min(endPlaybackHeadPosition, stopPlaybackHeadPosition + framesSinceStop);
     }
     if (currentTimeMs - lastRawPlaybackHeadPositionSampleTimeMs

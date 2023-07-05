@@ -16,7 +16,7 @@
 
 package com.google.android.exoplayer2.transformer;
 
-import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static java.lang.Math.floor;
 import static java.lang.Math.max;
 import static java.lang.Math.round;
 
@@ -29,8 +29,10 @@ import android.util.Pair;
 import android.util.Range;
 import android.util.Size;
 import androidx.annotation.DoNotInline;
+import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.C.ColorTransfer;
 import com.google.android.exoplayer2.Format;
@@ -39,52 +41,67 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.base.Ascii;
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Ints;
 
-/** Utility methods for {@link MediaCodec} encoders. */
+/**
+ * Utility methods for {@link MediaCodec} encoders.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class EncoderUtil {
 
   /** A value to indicate the encoding level is not set. */
   public static final int LEVEL_UNSET = Format.NO_VALUE;
 
-  private static final Supplier<ImmutableListMultimap<String, MediaCodecInfo>>
-      MIME_TYPE_TO_ENCODERS = Suppliers.memoize(EncoderUtil::populateEncoderInfos);
+  @GuardedBy("EncoderUtil.class")
+  private static final ArrayListMultimap<String, MediaCodecInfo> mimeTypeToEncoders =
+      ArrayListMultimap.create();
 
   /**
    * Returns a list of {@linkplain MediaCodecInfo encoders} that support the given {@code mimeType},
    * or an empty list if there is none.
    */
-  public static ImmutableList<MediaCodecInfo> getSupportedEncoders(String mimeType) {
-    return checkNotNull(MIME_TYPE_TO_ENCODERS.get()).get(Ascii.toLowerCase(mimeType));
+  public static synchronized ImmutableList<MediaCodecInfo> getSupportedEncoders(String mimeType) {
+    maybePopulateEncoderInfo();
+    return ImmutableList.copyOf(mimeTypeToEncoders.get(Ascii.toLowerCase(mimeType)));
   }
 
-  /** Returns a list of video {@linkplain MimeTypes MIME types} that can be encoded. */
-  public static ImmutableSet<String> getSupportedVideoMimeTypes() {
-    return checkNotNull(MIME_TYPE_TO_ENCODERS.get()).keySet();
+  /** Returns a list of {@linkplain MimeTypes MIME types} that can be encoded. */
+  public static synchronized ImmutableSet<String> getSupportedMimeTypes() {
+    maybePopulateEncoderInfo();
+    return ImmutableSet.copyOf(mimeTypeToEncoders.keySet());
+  }
+
+  /** Clears the cached list of encoders. */
+  @VisibleForTesting
+  public static synchronized void clearCachedEncoders() {
+    mimeTypeToEncoders.clear();
   }
 
   /**
-   * Returns the names of encoders that support HDR editing for the given format, or an empty list
-   * if the format is unknown or not supported for HDR encoding.
+   * Returns a list of {@linkplain MediaCodecInfo encoders} that support HDR editing for the given
+   * {@code mimeType} and {@code ColorInfo}, or an empty list if the format is unknown or not
+   * supported for HDR encoding.
    */
-  public static ImmutableList<String> getSupportedEncoderNamesForHdrEditing(
+  public static ImmutableList<MediaCodecInfo> getSupportedEncodersForHdrEditing(
       String mimeType, @Nullable ColorInfo colorInfo) {
-    if (Util.SDK_INT < 31 || colorInfo == null) {
+    if (Util.SDK_INT < 33 || colorInfo == null) {
       return ImmutableList.of();
     }
 
-    @ColorTransfer int colorTransfer = colorInfo.colorTransfer;
-    ImmutableList<Integer> profiles = getCodecProfilesForHdrFormat(mimeType, colorTransfer);
-    ImmutableList.Builder<String> resultBuilder = ImmutableList.builder();
-    ImmutableList<MediaCodecInfo> mediaCodecInfos =
-        EncoderSelector.DEFAULT.selectEncoderInfos(mimeType);
-    for (int i = 0; i < mediaCodecInfos.size(); i++) {
-      MediaCodecInfo mediaCodecInfo = mediaCodecInfos.get(i);
+    ImmutableList<MediaCodecInfo> encoders = getSupportedEncoders(mimeType);
+    ImmutableList<Integer> allowedColorProfiles =
+        getCodecProfilesForHdrFormat(mimeType, colorInfo.colorTransfer);
+    ImmutableList.Builder<MediaCodecInfo> resultBuilder = new ImmutableList.Builder<>();
+    for (int i = 0; i < encoders.size(); i++) {
+      MediaCodecInfo mediaCodecInfo = encoders.get(i);
       if (mediaCodecInfo.isAlias()
           || !isFeatureSupported(
               mediaCodecInfo, mimeType, MediaCodecInfo.CodecCapabilities.FEATURE_HdrEditing)) {
@@ -92,8 +109,8 @@ public final class EncoderUtil {
       }
       for (MediaCodecInfo.CodecProfileLevel codecProfileLevel :
           mediaCodecInfo.getCapabilitiesForType(mimeType).profileLevels) {
-        if (profiles.contains(codecProfileLevel.profile)) {
-          resultBuilder.add(mediaCodecInfo.getName());
+        if (allowedColorProfiles.contains(codecProfileLevel.profile)) {
+          resultBuilder.add(mediaCodecInfo);
         }
       }
     }
@@ -217,49 +234,32 @@ public final class EncoderUtil {
   @Nullable
   public static Size getSupportedResolution(
       MediaCodecInfo encoderInfo, String mimeType, int width, int height) {
-    MediaCodecInfo.VideoCapabilities videoEncoderCapabilities =
+    MediaCodecInfo.VideoCapabilities videoCapabilities =
         encoderInfo.getCapabilitiesForType(mimeType).getVideoCapabilities();
-    int widthAlignment = videoEncoderCapabilities.getWidthAlignment();
-    int heightAlignment = videoEncoderCapabilities.getHeightAlignment();
+    int widthAlignment = videoCapabilities.getWidthAlignment();
+    int heightAlignment = videoCapabilities.getHeightAlignment();
 
     // Fix size alignment.
-    width = alignResolution(width, widthAlignment);
-    height = alignResolution(height, heightAlignment);
-    if (isSizeSupported(encoderInfo, mimeType, width, height)) {
-      return new Size(width, height);
-    }
-
-    // Try three-fourths (e.g. 1440 -> 1080).
-    int newWidth = alignResolution(width * 3 / 4, widthAlignment);
-    int newHeight = alignResolution(height * 3 / 4, heightAlignment);
+    int newWidth = alignResolution(width, widthAlignment);
+    int newHeight = alignResolution(height, heightAlignment);
     if (isSizeSupported(encoderInfo, mimeType, newWidth, newHeight)) {
       return new Size(newWidth, newHeight);
     }
 
-    // Try two-thirds (e.g. 4k -> 1440).
-    newWidth = alignResolution(width * 2 / 3, widthAlignment);
-    newHeight = alignResolution(height * 2 / 3, heightAlignment);
-    if (isSizeSupported(encoderInfo, mimeType, width, height)) {
-      return new Size(newWidth, newHeight);
+    float[] reductionFactors =
+        new float[] {
+          0.95f, 0.9f, 0.85f, 0.8f, 0.75f, 0.7f, 2f / 3f, 0.6f, 0.55f, 0.5f, 0.4f, 1f / 3f, 0.25f
+        };
+    for (float reductionFactor : reductionFactors) {
+      newWidth = alignResolution(round(width * reductionFactor), widthAlignment);
+      newHeight = alignResolution(round(height * reductionFactor), heightAlignment);
+      if (isSizeSupported(encoderInfo, mimeType, newWidth, newHeight)) {
+        return new Size(newWidth, newHeight);
+      }
     }
 
-    // Try half (e.g. 4k -> 1080).
-    newWidth = alignResolution(width / 2, widthAlignment);
-    newHeight = alignResolution(height / 2, heightAlignment);
-    if (isSizeSupported(encoderInfo, mimeType, newWidth, newHeight)) {
-      return new Size(newWidth, newHeight);
-    }
-
-    // Try one-third (e.g. 4k -> 720).
-    newWidth = alignResolution(width / 3, widthAlignment);
-    newHeight = alignResolution(height / 3, heightAlignment);
-    if (isSizeSupported(encoderInfo, mimeType, newWidth, newHeight)) {
-      return new Size(newWidth, newHeight);
-    }
-
-    // Fix frame being too wide or too tall.
-    width = videoEncoderCapabilities.getSupportedWidths().clamp(width);
-    int adjustedHeight = videoEncoderCapabilities.getSupportedHeightsFor(width).clamp(height);
+    int supportedWidth = videoCapabilities.getSupportedWidths().clamp(width);
+    int adjustedHeight = videoCapabilities.getSupportedHeightsFor(supportedWidth).clamp(height);
     if (adjustedHeight != height) {
       width =
           alignResolution((int) round((double) width * adjustedHeight / height), widthAlignment);
@@ -428,13 +428,14 @@ public final class EncoderUtil {
       shouldRoundDown = true;
     }
     return shouldRoundDown
-        ? (int) (alignment * Math.floor((float) size / alignment))
-        : alignment * Math.round((float) size / alignment);
+        ? (int) (alignment * floor((float) size / alignment))
+        : alignment * round((float) size / alignment);
   }
 
-  private static ImmutableListMultimap<String, MediaCodecInfo> populateEncoderInfos() {
-    ImmutableListMultimap.Builder<String, MediaCodecInfo> encoderInfosBuilder =
-        new ImmutableListMultimap.Builder<>();
+  private static synchronized void maybePopulateEncoderInfo() {
+    if (!mimeTypeToEncoders.isEmpty()) {
+      return;
+    }
 
     MediaCodecList mediaCodecList = new MediaCodecList(MediaCodecList.REGULAR_CODECS);
     MediaCodecInfo[] allCodecInfos = mediaCodecList.getCodecInfos();
@@ -445,12 +446,9 @@ public final class EncoderUtil {
       }
       String[] supportedMimeTypes = mediaCodecInfo.getSupportedTypes();
       for (String mimeType : supportedMimeTypes) {
-        if (MimeTypes.isVideo(mimeType)) {
-          encoderInfosBuilder.put(Ascii.toLowerCase(mimeType), mediaCodecInfo);
-        }
+        mimeTypeToEncoders.put(Ascii.toLowerCase(mimeType), mediaCodecInfo);
       }
     }
-    return encoderInfosBuilder.build();
   }
 
   @RequiresApi(29)

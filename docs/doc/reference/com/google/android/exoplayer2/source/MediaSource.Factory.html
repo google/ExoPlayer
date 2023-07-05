@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var data = {"i0":6,"i1":6,"i2":18,"i3":6,"i4":6};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -175,7 +175,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -197,6 +197,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code>default <a href="MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Factory</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setCmcdConfigurationFactory(com.google.android.exoplayer2.upstream.CmcdConfiguration.Factory)">setCmcdConfigurationFactory</a></span>&#8203;(<a href="../upstream/CmcdConfiguration.Factory.html" title="interface in com.google.android.exoplayer2.upstream">CmcdConfiguration.Factory</a>&nbsp;cmcdConfigurationFactory)</code></th>
+<td class="colLast">
+<div class="block">Sets the <a href="../upstream/CmcdConfiguration.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>CmcdConfiguration.Factory</code></a> used to obtain a <a href="../upstream/CmcdConfiguration.html" title="class in com.google.android.exoplayer2.upstream"><code>CmcdConfiguration</code></a> for a
+ <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDrmSessionManagerProvider(com.google.android.exoplayer2.drm.DrmSessionManagerProvider)">setDrmSessionManagerProvider</a></span>&#8203;(<a href="../drm/DrmSessionManagerProvider.html" title="interface in com.google.android.exoplayer2.drm">DrmSessionManagerProvider</a>&nbsp;drmSessionManagerProvider)</code></th>
 <td class="colLast">
@@ -204,7 +212,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
  <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
 </td>
 </tr>
-<tr id="i3" class="rowColor">
+<tr id="i4" class="altColor">
 <td class="colFirst"><code><a href="MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Factory</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setLoadErrorHandlingPolicy(com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy)">setLoadErrorHandlingPolicy</a></span>&#8203;(<a href="../upstream/LoadErrorHandlingPolicy.html" title="interface in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy</a>&nbsp;loadErrorHandlingPolicy)</code></th>
 <td class="colLast">
@@ -249,6 +257,21 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a id="setCmcdConfigurationFactory(com.google.android.exoplayer2.upstream.CmcdConfiguration.Factory)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>setCmcdConfigurationFactory</h4>
+<pre class="methodSignature">default&nbsp;<a href="MediaSource.Factory.html" title="interface in com.google.android.exoplayer2.source">MediaSource.Factory</a>&nbsp;setCmcdConfigurationFactory&#8203;(<a href="../upstream/CmcdConfiguration.Factory.html" title="interface in com.google.android.exoplayer2.upstream">CmcdConfiguration.Factory</a>&nbsp;cmcdConfigurationFactory)</pre>
+<div class="block">Sets the <a href="../upstream/CmcdConfiguration.Factory.html" title="interface in com.google.android.exoplayer2.upstream"><code>CmcdConfiguration.Factory</code></a> used to obtain a <a href="../upstream/CmcdConfiguration.html" title="class in com.google.android.exoplayer2.upstream"><code>CmcdConfiguration</code></a> for a
+ <a href="../MediaItem.html" title="class in com.google.android.exoplayer2"><code>MediaItem</code></a>.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>This factory, for convenience.</dd>
+</dl>
+</li>
+</ul>
 <a id="setDrmSessionManagerProvider(com.google.android.exoplayer2.drm.DrmSessionManagerProvider)">
 <!--   -->
 </a>

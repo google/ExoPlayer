@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="cache/Cache.Listener.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache.Listener</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">CachedRegionTracker</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">CachedRegionTracker</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="cache/Cache.Listener.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache.Listener</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Utility class for efficiently tracking regions of data that are stored in a <a href="cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache"><code>Cache</code></a> for a
  given cache key.</div>
 </li>
@@ -161,12 +167,16 @@ implements <a href="cache/Cache.Listener.html" title="interface in com.google.an
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#CACHED_TO_END">CACHED_TO_END</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#NOT_CACHED">NOT_CACHED</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -189,7 +199,9 @@ implements <a href="cache/Cache.Listener.html" title="interface in com.google.an
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.upstream.cache.Cache,java.lang.String,com.google.android.exoplayer2.extractor.ChunkIndex)">CachedRegionTracker</a></span>&#8203;(<a href="cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;cacheKey,
                    <a href="../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor">ChunkIndex</a>&nbsp;chunkIndex)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -203,7 +215,7 @@ implements <a href="cache/Cache.Listener.html" title="interface in com.google.an
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -213,6 +225,7 @@ implements <a href="cache/Cache.Listener.html" title="interface in com.google.an
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getRegionEndTimeMs(long)">getRegionEndTimeMs</a></span>&#8203;(long&nbsp;byteOffset)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">When provided with a byte offset, this method locates the cached region within which the offset
  falls, and returns the approximate end position in milliseconds of that region.</div>
 </td>
@@ -222,6 +235,7 @@ implements <a href="cache/Cache.Listener.html" title="interface in com.google.an
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSpanAdded(com.google.android.exoplayer2.upstream.cache.Cache,com.google.android.exoplayer2.upstream.cache.CacheSpan)">onSpanAdded</a></span>&#8203;(<a href="cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
            <a href="cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;span)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a <a href="cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> is added to the cache.</div>
 </td>
 </tr>
@@ -230,6 +244,7 @@ implements <a href="cache/Cache.Listener.html" title="interface in com.google.an
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onSpanRemoved(com.google.android.exoplayer2.upstream.cache.Cache,com.google.android.exoplayer2.upstream.cache.CacheSpan)">onSpanRemoved</a></span>&#8203;(<a href="cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
              <a href="cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;span)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a <a href="cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> is removed from the cache.</div>
 </td>
 </tr>
@@ -239,13 +254,16 @@ implements <a href="cache/Cache.Listener.html" title="interface in com.google.an
              <a href="cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;oldSpan,
              <a href="cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;newSpan)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when an existing <a href="cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> is touched, causing it to be replaced.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#release()">release</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -278,6 +296,7 @@ implements <a href="cache/Cache.Listener.html" title="interface in com.google.an
 <li class="blockList">
 <h4>NOT_CACHED</h4>
 <pre>public static final&nbsp;int NOT_CACHED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.upstream.CachedRegionTracker.NOT_CACHED">Constant Field Values</a></dd>
@@ -291,6 +310,7 @@ implements <a href="cache/Cache.Listener.html" title="interface in com.google.an
 <li class="blockList">
 <h4>CACHED_TO_END</h4>
 <pre>public static final&nbsp;int CACHED_TO_END</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.upstream.CachedRegionTracker.CACHED_TO_END">Constant Field Values</a></dd>
@@ -316,6 +336,7 @@ implements <a href="cache/Cache.Listener.html" title="interface in com.google.an
 <pre>public&nbsp;CachedRegionTracker&#8203;(<a href="cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
                            <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;cacheKey,
                            <a href="../extractor/ChunkIndex.html" title="class in com.google.android.exoplayer2.extractor">ChunkIndex</a>&nbsp;chunkIndex)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -335,6 +356,7 @@ implements <a href="cache/Cache.Listener.html" title="interface in com.google.an
 <li class="blockList">
 <h4>release</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;release()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="getRegionEndTimeMs(long)">
@@ -344,6 +366,7 @@ implements <a href="cache/Cache.Listener.html" title="interface in com.google.an
 <li class="blockList">
 <h4>getRegionEndTimeMs</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getRegionEndTimeMs&#8203;(long&nbsp;byteOffset)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">When provided with a byte offset, this method locates the cached region within which the offset
  falls, and returns the approximate end position in milliseconds of that region. If the byte
  offset does not fall within a cached region then <a href="#NOT_CACHED"><code>NOT_CACHED</code></a> is returned. If the cached
@@ -364,6 +387,7 @@ implements <a href="cache/Cache.Listener.html" title="interface in com.google.an
 <h4>onSpanAdded</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onSpanAdded&#8203;(<a href="cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
                         <a href="cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;span)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="cache/Cache.Listener.html#onSpanAdded(com.google.android.exoplayer2.upstream.cache.Cache,com.google.android.exoplayer2.upstream.cache.CacheSpan)">Cache.Listener</a></code></span></div>
 <div class="block">Called when a <a href="cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> is added to the cache.</div>
 <dl>
@@ -383,6 +407,7 @@ implements <a href="cache/Cache.Listener.html" title="interface in com.google.an
 <h4>onSpanRemoved</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onSpanRemoved&#8203;(<a href="cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
                           <a href="cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;span)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="cache/Cache.Listener.html#onSpanRemoved(com.google.android.exoplayer2.upstream.cache.Cache,com.google.android.exoplayer2.upstream.cache.CacheSpan)">Cache.Listener</a></code></span></div>
 <div class="block">Called when a <a href="cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> is removed from the cache.</div>
 <dl>
@@ -403,6 +428,7 @@ implements <a href="cache/Cache.Listener.html" title="interface in com.google.an
 <pre class="methodSignature">public&nbsp;void&nbsp;onSpanTouched&#8203;(<a href="cache/Cache.html" title="interface in com.google.android.exoplayer2.upstream.cache">Cache</a>&nbsp;cache,
                           <a href="cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;oldSpan,
                           <a href="cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache">CacheSpan</a>&nbsp;newSpan)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="cache/Cache.Listener.html#onSpanTouched(com.google.android.exoplayer2.upstream.cache.Cache,com.google.android.exoplayer2.upstream.cache.CacheSpan,com.google.android.exoplayer2.upstream.cache.CacheSpan)">Cache.Listener</a></code></span></div>
 <div class="block">Called when an existing <a href="cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> is touched, causing it to be replaced. The new
  <a href="cache/CacheSpan.html" title="class in com.google.android.exoplayer2.upstream.cache"><code>CacheSpan</code></a> is guaranteed to represent the same data as the one it replaces, however

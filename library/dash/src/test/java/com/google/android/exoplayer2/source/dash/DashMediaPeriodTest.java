@@ -211,12 +211,13 @@ public final class DashMediaPeriodTest {
         periodIndex,
         mock(DashChunkSource.Factory.class),
         mock(TransferListener.class),
+        /* cmcdConfiguration= */ null,
         DrmSessionManager.DRM_UNSUPPORTED,
         new DrmSessionEventListener.EventDispatcher()
             .withParameters(/* windowIndex= */ 0, mediaPeriodId),
         mock(LoadErrorHandlingPolicy.class),
         new MediaSourceEventListener.EventDispatcher()
-            .withParameters(/* windowIndex= */ 0, mediaPeriodId, /* mediaTimeOffsetMs= */ 0),
+            .withParameters(/* windowIndex= */ 0, mediaPeriodId),
         /* elapsedRealtimeOffsetMs= */ 0,
         mock(LoaderErrorThrower.class),
         mock(Allocator.class),

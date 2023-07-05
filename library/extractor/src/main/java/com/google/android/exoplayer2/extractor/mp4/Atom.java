@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @SuppressWarnings("ConstantField")
+@Deprecated
 /* package */ abstract class Atom {
 
   /** Size of an atom header, in bytes. */
@@ -349,6 +350,9 @@ import java.util.List;
 
   @SuppressWarnings("ConstantCaseForConstants")
   public static final int TYPE_meta = 0x6d657461;
+
+  @SuppressWarnings("ConstantCaseForConstants")
+  public static final int TYPE_xyz = 0xa978797a;
 
   @SuppressWarnings("ConstantCaseForConstants")
   public static final int TYPE_smta = 0x736d7461;

@@ -40,7 +40,13 @@ import java.util.List;
 /**
  * Metadata of a {@link MediaItem}, playlist, or a combination of multiple sources of {@link
  * Metadata}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class MediaMetadata implements Bundleable {
 
   /** A builder for {@link MediaMetadata} instances. */
@@ -60,7 +66,11 @@ public final class MediaMetadata implements Bundleable {
     @Nullable private Uri artworkUri;
     @Nullable private Integer trackNumber;
     @Nullable private Integer totalTrackCount;
-    @Nullable private @FolderType Integer folderType;
+
+    @SuppressWarnings("deprecation") // Builder for deprecated field.
+    @Nullable
+    private @FolderType Integer folderType;
+
     @Nullable private Boolean isBrowsable;
     @Nullable private Boolean isPlayable;
     @Nullable private Integer recordingYear;
@@ -82,6 +92,7 @@ public final class MediaMetadata implements Bundleable {
 
     public Builder() {}
 
+    @SuppressWarnings("deprecation") // Assigning from deprecated fields.
     private Builder(MediaMetadata mediaMetadata) {
       this.title = mediaMetadata.title;
       this.artist = mediaMetadata.artist;
@@ -250,9 +261,11 @@ public final class MediaMetadata implements Bundleable {
     /**
      * Sets the {@link FolderType}.
      *
-     * <p>This method will be deprecated. Use {@link #setIsBrowsable} to indicate if an item is a
-     * browsable folder and use {@link #setMediaType} to indicate the type of the folder.
+     * @deprecated Use {@link #setIsBrowsable} to indicate if an item is a browsable folder and use
+     *     {@link #setMediaType} to indicate the type of the folder.
      */
+    @SuppressWarnings("deprecation") // Using deprecated type.
+    @Deprecated
     @CanIgnoreReturnValue
     public Builder setFolderType(@Nullable @FolderType Integer folderType) {
       this.folderType = folderType;
@@ -452,6 +465,7 @@ public final class MediaMetadata implements Bundleable {
     }
 
     /** Populates all the fields from {@code mediaMetadata}, provided they are non-null. */
+    @SuppressWarnings("deprecation") // Populating deprecated fields.
     @CanIgnoreReturnValue
     public Builder populate(@Nullable MediaMetadata mediaMetadata) {
       if (mediaMetadata == null) {
@@ -745,12 +759,17 @@ public final class MediaMetadata implements Bundleable {
    * <p>One of {@link #FOLDER_TYPE_NONE}, {@link #FOLDER_TYPE_MIXED}, {@link #FOLDER_TYPE_TITLES},
    * {@link #FOLDER_TYPE_ALBUMS}, {@link #FOLDER_TYPE_ARTISTS}, {@link #FOLDER_TYPE_GENRES}, {@link
    * #FOLDER_TYPE_PLAYLISTS} or {@link #FOLDER_TYPE_YEARS}.
+   *
+   * @deprecated Use {@link #isBrowsable} to indicate if an item is a browsable folder and use
+   *     {@link #mediaType} to indicate the type of the folder.
    */
   // @Target list includes both 'default' targets and TYPE_USE, to ensure backwards compatibility
   // with Kotlin usages from before TYPE_USE was added.
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target({FIELD, METHOD, PARAMETER, LOCAL_VARIABLE, TYPE_USE})
+  @Deprecated
+  @SuppressWarnings("deprecation") // Defining deprecated constants.
   @IntDef({
     FOLDER_TYPE_NONE,
     FOLDER_TYPE_MIXED,
@@ -763,22 +782,60 @@ public final class MediaMetadata implements Bundleable {
   })
   public @interface FolderType {}
 
-  /** Type for an item that is not a folder. */
-  public static final int FOLDER_TYPE_NONE = -1;
-  /** Type for a folder containing media of mixed types. */
-  public static final int FOLDER_TYPE_MIXED = 0;
-  /** Type for a folder containing only playable media. */
-  public static final int FOLDER_TYPE_TITLES = 1;
-  /** Type for a folder containing media categorized by album. */
-  public static final int FOLDER_TYPE_ALBUMS = 2;
-  /** Type for a folder containing media categorized by artist. */
-  public static final int FOLDER_TYPE_ARTISTS = 3;
-  /** Type for a folder containing media categorized by genre. */
-  public static final int FOLDER_TYPE_GENRES = 4;
-  /** Type for a folder containing a playlist. */
-  public static final int FOLDER_TYPE_PLAYLISTS = 5;
-  /** Type for a folder containing media categorized by year. */
-  public static final int FOLDER_TYPE_YEARS = 6;
+  /**
+   * Type for an item that is not a folder.
+   *
+   * @deprecated Use {@link #isBrowsable} set to false instead.
+   */
+  @Deprecated public static final int FOLDER_TYPE_NONE = -1;
+  /**
+   * Type for a folder containing media of mixed types.
+   *
+   * @deprecated Use {@link #isBrowsable} set to true and {@link #mediaType} set to {@link
+   *     #MEDIA_TYPE_FOLDER_MIXED} instead.
+   */
+  @Deprecated public static final int FOLDER_TYPE_MIXED = 0;
+  /**
+   * Type for a folder containing only playable media.
+   *
+   * @deprecated Use {@link #isBrowsable} set to true instead.
+   */
+  @Deprecated public static final int FOLDER_TYPE_TITLES = 1;
+  /**
+   * Type for a folder containing media categorized by album.
+   *
+   * @deprecated Use {@link #isBrowsable} set to true and {@link #mediaType} set to {@link
+   *     #MEDIA_TYPE_FOLDER_ALBUMS} instead.
+   */
+  @Deprecated public static final int FOLDER_TYPE_ALBUMS = 2;
+  /**
+   * Type for a folder containing media categorized by artist.
+   *
+   * @deprecated Use {@link #isBrowsable} set to true and {@link #mediaType} set to {@link
+   *     #MEDIA_TYPE_FOLDER_ARTISTS} instead.
+   */
+  @Deprecated public static final int FOLDER_TYPE_ARTISTS = 3;
+  /**
+   * Type for a folder containing media categorized by genre.
+   *
+   * @deprecated Use {@link #isBrowsable} set to true and {@link #mediaType} set to {@link
+   *     #MEDIA_TYPE_FOLDER_GENRES} instead.
+   */
+  @Deprecated public static final int FOLDER_TYPE_GENRES = 4;
+  /**
+   * Type for a folder containing a playlist.
+   *
+   * @deprecated Use {@link #isBrowsable} set to true and {@link #mediaType} set to {@link
+   *     #MEDIA_TYPE_FOLDER_PLAYLISTS} instead.
+   */
+  @Deprecated public static final int FOLDER_TYPE_PLAYLISTS = 5;
+  /**
+   * Type for a folder containing media categorized by year.
+   *
+   * @deprecated Use {@link #isBrowsable} set to true and {@link #mediaType} set to {@link
+   *     #MEDIA_TYPE_FOLDER_YEARS} instead.
+   */
+  @Deprecated public static final int FOLDER_TYPE_YEARS = 6;
 
   /**
    * The picture type of the artwork.
@@ -887,10 +944,13 @@ public final class MediaMetadata implements Bundleable {
   /**
    * Optional {@link FolderType}.
    *
-   * <p>This field will be deprecated. Use {@link #isBrowsable} to indicate if an item is a
-   * browsable folder and use {@link #mediaType} to indicate the type of the folder.
+   * @deprecated Use {@link #isBrowsable} to indicate if an item is a browsable folder and use
+   *     {@link #mediaType} to indicate the type of the folder.
    */
-  @Nullable public final @FolderType Integer folderType;
+  @SuppressWarnings("deprecation") // Defining field of deprecated type.
+  @Deprecated
+  @Nullable
+  public final @FolderType Integer folderType;
   /** Optional boolean to indicate that the media is a browsable folder. */
   @Nullable public final Boolean isBrowsable;
   /** Optional boolean to indicate that the media is playable. */
@@ -955,6 +1015,7 @@ public final class MediaMetadata implements Bundleable {
    */
   @Nullable public final Bundle extras;
 
+  @SuppressWarnings("deprecation") // Assigning deprecated fields.
   private MediaMetadata(Builder builder) {
     // Handle compatibility for deprecated fields.
     @Nullable Boolean isBrowsable = builder.isBrowsable;
@@ -1013,6 +1074,7 @@ public final class MediaMetadata implements Bundleable {
     return new Builder(/* mediaMetadata= */ this);
   }
 
+  @SuppressWarnings("deprecation") // Comparing deprecated fields.
   @Override
   public boolean equals(@Nullable Object obj) {
     if (this == obj) {
@@ -1056,6 +1118,7 @@ public final class MediaMetadata implements Bundleable {
         && Util.areEqual(mediaType, that.mediaType);
   }
 
+  @SuppressWarnings("deprecation") // Hashing deprecated fields.
   @Override
   public int hashCode() {
     return Objects.hashCode(
@@ -1130,6 +1193,7 @@ public final class MediaMetadata implements Bundleable {
   private static final String FIELD_IS_BROWSABLE = Util.intToStringMaxRadix(32);
   private static final String FIELD_EXTRAS = Util.intToStringMaxRadix(1000);
 
+  @SuppressWarnings("deprecation") // Bundling deprecated fields.
   @Override
   public Bundle toBundle() {
     Bundle bundle = new Bundle();
@@ -1238,6 +1302,7 @@ public final class MediaMetadata implements Bundleable {
   /** Object that can restore {@link MediaMetadata} from a {@link Bundle}. */
   public static final Creator<MediaMetadata> CREATOR = MediaMetadata::fromBundle;
 
+  @SuppressWarnings("deprecation") // Unbundling deprecated fields.
   private static MediaMetadata fromBundle(Bundle bundle) {
     Builder builder = new Builder();
     builder
@@ -1320,6 +1385,7 @@ public final class MediaMetadata implements Bundleable {
     return builder.build();
   }
 
+  @SuppressWarnings("deprecation") // Converting deprecated field.
   private static @FolderType int getFolderTypeFromMediaType(@MediaType int mediaType) {
     switch (mediaType) {
       case MEDIA_TYPE_ALBUM:
@@ -1369,6 +1435,7 @@ public final class MediaMetadata implements Bundleable {
     }
   }
 
+  @SuppressWarnings("deprecation") // Converting deprecated field.
   private static @MediaType int getMediaTypeFromFolderType(@FolderType int folderType) {
     switch (folderType) {
       case FOLDER_TYPE_ALBUMS:

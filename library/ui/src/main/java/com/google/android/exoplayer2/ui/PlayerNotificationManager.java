@@ -18,11 +18,8 @@ package com.google.android.exoplayer2.ui;
 import static com.google.android.exoplayer2.Player.COMMAND_CHANGE_MEDIA_ITEMS;
 import static com.google.android.exoplayer2.Player.COMMAND_GET_CURRENT_MEDIA_ITEM;
 import static com.google.android.exoplayer2.Player.COMMAND_GET_TIMELINE;
-import static com.google.android.exoplayer2.Player.COMMAND_PLAY_PAUSE;
-import static com.google.android.exoplayer2.Player.COMMAND_PREPARE;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_BACK;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_FORWARD;
-import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_DEFAULT_POSITION;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_NEXT;
 import static com.google.android.exoplayer2.Player.COMMAND_SEEK_TO_PREVIOUS;
 import static com.google.android.exoplayer2.Player.COMMAND_STOP;
@@ -173,7 +170,13 @@ import java.util.Map;
  * NotificationCompat.Builder#setLargeIcon(Bitmap)} cannot be overridden in this way. Instead, the
  * large icon is obtained from the {@link MediaDescriptionAdapter} passed to {@link
  * Builder#Builder(Context, int, String, MediaDescriptionAdapter)}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public class PlayerNotificationManager {
 
   /** An adapter to provide content assets of the media currently playing. */
@@ -1332,10 +1335,10 @@ public class PlayerNotificationManager {
       stringActions.add(ACTION_REWIND);
     }
     if (usePlayPauseActions) {
-      if (shouldShowPauseButton(player)) {
-        stringActions.add(ACTION_PAUSE);
-      } else {
+      if (Util.shouldShowPlayButton(player)) {
         stringActions.add(ACTION_PLAY);
+      } else {
+        stringActions.add(ACTION_PAUSE);
       }
     }
     if (useFastForwardAction && enableFastForward) {
@@ -1380,10 +1383,10 @@ public class PlayerNotificationManager {
     if (leftSideActionIndex != -1) {
       actionIndices[actionCounter++] = leftSideActionIndex;
     }
-    boolean shouldShowPauseButton = shouldShowPauseButton(player);
-    if (pauseActionIndex != -1 && shouldShowPauseButton) {
+    boolean shouldShowPlayButton = Util.shouldShowPlayButton(player);
+    if (pauseActionIndex != -1 && !shouldShowPlayButton) {
       actionIndices[actionCounter++] = pauseActionIndex;
-    } else if (playActionIndex != -1 && !shouldShowPauseButton) {
+    } else if (playActionIndex != -1 && shouldShowPlayButton) {
       actionIndices[actionCounter++] = playActionIndex;
     }
     if (rightSideActionIndex != -1) {
@@ -1396,12 +1399,6 @@ public class PlayerNotificationManager {
   protected boolean getOngoing(Player player) {
     int playbackState = player.getPlaybackState();
     return (playbackState == Player.STATE_BUFFERING || playbackState == Player.STATE_READY)
-        && player.getPlayWhenReady();
-  }
-
-  private boolean shouldShowPauseButton(Player player) {
-    return player.getPlaybackState() != Player.STATE_ENDED
-        && player.getPlaybackState() != Player.STATE_IDLE
         && player.getPlayWhenReady();
   }
 
@@ -1545,20 +1542,9 @@ public class PlayerNotificationManager {
       }
       String action = intent.getAction();
       if (ACTION_PLAY.equals(action)) {
-        if (player.getPlaybackState() == Player.STATE_IDLE
-            && player.isCommandAvailable(COMMAND_PREPARE)) {
-          player.prepare();
-        } else if (player.getPlaybackState() == Player.STATE_ENDED
-            && player.isCommandAvailable(COMMAND_SEEK_TO_DEFAULT_POSITION)) {
-          player.seekToDefaultPosition();
-        }
-        if (player.isCommandAvailable(COMMAND_PLAY_PAUSE)) {
-          player.play();
-        }
+        Util.handlePlayButtonAction(player);
       } else if (ACTION_PAUSE.equals(action)) {
-        if (player.isCommandAvailable(COMMAND_PLAY_PAUSE)) {
-          player.pause();
-        }
+        Util.handlePauseButtonAction(player);
       } else if (ACTION_PREVIOUS.equals(action)) {
         if (player.isCommandAvailable(COMMAND_SEEK_TO_PREVIOUS)) {
           player.seekToPrevious();

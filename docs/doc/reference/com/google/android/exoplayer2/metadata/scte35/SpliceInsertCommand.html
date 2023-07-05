@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -138,8 +138,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="https://developer.android.com/reference/android/os/Parcelable.html" title="class or interface in android.os" class="externalLink">Parcelable</a></code>, <code><a href="../Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata" target="_top">Metadata.Entry</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">SpliceInsertCommand</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">SpliceInsertCommand</span>
 extends <a href="SpliceCommand.html" title="class in com.google.android.exoplayer2.metadata.scte35">SpliceCommand</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Represents a splice insert command defined in SCTE35, Section 9.3.3.</div>
 </li>
 </ul>
@@ -165,6 +171,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="SpliceInsertCommand.ComponentSplice.html" title="class in com.google.android.exoplayer2.metadata.scte35">SpliceInsertCommand.ComponentSplice</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Holds splicing information for specific splice insert command components.</div>
 </td>
 </tr>
@@ -197,6 +204,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#autoReturn">autoReturn</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If <a href="#breakDurationUs"><code>breakDurationUs</code></a> is not <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>, defines whether <a href="#breakDurationUs"><code>breakDurationUs</code></a> should be used to know when to return to the network feed.</div>
 </td>
 </tr>
@@ -204,6 +212,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#availNum">availNum</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Holds the value of <code>avail_num</code> as defined in SCTE35, Section 9.3.3.</div>
 </td>
 </tr>
@@ -211,6 +220,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#availsExpected">availsExpected</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Holds the value of <code>avails_expected</code> as defined in SCTE35, Section 9.3.3.</div>
 </td>
 </tr>
@@ -218,6 +228,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#breakDurationUs">breakDurationUs</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The duration of the splice in microseconds, or <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no duration is present.</div>
 </td>
 </tr>
@@ -225,18 +236,22 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="SpliceInsertCommand.ComponentSplice.html" title="class in com.google.android.exoplayer2.metadata.scte35" target="_top">SpliceInsertCommand.ComponentSplice</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#componentSpliceList">componentSpliceList</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If <a href="#programSpliceFlag"><code>programSpliceFlag</code></a> is false, a non-empty list containing the <a href="SpliceInsertCommand.ComponentSplice.html" title="class in com.google.android.exoplayer2.metadata.scte35"><code>SpliceInsertCommand.ComponentSplice</code></a>s.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/os/Parcelable.Creator.html" title="class or interface in android.os" class="externalLink">Parcelable.Creator</a>&lt;<a href="SpliceInsertCommand.html" title="class in com.google.android.exoplayer2.metadata.scte35" target="_top">SpliceInsertCommand</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#CREATOR">CREATOR</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#outOfNetworkIndicator">outOfNetworkIndicator</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If true, the splice event is an opportunity to exit from the network feed.</div>
 </td>
 </tr>
@@ -244,6 +259,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#programSpliceFlag">programSpliceFlag</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the splice mode is program splice mode, whereby all PIDs/components are to be spliced.</div>
 </td>
 </tr>
@@ -251,6 +267,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#programSplicePlaybackPositionUs">programSplicePlaybackPositionUs</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Equivalent to <a href="#programSplicePts"><code>programSplicePts</code></a> but in the playback timebase.</div>
 </td>
 </tr>
@@ -258,6 +275,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#programSplicePts">programSplicePts</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If <a href="#programSpliceFlag"><code>programSpliceFlag</code></a> is true, the PTS at which the program splice should occur.</div>
 </td>
 </tr>
@@ -265,6 +283,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#spliceEventCancelIndicator">spliceEventCancelIndicator</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">True if the event with id <a href="#spliceEventId"><code>spliceEventId</code></a> has been canceled.</div>
 </td>
 </tr>
@@ -272,6 +291,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#spliceEventId">spliceEventId</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The splice event id.</div>
 </td>
 </tr>
@@ -279,6 +299,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#spliceImmediateFlag">spliceImmediateFlag</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether splicing should be done at the nearest opportunity.</div>
 </td>
 </tr>
@@ -286,6 +307,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#uniqueProgramId">uniqueProgramId</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The unique program id as defined in SCTE35, Section 9.3.3.</div>
 </td>
 </tr>
@@ -308,7 +330,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -318,7 +340,9 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#writeToParcel(android.os.Parcel,int)">writeToParcel</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Parcel.html" title="class or interface in android.os" class="externalLink" target="_top">Parcel</a>&nbsp;dest,
              int&nbsp;flags)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -365,6 +389,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <li class="blockList">
 <h4>spliceEventId</h4>
 <pre>public final&nbsp;long spliceEventId</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The splice event id.</div>
 </li>
 </ul>
@@ -375,6 +400,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <li class="blockList">
 <h4>spliceEventCancelIndicator</h4>
 <pre>public final&nbsp;boolean spliceEventCancelIndicator</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">True if the event with id <a href="#spliceEventId"><code>spliceEventId</code></a> has been canceled.</div>
 </li>
 </ul>
@@ -385,6 +411,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <li class="blockList">
 <h4>outOfNetworkIndicator</h4>
 <pre>public final&nbsp;boolean outOfNetworkIndicator</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If true, the splice event is an opportunity to exit from the network feed. If false, indicates
  an opportunity to return to the network feed.</div>
 </li>
@@ -396,6 +423,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <li class="blockList">
 <h4>programSpliceFlag</h4>
 <pre>public final&nbsp;boolean programSpliceFlag</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the splice mode is program splice mode, whereby all PIDs/components are to be spliced.
  If false, splicing is done per PID/component.</div>
 </li>
@@ -407,6 +435,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <li class="blockList">
 <h4>spliceImmediateFlag</h4>
 <pre>public final&nbsp;boolean spliceImmediateFlag</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether splicing should be done at the nearest opportunity. If false, splicing should be done
  at the moment indicated by <a href="#programSplicePlaybackPositionUs"><code>programSplicePlaybackPositionUs</code></a> or <a href="SpliceInsertCommand.ComponentSplice.html#componentSplicePlaybackPositionUs"><code>SpliceInsertCommand.ComponentSplice.componentSplicePlaybackPositionUs</code></a>, depending on <a href="#programSpliceFlag"><code>programSpliceFlag</code></a>.</div>
 </li>
@@ -418,6 +447,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <li class="blockList">
 <h4>programSplicePts</h4>
 <pre>public final&nbsp;long programSplicePts</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If <a href="#programSpliceFlag"><code>programSpliceFlag</code></a> is true, the PTS at which the program splice should occur. <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> otherwise.</div>
 </li>
 </ul>
@@ -428,6 +458,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <li class="blockList">
 <h4>programSplicePlaybackPositionUs</h4>
 <pre>public final&nbsp;long programSplicePlaybackPositionUs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Equivalent to <a href="#programSplicePts"><code>programSplicePts</code></a> but in the playback timebase.</div>
 </li>
 </ul>
@@ -438,6 +469,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <li class="blockList">
 <h4>componentSpliceList</h4>
 <pre>public final&nbsp;<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="SpliceInsertCommand.ComponentSplice.html" title="class in com.google.android.exoplayer2.metadata.scte35" target="_top">SpliceInsertCommand.ComponentSplice</a>&gt; componentSpliceList</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If <a href="#programSpliceFlag"><code>programSpliceFlag</code></a> is false, a non-empty list containing the <a href="SpliceInsertCommand.ComponentSplice.html" title="class in com.google.android.exoplayer2.metadata.scte35"><code>SpliceInsertCommand.ComponentSplice</code></a>s. Otherwise, an empty list.</div>
 </li>
 </ul>
@@ -448,6 +480,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <li class="blockList">
 <h4>autoReturn</h4>
 <pre>public final&nbsp;boolean autoReturn</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If <a href="#breakDurationUs"><code>breakDurationUs</code></a> is not <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>, defines whether <a href="#breakDurationUs"><code>breakDurationUs</code></a> should be used to know when to return to the network feed. If <a href="#breakDurationUs"><code>breakDurationUs</code></a> is <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>, the value is undefined.</div>
 </li>
 </ul>
@@ -458,6 +491,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <li class="blockList">
 <h4>breakDurationUs</h4>
 <pre>public final&nbsp;long breakDurationUs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The duration of the splice in microseconds, or <a href="../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if no duration is present.</div>
 </li>
 </ul>
@@ -468,6 +502,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <li class="blockList">
 <h4>uniqueProgramId</h4>
 <pre>public final&nbsp;int uniqueProgramId</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The unique program id as defined in SCTE35, Section 9.3.3.</div>
 </li>
 </ul>
@@ -478,6 +513,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <li class="blockList">
 <h4>availNum</h4>
 <pre>public final&nbsp;int availNum</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Holds the value of <code>avail_num</code> as defined in SCTE35, Section 9.3.3.</div>
 </li>
 </ul>
@@ -488,6 +524,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <li class="blockList">
 <h4>availsExpected</h4>
 <pre>public final&nbsp;int availsExpected</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Holds the value of <code>avails_expected</code> as defined in SCTE35, Section 9.3.3.</div>
 </li>
 </ul>
@@ -498,6 +535,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <li class="blockList">
 <h4>CREATOR</h4>
 <pre>public static final&nbsp;<a href="https://developer.android.com/reference/android/os/Parcelable.Creator.html" title="class or interface in android.os" class="externalLink">Parcelable.Creator</a>&lt;<a href="SpliceInsertCommand.html" title="class in com.google.android.exoplayer2.metadata.scte35" target="_top">SpliceInsertCommand</a>&gt; CREATOR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -518,6 +556,7 @@ extends <a href="SpliceCommand.html" title="class in com.google.android.exoplaye
 <h4>writeToParcel</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;writeToParcel&#8203;(<a href="https://developer.android.com/reference/android/os/Parcel.html" title="class or interface in android.os" class="externalLink" target="_top">Parcel</a>&nbsp;dest,
                           int&nbsp;flags)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>

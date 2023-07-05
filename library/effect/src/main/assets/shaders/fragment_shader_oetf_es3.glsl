@@ -14,12 +14,12 @@
 // limitations under the License.
 
 // ES 3 fragment shader that:
-// 1. samples optical linear BT.2020 RGB from a (non-external) texture with
-//    uTexSampler, and applies a 4x4 RGB color matrix to change the pixel
-//    colors,
-// 2. applies the HLG or PQ OETF to yield electrical (HLG or PQ) BT.2020 RGB,
-//    and
-// 3. copies this converted texture color to the current output.
+// 1. Samples optical linear BT.2020 RGB from a (non-external) texture with
+//    uTexSampler.
+// 2. Applies a 4x4 RGB color matrix to change the pixel colors.
+// 3. Outputs electrical (HLG or PQ) BT.2020 RGB based on uOutputColorTransfer,
+//    via an OETF.
+// The output will be red if an error has occurred.
 
 precision mediump float;
 uniform sampler2D uTexSampler;
@@ -27,7 +27,7 @@ in vec2 vTexSamplingCoord;
 out vec4 outColor;
 // C.java#ColorTransfer value.
 // Only COLOR_TRANSFER_ST2084 and COLOR_TRANSFER_HLG are allowed.
-uniform int uOetfColorTransfer;
+uniform int uOutputColorTransfer;
 uniform mat3 uColorTransform;
 uniform mat4 uRgbMatrix;
 
@@ -44,17 +44,15 @@ highp float hlgOetfSingleChannel(highp float linearChannel) {
   const highp float b = 0.28466892;
   const highp float c = 0.55991073;
 
-  return linearChannel <= 1.0 / 12.0 ? sqrt(3.0 * linearChannel) :
-      a * log(12.0 * linearChannel - b) + c;
+  return linearChannel <= 1.0 / 12.0 ? sqrt(3.0 * linearChannel)
+                                     : a * log(12.0 * linearChannel - b) + c;
 }
 
 // BT.2100 / BT.2020 HLG OETF.
 highp vec3 hlgOetf(highp vec3 linearColor) {
-  return vec3(
-      hlgOetfSingleChannel(linearColor.r),
-      hlgOetfSingleChannel(linearColor.g),
-      hlgOetfSingleChannel(linearColor.b)
-  );
+  return vec3(hlgOetfSingleChannel(linearColor.r),
+              hlgOetfSingleChannel(linearColor.g),
+              hlgOetfSingleChannel(linearColor.b));
 }
 
 // BT.2100 / BT.2020, PQ / ST2084 OETF.
@@ -75,16 +73,24 @@ highp vec3 pqOetf(highp vec3 linearColor) {
 }
 
 // Applies the appropriate OETF to convert linear optical signals to nonlinear
-// electrical signals. Input and output are both normalzied to [0, 1].
-highp vec3 getElectricalColor(highp vec3 linearColor) {
+// electrical signals. Input and output are both normalized to [0, 1].
+highp vec3 applyOetf(highp vec3 linearColor) {
   // LINT.IfChange(color_transfer)
   const int COLOR_TRANSFER_ST2084 = 6;
-  return (uOetfColorTransfer == COLOR_TRANSFER_ST2084) ?
-      pqOetf(linearColor) : hlgOetf(linearColor);
+  const int COLOR_TRANSFER_HLG = 7;
+  if (uOutputColorTransfer == COLOR_TRANSFER_ST2084) {
+    return pqOetf(linearColor);
+  } else if (uOutputColorTransfer == COLOR_TRANSFER_HLG) {
+    return hlgOetf(linearColor);
+  } else {
+    // Output red as an obviously visible error.
+    return vec3(1.0, 0.0, 0.0);
+  }
 }
 
 void main() {
   vec4 inputColor = texture(uTexSampler, vTexSamplingCoord);
+  // transformedColors is an optical color.
   vec4 transformedColors = uRgbMatrix * vec4(inputColor.rgb, 1);
-  outColor = vec4(getElectricalColor(transformedColors.rgb), inputColor.a);
+  outColor = vec4(applyOetf(transformedColors.rgb), inputColor.a);
 }

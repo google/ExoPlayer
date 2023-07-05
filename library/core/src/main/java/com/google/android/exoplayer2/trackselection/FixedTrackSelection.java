@@ -22,7 +22,15 @@ import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import java.util.List;
 
-/** A {@link TrackSelection} consisting of a single track. */
+/**
+ * A {@link TrackSelection} consisting of a single track.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class FixedTrackSelection extends BaseTrackSelection {
 
   private final @C.SelectionReason int reason;

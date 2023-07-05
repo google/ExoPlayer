@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioAttributes;
+import android.media.AudioDeviceInfo;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
@@ -31,33 +32,41 @@ import android.util.Pair;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.primitives.Ints;
 import java.util.Arrays;
 
-/** Represents the set of audio formats that a device is capable of playing. */
+/**
+ * Represents the set of audio formats that a device is capable of playing.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class AudioCapabilities {
 
-  private static final int DEFAULT_MAX_CHANNEL_COUNT = 8;
-  private static final int DEFAULT_SAMPLE_RATE_HZ = 48_000;
+  // TODO(internal b/283945513): Have separate default max channel counts in `AudioCapabilities`
+  // for PCM and compressed audio.
+  private static final int DEFAULT_MAX_CHANNEL_COUNT = 10;
+  @VisibleForTesting /* package */ static final int DEFAULT_SAMPLE_RATE_HZ = 48_000;
 
   /** The minimum audio capabilities supported by all devices. */
   public static final AudioCapabilities DEFAULT_AUDIO_CAPABILITIES =
       new AudioCapabilities(new int[] {AudioFormat.ENCODING_PCM_16BIT}, DEFAULT_MAX_CHANNEL_COUNT);
 
-  /** Audio capabilities when the device specifies external surround sound. */
-  @SuppressWarnings("InlinedApi")
-  private static final AudioCapabilities EXTERNAL_SURROUND_SOUND_CAPABILITIES =
-      new AudioCapabilities(
-          new int[] {
-            AudioFormat.ENCODING_PCM_16BIT, AudioFormat.ENCODING_AC3, AudioFormat.ENCODING_E_AC3
-          },
-          DEFAULT_MAX_CHANNEL_COUNT);
+  /** Encodings supported when the device specifies external surround sound. */
+  private static final ImmutableList<Integer> EXTERNAL_SURROUND_SOUND_ENCODINGS =
+      ImmutableList.of(
+          AudioFormat.ENCODING_PCM_16BIT, AudioFormat.ENCODING_AC3, AudioFormat.ENCODING_E_AC3);
 
   /**
    * All surround sound encodings that a device may be capable of playing mapped to a maximum
@@ -68,6 +77,7 @@ public final class AudioCapabilities {
           .put(C.ENCODING_AC3, 6)
           .put(C.ENCODING_AC4, 6)
           .put(C.ENCODING_DTS, 6)
+          .put(C.ENCODING_DTS_UHD_P2, 10)
           .put(C.ENCODING_E_AC3_JOC, 6)
           .put(C.ENCODING_E_AC3, 8)
           .put(C.ENCODING_DTS_HD, 8)
@@ -93,25 +103,44 @@ public final class AudioCapabilities {
 
   @SuppressLint("InlinedApi")
   /* package */ static AudioCapabilities getCapabilities(Context context, @Nullable Intent intent) {
+    // If a connection to Bluetooth device is detected, we only return the minimum capabilities that
+    // is supported by all the devices.
+    if (Util.SDK_INT >= 23 && Api23.isBluetoothConnected(context)) {
+      return DEFAULT_AUDIO_CAPABILITIES;
+    }
+
+    ImmutableSet.Builder<Integer> supportedEncodings = new ImmutableSet.Builder<>();
     if (deviceMaySetExternalSurroundSoundGlobalSetting()
         && Global.getInt(context.getContentResolver(), EXTERNAL_SURROUND_SOUND_KEY, 0) == 1) {
-      return EXTERNAL_SURROUND_SOUND_CAPABILITIES;
+      supportedEncodings.addAll(EXTERNAL_SURROUND_SOUND_ENCODINGS);
     }
     // AudioTrack.isDirectPlaybackSupported returns true for encodings that are supported for audio
     // offload, as well as for encodings we want to list for passthrough mode. Therefore we only use
     // it on TV and automotive devices, which generally shouldn't support audio offload for surround
     // encodings.
     if (Util.SDK_INT >= 29 && (Util.isTv(context) || Util.isAutomotive(context))) {
+      supportedEncodings.addAll(Api29.getDirectPlaybackSupportedEncodings());
       return new AudioCapabilities(
-          Api29.getDirectPlaybackSupportedEncodings(), DEFAULT_MAX_CHANNEL_COUNT);
+          Ints.toArray(supportedEncodings.build()), DEFAULT_MAX_CHANNEL_COUNT);
     }
-    if (intent == null || intent.getIntExtra(AudioManager.EXTRA_AUDIO_PLUG_STATE, 0) == 0) {
-      return DEFAULT_AUDIO_CAPABILITIES;
+
+    if (intent != null && intent.getIntExtra(AudioManager.EXTRA_AUDIO_PLUG_STATE, 0) == 1) {
+      @Nullable int[] encodingsFromExtra = intent.getIntArrayExtra(AudioManager.EXTRA_ENCODINGS);
+      if (encodingsFromExtra != null) {
+        supportedEncodings.addAll(Ints.asList(encodingsFromExtra));
+      }
+      return new AudioCapabilities(
+          Ints.toArray(supportedEncodings.build()),
+          intent.getIntExtra(
+              AudioManager.EXTRA_MAX_CHANNEL_COUNT, /* defaultValue= */ DEFAULT_MAX_CHANNEL_COUNT));
     }
-    return new AudioCapabilities(
-        intent.getIntArrayExtra(AudioManager.EXTRA_ENCODINGS),
-        intent.getIntExtra(
-            AudioManager.EXTRA_MAX_CHANNEL_COUNT, /* defaultValue= */ DEFAULT_MAX_CHANNEL_COUNT));
+
+    ImmutableSet<Integer> supportedEncodingsSet = supportedEncodings.build();
+    if (!supportedEncodingsSet.isEmpty()) {
+      return new AudioCapabilities(
+          Ints.toArray(supportedEncodingsSet), /* maxChannelCount= */ DEFAULT_MAX_CHANNEL_COUNT);
+    }
+    return DEFAULT_AUDIO_CAPABILITIES;
   }
 
   /**
@@ -193,7 +222,8 @@ public final class AudioCapabilities {
     if (encoding == C.ENCODING_E_AC3_JOC && !supportsEncoding(C.ENCODING_E_AC3_JOC)) {
       // E-AC3 receivers support E-AC3 JOC streams (but decode only the base layer).
       encoding = C.ENCODING_E_AC3;
-    } else if (encoding == C.ENCODING_DTS_HD && !supportsEncoding(C.ENCODING_DTS_HD)) {
+    } else if ((encoding == C.ENCODING_DTS_HD && !supportsEncoding(C.ENCODING_DTS_HD))
+        || (encoding == C.ENCODING_DTS_UHD_P2 && !supportsEncoding(C.ENCODING_DTS_UHD_P2))) {
       // DTS receivers support DTS-HD streams (but decode only the core layer).
       encoding = C.ENCODING_DTS;
     }
@@ -210,7 +240,13 @@ public final class AudioCapabilities {
       channelCount = getMaxSupportedChannelCountForPassthrough(encoding, sampleRate);
     } else {
       channelCount = format.channelCount;
-      if (channelCount > maxChannelCount) {
+      // Some DTS:X TVs reports ACTION_HDMI_AUDIO_PLUG.EXTRA_MAX_CHANNEL_COUNT as 8
+      // instead of 10. See https://github.com/androidx/media/issues/396
+      if (format.sampleMimeType.equals(MimeTypes.AUDIO_DTS_X)) {
+        if (channelCount > 10) {
+          return null;
+        }
+      } else if (channelCount > maxChannelCount) {
         return null;
       }
     }
@@ -290,6 +326,49 @@ public final class AudioCapabilities {
     return Util.getAudioTrackChannelConfig(channelCount);
   }
 
+  @RequiresApi(23)
+  private static final class Api23 {
+    private Api23() {}
+
+    @DoNotInline
+    public static final boolean isBluetoothConnected(Context context) {
+      AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+      AudioDeviceInfo[] audioDeviceInfos =
+          checkNotNull(audioManager).getDevices(AudioManager.GET_DEVICES_OUTPUTS);
+      ImmutableSet<Integer> allBluetoothDeviceTypesSet = getAllBluetoothDeviceTypes();
+      for (int i = 0; i < audioDeviceInfos.length; i++) {
+        if (allBluetoothDeviceTypesSet.contains(audioDeviceInfos[i].getType())) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    /**
+     * Returns all the possible bluetooth device types that can be returned by {@link
+     * AudioDeviceInfo#getType()}.
+     *
+     * <p>The types {@link AudioDeviceInfo#TYPE_BLUETOOTH_A2DP} and {@link
+     * AudioDeviceInfo#TYPE_BLUETOOTH_SCO} are included from API 23. And the types {@link
+     * AudioDeviceInfo#TYPE_BLE_HEADSET} and {@link AudioDeviceInfo#TYPE_BLE_SPEAKER} are added from
+     * API 31. And the type {@link AudioDeviceInfo#TYPE_BLE_BROADCAST} is added from API 33.
+     */
+    @DoNotInline
+    private static final ImmutableSet<Integer> getAllBluetoothDeviceTypes() {
+      ImmutableSet.Builder<Integer> allBluetoothDeviceTypes =
+          new ImmutableSet.Builder<Integer>()
+              .add(AudioDeviceInfo.TYPE_BLUETOOTH_A2DP, AudioDeviceInfo.TYPE_BLUETOOTH_SCO);
+      if (Util.SDK_INT >= 31) {
+        allBluetoothDeviceTypes.add(
+            AudioDeviceInfo.TYPE_BLE_HEADSET, AudioDeviceInfo.TYPE_BLE_SPEAKER);
+      }
+      if (Util.SDK_INT >= 33) {
+        allBluetoothDeviceTypes.add(AudioDeviceInfo.TYPE_BLE_BROADCAST);
+      }
+      return allBluetoothDeviceTypes.build();
+    }
+  }
+
   @RequiresApi(29)
   private static final class Api29 {
     private static final AudioAttributes DEFAULT_AUDIO_ATTRIBUTES =
@@ -302,9 +381,13 @@ public final class AudioCapabilities {
     private Api29() {}
 
     @DoNotInline
-    public static int[] getDirectPlaybackSupportedEncodings() {
+    public static ImmutableList<Integer> getDirectPlaybackSupportedEncodings() {
       ImmutableList.Builder<Integer> supportedEncodingsListBuilder = ImmutableList.builder();
       for (int encoding : ALL_SURROUND_ENCODINGS_AND_MAX_CHANNELS.keySet()) {
+        // AudioFormat.ENCODING_DTS_UHD_P2 is supported from API 34.
+        if (Util.SDK_INT < 34 && encoding == C.ENCODING_DTS_UHD_P2) {
+          continue;
+        }
         if (AudioTrack.isDirectPlaybackSupported(
             new AudioFormat.Builder()
                 .setChannelMask(AudioFormat.CHANNEL_OUT_STEREO)
@@ -316,7 +399,7 @@ public final class AudioCapabilities {
         }
       }
       supportedEncodingsListBuilder.add(AudioFormat.ENCODING_PCM_16BIT);
-      return Ints.toArray(supportedEncodingsListBuilder.build());
+      return supportedEncodingsListBuilder.build();
     }
 
     /**

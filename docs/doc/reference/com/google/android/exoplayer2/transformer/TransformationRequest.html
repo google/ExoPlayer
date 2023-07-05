@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">TransformationRequest</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">TransformationRequest</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A media transformation request.</div>
 </li>
 </ul>
@@ -156,7 +162,16 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A builder for <a href="TransformationRequest.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationRequest</code></a> instances.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>static interface&nbsp;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="TransformationRequest.HdrMode.html" title="annotation in com.google.android.exoplayer2.transformer">TransformationRequest.HdrMode</a></span></code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">The strategy to use to transcode or edit High Dynamic Range (HDR) input video.</div>
 </td>
 </tr>
 </table>
@@ -181,72 +196,65 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#audioMimeType">audioMimeType</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The requested output audio sample <a href="../util/MimeTypes.html" title="class in com.google.android.exoplayer2.util">MIME type</a>, or <code>null</code> if inferred
  from the input.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#enableHdrEditing">enableHdrEditing</a></span></code></th>
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR">HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR</a></span></code></th>
 <td class="colLast">
-<div class="block">Whether to attempt to process any input video stream as a high dynamic range (HDR) signal.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Interpret HDR input as SDR, likely with a washed out look.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#enableRequestSdrToneMapping">enableRequestSdrToneMapping</a></span></code></th>
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#HDR_MODE_KEEP_HDR">HDR_MODE_KEEP_HDR</a></span></code></th>
 <td class="colLast">
-<div class="block">Whether to request tone-mapping to standard dynamic range (SDR).</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Processes HDR input as HDR, to generate HDR output.</div>
 </td>
 </tr>
 <tr class="rowColor">
-<td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#flattenForSlowMotion">flattenForSlowMotion</a></span></code></th>
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC">HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC</a></span></code></th>
 <td class="colLast">
-<div class="block">Whether the input should be flattened for media containing slow motion markers.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Tone map HDR input to SDR before processing, to generate SDR output, using the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> decoder tone-mapper.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#forceInterpretHdrVideoAsSdr">forceInterpretHdrVideoAsSdr</a></span></code></th>
+<td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL">HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL</a></span></code></th>
 <td class="colLast">
-<div class="block">Whether to force interpreting HDR video as SDR.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Tone map HDR input to SDR before processing, to generate SDR output, using an OpenGL
+ tone-mapper.</div>
 </td>
 </tr>
 <tr class="rowColor">
+<td class="colFirst"><code>@com.google.android.exoplayer2.transformer.TransformationRequest.HdrMode int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hdrMode">hdrMode</a></span></code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">The <a href="TransformationRequest.HdrMode.html" title="annotation in com.google.android.exoplayer2.transformer"><code>TransformationRequest.HdrMode</code></a> specifying how to handle HDR input video.</div>
+</td>
+</tr>
+<tr class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#outputHeight">outputHeight</a></span></code></th>
 <td class="colLast">
-<div class="block">The requested height of the output video, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if inferred from the input.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>float</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#rotationDegrees">rotationDegrees</a></span></code></th>
-<td class="colLast">
-<div class="block">The requested rotation, in degrees, of the output video, or 0 if inferred from the input.</div>
-</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>float</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#scaleX">scaleX</a></span></code></th>
-<td class="colLast">
-<div class="block">The requested scale factor, on the x-axis, of the output video, or 1 if inferred from the
- input.</div>
-</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>float</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#scaleY">scaleY</a></span></code></th>
-<td class="colLast">
-<div class="block">The requested scale factor, on the y-axis, of the output video, or 1 if inferred from the
- input.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">The requested height of the output video.</div>
 </td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#videoMimeType">videoMimeType</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The requested output video sample <a href="../util/MimeTypes.html" title="class in com.google.android.exoplayer2.util">MIME type</a>, or <code>null</code> if inferred
  from the input.</div>
 </td>
@@ -263,7 +271,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -273,6 +281,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildUpon()">buildUpon</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a new <a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationRequest.Builder</code></a> initialized with the values of this
  instance.</div>
 </td>
@@ -280,12 +289,23 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;o)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
+</tr>
+<tr id="i3" class="rowColor">
+<td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -293,7 +313,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
-<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+<code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
 </ul>
 </li>
 </ul>
@@ -311,61 +331,93 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a id="flattenForSlowMotion">
+<a id="HDR_MODE_KEEP_HDR">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>flattenForSlowMotion</h4>
-<pre>public final&nbsp;boolean flattenForSlowMotion</pre>
-<div class="block">Whether the input should be flattened for media containing slow motion markers.</div>
+<h4>HDR_MODE_KEEP_HDR</h4>
+<pre>public static final&nbsp;int HDR_MODE_KEEP_HDR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Processes HDR input as HDR, to generate HDR output.
+
+ <p>The HDR output format (ex. color transfer) will be the same as the HDR input format.
+
+ <p>Supported on API 31+, by some device and HDR format combinations.
+
+ <p>If not supported, <a href="Transformer.html" title="class in com.google.android.exoplayer2.transformer"><code>Transformer</code></a> will attempt to use <a href="#HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC"><code>HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC</code></a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="TransformationRequest.Builder.html#setFlattenForSlowMotion(boolean)"><code>TransformationRequest.Builder.setFlattenForSlowMotion(boolean)</code></a></dd>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.transformer.TransformationRequest.HDR_MODE_KEEP_HDR">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
-<a id="scaleX">
+<a id="HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>scaleX</h4>
-<pre>public final&nbsp;float scaleX</pre>
-<div class="block">The requested scale factor, on the x-axis, of the output video, or 1 if inferred from the
- input.</div>
+<h4>HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC</h4>
+<pre>public static final&nbsp;int HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Tone map HDR input to SDR before processing, to generate SDR output, using the <a href="https://developer.android.com/reference/android/media/MediaCodec.html" title="class or interface in android.media" class="externalLink" target="_top"><code>MediaCodec</code></a> decoder tone-mapper.
+
+ <p>Supported on API 31+, by some device and HDR format combinations. Tone-mapping is only
+ guaranteed to be supported on API 33+, on devices with HDR capture support.
+
+ <p>If not supported, <a href="Transformer.html" title="class in com.google.android.exoplayer2.transformer"><code>Transformer</code></a> throws an <a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer"><code>ExportException</code></a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="TransformationRequest.Builder.html#setScale(float,float)"><code>TransformationRequest.Builder.setScale(float, float)</code></a></dd>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.transformer.TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
-<a id="scaleY">
+<a id="HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>scaleY</h4>
-<pre>public final&nbsp;float scaleY</pre>
-<div class="block">The requested scale factor, on the y-axis, of the output video, or 1 if inferred from the
- input.</div>
+<h4>HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL</h4>
+<pre>public static final&nbsp;int HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Tone map HDR input to SDR before processing, to generate SDR output, using an OpenGL
+ tone-mapper.
+
+ <p>Supported on API 29+.
+
+ <p>This may exhibit mild differences from <a href="#HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC"><code>HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC</code></a>, depending on the device's tone-mapping
+ implementation, but should have much wider support and have more consistent results across
+ devices.
+
+ <p>If not supported, <a href="Transformer.html" title="class in com.google.android.exoplayer2.transformer"><code>Transformer</code></a> throws an <a href="ExportException.html" title="class in com.google.android.exoplayer2.transformer"><code>ExportException</code></a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="TransformationRequest.Builder.html#setScale(float,float)"><code>TransformationRequest.Builder.setScale(float, float)</code></a></dd>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.transformer.TransformationRequest.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
-<a id="rotationDegrees">
+<a id="HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>rotationDegrees</h4>
-<pre>public final&nbsp;float rotationDegrees</pre>
-<div class="block">The requested rotation, in degrees, of the output video, or 0 if inferred from the input.</div>
+<h4>HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR</h4>
+<pre>public static final&nbsp;int HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Interpret HDR input as SDR, likely with a washed out look.
+
+ <p>This is much more widely supported than <a href="#HDR_MODE_KEEP_HDR"><code>HDR_MODE_KEEP_HDR</code></a> and <a href="#HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC"><code>HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC</code></a>. However, as HDR transfer functions and
+ metadata will be ignored, contents will be displayed incorrectly, likely with a washed out
+ look.
+
+ <p>Using this API may lead to codec errors before API 29.
+
+ <p>Use of this flag may result in <code>ERROR_CODE_DECODING_FORMAT_UNSUPPORTED</code>.
+
+ <p>This field is experimental, and will be renamed or removed in a future release.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="TransformationRequest.Builder.html#setRotationDegrees(float)"><code>TransformationRequest.Builder.setRotationDegrees(float)</code></a></dd>
+<dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.transformer.TransformationRequest.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR">Constant Field Values</a></dd>
 </dl>
 </li>
 </ul>
@@ -376,11 +428,19 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>outputHeight</h4>
 <pre>public final&nbsp;int outputHeight</pre>
-<div class="block">The requested height of the output video, or <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> if inferred from the input.</div>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="TransformationRequest.Builder.html#setResolution(int)"><code>TransformationRequest.Builder.setResolution(int)</code></a></dd>
-</dl>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">The requested height of the output video.
+
+ <p>This field is
+
+ <ul>
+   <li>Always set to <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> in the <code>originalTransformationRequest</code>
+       parameter of <a href="Transformer.Listener.html#onFallbackApplied(com.google.android.exoplayer2.transformer.Composition,com.google.android.exoplayer2.transformer.TransformationRequest,com.google.android.exoplayer2.transformer.TransformationRequest)"><code>Transformer.Listener.onFallbackApplied(Composition,
+       TransformationRequest, TransformationRequest)</code></a>.
+   <li>Set to <a href="../C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a> in the <code>fallbackTransformationRequest</code> parameter of
+       <a href="Transformer.Listener.html#onFallbackApplied(com.google.android.exoplayer2.transformer.Composition,com.google.android.exoplayer2.transformer.TransformationRequest,com.google.android.exoplayer2.transformer.TransformationRequest)"><code>Transformer.Listener.onFallbackApplied(Composition, TransformationRequest,
+       TransformationRequest)</code></a> to indicate that it is inferred from the input.
+ </ul></div>
 </li>
 </ul>
 <a id="audioMimeType">
@@ -391,6 +451,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>audioMimeType</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> audioMimeType</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The requested output audio sample <a href="../util/MimeTypes.html" title="class in com.google.android.exoplayer2.util">MIME type</a>, or <code>null</code> if inferred
  from the input.</div>
 <dl>
@@ -407,6 +468,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <h4>videoMimeType</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> videoMimeType</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The requested output video sample <a href="../util/MimeTypes.html" title="class in com.google.android.exoplayer2.util">MIME type</a>, or <code>null</code> if inferred
  from the input.</div>
 <dl>
@@ -415,37 +477,18 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 </dl>
 </li>
 </ul>
-<a id="enableRequestSdrToneMapping">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>enableRequestSdrToneMapping</h4>
-<pre>public final&nbsp;boolean enableRequestSdrToneMapping</pre>
-<div class="block">Whether to request tone-mapping to standard dynamic range (SDR).</div>
-</li>
-</ul>
-<a id="forceInterpretHdrVideoAsSdr">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>forceInterpretHdrVideoAsSdr</h4>
-<pre>public final&nbsp;boolean forceInterpretHdrVideoAsSdr</pre>
-<div class="block">Whether to force interpreting HDR video as SDR.</div>
-</li>
-</ul>
-<a id="enableHdrEditing">
+<a id="hdrMode">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>enableHdrEditing</h4>
-<pre>public final&nbsp;boolean enableHdrEditing</pre>
-<div class="block">Whether to attempt to process any input video stream as a high dynamic range (HDR) signal.</div>
+<h4>hdrMode</h4>
+<pre>public final&nbsp;@com.google.android.exoplayer2.transformer.TransformationRequest.HdrMode int hdrMode</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">The <a href="TransformationRequest.HdrMode.html" title="annotation in com.google.android.exoplayer2.transformer"><code>TransformationRequest.HdrMode</code></a> specifying how to handle HDR input video.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="TransformationRequest.Builder.html#experimental_setEnableHdrEditing(boolean)"><code>TransformationRequest.Builder.experimental_setEnableHdrEditing(boolean)</code></a></dd>
+<dd><a href="TransformationRequest.Builder.html#setHdrMode(@com.google.android.exoplayer2.transformer.TransformationRequest.HdrModeint)"><code>TransformationRequest.Builder.setHdrMode(int)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -467,6 +510,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <h4>equals</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;equals&#8203;(@Nullable
                       <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;o)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
@@ -480,9 +524,24 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <li class="blockList">
 <h4>hashCode</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;hashCode()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
+</dl>
+</li>
+</ul>
+<a id="toString()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>toString</h4>
+<pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;toString()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<dl>
+<dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
+<dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#toString()" title="class or interface in java.lang" class="externalLink">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
 </dl>
 </li>
 </ul>
@@ -493,6 +552,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/java/lang/Str
 <li class="blockList">
 <h4>buildUpon</h4>
 <pre class="methodSignature">public&nbsp;<a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer">TransformationRequest.Builder</a>&nbsp;buildUpon()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a new <a href="TransformationRequest.Builder.html" title="class in com.google.android.exoplayer2.transformer"><code>TransformationRequest.Builder</code></a> initialized with the values of this
  instance.</div>
 </li>

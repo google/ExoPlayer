@@ -43,7 +43,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
 /**
  * A bandwidth based adaptive {@link ExoTrackSelection}, whose selected track is updated to be the
  * one of highest quality given the current network conditions and the state of the buffer.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public class AdaptiveTrackSelection extends BaseTrackSelection {
 
   private static final String TAG = "AdaptiveTrackSelection";
@@ -455,7 +461,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
       previousReason = Iterables.getLast(queue).trackSelectionReason;
     }
     int newSelectedIndex = determineIdealSelectedIndex(nowMs, chunkDurationUs);
-    if (!isBlacklisted(previousSelectedIndex, nowMs)) {
+    if (!isTrackExcluded(previousSelectedIndex, nowMs)) {
       // Revert back to the previous selection if conditions are not suitable for switching.
       Format currentFormat = getFormat(previousSelectedIndex);
       Format selectedFormat = getFormat(newSelectedIndex);
@@ -590,7 +596,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     long effectiveBitrate = getAllocatedBandwidth(chunkDurationUs);
     int lowestBitrateAllowedIndex = 0;
     for (int i = 0; i < length; i++) {
-      if (nowMs == Long.MIN_VALUE || !isBlacklisted(i, nowMs)) {
+      if (nowMs == Long.MIN_VALUE || !isTrackExcluded(i, nowMs)) {
         Format format = getFormat(i);
         if (canSelectFormat(format, format.bitrate, effectiveBitrate)) {
           return i;

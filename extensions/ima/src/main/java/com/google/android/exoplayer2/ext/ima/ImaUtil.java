@@ -16,14 +16,17 @@
 package com.google.android.exoplayer2.ext.ima;
 
 import static com.google.android.exoplayer2.source.ads.AdPlaybackState.AD_STATE_AVAILABLE;
+import static com.google.android.exoplayer2.source.ads.AdPlaybackState.AD_STATE_PLAYED;
 import static com.google.android.exoplayer2.source.ads.AdPlaybackState.AD_STATE_UNAVAILABLE;
 import static com.google.android.exoplayer2.source.ads.ServerSideAdInsertionUtil.addAdGroupToAdPlaybackState;
 import static com.google.android.exoplayer2.source.ads.ServerSideAdInsertionUtil.getMediaPeriodPositionUsForContent;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static com.google.android.exoplayer2.util.Util.msToUs;
 import static com.google.android.exoplayer2.util.Util.sum;
 import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 import android.content.Context;
 import android.os.Looper;
@@ -32,10 +35,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.CheckResult;
 import androidx.annotation.Nullable;
+import com.google.ads.interactivemedia.v3.api.Ad;
 import com.google.ads.interactivemedia.v3.api.AdDisplayContainer;
 import com.google.ads.interactivemedia.v3.api.AdError;
 import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
 import com.google.ads.interactivemedia.v3.api.AdEvent;
+import com.google.ads.interactivemedia.v3.api.AdPodInfo;
 import com.google.ads.interactivemedia.v3.api.AdsLoader;
 import com.google.ads.interactivemedia.v3.api.AdsManager;
 import com.google.ads.interactivemedia.v3.api.AdsRenderingSettings;
@@ -71,7 +76,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/** Utilities for working with IMA SDK and IMA extension data types. */
+/**
+ * Utilities for working with IMA SDK and IMA extension data types.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ final class ImaUtil {
 
   /** Factory for objects provided by the IMA SDK. */
@@ -371,6 +384,19 @@ import java.util.Set;
   }
 
   /**
+   * Gets the window start in microseconds since the Unix epoch for a window of a {@linkplain
+   * Timeline timeline} of the {@code DashMediaSource}.
+   *
+   * @param windowStartTimeMs The window start time, in milliseconds.
+   * @param positionInFirstPeriodUs The position of the window in the first period.
+   * @return The window start time, in microseconds.
+   */
+  public static long getWindowStartTimeUs(long windowStartTimeMs, long positionInFirstPeriodUs) {
+    // Revert us/ms truncation introduced in `DashMediaSource.DashTimeline`.
+    return msToUs(windowStartTimeMs) + (positionInFirstPeriodUs % 1000);
+  }
+
+  /**
    * Splits an {@link AdPlaybackState} into a separate {@link AdPlaybackState} for each period of a
    * content timeline.
    *
@@ -387,22 +413,23 @@ import java.util.Set;
    */
   public static ImmutableMap<Object, AdPlaybackState> splitAdPlaybackStateForPeriods(
       AdPlaybackState adPlaybackState, Timeline contentTimeline) {
+    checkArgument(!contentTimeline.isEmpty());
     Timeline.Period period = new Timeline.Period();
-    if (contentTimeline.getPeriodCount() == 1) {
-      // A single period gets the entire ad playback state that may contain multiple ad groups.
-      return ImmutableMap.of(
-          checkNotNull(
-              contentTimeline.getPeriod(/* periodIndex= */ 0, period, /* setIds= */ true).uid),
-          adPlaybackState);
-    }
-
+    Timeline.Window window = contentTimeline.getWindow(0, new Timeline.Window());
     int periodIndex = 0;
     long totalElapsedContentDurationUs = 0;
     Object adsId = checkNotNull(adPlaybackState.adsId);
     AdPlaybackState contentOnlyAdPlaybackState = new AdPlaybackState(adsId);
+    if (window.isLive()) {
+      long windowStartTimeUs =
+          getWindowStartTimeUs(window.windowStartTimeMs, window.positionInFirstPeriodUs);
+      totalElapsedContentDurationUs = windowStartTimeUs - window.positionInFirstPeriodUs;
+      contentOnlyAdPlaybackState = contentOnlyAdPlaybackState.withLivePostrollPlaceholderAppended();
+    }
     Map<Object, AdPlaybackState> adPlaybackStates = new HashMap<>();
     for (int i = adPlaybackState.removedAdGroupCount; i < adPlaybackState.adGroupCount; i++) {
       AdGroup adGroup = adPlaybackState.getAdGroup(/* adGroupIndex= */ i);
+      int mappedAdCount = 0;
       if (adGroup.timeUs == C.TIME_END_OF_SOURCE) {
         checkState(i == adPlaybackState.adGroupCount - 1);
         // The last ad group is a placeholder for a potential post roll. We can just stop here.
@@ -418,22 +445,44 @@ import java.util.Set;
           // Period starts before the ad group, so it is a content period.
           adPlaybackStates.put(checkNotNull(period.uid), contentOnlyAdPlaybackState);
           totalElapsedContentDurationUs += period.durationUs;
+          // Current period added as a content period. Advance and look at the next period.
+          periodIndex++;
         } else {
           long periodStartUs = totalElapsedContentDurationUs + elapsedAdGroupAdDurationUs;
-          if (periodStartUs + period.durationUs <= adGroup.timeUs + adGroupDurationUs) {
-            // The period ends before the end of the ad group, so it is an ad period (Note: A VOD ad
-            // reported by the IMA SDK spans multiple periods before the LOADED event arrives).
+          long periodDurationUs = period.durationUs;
+          if ((periodDurationUs != C.TIME_UNSET
+                  && periodStartUs + periodDurationUs <= adGroup.timeUs + adGroupDurationUs)
+              || (periodDurationUs == C.TIME_UNSET
+                  && elapsedAdGroupAdDurationUs < adGroupDurationUs
+                  && periodStartUs < adGroup.timeUs + adGroupDurationUs)) {
+            // Ad period found. The period either ends before the end of the ad group, or it is the
+            // last period of a live stream and it starts in the ad group.
             adPlaybackStates.put(
                 checkNotNull(period.uid),
-                splitAdGroupForPeriod(adsId, adGroup, periodStartUs, period.durationUs));
-            elapsedAdGroupAdDurationUs += period.durationUs;
+                splitAdGroupForPeriod(
+                    adsId, adGroup, periodStartUs, periodDurationUs, window.isLive()));
+            // Current period added as an ad period. Advance and look at the next period.
+            periodIndex++;
+            mappedAdCount++;
+            elapsedAdGroupAdDurationUs += periodDurationUs;
+            if ((adGroup.originalCount > adGroup.count && adGroup.count == mappedAdCount)
+                || periodStartUs + periodDurationUs == adGroup.timeUs + adGroupDurationUs) {
+              // Periods have consumed the ad group. We're at the end of the ad group.
+              if (window.isLive()) {
+                // Add elapsed ad duration to elapsed content duration for live streams to account
+                // for the content resume offset (relevant because we above compare against
+                // `adGroup.timeUs`). Instead of `adGroup.contentResumeOffsetUs` we use
+                // `elapsedAdGroupAdDurationUs` that is the sum of the actual period durations.
+                totalElapsedContentDurationUs += elapsedAdGroupAdDurationUs;
+              }
+              // Continue with next ad group.
+              break;
+            }
           } else {
             // Period is after the current ad group. Continue with next ad group.
             break;
           }
         }
-        // Increment the period index to the next unclassified period.
-        periodIndex++;
       }
     }
     // The remaining periods end after the last ad group, so these are content periods.
@@ -445,20 +494,38 @@ import java.util.Set;
   }
 
   private static AdPlaybackState splitAdGroupForPeriod(
-      Object adsId, AdGroup adGroup, long periodStartUs, long periodDurationUs) {
+      Object adsId,
+      AdGroup adGroup,
+      long periodStartUs,
+      long periodDurationUs,
+      boolean isLiveStream) {
     AdPlaybackState adPlaybackState =
         new AdPlaybackState(checkNotNull(adsId), /* adGroupTimesUs...= */ 0)
-            .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1)
-            .withAdDurationsUs(/* adGroupIndex= */ 0, periodDurationUs)
             .withIsServerSideInserted(/* adGroupIndex= */ 0, true)
-            .withContentResumeOffsetUs(/* adGroupIndex= */ 0, adGroup.contentResumeOffsetUs);
-    long periodEndUs = periodStartUs + periodDurationUs;
-    long adDurationsUs = 0;
+            .withAdCount(/* adGroupIndex= */ 0, /* adCount= */ 1);
+    if (isLiveStream) {
+      adPlaybackState = adPlaybackState.withLivePostrollPlaceholderAppended();
+    }
+    long adGroupDurationUs = 0;
     for (int i = 0; i < adGroup.count; i++) {
-      adDurationsUs += adGroup.durationsUs[i];
-      if (periodEndUs <= adGroup.timeUs + adDurationsUs + 10_000) {
+      long sanitizedDurationUs =
+          periodDurationUs != C.TIME_UNSET ? periodDurationUs : adGroup.durationsUs[i];
+      long periodEndUs = periodStartUs + sanitizedDurationUs;
+      adGroupDurationUs += adGroup.durationsUs[i];
+      // TODO(bachinger): Remove margin constant by making sure the VOD ad group times are adjusted
+      //   to the actual DASH timeline periods.
+      if (periodEndUs <= adGroup.timeUs + adGroupDurationUs + 10_000) {
+        adPlaybackState =
+            adPlaybackState
+                .withAdDurationsUs(/* adGroupIndex= */ 0, sanitizedDurationUs)
+                .withContentResumeOffsetUs(
+                    /* adGroupIndex= */ 0, isLiveStream ? sanitizedDurationUs : 0);
         // Map the state of the global ad state to the period specific ad state.
         switch (adGroup.states[i]) {
+          case AD_STATE_AVAILABLE:
+            adPlaybackState =
+                adPlaybackState.withAvailableAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0);
+            break;
           case AdPlaybackState.AD_STATE_PLAYED:
             adPlaybackState =
                 adPlaybackState.withPlayedAd(/* adGroupIndex= */ 0, /* adIndexInAdGroup= */ 0);
@@ -482,25 +549,326 @@ import java.util.Set;
   }
 
   /**
+   * Updates previously inserted ad durations with actual period durations from the timeline and
+   * returns the updated {@linkplain AdPlaybackState ad playback state}.
+   *
+   * <p>This method must only be called for multi period live streams and is useful in the case that
+   * {@linkplain #addLiveAdBreak(long, long, int, long, int, AdPlaybackState) a live ad has been
+   * inserted} while the duration of the corresponding period was still unknown. In this case the
+   * {@linkplain Ad#getDuration() estimated ad duration} was used which must be corrected as soon as
+   * the live window of the {@code contentTimeline} advances and the previously unknown period
+   * duration is available.
+   *
+   * <p>Roughly, the logic checks whether an ad group of the ad playback state fits in or overlaps
+   * one or several periods in the content timeline. Starting at the first ad inside the window, the
+   * ad duration is set to the duration of the corresponding period until a period with an unknown
+   * duration or the end of the ad group is reached.
+   *
+   * <p>If the previously playing ad period isn't available in the content timeline anymore, no
+   * correction is applied. The resulting position discontinuity of {@link
+   * Player#DISCONTINUITY_REASON_REMOVE} needs to be handled accordingly elsewhere.
+   *
+   * @param contentTimeline The live content timeline.
+   * @param adPlaybackState The ad playback state.
+   * @return The (potentially) updated ad playback state.
+   */
+  public static AdPlaybackState maybeCorrectPreviouslyUnknownAdDurations(
+      Timeline contentTimeline, AdPlaybackState adPlaybackState) {
+    Timeline.Window window = contentTimeline.getWindow(/* windowIndex= */ 0, new Timeline.Window());
+    if (window.firstPeriodIndex == window.lastPeriodIndex || adPlaybackState.adGroupCount < 2) {
+      // Single period with unknown duration, or only a postroll placeholder.
+      return adPlaybackState;
+    }
+    Timeline.Period period = new Timeline.Period();
+    int lastPeriodIndex = window.lastPeriodIndex;
+    if (contentTimeline.getPeriod(lastPeriodIndex, period).durationUs == C.TIME_UNSET) {
+      lastPeriodIndex--;
+      contentTimeline.getPeriod(lastPeriodIndex, period);
+    }
+    // Search for an unplayed ad group at or before the period start.
+    long windowStartTimeUs =
+        getWindowStartTimeUs(window.windowStartTimeMs, window.positionInFirstPeriodUs);
+    long lastCompletePeriodStartTimeUs = windowStartTimeUs + period.positionInWindowUs;
+    int adGroupIndex =
+        adPlaybackState.getAdGroupIndexForPositionUs(
+            lastCompletePeriodStartTimeUs, /* periodDurationUs= */ C.TIME_UNSET);
+    if (adGroupIndex == C.INDEX_UNSET) {
+      // No unplayed ads before the last period with a duration. Nothing to do.
+      return adPlaybackState;
+    }
+    AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(adGroupIndex);
+
+    long periodStartTimeUs = windowStartTimeUs - window.positionInFirstPeriodUs;
+    if (adGroup.timeUs + adGroup.contentResumeOffsetUs <= periodStartTimeUs) {
+      // Ad group ends before first period in window. Discontinuity of reason REMOVE.
+      return adPlaybackState;
+    }
+    // The ads at the start of the ad group may be out of the window already. Skip them.
+    int firstAdIndexInWindow = 0;
+    long adStartTimeUs = adGroup.timeUs;
+    while (adStartTimeUs < periodStartTimeUs) {
+      if (adGroup.states[firstAdIndexInWindow] == AD_STATE_AVAILABLE) {
+        // The previously available ad is not in the timeline anymore. Discontinuity of reason
+        // `DISCONTINUITY_REASON_REMOVE`.
+        return adPlaybackState;
+      }
+      // Skip ad before first period of window.
+      adStartTimeUs += adGroup.durationsUs[firstAdIndexInWindow++];
+    }
+    int firstPeriodIndexInAdGroup = C.INDEX_UNSET;
+    for (int i = window.firstPeriodIndex; i <= lastPeriodIndex; i++) {
+      if (adGroup.timeUs <= periodStartTimeUs) {
+        firstPeriodIndexInAdGroup = i;
+        break;
+      }
+      periodStartTimeUs += contentTimeline.getPeriod(/* periodIndex= */ i, period).durationUs;
+    }
+    checkState(firstPeriodIndexInAdGroup != C.INDEX_UNSET);
+
+    // Update all ad durations that we know and are not yet correct.
+    for (int i = firstAdIndexInWindow; i < adGroup.durationsUs.length; i++) {
+      int adPeriodIndex = firstPeriodIndexInAdGroup + (i - firstAdIndexInWindow);
+      if (adPeriodIndex > lastPeriodIndex) {
+        break;
+      }
+      contentTimeline.getPeriod(adPeriodIndex, period);
+      if (period.durationUs != adGroup.durationsUs[i]) {
+        // Set the ad duration to the period duration.
+        adPlaybackState =
+            updateAdDurationInAdGroup(
+                adGroupIndex, /* adIndexInAdGroup= */ i, period.durationUs, adPlaybackState);
+      }
+    }
+    // Get the ad group again and set the new content resume offset after update.
+    long adGroupDurationUs = sum(adPlaybackState.getAdGroup(adGroupIndex).durationsUs);
+    return adPlaybackState.withContentResumeOffsetUs(adGroupIndex, adGroupDurationUs);
+  }
+
+  /**
+   * Returns the sum of the durations of all the ads in an ad pod, in microseconds.
+   *
+   * <p>If all periods are contained in the current window and have a known duration, the sum of the
+   * period durations is returned. If this is not possible, {@link AdPodInfo#getMaxDuration() the
+   * SDK provided group duration} is used instead.
+   *
+   * <p>Do not use this method with public timelines of VOD multi-period streams that have the ad
+   * duration subtracted from period durations.
+   *
+   * @param timeline The timeline.
+   * @param adPodInfo The {@link AdPodInfo} from the SDK event.
+   * @param adPeriodIndex The period index of the period corresponding to the {@linkplain
+   *     AdPodInfo#getAdPosition() ad position in the ad pod info}.
+   * @param window The window to be populated as the window containing the ad period.
+   * @param period The period to be populated as the ad period.
+   * @return The duration of the ad group, in microseconds.
+   */
+  public static long getAdGroupDurationUsForLiveAdPeriodIndex(
+      Timeline timeline,
+      AdPodInfo adPodInfo,
+      int adPeriodIndex,
+      Timeline.Window window,
+      Timeline.Period period) {
+    timeline.getPeriod(adPeriodIndex, period);
+    timeline.getWindow(period.windowIndex, window);
+    checkArgument(window.isLive());
+    int adIndexInAdGroup = adPodInfo.getAdPosition() - 1;
+    int firstAdPeriodIndex = adPeriodIndex - adIndexInAdGroup;
+    int lastAdPeriodIndex = adPeriodIndex + (adPodInfo.getTotalAds() - adIndexInAdGroup - 1);
+    long adGroupDurationUs = C.TIME_UNSET;
+    if (window.firstPeriodIndex <= firstAdPeriodIndex
+        && lastAdPeriodIndex < window.lastPeriodIndex) {
+      adGroupDurationUs = 0L;
+      Timeline.Period currentPeriod = new Timeline.Period();
+      for (int periodIndex = firstAdPeriodIndex; periodIndex <= lastAdPeriodIndex; periodIndex++) {
+        long durationUs = timeline.getPeriod(periodIndex, currentPeriod).durationUs;
+        if (durationUs == C.TIME_UNSET) {
+          adGroupDurationUs = C.TIME_UNSET;
+          break;
+        }
+        adGroupDurationUs += durationUs;
+      }
+    }
+    return adGroupDurationUs != C.TIME_UNSET
+        ? adGroupDurationUs
+        : secToUsRounded(adPodInfo.getMaxDuration());
+  }
+
+  /**
+   * Handles the case when an ad period has been removed from the timeline while being played.
+   *
+   * <p>This makes sure no unplayed ads are left in the ad playback state after buffering or after
+   * the player has been paused in a live stream. In such a case periods may be removed from the
+   * timeline before playback transitions to the next period automatically.
+   *
+   * @param currentPeriodIndex The index of the {@linkplain Player#getCurrentPeriodIndex() current
+   *     period}.
+   * @param timeline The timeline containing the current period.
+   * @param adPlaybackState The ad playback state to query.
+   * @return The updated ad playback state.
+   */
+  @CheckResult
+  public static AdPlaybackState handleAdPeriodRemovedFromTimeline(
+      int currentPeriodIndex, Timeline timeline, AdPlaybackState adPlaybackState) {
+    Timeline.Period currentPeriod = timeline.getPeriod(currentPeriodIndex, new Timeline.Period());
+    Timeline.Window window = timeline.getWindow(currentPeriod.windowIndex, new Timeline.Window());
+    long currentPeriodStartTimeUs =
+        getWindowStartTimeUs(window.windowStartTimeMs, window.positionInFirstPeriodUs)
+            + currentPeriod.positionInWindowUs;
+    int adGroupIndex =
+        adPlaybackState.getAdGroupIndexForPositionUs(currentPeriodStartTimeUs, C.TIME_UNSET);
+    if (adGroupIndex != C.INDEX_UNSET) {
+      AdGroup adGroup = adPlaybackState.getAdGroup(adGroupIndex);
+      if (adGroup.timeUs + adGroup.contentResumeOffsetUs <= currentPeriodStartTimeUs) {
+        // current period starts after ad group.
+        return markAdGroupAsPlayed(adGroupIndex, /* preserveDurations= */ true, adPlaybackState);
+      }
+      int lastAvailableAdIndex = C.INDEX_UNSET;
+      long adGroupDurationUs = 0;
+      for (int i = 0; i < adGroup.states.length; i++) {
+        int state = adGroup.states[i];
+        if (state == AD_STATE_AVAILABLE) {
+          lastAvailableAdIndex = i;
+        }
+        if (currentPeriodStartTimeUs <= adGroup.timeUs + adGroupDurationUs) {
+          if (currentPeriodStartTimeUs == adGroup.timeUs + adGroupDurationUs) {
+            // Found the ad matching the current period.
+            if (state == AD_STATE_AVAILABLE || state == AD_STATE_PLAYED) {
+              return adPlaybackState;
+            }
+            if (state == AD_STATE_UNAVAILABLE && lastAvailableAdIndex == i - 1) {
+              // First unavailable ad in the group.
+              if (currentPeriod.durationUs == C.TIME_UNSET) {
+                // All ad data available except the last period. Will be corrected as normal.
+                return adPlaybackState;
+              }
+              // Else we can set the duration in the ad group as if we received the ad event.
+              adPlaybackState =
+                  updateAdDurationInAdGroup(
+                      adGroupIndex,
+                      /* adIndexInAdGroup= */ i,
+                      /* adDurationUs= */ currentPeriod.durationUs,
+                      adPlaybackState);
+              adGroup = adPlaybackState.getAdGroup(adGroupIndex);
+              return adPlaybackState.withContentResumeOffsetUs(
+                  adGroupIndex, sum(adGroup.durationsUs));
+            }
+          }
+          // We can't calculate the index position of the current period within the ad group after
+          // an ad period has been removed from the timeline. Give up.
+          adPlaybackState =
+              markAdGroupAsPlayed(adGroupIndex, /* preserveDurations= */ false, adPlaybackState);
+          // Future SDK events belonging to the skipped ad group are handled in #addLiveAdBreak()
+          // like when joining the live stream while an ad is playing and will insert a new separate
+          // partial ad group.
+          if (currentPeriod.durationUs != C.TIME_UNSET) {
+            // Insert the current ad as a single ad group instead of the skipped ad group.
+            return addLiveAdBreak(
+                currentPeriodStartTimeUs,
+                /* adDurationUs= */ currentPeriod.durationUs,
+                /* adPositionInAdPod= */ 1,
+                /* totalAdDurationUs= */ currentPeriod.durationUs,
+                /* totalAdsInAdPod= */ 1,
+                adPlaybackState);
+          }
+          return adPlaybackState;
+        }
+        if (state == AD_STATE_AVAILABLE || state == AD_STATE_UNAVAILABLE) {
+          adPlaybackState = adPlaybackState.withSkippedAd(adGroupIndex, /* adIndexInAdGroup= */ i);
+        }
+        adGroupDurationUs += adGroup.durationsUs[i];
+      }
+    }
+    return adPlaybackState;
+  }
+
+  private static AdPlaybackState markAdGroupAsPlayed(
+      int adGroupIndex, boolean preserveDurations, AdPlaybackState adPlaybackState) {
+    AdGroup adGroup = adPlaybackState.getAdGroup(adGroupIndex);
+    long[] newDurationsUs = new long[adGroup.durationsUs.length];
+    for (int adIndex = 0; adIndex < newDurationsUs.length; adIndex++) {
+      newDurationsUs[adIndex] = preserveDurations ? adGroup.durationsUs[adIndex] : 0;
+      if (adGroup.states[adIndex] == AD_STATE_AVAILABLE
+          || adGroup.states[adIndex] == AD_STATE_UNAVAILABLE) {
+        adPlaybackState =
+            adPlaybackState.withSkippedAd(adGroupIndex, /* adIndexInAdGroup= */ adIndex);
+      }
+    }
+    return adPlaybackState
+        .withAdDurationsUs(adGroupIndex, newDurationsUs)
+        .withContentResumeOffsetUs(adGroupIndex, sum(newDurationsUs));
+  }
+
+  /**
+   * Returns the {@code adGroupIndex} in the ad playback state corresponding to the given period
+   * index in the timeline and the {@code adIndexInAdGroup} of the first unplayed ad in that ad
+   * group.
+   *
+   * @param currentMediaItemIndex The {@linkplain Player#getCurrentMediaItemIndex() current media
+   *     item index}.
+   * @param adPeriodIndex The index of the ad period in the timeline.
+   * @param timeline The timeline that contains the period for the ad period index.
+   * @param adPlaybackState The ad playback state that holds the ad group and ad information.
+   * @return A pair with the ad group index (first) and the ad index in that ad group (second).
+   * @exception IllegalStateException If no unplayed ad is found before or at the start time of the
+   *     ad period.
+   */
+  public static Pair<Integer, Integer> getAdGroupAndIndexInLiveMultiPeriodTimeline(
+      int currentMediaItemIndex,
+      int adPeriodIndex,
+      Timeline timeline,
+      AdPlaybackState adPlaybackState) {
+    Timeline.Window window =
+        timeline.getWindow(/* windowIndex= */ currentMediaItemIndex, new Timeline.Window());
+    checkArgument(window.isLive());
+    Timeline.Period period = new Timeline.Period();
+    timeline.getPeriod(adPeriodIndex, period, /* setIds= */ true);
+    long adPeriodStartTimeUs =
+        getWindowStartTimeUs(window.windowStartTimeMs, window.positionInFirstPeriodUs)
+            + period.positionInWindowUs;
+    int adGroupIndex =
+        adPlaybackState.getAdGroupIndexForPositionUs(adPeriodStartTimeUs, C.TIME_UNSET);
+    if (adGroupIndex != C.INDEX_UNSET) {
+      AdGroup adGroup = adPlaybackState.getAdGroup(adGroupIndex);
+      for (int k = 0; k < adGroup.states.length; k++) {
+        if (adGroup.states[k] == AD_STATE_AVAILABLE || adGroup.states[k] == AD_STATE_UNAVAILABLE) {
+          return new Pair<>(/* adGroupIndex= */ adGroupIndex, /* adIndexInAdGroup= */ k);
+        }
+      }
+    }
+    throw new IllegalStateException(
+        String.format(
+            "No unplayed ad group found before or at the start time us %d of the period with index"
+                + " %d",
+            adPeriodStartTimeUs, adPeriodIndex));
+  }
+
+  /**
    * Returns the {@code adGroupIndex} and the {@code adIndexInAdGroup} for the given period index of
-   * an ad period.
+   * an ad period in a VOD multi-period timeline.
    *
    * @param adPeriodIndex The period index of the ad period.
    * @param adPlaybackState The ad playback state that holds the ad group and ad information.
    * @param contentTimeline The timeline that contains the ad period.
    * @return A pair with the ad group index (first) and the ad index in that ad group (second).
    */
-  public static Pair<Integer, Integer> getAdGroupAndIndexInMultiPeriodWindow(
+  public static Pair<Integer, Integer> getAdGroupAndIndexInVodMultiPeriodTimeline(
       int adPeriodIndex, AdPlaybackState adPlaybackState, Timeline contentTimeline) {
-    Timeline.Period period = new Timeline.Period();
+    Timeline.Window window = contentTimeline.getWindow(/* windowIndex= */ 0, new Timeline.Window());
+    checkArgument(contentTimeline.getWindowCount() == 1);
     int periodIndex = 0;
     long totalElapsedContentDurationUs = 0;
+    if (window.isLive()) {
+      long windowStartTimeUs =
+          getWindowStartTimeUs(window.windowStartTimeMs, window.positionInFirstPeriodUs);
+      totalElapsedContentDurationUs = windowStartTimeUs - window.positionInFirstPeriodUs;
+    }
+    Timeline.Period period = new Timeline.Period();
     for (int i = adPlaybackState.removedAdGroupCount; i < adPlaybackState.adGroupCount; i++) {
       int adIndexInAdGroup = 0;
       AdGroup adGroup = adPlaybackState.getAdGroup(/* adGroupIndex= */ i);
       long adGroupDurationUs = sum(adGroup.durationsUs);
       long elapsedAdGroupAdDurationUs = 0;
-      for (int j = periodIndex; j < contentTimeline.getPeriodCount(); j++) {
+      for (int j = periodIndex; j < min(contentTimeline.getPeriodCount(), adPeriodIndex + 1); j++) {
         contentTimeline.getPeriod(j, period, /* setIds= */ true);
         if (totalElapsedContentDurationUs < adGroup.timeUs) {
           // Period starts before the ad group, so it is a content period.
@@ -516,6 +884,8 @@ import java.util.Set;
             adIndexInAdGroup++;
           } else {
             // Period is after the current ad group. Continue with next ad group.
+            totalElapsedContentDurationUs +=
+                min(elapsedAdGroupAdDurationUs, adGroup.contentResumeOffsetUs);
             break;
           }
         }

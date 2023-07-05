@@ -75,11 +75,12 @@
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toBottomOf="@+id/selected_file_text_view"
-    app:layout_constraintBottom_toTopOf="@+id/select_demo_effects_button">
+    app:layout_constraintBottom_toTopOf="@+id/select_audio_effects_button">
     <TableLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:stretchColumns="0"
+      android:shrinkColumns="0"
       android:layout_marginTop="32dp"
       android:measureWithLargestChild="true"
       app:layout_constraintEnd_toEndOf="parent"
@@ -110,6 +111,15 @@
           android:text="@string/flatten_for_slow_motion"/>
         <CheckBox
           android:id="@+id/flatten_for_slow_motion_checkbox"
+          android:layout_gravity="end" />
+      </TableRow>
+      <TableRow
+        android:layout_weight="1">
+        <TextView
+          android:layout_gravity="center_vertical"
+          android:text="@string/force_audio_track" />
+        <CheckBox
+          android:id="@+id/force_audio_track_checkbox"
           android:layout_gravity="end" />
       </TableRow>
       <TableRow
@@ -201,53 +211,54 @@
         android:layout_weight="1">
         <TextView
           android:layout_gravity="center_vertical"
-          android:id="@+id/request_sdr_tone_mapping"
-          android:text="@string/request_sdr_tone_mapping" />
+          android:text="@string/abort_slow_export" />
         <CheckBox
-          android:id="@+id/request_sdr_tone_mapping_checkbox"
-          android:layout_gravity="end" />
+          android:id="@+id/abort_slow_export_checkbox"
+          android:layout_gravity="end"/>
       </TableRow>
       <TableRow
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:gravity="center_vertical" >
         <TextView
-          android:layout_gravity="center_vertical"
-          android:id="@+id/hdr_editing"
-          android:text="@string/hdr_editing" />
-        <CheckBox
-          android:id="@+id/hdr_editing_checkbox"
-          android:layout_gravity="end" />
-      </TableRow>
-      <TableRow
-        android:layout_weight="1">
-        <TextView
-          android:layout_gravity="center_vertical"
-          android:id="@+id/force_interpret_hdr_video_as_sdr"
-          android:text="@string/force_interpret_hdr_video_as_sdr" />
-        <CheckBox
-          android:id="@+id/force_interpret_hdr_video_as_sdr_checkbox"
-          android:layout_gravity="end" />
+          android:id="@+id/hdr_mode"
+          android:text="@string/hdr_mode"/>
+        <Spinner
+          android:id="@+id/hdr_mode_spinner"
+          android:layout_gravity="right|center_vertical"
+          android:gravity="right" />
       </TableRow>
     </TableLayout>
   </androidx.core.widget.NestedScrollView>
   <Button
-    android:id="@+id/select_demo_effects_button"
+    android:id="@+id/select_audio_effects_button"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginTop="32dp"
     android:layout_marginStart="32dp"
     android:layout_marginEnd="32dp"
-    android:text="@string/select_demo_effects"
-    app:layout_constraintBottom_toTopOf="@+id/transform_button"
+    android:text="@string/select_audio_effects"
+    app:layout_constraintBottom_toTopOf="@+id/select_video_effects_button"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent" />
   <Button
-    android:id="@+id/transform_button"
+    android:id="@+id/select_video_effects_button"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="32dp"
+    android:layout_marginStart="32dp"
+    android:layout_marginEnd="32dp"
+    android:text="@string/select_video_effects"
+    app:layout_constraintBottom_toTopOf="@+id/export_button"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent" />
+  <Button
+    android:id="@+id/export_button"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginBottom="28dp"
     android:layout_marginStart="32dp"
     android:layout_marginEnd="32dp"
-    android:text="@string/transform"
+    android:text="@string/export"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintStart_toStartOf="parent" />

@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9,"i8":9,"i9":9,"i10":9,"i11":9,"i12":9};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":41,"i1":41,"i2":41,"i3":41,"i4":41,"i5":41,"i6":41,"i7":41,"i8":41,"i9":41,"i10":41,"i11":41,"i12":41};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">NalUnitUtil</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">NalUnitUtil</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Utility methods for handling H.264/AVC and H.265/HEVC NAL units.</div>
 </li>
 </ul>
@@ -156,6 +162,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="NalUnitUtil.H265SpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.H265SpsData</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Holds data parsed from a H.265 sequence parameter set NAL unit.</div>
 </td>
 </tr>
@@ -163,6 +170,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="NalUnitUtil.PpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.PpsData</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Holds data parsed from a picture parameter set NAL unit.</div>
 </td>
 </tr>
@@ -170,6 +178,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="NalUnitUtil.SpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.SpsData</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Holds data parsed from a H.264 sequence parameter set NAL unit.</div>
 </td>
 </tr>
@@ -195,6 +204,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static float[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ASPECT_RATIO_IDC_VALUES">ASPECT_RATIO_IDC_VALUES</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Aspect ratios indexed by aspect_ratio_idc, in H.264 and H.265 SPSs.</div>
 </td>
 </tr>
@@ -202,6 +212,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EXTENDED_SAR">EXTENDED_SAR</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Value for aspect_ratio_idc indicating an extended aspect ratio, in H.264 and H.265 SPSs.</div>
 </td>
 </tr>
@@ -209,6 +220,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static byte[]</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#NAL_START_CODE">NAL_START_CODE</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Four initial bytes that must prefix NAL units for decoding.</div>
 </td>
 </tr>
@@ -216,6 +228,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#NAL_UNIT_TYPE_AUD">NAL_UNIT_TYPE_AUD</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Access unit delimiter.</div>
 </td>
 </tr>
@@ -223,6 +236,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#NAL_UNIT_TYPE_IDR">NAL_UNIT_TYPE_IDR</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Coded slice of an IDR picture.</div>
 </td>
 </tr>
@@ -230,6 +244,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#NAL_UNIT_TYPE_NON_IDR">NAL_UNIT_TYPE_NON_IDR</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Coded slice of a non-IDR picture.</div>
 </td>
 </tr>
@@ -237,6 +252,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#NAL_UNIT_TYPE_PARTITION_A">NAL_UNIT_TYPE_PARTITION_A</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Coded slice data partition A.</div>
 </td>
 </tr>
@@ -244,6 +260,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#NAL_UNIT_TYPE_PPS">NAL_UNIT_TYPE_PPS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Picture parameter set.</div>
 </td>
 </tr>
@@ -251,6 +268,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#NAL_UNIT_TYPE_SEI">NAL_UNIT_TYPE_SEI</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Supplemental enhancement information.</div>
 </td>
 </tr>
@@ -258,6 +276,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#NAL_UNIT_TYPE_SPS">NAL_UNIT_TYPE_SPS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sequence parameter set.</div>
 </td>
 </tr>
@@ -273,7 +292,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -283,6 +302,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#clearPrefixFlags(boolean%5B%5D)">clearPrefixFlags</a></span>&#8203;(boolean[]&nbsp;prefixFlags)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Clears prefix flags, as used by <a href="#findNalUnit(byte%5B%5D,int,int,boolean%5B%5D)"><code>findNalUnit(byte[], int, int, boolean[])</code></a>.</div>
 </td>
 </tr>
@@ -290,6 +310,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#discardToSps(java.nio.ByteBuffer)">discardToSps</a></span>&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;data)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Discards data from the buffer up to the first SPS, where <code>data.position()</code> is interpreted
  as the length of the buffer.</div>
 </td>
@@ -301,6 +322,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
            int&nbsp;endOffset,
            boolean[]&nbsp;prefixFlags)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Finds the first NAL unit in <code>data</code>.</div>
 </td>
 </tr>
@@ -309,6 +331,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getH265NalUnitType(byte%5B%5D,int)">getH265NalUnitType</a></span>&#8203;(byte[]&nbsp;data,
                   int&nbsp;offset)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the type of the H.265 NAL unit in <code>data</code> that starts at <code>offset</code>.</div>
 </td>
 </tr>
@@ -317,6 +340,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getNalUnitType(byte%5B%5D,int)">getNalUnitType</a></span>&#8203;(byte[]&nbsp;data,
               int&nbsp;offset)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the type of the NAL unit in <code>data</code> that starts at <code>offset</code>.</div>
 </td>
 </tr>
@@ -325,6 +349,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isNalUnitSei(java.lang.String,byte)">isNalUnitSei</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
             byte&nbsp;nalUnitHeaderFirstByte)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the NAL unit with the specified header contains supplemental enhancement
  information.</div>
 </td>
@@ -335,6 +360,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                    int&nbsp;nalOffset,
                    int&nbsp;nalLimit)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses a H.265 SPS NAL unit using the syntax defined in ITU-T Recommendation H.265 (2019)
  subsection 7.3.2.2.1.</div>
 </td>
@@ -345,6 +371,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                           int&nbsp;nalOffset,
                           int&nbsp;nalLimit)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses a H.265 SPS NAL unit payload (excluding the NAL unit header) using the syntax defined in
  ITU-T Recommendation H.265 (2019) subsection 7.3.2.2.1.</div>
 </td>
@@ -355,6 +382,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                int&nbsp;nalOffset,
                int&nbsp;nalLimit)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses a PPS NAL unit using the syntax defined in ITU-T Recommendation H.264 (2013) subsection
  7.3.2.2.</div>
 </td>
@@ -365,6 +393,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                       int&nbsp;nalOffset,
                       int&nbsp;nalLimit)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses a PPS NAL unit payload (excluding the NAL unit header) using the syntax defined in ITU-T
  Recommendation H.264 (2013) subsection 7.3.2.2.</div>
 </td>
@@ -375,6 +404,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                int&nbsp;nalOffset,
                int&nbsp;nalLimit)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses a SPS NAL unit using the syntax defined in ITU-T Recommendation H.264 (2013) subsection
  7.3.2.1.1.</div>
 </td>
@@ -385,6 +415,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                       int&nbsp;nalOffset,
                       int&nbsp;nalLimit)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses a SPS NAL unit payload (excluding the NAL unit header) using the syntax defined in ITU-T
  Recommendation H.264 (2013) subsection 7.3.2.1.1.</div>
 </td>
@@ -394,6 +425,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#unescapeStream(byte%5B%5D,int)">unescapeStream</a></span>&#8203;(byte[]&nbsp;data,
               int&nbsp;limit)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Unescapes <code>data</code> up to the specified limit, replacing occurrences of [0, 0, 3] with [0,
  0].</div>
 </td>
@@ -429,6 +461,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>NAL_UNIT_TYPE_NON_IDR</h4>
 <pre>public static final&nbsp;int NAL_UNIT_TYPE_NON_IDR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Coded slice of a non-IDR picture.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -443,6 +476,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>NAL_UNIT_TYPE_PARTITION_A</h4>
 <pre>public static final&nbsp;int NAL_UNIT_TYPE_PARTITION_A</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Coded slice data partition A.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -457,6 +491,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>NAL_UNIT_TYPE_IDR</h4>
 <pre>public static final&nbsp;int NAL_UNIT_TYPE_IDR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Coded slice of an IDR picture.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -471,6 +506,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>NAL_UNIT_TYPE_SEI</h4>
 <pre>public static final&nbsp;int NAL_UNIT_TYPE_SEI</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Supplemental enhancement information.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -485,6 +521,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>NAL_UNIT_TYPE_SPS</h4>
 <pre>public static final&nbsp;int NAL_UNIT_TYPE_SPS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sequence parameter set.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -499,6 +536,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>NAL_UNIT_TYPE_PPS</h4>
 <pre>public static final&nbsp;int NAL_UNIT_TYPE_PPS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Picture parameter set.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -513,6 +551,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>NAL_UNIT_TYPE_AUD</h4>
 <pre>public static final&nbsp;int NAL_UNIT_TYPE_AUD</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Access unit delimiter.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -527,6 +566,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>NAL_START_CODE</h4>
 <pre>public static final&nbsp;byte[] NAL_START_CODE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Four initial bytes that must prefix NAL units for decoding.</div>
 </li>
 </ul>
@@ -537,6 +577,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>EXTENDED_SAR</h4>
 <pre>public static final&nbsp;int EXTENDED_SAR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Value for aspect_ratio_idc indicating an extended aspect ratio, in H.264 and H.265 SPSs.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -551,6 +592,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>ASPECT_RATIO_IDC_VALUES</h4>
 <pre>public static final&nbsp;float[] ASPECT_RATIO_IDC_VALUES</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Aspect ratios indexed by aspect_ratio_idc, in H.264 and H.265 SPSs.</div>
 </li>
 </ul>
@@ -572,6 +614,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>unescapeStream</h4>
 <pre class="methodSignature">public static&nbsp;int&nbsp;unescapeStream&#8203;(byte[]&nbsp;data,
                                  int&nbsp;limit)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Unescapes <code>data</code> up to the specified limit, replacing occurrences of [0, 0, 3] with [0,
  0]. The unescaped data is returned in-place, with the return value indicating its length.
 
@@ -593,6 +636,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>discardToSps</h4>
 <pre class="methodSignature">public static&nbsp;void&nbsp;discardToSps&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;data)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Discards data from the buffer up to the first SPS, where <code>data.position()</code> is interpreted
  as the length of the buffer.
 
@@ -613,6 +657,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">public static&nbsp;boolean&nbsp;isNalUnitSei&#8203;(@Nullable
                                    <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType,
                                    byte&nbsp;nalUnitHeaderFirstByte)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the NAL unit with the specified header contains supplemental enhancement
  information.</div>
 <dl>
@@ -633,6 +678,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>getNalUnitType</h4>
 <pre class="methodSignature">public static&nbsp;int&nbsp;getNalUnitType&#8203;(byte[]&nbsp;data,
                                  int&nbsp;offset)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the type of the NAL unit in <code>data</code> that starts at <code>offset</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -652,6 +698,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>getH265NalUnitType</h4>
 <pre class="methodSignature">public static&nbsp;int&nbsp;getH265NalUnitType&#8203;(byte[]&nbsp;data,
                                      int&nbsp;offset)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the type of the H.265 NAL unit in <code>data</code> that starts at <code>offset</code>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -672,6 +719,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">public static&nbsp;<a href="NalUnitUtil.SpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.SpsData</a>&nbsp;parseSpsNalUnit&#8203;(byte[]&nbsp;nalData,
                                                   int&nbsp;nalOffset,
                                                   int&nbsp;nalLimit)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses a SPS NAL unit using the syntax defined in ITU-T Recommendation H.264 (2013) subsection
  7.3.2.1.1.</div>
 <dl>
@@ -693,6 +741,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">public static&nbsp;<a href="NalUnitUtil.SpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.SpsData</a>&nbsp;parseSpsNalUnitPayload&#8203;(byte[]&nbsp;nalData,
                                                          int&nbsp;nalOffset,
                                                          int&nbsp;nalLimit)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses a SPS NAL unit payload (excluding the NAL unit header) using the syntax defined in ITU-T
  Recommendation H.264 (2013) subsection 7.3.2.1.1.</div>
 <dl>
@@ -714,6 +763,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">public static&nbsp;<a href="NalUnitUtil.H265SpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.H265SpsData</a>&nbsp;parseH265SpsNalUnit&#8203;(byte[]&nbsp;nalData,
                                                           int&nbsp;nalOffset,
                                                           int&nbsp;nalLimit)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses a H.265 SPS NAL unit using the syntax defined in ITU-T Recommendation H.265 (2019)
  subsection 7.3.2.2.1.</div>
 <dl>
@@ -735,6 +785,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">public static&nbsp;<a href="NalUnitUtil.H265SpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.H265SpsData</a>&nbsp;parseH265SpsNalUnitPayload&#8203;(byte[]&nbsp;nalData,
                                                                  int&nbsp;nalOffset,
                                                                  int&nbsp;nalLimit)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses a H.265 SPS NAL unit payload (excluding the NAL unit header) using the syntax defined in
  ITU-T Recommendation H.265 (2019) subsection 7.3.2.2.1.</div>
 <dl>
@@ -756,6 +807,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">public static&nbsp;<a href="NalUnitUtil.PpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.PpsData</a>&nbsp;parsePpsNalUnit&#8203;(byte[]&nbsp;nalData,
                                                   int&nbsp;nalOffset,
                                                   int&nbsp;nalLimit)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses a PPS NAL unit using the syntax defined in ITU-T Recommendation H.264 (2013) subsection
  7.3.2.2.</div>
 <dl>
@@ -777,6 +829,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">public static&nbsp;<a href="NalUnitUtil.PpsData.html" title="class in com.google.android.exoplayer2.util">NalUnitUtil.PpsData</a>&nbsp;parsePpsNalUnitPayload&#8203;(byte[]&nbsp;nalData,
                                                          int&nbsp;nalOffset,
                                                          int&nbsp;nalLimit)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Parses a PPS NAL unit payload (excluding the NAL unit header) using the syntax defined in ITU-T
  Recommendation H.264 (2013) subsection 7.3.2.2.</div>
 <dl>
@@ -799,6 +852,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                               int&nbsp;startOffset,
                               int&nbsp;endOffset,
                               boolean[]&nbsp;prefixFlags)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Finds the first NAL unit in <code>data</code>.
 
  <p>If <code>prefixFlags</code> is null then the first three bytes of a NAL unit must be entirely
@@ -830,6 +884,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>clearPrefixFlags</h4>
 <pre class="methodSignature">public static&nbsp;void&nbsp;clearPrefixFlags&#8203;(boolean[]&nbsp;prefixFlags)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Clears prefix flags, as used by <a href="#findNalUnit(byte%5B%5D,int,int,boolean%5B%5D)"><code>findNalUnit(byte[], int, int, boolean[])</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

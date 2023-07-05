@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var data = {"i0":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -126,10 +126,16 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><code><a href="../source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a></code>, <code><a href="../source/hls/playlist/HlsMasterPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMasterPlaylist</a></code>, <code><a href="../source/hls/playlist/HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist</a></code>, <code><a href="../source/hls/playlist/HlsMultivariantPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMultivariantPlaylist</a></code>, <code><a href="../source/hls/playlist/HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a></code>, <code><a href="../source/smoothstreaming/manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a></code></dd>
+<dd><code><a href="../source/dash/manifest/DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a></code>, <code><a href="../source/hls/playlist/HlsMediaPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMediaPlaylist</a></code>, <code><a href="../source/hls/playlist/HlsMultivariantPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsMultivariantPlaylist</a></code>, <code><a href="../source/hls/playlist/HlsPlaylist.html" title="class in com.google.android.exoplayer2.source.hls.playlist">HlsPlaylist</a></code>, <code><a href="../source/smoothstreaming/manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">FilterableManifest&lt;T&gt;</span></pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">FilterableManifest&lt;T&gt;</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A manifest that can generate copies of itself including only the streams specified by the given
  keys.</div>
 </li>
@@ -146,7 +152,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -156,6 +162,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <td class="colFirst"><code><a href="FilterableManifest.html" title="type parameter in FilterableManifest">T</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copy(java.util.List)">copy</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy of the manifest including only the streams specified by the given keys.</div>
 </td>
 </tr>
@@ -183,6 +190,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>copy</h4>
 <pre class="methodSignature"><a href="FilterableManifest.html" title="type parameter in FilterableManifest">T</a>&nbsp;copy&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy of the manifest including only the streams specified by the given keys. If the
  manifest is unchanged then the instance may return itself.</div>
 <dl>

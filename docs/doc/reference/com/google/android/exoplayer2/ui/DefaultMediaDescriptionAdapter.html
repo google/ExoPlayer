@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">DefaultMediaDescriptionAdapter</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">DefaultMediaDescriptionAdapter</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui">PlayerNotificationManager.MediaDescriptionAdapter</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Default implementation of <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.MediaDescriptionAdapter</code></a>.
 
  <p>Uses values from the <a href="../Player.html#getMediaMetadata()"><code>player mediaMetadata</code></a> to populate the
@@ -162,6 +168,7 @@ implements <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" titl
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(android.app.PendingIntent)">DefaultMediaDescriptionAdapter</a></span>&#8203;(<a href="https://developer.android.com/reference/android/app/PendingIntent.html" title="class or interface in android.app" class="externalLink" target="_top">PendingIntent</a>&nbsp;pendingIntent)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a default <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.MediaDescriptionAdapter</code></a>.</div>
 </td>
 </tr>
@@ -177,7 +184,7 @@ implements <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" titl
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -187,6 +194,7 @@ implements <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" titl
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/app/PendingIntent.html" title="class or interface in android.app" class="externalLink" target="_top">PendingIntent</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createCurrentContentIntent(com.google.android.exoplayer2.Player)">createCurrentContentIntent</a></span>&#8203;(<a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a content intent for the current media item.</div>
 </td>
 </tr>
@@ -194,6 +202,7 @@ implements <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" titl
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCurrentContentText(com.google.android.exoplayer2.Player)">getCurrentContentText</a></span>&#8203;(<a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Gets the content text for the current media item.</div>
 </td>
 </tr>
@@ -201,6 +210,7 @@ implements <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" titl
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink" target="_top">CharSequence</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCurrentContentTitle(com.google.android.exoplayer2.Player)">getCurrentContentTitle</a></span>&#8203;(<a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Gets the content title for the current media item.</div>
 </td>
 </tr>
@@ -209,6 +219,7 @@ implements <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" titl
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getCurrentLargeIcon(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.ui.PlayerNotificationManager.BitmapCallback)">getCurrentLargeIcon</a></span>&#8203;(<a href="../Player.html" title="interface in com.google.android.exoplayer2">Player</a>&nbsp;player,
                    <a href="PlayerNotificationManager.BitmapCallback.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager.BitmapCallback</a>&nbsp;callback)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Gets the large icon for the current media item.</div>
 </td>
 </tr>
@@ -251,6 +262,7 @@ implements <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" titl
 <h4>DefaultMediaDescriptionAdapter</h4>
 <pre>public&nbsp;DefaultMediaDescriptionAdapter&#8203;(@Nullable
                                       <a href="https://developer.android.com/reference/android/app/PendingIntent.html" title="class or interface in android.app" class="externalLink" target="_top">PendingIntent</a>&nbsp;pendingIntent)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a default <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" title="interface in com.google.android.exoplayer2.ui"><code>PlayerNotificationManager.MediaDescriptionAdapter</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -275,6 +287,7 @@ implements <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" titl
 <li class="blockList">
 <h4>getCurrentContentTitle</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink">CharSequence</a>&nbsp;getCurrentContentTitle&#8203;(<a href="../Player.html" title="interface in com.google.android.exoplayer2" target="_top">Player</a>&nbsp;player)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="PlayerNotificationManager.MediaDescriptionAdapter.html#getCurrentContentTitle(com.google.android.exoplayer2.Player)">PlayerNotificationManager.MediaDescriptionAdapter</a></code></span></div>
 <div class="block">Gets the content title for the current media item.
 
@@ -297,6 +310,7 @@ implements <a href="PlayerNotificationManager.MediaDescriptionAdapter.html" titl
 <h4>createCurrentContentIntent</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="https://developer.android.com/reference/android/app/PendingIntent.html" title="class or interface in android.app" class="externalLink">PendingIntent</a>&nbsp;createCurrentContentIntent&#8203;(<a href="../Player.html" title="interface in com.google.android.exoplayer2" target="_top">Player</a>&nbsp;player)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="PlayerNotificationManager.MediaDescriptionAdapter.html#createCurrentContentIntent(com.google.android.exoplayer2.Player)">PlayerNotificationManager.MediaDescriptionAdapter</a></code></span></div>
 <div class="block">Creates a content intent for the current media item.
 
@@ -319,6 +333,7 @@ public&nbsp;<a href="https://developer.android.com/reference/android/app/Pending
 <h4>getCurrentContentText</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="https://developer.android.com/reference/java/lang/CharSequence.html" title="class or interface in java.lang" class="externalLink">CharSequence</a>&nbsp;getCurrentContentText&#8203;(<a href="../Player.html" title="interface in com.google.android.exoplayer2" target="_top">Player</a>&nbsp;player)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="PlayerNotificationManager.MediaDescriptionAdapter.html#getCurrentContentText(com.google.android.exoplayer2.Player)">PlayerNotificationManager.MediaDescriptionAdapter</a></code></span></div>
 <div class="block">Gets the content text for the current media item.
 
@@ -343,6 +358,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/CharSeque
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="https://developer.android.com/reference/android/graphics/Bitmap.html" title="class or interface in android.graphics" class="externalLink">Bitmap</a>&nbsp;getCurrentLargeIcon&#8203;(<a href="../Player.html" title="interface in com.google.android.exoplayer2" target="_top">Player</a>&nbsp;player,
                                   <a href="PlayerNotificationManager.BitmapCallback.html" title="class in com.google.android.exoplayer2.ui">PlayerNotificationManager.BitmapCallback</a>&nbsp;callback)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="PlayerNotificationManager.MediaDescriptionAdapter.html#getCurrentLargeIcon(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.ui.PlayerNotificationManager.BitmapCallback)">PlayerNotificationManager.MediaDescriptionAdapter</a></code></span></div>
 <div class="block">Gets the large icon for the current media item.
 

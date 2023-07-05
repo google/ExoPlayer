@@ -17,12 +17,18 @@
 package com.google.android.exoplayer2.effect;
 
 import android.content.Context;
-import com.google.android.exoplayer2.util.FrameProcessingException;
+import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.common.collect.ImmutableList;
 
 /**
  * Specifies a 4x4 RGB color transformation matrix to apply to each frame in the fragment shader.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public interface RgbMatrix extends GlEffect {
 
   /**
@@ -32,15 +38,15 @@ public interface RgbMatrix extends GlEffect {
    * @param presentationTimeUs The timestamp of the frame to apply the matrix on.
    * @param useHdr If {@code true}, colors will be in linear RGB BT.2020. If {@code false}, colors
    *     will be in linear RGB BT.709. Must be consistent with {@code useHdr} in {@link
-   *     #toGlTextureProcessor(Context, boolean)}.
+   *     #toGlShaderProgram(Context, boolean)}.
    * @return The {@code RgbMatrix} to apply to the frame.
    */
   float[] getMatrix(long presentationTimeUs, boolean useHdr);
 
   @Override
-  default SingleFrameGlTextureProcessor toGlTextureProcessor(Context context, boolean useHdr)
-      throws FrameProcessingException {
-    return MatrixTextureProcessor.create(
+  default SingleFrameGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
+      throws VideoFrameProcessingException {
+    return DefaultShaderProgram.create(
         context,
         /* matrixTransformations= */ ImmutableList.of(),
         /* rgbMatrices= */ ImmutableList.of(this),

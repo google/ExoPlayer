@@ -18,8 +18,16 @@ package com.google.android.exoplayer2.transformer;
 
 import android.media.MediaCodecInfo;
 
-/** Provides bitrates for encoders to use as a target. */
-public interface EncoderBitrateProvider {
+/**
+ * Provides bitrates for encoders to use as a target.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
+/* package */ interface EncoderBitrateProvider {
 
   /**
    * Returns a recommended bitrate that the encoder should target.

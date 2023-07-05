@@ -1,0 +1,65 @@
+seekMap:
+  isSeekable = true
+  duration = 200
+  getPosition(0) = [[timeUs=0, position=44]]
+  getPosition(1) = [[timeUs=0, position=44], [timeUs=100, position=99]]
+  getPosition(100) = [[timeUs=100, position=99]]
+  getPosition(200) = [[timeUs=100, position=99]]
+numberOfTracks = 2
+track 0:
+  total output bytes = 110
+  sample count = 2
+  format 0:
+    id = 1
+    sampleMimeType = video/avc
+    codecs = avc1.F4000A
+    maxInputSize = 85
+    width = 12
+    height = 10
+    frameRate = 20000.0
+    colorInfo:
+      colorSpace = -1
+      colorRange = 1
+      colorTransfer = -1
+      hdrStaticInfo = length 0, hash 0
+    metadata = entries=[Creation time: 500000000]
+    initializationData:
+      data = length 28, hash 410B510
+      data = length 9, hash FBADD682
+  sample 0:
+    time = 0
+    flags = 1
+    data = length 55, hash A481CEF4
+  sample 1:
+    time = 100
+    flags = 536870913
+    data = length 55, hash A481CEF4
+track 1:
+  total output bytes = 110
+  sample count = 2
+  format 0:
+    id = 2
+    sampleMimeType = video/avc
+    codecs = avc1.F4000A
+    maxInputSize = 85
+    width = 12
+    height = 10
+    frameRate = 10000.0
+    colorInfo:
+      colorSpace = -1
+      colorRange = 1
+      colorTransfer = -1
+      hdrStaticInfo = length 0, hash 0
+    metadata = entries=[Creation time: 500000000]
+    initializationData:
+      data = length 28, hash 410B510
+      data = length 9, hash FBADD682
+  sample 0:
+    time = 0
+    flags = 1
+    data = length 55, hash A481CEF4
+  sample 1:
+    time = 200
+    flags = 536870913
+    data = length 55, hash A481CEF4
+tracksEnded = true

@@ -250,6 +250,25 @@ public class MediaItemTest {
   }
 
   @Test
+  public void createDrmConfigurationInstance_roundTripViaBundle_yieldsEqualInstance() {
+    MediaItem.DrmConfiguration drmConfiguration =
+        new MediaItem.DrmConfiguration.Builder(C.WIDEVINE_UUID)
+            .setLicenseUri(URI_STRING + "/license")
+            .setLicenseRequestHeaders(ImmutableMap.of("Referer", "http://www.google.com"))
+            .setMultiSession(true)
+            .setForceDefaultLicenseUri(true)
+            .setPlayClearContentWithoutKey(true)
+            .setForcedSessionTrackTypes(ImmutableList.of(C.TRACK_TYPE_AUDIO))
+            .setKeySetId(new byte[] {1, 2, 3})
+            .build();
+
+    MediaItem.DrmConfiguration drmConfigurationFromBundle =
+        MediaItem.DrmConfiguration.CREATOR.fromBundle(drmConfiguration.toBundle());
+
+    assertThat(drmConfigurationFromBundle).isEqualTo(drmConfiguration);
+  }
+
+  @Test
   public void builderSetCustomCacheKey_setsCustomCacheKey() {
     MediaItem mediaItem =
         new MediaItem.Builder().setUri(URI_STRING).setCustomCacheKey("key").build();
@@ -319,6 +338,42 @@ public class MediaItemTest {
 
     assertThat(mediaItem.localConfiguration.subtitleConfigurations).isEqualTo(subtitles);
     assertThat(mediaItem.localConfiguration.subtitles).isEqualTo(subtitles);
+  }
+
+  @Test
+  public void
+      createDefaultSubtitleConfigurationInstance_toBundleSkipsDefaultValues_fromBundleRestoresThem() {
+    MediaItem.SubtitleConfiguration subtitleConfiguration =
+        new MediaItem.SubtitleConfiguration.Builder(Uri.parse(URI_STRING + "/en")).build();
+
+    Bundle subtitleConfigurationBundle = subtitleConfiguration.toBundle();
+
+    // Check that default values are skipped when bundling, only Uri field (="0") is present
+    assertThat(subtitleConfigurationBundle.keySet()).containsExactly("0");
+
+    MediaItem.SubtitleConfiguration subtitleConfigurationFromBundle =
+        MediaItem.SubtitleConfiguration.CREATOR.fromBundle(subtitleConfigurationBundle);
+
+    assertThat(subtitleConfigurationFromBundle).isEqualTo(subtitleConfiguration);
+  }
+
+  @Test
+  public void createSubtitleConfigurationInstance_roundTripViaBundle_yieldsEqualInstance() {
+    // Creates instance by setting some non-default values
+    MediaItem.SubtitleConfiguration subtitleConfiguration =
+        new MediaItem.SubtitleConfiguration.Builder(Uri.parse(URI_STRING + "/en"))
+            .setMimeType(MimeTypes.APPLICATION_TTML)
+            .setLanguage("en")
+            .setSelectionFlags(C.SELECTION_FLAG_FORCED)
+            .setRoleFlags(C.ROLE_FLAG_ALTERNATE)
+            .setLabel("label")
+            .setId("id")
+            .build();
+
+    MediaItem.SubtitleConfiguration subtitleConfigurationFromBundle =
+        MediaItem.SubtitleConfiguration.CREATOR.fromBundle(subtitleConfiguration.toBundle());
+
+    assertThat(subtitleConfigurationFromBundle).isEqualTo(subtitleConfiguration);
   }
 
   @Test
@@ -541,6 +596,21 @@ public class MediaItemTest {
   }
 
   @Test
+  public void createAdsConfigurationInstance_roundTripViaBundle_yieldsEqualInstanceExceptAdsId() {
+    Uri adTagUri = Uri.parse(URI_STRING + "/ad");
+    MediaItem.AdsConfiguration adsConfiguration =
+        new MediaItem.AdsConfiguration.Builder(adTagUri)
+            .setAdsId("Something that will be lost")
+            .build();
+
+    MediaItem.AdsConfiguration adsConfigurationFromBundle =
+        MediaItem.AdsConfiguration.CREATOR.fromBundle(adsConfiguration.toBundle());
+
+    assertThat(adsConfigurationFromBundle.adTagUri).isEqualTo(adsConfiguration.adTagUri);
+    assertThat(adsConfigurationFromBundle.adsId).isNull();
+  }
+
+  @Test
   public void builderSetMediaMetadata_setsMetadata() {
     MediaMetadata mediaMetadata = new MediaMetadata.Builder().setTitle("title").build();
 
@@ -595,6 +665,68 @@ public class MediaItemTest {
         MediaItem.LiveConfiguration.CREATOR.fromBundle(liveConfiguration.toBundle());
 
     assertThat(liveConfigurationFromBundle).isEqualTo(liveConfiguration);
+  }
+
+  @Test
+  public void
+      createDefaultLocalConfigurationInstance_toBundleSkipsDefaultValues_fromBundleRestoresThem() {
+    MediaItem mediaItem = new MediaItem.Builder().setUri(URI_STRING).build();
+
+    Bundle localConfigurationBundle = mediaItem.localConfiguration.toBundle();
+
+    // Check that default values are skipped when bundling, only Uri field (="0") is present
+    assertThat(localConfigurationBundle.keySet()).containsExactly("0");
+
+    MediaItem.LocalConfiguration restoredLocalConfiguration =
+        MediaItem.LocalConfiguration.CREATOR.fromBundle(localConfigurationBundle);
+
+    assertThat(restoredLocalConfiguration).isEqualTo(mediaItem.localConfiguration);
+    assertThat(restoredLocalConfiguration.streamKeys).isEmpty();
+    assertThat(restoredLocalConfiguration.subtitleConfigurations).isEmpty();
+  }
+
+  @Test
+  public void createLocalConfigurationInstance_roundTripViaBundle_yieldsEqualInstance() {
+    Map<String, String> requestHeaders = new HashMap<>();
+    requestHeaders.put("Referer", "http://www.google.com");
+    MediaItem mediaItem =
+        new MediaItem.Builder()
+            .setUri(URI_STRING)
+            .setMimeType(MimeTypes.APPLICATION_MP4)
+            .setCustomCacheKey("key")
+            .setSubtitleConfigurations(
+                ImmutableList.of(
+                    new MediaItem.SubtitleConfiguration.Builder(Uri.parse(URI_STRING + "/en"))
+                        .setMimeType(MimeTypes.APPLICATION_TTML)
+                        .setLanguage("en")
+                        .setSelectionFlags(C.SELECTION_FLAG_FORCED)
+                        .setRoleFlags(C.ROLE_FLAG_ALTERNATE)
+                        .setLabel("label")
+                        .setId("id")
+                        .build()))
+            .setDrmConfiguration(
+                new MediaItem.DrmConfiguration.Builder(C.WIDEVINE_UUID)
+                    .setLicenseUri(Uri.parse(URI_STRING))
+                    .setLicenseRequestHeaders(requestHeaders)
+                    .setMultiSession(true)
+                    .setForceDefaultLicenseUri(true)
+                    .setPlayClearContentWithoutKey(true)
+                    .setForcedSessionTrackTypes(ImmutableList.of(C.TRACK_TYPE_AUDIO))
+                    .setKeySetId(new byte[] {1, 2, 3})
+                    .build())
+            .setAdsConfiguration(
+                new MediaItem.AdsConfiguration.Builder(Uri.parse(URI_STRING)).build())
+            .build();
+
+    MediaItem.LocalConfiguration localConfiguration = mediaItem.localConfiguration;
+    MediaItem.LocalConfiguration localConfigurationFromBundle =
+        MediaItem.LocalConfiguration.CREATOR.fromBundle(localConfiguration.toBundle());
+    MediaItem.LocalConfiguration localConfigurationFromMediaItemBundle =
+        MediaItem.CREATOR.fromBundle(mediaItem.toBundleIncludeLocalConfiguration())
+            .localConfiguration;
+
+    assertThat(localConfigurationFromBundle).isEqualTo(localConfiguration);
+    assertThat(localConfigurationFromMediaItemBundle).isEqualTo(localConfiguration);
   }
 
   @Test
@@ -729,7 +861,7 @@ public class MediaItemTest {
     MediaItem copy = mediaItem.buildUpon().build();
 
     assertThat(copy).isEqualTo(mediaItem);
-    assertThat(copy.localConfiguration).isEqualTo(mediaItem.playbackProperties);
+    assertThat(copy.localConfiguration).isEqualTo(mediaItem.localConfiguration);
   }
 
   @Test
@@ -794,7 +926,7 @@ public class MediaItemTest {
   }
 
   @Test
-  public void roundTripViaBundle_withoutPlaybackProperties_yieldsEqualInstance() {
+  public void roundTripViaBundle_withoutLocalConfiguration_yieldsEqualInstance() {
     MediaItem mediaItem =
         new MediaItem.Builder()
             .setMediaId("mediaId")
@@ -824,11 +956,23 @@ public class MediaItemTest {
   }
 
   @Test
-  public void roundTripViaBundle_withPlaybackProperties_dropsPlaybackProperties() {
+  public void
+      roundTripViaDefaultBundle_mediaItemContainsLocalConfiguration_dropsLocalConfiguration() {
     MediaItem mediaItem = new MediaItem.Builder().setUri(URI_STRING).build();
 
     assertThat(mediaItem.localConfiguration).isNotNull();
     assertThat(MediaItem.CREATOR.fromBundle(mediaItem.toBundle()).localConfiguration).isNull();
+  }
+
+  @Test
+  public void
+      roundTripViaBundleIncludeLocalConfiguration_mediaItemContainsLocalConfiguration_restoresLocalConfiguration() {
+    MediaItem mediaItem = new MediaItem.Builder().setUri(URI_STRING).build();
+    MediaItem restoredMediaItem =
+        MediaItem.CREATOR.fromBundle(mediaItem.toBundleIncludeLocalConfiguration());
+
+    assertThat(mediaItem.localConfiguration).isNotNull();
+    assertThat(restoredMediaItem.localConfiguration).isEqualTo(mediaItem.localConfiguration);
   }
 
   @Test

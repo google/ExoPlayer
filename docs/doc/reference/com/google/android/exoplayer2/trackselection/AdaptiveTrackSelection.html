@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -138,8 +138,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a></code>, <code><a href="TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a></code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">AdaptiveTrackSelection</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">AdaptiveTrackSelection</span>
 extends <a href="BaseTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">BaseTrackSelection</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A bandwidth based adaptive <a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>ExoTrackSelection</code></a>, whose selected track is updated to be the
  one of highest quality given the current network conditions and the state of the buffer.</div>
 </li>
@@ -166,6 +172,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="AdaptiveTrackSelection.AdaptationCheckpoint.html" title="class in com.google.android.exoplayer2.trackselection">AdaptiveTrackSelection.AdaptationCheckpoint</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Checkpoint to determine allocated bandwidth.</div>
 </td>
 </tr>
@@ -173,6 +180,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="AdaptiveTrackSelection.Factory.html" title="class in com.google.android.exoplayer2.trackselection">AdaptiveTrackSelection.Factory</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Factory for <a href="AdaptiveTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection"><code>AdaptiveTrackSelection</code></a> instances.</div>
 </td>
 </tr>
@@ -211,37 +219,51 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <tr class="altColor">
 <td class="colFirst"><code>static float</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_BANDWIDTH_FRACTION">DEFAULT_BANDWIDTH_FRACTION</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static float</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE">DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS">DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_MAX_HEIGHT_TO_DISCARD">DEFAULT_MAX_HEIGHT_TO_DISCARD</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_MAX_WIDTH_TO_DISCARD">DEFAULT_MAX_WIDTH_TO_DISCARD</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS">DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS">DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -290,14 +312,18 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
                       float&nbsp;bufferedFractionToLiveEdgeForQualityIncrease,
                       <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="AdaptiveTrackSelection.AdaptationCheckpoint.html" title="class in com.google.android.exoplayer2.trackselection" target="_top">AdaptiveTrackSelection.AdaptationCheckpoint</a>&gt;&nbsp;adaptationCheckpoints,
                       <a href="../util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>&nbsp;</code></td>
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.source.TrackGroup,int%5B%5D,com.google.android.exoplayer2.upstream.BandwidthMeter)">AdaptiveTrackSelection</a></span>&#8203;(<a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
                       int[]&nbsp;tracks,
                       <a href="../upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -311,7 +337,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -323,6 +349,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
                int&nbsp;trackBitrate,
                long&nbsp;effectiveBitrate)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when updating the selected track to determine whether a candidate track can be selected.</div>
 </td>
 </tr>
@@ -330,6 +357,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#disable()">disable</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Disables this track selection.</div>
 </td>
 </tr>
@@ -337,6 +365,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#enable()">enable</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Enables the track selection.</div>
 </td>
 </tr>
@@ -345,6 +374,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#evaluateQueueSize(long,java.util.List)">evaluateQueueSize</a></span>&#8203;(long&nbsp;playbackPositionUs,
                  <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the number of chunks that should be retained in the queue.</div>
 </td>
 </tr>
@@ -352,6 +382,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <td class="colFirst"><code>protected long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMinDurationToRetainAfterDiscardUs()">getMinDurationToRetainAfterDiscardUs</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called from <a href="#evaluateQueueSize(long,java.util.List)"><code>evaluateQueueSize(long, List)</code></a> to determine the minimum duration of buffer
  to retain after discarding chunks.</div>
 </td>
@@ -360,6 +391,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSelectedIndex()">getSelectedIndex</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the index of the selected track.</div>
 </td>
 </tr>
@@ -367,6 +399,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSelectionData()">getSelectionData</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns optional data associated with the current track selection.</div>
 </td>
 </tr>
@@ -374,6 +407,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <td class="colFirst"><code>@com.google.android.exoplayer2.C.SelectionReason int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSelectionReason()">getSelectionReason</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the reason for the current track selection.</div>
 </td>
 </tr>
@@ -381,6 +415,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlaybackSpeed(float)">onPlaybackSpeed</a></span>&#8203;(float&nbsp;playbackSpeed)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called to notify the selection of the current playback speed.</div>
 </td>
 </tr>
@@ -389,6 +424,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#shouldEvaluateQueueSize(long,java.util.List)">shouldEvaluateQueueSize</a></span>&#8203;(long&nbsp;nowMs,
                        <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called from <a href="#evaluateQueueSize(long,java.util.List)"><code>evaluateQueueSize(long, List)</code></a> to determine whether an evaluation should be
  performed.</div>
 </td>
@@ -401,6 +437,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
                    <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue,
                    <a href="../source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a>[]&nbsp;mediaChunkIterators)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates the selected track for sources that load media in discrete <a href="../source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s.</div>
 </td>
 </tr>
@@ -410,7 +447,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.trackselection.<a href="BaseTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">BaseTrackSelection</a></h3>
-<code><a href="BaseTrackSelection.html#blacklist(int,long)">blacklist</a>, <a href="BaseTrackSelection.html#equals(java.lang.Object)">equals</a>, <a href="BaseTrackSelection.html#getFormat(int)">getFormat</a>, <a href="BaseTrackSelection.html#getIndexInTrackGroup(int)">getIndexInTrackGroup</a>, <a href="BaseTrackSelection.html#getSelectedFormat()">getSelectedFormat</a>, <a href="BaseTrackSelection.html#getSelectedIndexInTrackGroup()">getSelectedIndexInTrackGroup</a>, <a href="BaseTrackSelection.html#getTrackGroup()">getTrackGroup</a>, <a href="BaseTrackSelection.html#getType()">getType</a>, <a href="BaseTrackSelection.html#hashCode()">hashCode</a>, <a href="BaseTrackSelection.html#indexOf(int)">indexOf</a>, <a href="BaseTrackSelection.html#indexOf(com.google.android.exoplayer2.Format)">indexOf</a>, <a href="BaseTrackSelection.html#isBlacklisted(int,long)">isBlacklisted</a>, <a href="BaseTrackSelection.html#length()">length</a></code></li>
+<code><a href="BaseTrackSelection.html#equals(java.lang.Object)">equals</a>, <a href="BaseTrackSelection.html#excludeTrack(int,long)">excludeTrack</a>, <a href="BaseTrackSelection.html#getFormat(int)">getFormat</a>, <a href="BaseTrackSelection.html#getIndexInTrackGroup(int)">getIndexInTrackGroup</a>, <a href="BaseTrackSelection.html#getSelectedFormat()">getSelectedFormat</a>, <a href="BaseTrackSelection.html#getSelectedIndexInTrackGroup()">getSelectedIndexInTrackGroup</a>, <a href="BaseTrackSelection.html#getTrackGroup()">getTrackGroup</a>, <a href="BaseTrackSelection.html#getType()">getType</a>, <a href="BaseTrackSelection.html#hashCode()">hashCode</a>, <a href="BaseTrackSelection.html#indexOf(int)">indexOf</a>, <a href="BaseTrackSelection.html#indexOf(com.google.android.exoplayer2.Format)">indexOf</a>, <a href="BaseTrackSelection.html#isTrackExcluded(int,long)">isTrackExcluded</a>, <a href="BaseTrackSelection.html#length()">length</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
@@ -449,6 +486,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <li class="blockList">
 <h4>DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS</h4>
 <pre>public static final&nbsp;int DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection.DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS">Constant Field Values</a></dd>
@@ -462,6 +500,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <li class="blockList">
 <h4>DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS</h4>
 <pre>public static final&nbsp;int DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection.DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS">Constant Field Values</a></dd>
@@ -475,6 +514,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <li class="blockList">
 <h4>DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS</h4>
 <pre>public static final&nbsp;int DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection.DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS">Constant Field Values</a></dd>
@@ -488,6 +528,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <li class="blockList">
 <h4>DEFAULT_MAX_WIDTH_TO_DISCARD</h4>
 <pre>public static final&nbsp;int DEFAULT_MAX_WIDTH_TO_DISCARD</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection.DEFAULT_MAX_WIDTH_TO_DISCARD">Constant Field Values</a></dd>
@@ -501,6 +542,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <li class="blockList">
 <h4>DEFAULT_MAX_HEIGHT_TO_DISCARD</h4>
 <pre>public static final&nbsp;int DEFAULT_MAX_HEIGHT_TO_DISCARD</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection.DEFAULT_MAX_HEIGHT_TO_DISCARD">Constant Field Values</a></dd>
@@ -514,6 +556,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <li class="blockList">
 <h4>DEFAULT_BANDWIDTH_FRACTION</h4>
 <pre>public static final&nbsp;float DEFAULT_BANDWIDTH_FRACTION</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection.DEFAULT_BANDWIDTH_FRACTION">Constant Field Values</a></dd>
@@ -527,6 +570,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <li class="blockList">
 <h4>DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE</h4>
 <pre>public static final&nbsp;float DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection.DEFAULT_BUFFERED_FRACTION_TO_LIVE_EDGE_FOR_QUALITY_INCREASE">Constant Field Values</a></dd>
@@ -552,6 +596,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <pre>public&nbsp;AdaptiveTrackSelection&#8203;(<a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source">TrackGroup</a>&nbsp;group,
                               int[]&nbsp;tracks,
                               <a href="../upstream/BandwidthMeter.html" title="interface in com.google.android.exoplayer2.upstream">BandwidthMeter</a>&nbsp;bandwidthMeter)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>group</code> - The <a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>.</dd>
@@ -580,6 +625,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
                                  float&nbsp;bufferedFractionToLiveEdgeForQualityIncrease,
                                  <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="AdaptiveTrackSelection.AdaptationCheckpoint.html" title="class in com.google.android.exoplayer2.trackselection" target="_top">AdaptiveTrackSelection.AdaptationCheckpoint</a>&gt;&nbsp;adaptationCheckpoints,
                                  <a href="../util/Clock.html" title="interface in com.google.android.exoplayer2.util">Clock</a>&nbsp;clock)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>group</code> - The <a href="../source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>.</dd>
@@ -632,6 +678,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <h4>enable</h4>
 <pre class="methodSignature">@CallSuper
 public&nbsp;void&nbsp;enable()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExoTrackSelection.html#enable()">ExoTrackSelection</a></code></span></div>
 <div class="block">Enables the track selection. Dynamic changes via <a href="ExoTrackSelection.html#updateSelectedTrack(long,long,long,java.util.List,com.google.android.exoplayer2.source.chunk.MediaChunkIterator%5B%5D)"><code>ExoTrackSelection.updateSelectedTrack(long, long, long,
  List, MediaChunkIterator[])</code></a>, <a href="ExoTrackSelection.html#evaluateQueueSize(long,java.util.List)"><code>ExoTrackSelection.evaluateQueueSize(long, List)</code></a> or <a href="ExoTrackSelection.html#shouldCancelChunkLoad(long,com.google.android.exoplayer2.source.chunk.Chunk,java.util.List)"><code>ExoTrackSelection.shouldCancelChunkLoad(long, Chunk, List)</code></a> will only happen after this call.
@@ -653,6 +700,7 @@ public&nbsp;void&nbsp;enable()</pre>
 <h4>disable</h4>
 <pre class="methodSignature">@CallSuper
 public&nbsp;void&nbsp;disable()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExoTrackSelection.html#disable()">ExoTrackSelection</a></code></span></div>
 <div class="block">Disables this track selection. No further dynamic changes via <a href="ExoTrackSelection.html#updateSelectedTrack(long,long,long,java.util.List,com.google.android.exoplayer2.source.chunk.MediaChunkIterator%5B%5D)"><code>ExoTrackSelection.updateSelectedTrack(long,
  long, long, List, MediaChunkIterator[])</code></a>, <a href="ExoTrackSelection.html#evaluateQueueSize(long,java.util.List)"><code>ExoTrackSelection.evaluateQueueSize(long, List)</code></a> or <a href="ExoTrackSelection.html#shouldCancelChunkLoad(long,com.google.android.exoplayer2.source.chunk.Chunk,java.util.List)"><code>ExoTrackSelection.shouldCancelChunkLoad(long, Chunk, List)</code></a> will happen after this call.
@@ -673,6 +721,7 @@ public&nbsp;void&nbsp;disable()</pre>
 <li class="blockList">
 <h4>onPlaybackSpeed</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onPlaybackSpeed&#8203;(float&nbsp;playbackSpeed)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExoTrackSelection.html#onPlaybackSpeed(float)">ExoTrackSelection</a></code></span></div>
 <div class="block">Called to notify the selection of the current playback speed. The playback speed may affect
  adaptive track selection.</div>
@@ -697,6 +746,7 @@ public&nbsp;void&nbsp;disable()</pre>
                                 long&nbsp;availableDurationUs,
                                 <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue,
                                 <a href="../source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a>[]&nbsp;mediaChunkIterators)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExoTrackSelection.html#updateSelectedTrack(long,long,long,java.util.List,com.google.android.exoplayer2.source.chunk.MediaChunkIterator%5B%5D)">ExoTrackSelection</a></code></span></div>
 <div class="block">Updates the selected track for sources that load media in discrete <a href="../source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s.
 
@@ -731,6 +781,7 @@ public&nbsp;void&nbsp;disable()</pre>
 <li class="blockList">
 <h4>getSelectedIndex</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getSelectedIndex()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExoTrackSelection.html#getSelectedIndex()">ExoTrackSelection</a></code></span></div>
 <div class="block">Returns the index of the selected track.</div>
 </li>
@@ -742,6 +793,7 @@ public&nbsp;void&nbsp;disable()</pre>
 <li class="blockList">
 <h4>getSelectionReason</h4>
 <pre class="methodSignature">public&nbsp;@com.google.android.exoplayer2.C.SelectionReason int&nbsp;getSelectionReason()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExoTrackSelection.html#getSelectionReason()">ExoTrackSelection</a></code></span></div>
 <div class="block">Returns the reason for the current track selection.</div>
 </li>
@@ -754,6 +806,7 @@ public&nbsp;void&nbsp;disable()</pre>
 <h4>getSelectionData</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;getSelectionData()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExoTrackSelection.html#getSelectionData()">ExoTrackSelection</a></code></span></div>
 <div class="block">Returns optional data associated with the current track selection.</div>
 </li>
@@ -766,6 +819,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <h4>evaluateQueueSize</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;evaluateQueueSize&#8203;(long&nbsp;playbackPositionUs,
                              <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExoTrackSelection.html#evaluateQueueSize(long,java.util.List)">ExoTrackSelection</a></code></span></div>
 <div class="block">Returns the number of chunks that should be retained in the queue.
 
@@ -809,6 +863,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <pre class="methodSignature">protected&nbsp;boolean&nbsp;canSelectFormat&#8203;(<a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;format,
                                   int&nbsp;trackBitrate,
                                   long&nbsp;effectiveBitrate)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when updating the selected track to determine whether a candidate track can be selected.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -829,6 +884,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <h4>shouldEvaluateQueueSize</h4>
 <pre class="methodSignature">protected&nbsp;boolean&nbsp;shouldEvaluateQueueSize&#8203;(long&nbsp;nowMs,
                                           <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called from <a href="#evaluateQueueSize(long,java.util.List)"><code>evaluateQueueSize(long, List)</code></a> to determine whether an evaluation should be
  performed.</div>
 <dl>
@@ -847,6 +903,7 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <li class="blockList">
 <h4>getMinDurationToRetainAfterDiscardUs</h4>
 <pre class="methodSignature">protected&nbsp;long&nbsp;getMinDurationToRetainAfterDiscardUs()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called from <a href="#evaluateQueueSize(long,java.util.List)"><code>evaluateQueueSize(long, List)</code></a> to determine the minimum duration of buffer
  to retain after discarding chunks.</div>
 <dl>

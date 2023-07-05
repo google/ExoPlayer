@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.text.SubtitleDecoderFactory;
 import com.google.android.exoplayer2.text.SubtitleExtractor;
 import com.google.android.exoplayer2.ui.AdViewProvider;
+import com.google.android.exoplayer2.upstream.CmcdConfiguration;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultDataSource;
@@ -94,8 +95,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * <p>To support media items with {@link MediaItem.LocalConfiguration#adsConfiguration ads
  * configuration}, {@link #setAdsLoaderProvider} and {@link #setAdViewProvider} need to be called to
  * configure the factory with the required providers.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
 @SuppressWarnings("deprecation") // Implement deprecated type for backwards compatibility.
+@Deprecated
 public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
   /**
@@ -369,6 +376,14 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
 
   @CanIgnoreReturnValue
   @Override
+  public DefaultMediaSourceFactory setCmcdConfigurationFactory(
+      CmcdConfiguration.Factory cmcdConfigurationFactory) {
+    delegateFactoryLoader.setCmcdConfigurationFactory(checkNotNull(cmcdConfigurationFactory));
+    return this;
+  }
+
+  @CanIgnoreReturnValue
+  @Override
   public DefaultMediaSourceFactory setDrmSessionManagerProvider(
       DrmSessionManagerProvider drmSessionManagerProvider) {
     delegateFactoryLoader.setDrmSessionManagerProvider(
@@ -548,6 +563,7 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     private final Map<Integer, MediaSource.Factory> mediaSourceFactories;
 
     private DataSource.@MonotonicNonNull Factory dataSourceFactory;
+    @Nullable private CmcdConfiguration.Factory cmcdConfigurationFactory;
     @Nullable private DrmSessionManagerProvider drmSessionManagerProvider;
     @Nullable private LoadErrorHandlingPolicy loadErrorHandlingPolicy;
 
@@ -577,6 +593,9 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
       }
 
       mediaSourceFactory = mediaSourceFactorySupplier.get();
+      if (cmcdConfigurationFactory != null) {
+        mediaSourceFactory.setCmcdConfigurationFactory(cmcdConfigurationFactory);
+      }
       if (drmSessionManagerProvider != null) {
         mediaSourceFactory.setDrmSessionManagerProvider(drmSessionManagerProvider);
       }
@@ -594,6 +613,13 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
         // exists on the interface.
         mediaSourceFactorySuppliers.clear();
         mediaSourceFactories.clear();
+      }
+    }
+
+    public void setCmcdConfigurationFactory(CmcdConfiguration.Factory cmcdConfigurationFactory) {
+      this.cmcdConfigurationFactory = cmcdConfigurationFactory;
+      for (MediaSource.Factory mediaSourceFactory : mediaSourceFactories.values()) {
+        mediaSourceFactory.setCmcdConfigurationFactory(cmcdConfigurationFactory);
       }
     }
 

@@ -24,7 +24,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/** Utility methods and constants for the Cast demo application. */
+/**
+ * Utility methods and constants for the Cast demo application.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ final class DemoUtil {
 
   public static final String MIME_TYPE_DASH = MimeTypes.APPLICATION_MPD;

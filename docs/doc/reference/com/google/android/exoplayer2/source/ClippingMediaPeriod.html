@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42,"i12":42,"i13":42,"i14":42,"i15":42,"i16":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code>, <code><a href="MediaPeriod.Callback.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod.Callback</a></code>, <code><a href="SequenceableLoader.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader</a></code>, <code><a href="SequenceableLoader.Callback.html" title="interface in com.google.android.exoplayer2.source">SequenceableLoader.Callback</a>&lt;<a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&gt;</code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">ClippingMediaPeriod</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">ClippingMediaPeriod</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>, <a href="MediaPeriod.Callback.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod.Callback</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Wraps a <a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a> and clips its <a href="SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>s to provide a subsequence of their
  samples.</div>
 </li>
@@ -179,6 +185,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <td class="colFirst"><code><a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#mediaPeriod">mediaPeriod</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a> wrapped by this clipping media period.</div>
 </td>
 </tr>
@@ -205,6 +212,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
                    long&nbsp;startUs,
                    long&nbsp;endUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new clipping media period that provides a clipped view of the specified <a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a>'s sample streams.</div>
 </td>
 </tr>
@@ -220,7 +228,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -230,6 +238,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#continueLoading(long)">continueLoading</a></span>&#8203;(long&nbsp;positionUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Attempts to continue loading.</div>
 </td>
 </tr>
@@ -238,6 +247,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#discardBuffer(long,boolean)">discardBuffer</a></span>&#8203;(long&nbsp;positionUs,
              boolean&nbsp;toKeyframe)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Discards buffered media up to the specified position.</div>
 </td>
 </tr>
@@ -246,6 +256,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAdjustedSeekPositionUs(long,com.google.android.exoplayer2.SeekParameters)">getAdjustedSeekPositionUs</a></span>&#8203;(long&nbsp;positionUs,
                          <a href="../SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a>&nbsp;seekParameters)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the position to which a seek will be performed, given the specified seek position and
  <a href="../SeekParameters.html" title="class in com.google.android.exoplayer2"><code>SeekParameters</code></a>.</div>
 </td>
@@ -254,6 +265,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getBufferedPositionUs()">getBufferedPositionUs</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns an estimate of the position up to which data is buffered for the enabled tracks.</div>
 </td>
 </tr>
@@ -261,6 +273,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getNextLoadPositionUs()">getNextLoadPositionUs</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the next load time, or <a href="../C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> if loading has finished.</div>
 </td>
 </tr>
@@ -268,6 +281,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <td class="colFirst"><code><a href="TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTrackGroups()">getTrackGroups</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>s exposed by the period.</div>
 </td>
 </tr>
@@ -275,6 +289,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isLoading()">isLoading</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the media period is currently loading.</div>
 </td>
 </tr>
@@ -282,6 +297,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maybeThrowPrepareError()">maybeThrowPrepareError</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Throws an error that's preventing the period from becoming prepared.</div>
 </td>
 </tr>
@@ -289,6 +305,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onContinueLoadingRequested(com.google.android.exoplayer2.source.MediaPeriod)">onContinueLoadingRequested</a></span>&#8203;(<a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&nbsp;source)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called by the loader to indicate that it wishes for its <a href="SequenceableLoader.html#continueLoading(long)"><code>SequenceableLoader.continueLoading(long)</code></a> method
  to be called when it can continue to load data.</div>
 </td>
@@ -297,6 +314,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPrepared(com.google.android.exoplayer2.source.MediaPeriod)">onPrepared</a></span>&#8203;(<a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&nbsp;mediaPeriod)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when preparation completes.</div>
 </td>
 </tr>
@@ -305,6 +323,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#prepare(com.google.android.exoplayer2.source.MediaPeriod.Callback,long)">prepare</a></span>&#8203;(<a href="MediaPeriod.Callback.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod.Callback</a>&nbsp;callback,
        long&nbsp;positionUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Prepares this media period asynchronously.</div>
 </td>
 </tr>
@@ -312,6 +331,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#readDiscontinuity()">readDiscontinuity</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Attempts to read a discontinuity.</div>
 </td>
 </tr>
@@ -319,6 +339,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#reevaluateBuffer(long)">reevaluateBuffer</a></span>&#8203;(long&nbsp;positionUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Re-evaluates the buffer given the playback position.</div>
 </td>
 </tr>
@@ -326,6 +347,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#seekToUs(long)">seekToUs</a></span>&#8203;(long&nbsp;positionUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Attempts to seek to the specified position in microseconds.</div>
 </td>
 </tr>
@@ -337,6 +359,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
             boolean[]&nbsp;streamResetFlags,
             long&nbsp;positionUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Performs a track selection.</div>
 </td>
 </tr>
@@ -344,6 +367,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setClippingError(com.google.android.exoplayer2.source.ClippingMediaSource.IllegalClippingException)">setClippingError</a></span>&#8203;(<a href="ClippingMediaSource.IllegalClippingException.html" title="class in com.google.android.exoplayer2.source">ClippingMediaSource.IllegalClippingException</a>&nbsp;clippingError)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets a clipping error detected by the media source so that it can be thrown as a period error
  at the next opportunity.</div>
 </td>
@@ -353,6 +377,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#updateClipping(long,long)">updateClipping</a></span>&#8203;(long&nbsp;startUs,
               long&nbsp;endUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates the clipping start/end times for this period, in microseconds.</div>
 </td>
 </tr>
@@ -394,6 +419,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>mediaPeriod</h4>
 <pre>public final&nbsp;<a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a> mediaPeriod</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a> wrapped by this clipping media period.</div>
 </li>
 </ul>
@@ -417,6 +443,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
                            boolean&nbsp;enableInitialDiscontinuity,
                            long&nbsp;startUs,
                            long&nbsp;endUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new clipping media period that provides a clipped view of the specified <a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a>'s sample streams.
 
  <p>If the start point is guaranteed to be a key frame, pass <code>false</code> to <code>
@@ -450,6 +477,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <h4>updateClipping</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;updateClipping&#8203;(long&nbsp;startUs,
                            long&nbsp;endUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates the clipping start/end times for this period, in microseconds.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -466,6 +494,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>setClippingError</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;setClippingError&#8203;(<a href="ClippingMediaSource.IllegalClippingException.html" title="class in com.google.android.exoplayer2.source">ClippingMediaSource.IllegalClippingException</a>&nbsp;clippingError)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Sets a clipping error detected by the media source so that it can be thrown as a period error
  at the next opportunity.</div>
 <dl>
@@ -482,6 +511,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <h4>prepare</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;prepare&#8203;(<a href="MediaPeriod.Callback.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod.Callback</a>&nbsp;callback,
                     long&nbsp;positionUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaPeriod.html#prepare(com.google.android.exoplayer2.source.MediaPeriod.Callback,long)">MediaPeriod</a></code></span></div>
 <div class="block">Prepares this media period asynchronously.
 
@@ -509,6 +539,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <h4>maybeThrowPrepareError</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;maybeThrowPrepareError()
                             throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaPeriod.html#maybeThrowPrepareError()">MediaPeriod</a></code></span></div>
 <div class="block">Throws an error that's preventing the period from becoming prepared. Does nothing if no such
  error exists.
@@ -529,6 +560,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>getTrackGroups</h4>
 <pre class="methodSignature">public&nbsp;<a href="TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;getTrackGroups()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaPeriod.html#getTrackGroups()">MediaPeriod</a></code></span></div>
 <div class="block">Returns the <a href="TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>s exposed by the period.
 
@@ -552,6 +584,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
                          @NullableType <a href="SampleStream.html" title="interface in com.google.android.exoplayer2.source">SampleStream</a>[]&nbsp;streams,
                          boolean[]&nbsp;streamResetFlags,
                          long&nbsp;positionUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaPeriod.html#selectTracks(com.google.android.exoplayer2.trackselection.ExoTrackSelection%5B%5D,boolean%5B%5D,com.google.android.exoplayer2.source.SampleStream%5B%5D,boolean%5B%5D,long)">MediaPeriod</a></code></span></div>
 <div class="block">Performs a track selection.
 
@@ -596,6 +629,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <h4>discardBuffer</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;discardBuffer&#8203;(long&nbsp;positionUs,
                           boolean&nbsp;toKeyframe)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaPeriod.html#discardBuffer(long,boolean)">MediaPeriod</a></code></span></div>
 <div class="block">Discards buffered media up to the specified position.
 
@@ -617,6 +651,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>reevaluateBuffer</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;reevaluateBuffer&#8203;(long&nbsp;positionUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaPeriod.html#reevaluateBuffer(long)">MediaPeriod</a></code></span></div>
 <div class="block">Re-evaluates the buffer given the playback position.
 
@@ -643,6 +678,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>readDiscontinuity</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;readDiscontinuity()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaPeriod.html#readDiscontinuity()">MediaPeriod</a></code></span></div>
 <div class="block">Attempts to read a discontinuity.
 
@@ -666,6 +702,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>getBufferedPositionUs</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getBufferedPositionUs()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaPeriod.html#getBufferedPositionUs()">MediaPeriod</a></code></span></div>
 <div class="block">Returns an estimate of the position up to which data is buffered for the enabled tracks.
 
@@ -688,6 +725,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>seekToUs</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;seekToUs&#8203;(long&nbsp;positionUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaPeriod.html#seekToUs(long)">MediaPeriod</a></code></span></div>
 <div class="block">Attempts to seek to the specified position in microseconds.
 
@@ -713,6 +751,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <h4>getAdjustedSeekPositionUs</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getAdjustedSeekPositionUs&#8203;(long&nbsp;positionUs,
                                       <a href="../SeekParameters.html" title="class in com.google.android.exoplayer2">SeekParameters</a>&nbsp;seekParameters)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaPeriod.html#getAdjustedSeekPositionUs(long,com.google.android.exoplayer2.SeekParameters)">MediaPeriod</a></code></span></div>
 <div class="block">Returns the position to which a seek will be performed, given the specified seek position and
  <a href="../SeekParameters.html" title="class in com.google.android.exoplayer2"><code>SeekParameters</code></a>.
@@ -737,6 +776,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>getNextLoadPositionUs</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getNextLoadPositionUs()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaPeriod.html#getNextLoadPositionUs()">MediaPeriod</a></code></span></div>
 <div class="block">Returns the next load time, or <a href="../C.html#TIME_END_OF_SOURCE"><code>C.TIME_END_OF_SOURCE</code></a> if loading has finished.
 
@@ -757,6 +797,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>continueLoading</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;continueLoading&#8203;(long&nbsp;positionUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaPeriod.html#continueLoading(long)">MediaPeriod</a></code></span></div>
 <div class="block">Attempts to continue loading.
 
@@ -788,6 +829,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>isLoading</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isLoading()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaPeriod.html#isLoading()">MediaPeriod</a></code></span></div>
 <div class="block">Returns whether the media period is currently loading.</div>
 <dl>
@@ -805,6 +847,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>onPrepared</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onPrepared&#8203;(<a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&nbsp;mediaPeriod)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="MediaPeriod.Callback.html#onPrepared(com.google.android.exoplayer2.source.MediaPeriod)">MediaPeriod.Callback</a></code></span></div>
 <div class="block">Called when preparation completes.
 
@@ -826,6 +869,7 @@ implements <a href="MediaPeriod.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>onContinueLoadingRequested</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onContinueLoadingRequested&#8203;(<a href="MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a>&nbsp;source)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="SequenceableLoader.Callback.html#onContinueLoadingRequested(T)">SequenceableLoader.Callback</a></code></span></div>
 <div class="block">Called by the loader to indicate that it wishes for its <a href="SequenceableLoader.html#continueLoading(long)"><code>SequenceableLoader.continueLoading(long)</code></a> method
  to be called when it can continue to load data. Called on the playback thread.</div>

@@ -40,9 +40,14 @@ import java.util.Set;
  * via {@link #elementSet()}. Iteration order for both of these is not defined.
  *
  * @param <E> The type of element being stored.
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
 // Intentionally extending @NonNull-by-default Object to disallow @Nullable E types.
 @SuppressWarnings("TypeParameterExplicitlyExtendsObject")
+@Deprecated
 public final class CopyOnWriteMultiset<E extends Object> implements Iterable<E> {
 
   private final Object lock;

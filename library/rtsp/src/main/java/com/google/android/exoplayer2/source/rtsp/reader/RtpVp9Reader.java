@@ -35,7 +35,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * Parses a VP9 byte stream carried on RTP packets, and extracts VP9 Access Units. Refer to <a
  * href=https://datatracker.ietf.org/doc/html/draft-ietf-payload-vp9>this draft RFC</a> for more
  * details.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 /* package */ final class RtpVp9Reader implements RtpPayloadReader {
 
   private static final String TAG = "RtpVp9Reader";

@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -148,8 +148,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../../upstream/Loader.Loadable.html" title="interface in com.google.android.exoplayer2.upstream">Loader.Loadable</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">SingleSampleMediaChunk</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">SingleSampleMediaChunk</span>
 extends <a href="BaseMediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk">BaseMediaChunk</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A <a href="BaseMediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>BaseMediaChunk</code></a> for chunks consisting of a single raw sample.</div>
 </li>
 </ul>
@@ -212,7 +218,9 @@ extends <a href="BaseMediaChunk.html" title="class in com.google.android.exoplay
                       long&nbsp;chunkIndex,
                       @com.google.android.exoplayer2.C.TrackType int&nbsp;trackType,
                       <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;sampleFormat)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -226,7 +234,7 @@ extends <a href="BaseMediaChunk.html" title="class in com.google.android.exoplay
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -236,6 +244,7 @@ extends <a href="BaseMediaChunk.html" title="class in com.google.android.exoplay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#cancelLoad()">cancelLoad</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Cancels the load.</div>
 </td>
 </tr>
@@ -243,6 +252,7 @@ extends <a href="BaseMediaChunk.html" title="class in com.google.android.exoplay
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isLoadCompleted()">isLoadCompleted</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether the chunk has been fully loaded.</div>
 </td>
 </tr>
@@ -250,6 +260,7 @@ extends <a href="BaseMediaChunk.html" title="class in com.google.android.exoplay
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#load()">load</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Performs the load, returning on completion or cancellation.</div>
 </td>
 </tr>
@@ -315,6 +326,7 @@ extends <a href="BaseMediaChunk.html" title="class in com.google.android.exoplay
                               long&nbsp;chunkIndex,
                               @com.google.android.exoplayer2.C.TrackType int&nbsp;trackType,
                               <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;sampleFormat)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>dataSource</code> - The source from which the data should be loaded.</dd>
@@ -347,6 +359,7 @@ extends <a href="BaseMediaChunk.html" title="class in com.google.android.exoplay
 <li class="blockList">
 <h4>isLoadCompleted</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;isLoadCompleted()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="MediaChunk.html#isLoadCompleted()">MediaChunk</a></code></span></div>
 <div class="block">Returns whether the chunk has been fully loaded.</div>
 <dl>
@@ -362,6 +375,7 @@ extends <a href="BaseMediaChunk.html" title="class in com.google.android.exoplay
 <li class="blockList">
 <h4>cancelLoad</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;cancelLoad()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../upstream/Loader.Loadable.html#cancelLoad()">Loader.Loadable</a></code></span></div>
 <div class="block">Cancels the load.
 
@@ -388,6 +402,7 @@ extends <a href="BaseMediaChunk.html" title="class in com.google.android.exoplay
 <h4>load</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;load()
           throws <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../upstream/Loader.Loadable.html#load()">Loader.Loadable</a></code></span></div>
 <div class="block">Performs the load, returning on completion or cancellation.</div>
 <dl>

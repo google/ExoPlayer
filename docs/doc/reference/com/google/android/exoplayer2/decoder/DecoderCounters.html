@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">DecoderCounters</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">DecoderCounters</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Maintains decoder event counts, for debugging purposes only.
 
  <p>Counters should be written from the playback thread only. Counters may be read from any
@@ -160,6 +166,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decoderInitCount">decoderInitCount</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of times a decoder has been initialized.</div>
 </td>
 </tr>
@@ -167,6 +174,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decoderReleaseCount">decoderReleaseCount</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of times a decoder has been released.</div>
 </td>
 </tr>
@@ -174,6 +182,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#droppedBufferCount">droppedBufferCount</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of dropped buffers.</div>
 </td>
 </tr>
@@ -181,6 +190,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#droppedInputBufferCount">droppedInputBufferCount</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of input buffers dropped.</div>
 </td>
 </tr>
@@ -188,6 +198,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#droppedToKeyframeCount">droppedToKeyframeCount</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of times all buffers to a keyframe were dropped.</div>
 </td>
 </tr>
@@ -195,6 +206,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#maxConsecutiveDroppedBufferCount">maxConsecutiveDroppedBufferCount</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The maximum number of dropped buffers without an interleaving rendered output buffer.</div>
 </td>
 </tr>
@@ -202,6 +214,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#queuedInputBufferCount">queuedInputBufferCount</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of input buffers queued to the decoder.</div>
 </td>
 </tr>
@@ -209,6 +222,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#renderedOutputBufferCount">renderedOutputBufferCount</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of rendered output buffers.</div>
 </td>
 </tr>
@@ -216,6 +230,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skippedInputBufferCount">skippedInputBufferCount</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of skipped input buffers.</div>
 </td>
 </tr>
@@ -223,6 +238,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#skippedOutputBufferCount">skippedOutputBufferCount</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of skipped output buffers.</div>
 </td>
 </tr>
@@ -230,6 +246,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#totalVideoFrameProcessingOffsetUs">totalVideoFrameProcessingOffsetUs</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The sum of the video frame processing offsets in microseconds.</div>
 </td>
 </tr>
@@ -237,6 +254,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#videoFrameProcessingOffsetCount">videoFrameProcessingOffsetCount</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of video frame processing offsets added.</div>
 </td>
 </tr>
@@ -259,7 +277,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">DecoderCounters</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -273,7 +293,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -283,6 +303,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addVideoFrameProcessingOffset(long)">addVideoFrameProcessingOffset</a></span>&#8203;(long&nbsp;processingOffsetUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a video frame processing offset to <a href="#totalVideoFrameProcessingOffsetUs"><code>totalVideoFrameProcessingOffsetUs</code></a> and
  increases <a href="#videoFrameProcessingOffsetCount"><code>videoFrameProcessingOffsetCount</code></a> by one.</div>
 </td>
@@ -291,6 +312,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ensureUpdated()">ensureUpdated</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Should be called to ensure counter values are made visible across threads.</div>
 </td>
 </tr>
@@ -298,13 +320,16 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#merge(com.google.android.exoplayer2.decoder.DecoderCounters)">merge</a></span>&#8203;(<a href="DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;other)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Merges the counts from <code>other</code> into this instance.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -337,6 +362,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>decoderInitCount</h4>
 <pre>public&nbsp;int decoderInitCount</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of times a decoder has been initialized.</div>
 </li>
 </ul>
@@ -347,6 +373,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>decoderReleaseCount</h4>
 <pre>public&nbsp;int decoderReleaseCount</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of times a decoder has been released.</div>
 </li>
 </ul>
@@ -357,6 +384,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>queuedInputBufferCount</h4>
 <pre>public&nbsp;int queuedInputBufferCount</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of input buffers queued to the decoder.</div>
 </li>
 </ul>
@@ -367,6 +395,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>skippedInputBufferCount</h4>
 <pre>public&nbsp;int skippedInputBufferCount</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of skipped input buffers.
 
  <p>A skipped input buffer is an input buffer that was deliberately not queued to the decoder.</div>
@@ -379,6 +408,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>renderedOutputBufferCount</h4>
 <pre>public&nbsp;int renderedOutputBufferCount</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of rendered output buffers.</div>
 </li>
 </ul>
@@ -389,6 +419,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>skippedOutputBufferCount</h4>
 <pre>public&nbsp;int skippedOutputBufferCount</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of skipped output buffers.
 
  <p>A skipped output buffer is an output buffer that was deliberately not rendered. This
@@ -403,6 +434,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>droppedBufferCount</h4>
 <pre>public&nbsp;int droppedBufferCount</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of dropped buffers.
 
  <p>A dropped buffer is a buffer that was supposed to be decoded/rendered, but was instead
@@ -419,6 +451,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>droppedInputBufferCount</h4>
 <pre>public&nbsp;int droppedInputBufferCount</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of input buffers dropped.
 
  <p>A dropped input buffer is a buffer that was not queued to the decoder because it would not
@@ -432,6 +465,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>maxConsecutiveDroppedBufferCount</h4>
 <pre>public&nbsp;int maxConsecutiveDroppedBufferCount</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The maximum number of dropped buffers without an interleaving rendered output buffer.
 
  <p>Skipped buffers are ignored for the purposes of calculating this value.</div>
@@ -444,6 +478,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>droppedToKeyframeCount</h4>
 <pre>public&nbsp;int droppedToKeyframeCount</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of times all buffers to a keyframe were dropped.
 
  <p>Each time buffers to a keyframe are dropped:
@@ -465,6 +500,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>totalVideoFrameProcessingOffsetUs</h4>
 <pre>public&nbsp;long totalVideoFrameProcessingOffsetUs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The sum of the video frame processing offsets in microseconds.
 
  <p>The processing offset for a video frame is the difference between the time at which the
@@ -484,6 +520,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>videoFrameProcessingOffsetCount</h4>
 <pre>public&nbsp;int videoFrameProcessingOffsetCount</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of video frame processing offsets added.
 
  <p>Note: Use <a href="#addVideoFrameProcessingOffset(long)"><code>addVideoFrameProcessingOffset(long)</code></a> to update this field instead of
@@ -507,6 +544,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>DecoderCounters</h4>
 <pre>public&nbsp;DecoderCounters()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -526,6 +564,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>ensureUpdated</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;ensureUpdated()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Should be called to ensure counter values are made visible across threads. The playback thread
  should call this method after updating the counter values. Any other thread should call this
  method before reading the counters.</div>
@@ -538,6 +577,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>merge</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;merge&#8203;(<a href="DecoderCounters.html" title="class in com.google.android.exoplayer2.decoder">DecoderCounters</a>&nbsp;other)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Merges the counts from <code>other</code> into this instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -552,6 +592,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>addVideoFrameProcessingOffset</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;addVideoFrameProcessingOffset&#8203;(long&nbsp;processingOffsetUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Adds a video frame processing offset to <a href="#totalVideoFrameProcessingOffsetUs"><code>totalVideoFrameProcessingOffsetUs</code></a> and
  increases <a href="#videoFrameProcessingOffsetCount"><code>videoFrameProcessingOffsetCount</code></a> by one.
 
@@ -569,6 +610,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>toString</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;toString()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#toString()" title="class or interface in java.lang" class="externalLink">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>

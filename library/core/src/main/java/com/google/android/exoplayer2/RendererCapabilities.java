@@ -24,8 +24,29 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/** Defines the capabilities of a {@link Renderer}. */
+/**
+ * Defines the capabilities of a {@link Renderer}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public interface RendererCapabilities {
+
+  /** Listener for renderer capabilities events. */
+  interface Listener {
+
+    /**
+     * Called when the renderer capabilities are changed.
+     *
+     * <p>This method will be called on the playback thread.
+     *
+     * @param renderer The renderer that has its capabilities changed.
+     */
+    void onRendererCapabilitiesChanged(Renderer renderer);
+  }
 
   /**
    * @deprecated Use {@link C.FormatSupport} instead.
@@ -167,7 +188,7 @@ public interface RendererCapabilities {
    *       C#FORMAT_UNSUPPORTED_DRM}, {@link C#FORMAT_UNSUPPORTED_SUBTYPE} and {@link
    *       C#FORMAT_UNSUPPORTED_TYPE}.
    *   <li>{@link AdaptiveSupport}: The level of support for adapting from the format to another
-   *       format of the same mime type. One of {@link #ADAPTIVE_SEAMLESS}, {@link
+   *       format of the same MIME type. One of {@link #ADAPTIVE_SEAMLESS}, {@link
    *       #ADAPTIVE_NOT_SEAMLESS} and {@link #ADAPTIVE_NOT_SUPPORTED}. Only set if the level of
    *       support for the format itself is {@link C#FORMAT_HANDLED} or {@link
    *       C#FORMAT_EXCEEDS_CAPABILITIES}.
@@ -351,4 +372,18 @@ public interface RendererCapabilities {
    */
   @AdaptiveSupport
   int supportsMixedMimeTypeAdaptation() throws ExoPlaybackException;
+
+  /**
+   * Sets the {@link Listener}.
+   *
+   * @param listener The listener to be set.
+   */
+  default void setListener(Listener listener) {
+    // Do nothing.
+  }
+
+  /** Clears the {@link Listener}. */
+  default void clearListener() {
+    // Do nothing.
+  }
 }

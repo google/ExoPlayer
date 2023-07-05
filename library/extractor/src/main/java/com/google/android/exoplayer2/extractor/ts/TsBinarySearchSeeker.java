@@ -32,7 +32,13 @@ import java.io.IOException;
  * duration to interpolate the PCR value of the seeking position. Then it performs binary search
  * within the stream to find a packets whose PCR value is within {@link #SEEK_TOLERANCE_US} from the
  * target PCR.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 /* package */ final class TsBinarySearchSeeker extends BinarySearchSeeker {
 
   private static final long SEEK_TOLERANCE_US = 100_000;
@@ -96,8 +102,8 @@ import java.io.IOException;
         ParsableByteArray packetBuffer, long targetPcrTimeUs, long bufferStartOffset) {
       int limit = packetBuffer.limit();
 
-      long startOfLastPacketPosition = C.POSITION_UNSET;
-      long endOfLastPacketPosition = C.POSITION_UNSET;
+      long startOfLastPacketPosition = C.INDEX_UNSET;
+      long endOfLastPacketPosition = C.INDEX_UNSET;
       long lastPcrTimeUsInRange = C.TIME_UNSET;
 
       while (packetBuffer.bytesLeft() >= TsExtractor.TS_PACKET_SIZE) {

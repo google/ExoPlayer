@@ -21,10 +21,11 @@ def modulePrefix = ':'
      modulePrefix += gradle.ext.exoplayerModulePrefix
  }
 
- rootProject.name = 'exoplayer2'
-
 include modulePrefix + 'library-common'
 project(modulePrefix + 'library-common').projectDir = new File(rootDir, 'library/common')
+
+include modulePrefix + 'library-container'
+project(modulePrefix + 'library-container').projectDir = new File(rootDir, 'library/container')
 
 include modulePrefix + 'extension-mediasession'
 project(modulePrefix + 'extension-mediasession').projectDir = new File(rootDir, 'extensions/mediasession')
@@ -86,6 +87,9 @@ project(modulePrefix + 'extension-cast').projectDir = new File(rootDir, 'extensi
 
 include modulePrefix + 'library-effect'
 project(modulePrefix + 'library-effect').projectDir = new File(rootDir, 'library/effect')
+
+include modulePrefix + 'library-muxer'
+project(modulePrefix + 'library-muxer').projectDir = new File(rootDir, 'library/muxer')
 
 include modulePrefix + 'library-transformer'
 project(modulePrefix + 'library-transformer').projectDir = new File(rootDir, 'library/transformer')

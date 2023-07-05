@@ -20,7 +20,15 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 
-/** Parses and holds information from the AVISTREAMHEADER structure. */
+/**
+ * Parses and holds information from the AVISTREAMHEADER structure.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ final class AviStreamHeaderChunk implements AviChunk {
   private static final String TAG = "AviStreamHeaderChunk";
 

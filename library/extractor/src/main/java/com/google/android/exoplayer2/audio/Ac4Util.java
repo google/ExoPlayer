@@ -24,7 +24,15 @@ import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.nio.ByteBuffer;
 
-/** Utility methods for parsing AC-4 frames, which are access units in AC-4 bitstreams. */
+/**
+ * Utility methods for parsing AC-4 frames, which are access units in AC-4 bitstreams.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class Ac4Util {
 
   /** Holds sample format information as presented by a syncframe header. */

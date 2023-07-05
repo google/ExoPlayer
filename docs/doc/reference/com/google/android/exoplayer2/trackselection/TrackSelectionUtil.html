@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":41,"i1":41,"i2":41,"i3":41,"i4":41};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">TrackSelectionUtil</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">TrackSelectionUtil</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Track selection related utility methods.</div>
 </li>
 </ul>
@@ -156,6 +162,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="TrackSelectionUtil.AdaptiveTrackSelectionFactory.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelectionUtil.AdaptiveTrackSelectionFactory</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Functional interface to create a single adaptive track selection.</div>
 </td>
 </tr>
@@ -171,7 +178,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -182,6 +189,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildTracks(com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo,com.google.android.exoplayer2.trackselection.TrackSelection%5B%5D)">buildTracks</a></span>&#8203;(<a href="MappingTrackSelector.MappedTrackInfo.html" title="class in com.google.android.exoplayer2.trackselection">MappingTrackSelector.MappedTrackInfo</a>&nbsp;mappedTrackInfo,
            @NullableType <a href="TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a>[]&nbsp;selections)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns <a href="../Tracks.html" title="class in com.google.android.exoplayer2"><code>Tracks</code></a> built from <a href="MappingTrackSelector.MappedTrackInfo.html" title="class in com.google.android.exoplayer2.trackselection"><code>MappingTrackSelector.MappedTrackInfo</code></a> and <a href="TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>TrackSelections</code></a> for each renderer.</div>
 </td>
 </tr>
@@ -190,6 +198,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#buildTracks(com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo,java.util.List%5B%5D)">buildTracks</a></span>&#8203;(<a href="MappingTrackSelector.MappedTrackInfo.html" title="class in com.google.android.exoplayer2.trackselection">MappingTrackSelector.MappedTrackInfo</a>&nbsp;mappedTrackInfo,
            <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection" target="_top">TrackSelection</a>&gt;[]&nbsp;selections)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns <a href="../Tracks.html" title="class in com.google.android.exoplayer2"><code>Tracks</code></a> built from <a href="MappingTrackSelector.MappedTrackInfo.html" title="class in com.google.android.exoplayer2.trackselection"><code>MappingTrackSelector.MappedTrackInfo</code></a> and <a href="TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>TrackSelections</code></a> for each renderer.</div>
 </td>
 </tr>
@@ -197,6 +206,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static <a href="../upstream/LoadErrorHandlingPolicy.FallbackOptions.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.FallbackOptions</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createFallbackOptions(com.google.android.exoplayer2.trackselection.ExoTrackSelection)">createFallbackOptions</a></span>&#8203;(<a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>&nbsp;trackSelection)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="../upstream/LoadErrorHandlingPolicy.FallbackOptions.html" title="class in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy.FallbackOptions</code></a> with the tracks of the given <a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>ExoTrackSelection</code></a> and with a single location option indicating that there are no alternative
  locations available.</div>
 </td>
@@ -206,6 +216,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createTrackSelectionsForDefinitions(com.google.android.exoplayer2.trackselection.ExoTrackSelection.Definition%5B%5D,com.google.android.exoplayer2.trackselection.TrackSelectionUtil.AdaptiveTrackSelectionFactory)">createTrackSelectionsForDefinitions</a></span>&#8203;(@NullableType <a href="ExoTrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection">ExoTrackSelection.Definition</a>[]&nbsp;definitions,
                                    <a href="TrackSelectionUtil.AdaptiveTrackSelectionFactory.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelectionUtil.AdaptiveTrackSelectionFactory</a>&nbsp;adaptiveTrackSelectionFactory)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates track selections for an array of track selection definitions, with at most one
  multi-track adaptive selection.</div>
 </td>
@@ -218,6 +229,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                             boolean&nbsp;isDisabled,
                             <a href="DefaultTrackSelector.SelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.SelectionOverride</a>&nbsp;override)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates <a href="DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a> with an override.</div>
 </td>
 </tr>
@@ -253,6 +265,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>createTrackSelectionsForDefinitions</h4>
 <pre class="methodSignature">public static&nbsp;@NullableType <a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>[]&nbsp;createTrackSelectionsForDefinitions&#8203;(@NullableType <a href="ExoTrackSelection.Definition.html" title="class in com.google.android.exoplayer2.trackselection">ExoTrackSelection.Definition</a>[]&nbsp;definitions,
                                                                                     <a href="TrackSelectionUtil.AdaptiveTrackSelectionFactory.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelectionUtil.AdaptiveTrackSelectionFactory</a>&nbsp;adaptiveTrackSelectionFactory)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates track selections for an array of track selection definitions, with at most one
  multi-track adaptive selection.</div>
 <dl>
@@ -278,6 +291,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                                                                            boolean&nbsp;isDisabled,
                                                                            @Nullable
                                                                            <a href="DefaultTrackSelector.SelectionOverride.html" title="class in com.google.android.exoplayer2.trackselection">DefaultTrackSelector.SelectionOverride</a>&nbsp;override)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates <a href="DefaultTrackSelector.Parameters.html" title="class in com.google.android.exoplayer2.trackselection"><code>DefaultTrackSelector.Parameters</code></a> with an override.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -299,6 +313,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>createFallbackOptions</h4>
 <pre class="methodSignature">public static&nbsp;<a href="../upstream/LoadErrorHandlingPolicy.FallbackOptions.html" title="class in com.google.android.exoplayer2.upstream">LoadErrorHandlingPolicy.FallbackOptions</a>&nbsp;createFallbackOptions&#8203;(<a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>&nbsp;trackSelection)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="../upstream/LoadErrorHandlingPolicy.FallbackOptions.html" title="class in com.google.android.exoplayer2.upstream"><code>LoadErrorHandlingPolicy.FallbackOptions</code></a> with the tracks of the given <a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>ExoTrackSelection</code></a> and with a single location option indicating that there are no alternative
  locations available.</div>
 <dl>
@@ -317,6 +332,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>buildTracks</h4>
 <pre class="methodSignature">public static&nbsp;<a href="../Tracks.html" title="class in com.google.android.exoplayer2">Tracks</a>&nbsp;buildTracks&#8203;(<a href="MappingTrackSelector.MappedTrackInfo.html" title="class in com.google.android.exoplayer2.trackselection">MappingTrackSelector.MappedTrackInfo</a>&nbsp;mappedTrackInfo,
                                  @NullableType <a href="TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a>[]&nbsp;selections)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns <a href="../Tracks.html" title="class in com.google.android.exoplayer2"><code>Tracks</code></a> built from <a href="MappingTrackSelector.MappedTrackInfo.html" title="class in com.google.android.exoplayer2.trackselection"><code>MappingTrackSelector.MappedTrackInfo</code></a> and <a href="TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>TrackSelections</code></a> for each renderer.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -336,6 +352,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>buildTracks</h4>
 <pre class="methodSignature">public static&nbsp;<a href="../Tracks.html" title="class in com.google.android.exoplayer2">Tracks</a>&nbsp;buildTracks&#8203;(<a href="MappingTrackSelector.MappedTrackInfo.html" title="class in com.google.android.exoplayer2.trackselection">MappingTrackSelector.MappedTrackInfo</a>&nbsp;mappedTrackInfo,
                                  <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection" target="_top">TrackSelection</a>&gt;[]&nbsp;selections)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns <a href="../Tracks.html" title="class in com.google.android.exoplayer2"><code>Tracks</code></a> built from <a href="MappingTrackSelector.MappedTrackInfo.html" title="class in com.google.android.exoplayer2.trackselection"><code>MappingTrackSelector.MappedTrackInfo</code></a> and <a href="TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>TrackSelections</code></a> for each renderer.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

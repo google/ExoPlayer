@@ -1,10 +1,10 @@
 seekMap:
   isSeekable = true
   duration = 1024000
-  getPosition(0) = [[timeUs=0, position=48]]
-  getPosition(1) = [[timeUs=0, position=48]]
-  getPosition(512000) = [[timeUs=0, position=48]]
-  getPosition(1024000) = [[timeUs=0, position=48]]
+  getPosition(0) = [[timeUs=0, position=2269]]
+  getPosition(1) = [[timeUs=0, position=2269]]
+  getPosition(512000) = [[timeUs=0, position=2269]]
+  getPosition(1024000) = [[timeUs=0, position=2269]]
 numberOfTracks = 2
 track 0:
   total output bytes = 89876
@@ -17,6 +17,7 @@ track 0:
     width = 1080
     height = 720
     frameRate = 29.970028
+    metadata = entries=[xyz: latitude=40.68, longitude=-74.5, Creation time: 1464714095000]
     initializationData:
       data = length 29, hash 4746B5D9
       data = length 10, hash 7A0D0F2B
@@ -152,7 +153,7 @@ track 1:
     channelCount = 1
     sampleRate = 44100
     language = und
-    metadata = entries=[TSSE: description=null: values=[Lavf56.1.0]]
+    metadata = entries=[TSSE: description=null: values=[Lavf56.1.0], xyz: latitude=40.68, longitude=-74.5, Creation time: 1464714095000]
     initializationData:
       data = length 2, hash 5F7
   sample 0:

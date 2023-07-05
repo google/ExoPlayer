@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../../../offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;<a href="DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&gt;</code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">DashManifest</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">DashManifest</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="../../../offline/FilterableManifest.html" title="interface in com.google.android.exoplayer2.offline">FilterableManifest</a>&lt;<a href="DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&gt;</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Represents a DASH media presentation description (mpd), as defined by ISO/IEC 23009-1:2014
  Section 5.3.1.2.</div>
 </li>
@@ -162,6 +168,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#availabilityStartTimeMs">availabilityStartTimeMs</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <code>availabilityStartTime</code> value in milliseconds since epoch, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if
  not present.</div>
 </td>
@@ -170,6 +177,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#durationMs">durationMs</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The duration of the presentation in milliseconds, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not applicable.</div>
 </td>
 </tr>
@@ -177,6 +185,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#dynamic">dynamic</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the manifest has value "dynamic" for the <code>type</code> attribute.</div>
 </td>
 </tr>
@@ -184,6 +193,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#location">location</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The location of this manifest, or null if not present.</div>
 </td>
 </tr>
@@ -191,6 +201,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#minBufferTimeMs">minBufferTimeMs</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <code>minBufferTime</code> value in milliseconds, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not present.</div>
 </td>
 </tr>
@@ -198,6 +209,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#minUpdatePeriodMs">minUpdatePeriodMs</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <code>minimumUpdatePeriod</code> value in milliseconds, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not
  applicable.</div>
 </td>
@@ -206,6 +218,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <td class="colFirst"><code><a href="ProgramInformation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">ProgramInformation</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#programInformation">programInformation</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="ProgramInformation.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>ProgramInformation</code></a>, or null if not present.</div>
 </td>
 </tr>
@@ -213,6 +226,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#publishTimeMs">publishTimeMs</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <code>publishTime</code> value in milliseconds since epoch, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not
  present.</div>
 </td>
@@ -221,6 +235,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <td class="colFirst"><code><a href="ServiceDescriptionElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">ServiceDescriptionElement</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#serviceDescription">serviceDescription</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="ServiceDescriptionElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>ServiceDescriptionElement</code></a>, or null if not present.</div>
 </td>
 </tr>
@@ -228,6 +243,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#suggestedPresentationDelayMs">suggestedPresentationDelayMs</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <code>suggestedPresentationDelay</code> value in milliseconds, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not
  present.</div>
 </td>
@@ -236,6 +252,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#timeShiftBufferDepthMs">timeShiftBufferDepthMs</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <code>timeShiftBufferDepth</code> value in milliseconds, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not present.</div>
 </td>
 </tr>
@@ -243,6 +260,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <td class="colFirst"><code><a href="UtcTimingElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UtcTimingElement</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#utcTiming">utcTiming</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="UtcTimingElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>UtcTimingElement</code></a>, or null if not present.</div>
 </td>
 </tr>
@@ -277,7 +295,9 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
             <a href="ServiceDescriptionElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">ServiceDescriptionElement</a>&nbsp;serviceDescription,
             <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;location,
             <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Period.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Period</a>&gt;&nbsp;periods)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -291,7 +311,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -301,28 +321,37 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <td class="colFirst"><code><a href="DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copy(java.util.List)">copy</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy of the manifest including only the streams specified by the given keys.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code><a href="Period.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Period</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPeriod(int)">getPeriod</a></span>&#8203;(int&nbsp;index)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPeriodCount()">getPeriodCount</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPeriodDurationMs(int)">getPeriodDurationMs</a></span>&#8203;(int&nbsp;index)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getPeriodDurationUs(int)">getPeriodDurationUs</a></span>&#8203;(int&nbsp;index)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -355,6 +384,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <li class="blockList">
 <h4>availabilityStartTimeMs</h4>
 <pre>public final&nbsp;long availabilityStartTimeMs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <code>availabilityStartTime</code> value in milliseconds since epoch, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if
  not present.</div>
 </li>
@@ -366,6 +396,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <li class="blockList">
 <h4>durationMs</h4>
 <pre>public final&nbsp;long durationMs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The duration of the presentation in milliseconds, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not applicable.</div>
 </li>
 </ul>
@@ -376,6 +407,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <li class="blockList">
 <h4>minBufferTimeMs</h4>
 <pre>public final&nbsp;long minBufferTimeMs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <code>minBufferTime</code> value in milliseconds, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not present.</div>
 </li>
 </ul>
@@ -386,6 +418,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <li class="blockList">
 <h4>dynamic</h4>
 <pre>public final&nbsp;boolean dynamic</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the manifest has value "dynamic" for the <code>type</code> attribute.</div>
 </li>
 </ul>
@@ -396,6 +429,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <li class="blockList">
 <h4>minUpdatePeriodMs</h4>
 <pre>public final&nbsp;long minUpdatePeriodMs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <code>minimumUpdatePeriod</code> value in milliseconds, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not
  applicable.</div>
 </li>
@@ -407,6 +441,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <li class="blockList">
 <h4>timeShiftBufferDepthMs</h4>
 <pre>public final&nbsp;long timeShiftBufferDepthMs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <code>timeShiftBufferDepth</code> value in milliseconds, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not present.</div>
 </li>
 </ul>
@@ -417,6 +452,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <li class="blockList">
 <h4>suggestedPresentationDelayMs</h4>
 <pre>public final&nbsp;long suggestedPresentationDelayMs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <code>suggestedPresentationDelay</code> value in milliseconds, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not
  present.</div>
 </li>
@@ -428,6 +464,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <li class="blockList">
 <h4>publishTimeMs</h4>
 <pre>public final&nbsp;long publishTimeMs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <code>publishTime</code> value in milliseconds since epoch, or <a href="../../../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if not
  present.</div>
 </li>
@@ -440,6 +477,7 @@ implements <a href="../../../offline/FilterableManifest.html" title="interface i
 <h4>utcTiming</h4>
 <pre>@Nullable
 public final&nbsp;<a href="UtcTimingElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">UtcTimingElement</a> utcTiming</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="UtcTimingElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>UtcTimingElement</code></a>, or null if not present. Defined in DVB A168:7/2016, Section
  4.7.2.</div>
 </li>
@@ -452,6 +490,7 @@ public final&nbsp;<a href="UtcTimingElement.html" title="class in com.google.and
 <h4>serviceDescription</h4>
 <pre>@Nullable
 public final&nbsp;<a href="ServiceDescriptionElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest">ServiceDescriptionElement</a> serviceDescription</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="ServiceDescriptionElement.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>ServiceDescriptionElement</code></a>, or null if not present.</div>
 </li>
 </ul>
@@ -463,6 +502,7 @@ public final&nbsp;<a href="ServiceDescriptionElement.html" title="class in com.g
 <h4>location</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a> location</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The location of this manifest, or null if not present.</div>
 </li>
 </ul>
@@ -474,6 +514,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/net/U
 <h4>programInformation</h4>
 <pre>@Nullable
 public final&nbsp;<a href="ProgramInformation.html" title="class in com.google.android.exoplayer2.source.dash.manifest">ProgramInformation</a> programInformation</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="ProgramInformation.html" title="class in com.google.android.exoplayer2.source.dash.manifest"><code>ProgramInformation</code></a>, or null if not present.</div>
 </li>
 </ul>
@@ -510,6 +551,7 @@ public final&nbsp;<a href="ProgramInformation.html" title="class in com.google.a
                     @Nullable
                     <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;location,
                     <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="Period.html" title="class in com.google.android.exoplayer2.source.dash.manifest" target="_top">Period</a>&gt;&nbsp;periods)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -529,6 +571,7 @@ public final&nbsp;<a href="ProgramInformation.html" title="class in com.google.a
 <li class="blockList">
 <h4>getPeriodCount</h4>
 <pre class="methodSignature">public final&nbsp;int&nbsp;getPeriodCount()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="getPeriod(int)">
@@ -538,6 +581,7 @@ public final&nbsp;<a href="ProgramInformation.html" title="class in com.google.a
 <li class="blockList">
 <h4>getPeriod</h4>
 <pre class="methodSignature">public final&nbsp;<a href="Period.html" title="class in com.google.android.exoplayer2.source.dash.manifest">Period</a>&nbsp;getPeriod&#8203;(int&nbsp;index)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="getPeriodDurationMs(int)">
@@ -547,6 +591,7 @@ public final&nbsp;<a href="ProgramInformation.html" title="class in com.google.a
 <li class="blockList">
 <h4>getPeriodDurationMs</h4>
 <pre class="methodSignature">public final&nbsp;long&nbsp;getPeriodDurationMs&#8203;(int&nbsp;index)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="getPeriodDurationUs(int)">
@@ -556,6 +601,7 @@ public final&nbsp;<a href="ProgramInformation.html" title="class in com.google.a
 <li class="blockList">
 <h4>getPeriodDurationUs</h4>
 <pre class="methodSignature">public final&nbsp;long&nbsp;getPeriodDurationUs&#8203;(int&nbsp;index)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 <a id="copy(java.util.List)">
@@ -565,6 +611,7 @@ public final&nbsp;<a href="ProgramInformation.html" title="class in com.google.a
 <li class="blockList">
 <h4>copy</h4>
 <pre class="methodSignature">public final&nbsp;<a href="DashManifest.html" title="class in com.google.android.exoplayer2.source.dash.manifest">DashManifest</a>&nbsp;copy&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="../../../offline/StreamKey.html" title="class in com.google.android.exoplayer2.offline" target="_top">StreamKey</a>&gt;&nbsp;streamKeys)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../../../offline/FilterableManifest.html#copy(java.util.List)">FilterableManifest</a></code></span></div>
 <div class="block">Returns a copy of the manifest including only the streams specified by the given keys. If the
  manifest is unchanged then the instance may return itself.</div>

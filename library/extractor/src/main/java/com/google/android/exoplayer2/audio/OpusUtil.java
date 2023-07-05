@@ -21,7 +21,15 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Utility methods for handling Opus audio streams. */
+/**
+ * Utility methods for handling Opus audio streams.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public class OpusUtil {
 
   /** Opus streams are always 48000 Hz. */
@@ -62,6 +70,25 @@ public class OpusUtil {
     initializationData.add(buildNativeOrderByteArray(preSkipNanos));
     initializationData.add(buildNativeOrderByteArray(seekPreRollNanos));
     return initializationData;
+  }
+
+  /**
+   * Returns the number of audio samples in the given Ogg encapuslated Opus packet.
+   *
+   * <p>The buffer's position is not modified.
+   *
+   * @param buffer The audio packet.
+   * @return Returns the number of audio samples in the packet.
+   */
+  public static int parseOggPacketAudioSampleCount(ByteBuffer buffer) {
+    // RFC 3433 section 6 - The Ogg page format.
+    int numPageSegments = buffer.get(/* index= */ 26);
+    int indexFirstOpusPacket = 27 + numPageSegments; // Skip Ogg header and segment table.
+    long packetDurationUs =
+        getPacketDurationUs(
+            buffer.get(indexFirstOpusPacket),
+            buffer.limit() > 1 ? buffer.get(indexFirstOpusPacket + 1) : 0);
+    return (int) (packetDurationUs * SAMPLE_RATE / C.MICROS_PER_SECOND);
   }
 
   /**

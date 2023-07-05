@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -138,8 +138,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a></code>, <code><a href="TrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">TrackSelection</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">RandomTrackSelection</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">RandomTrackSelection</span>
 extends <a href="BaseTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">BaseTrackSelection</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">An <a href="ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection"><code>ExoTrackSelection</code></a> whose selected track is updated randomly.</div>
 </li>
 </ul>
@@ -165,6 +171,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="RandomTrackSelection.Factory.html" title="class in com.google.android.exoplayer2.trackselection">RandomTrackSelection.Factory</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Factory for <a href="RandomTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection"><code>RandomTrackSelection</code></a> instances.</div>
 </td>
 </tr>
@@ -229,6 +236,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
                     @com.google.android.exoplayer2.trackselection.TrackSelection.Type int&nbsp;type,
                     <a href="https://developer.android.com/reference/java/util/Random.html" title="class or interface in java.util" class="externalLink" target="_top">Random</a>&nbsp;random)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new instance.</div>
 </td>
 </tr>
@@ -244,7 +252,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -254,6 +262,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSelectedIndex()">getSelectedIndex</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the index of the selected track.</div>
 </td>
 </tr>
@@ -261,6 +270,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSelectionData()">getSelectionData</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns optional data associated with the current track selection.</div>
 </td>
 </tr>
@@ -268,6 +278,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSelectionReason()">getSelectionReason</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the reason for the current track selection.</div>
 </td>
 </tr>
@@ -279,6 +290,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
                    <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue,
                    <a href="../source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a>[]&nbsp;mediaChunkIterators)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Updates the selected track for sources that load media in discrete <a href="../source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s.</div>
 </td>
 </tr>
@@ -288,7 +300,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <!--   -->
 </a>
 <h3>Methods inherited from class&nbsp;com.google.android.exoplayer2.trackselection.<a href="BaseTrackSelection.html" title="class in com.google.android.exoplayer2.trackselection">BaseTrackSelection</a></h3>
-<code><a href="BaseTrackSelection.html#blacklist(int,long)">blacklist</a>, <a href="BaseTrackSelection.html#disable()">disable</a>, <a href="BaseTrackSelection.html#enable()">enable</a>, <a href="BaseTrackSelection.html#equals(java.lang.Object)">equals</a>, <a href="BaseTrackSelection.html#evaluateQueueSize(long,java.util.List)">evaluateQueueSize</a>, <a href="BaseTrackSelection.html#getFormat(int)">getFormat</a>, <a href="BaseTrackSelection.html#getIndexInTrackGroup(int)">getIndexInTrackGroup</a>, <a href="BaseTrackSelection.html#getSelectedFormat()">getSelectedFormat</a>, <a href="BaseTrackSelection.html#getSelectedIndexInTrackGroup()">getSelectedIndexInTrackGroup</a>, <a href="BaseTrackSelection.html#getTrackGroup()">getTrackGroup</a>, <a href="BaseTrackSelection.html#getType()">getType</a>, <a href="BaseTrackSelection.html#hashCode()">hashCode</a>, <a href="BaseTrackSelection.html#indexOf(int)">indexOf</a>, <a href="BaseTrackSelection.html#indexOf(com.google.android.exoplayer2.Format)">indexOf</a>, <a href="BaseTrackSelection.html#isBlacklisted(int,long)">isBlacklisted</a>, <a href="BaseTrackSelection.html#length()">length</a>, <a href="BaseTrackSelection.html#onPlaybackSpeed(float)">onPlaybackSpeed</a></code></li>
+<code><a href="BaseTrackSelection.html#disable()">disable</a>, <a href="BaseTrackSelection.html#enable()">enable</a>, <a href="BaseTrackSelection.html#equals(java.lang.Object)">equals</a>, <a href="BaseTrackSelection.html#evaluateQueueSize(long,java.util.List)">evaluateQueueSize</a>, <a href="BaseTrackSelection.html#excludeTrack(int,long)">excludeTrack</a>, <a href="BaseTrackSelection.html#getFormat(int)">getFormat</a>, <a href="BaseTrackSelection.html#getIndexInTrackGroup(int)">getIndexInTrackGroup</a>, <a href="BaseTrackSelection.html#getSelectedFormat()">getSelectedFormat</a>, <a href="BaseTrackSelection.html#getSelectedIndexInTrackGroup()">getSelectedIndexInTrackGroup</a>, <a href="BaseTrackSelection.html#getTrackGroup()">getTrackGroup</a>, <a href="BaseTrackSelection.html#getType()">getType</a>, <a href="BaseTrackSelection.html#hashCode()">hashCode</a>, <a href="BaseTrackSelection.html#indexOf(int)">indexOf</a>, <a href="BaseTrackSelection.html#indexOf(com.google.android.exoplayer2.Format)">indexOf</a>, <a href="BaseTrackSelection.html#isTrackExcluded(int,long)">isTrackExcluded</a>, <a href="BaseTrackSelection.html#length()">length</a>, <a href="BaseTrackSelection.html#onPlaybackSpeed(float)">onPlaybackSpeed</a></code></li>
 </ul>
 <ul class="blockList">
 <li class="blockList"><a id="methods.inherited.from.class.java.lang.Object">
@@ -330,6 +342,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
                             int[]&nbsp;tracks,
                             @com.google.android.exoplayer2.trackselection.TrackSelection.Type int&nbsp;type,
                             <a href="https://developer.android.com/reference/java/util/Random.html" title="class or interface in java.util" class="externalLink" target="_top">Random</a>&nbsp;random)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a new instance.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -362,6 +375,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
                                 long&nbsp;availableDurationUs,
                                 <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue,
                                 <a href="../source/chunk/MediaChunkIterator.html" title="interface in com.google.android.exoplayer2.source.chunk">MediaChunkIterator</a>[]&nbsp;mediaChunkIterators)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExoTrackSelection.html#updateSelectedTrack(long,long,long,java.util.List,com.google.android.exoplayer2.source.chunk.MediaChunkIterator%5B%5D)">ExoTrackSelection</a></code></span></div>
 <div class="block">Updates the selected track for sources that load media in discrete <a href="../source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk"><code>MediaChunk</code></a>s.
 
@@ -396,6 +410,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <li class="blockList">
 <h4>getSelectedIndex</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getSelectedIndex()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExoTrackSelection.html#getSelectedIndex()">ExoTrackSelection</a></code></span></div>
 <div class="block">Returns the index of the selected track.</div>
 </li>
@@ -407,6 +422,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <li class="blockList">
 <h4>getSelectionReason</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;getSelectionReason()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExoTrackSelection.html#getSelectionReason()">ExoTrackSelection</a></code></span></div>
 <div class="block">Returns the reason for the current track selection.</div>
 </li>
@@ -419,6 +435,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <h4>getSelectionData</h4>
 <pre class="methodSignature">@Nullable
 public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;getSelectionData()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExoTrackSelection.html#getSelectionData()">ExoTrackSelection</a></code></span></div>
 <div class="block">Returns optional data associated with the current track selection.</div>
 </li>

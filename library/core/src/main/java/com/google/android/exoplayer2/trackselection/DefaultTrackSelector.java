@@ -106,8 +106,15 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
  *         .setTunnelingEnabled(true)
  *         .build());
  * }</pre>
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
-public class DefaultTrackSelector extends MappingTrackSelector {
+@Deprecated
+public class DefaultTrackSelector extends MappingTrackSelector
+    implements RendererCapabilities.Listener {
 
   private static final String TAG = "DefaultTrackSelector";
   private static final String AUDIO_CHANNEL_COUNT_CONSTRAINTS_WARN_MESSAGE =
@@ -754,6 +761,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       private boolean exceedRendererCapabilitiesIfNecessary;
       private boolean tunnelingEnabled;
       private boolean allowMultipleAdaptiveSelections;
+      private boolean allowInvalidateSelectionsOnRendererCapabilitiesChange;
       // Overrides
       private final SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>>
           selectionOverrides;
@@ -810,6 +818,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         exceedRendererCapabilitiesIfNecessary = initialValues.exceedRendererCapabilitiesIfNecessary;
         tunnelingEnabled = initialValues.tunnelingEnabled;
         allowMultipleAdaptiveSelections = initialValues.allowMultipleAdaptiveSelections;
+        allowInvalidateSelectionsOnRendererCapabilitiesChange =
+            initialValues.allowInvalidateSelectionsOnRendererCapabilitiesChange;
         // Overrides
         selectionOverrides = cloneSelectionOverrides(initialValues.selectionOverrides);
         rendererDisabledFlags = initialValues.rendererDisabledFlags.clone();
@@ -873,6 +883,10 @@ public class DefaultTrackSelector extends MappingTrackSelector {
             bundle.getBoolean(
                 Parameters.FIELD_ALLOW_MULTIPLE_ADAPTIVE_SELECTIONS,
                 defaultValue.allowMultipleAdaptiveSelections));
+        setAllowInvalidateSelectionsOnRendererCapabilitiesChange(
+            bundle.getBoolean(
+                Parameters.FIELD_ALLOW_INVALIDATE_SELECTIONS_ON_RENDERER_CAPABILITIES_CHANGE,
+                defaultValue.allowInvalidateSelectionsOnRendererCapabilitiesChange));
         // Overrides
         selectionOverrides = new SparseArray<>();
         setSelectionOverridesFromBundle(bundle);
@@ -1286,6 +1300,21 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         return this;
       }
 
+      /**
+       * Sets whether to allow to invalidate selections on renderer capabilities change.
+       *
+       * @param allowInvalidateSelectionsOnRendererCapabilitiesChange Whether to allow to invalidate
+       *     selections.
+       * @return This builder.
+       */
+      @CanIgnoreReturnValue
+      public Builder setAllowInvalidateSelectionsOnRendererCapabilitiesChange(
+          boolean allowInvalidateSelectionsOnRendererCapabilitiesChange) {
+        this.allowInvalidateSelectionsOnRendererCapabilitiesChange =
+            allowInvalidateSelectionsOnRendererCapabilitiesChange;
+        return this;
+      }
+
       @CanIgnoreReturnValue
       @Override
       public Builder addOverride(TrackSelectionOverride override) {
@@ -1543,6 +1572,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         exceedRendererCapabilitiesIfNecessary = true;
         tunnelingEnabled = false;
         allowMultipleAdaptiveSelections = true;
+        allowInvalidateSelectionsOnRendererCapabilitiesChange = false;
       }
 
       private static SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>>
@@ -1715,6 +1745,12 @@ public class DefaultTrackSelector extends MappingTrackSelector {
      */
     public final boolean allowMultipleAdaptiveSelections;
 
+    /**
+     * Whether to allow to invalidate selections on renderer capabilities change. The default value
+     * is {@code false}.
+     */
+    public final boolean allowInvalidateSelectionsOnRendererCapabilitiesChange;
+
     // Overrides
     private final SparseArray<Map<TrackGroupArray, @NullableType SelectionOverride>>
         selectionOverrides;
@@ -1739,6 +1775,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       exceedRendererCapabilitiesIfNecessary = builder.exceedRendererCapabilitiesIfNecessary;
       tunnelingEnabled = builder.tunnelingEnabled;
       allowMultipleAdaptiveSelections = builder.allowMultipleAdaptiveSelections;
+      allowInvalidateSelectionsOnRendererCapabilitiesChange =
+          builder.allowInvalidateSelectionsOnRendererCapabilitiesChange;
       // Overrides
       selectionOverrides = builder.selectionOverrides;
       rendererDisabledFlags = builder.rendererDisabledFlags;
@@ -1829,6 +1867,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           && exceedRendererCapabilitiesIfNecessary == other.exceedRendererCapabilitiesIfNecessary
           && tunnelingEnabled == other.tunnelingEnabled
           && allowMultipleAdaptiveSelections == other.allowMultipleAdaptiveSelections
+          && allowInvalidateSelectionsOnRendererCapabilitiesChange
+              == other.allowInvalidateSelectionsOnRendererCapabilitiesChange
           // Overrides
           && areRendererDisabledFlagsEqual(rendererDisabledFlags, other.rendererDisabledFlags)
           && areSelectionOverridesEqual(selectionOverrides, other.selectionOverrides);
@@ -1854,6 +1894,7 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       result = 31 * result + (exceedRendererCapabilitiesIfNecessary ? 1 : 0);
       result = 31 * result + (tunnelingEnabled ? 1 : 0);
       result = 31 * result + (allowMultipleAdaptiveSelections ? 1 : 0);
+      result = 31 * result + (allowInvalidateSelectionsOnRendererCapabilitiesChange ? 1 : 0);
       // Overrides (omitted from hashCode).
       return result;
     }
@@ -1894,6 +1935,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
         Util.intToStringMaxRadix(FIELD_CUSTOM_ID_BASE + 15);
     private static final String FIELD_CONSTRAIN_AUDIO_CHANNEL_COUNT_TO_DEVICE_CAPABILITIES =
         Util.intToStringMaxRadix(FIELD_CUSTOM_ID_BASE + 16);
+    private static final String FIELD_ALLOW_INVALIDATE_SELECTIONS_ON_RENDERER_CAPABILITIES_CHANGE =
+        Util.intToStringMaxRadix(FIELD_CUSTOM_ID_BASE + 17);
 
     @Override
     public Bundle toBundle() {
@@ -1930,6 +1973,9 @@ public class DefaultTrackSelector extends MappingTrackSelector {
           FIELD_EXCEED_RENDERER_CAPABILITIES_IF_NECESSARY, exceedRendererCapabilitiesIfNecessary);
       bundle.putBoolean(FIELD_TUNNELING_ENABLED, tunnelingEnabled);
       bundle.putBoolean(FIELD_ALLOW_MULTIPLE_ADAPTIVE_SELECTIONS, allowMultipleAdaptiveSelections);
+      bundle.putBoolean(
+          FIELD_ALLOW_INVALIDATE_SELECTIONS_ON_RENDERER_CAPABILITIES_CHANGE,
+          allowInvalidateSelectionsOnRendererCapabilitiesChange);
 
       putSelectionOverridesToBundle(bundle, selectionOverrides);
       // Only true values are put into rendererDisabledFlags.
@@ -2179,14 +2225,6 @@ public class DefaultTrackSelector extends MappingTrackSelector {
   private AudioAttributes audioAttributes;
 
   /**
-   * @deprecated Use {@link #DefaultTrackSelector(Context)} instead.
-   */
-  @Deprecated
-  public DefaultTrackSelector() {
-    this(Parameters.DEFAULT_WITHOUT_CONTEXT, new AdaptiveTrackSelection.Factory());
-  }
-
-  /**
    * @param context Any {@link Context}.
    */
   public DefaultTrackSelector(Context context) {
@@ -2213,6 +2251,8 @@ public class DefaultTrackSelector extends MappingTrackSelector {
    * @deprecated Use {@link #DefaultTrackSelector(Context, TrackSelectionParameters,
    *     ExoTrackSelection.Factory)}
    */
+  // TODO: When this constructor is deleted, this.context can be made non-null and all
+  //       null-conditional can be removed (including the warning logging when it's null).
   @Deprecated
   public DefaultTrackSelector(
       TrackSelectionParameters parameters, ExoTrackSelection.Factory trackSelectionFactory) {
@@ -2351,6 +2391,19 @@ public class DefaultTrackSelector extends MappingTrackSelector {
       }
       invalidate();
     }
+  }
+
+  @Override
+  @Nullable
+  public RendererCapabilities.Listener getRendererCapabilitiesListener() {
+    return this;
+  }
+
+  // RendererCapabilities.Listener implementation.
+
+  @Override
+  public void onRendererCapabilitiesChanged(Renderer renderer) {
+    maybeInvalidateForRendererCapabilitiesChange(renderer);
   }
 
   // MappingTrackSelector implementation.
@@ -2762,6 +2815,16 @@ public class DefaultTrackSelector extends MappingTrackSelector {
     }
     if (shouldInvalidate) {
       invalidate();
+    }
+  }
+
+  private void maybeInvalidateForRendererCapabilitiesChange(Renderer renderer) {
+    boolean shouldInvalidate;
+    synchronized (lock) {
+      shouldInvalidate = parameters.allowInvalidateSelectionsOnRendererCapabilitiesChange;
+    }
+    if (shouldInvalidate) {
+      invalidateForRendererCapabilitiesChange(renderer);
     }
   }
 

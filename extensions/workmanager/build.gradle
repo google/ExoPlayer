@@ -17,7 +17,7 @@
 
 dependencies {
     implementation project(modulePrefix + 'library-core')
-    implementation 'androidx.work:work-runtime:2.7.0'
+    implementation 'androidx.work:work-runtime:2.8.1'
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
 }
 

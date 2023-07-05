@@ -1,0 +1,11 @@
+SinkDump (OggOpus):
+  buffers.length = 9
+  buffers[0] = length 4046, hash 68FA8318
+  buffers[1] = length 3848, hash B3105060
+  buffers[2] = length 3747, hash 63B6648B
+  buffers[3] = length 3752, hash B5C28B9D
+  buffers[4] = length 3776, hash AC7CEC0B
+  buffers[5] = length 3829, hash B64088F2
+  buffers[6] = length 3745, hash 1C46E49A
+  buffers[7] = length 3726, hash 2BC03F39
+  buffers[8] = length 2772, hash A6C7BB9

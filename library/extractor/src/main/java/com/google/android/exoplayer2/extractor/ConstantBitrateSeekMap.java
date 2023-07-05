@@ -24,7 +24,13 @@ import com.google.android.exoplayer2.C;
  * A {@link SeekMap} implementation that assumes the stream has a constant bitrate and consists of
  * multiple independent frames of the same size. Seek points are calculated to be at frame
  * boundaries.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public class ConstantBitrateSeekMap implements SeekMap {
 
   private final long inputLength;

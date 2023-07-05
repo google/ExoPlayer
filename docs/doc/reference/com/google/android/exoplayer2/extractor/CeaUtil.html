@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":41,"i1":41};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">CeaUtil</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">CeaUtil</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Utility methods for handling CEA-608/708 messages. Defined in A/53 Part 4:2009.</div>
 </li>
 </ul>
@@ -155,12 +161,16 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <tr class="altColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#USER_DATA_IDENTIFIER_GA94">USER_DATA_IDENTIFIER_GA94</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#USER_DATA_TYPE_CODE_MPEG_CC">USER_DATA_TYPE_CODE_MPEG_CC</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -174,7 +184,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -186,6 +196,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
        <a href="../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;seiBuffer,
        <a href="TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a>[]&nbsp;outputs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Consumes the unescaped content of an SEI NAL unit, writing the content of any CEA-608/708
  messages as samples to all of the provided outputs.</div>
 </td>
@@ -196,6 +207,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
              <a href="../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;ccDataBuffer,
              <a href="TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a>[]&nbsp;outputs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Consumes caption data (cc_data), writing the content as samples to all of the provided outputs.</div>
 </td>
 </tr>
@@ -230,6 +242,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>USER_DATA_IDENTIFIER_GA94</h4>
 <pre>public static final&nbsp;int USER_DATA_IDENTIFIER_GA94</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.extractor.CeaUtil.USER_DATA_IDENTIFIER_GA94">Constant Field Values</a></dd>
@@ -243,6 +256,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>USER_DATA_TYPE_CODE_MPEG_CC</h4>
 <pre>public static final&nbsp;int USER_DATA_TYPE_CODE_MPEG_CC</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="../../../../../constant-values.html#com.google.android.exoplayer2.extractor.CeaUtil.USER_DATA_TYPE_CODE_MPEG_CC">Constant Field Values</a></dd>
@@ -268,6 +282,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">public static&nbsp;void&nbsp;consume&#8203;(long&nbsp;presentationTimeUs,
                            <a href="../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;seiBuffer,
                            <a href="TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a>[]&nbsp;outputs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Consumes the unescaped content of an SEI NAL unit, writing the content of any CEA-608/708
  messages as samples to all of the provided outputs.</div>
 <dl>
@@ -287,6 +302,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <pre class="methodSignature">public static&nbsp;void&nbsp;consumeCcData&#8203;(long&nbsp;presentationTimeUs,
                                  <a href="../util/ParsableByteArray.html" title="class in com.google.android.exoplayer2.util">ParsableByteArray</a>&nbsp;ccDataBuffer,
                                  <a href="TrackOutput.html" title="interface in com.google.android.exoplayer2.extractor">TrackOutput</a>[]&nbsp;outputs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Consumes caption data (cc_data), writing the content as samples to all of the provided outputs.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

@@ -20,6 +20,7 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.source.MediaPeriodId;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.Allocator;
@@ -29,7 +30,15 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
-/** The default {@link LoadControl} implementation. */
+/**
+ * The default {@link LoadControl} implementation.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public class DefaultLoadControl implements LoadControl {
 
   /**
@@ -227,14 +236,6 @@ public class DefaultLoadControl implements LoadControl {
       return this;
     }
 
-    /**
-     * @deprecated use {@link #build} instead.
-     */
-    @Deprecated
-    public DefaultLoadControl createDefaultLoadControl() {
-      return build();
-    }
-
     /** Creates a {@link DefaultLoadControl}. */
     public DefaultLoadControl build() {
       checkState(!buildCalled);
@@ -327,7 +328,11 @@ public class DefaultLoadControl implements LoadControl {
 
   @Override
   public void onTracksSelected(
-      Renderer[] renderers, TrackGroupArray trackGroups, ExoTrackSelection[] trackSelections) {
+      Timeline timeline,
+      MediaPeriodId mediaPeriodId,
+      Renderer[] renderers,
+      TrackGroupArray trackGroups,
+      ExoTrackSelection[] trackSelections) {
     targetBufferBytes =
         targetBufferBytesOverwrite == C.LENGTH_UNSET
             ? calculateTargetBufferBytes(renderers, trackSelections)
@@ -389,7 +394,12 @@ public class DefaultLoadControl implements LoadControl {
 
   @Override
   public boolean shouldStartPlayback(
-      long bufferedDurationUs, float playbackSpeed, boolean rebuffering, long targetLiveOffsetUs) {
+      Timeline timeline,
+      MediaPeriodId mediaPeriodId,
+      long bufferedDurationUs,
+      float playbackSpeed,
+      boolean rebuffering,
+      long targetLiveOffsetUs) {
     bufferedDurationUs = Util.getPlayoutDurationForMediaDuration(bufferedDurationUs, playbackSpeed);
     long minBufferDurationUs = rebuffering ? bufferForPlaybackAfterRebufferUs : bufferForPlaybackUs;
     if (targetLiveOffsetUs != C.TIME_UNSET) {

@@ -45,7 +45,15 @@ import java.util.Comparator;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-/** A {@link SubtitleDecoder} for CEA-708 (also known as "EIA-708"). */
+/**
+ * A {@link SubtitleDecoder} for CEA-708 (also known as "EIA-708").
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class Cea708Decoder extends CeaDecoder {
 
   private static final String TAG = "Cea708Decoder";
@@ -1005,10 +1013,10 @@ public final class Cea708Decoder extends CeaDecoder {
     public void clear() {
       rolledUpCaptions.clear();
       captionStringBuilder.clear();
-      italicsStartPosition = C.POSITION_UNSET;
-      underlineStartPosition = C.POSITION_UNSET;
-      foregroundColorStartPosition = C.POSITION_UNSET;
-      backgroundColorStartPosition = C.POSITION_UNSET;
+      italicsStartPosition = C.INDEX_UNSET;
+      underlineStartPosition = C.INDEX_UNSET;
+      foregroundColorStartPosition = C.INDEX_UNSET;
+      backgroundColorStartPosition = C.INDEX_UNSET;
       row = 0;
     }
 
@@ -1120,27 +1128,27 @@ public final class Cea708Decoder extends CeaDecoder {
       // TODO: Add support for other offsets.
       // TODO: Add support for other pen sizes.
 
-      if (italicsStartPosition != C.POSITION_UNSET) {
+      if (italicsStartPosition != C.INDEX_UNSET) {
         if (!italicsToggle) {
           captionStringBuilder.setSpan(
               new StyleSpan(Typeface.ITALIC),
               italicsStartPosition,
               captionStringBuilder.length(),
               Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-          italicsStartPosition = C.POSITION_UNSET;
+          italicsStartPosition = C.INDEX_UNSET;
         }
       } else if (italicsToggle) {
         italicsStartPosition = captionStringBuilder.length();
       }
 
-      if (underlineStartPosition != C.POSITION_UNSET) {
+      if (underlineStartPosition != C.INDEX_UNSET) {
         if (!underlineToggle) {
           captionStringBuilder.setSpan(
               new UnderlineSpan(),
               underlineStartPosition,
               captionStringBuilder.length(),
               Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-          underlineStartPosition = C.POSITION_UNSET;
+          underlineStartPosition = C.INDEX_UNSET;
         }
       } else if (underlineToggle) {
         underlineStartPosition = captionStringBuilder.length();
@@ -1151,7 +1159,7 @@ public final class Cea708Decoder extends CeaDecoder {
     }
 
     public void setPenColor(int foregroundColor, int backgroundColor, int edgeColor) {
-      if (foregroundColorStartPosition != C.POSITION_UNSET) {
+      if (foregroundColorStartPosition != C.INDEX_UNSET) {
         if (this.foregroundColor != foregroundColor) {
           captionStringBuilder.setSpan(
               new ForegroundColorSpan(this.foregroundColor),
@@ -1165,7 +1173,7 @@ public final class Cea708Decoder extends CeaDecoder {
         this.foregroundColor = foregroundColor;
       }
 
-      if (backgroundColorStartPosition != C.POSITION_UNSET) {
+      if (backgroundColorStartPosition != C.INDEX_UNSET) {
         if (this.backgroundColor != backgroundColor) {
           captionStringBuilder.setSpan(
               new BackgroundColorSpan(this.backgroundColor),
@@ -1207,16 +1215,16 @@ public final class Cea708Decoder extends CeaDecoder {
         rolledUpCaptions.add(buildSpannableString());
         captionStringBuilder.clear();
 
-        if (italicsStartPosition != C.POSITION_UNSET) {
+        if (italicsStartPosition != C.INDEX_UNSET) {
           italicsStartPosition = 0;
         }
-        if (underlineStartPosition != C.POSITION_UNSET) {
+        if (underlineStartPosition != C.INDEX_UNSET) {
           underlineStartPosition = 0;
         }
-        if (foregroundColorStartPosition != C.POSITION_UNSET) {
+        if (foregroundColorStartPosition != C.INDEX_UNSET) {
           foregroundColorStartPosition = 0;
         }
-        if (backgroundColorStartPosition != C.POSITION_UNSET) {
+        if (backgroundColorStartPosition != C.INDEX_UNSET) {
           backgroundColorStartPosition = 0;
         }
 
@@ -1235,7 +1243,7 @@ public final class Cea708Decoder extends CeaDecoder {
       int length = spannableStringBuilder.length();
 
       if (length > 0) {
-        if (italicsStartPosition != C.POSITION_UNSET) {
+        if (italicsStartPosition != C.INDEX_UNSET) {
           spannableStringBuilder.setSpan(
               new StyleSpan(Typeface.ITALIC),
               italicsStartPosition,
@@ -1243,7 +1251,7 @@ public final class Cea708Decoder extends CeaDecoder {
               Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
-        if (underlineStartPosition != C.POSITION_UNSET) {
+        if (underlineStartPosition != C.INDEX_UNSET) {
           spannableStringBuilder.setSpan(
               new UnderlineSpan(),
               underlineStartPosition,
@@ -1251,7 +1259,7 @@ public final class Cea708Decoder extends CeaDecoder {
               Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
-        if (foregroundColorStartPosition != C.POSITION_UNSET) {
+        if (foregroundColorStartPosition != C.INDEX_UNSET) {
           spannableStringBuilder.setSpan(
               new ForegroundColorSpan(foregroundColor),
               foregroundColorStartPosition,
@@ -1259,7 +1267,7 @@ public final class Cea708Decoder extends CeaDecoder {
               Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
-        if (backgroundColorStartPosition != C.POSITION_UNSET) {
+        if (backgroundColorStartPosition != C.INDEX_UNSET) {
           spannableStringBuilder.setSpan(
               new BackgroundColorSpan(backgroundColor),
               backgroundColorStartPosition,

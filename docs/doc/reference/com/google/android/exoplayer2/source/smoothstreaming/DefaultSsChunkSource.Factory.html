@@ -183,11 +183,12 @@ implements <a href="SsChunkSource.Factory.html" title="interface in com.google.a
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code><a href="SsChunkSource.html" title="interface in com.google.android.exoplayer2.source.smoothstreaming">SsChunkSource</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createChunkSource(com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest,int,com.google.android.exoplayer2.trackselection.ExoTrackSelection,com.google.android.exoplayer2.upstream.TransferListener)">createChunkSource</a></span>&#8203;(<a href="../../upstream/LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream">LoaderErrorThrower</a>&nbsp;manifestLoaderErrorThrower,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createChunkSource(com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest,int,com.google.android.exoplayer2.trackselection.ExoTrackSelection,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.upstream.CmcdConfiguration)">createChunkSource</a></span>&#8203;(<a href="../../upstream/LoaderErrorThrower.html" title="interface in com.google.android.exoplayer2.upstream">LoaderErrorThrower</a>&nbsp;manifestLoaderErrorThrower,
                  <a href="manifest/SsManifest.html" title="class in com.google.android.exoplayer2.source.smoothstreaming.manifest">SsManifest</a>&nbsp;manifest,
                  int&nbsp;streamElementIndex,
                  <a href="../../trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>&nbsp;trackSelection,
-                 <a href="../../upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;transferListener)</code></th>
+                 <a href="../../upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;transferListener,
+                 <a href="../../upstream/CmcdConfiguration.html" title="class in com.google.android.exoplayer2.upstream">CmcdConfiguration</a>&nbsp;cmcdConfiguration)</code></th>
 <td class="colLast">
 <div class="block">Creates a new <a href="SsChunkSource.html" title="interface in com.google.android.exoplayer2.source.smoothstreaming"><code>SsChunkSource</code></a>.</div>
 </td>
@@ -235,7 +236,7 @@ implements <a href="SsChunkSource.Factory.html" title="interface in com.google.a
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="createChunkSource(com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest,int,com.google.android.exoplayer2.trackselection.ExoTrackSelection,com.google.android.exoplayer2.upstream.TransferListener)">
+<a id="createChunkSource(com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest,int,com.google.android.exoplayer2.trackselection.ExoTrackSelection,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.upstream.CmcdConfiguration)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -246,12 +247,14 @@ implements <a href="SsChunkSource.Factory.html" title="interface in com.google.a
                                        int&nbsp;streamElementIndex,
                                        <a href="../../trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>&nbsp;trackSelection,
                                        @Nullable
-                                       <a href="../../upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;transferListener)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="SsChunkSource.Factory.html#createChunkSource(com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest,int,com.google.android.exoplayer2.trackselection.ExoTrackSelection,com.google.android.exoplayer2.upstream.TransferListener)">SsChunkSource.Factory</a></code></span></div>
+                                       <a href="../../upstream/TransferListener.html" title="interface in com.google.android.exoplayer2.upstream">TransferListener</a>&nbsp;transferListener,
+                                       @Nullable
+                                       <a href="../../upstream/CmcdConfiguration.html" title="class in com.google.android.exoplayer2.upstream">CmcdConfiguration</a>&nbsp;cmcdConfiguration)</pre>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="SsChunkSource.Factory.html#createChunkSource(com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest,int,com.google.android.exoplayer2.trackselection.ExoTrackSelection,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.upstream.CmcdConfiguration)">SsChunkSource.Factory</a></code></span></div>
 <div class="block">Creates a new <a href="SsChunkSource.html" title="interface in com.google.android.exoplayer2.source.smoothstreaming"><code>SsChunkSource</code></a>.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="SsChunkSource.Factory.html#createChunkSource(com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest,int,com.google.android.exoplayer2.trackselection.ExoTrackSelection,com.google.android.exoplayer2.upstream.TransferListener)">createChunkSource</a></code>&nbsp;in interface&nbsp;<code><a href="SsChunkSource.Factory.html" title="interface in com.google.android.exoplayer2.source.smoothstreaming">SsChunkSource.Factory</a></code></dd>
+<dd><code><a href="SsChunkSource.Factory.html#createChunkSource(com.google.android.exoplayer2.upstream.LoaderErrorThrower,com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest,int,com.google.android.exoplayer2.trackselection.ExoTrackSelection,com.google.android.exoplayer2.upstream.TransferListener,com.google.android.exoplayer2.upstream.CmcdConfiguration)">createChunkSource</a></code>&nbsp;in interface&nbsp;<code><a href="SsChunkSource.Factory.html" title="interface in com.google.android.exoplayer2.source.smoothstreaming">SsChunkSource.Factory</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>manifestLoaderErrorThrower</code> - Throws errors affecting loading of manifests.</dd>
 <dd><code>manifest</code> - The initial manifest.</dd>
@@ -259,6 +262,7 @@ implements <a href="SsChunkSource.Factory.html" title="interface in com.google.a
 <dd><code>trackSelection</code> - The track selection.</dd>
 <dd><code>transferListener</code> - The transfer listener which should be informed of any data transfers.
      May be null if no listener is available.</dd>
+<dd><code>cmcdConfiguration</code> - The <a href="../../upstream/CmcdConfiguration.html" title="class in com.google.android.exoplayer2.upstream"><code>CmcdConfiguration</code></a> for this chunk source.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The created <a href="SsChunkSource.html" title="interface in com.google.android.exoplayer2.source.smoothstreaming"><code>SsChunkSource</code></a>.</dd>
 </dl>

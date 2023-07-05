@@ -25,7 +25,9 @@ import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.source.SampleStream;
+import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.MediaClock;
+import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoDecoderOutputBufferRenderer;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
@@ -35,6 +37,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.List;
 
 /**
  * Renders media read from a {@link SampleStream}.
@@ -47,9 +50,15 @@ import java.lang.annotation.Target;
  * <p style="align:center"><img
  * src="https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/doc-files/renderer-states.svg"
  * alt="Renderer state transitions">
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
 // TODO(b/276289331): Revert to media3-hosted SVG links above once they're available on
 // developer.android.com.
+@Deprecated
 public interface Renderer extends PlayerMessage.Target {
 
   /**
@@ -83,8 +92,9 @@ public interface Renderer extends PlayerMessage.Target {
    * #MSG_SET_SCALING_MODE}, {@link #MSG_SET_CHANGE_FRAME_RATE_STRATEGY}, {@link
    * #MSG_SET_AUX_EFFECT_INFO}, {@link #MSG_SET_VIDEO_FRAME_METADATA_LISTENER}, {@link
    * #MSG_SET_CAMERA_MOTION_LISTENER}, {@link #MSG_SET_SKIP_SILENCE_ENABLED}, {@link
-   * #MSG_SET_AUDIO_SESSION_ID} or {@link #MSG_SET_WAKEUP_LISTENER}. May also be an app-defined
-   * value (see {@link #MSG_CUSTOM_BASE}).
+   * #MSG_SET_AUDIO_SESSION_ID}, {@link #MSG_SET_WAKEUP_LISTENER}, {@link #MSG_SET_VIDEO_EFFECTS} or
+   * {@link #MSG_SET_VIDEO_OUTPUT_RESOLUTION}. May also be an app-defined value (see {@link
+   * #MSG_CUSTOM_BASE}).
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -102,7 +112,9 @@ public interface Renderer extends PlayerMessage.Target {
         MSG_SET_CAMERA_MOTION_LISTENER,
         MSG_SET_SKIP_SILENCE_ENABLED,
         MSG_SET_AUDIO_SESSION_ID,
-        MSG_SET_WAKEUP_LISTENER
+        MSG_SET_WAKEUP_LISTENER,
+        MSG_SET_VIDEO_EFFECTS,
+        MSG_SET_VIDEO_OUTPUT_RESOLUTION
       })
   public @interface MessageType {}
   /**
@@ -204,6 +216,17 @@ public interface Renderer extends PlayerMessage.Target {
    * restore the default.
    */
   int MSG_SET_PREFERRED_AUDIO_DEVICE = 12;
+  /**
+   * The type of a message that can be passed to a video renderer. The message payload should be a
+   * {@link List} containing {@linkplain Effect video effects}.
+   */
+  int MSG_SET_VIDEO_EFFECTS = 13;
+  /**
+   * The type of a message that can be passed to a video renderer to set the desired output
+   * resolution. The message payload should be a {@link Size} of the desired output width and
+   * height. Use this method only when playing with video {@linkplain Effect effects}.
+   */
+  int MSG_SET_VIDEO_OUTPUT_RESOLUTION = 14;
   /**
    * Applications or extensions may define custom {@code MSG_*} constants that can be passed to
    * renderers. These custom constants must be greater than or equal to this value.
@@ -502,4 +525,11 @@ public interface Renderer extends PlayerMessage.Target {
    * #STATE_DISABLED}.
    */
   void reset();
+
+  /**
+   * Releases the renderer.
+   *
+   * <p>The renderer must not be used after calling this method.
+   */
+  default void release() {}
 }

@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":6,"i2":6,"i3":6};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"]};
+var data = {"i0":38,"i1":38,"i2":38,"i3":38};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -122,10 +122,16 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><code><a href="../testutil/DataSourceContractTest.FakeTransferListener.html" title="class in com.google.android.exoplayer2.testutil">DataSourceContractTest.FakeTransferListener</a></code>, <code><a href="DefaultBandwidthMeter.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter</a></code></dd>
+<dd><code><a href="../testutil/DataSourceContractTest.FakeTransferListener.html" title="class in com.google.android.exoplayer2.testutil">DataSourceContractTest.FakeTransferListener</a></code>, <code><a href="DefaultBandwidthMeter.html" title="class in com.google.android.exoplayer2.upstream">DefaultBandwidthMeter</a></code>, <code><a href="experimental/ExperimentalBandwidthMeter.html" title="class in com.google.android.exoplayer2.upstream.experimental">ExperimentalBandwidthMeter</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">TransferListener</span></pre>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">TransferListener</span></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A listener of data transfer events.
 
  <p>A transfer usually progresses through multiple steps:
@@ -156,7 +162,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -169,6 +175,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                   boolean&nbsp;isNetwork,
                   int&nbsp;bytesTransferred)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called incrementally during a transfer.</div>
 </td>
 </tr>
@@ -178,6 +185,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
              <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
              boolean&nbsp;isNetwork)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a transfer ends.</div>
 </td>
 </tr>
@@ -187,6 +195,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                       <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
                       boolean&nbsp;isNetwork)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a transfer is being initialized.</div>
 </td>
 </tr>
@@ -196,6 +205,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
                boolean&nbsp;isNetwork)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a transfer starts.</div>
 </td>
 </tr>
@@ -225,6 +235,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre class="methodSignature">void&nbsp;onTransferInitializing&#8203;(<a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source,
                             <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
                             boolean&nbsp;isNetwork)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a transfer is being initialized.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -243,6 +254,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre class="methodSignature">void&nbsp;onTransferStart&#8203;(<a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source,
                      <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
                      boolean&nbsp;isNetwork)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a transfer starts.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -262,6 +274,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
                         <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
                         boolean&nbsp;isNetwork,
                         int&nbsp;bytesTransferred)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called incrementally during a transfer.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -281,6 +294,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <pre class="methodSignature">void&nbsp;onTransferEnd&#8203;(<a href="DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;source,
                    <a href="DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a>&nbsp;dataSpec,
                    boolean&nbsp;isNetwork)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called when a transfer ends.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

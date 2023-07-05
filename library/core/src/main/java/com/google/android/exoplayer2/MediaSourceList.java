@@ -58,7 +58,13 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
  * once in the playlist.
  *
  * <p>With the exception of the constructor, all methods are called on the playback thread.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 /* package */ final class MediaSourceList {
 
   /** Listener for source events. */
@@ -362,6 +368,11 @@ import org.checkerframework.checker.nullness.compatqual.NullableType;
       windowOffset += mediaSourceHolder.mediaSource.getTimeline().getWindowCount();
     }
     return new PlaylistTimeline(mediaSourceHolders, shuffleOrder);
+  }
+
+  /** Returns the shuffle order */
+  public ShuffleOrder getShuffleOrder() {
+    return shuffleOrder;
   }
 
   // Internal methods.

@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a></code></dd>
 </dl>
 <hr>
-<pre>public class <span class="typeNameLabel">DefaultLoadControl</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public class <span class="typeNameLabel">DefaultLoadControl</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">The default <a href="LoadControl.html" title="interface in com.google.android.exoplayer2"><code>LoadControl</code></a> implementation.</div>
 </li>
 </ul>
@@ -161,6 +167,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>static class&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="DefaultLoadControl.Builder.html" title="class in com.google.android.exoplayer2">DefaultLoadControl.Builder</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Builder for <a href="DefaultLoadControl.html" title="class in com.google.android.exoplayer2"><code>DefaultLoadControl</code></a>.</div>
 </td>
 </tr>
@@ -186,6 +193,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_AUDIO_BUFFER_SIZE">DEFAULT_AUDIO_BUFFER_SIZE</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A default size in bytes for an audio buffer.</div>
 </td>
 </tr>
@@ -193,6 +201,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_BACK_BUFFER_DURATION_MS">DEFAULT_BACK_BUFFER_DURATION_MS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default back buffer duration in milliseconds.</div>
 </td>
 </tr>
@@ -200,6 +209,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS">DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default duration of media that must be buffered for playback to resume after a rebuffer, in
  milliseconds.</div>
 </td>
@@ -208,6 +218,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_BUFFER_FOR_PLAYBACK_MS">DEFAULT_BUFFER_FOR_PLAYBACK_MS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default duration of media that must be buffered for playback to start or resume following a
  user action such as a seek, in milliseconds.</div>
 </td>
@@ -216,6 +227,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_CAMERA_MOTION_BUFFER_SIZE">DEFAULT_CAMERA_MOTION_BUFFER_SIZE</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A default size in bytes for a camera motion buffer.</div>
 </td>
 </tr>
@@ -223,6 +235,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_IMAGE_BUFFER_SIZE">DEFAULT_IMAGE_BUFFER_SIZE</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A default size in bytes for an image buffer.</div>
 </td>
 </tr>
@@ -230,6 +243,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_MAX_BUFFER_MS">DEFAULT_MAX_BUFFER_MS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default maximum duration of media that the player will attempt to buffer, in milliseconds.</div>
 </td>
 </tr>
@@ -237,6 +251,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_METADATA_BUFFER_SIZE">DEFAULT_METADATA_BUFFER_SIZE</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A default size in bytes for a metadata buffer.</div>
 </td>
 </tr>
@@ -244,6 +259,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_MIN_BUFFER_MS">DEFAULT_MIN_BUFFER_MS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default minimum duration of media that the player will attempt to ensure is buffered at all
  times, in milliseconds.</div>
 </td>
@@ -252,6 +268,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_MIN_BUFFER_SIZE">DEFAULT_MIN_BUFFER_SIZE</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The buffer size in bytes that will be used as a minimum target buffer in all cases.</div>
 </td>
 </tr>
@@ -259,6 +276,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_MUXED_BUFFER_SIZE">DEFAULT_MUXED_BUFFER_SIZE</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A default size in bytes for a muxed buffer (e.g.</div>
 </td>
 </tr>
@@ -266,6 +284,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>static boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_PRIORITIZE_TIME_OVER_SIZE_THRESHOLDS">DEFAULT_PRIORITIZE_TIME_OVER_SIZE_THRESHOLDS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default prioritization of buffer time constraints over size constraints.</div>
 </td>
 </tr>
@@ -273,6 +292,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>static boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_RETAIN_BACK_BUFFER_FROM_KEYFRAME">DEFAULT_RETAIN_BACK_BUFFER_FROM_KEYFRAME</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default for whether the back buffer is retained from the previous keyframe.</div>
 </td>
 </tr>
@@ -280,6 +300,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_TARGET_BUFFER_BYTES">DEFAULT_TARGET_BUFFER_BYTES</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default target buffer size in bytes.</div>
 </td>
 </tr>
@@ -287,6 +308,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_TEXT_BUFFER_SIZE">DEFAULT_TEXT_BUFFER_SIZE</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A default size in bytes for a text buffer.</div>
 </td>
 </tr>
@@ -294,10 +316,18 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT_VIDEO_BUFFER_SIZE">DEFAULT_VIDEO_BUFFER_SIZE</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A default size in bytes for a video buffer.</div>
 </td>
 </tr>
 </table>
+<ul class="blockList">
+<li class="blockList"><a id="fields.inherited.from.class.com.google.android.exoplayer2.LoadControl">
+<!--   -->
+</a>
+<h3>Fields inherited from interface&nbsp;com.google.android.exoplayer2.<a href="LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a></h3>
+<code><a href="LoadControl.html#EMPTY_MEDIA_PERIOD_ID">EMPTY_MEDIA_PERIOD_ID</a></code></li>
+</ul>
 </li>
 </ul>
 </section>
@@ -319,6 +349,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>&nbsp;</code></td>
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">DefaultLoadControl</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Constructs a new instance, using the <code>DEFAULT_*</code> constants defined in this class.</div>
 </td>
 </tr>
@@ -333,7 +364,9 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
                   boolean&nbsp;prioritizeTimeOverSizeThresholds,
                   int&nbsp;backBufferDurationMs,
                   boolean&nbsp;retainBackBufferFromKeyframe)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -347,7 +380,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -358,6 +391,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#calculateTargetBufferBytes(com.google.android.exoplayer2.Renderer%5B%5D,com.google.android.exoplayer2.trackselection.ExoTrackSelection%5B%5D)">calculateTargetBufferBytes</a></span>&#8203;(<a href="Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>[]&nbsp;renderers,
                           <a href="trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>[]&nbsp;trackSelectionArray)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Calculate target buffer size in bytes based on the selected tracks.</div>
 </td>
 </tr>
@@ -365,6 +399,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <td class="colFirst"><code><a href="upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getAllocator()">getAllocator</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream"><code>Allocator</code></a> that should be used to obtain media buffer allocations.</div>
 </td>
 </tr>
@@ -372,6 +407,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getBackBufferDurationUs()">getBackBufferDurationUs</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the duration of media to retain in the buffer prior to the current playback position,
  for fast backward seeking.</div>
 </td>
@@ -380,6 +416,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPrepared()">onPrepared</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called by the player when prepared with a new source.</div>
 </td>
 </tr>
@@ -387,6 +424,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onReleased()">onReleased</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called by the player when released.</div>
 </td>
 </tr>
@@ -394,15 +432,19 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onStopped()">onStopped</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called by the player when stopped.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTracksSelected(com.google.android.exoplayer2.Renderer%5B%5D,com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.ExoTrackSelection%5B%5D)">onTracksSelected</a></span>&#8203;(<a href="Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>[]&nbsp;renderers,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onTracksSelected(com.google.android.exoplayer2.Timeline,com.google.android.exoplayer2.source.MediaPeriodId,com.google.android.exoplayer2.Renderer%5B%5D,com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.ExoTrackSelection%5B%5D)">onTracksSelected</a></span>&#8203;(<a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
+                <a href="source/MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaPeriodId</a>&nbsp;mediaPeriodId,
+                <a href="Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>[]&nbsp;renderers,
                 <a href="source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;trackGroups,
                 <a href="trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>[]&nbsp;trackSelections)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called by the player when a track selection occurs.</div>
 </td>
 </tr>
@@ -410,6 +452,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#retainBackBufferFromKeyframe()">retainBackBufferFromKeyframe</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns whether media should be retained from the keyframe before the current playback position
  minus <a href="LoadControl.html#getBackBufferDurationUs()"><code>LoadControl.getBackBufferDurationUs()</code></a>, rather than any sample before or at that position.</div>
 </td>
@@ -420,16 +463,20 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
                      long&nbsp;bufferedDurationUs,
                      float&nbsp;playbackSpeed)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called by the player to determine whether it should continue to load the source.</div>
 </td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#shouldStartPlayback(long,float,boolean,long)">shouldStartPlayback</a></span>&#8203;(long&nbsp;bufferedDurationUs,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#shouldStartPlayback(com.google.android.exoplayer2.Timeline,com.google.android.exoplayer2.source.MediaPeriodId,long,float,boolean,long)">shouldStartPlayback</a></span>&#8203;(<a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
+                   <a href="source/MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaPeriodId</a>&nbsp;mediaPeriodId,
+                   long&nbsp;bufferedDurationUs,
                    float&nbsp;playbackSpeed,
                    boolean&nbsp;rebuffering,
                    long&nbsp;targetLiveOffsetUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Called repeatedly by the player when it's loading the source, has yet to start playback, and
  has the minimum amount of data necessary for playback to be started.</div>
 </td>
@@ -441,6 +488,13 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 </a>
 <h3>Methods inherited from class&nbsp;java.lang.<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></h3>
 <code><a href="https://developer.android.com/reference/java/lang/Object.html#clone()" title="class or interface in java.lang" class="externalLink">clone</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#finalize()" title="class or interface in java.lang" class="externalLink">finalize</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#getClass()" title="class or interface in java.lang" class="externalLink">getClass</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notify()" title="class or interface in java.lang" class="externalLink">notify</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#notifyAll()" title="class or interface in java.lang" class="externalLink">notifyAll</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#toString()" title="class or interface in java.lang" class="externalLink">toString</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait()" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long)" title="class or interface in java.lang" class="externalLink">wait</a>, <a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true#wait(long,int)" title="class or interface in java.lang" class="externalLink" target="_top">wait</a></code></li>
+</ul>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.LoadControl">
+<!--   -->
+</a>
+<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.<a href="LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a></h3>
+<code><a href="LoadControl.html#onTracksSelected(com.google.android.exoplayer2.Renderer%5B%5D,com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.ExoTrackSelection%5B%5D)">onTracksSelected</a>, <a href="LoadControl.html#shouldStartPlayback(long,float,boolean,long)">shouldStartPlayback</a></code></li>
 </ul>
 </li>
 </ul>
@@ -465,6 +519,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>DEFAULT_MIN_BUFFER_MS</h4>
 <pre>public static final&nbsp;int DEFAULT_MIN_BUFFER_MS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default minimum duration of media that the player will attempt to ensure is buffered at all
  times, in milliseconds.</div>
 <dl>
@@ -480,6 +535,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>DEFAULT_MAX_BUFFER_MS</h4>
 <pre>public static final&nbsp;int DEFAULT_MAX_BUFFER_MS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default maximum duration of media that the player will attempt to buffer, in milliseconds.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -494,6 +550,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>DEFAULT_BUFFER_FOR_PLAYBACK_MS</h4>
 <pre>public static final&nbsp;int DEFAULT_BUFFER_FOR_PLAYBACK_MS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default duration of media that must be buffered for playback to start or resume following a
  user action such as a seek, in milliseconds.</div>
 <dl>
@@ -509,6 +566,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS</h4>
 <pre>public static final&nbsp;int DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default duration of media that must be buffered for playback to resume after a rebuffer, in
  milliseconds. A rebuffer is defined to be caused by buffer depletion rather than a user action.</div>
 <dl>
@@ -524,6 +582,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>DEFAULT_TARGET_BUFFER_BYTES</h4>
 <pre>public static final&nbsp;int DEFAULT_TARGET_BUFFER_BYTES</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default target buffer size in bytes. The value (<a href="C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>) means that the load
  control will calculate the target buffer size based on the selected tracks.</div>
 <dl>
@@ -539,6 +598,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>DEFAULT_PRIORITIZE_TIME_OVER_SIZE_THRESHOLDS</h4>
 <pre>public static final&nbsp;boolean DEFAULT_PRIORITIZE_TIME_OVER_SIZE_THRESHOLDS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default prioritization of buffer time constraints over size constraints.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -553,6 +613,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>DEFAULT_BACK_BUFFER_DURATION_MS</h4>
 <pre>public static final&nbsp;int DEFAULT_BACK_BUFFER_DURATION_MS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default back buffer duration in milliseconds.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -567,6 +628,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>DEFAULT_RETAIN_BACK_BUFFER_FROM_KEYFRAME</h4>
 <pre>public static final&nbsp;boolean DEFAULT_RETAIN_BACK_BUFFER_FROM_KEYFRAME</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The default for whether the back buffer is retained from the previous keyframe.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -581,6 +643,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>DEFAULT_VIDEO_BUFFER_SIZE</h4>
 <pre>public static final&nbsp;int DEFAULT_VIDEO_BUFFER_SIZE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A default size in bytes for a video buffer.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -595,6 +658,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>DEFAULT_AUDIO_BUFFER_SIZE</h4>
 <pre>public static final&nbsp;int DEFAULT_AUDIO_BUFFER_SIZE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A default size in bytes for an audio buffer.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -609,6 +673,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>DEFAULT_TEXT_BUFFER_SIZE</h4>
 <pre>public static final&nbsp;int DEFAULT_TEXT_BUFFER_SIZE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A default size in bytes for a text buffer.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -623,6 +688,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>DEFAULT_METADATA_BUFFER_SIZE</h4>
 <pre>public static final&nbsp;int DEFAULT_METADATA_BUFFER_SIZE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A default size in bytes for a metadata buffer.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -637,6 +703,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>DEFAULT_CAMERA_MOTION_BUFFER_SIZE</h4>
 <pre>public static final&nbsp;int DEFAULT_CAMERA_MOTION_BUFFER_SIZE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A default size in bytes for a camera motion buffer.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -651,6 +718,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>DEFAULT_IMAGE_BUFFER_SIZE</h4>
 <pre>public static final&nbsp;int DEFAULT_IMAGE_BUFFER_SIZE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A default size in bytes for an image buffer.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -665,6 +733,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>DEFAULT_MUXED_BUFFER_SIZE</h4>
 <pre>public static final&nbsp;int DEFAULT_MUXED_BUFFER_SIZE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A default size in bytes for a muxed buffer (e.g. containing video, audio and text).</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -679,6 +748,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>DEFAULT_MIN_BUFFER_SIZE</h4>
 <pre>public static final&nbsp;int DEFAULT_MIN_BUFFER_SIZE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The buffer size in bytes that will be used as a minimum target buffer in all cases. This is
  also the default target buffer before tracks are selected.</div>
 <dl>
@@ -704,6 +774,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>DefaultLoadControl</h4>
 <pre>public&nbsp;DefaultLoadControl()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Constructs a new instance, using the <code>DEFAULT_*</code> constants defined in this class.</div>
 </li>
 </ul>
@@ -722,6 +793,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
                              boolean&nbsp;prioritizeTimeOverSizeThresholds,
                              int&nbsp;backBufferDurationMs,
                              boolean&nbsp;retainBackBufferFromKeyframe)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -741,6 +813,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>onPrepared</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onPrepared()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="LoadControl.html#onPrepared()">LoadControl</a></code></span></div>
 <div class="block">Called by the player when prepared with a new source.</div>
 <dl>
@@ -749,21 +822,29 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 </dl>
 </li>
 </ul>
-<a id="onTracksSelected(com.google.android.exoplayer2.Renderer[],com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.ExoTrackSelection[])">
+<a id="onTracksSelected(com.google.android.exoplayer2.Timeline,com.google.android.exoplayer2.source.MediaPeriodId,com.google.android.exoplayer2.Renderer[],com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.ExoTrackSelection[])">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>onTracksSelected</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;onTracksSelected&#8203;(<a href="Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>[]&nbsp;renderers,
+<pre class="methodSignature">public&nbsp;void&nbsp;onTracksSelected&#8203;(<a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
+                             <a href="source/MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaPeriodId</a>&nbsp;mediaPeriodId,
+                             <a href="Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>[]&nbsp;renderers,
                              <a href="source/TrackGroupArray.html" title="class in com.google.android.exoplayer2.source">TrackGroupArray</a>&nbsp;trackGroups,
                              <a href="trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>[]&nbsp;trackSelections)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="LoadControl.html#onTracksSelected(com.google.android.exoplayer2.Renderer%5B%5D,com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.ExoTrackSelection%5B%5D)">LoadControl</a></code></span></div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="LoadControl.html#onTracksSelected(com.google.android.exoplayer2.Timeline,com.google.android.exoplayer2.source.MediaPeriodId,com.google.android.exoplayer2.Renderer%5B%5D,com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.ExoTrackSelection%5B%5D)">LoadControl</a></code></span></div>
 <div class="block">Called by the player when a track selection occurs.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="LoadControl.html#onTracksSelected(com.google.android.exoplayer2.Renderer%5B%5D,com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.ExoTrackSelection%5B%5D)">onTracksSelected</a></code>&nbsp;in interface&nbsp;<code><a href="LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a></code></dd>
+<dd><code><a href="LoadControl.html#onTracksSelected(com.google.android.exoplayer2.Timeline,com.google.android.exoplayer2.source.MediaPeriodId,com.google.android.exoplayer2.Renderer%5B%5D,com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.ExoTrackSelection%5B%5D)">onTracksSelected</a></code>&nbsp;in interface&nbsp;<code><a href="LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>timeline</code> - The current <a href="Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> in ExoPlayer. Can be <a href="Timeline.html#EMPTY"><code>Timeline.EMPTY</code></a> only
+     when the deprecated <a href="LoadControl.html#onTracksSelected(com.google.android.exoplayer2.Renderer%5B%5D,com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.ExoTrackSelection%5B%5D)"><code>LoadControl.onTracksSelected(Renderer[], TrackGroupArray,
+     ExoTrackSelection[])</code></a> was called.</dd>
+<dd><code>mediaPeriodId</code> - Identifies (in the current timeline) the <a href="source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a> for which the
+     selection was made. Will be <a href="LoadControl.html#EMPTY_MEDIA_PERIOD_ID"><code>LoadControl.EMPTY_MEDIA_PERIOD_ID</code></a> when <code>timeline</code> is empty.</dd>
 <dd><code>renderers</code> - The renderers.</dd>
 <dd><code>trackGroups</code> - The <a href="source/TrackGroup.html" title="class in com.google.android.exoplayer2.source"><code>TrackGroup</code></a>s from which the selection was made.</dd>
 <dd><code>trackSelections</code> - The track selections that were made.</dd>
@@ -777,6 +858,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>onStopped</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onStopped()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="LoadControl.html#onStopped()">LoadControl</a></code></span></div>
 <div class="block">Called by the player when stopped.</div>
 <dl>
@@ -792,6 +874,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>onReleased</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;onReleased()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="LoadControl.html#onReleased()">LoadControl</a></code></span></div>
 <div class="block">Called by the player when released.</div>
 <dl>
@@ -807,6 +890,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>getAllocator</h4>
 <pre class="methodSignature">public&nbsp;<a href="upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream">Allocator</a>&nbsp;getAllocator()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="LoadControl.html#getAllocator()">LoadControl</a></code></span></div>
 <div class="block">Returns the <a href="upstream/Allocator.html" title="interface in com.google.android.exoplayer2.upstream"><code>Allocator</code></a> that should be used to obtain media buffer allocations.</div>
 <dl>
@@ -822,6 +906,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>getBackBufferDurationUs</h4>
 <pre class="methodSignature">public&nbsp;long&nbsp;getBackBufferDurationUs()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="LoadControl.html#getBackBufferDurationUs()">LoadControl</a></code></span></div>
 <div class="block">Returns the duration of media to retain in the buffer prior to the current playback position,
  for fast backward seeking.
@@ -847,6 +932,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <li class="blockList">
 <h4>retainBackBufferFromKeyframe</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;retainBackBufferFromKeyframe()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="LoadControl.html#retainBackBufferFromKeyframe()">LoadControl</a></code></span></div>
 <div class="block">Returns whether media should be retained from the keyframe before the current playback position
  minus <a href="LoadControl.html#getBackBufferDurationUs()"><code>LoadControl.getBackBufferDurationUs()</code></a>, rather than any sample before or at that position.
@@ -877,8 +963,11 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <pre class="methodSignature">public&nbsp;boolean&nbsp;shouldContinueLoading&#8203;(long&nbsp;playbackPositionUs,
                                      long&nbsp;bufferedDurationUs,
                                      float&nbsp;playbackSpeed)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="LoadControl.html#shouldContinueLoading(long,long,float)">LoadControl</a></code></span></div>
-<div class="block">Called by the player to determine whether it should continue to load the source.</div>
+<div class="block">Called by the player to determine whether it should continue to load the source. If this method
+ returns true, the <a href="source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a> identified in the most recent <a href="LoadControl.html#onTracksSelected(com.google.android.exoplayer2.Timeline,com.google.android.exoplayer2.source.MediaPeriodId,com.google.android.exoplayer2.Renderer%5B%5D,com.google.android.exoplayer2.source.TrackGroupArray,com.google.android.exoplayer2.trackselection.ExoTrackSelection%5B%5D)"><code>LoadControl.onTracksSelected(com.google.android.exoplayer2.Timeline, com.google.android.exoplayer2.source.MediaPeriodId, com.google.android.exoplayer2.Renderer[], com.google.android.exoplayer2.source.TrackGroupArray, com.google.android.exoplayer2.trackselection.ExoTrackSelection[])</code></a>
+ call will continue being loaded.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="LoadControl.html#shouldContinueLoading(long,long,float)">shouldContinueLoading</a></code>&nbsp;in interface&nbsp;<code><a href="LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a></code></dd>
@@ -895,25 +984,32 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 </dl>
 </li>
 </ul>
-<a id="shouldStartPlayback(long,float,boolean,long)">
+<a id="shouldStartPlayback(com.google.android.exoplayer2.Timeline,com.google.android.exoplayer2.source.MediaPeriodId,long,float,boolean,long)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>shouldStartPlayback</h4>
-<pre class="methodSignature">public&nbsp;boolean&nbsp;shouldStartPlayback&#8203;(long&nbsp;bufferedDurationUs,
+<pre class="methodSignature">public&nbsp;boolean&nbsp;shouldStartPlayback&#8203;(<a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
+                                   <a href="source/MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaPeriodId</a>&nbsp;mediaPeriodId,
+                                   long&nbsp;bufferedDurationUs,
                                    float&nbsp;playbackSpeed,
                                    boolean&nbsp;rebuffering,
                                    long&nbsp;targetLiveOffsetUs)</pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="LoadControl.html#shouldStartPlayback(long,float,boolean,long)">LoadControl</a></code></span></div>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="LoadControl.html#shouldStartPlayback(com.google.android.exoplayer2.Timeline,com.google.android.exoplayer2.source.MediaPeriodId,long,float,boolean,long)">LoadControl</a></code></span></div>
 <div class="block">Called repeatedly by the player when it's loading the source, has yet to start playback, and
  has the minimum amount of data necessary for playback to be started. The value returned
  determines whether playback is actually started. The load control may opt to return <code>
  false</code> until some condition has been met (e.g. a certain amount of media is buffered).</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="LoadControl.html#shouldStartPlayback(long,float,boolean,long)">shouldStartPlayback</a></code>&nbsp;in interface&nbsp;<code><a href="LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a></code></dd>
+<dd><code><a href="LoadControl.html#shouldStartPlayback(com.google.android.exoplayer2.Timeline,com.google.android.exoplayer2.source.MediaPeriodId,long,float,boolean,long)">shouldStartPlayback</a></code>&nbsp;in interface&nbsp;<code><a href="LoadControl.html" title="interface in com.google.android.exoplayer2">LoadControl</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>timeline</code> - The current <a href="Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> in ExoPlayer. Can be <a href="Timeline.html#EMPTY"><code>Timeline.EMPTY</code></a> only
+     when the deprecated <a href="LoadControl.html#shouldStartPlayback(long,float,boolean,long)"><code>LoadControl.shouldStartPlayback(long, float, boolean, long)</code></a> was called.</dd>
+<dd><code>mediaPeriodId</code> - Identifies (in the current timeline) the <a href="source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source"><code>MediaPeriod</code></a> for which
+     playback will start. Will be <a href="LoadControl.html#EMPTY_MEDIA_PERIOD_ID"><code>LoadControl.EMPTY_MEDIA_PERIOD_ID</code></a> when <code>timeline</code> is empty.</dd>
 <dd><code>bufferedDurationUs</code> - The duration of media that's currently buffered.</dd>
 <dd><code>playbackSpeed</code> - The current factor by which playback is sped up.</dd>
 <dd><code>rebuffering</code> - Whether the player is rebuffering. A rebuffer is defined to be caused by
@@ -935,6 +1031,7 @@ implements <a href="LoadControl.html" title="interface in com.google.android.exo
 <h4>calculateTargetBufferBytes</h4>
 <pre class="methodSignature">protected&nbsp;int&nbsp;calculateTargetBufferBytes&#8203;(<a href="Renderer.html" title="interface in com.google.android.exoplayer2">Renderer</a>[]&nbsp;renderers,
                                          <a href="trackselection/ExoTrackSelection.html" title="interface in com.google.android.exoplayer2.trackselection">ExoTrackSelection</a>[]&nbsp;trackSelectionArray)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Calculate target buffer size in bytes based on the selected tracks. The player will try not to
  exceed this target buffer. Only used when <code>targetBufferBytes</code> is <a href="C.html#LENGTH_UNSET"><code>C.LENGTH_UNSET</code></a>.</div>
 <dl>

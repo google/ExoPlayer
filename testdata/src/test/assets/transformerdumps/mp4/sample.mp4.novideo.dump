@@ -7,9 +7,10 @@ format 0:
   channelCount = 1
   sampleRate = 44100
   language = und
-  metadata = entries=[TSSE: description=null: values=[Lavf56.1.0]]
+  metadata = entries=[TSSE: description=null: values=[Lavf56.1.0], xyz: latitude=40.68, longitude=-74.5, Creation time: 1464714095000]
   initializationData:
     data = length 2, hash 5F7
+container metadata = entries=[TSSE: description=null: values=[Lavf56.1.0], xyz: latitude=40.68, longitude=-74.5, Creation time: 1464714095000]
 sample:
   trackIndex = 0
   dataHashCode = 1205768497

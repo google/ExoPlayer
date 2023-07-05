@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9,"i1":9,"i2":9};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":41,"i1":41,"i2":41};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">FileTypes</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">FileTypes</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Defines common file type constants and helper methods.</div>
 </li>
 </ul>
@@ -156,6 +162,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="FileTypes.Type.html" title="annotation in com.google.android.exoplayer2.util">FileTypes.Type</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File types.</div>
 </td>
 </tr>
@@ -181,6 +188,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AC3">AC3</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the AC-3 and E-AC-3 formats.</div>
 </td>
 </tr>
@@ -188,6 +196,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AC4">AC4</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the AC-4 format.</div>
 </td>
 </tr>
@@ -195,6 +204,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ADTS">ADTS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the ADTS format.</div>
 </td>
 </tr>
@@ -202,6 +212,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AMR">AMR</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the AMR format.</div>
 </td>
 </tr>
@@ -209,6 +220,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#AVI">AVI</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the AVI format.</div>
 </td>
 </tr>
@@ -216,6 +228,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FLAC">FLAC</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the FLAC format.</div>
 </td>
 </tr>
@@ -223,6 +236,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#FLV">FLV</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the FLV format.</div>
 </td>
 </tr>
@@ -230,6 +244,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#JPEG">JPEG</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the JPEG format.</div>
 </td>
 </tr>
@@ -237,6 +252,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MATROSKA">MATROSKA</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the Matroska and WebM formats.</div>
 </td>
 </tr>
@@ -244,6 +260,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MIDI">MIDI</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the MIDI format.</div>
 </td>
 </tr>
@@ -251,6 +268,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MP3">MP3</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the MP3 format.</div>
 </td>
 </tr>
@@ -258,6 +276,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#MP4">MP4</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the MP4 format.</div>
 </td>
 </tr>
@@ -265,6 +284,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#OGG">OGG</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the Ogg format.</div>
 </td>
 </tr>
@@ -272,6 +292,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#PS">PS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the MPEG-PS format.</div>
 </td>
 </tr>
@@ -279,6 +300,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#TS">TS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the MPEG-TS format.</div>
 </td>
 </tr>
@@ -286,6 +308,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#UNKNOWN">UNKNOWN</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Unknown file type.</div>
 </td>
 </tr>
@@ -293,6 +316,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#WAV">WAV</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the WAV format.</div>
 </td>
 </tr>
@@ -300,6 +324,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#WEBVTT">WEBVTT</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the WebVTT format.</div>
 </td>
 </tr>
@@ -315,7 +340,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -325,6 +350,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static @com.google.android.exoplayer2.util.FileTypes.Type int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#inferFileTypeFromMimeType(java.lang.String)">inferFileTypeFromMimeType</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="FileTypes.Type.html" title="annotation in com.google.android.exoplayer2.util"><code>FileTypes.Type</code></a> corresponding to the MIME type provided.</div>
 </td>
 </tr>
@@ -332,6 +358,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static @com.google.android.exoplayer2.util.FileTypes.Type int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#inferFileTypeFromResponseHeaders(java.util.Map)">inferFileTypeFromResponseHeaders</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;&nbsp;responseHeaders)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="FileTypes.Type.html" title="annotation in com.google.android.exoplayer2.util"><code>FileTypes.Type</code></a> corresponding to the response headers provided.</div>
 </td>
 </tr>
@@ -339,6 +366,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static @com.google.android.exoplayer2.util.FileTypes.Type int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#inferFileTypeFromUri(android.net.Uri)">inferFileTypeFromUri</a></span>&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="FileTypes.Type.html" title="annotation in com.google.android.exoplayer2.util"><code>FileTypes.Type</code></a> corresponding to the <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a> provided.</div>
 </td>
 </tr>
@@ -373,6 +401,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>UNKNOWN</h4>
 <pre>public static final&nbsp;int UNKNOWN</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Unknown file type.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -387,6 +416,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>AC3</h4>
 <pre>public static final&nbsp;int AC3</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the AC-3 and E-AC-3 formats.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -401,6 +431,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>AC4</h4>
 <pre>public static final&nbsp;int AC4</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the AC-4 format.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -415,6 +446,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>ADTS</h4>
 <pre>public static final&nbsp;int ADTS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the ADTS format.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -429,6 +461,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>AMR</h4>
 <pre>public static final&nbsp;int AMR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the AMR format.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -443,6 +476,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>FLAC</h4>
 <pre>public static final&nbsp;int FLAC</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the FLAC format.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -457,6 +491,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>FLV</h4>
 <pre>public static final&nbsp;int FLV</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the FLV format.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -471,6 +506,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>MATROSKA</h4>
 <pre>public static final&nbsp;int MATROSKA</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the Matroska and WebM formats.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -485,6 +521,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>MP3</h4>
 <pre>public static final&nbsp;int MP3</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the MP3 format.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -499,6 +536,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>MP4</h4>
 <pre>public static final&nbsp;int MP4</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the MP4 format.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -513,6 +551,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>OGG</h4>
 <pre>public static final&nbsp;int OGG</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the Ogg format.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -527,6 +566,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>PS</h4>
 <pre>public static final&nbsp;int PS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the MPEG-PS format.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -541,6 +581,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>TS</h4>
 <pre>public static final&nbsp;int TS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the MPEG-TS format.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -555,6 +596,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>WAV</h4>
 <pre>public static final&nbsp;int WAV</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the WAV format.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -569,6 +611,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>WEBVTT</h4>
 <pre>public static final&nbsp;int WEBVTT</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the WebVTT format.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -583,6 +626,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>JPEG</h4>
 <pre>public static final&nbsp;int JPEG</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the JPEG format.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -597,6 +641,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>MIDI</h4>
 <pre>public static final&nbsp;int MIDI</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the MIDI format.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -611,6 +656,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>AVI</h4>
 <pre>public static final&nbsp;int AVI</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">File type for the AVI format.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -635,6 +681,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>inferFileTypeFromResponseHeaders</h4>
 <pre class="methodSignature">public static&nbsp;@com.google.android.exoplayer2.util.FileTypes.Type int&nbsp;inferFileTypeFromResponseHeaders&#8203;(<a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt;&nbsp;responseHeaders)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="FileTypes.Type.html" title="annotation in com.google.android.exoplayer2.util"><code>FileTypes.Type</code></a> corresponding to the response headers provided.</div>
 </li>
 </ul>
@@ -646,9 +693,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>inferFileTypeFromMimeType</h4>
 <pre class="methodSignature">public static&nbsp;@com.google.android.exoplayer2.util.FileTypes.Type int&nbsp;inferFileTypeFromMimeType&#8203;(@Nullable
                                                                                                <a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;mimeType)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="FileTypes.Type.html" title="annotation in com.google.android.exoplayer2.util"><code>FileTypes.Type</code></a> corresponding to the MIME type provided.
 
- <p>Returns <a href="#UNKNOWN"><code>UNKNOWN</code></a> if the mime type is <code>null</code>.</div>
+ <p>Returns <a href="#UNKNOWN"><code>UNKNOWN</code></a> if the MIME type is <code>null</code>.</div>
 </li>
 </ul>
 <a id="inferFileTypeFromUri(android.net.Uri)">
@@ -658,6 +706,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>inferFileTypeFromUri</h4>
 <pre class="methodSignature">public static&nbsp;@com.google.android.exoplayer2.util.FileTypes.Type int&nbsp;inferFileTypeFromUri&#8203;(<a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a>&nbsp;uri)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the <a href="FileTypes.Type.html" title="annotation in com.google.android.exoplayer2.util"><code>FileTypes.Type</code></a> corresponding to the <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a> provided.</div>
 </li>
 </ul>

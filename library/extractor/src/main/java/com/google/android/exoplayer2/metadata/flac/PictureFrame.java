@@ -26,12 +26,20 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.common.base.Charsets;
 import java.util.Arrays;
 
-/** A picture parsed from a Vorbis Comment or a FLAC picture block. */
+/**
+ * A picture parsed from a Vorbis Comment or a FLAC picture block.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public final class PictureFrame implements Metadata.Entry {
 
   /** The type of the picture. */
   public final int pictureType;
-  /** The mime type of the picture. */
+  /** The MIME type of the picture. */
   public final String mimeType;
   /** A description of the picture. */
   public final String description;

@@ -34,7 +34,13 @@ import java.util.List;
  * different content are in separate track groups (e.g., an audio track will not be in the same
  * group as a video track, and an audio track in one language will be in a different group to an
  * audio track in another language).
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class TrackGroupArray implements Bundleable {
 
   private static final String TAG = "TrackGroupArray";

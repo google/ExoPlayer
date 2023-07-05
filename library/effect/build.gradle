@@ -20,7 +20,6 @@ android {
         // "pm clear" command after each test invocation. This command ensures
         // that the app's state is completely cleared between tests.
         testInstrumentationRunnerArguments clearPackageData: 'true'
-        multiDexEnabled true
     }
 
     buildTypes {
@@ -30,15 +29,15 @@ android {
     }
 
     sourceSets {
- androidTest.assets.srcDir '../test_data/src/test/assets/' //copybara:media3-only
-        androidTest.assets.srcDir '../../testdata/src/test/assets/'
-        test.assets.srcDir '../../testdata/src/test/assets/'
+ androidTest.assets.srcDir '../../testdata/src/test/assets/'
+ test.assets.srcDir '../../testdata/src/test/assets/'
     }
 }
 
 dependencies {
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     implementation project(modulePrefix + 'library-common')
+    implementation project(modulePrefix + 'library-datasource')
     compileOnly 'com.google.errorprone:error_prone_annotations:' + errorProneVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkCompatVersion
@@ -52,6 +51,7 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
     androidTestImplementation 'com.google.truth:truth:' + truthVersion
     androidTestImplementation project(modulePrefix + 'testutils')
+    androidTestCompileOnly 'org.checkerframework:checker-compat-qual:' + checkerframeworkCompatVersion
 }
 
 ext {

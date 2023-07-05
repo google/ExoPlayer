@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -143,8 +143,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="../../decoder/Decoder.html" title="interface in com.google.android.exoplayer2.decoder">Decoder</a>&lt;<a href="../SubtitleInputBuffer.html" title="class in com.google.android.exoplayer2.text">SubtitleInputBuffer</a>,&#8203;<a href="../SubtitleOutputBuffer.html" title="class in com.google.android.exoplayer2.text">SubtitleOutputBuffer</a>,&#8203;<a href="../SubtitleDecoderException.html" title="class in com.google.android.exoplayer2.text">SubtitleDecoderException</a>&gt;</code>, <code><a href="../SubtitleDecoder.html" title="interface in com.google.android.exoplayer2.text">SubtitleDecoder</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">PgsDecoder</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">PgsDecoder</span>
 extends <a href="../SimpleSubtitleDecoder.html" title="class in com.google.android.exoplayer2.text">SimpleSubtitleDecoder</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A <a href="../SimpleSubtitleDecoder.html" title="class in com.google.android.exoplayer2.text"><code>SimpleSubtitleDecoder</code></a> for PGS subtitles.</div>
 </li>
 </ul>
@@ -167,7 +173,9 @@ extends <a href="../SimpleSubtitleDecoder.html" title="class in com.google.andro
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">PgsDecoder</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -181,7 +189,7 @@ extends <a href="../SimpleSubtitleDecoder.html" title="class in com.google.andro
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -193,6 +201,7 @@ extends <a href="../SimpleSubtitleDecoder.html" title="class in com.google.andro
       int&nbsp;length,
       boolean&nbsp;reset)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Decodes data into a <a href="../Subtitle.html" title="interface in com.google.android.exoplayer2.text"><code>Subtitle</code></a>.</div>
 </td>
 </tr>
@@ -248,6 +257,7 @@ extends <a href="../SimpleSubtitleDecoder.html" title="class in com.google.andro
 <li class="blockList">
 <h4>PgsDecoder</h4>
 <pre>public&nbsp;PgsDecoder()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -270,6 +280,7 @@ extends <a href="../SimpleSubtitleDecoder.html" title="class in com.google.andro
                           int&nbsp;length,
                           boolean&nbsp;reset)
                    throws <a href="../SubtitleDecoderException.html" title="class in com.google.android.exoplayer2.text">SubtitleDecoderException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from class:&nbsp;<code><a href="../SimpleSubtitleDecoder.html#decode(byte%5B%5D,int,boolean)">SimpleSubtitleDecoder</a></code></span></div>
 <div class="block">Decodes data into a <a href="../Subtitle.html" title="interface in com.google.android.exoplayer2.text"><code>Subtitle</code></a>.</div>
 <dl>

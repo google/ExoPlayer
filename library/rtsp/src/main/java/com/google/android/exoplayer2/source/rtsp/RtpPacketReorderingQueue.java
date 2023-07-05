@@ -29,7 +29,13 @@ import java.util.TreeSet;
 /**
  * Orders RTP packets by their sequence numbers to correct the possible alternation in packet
  * ordering, introduced by UDP transport.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 /* package */ final class RtpPacketReorderingQueue {
   /** The maximum sequence number discontinuity allowed without resetting the re-ordering buffer. */
   @VisibleForTesting /* package */ static final int MAX_SEQUENCE_LEAP_ALLOWED = 1000;

@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":6,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":38,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -138,9 +138,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="https://developer.android.com/reference/java/lang/Runnable.html" title="class or interface in java.lang" class="externalLink">Runnable</a></code>, <code><a href="https://developer.android.com/reference/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent" class="externalLink">Future</a>&lt;R&gt;</code>, <code><a href="https://developer.android.com/reference/java/util/concurrent/RunnableFuture.html?is-external=true" title="class or interface in java.util.concurrent" class="externalLink" target="_top">RunnableFuture</a>&lt;R&gt;</code></dd>
 </dl>
 <hr>
-<pre>public abstract class <span class="typeNameLabel">RunnableFutureTask&lt;R,&#8203;E extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&gt;</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public abstract class <span class="typeNameLabel">RunnableFutureTask&lt;R,&#8203;E extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a>&gt;</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="https://developer.android.com/reference/java/util/concurrent/RunnableFuture.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">RunnableFuture</a>&lt;R&gt;</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A <a href="https://developer.android.com/reference/java/util/concurrent/RunnableFuture.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top"><code>RunnableFuture</code></a> that supports additional uninterruptible operations to query whether
  execution has started and finished.</div>
 </li>
@@ -166,7 +172,9 @@ implements <a href="https://developer.android.com/reference/java/util/concurrent
 <tr class="altColor">
 <td class="colFirst"><code>protected </code></td>
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E()">RunnableFutureTask</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -180,7 +188,7 @@ implements <a href="https://developer.android.com/reference/java/util/concurrent
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -190,6 +198,7 @@ implements <a href="https://developer.android.com/reference/java/util/concurrent
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#blockUntilFinished()">blockUntilFinished</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Blocks until the task has finished, or has been canceled without having been started.</div>
 </td>
 </tr>
@@ -197,18 +206,22 @@ implements <a href="https://developer.android.com/reference/java/util/concurrent
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#blockUntilStarted()">blockUntilStarted</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Blocks until the task has started, or has been canceled without having been started.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#cancel(boolean)">cancel</a></span>&#8203;(boolean&nbsp;interruptIfRunning)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#cancelWork()">cancelWork</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Cancels any work being done by <a href="#doWork()"><code>doWork()</code></a>.</div>
 </td>
 </tr>
@@ -216,34 +229,45 @@ implements <a href="https://developer.android.com/reference/java/util/concurrent
 <td class="colFirst"><code>protected abstract <a href="RunnableFutureTask.html" title="type parameter in RunnableFutureTask">R</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#doWork()">doWork</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Performs the work or computation.</div>
 </td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="RunnableFutureTask.html" title="type parameter in RunnableFutureTask">R</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#get()">get</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code><a href="RunnableFutureTask.html" title="type parameter in RunnableFutureTask">R</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#get(long,java.util.concurrent.TimeUnit)">get</a></span>&#8203;(long&nbsp;timeout,
    <a href="https://developer.android.com/reference/java/util/concurrent/TimeUnit.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">TimeUnit</a>&nbsp;unit)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isCancelled()">isCancelled</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isDone()">isDone</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#run()">run</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -276,6 +300,7 @@ implements <a href="https://developer.android.com/reference/java/util/concurrent
 <li class="blockList">
 <h4>RunnableFutureTask</h4>
 <pre>protected&nbsp;RunnableFutureTask()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -295,6 +320,7 @@ implements <a href="https://developer.android.com/reference/java/util/concurrent
 <li class="blockList">
 <h4>blockUntilStarted</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;blockUntilStarted()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Blocks until the task has started, or has been canceled without having been started.</div>
 </li>
 </ul>
@@ -305,6 +331,7 @@ implements <a href="https://developer.android.com/reference/java/util/concurrent
 <li class="blockList">
 <h4>blockUntilFinished</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;blockUntilFinished()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Blocks until the task has finished, or has been canceled without having been started.</div>
 </li>
 </ul>
@@ -317,6 +344,7 @@ implements <a href="https://developer.android.com/reference/java/util/concurrent
 <pre class="methodSignature">public final&nbsp;<a href="RunnableFutureTask.html" title="type parameter in RunnableFutureTask">R</a>&nbsp;get()
             throws <a href="https://developer.android.com/reference/java/util/concurrent/ExecutionException.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">ExecutionException</a>,
                    <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" class="externalLink" target="_top">InterruptedException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/util/concurrent/Future.html#get()" title="class or interface in java.util.concurrent" class="externalLink">get</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent" class="externalLink">Future</a>&lt;<a href="RunnableFutureTask.html" title="type parameter in RunnableFutureTask" target="_top">R</a>&gt;</code></dd>
@@ -337,6 +365,7 @@ implements <a href="https://developer.android.com/reference/java/util/concurrent
             throws <a href="https://developer.android.com/reference/java/util/concurrent/ExecutionException.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">ExecutionException</a>,
                    <a href="https://developer.android.com/reference/java/lang/InterruptedException.html" title="class or interface in java.lang" class="externalLink" target="_top">InterruptedException</a>,
                    <a href="https://developer.android.com/reference/java/util/concurrent/TimeoutException.html" title="class or interface in java.util.concurrent" class="externalLink" target="_top">TimeoutException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/util/concurrent/Future.html#get(long,java.util.concurrent.TimeUnit)" title="class or interface in java.util.concurrent" class="externalLink">get</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent" class="externalLink">Future</a>&lt;<a href="RunnableFutureTask.html" title="type parameter in RunnableFutureTask" target="_top">R</a>&gt;</code></dd>
@@ -354,6 +383,7 @@ implements <a href="https://developer.android.com/reference/java/util/concurrent
 <li class="blockList">
 <h4>cancel</h4>
 <pre class="methodSignature">public final&nbsp;boolean&nbsp;cancel&#8203;(boolean&nbsp;interruptIfRunning)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/util/concurrent/Future.html#cancel(boolean)" title="class or interface in java.util.concurrent" class="externalLink">cancel</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent" class="externalLink">Future</a>&lt;<a href="RunnableFutureTask.html" title="type parameter in RunnableFutureTask" target="_top">R</a>&gt;</code></dd>
@@ -367,6 +397,7 @@ implements <a href="https://developer.android.com/reference/java/util/concurrent
 <li class="blockList">
 <h4>isDone</h4>
 <pre class="methodSignature">public final&nbsp;boolean&nbsp;isDone()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/util/concurrent/Future.html#isDone()" title="class or interface in java.util.concurrent" class="externalLink">isDone</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent" class="externalLink">Future</a>&lt;<a href="RunnableFutureTask.html" title="type parameter in RunnableFutureTask" target="_top">R</a>&gt;</code></dd>
@@ -380,6 +411,7 @@ implements <a href="https://developer.android.com/reference/java/util/concurrent
 <li class="blockList">
 <h4>isCancelled</h4>
 <pre class="methodSignature">public final&nbsp;boolean&nbsp;isCancelled()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/util/concurrent/Future.html#isCancelled()" title="class or interface in java.util.concurrent" class="externalLink">isCancelled</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/util/concurrent/Future.html?is-external=true" title="class or interface in java.util.concurrent" class="externalLink">Future</a>&lt;<a href="RunnableFutureTask.html" title="type parameter in RunnableFutureTask" target="_top">R</a>&gt;</code></dd>
@@ -393,6 +425,7 @@ implements <a href="https://developer.android.com/reference/java/util/concurrent
 <li class="blockList">
 <h4>run</h4>
 <pre class="methodSignature">public final&nbsp;void&nbsp;run()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Runnable.html#run()" title="class or interface in java.lang" class="externalLink">run</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Runnable.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Runnable</a></code></dd>
@@ -409,6 +442,7 @@ implements <a href="https://developer.android.com/reference/java/util/concurrent
 <h4>doWork</h4>
 <pre class="methodSignature">protected abstract&nbsp;<a href="RunnableFutureTask.html" title="type parameter in RunnableFutureTask">R</a>&nbsp;doWork()
                      throws <a href="RunnableFutureTask.html" title="type parameter in RunnableFutureTask">E</a> extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Performs the work or computation.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -426,6 +460,7 @@ implements <a href="https://developer.android.com/reference/java/util/concurrent
 <li class="blockList">
 <h4>cancelWork</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;cancelWork()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Cancels any work being done by <a href="#doWork()"><code>doWork()</code></a>. If <a href="#doWork()"><code>doWork()</code></a> is currently executing
  then the thread on which it's executing may be interrupted immediately after this method
  returns.

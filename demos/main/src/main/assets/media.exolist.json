@@ -407,6 +407,18 @@
         "uri": "ssai://dai.google.com/?contentSourceId=2559737&videoId=tos-dash&format=0&adsId=1"
       },
       {
+        "name": "DASH live: Tears of Steel (mid), 3 ads each [10 s]",
+        "uri": "ssai://dai.google.com/?assetKey=jNVjPZwzSkyeGiaNQTPqiQ&format=0&adsId=1"
+      },
+      {
+        "name": "DASH live: New Tears of Steel (mid), 3 ads each [10 s]",
+        "uri": "ssai://dai.google.com/?assetKey=PSzZMzAkSXCmlJOWDmRj8Q&format=0&adsId=12"
+      },
+      {
+        "name": "DASH live: Unencrypted stream with 30s ad breaks every minute",
+        "uri": "ssai://dai.google.com/?assetKey=0ndl1dJcRmKDUPxTRjvdog&format=0&adsId=21"
+      },
+      {
         "name": "Playlist: No ads - HLS VOD: Demo (skippable pre/post) - No ads",
         "playlist": [
           {
@@ -428,20 +440,6 @@
           },
           {
             "uri": "ssai://dai.google.com/?contentSourceId=2528370&videoId=tears-of-steel&format=2&adsId=1"
-          },
-          {
-            "uri": "https://html5demos.com/assets/dizzy.mp4"
-          }
-        ]
-      },
-      {
-        "name": "Playlist: No ads - HLS Live: Big Buck Bunny (mid) - No ads",
-        "playlist": [
-          {
-            "uri": "https://html5demos.com/assets/dizzy.mp4"
-          },
-          {
-            "uri": "ssai://dai.google.com/?assetKey=sN_IYUG8STe1ZzhIIE_ksA&format=2&adsId=3"
           },
           {
             "uri": "https://html5demos.com/assets/dizzy.mp4"
@@ -494,13 +492,25 @@
         ]
       },
       {
-        "name": "Audio -> Video -> Audio",
+        "name": "Audio -> Video (MKV) -> Video (MKV) -> Audio -> Video (MKV) -> Video (DASH) -> Audio",
         "playlist": [
           {
             "uri": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/audio-141.mp4"
           },
           {
             "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mkv/android-screens-lavf-56.36.100-aac-avc-main-1280x720.mkv"
+          },
+          {
+            "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mkv/android-screens-lavf-56.36.100-aac-avc-main-1280x720.mkv"
+          },
+          {
+            "uri": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/audio-141.mp4"
+          },
+          {
+            "uri": "https://storage.googleapis.com/exoplayer-test-media-1/mkv/android-screens-lavf-56.36.100-aac-avc-main-1280x720.mkv"
+          },
+          {
+            "uri": "https://storage.googleapis.com/wvmedia/clear/h264/tears/tears.mpd"
           },
           {
             "uri": "https://storage.googleapis.com/exoplayer-test-media-1/gen-3/screens/dash-vod-single-segment/audio-141.mp4"

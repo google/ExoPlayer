@@ -147,8 +147,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="https://developer.android.com/reference/java/io/Serializable.html" title="class or interface in java.io" class="externalLink" target="_top">Serializable</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">IllegalSeekPositionException</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">IllegalSeekPositionException</span>
 extends <a href="https://developer.android.com/reference/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="externalLink" target="_top">IllegalStateException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Thrown when an attempt is made to seek to a position that does not exist in the player's <a href="Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a>.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -178,6 +184,7 @@ extends <a href="https://developer.android.com/reference/java/lang/IllegalStateE
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#positionMs">positionMs</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The seek position in the specified window.</div>
 </td>
 </tr>
@@ -185,6 +192,7 @@ extends <a href="https://developer.android.com/reference/java/lang/IllegalStateE
 <td class="colFirst"><code><a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#timeline">timeline</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> in which the seek was attempted.</div>
 </td>
 </tr>
@@ -192,6 +200,7 @@ extends <a href="https://developer.android.com/reference/java/lang/IllegalStateE
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#windowIndex">windowIndex</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The index of the window being seeked to.</div>
 </td>
 </tr>
@@ -216,7 +225,9 @@ extends <a href="https://developer.android.com/reference/java/lang/IllegalStateE
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.Timeline,int,long)">IllegalSeekPositionException</a></span>&#8203;(<a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
                             int&nbsp;windowIndex,
                             long&nbsp;positionMs)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -266,6 +277,7 @@ extends <a href="https://developer.android.com/reference/java/lang/IllegalStateE
 <li class="blockList">
 <h4>timeline</h4>
 <pre>public final&nbsp;<a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a> timeline</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> in which the seek was attempted.</div>
 </li>
 </ul>
@@ -276,6 +288,7 @@ extends <a href="https://developer.android.com/reference/java/lang/IllegalStateE
 <li class="blockList">
 <h4>windowIndex</h4>
 <pre>public final&nbsp;int windowIndex</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The index of the window being seeked to.</div>
 </li>
 </ul>
@@ -286,6 +299,7 @@ extends <a href="https://developer.android.com/reference/java/lang/IllegalStateE
 <li class="blockList">
 <h4>positionMs</h4>
 <pre>public final&nbsp;long positionMs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The seek position in the specified window.</div>
 </li>
 </ul>
@@ -308,6 +322,7 @@ extends <a href="https://developer.android.com/reference/java/lang/IllegalStateE
 <pre>public&nbsp;IllegalSeekPositionException&#8203;(<a href="Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a>&nbsp;timeline,
                                     int&nbsp;windowIndex,
                                     long&nbsp;positionMs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>timeline</code> - The <a href="Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> in which the seek was attempted.</dd>

@@ -45,7 +45,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * <p>To delete a SimpleCache, use {@link #delete(File, DatabaseProvider)} rather than deleting the
  * directory and its contents directly. This is necessary to ensure that associated index data is
  * also removed.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 public final class SimpleCache implements Cache {
 
   private static final String TAG = "SimpleCache";
@@ -136,48 +142,12 @@ public final class SimpleCache implements Cache {
   @Deprecated
   @SuppressWarnings("deprecation")
   public SimpleCache(File cacheDir, CacheEvictor evictor) {
-    this(cacheDir, evictor, null, false);
-  }
-
-  /**
-   * Constructs the cache. The cache will delete any unrecognized files from the directory. Hence
-   * the directory cannot be used to store other files.
-   *
-   * @param cacheDir A dedicated cache directory.
-   * @param evictor The evictor to be used. For download use cases where cache eviction should not
-   *     occur, use {@link NoOpCacheEvictor}.
-   * @param secretKey If not null, cache keys will be stored encrypted on filesystem using AES/CBC.
-   *     The key must be 16 bytes long.
-   * @deprecated Use a constructor that takes a {@link DatabaseProvider} for improved performance.
-   */
-  @Deprecated
-  @SuppressWarnings("deprecation")
-  public SimpleCache(File cacheDir, CacheEvictor evictor, @Nullable byte[] secretKey) {
-    this(cacheDir, evictor, secretKey, secretKey != null);
-  }
-
-  /**
-   * Constructs the cache. The cache will delete any unrecognized files from the directory. Hence
-   * the directory cannot be used to store other files.
-   *
-   * @param cacheDir A dedicated cache directory.
-   * @param evictor The evictor to be used. For download use cases where cache eviction should not
-   *     occur, use {@link NoOpCacheEvictor}.
-   * @param secretKey If not null, cache keys will be stored encrypted on filesystem using AES/CBC.
-   *     The key must be 16 bytes long.
-   * @param encrypt Whether the index will be encrypted when written. Must be false if {@code
-   *     secretKey} is null.
-   * @deprecated Use a constructor that takes a {@link DatabaseProvider} for improved performance.
-   */
-  @Deprecated
-  public SimpleCache(
-      File cacheDir, CacheEvictor evictor, @Nullable byte[] secretKey, boolean encrypt) {
     this(
         cacheDir,
         evictor,
         /* databaseProvider= */ null,
-        secretKey,
-        encrypt,
+        /* legacyIndexSecretKey= */ null,
+        /* legacyIndexEncrypt= */ false,
         /* preferLegacyIndex= */ true);
   }
 

@@ -21,7 +21,15 @@ import com.google.android.exoplayer2.source.rtsp.RtspMessageChannel.InterleavedB
 import com.google.android.exoplayer2.upstream.DataSource;
 import java.io.IOException;
 
-/** An RTP {@link DataSource}. */
+/**
+ * An RTP {@link DataSource}.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 /* package */ interface RtpDataChannel extends DataSource {
 
   /** Creates {@link RtpDataChannel} for RTSP streams. */
@@ -50,6 +58,9 @@ import java.io.IOException;
    * C#INDEX_UNSET} if the data channel is not opened.
    */
   int getLocalPort();
+
+  /** Returns whether the {@code RtpDataChannel} needs to be closed when loading completes. */
+  boolean needsClosingOnLoadCompletion();
 
   /**
    * Returns a {@link InterleavedBinaryDataListener} if the implementation supports receiving RTP

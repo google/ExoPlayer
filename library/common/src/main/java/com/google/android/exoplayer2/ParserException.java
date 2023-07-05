@@ -19,7 +19,15 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C.DataType;
 import java.io.IOException;
 
-/** Thrown when an error occurs parsing media data and metadata. */
+/**
+ * Thrown when an error occurs parsing media data and metadata.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public class ParserException extends IOException {
 
   /**
@@ -104,5 +112,16 @@ public class ParserException extends IOException {
     super(message, cause);
     this.contentIsMalformed = contentIsMalformed;
     this.dataType = dataType;
+  }
+
+  @Nullable
+  @Override
+  public String getMessage() {
+    return super.getMessage()
+        + "{contentIsMalformed="
+        + contentIsMalformed
+        + ", dataType="
+        + dataType
+        + "}";
   }
 }

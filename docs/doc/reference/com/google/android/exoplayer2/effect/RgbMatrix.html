@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":6,"i1":18};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"]};
+var data = {"i0":38,"i1":50};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -126,11 +126,17 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 </dl>
 <dl>
 <dt>All Known Implementing Classes:</dt>
-<dd><code><a href="RgbAdjustment.html" title="class in com.google.android.exoplayer2.effect">RgbAdjustment</a></code>, <code><a href="RgbFilter.html" title="class in com.google.android.exoplayer2.effect">RgbFilter</a></code></dd>
+<dd><code><a href="Brightness.html" title="class in com.google.android.exoplayer2.effect">Brightness</a></code>, <code><a href="Contrast.html" title="class in com.google.android.exoplayer2.effect">Contrast</a></code>, <code><a href="RgbAdjustment.html" title="class in com.google.android.exoplayer2.effect">RgbAdjustment</a></code>, <code><a href="RgbFilter.html" title="class in com.google.android.exoplayer2.effect">RgbFilter</a></code></dd>
 </dl>
 <hr>
-<pre>public interface <span class="typeNameLabel">RgbMatrix</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public interface <span class="typeNameLabel">RgbMatrix</span>
 extends <a href="GlEffect.html" title="interface in com.google.android.exoplayer2.effect">GlEffect</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">Specifies a 4x4 RGB color transformation matrix to apply to each frame in the fragment shader.</div>
 </li>
 </ul>
@@ -146,7 +152,7 @@ extends <a href="GlEffect.html" title="interface in com.google.android.exoplayer
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t5" class="tableTab"><span><a href="javascript:show(16);">Default Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -157,19 +163,28 @@ extends <a href="GlEffect.html" title="interface in com.google.android.exoplayer
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMatrix(long,boolean)">getMatrix</a></span>&#8203;(long&nbsp;presentationTimeUs,
          boolean&nbsp;useHdr)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the 4x4 RGB transformation <a href="https://developer.android.com/reference/android/opengl/Matrix.html" title="class or interface in android.opengl" class="externalLink" target="_top">matrix</a> to apply to the
  color values of each pixel in the frame with the given timestamp.</div>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>default <a href="SingleFrameGlTextureProcessor.html" title="class in com.google.android.exoplayer2.effect">SingleFrameGlTextureProcessor</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toGlTextureProcessor(android.content.Context,boolean)">toGlTextureProcessor</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
-                    boolean&nbsp;useHdr)</code></th>
+<td class="colFirst"><code>default <a href="SingleFrameGlShaderProgram.html" title="class in com.google.android.exoplayer2.effect">SingleFrameGlShaderProgram</a></code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toGlShaderProgram(android.content.Context,boolean)">toGlShaderProgram</a></span>&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                 boolean&nbsp;useHdr)</code></th>
 <td class="colLast">
-<div class="block">Returns a <a href="SingleFrameGlTextureProcessor.html" title="class in com.google.android.exoplayer2.effect"><code>SingleFrameGlTextureProcessor</code></a> that applies the effect.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns a <a href="GlShaderProgram.html" title="interface in com.google.android.exoplayer2.effect"><code>GlShaderProgram</code></a> that applies the effect.</div>
 </td>
 </tr>
 </table>
+<ul class="blockList">
+<li class="blockList"><a id="methods.inherited.from.class.com.google.android.exoplayer2.effect.GlEffect">
+<!--   -->
+</a>
+<h3>Methods inherited from interface&nbsp;com.google.android.exoplayer2.effect.<a href="GlEffect.html" title="interface in com.google.android.exoplayer2.effect">GlEffect</a></h3>
+<code><a href="GlEffect.html#isNoOp(int,int)">isNoOp</a></code></li>
+</ul>
 </li>
 </ul>
 </section>
@@ -194,38 +209,40 @@ extends <a href="GlEffect.html" title="interface in com.google.android.exoplayer
 <h4>getMatrix</h4>
 <pre class="methodSignature">float[]&nbsp;getMatrix&#8203;(long&nbsp;presentationTimeUs,
                   boolean&nbsp;useHdr)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the 4x4 RGB transformation <a href="https://developer.android.com/reference/android/opengl/Matrix.html" title="class or interface in android.opengl" class="externalLink" target="_top">matrix</a> to apply to the
  color values of each pixel in the frame with the given timestamp.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>presentationTimeUs</code> - The timestamp of the frame to apply the matrix on.</dd>
 <dd><code>useHdr</code> - If <code>true</code>, colors will be in linear RGB BT.2020. If <code>false</code>, colors
-     will be in linear RGB BT.709. Must be consistent with <code>useHdr</code> in <a href="#toGlTextureProcessor(android.content.Context,boolean)"><code>toGlTextureProcessor(Context, boolean)</code></a>.</dd>
+     will be in linear RGB BT.709. Must be consistent with <code>useHdr</code> in <a href="#toGlShaderProgram(android.content.Context,boolean)"><code>toGlShaderProgram(Context, boolean)</code></a>.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The <code>RgbMatrix</code> to apply to the frame.</dd>
 </dl>
 </li>
 </ul>
-<a id="toGlTextureProcessor(android.content.Context,boolean)">
+<a id="toGlShaderProgram(android.content.Context,boolean)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>toGlTextureProcessor</h4>
-<pre class="methodSignature">default&nbsp;<a href="SingleFrameGlTextureProcessor.html" title="class in com.google.android.exoplayer2.effect">SingleFrameGlTextureProcessor</a>&nbsp;toGlTextureProcessor&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
-                                                           boolean&nbsp;useHdr)
-                                                    throws <a href="../util/FrameProcessingException.html" title="class in com.google.android.exoplayer2.util">FrameProcessingException</a></pre>
-<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="GlEffect.html#toGlTextureProcessor(android.content.Context,boolean)">GlEffect</a></code></span></div>
-<div class="block">Returns a <a href="SingleFrameGlTextureProcessor.html" title="class in com.google.android.exoplayer2.effect"><code>SingleFrameGlTextureProcessor</code></a> that applies the effect.</div>
+<h4>toGlShaderProgram</h4>
+<pre class="methodSignature">default&nbsp;<a href="SingleFrameGlShaderProgram.html" title="class in com.google.android.exoplayer2.effect">SingleFrameGlShaderProgram</a>&nbsp;toGlShaderProgram&#8203;(<a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top">Context</a>&nbsp;context,
+                                                     boolean&nbsp;useHdr)
+                                              throws <a href="../util/VideoFrameProcessingException.html" title="class in com.google.android.exoplayer2.util">VideoFrameProcessingException</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="GlEffect.html#toGlShaderProgram(android.content.Context,boolean)">GlEffect</a></code></span></div>
+<div class="block">Returns a <a href="GlShaderProgram.html" title="interface in com.google.android.exoplayer2.effect"><code>GlShaderProgram</code></a> that applies the effect.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
-<dd><code><a href="GlEffect.html#toGlTextureProcessor(android.content.Context,boolean)">toGlTextureProcessor</a></code>&nbsp;in interface&nbsp;<code><a href="GlEffect.html" title="interface in com.google.android.exoplayer2.effect">GlEffect</a></code></dd>
+<dd><code><a href="GlEffect.html#toGlShaderProgram(android.content.Context,boolean)">toGlShaderProgram</a></code>&nbsp;in interface&nbsp;<code><a href="GlEffect.html" title="interface in com.google.android.exoplayer2.effect">GlEffect</a></code></dd>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>context</code> - A <a href="https://developer.android.com/reference/android/content/Context.html" title="class or interface in android.content" class="externalLink" target="_top"><code>Context</code></a>.</dd>
 <dd><code>useHdr</code> - Whether input textures come from an HDR source. If <code>true</code>, colors will be
      in linear RGB BT.2020. If <code>false</code>, colors will be in linear RGB BT.709.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code><a href="../util/FrameProcessingException.html" title="class in com.google.android.exoplayer2.util">FrameProcessingException</a></code></dd>
+<dd><code><a href="../util/VideoFrameProcessingException.html" title="class in com.google.android.exoplayer2.util">VideoFrameProcessingException</a></code> - If an error occurs while creating the <a href="GlShaderProgram.html" title="interface in com.google.android.exoplayer2.effect"><code>GlShaderProgram</code></a>.</dd>
 </dl>
 </li>
 </ul>

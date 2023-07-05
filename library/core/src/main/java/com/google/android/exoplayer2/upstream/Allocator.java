@@ -17,7 +17,15 @@ package com.google.android.exoplayer2.upstream;
 
 import androidx.annotation.Nullable;
 
-/** A source of allocations. */
+/**
+ * A source of allocations.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public interface Allocator {
 
   /** A node in a chain of {@link Allocation Allocations}. */

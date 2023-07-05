@@ -110,6 +110,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>isRecoverable</h4>
 <pre>boolean isRecoverable</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If <a href="com/google/android/exoplayer2/ExoPlaybackException.html#type"><code>ExoPlaybackException.type</code></a> is <a href="com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_RENDERER"><code>ExoPlaybackException.TYPE_RENDERER</code></a>, this field indicates whether the error may be
  recoverable by disabling and re-enabling (but <em>not</em> resetting) the renderers. For other
  <a href="com/google/android/exoplayer2/ExoPlaybackException.Type.html" title="annotation in com.google.android.exoplayer2"><code>types</code></a> this field will always be <code>false</code>.</div>
@@ -117,33 +118,39 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>mediaPeriodId</h4>
 <pre><a href="com/google/android/exoplayer2/source/MediaPeriodId.html" title="class in com.google.android.exoplayer2.source">MediaPeriodId</a> mediaPeriodId</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="com/google/android/exoplayer2/source/MediaPeriodId.html" title="class in com.google.android.exoplayer2.source"><code>MediaPeriodId</code></a> of the media associated with this error, or null if undetermined.</div>
 </li>
 <li class="blockList">
 <h4>rendererFormat</h4>
 <pre><a href="com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2">Format</a> rendererFormat</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If <a href="com/google/android/exoplayer2/ExoPlaybackException.html#type"><code>ExoPlaybackException.type</code></a> is <a href="com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_RENDERER"><code>ExoPlaybackException.TYPE_RENDERER</code></a>, this is the <a href="com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> the renderer was using
  at the time of the exception, or null if the renderer wasn't using a <a href="com/google/android/exoplayer2/Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a>.</div>
 </li>
 <li class="blockList">
 <h4>rendererFormatSupport</h4>
 <pre>@com.google.android.exoplayer2.C.FormatSupport int rendererFormatSupport</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If <a href="com/google/android/exoplayer2/ExoPlaybackException.html#type"><code>ExoPlaybackException.type</code></a> is <a href="com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_RENDERER"><code>ExoPlaybackException.TYPE_RENDERER</code></a>, this is the level of <a href="com/google/android/exoplayer2/C.FormatSupport.html" title="annotation in com.google.android.exoplayer2"><code>C.FormatSupport</code></a> of the
  renderer for <a href="com/google/android/exoplayer2/ExoPlaybackException.html#rendererFormat"><code>ExoPlaybackException.rendererFormat</code></a>. If <a href="com/google/android/exoplayer2/ExoPlaybackException.html#rendererFormat"><code>ExoPlaybackException.rendererFormat</code></a> is null, this is <a href="com/google/android/exoplayer2/C.html#FORMAT_HANDLED"><code>C.FORMAT_HANDLED</code></a>.</div>
 </li>
 <li class="blockList">
 <h4>rendererIndex</h4>
 <pre>int rendererIndex</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If <a href="com/google/android/exoplayer2/ExoPlaybackException.html#type"><code>ExoPlaybackException.type</code></a> is <a href="com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_RENDERER"><code>ExoPlaybackException.TYPE_RENDERER</code></a>, this is the index of the renderer.</div>
 </li>
 <li class="blockList">
 <h4>rendererName</h4>
 <pre><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> rendererName</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">If <a href="com/google/android/exoplayer2/ExoPlaybackException.html#type"><code>ExoPlaybackException.type</code></a> is <a href="com/google/android/exoplayer2/ExoPlaybackException.html#TYPE_RENDERER"><code>ExoPlaybackException.TYPE_RENDERER</code></a>, this is the name of the renderer.</div>
 </li>
 <li class="blockListLast">
 <h4>type</h4>
 <pre>@com.google.android.exoplayer2.ExoPlaybackException.Type int type</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="com/google/android/exoplayer2/ExoPlaybackException.Type.html" title="annotation in com.google.android.exoplayer2"><code>ExoPlaybackException.Type</code></a> of the playback failure.</div>
 </li>
 </ul>
@@ -161,6 +168,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockListLast">
 <h4>timeoutOperation</h4>
 <pre>@com.google.android.exoplayer2.ExoTimeoutException.TimeoutOperation int timeoutOperation</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The operation on the ExoPlayer playback thread that timed out.</div>
 </li>
 </ul>
@@ -178,16 +186,19 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>positionMs</h4>
 <pre>long positionMs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The seek position in the specified window.</div>
 </li>
 <li class="blockList">
 <h4>timeline</h4>
 <pre><a href="com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2">Timeline</a> timeline</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="com/google/android/exoplayer2/Timeline.html" title="class in com.google.android.exoplayer2"><code>Timeline</code></a> in which the seek was attempted.</div>
 </li>
 <li class="blockListLast">
 <h4>windowIndex</h4>
 <pre>int windowIndex</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The index of the window being seeked to.</div>
 </li>
 </ul>
@@ -205,12 +216,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>contentIsMalformed</h4>
 <pre>boolean contentIsMalformed</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the parsing error was caused by a bitstream not following the expected format. May be
  false when a parser encounters a legal condition which it does not support.</div>
 </li>
 <li class="blockListLast">
 <h4>dataType</h4>
 <pre>int dataType</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="com/google/android/exoplayer2/C.DataType.html" title="annotation in com.google.android.exoplayer2"><code>data type</code></a> of the parsed bitstream.</div>
 </li>
 </ul>
@@ -228,11 +241,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>errorCode</h4>
 <pre>@com.google.android.exoplayer2.PlaybackException.ErrorCode int errorCode</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">An error code which identifies the cause of the playback failure.</div>
 </li>
 <li class="blockListLast">
 <h4>timestampMs</h4>
 <pre>long timestampMs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The value of <a href="https://developer.android.com/reference/android/os/SystemClock.html#elapsedRealtime()" title="class or interface in android.os" class="externalLink" target="_top"><code>SystemClock.elapsedRealtime()</code></a> when this exception was created.</div>
 </li>
 </ul>
@@ -381,6 +396,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockListLast">
 <h4>errorCode</h4>
 <pre>int errorCode</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A component specific error code.</div>
 </li>
 </ul>
@@ -464,21 +480,25 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>bytesLoaded</h4>
 <pre>long bytesLoaded</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The number of bytes obtained from the server.</div>
 </li>
 <li class="blockList">
 <h4>dataSpec</h4>
 <pre><a href="com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream">DataSpec</a> dataSpec</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="com/google/android/exoplayer2/upstream/DataSpec.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSpec</code></a> associated with the request.</div>
 </li>
 <li class="blockList">
 <h4>responseHeaders</h4>
 <pre><a href="https://developer.android.com/reference/java/util/Map.html" title="class or interface in java.util" class="externalLink">Map</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink">String</a>,&#8203;<a href="https://developer.android.com/reference/java/util/List.html?is-external=true" title="class or interface in java.util" class="externalLink">List</a>&lt;<a href="https://developer.android.com/reference/java/lang/String.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&gt;&gt; responseHeaders</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The HTTP request headers included in the response.</div>
 </li>
 <li class="blockListLast">
 <h4>uriAfterRedirects</h4>
 <pre><a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a> uriAfterRedirects</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink"><code>Uri</code></a> after redirections, or <a href="com/google/android/exoplayer2/drm/MediaDrmCallbackException.html#dataSpec" target="_top"><code>dataSpec.uri</code></a> if no redirection
  occurred.</div>
 </li>
@@ -497,6 +517,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockListLast">
 <h4>reason</h4>
 <pre>@com.google.android.exoplayer2.drm.UnsupportedDrmException.Reason int reason</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Either <a href="com/google/android/exoplayer2/drm/UnsupportedDrmException.html#REASON_UNSUPPORTED_SCHEME"><code>UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME</code></a> or <a href="com/google/android/exoplayer2/drm/UnsupportedDrmException.html#REASON_INSTANTIATION_ERROR"><code>UnsupportedDrmException.REASON_INSTANTIATION_ERROR</code></a>.</div>
 </li>
 </ul>
@@ -634,11 +655,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>codecInfo</h4>
 <pre><a href="com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec">MediaCodecInfo</a> codecInfo</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="com/google/android/exoplayer2/mediacodec/MediaCodecInfo.html" title="class in com.google.android.exoplayer2.mediacodec"><code>MediaCodecInfo</code></a> of the decoder that failed. Null if unknown.</div>
 </li>
 <li class="blockListLast">
 <h4>diagnosticInfo</h4>
 <pre><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> diagnosticInfo</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">An optional developer-readable diagnostic information string. May be null.</div>
 </li>
 </ul>
@@ -674,7 +697,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>mimeType</h4>
 <pre><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a> mimeType</pre>
-<div class="block">The mime type for which a decoder was being initialized.</div>
+<div class="block">The MIME type for which a decoder was being initialized.</div>
 </li>
 <li class="blockListLast">
 <h4>secureDecoderRequired</h4>
@@ -769,6 +792,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockListLast">
 <h4>uri</h4>
 <pre><a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top">Uri</a> uri</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="https://developer.android.com/reference/android/net/Uri.html" title="class or interface in android.net" class="externalLink" target="_top"><code>Uri</code></a> from which the unrecognized data was read.</div>
 </li>
 </ul>
@@ -929,6 +953,30 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <section role="region">
 <h2 title="Package">Package&nbsp;com.google.android.exoplayer2.transformer</h2>
 <ul class="blockList">
+<li class="blockList"><a id="com.google.android.exoplayer2.transformer.ExportException">
+<!--   -->
+</a>
+<h3>Class <a href="com/google/android/exoplayer2/transformer/ExportException.html" title="class in com.google.android.exoplayer2.transformer">com.google.android.exoplayer2.transformer.ExportException</a> extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a> implements Serializable</h3>
+<ul class="blockList">
+<li class="blockList">
+<h3>Serialized Fields</h3>
+<ul class="blockList">
+<li class="blockList">
+<h4>errorCode</h4>
+<pre>@com.google.android.exoplayer2.transformer.ExportException.ErrorCode int errorCode</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">An error code which identifies the cause of the export failure.</div>
+</li>
+<li class="blockListLast">
+<h4>timestampMs</h4>
+<pre>long timestampMs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">The value of <a href="https://developer.android.com/reference/android/os/SystemClock.html#elapsedRealtime()" title="class or interface in android.os" class="externalLink" target="_top"><code>SystemClock.elapsedRealtime()</code></a> when this exception was created.</div>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="blockList"><a id="com.google.android.exoplayer2.transformer.Muxer.MuxerException">
 <!--   -->
 </a>
@@ -945,11 +993,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>errorCode</h4>
 <pre>@com.google.android.exoplayer2.transformer.TransformationException.ErrorCode int errorCode</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">An error code which identifies the cause of the transformation failure.</div>
 </li>
 <li class="blockListLast">
 <h4>timestampMs</h4>
 <pre>long timestampMs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The value of <a href="https://developer.android.com/reference/android/os/SystemClock.html#elapsedRealtime()" title="class or interface in android.os" class="externalLink" target="_top"><code>SystemClock.elapsedRealtime()</code></a> when this exception was created.</div>
 </li>
 </ul>
@@ -984,6 +1034,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockListLast">
 <h4>reason</h4>
 <pre>@com.google.android.exoplayer2.PlaybackException.ErrorCode int reason</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The reason of this <a href="com/google/android/exoplayer2/upstream/DataSourceException.html" title="class in com.google.android.exoplayer2.upstream"><code>DataSourceException</code></a>, should be one of the <code>ERROR_CODE_IO_*</code> in
  <a href="com/google/android/exoplayer2/PlaybackException.ErrorCode.html" title="annotation in com.google.android.exoplayer2"><code>PlaybackException.ErrorCode</code></a>.</div>
 </li>
@@ -1109,23 +1160,6 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <section role="region">
 <h2 title="Package">Package&nbsp;com.google.android.exoplayer2.util</h2>
 <ul class="blockList">
-<li class="blockList"><a id="com.google.android.exoplayer2.util.FrameProcessingException">
-<!--   -->
-</a>
-<h3>Class <a href="com/google/android/exoplayer2/util/FrameProcessingException.html" title="class in com.google.android.exoplayer2.util">com.google.android.exoplayer2.util.FrameProcessingException</a> extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a> implements Serializable</h3>
-<ul class="blockList">
-<li class="blockList">
-<h3>Serialized Fields</h3>
-<ul class="blockList">
-<li class="blockListLast">
-<h4>presentationTimeUs</h4>
-<pre>long presentationTimeUs</pre>
-<div class="block">The microsecond timestamp of the frame being processed while the exception occurred or <a href="com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if unknown.</div>
-</li>
-</ul>
-</li>
-</ul>
-</li>
 <li class="blockList"><a id="com.google.android.exoplayer2.util.GlUtil.GlException">
 <!--   -->
 </a>
@@ -1135,6 +1169,24 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <!--   -->
 </a>
 <h3>Class <a href="com/google/android/exoplayer2/util/PriorityTaskManager.PriorityTooLowException.html" title="class in com.google.android.exoplayer2.util">com.google.android.exoplayer2.util.PriorityTaskManager.PriorityTooLowException</a> extends <a href="https://developer.android.com/reference/java/io/IOException.html" title="class or interface in java.io" class="externalLink" target="_top">IOException</a> implements Serializable</h3>
+</li>
+<li class="blockList"><a id="com.google.android.exoplayer2.util.VideoFrameProcessingException">
+<!--   -->
+</a>
+<h3>Class <a href="com/google/android/exoplayer2/util/VideoFrameProcessingException.html" title="class in com.google.android.exoplayer2.util">com.google.android.exoplayer2.util.VideoFrameProcessingException</a> extends <a href="https://developer.android.com/reference/java/lang/Exception.html" title="class or interface in java.lang" class="externalLink" target="_top">Exception</a> implements Serializable</h3>
+<ul class="blockList">
+<li class="blockList">
+<h3>Serialized Fields</h3>
+<ul class="blockList">
+<li class="blockListLast">
+<h4>presentationTimeUs</h4>
+<pre>long presentationTimeUs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">The microsecond timestamp of the frame being processed while the exception occurred or <a href="com/google/android/exoplayer2/C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a> if unknown.</div>
+</li>
+</ul>
+</li>
+</ul>
 </li>
 </ul>
 </section>
@@ -1154,11 +1206,13 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <li class="blockList">
 <h4>isSurfaceValid</h4>
 <pre>boolean isSurfaceValid</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Whether the surface was valid when the exception occurred.</div>
 </li>
 <li class="blockListLast">
 <h4>surfaceIdentityHashCode</h4>
 <pre>int surfaceIdentityHashCode</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The <a href="https://developer.android.com/reference/java/lang/System.html#identityHashCode(java.lang.Object)" title="class or interface in java.lang" class="externalLink" target="_top"><code>System.identityHashCode(Object)</code></a> of the surface when the exception occurred.</div>
 </li>
 </ul>

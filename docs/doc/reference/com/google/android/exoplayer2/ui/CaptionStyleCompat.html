@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":9};
-var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":41};
+var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -129,8 +129,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public final class <span class="typeNameLabel">CaptionStyleCompat</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">CaptionStyleCompat</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A compatibility wrapper for <a href="https://developer.android.com/reference/android/view/accessibility/CaptioningManager.CaptionStyle.html" title="class or interface in android.view.accessibility" class="externalLink" target="_top"><code>CaptioningManager.CaptionStyle</code></a>.</div>
 </li>
 </ul>
@@ -156,6 +162,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="CaptionStyleCompat.EdgeType.html" title="annotation in com.google.android.exoplayer2.ui">CaptionStyleCompat.EdgeType</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The type of edge, which may be none.</div>
 </td>
 </tr>
@@ -181,6 +188,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#backgroundColor">backgroundColor</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The preferred background color.</div>
 </td>
 </tr>
@@ -188,6 +196,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static <a href="CaptionStyleCompat.html" title="class in com.google.android.exoplayer2.ui">CaptionStyleCompat</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#DEFAULT">DEFAULT</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default caption style.</div>
 </td>
 </tr>
@@ -195,6 +204,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EDGE_TYPE_DEPRESSED">EDGE_TYPE_DEPRESSED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Edge type value specifying depressed bevel character edges.</div>
 </td>
 </tr>
@@ -202,6 +212,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EDGE_TYPE_DROP_SHADOW">EDGE_TYPE_DROP_SHADOW</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Edge type value specifying drop-shadowed character edges.</div>
 </td>
 </tr>
@@ -209,6 +220,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EDGE_TYPE_NONE">EDGE_TYPE_NONE</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Edge type value specifying no character edges.</div>
 </td>
 </tr>
@@ -216,6 +228,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EDGE_TYPE_OUTLINE">EDGE_TYPE_OUTLINE</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Edge type value specifying uniformly outlined character edges.</div>
 </td>
 </tr>
@@ -223,6 +236,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#EDGE_TYPE_RAISED">EDGE_TYPE_RAISED</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Edge type value specifying raised bevel character edges.</div>
 </td>
 </tr>
@@ -230,6 +244,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#edgeColor">edgeColor</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The preferred edge color, if using an edge type other than <a href="#EDGE_TYPE_NONE"><code>EDGE_TYPE_NONE</code></a>.</div>
 </td>
 </tr>
@@ -237,6 +252,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>@com.google.android.exoplayer2.ui.CaptionStyleCompat.EdgeType int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#edgeType">edgeType</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The preferred edge type.</div>
 </td>
 </tr>
@@ -244,6 +260,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#foregroundColor">foregroundColor</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The preferred foreground color.</div>
 </td>
 </tr>
@@ -251,6 +268,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code><a href="https://developer.android.com/reference/android/graphics/Typeface.html" title="class or interface in android.graphics" class="externalLink" target="_top">Typeface</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#typeface">typeface</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The preferred typeface, or <code>null</code> if unspecified.</div>
 </td>
 </tr>
@@ -258,6 +276,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#USE_TRACK_COLOR_SETTINGS">USE_TRACK_COLOR_SETTINGS</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Use color setting specified by the track and fallback to default caption style.</div>
 </td>
 </tr>
@@ -265,6 +284,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#windowColor">windowColor</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The preferred window color.</div>
 </td>
 </tr>
@@ -292,7 +312,9 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
                   @com.google.android.exoplayer2.ui.CaptionStyleCompat.EdgeType int&nbsp;edgeType,
                   int&nbsp;edgeColor,
                   <a href="https://developer.android.com/reference/android/graphics/Typeface.html" title="class or interface in android.graphics" class="externalLink" target="_top">Typeface</a>&nbsp;typeface)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -306,7 +328,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -316,6 +338,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <td class="colFirst"><code>static <a href="CaptionStyleCompat.html" title="class in com.google.android.exoplayer2.ui">CaptionStyleCompat</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#createFromCaptionStyle(android.view.accessibility.CaptioningManager.CaptionStyle)">createFromCaptionStyle</a></span>&#8203;(<a href="https://developer.android.com/reference/android/view/accessibility/CaptioningManager.CaptionStyle.html" title="class or interface in android.view.accessibility" class="externalLink" target="_top">CaptioningManager.CaptionStyle</a>&nbsp;captionStyle)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a <a href="CaptionStyleCompat.html" title="class in com.google.android.exoplayer2.ui"><code>CaptionStyleCompat</code></a> equivalent to a provided <a href="https://developer.android.com/reference/android/view/accessibility/CaptioningManager.CaptionStyle.html" title="class or interface in android.view.accessibility" class="externalLink" target="_top"><code>CaptioningManager.CaptionStyle</code></a>.</div>
 </td>
 </tr>
@@ -350,6 +373,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>EDGE_TYPE_NONE</h4>
 <pre>public static final&nbsp;int EDGE_TYPE_NONE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Edge type value specifying no character edges.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -364,6 +388,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>EDGE_TYPE_OUTLINE</h4>
 <pre>public static final&nbsp;int EDGE_TYPE_OUTLINE</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Edge type value specifying uniformly outlined character edges.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -378,6 +403,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>EDGE_TYPE_DROP_SHADOW</h4>
 <pre>public static final&nbsp;int EDGE_TYPE_DROP_SHADOW</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Edge type value specifying drop-shadowed character edges.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -392,6 +418,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>EDGE_TYPE_RAISED</h4>
 <pre>public static final&nbsp;int EDGE_TYPE_RAISED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Edge type value specifying raised bevel character edges.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -406,6 +433,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>EDGE_TYPE_DEPRESSED</h4>
 <pre>public static final&nbsp;int EDGE_TYPE_DEPRESSED</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Edge type value specifying depressed bevel character edges.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -420,6 +448,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>USE_TRACK_COLOR_SETTINGS</h4>
 <pre>public static final&nbsp;int USE_TRACK_COLOR_SETTINGS</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Use color setting specified by the track and fallback to default caption style.</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
@@ -434,6 +463,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>DEFAULT</h4>
 <pre>public static final&nbsp;<a href="CaptionStyleCompat.html" title="class in com.google.android.exoplayer2.ui">CaptionStyleCompat</a> DEFAULT</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Default caption style.</div>
 </li>
 </ul>
@@ -444,6 +474,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>foregroundColor</h4>
 <pre>public final&nbsp;int foregroundColor</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The preferred foreground color.</div>
 </li>
 </ul>
@@ -454,6 +485,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>backgroundColor</h4>
 <pre>public final&nbsp;int backgroundColor</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The preferred background color.</div>
 </li>
 </ul>
@@ -464,6 +496,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>windowColor</h4>
 <pre>public final&nbsp;int windowColor</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The preferred window color.</div>
 </li>
 </ul>
@@ -474,6 +507,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>edgeType</h4>
 <pre>public final&nbsp;@com.google.android.exoplayer2.ui.CaptionStyleCompat.EdgeType int edgeType</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The preferred edge type. One of:
 
  <ul>
@@ -492,6 +526,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <li class="blockList">
 <h4>edgeColor</h4>
 <pre>public final&nbsp;int edgeColor</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The preferred edge color, if using an edge type other than <a href="#EDGE_TYPE_NONE"><code>EDGE_TYPE_NONE</code></a>.</div>
 </li>
 </ul>
@@ -503,6 +538,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <h4>typeface</h4>
 <pre>@Nullable
 public final&nbsp;<a href="https://developer.android.com/reference/android/graphics/Typeface.html" title="class or interface in android.graphics" class="externalLink" target="_top">Typeface</a> typeface</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The preferred typeface, or <code>null</code> if unspecified.</div>
 </li>
 </ul>
@@ -529,6 +565,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/graph
                           int&nbsp;edgeColor,
                           @Nullable
                           <a href="https://developer.android.com/reference/android/graphics/Typeface.html" title="class or interface in android.graphics" class="externalLink" target="_top">Typeface</a>&nbsp;typeface)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>foregroundColor</code> - See <a href="#foregroundColor"><code>foregroundColor</code></a>.</dd>
@@ -558,6 +595,7 @@ public final&nbsp;<a href="https://developer.android.com/reference/android/graph
 <h4>createFromCaptionStyle</h4>
 <pre class="methodSignature">@RequiresApi(19)
 public static&nbsp;<a href="CaptionStyleCompat.html" title="class in com.google.android.exoplayer2.ui">CaptionStyleCompat</a>&nbsp;createFromCaptionStyle&#8203;(<a href="https://developer.android.com/reference/android/view/accessibility/CaptioningManager.CaptionStyle.html" title="class or interface in android.view.accessibility" class="externalLink" target="_top">CaptioningManager.CaptionStyle</a>&nbsp;captionStyle)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Creates a <a href="CaptionStyleCompat.html" title="class in com.google.android.exoplayer2.ui"><code>CaptionStyleCompat</code></a> equivalent to a provided <a href="https://developer.android.com/reference/android/view/accessibility/CaptioningManager.CaptionStyle.html" title="class or interface in android.view.accessibility" class="externalLink" target="_top"><code>CaptioningManager.CaptionStyle</code></a>.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>

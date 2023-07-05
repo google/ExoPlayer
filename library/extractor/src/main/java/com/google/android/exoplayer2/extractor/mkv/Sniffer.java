@@ -24,7 +24,13 @@ import java.io.IOException;
 /**
  * Utility class that peeks from the input stream in order to determine whether it appears to be
  * compatible input for this extractor.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
  */
+@Deprecated
 /* package */ final class Sniffer {
 
   /** The number of bytes to search for a valid header in {@link #sniff(ExtractorInput)}. */

@@ -25,8 +25,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -133,9 +133,15 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <dd><code><a href="https://developer.android.com/reference/android/os/Parcelable.html" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a></code></dd>
 </dl>
 <hr>
-<pre>public final class <span class="typeNameLabel">Metadata</span>
+<pre><a href="https://developer.android.com/reference/java/lang/Deprecated.html" title="class or interface in java.lang" class="externalLink" target="_top">@Deprecated</a>
+public final class <span class="typeNameLabel">Metadata</span>
 extends <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>
 implements <a href="https://developer.android.com/reference/android/os/Parcelable.html" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a></pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+     contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+     migration guide</a> for more details, including a script to help with the migration.</div>
+</div>
 <div class="block">A collection of metadata entries.</div>
 </li>
 </ul>
@@ -161,6 +167,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <td class="colFirst"><code>static interface&nbsp;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata">Metadata.Entry</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">A metadata entry.</div>
 </td>
 </tr>
@@ -192,12 +199,15 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <tr class="altColor">
 <td class="colFirst"><code>static <a href="https://developer.android.com/reference/android/os/Parcelable.Creator.html" title="class or interface in android.os" class="externalLink">Parcelable.Creator</a>&lt;<a href="Metadata.html" title="class in com.google.android.exoplayer2.metadata" target="_top">Metadata</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#CREATOR">CREATOR</a></span></code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <td class="colFirst"><code>long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#presentationTimeUs">presentationTimeUs</a></span></code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The presentation time of the metadata, in microseconds.</div>
 </td>
 </tr>
@@ -228,20 +238,28 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(long,com.google.android.exoplayer2.metadata.Metadata.Entry...)">Metadata</a></span>&#8203;(long&nbsp;presentationTimeUs,
         <a href="Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata">Metadata.Entry</a>...&nbsp;entries)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(long,java.util.List)">Metadata</a></span>&#8203;(long&nbsp;presentationTimeUs,
         <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata" target="_top">Metadata.Entry</a>&gt;&nbsp;entries)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="altColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(com.google.android.exoplayer2.metadata.Metadata.Entry...)">Metadata</a></span>&#8203;(<a href="Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata">Metadata.Entry</a>...&nbsp;entries)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr class="rowColor">
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(java.util.List)">Metadata</a></span>&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata" target="_top">Metadata.Entry</a>&gt;&nbsp;entries)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -255,7 +273,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -265,6 +283,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <td class="colFirst"><code><a href="Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyWithAppendedEntries(com.google.android.exoplayer2.metadata.Metadata.Entry...)">copyWithAppendedEntries</a></span>&#8203;(<a href="Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata">Metadata.Entry</a>...&nbsp;entriesToAppend)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy of this metadata with the specified entries appended.</div>
 </td>
 </tr>
@@ -272,6 +291,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <td class="colFirst"><code><a href="Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyWithAppendedEntriesFrom(com.google.android.exoplayer2.metadata.Metadata)">copyWithAppendedEntriesFrom</a></span>&#8203;(<a href="Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;other)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy of this metadata with the entries of the specified metadata appended.</div>
 </td>
 </tr>
@@ -279,48 +299,61 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <td class="colFirst"><code><a href="Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#copyWithPresentationTimeUs(long)">copyWithPresentationTimeUs</a></span>&#8203;(long&nbsp;presentationTimeUs)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy of this metadata with the specified presentation time.</div>
 </td>
 </tr>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#describeContents()">describeContents</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#equals(java.lang.Object)">equals</a></span>&#8203;(<a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata">Metadata.Entry</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#get(int)">get</a></span>&#8203;(int&nbsp;index)</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the entry at the specified index.</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#hashCode()">hashCode</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#length()">length</a></span>()</code></th>
 <td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the number of metadata entries.</div>
 </td>
 </tr>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#toString()">toString</a></span>()</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#writeToParcel(android.os.Parcel,int)">writeToParcel</a></span>&#8203;(<a href="https://developer.android.com/reference/android/os/Parcel.html" title="class or interface in android.os" class="externalLink" target="_top">Parcel</a>&nbsp;dest,
              int&nbsp;flags)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+&nbsp;</td>
 </tr>
 </table>
 <ul class="blockList">
@@ -353,6 +386,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <li class="blockList">
 <h4>presentationTimeUs</h4>
 <pre>public final&nbsp;long presentationTimeUs</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">The presentation time of the metadata, in microseconds.
 
  <p>This time is an offset from the start of the current <a href="../Timeline.Period.html" title="class in com.google.android.exoplayer2"><code>Timeline.Period</code></a>.
@@ -367,6 +401,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <li class="blockList">
 <h4>CREATOR</h4>
 <pre>public static final&nbsp;<a href="https://developer.android.com/reference/android/os/Parcelable.Creator.html" title="class or interface in android.os" class="externalLink">Parcelable.Creator</a>&lt;<a href="Metadata.html" title="class in com.google.android.exoplayer2.metadata" target="_top">Metadata</a>&gt; CREATOR</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
 </li>
@@ -386,6 +421,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <li class="blockList">
 <h4>Metadata</h4>
 <pre>public&nbsp;Metadata&#8203;(<a href="Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata">Metadata.Entry</a>...&nbsp;entries)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>entries</code> - The metadata entries.</dd>
@@ -400,6 +436,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <h4>Metadata</h4>
 <pre>public&nbsp;Metadata&#8203;(long&nbsp;presentationTimeUs,
                 <a href="Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata">Metadata.Entry</a>...&nbsp;entries)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>presentationTimeUs</code> - The presentation time for the metadata entries.</dd>
@@ -414,6 +451,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <li class="blockList">
 <h4>Metadata</h4>
 <pre>public&nbsp;Metadata&#8203;(<a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata" target="_top">Metadata.Entry</a>&gt;&nbsp;entries)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>entries</code> - The metadata entries.</dd>
@@ -428,6 +466,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <h4>Metadata</h4>
 <pre>public&nbsp;Metadata&#8203;(long&nbsp;presentationTimeUs,
                 <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata" target="_top">Metadata.Entry</a>&gt;&nbsp;entries)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>presentationTimeUs</code> - The presentation time for the metadata entries.</dd>
@@ -452,6 +491,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <li class="blockList">
 <h4>length</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;length()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the number of metadata entries.</div>
 </li>
 </ul>
@@ -462,6 +502,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <li class="blockList">
 <h4>get</h4>
 <pre class="methodSignature">public&nbsp;<a href="Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata">Metadata.Entry</a>&nbsp;get&#8203;(int&nbsp;index)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns the entry at the specified index.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -479,6 +520,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <h4>copyWithAppendedEntriesFrom</h4>
 <pre class="methodSignature">public&nbsp;<a href="Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;copyWithAppendedEntriesFrom&#8203;(@Nullable
                                             <a href="Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;other)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy of this metadata with the entries of the specified metadata appended. Returns
  this instance if <code>other</code> is null.</div>
 <dl>
@@ -497,6 +539,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <li class="blockList">
 <h4>copyWithAppendedEntries</h4>
 <pre class="methodSignature">public&nbsp;<a href="Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;copyWithAppendedEntries&#8203;(<a href="Metadata.Entry.html" title="interface in com.google.android.exoplayer2.metadata">Metadata.Entry</a>...&nbsp;entriesToAppend)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy of this metadata with the specified entries appended.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -513,6 +556,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <li class="blockList">
 <h4>copyWithPresentationTimeUs</h4>
 <pre class="methodSignature">public&nbsp;<a href="Metadata.html" title="class in com.google.android.exoplayer2.metadata">Metadata</a>&nbsp;copyWithPresentationTimeUs&#8203;(long&nbsp;presentationTimeUs)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Returns a copy of this metadata with the specified presentation time.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
@@ -530,6 +574,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <h4>equals</h4>
 <pre class="methodSignature">public&nbsp;boolean&nbsp;equals&#8203;(@Nullable
                       <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;obj)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="externalLink">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
@@ -543,6 +588,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <li class="blockList">
 <h4>hashCode</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;hashCode()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="externalLink">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
@@ -556,6 +602,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <li class="blockList">
 <h4>toString</h4>
 <pre class="methodSignature">public&nbsp;<a href="https://developer.android.com/reference/java/lang/String.html" title="class or interface in java.lang" class="externalLink" target="_top">String</a>&nbsp;toString()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Overrides:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/java/lang/Object.html#toString()" title="class or interface in java.lang" class="externalLink">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://developer.android.com/reference/java/lang/Object.html?is-external=true" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></dd>
@@ -569,6 +616,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <li class="blockList">
 <h4>describeContents</h4>
 <pre class="methodSignature">public&nbsp;int&nbsp;describeContents()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/os/Parcelable.html#describeContents()" title="class or interface in android.os" class="externalLink">describeContents</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/android/os/Parcelable.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a></code></dd>
@@ -583,6 +631,7 @@ implements <a href="https://developer.android.com/reference/android/os/Parcelabl
 <h4>writeToParcel</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;writeToParcel&#8203;(<a href="https://developer.android.com/reference/android/os/Parcel.html" title="class or interface in android.os" class="externalLink" target="_top">Parcel</a>&nbsp;dest,
                           int&nbsp;flags)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="https://developer.android.com/reference/android/os/Parcelable.html#writeToParcel(android.os.Parcel,int)" title="class or interface in android.os" class="externalLink">writeToParcel</a></code>&nbsp;in interface&nbsp;<code><a href="https://developer.android.com/reference/android/os/Parcelable.html?is-external=true" title="class or interface in android.os" class="externalLink" target="_top">Parcelable</a></code></dd>

@@ -37,6 +37,8 @@ import com.google.android.exoplayer2.source.chunk.MediaChunkIterator;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest.StreamElement;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
+import com.google.android.exoplayer2.upstream.CmcdConfiguration;
+import com.google.android.exoplayer2.upstream.CmcdLog;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
@@ -44,10 +46,19 @@ import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy.FallbackSe
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
 import java.util.List;
 
-/** A default {@link SsChunkSource} implementation. */
+/**
+ * A default {@link SsChunkSource} implementation.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
 public class DefaultSsChunkSource implements SsChunkSource {
 
   public static final class Factory implements SsChunkSource.Factory {
@@ -64,13 +75,19 @@ public class DefaultSsChunkSource implements SsChunkSource {
         SsManifest manifest,
         int streamElementIndex,
         ExoTrackSelection trackSelection,
-        @Nullable TransferListener transferListener) {
+        @Nullable TransferListener transferListener,
+        @Nullable CmcdConfiguration cmcdConfiguration) {
       DataSource dataSource = dataSourceFactory.createDataSource();
       if (transferListener != null) {
         dataSource.addTransferListener(transferListener);
       }
       return new DefaultSsChunkSource(
-          manifestLoaderErrorThrower, manifest, streamElementIndex, trackSelection, dataSource);
+          manifestLoaderErrorThrower,
+          manifest,
+          streamElementIndex,
+          trackSelection,
+          dataSource,
+          cmcdConfiguration);
     }
   }
 
@@ -78,6 +95,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
   private final int streamElementIndex;
   private final ChunkExtractor[] chunkExtractors;
   private final DataSource dataSource;
+  @Nullable private final CmcdConfiguration cmcdConfiguration;
 
   private ExoTrackSelection trackSelection;
   private SsManifest manifest;
@@ -91,18 +109,21 @@ public class DefaultSsChunkSource implements SsChunkSource {
    * @param streamElementIndex The index of the stream element in the manifest.
    * @param trackSelection The track selection.
    * @param dataSource A {@link DataSource} suitable for loading the media data.
+   * @param cmcdConfiguration The {@link CmcdConfiguration} for this chunk source.
    */
   public DefaultSsChunkSource(
       LoaderErrorThrower manifestLoaderErrorThrower,
       SsManifest manifest,
       int streamElementIndex,
       ExoTrackSelection trackSelection,
-      DataSource dataSource) {
+      DataSource dataSource,
+      @Nullable CmcdConfiguration cmcdConfiguration) {
     this.manifestLoaderErrorThrower = manifestLoaderErrorThrower;
     this.manifest = manifest;
     this.streamElementIndex = streamElementIndex;
     this.trackSelection = trackSelection;
     this.dataSource = dataSource;
+    this.cmcdConfiguration = cmcdConfiguration;
 
     StreamElement streamElement = manifest.streamElements[streamElementIndex];
     chunkExtractors = new ChunkExtractor[trackSelection.length()];
@@ -265,6 +286,14 @@ public class DefaultSsChunkSource implements SsChunkSource {
     int manifestTrackIndex = trackSelection.getIndexInTrackGroup(trackSelectionIndex);
     Uri uri = streamElement.buildRequestUri(manifestTrackIndex, chunkIndex);
 
+    @Nullable
+    CmcdLog cmcdLog =
+        cmcdConfiguration == null
+            ? null
+            : CmcdLog.createInstance(
+                cmcdConfiguration, trackSelection, playbackPositionUs, loadPositionUs);
+    ;
+
     out.chunk =
         newMediaChunk(
             trackSelection.getSelectedFormat(),
@@ -276,7 +305,8 @@ public class DefaultSsChunkSource implements SsChunkSource {
             chunkSeekTimeUs,
             trackSelection.getSelectionReason(),
             trackSelection.getSelectionData(),
-            chunkExtractor);
+            chunkExtractor,
+            cmcdLog);
   }
 
   @Override
@@ -297,7 +327,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
     return cancelable
         && fallbackSelection != null
         && fallbackSelection.type == LoadErrorHandlingPolicy.FALLBACK_TYPE_TRACK
-        && trackSelection.blacklist(
+        && trackSelection.excludeTrack(
             trackSelection.indexOf(chunk.trackFormat), fallbackSelection.exclusionDurationMs);
   }
 
@@ -320,8 +350,12 @@ public class DefaultSsChunkSource implements SsChunkSource {
       long chunkSeekTimeUs,
       @C.SelectionReason int trackSelectionReason,
       @Nullable Object trackSelectionData,
-      ChunkExtractor chunkExtractor) {
-    DataSpec dataSpec = new DataSpec(uri);
+      ChunkExtractor chunkExtractor,
+      @Nullable CmcdLog cmcdLog) {
+    ImmutableMap<@CmcdConfiguration.HeaderKey String, String> httpRequestHeaders =
+        cmcdLog == null ? ImmutableMap.of() : cmcdLog.getHttpRequestHeaders();
+    DataSpec dataSpec =
+        new DataSpec.Builder().setUri(uri).setHttpRequestHeaders(httpRequestHeaders).build();
     // In SmoothStreaming each chunk contains sample timestamps relative to the start of the chunk.
     // To convert them the absolute timestamps, we need to set sampleOffsetUs to chunkStartTimeUs.
     long sampleOffsetUs = chunkStartTimeUs;
