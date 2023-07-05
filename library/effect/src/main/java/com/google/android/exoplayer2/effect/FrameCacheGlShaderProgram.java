@@ -46,7 +46,7 @@ import java.io.IOException;
   /** Creates a new instance. */
   public FrameCacheGlShaderProgram(Context context, int capacity, boolean useHdr)
       throws VideoFrameProcessingException {
-    super(useHdr, capacity);
+    super(/* useHighPrecisionColorComponents= */ useHdr, capacity);
 
     try {
       this.copyProgram =

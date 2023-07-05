@@ -53,7 +53,7 @@ import java.io.IOException;
    */
   public ColorLutShaderProgram(Context context, ColorLut colorLut, boolean useHdr)
       throws VideoFrameProcessingException {
-    super(useHdr);
+    super(/* useHighPrecisionColorComponents= */ useHdr);
     // TODO(b/246315245): Add HDR support.
     checkArgument(!useHdr, "ColorLutShaderProgram does not support HDR colors.");
     this.colorLut = colorLut;

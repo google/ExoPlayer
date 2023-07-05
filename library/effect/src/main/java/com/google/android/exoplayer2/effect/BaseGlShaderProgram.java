@@ -55,14 +55,13 @@ public abstract class BaseGlShaderProgram implements GlShaderProgram {
   /**
    * Creates a {@code BaseGlShaderProgram} instance.
    *
-   * @param useHdr Whether input textures come from an HDR source. If {@code true}, colors will be
-   *     in linear RGB BT.2020. If {@code false}, colors will be in linear RGB BT.709.
+   * @param useHighPrecisionColorComponents If {@code false}, uses colors with 8-bit unsigned bytes.
+   *     If {@code true}, use 16-bit (half-precision) floating-point.
    * @param texturePoolCapacity The capacity of the texture pool. For example, if implementing a
    *     texture cache, the size should be the number of textures to cache.
    */
-  public BaseGlShaderProgram(boolean useHdr, int texturePoolCapacity) {
-    outputTexturePool =
-        new TexturePool(/* useHighPrecisionColorComponents= */ useHdr, texturePoolCapacity);
+  public BaseGlShaderProgram(boolean useHighPrecisionColorComponents, int texturePoolCapacity) {
+    outputTexturePool = new TexturePool(useHighPrecisionColorComponents, texturePoolCapacity);
     inputListener = new InputListener() {};
     outputListener = new OutputListener() {};
     errorListener = (frameProcessingException) -> {};

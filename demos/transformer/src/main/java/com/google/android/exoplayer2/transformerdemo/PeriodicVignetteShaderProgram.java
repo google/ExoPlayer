@@ -76,7 +76,7 @@ import java.io.IOException;
       float maxInnerRadius,
       float outerRadius)
       throws VideoFrameProcessingException {
-    super(useHdr);
+    super(/* useHighPrecisionColorComponents= */ useHdr);
     checkArgument(minInnerRadius <= maxInnerRadius);
     checkArgument(maxInnerRadius <= outerRadius);
     this.minInnerRadius = minInnerRadius;

@@ -62,7 +62,7 @@ import com.google.common.collect.ImmutableList;
   public OverlayShaderProgram(
       Context context, boolean useHdr, ImmutableList<TextureOverlay> overlays)
       throws VideoFrameProcessingException {
-    super(useHdr);
+    super(/* useHighPrecisionColorComponents= */ useHdr);
     checkArgument(!useHdr, "OverlayShaderProgram does not support HDR colors yet.");
     // The maximum number of samplers allowed in a single GL program is 16.
     // We use one for every overlay and one for the video.
