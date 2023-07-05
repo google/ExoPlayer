@@ -37,7 +37,9 @@ public final class ChainingGlShaderProgramListenerTest {
       mock(VideoFrameProcessor.Listener.class);
   private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor =
       new VideoFrameProcessingTaskExecutor(
-          Util.newSingleThreadExecutor("Test"), mockFrameProcessorListener);
+          Util.newSingleThreadExecutor("Test"),
+          /* shouldShutdownExecutorService= */ true,
+          mockFrameProcessorListener);
   private final GlObjectsProvider mockGlObjectsProvider = mock(GlObjectsProvider.class);
   private final GlShaderProgram mockProducingGlShaderProgram = mock(GlShaderProgram.class);
   private final GlShaderProgram mockConsumingGlShaderProgram = mock(GlShaderProgram.class);
@@ -50,7 +52,7 @@ public final class ChainingGlShaderProgramListenerTest {
 
   @After
   public void release() throws InterruptedException {
-    videoFrameProcessingTaskExecutor.release(/* releaseTask= */ () -> {}, EXECUTOR_WAIT_TIME_MS);
+    videoFrameProcessingTaskExecutor.release(/* releaseTask= */ () -> {});
   }
 
   @Test

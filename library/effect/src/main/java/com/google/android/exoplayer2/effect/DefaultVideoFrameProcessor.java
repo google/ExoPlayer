@@ -103,18 +103,19 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
   /** A factory for {@link DefaultVideoFrameProcessor} instances. */
   public static final class Factory implements VideoFrameProcessor.Factory {
+    private static final String THREAD_NAME = "Effect:GlThread";
 
     /** A builder for {@link DefaultVideoFrameProcessor.Factory} instances. */
     public static final class Builder {
       private boolean enableColorTransfers;
-      private GlObjectsProvider glObjectsProvider;
-      @Nullable private TextureOutputListener textureOutputListener;
+      private @MonotonicNonNull GlObjectsProvider glObjectsProvider;
+      @Nullable private ExecutorService executorService;
+      private @MonotonicNonNull TextureOutputListener textureOutputListener;
       private int textureOutputCapacity;
 
       /** Creates an instance. */
       public Builder() {
         enableColorTransfers = true;
-        glObjectsProvider = new DefaultGlObjectsProvider();
       }
 
       /**
@@ -136,6 +137,24 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       @CanIgnoreReturnValue
       public Builder setGlObjectsProvider(GlObjectsProvider glObjectsProvider) {
         this.glObjectsProvider = glObjectsProvider;
+        return this;
+      }
+
+      /**
+       * Sets the {@link Util#newSingleThreadScheduledExecutor} to execute GL commands from.
+       *
+       * <p>If set and non-null, the {@link ExecutorService} must be {@link
+       * ExecutorService#shutdown} by the caller.
+       *
+       * <p>The default value is a new {@link Util#newSingleThreadScheduledExecutor}, owned and
+       * {@link ExecutorService#shutdown} by the created {@link DefaultVideoFrameProcessor}.
+       *
+       * @param executorService The {@link ExecutorService}.
+       */
+      @CanIgnoreReturnValue
+      @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
+      public Builder setExecutorService(@Nullable ExecutorService executorService) {
+        this.executorService = executorService;
         return this;
       }
 
@@ -172,22 +191,29 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       /** Builds an {@link DefaultVideoFrameProcessor.Factory} instance. */
       public DefaultVideoFrameProcessor.Factory build() {
         return new DefaultVideoFrameProcessor.Factory(
-            enableColorTransfers, glObjectsProvider, textureOutputListener, textureOutputCapacity);
+            enableColorTransfers,
+            glObjectsProvider == null ? new DefaultGlObjectsProvider() : glObjectsProvider,
+            executorService,
+            textureOutputListener,
+            textureOutputCapacity);
       }
     }
 
     private final boolean enableColorTransfers;
     private final GlObjectsProvider glObjectsProvider;
+    @Nullable private final ExecutorService executorService;
     @Nullable private final TextureOutputListener textureOutputListener;
     private final int textureOutputCapacity;
 
     private Factory(
         boolean enableColorTransfers,
         GlObjectsProvider glObjectsProvider,
+        @Nullable ExecutorService executorService,
         @Nullable TextureOutputListener textureOutputListener,
         int textureOutputCapacity) {
       this.enableColorTransfers = enableColorTransfers;
       this.glObjectsProvider = glObjectsProvider;
+      this.executorService = executorService;
       this.textureOutputListener = textureOutputListener;
       this.textureOutputCapacity = textureOutputCapacity;
     }
@@ -258,10 +284,15 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
         checkArgument(outputColorInfo.colorTransfer == C.COLOR_TRANSFER_GAMMA_2_2);
       }
 
-      ExecutorService singleThreadExecutorService = Util.newSingleThreadExecutor(THREAD_NAME);
+      boolean shouldShutdownExecutorService = executorService == null;
+      ExecutorService instanceExecutorService =
+          executorService == null ? Util.newSingleThreadExecutor(THREAD_NAME) : executorService;
+      VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor =
+          new VideoFrameProcessingTaskExecutor(
+              instanceExecutorService, shouldShutdownExecutorService, listener);
 
       Future<DefaultVideoFrameProcessor> defaultVideoFrameProcessorFuture =
-          singleThreadExecutorService.submit(
+          instanceExecutorService.submit(
               () ->
                   createOpenGlObjectsAndFrameProcessor(
                       context,
@@ -270,7 +301,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
                       outputColorInfo,
                       enableColorTransfers,
                       renderFramesAutomatically,
-                      singleThreadExecutorService,
+                      videoFrameProcessingTaskExecutor,
                       listenerExecutor,
                       listener,
                       glObjectsProvider,
@@ -289,8 +320,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   }
 
   private static final String TAG = "DefaultFrameProcessor";
-  private static final String THREAD_NAME = "Effect:GlThread";
-  private static final long RELEASE_WAIT_TIME_MS = 500;
 
   private final Context context;
   private final GlObjectsProvider glObjectsProvider;
@@ -528,8 +557,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   @Override
   public void release() {
     try {
-      videoFrameProcessingTaskExecutor.release(
-          /* releaseTask= */ this::releaseGlObjects, RELEASE_WAIT_TIME_MS);
+      videoFrameProcessingTaskExecutor.release(/* releaseTask= */ this::releaseGlObjects);
     } catch (InterruptedException unexpected) {
       Thread.currentThread().interrupt();
       throw new IllegalStateException(unexpected);
@@ -566,8 +594,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
    *
    * <p>All {@link Effect} instances must be {@link GlEffect} instances.
    *
-   * <p>This method must be executed using the {@code singleThreadExecutorService}, as later OpenGL
-   * commands will be called on that thread.
+   * <p>This method must be called on the {@link Factory.Builder#setExecutorService}, as later
+   * OpenGL commands will be called on that thread.
    */
   private static DefaultVideoFrameProcessor createOpenGlObjectsAndFrameProcessor(
       Context context,
@@ -576,15 +604,13 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       ColorInfo outputColorInfo,
       boolean enableColorTransfers,
       boolean renderFramesAutomatically,
-      ExecutorService singleThreadExecutorService,
+      VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor,
       Executor videoFrameProcessorListenerExecutor,
       Listener listener,
       GlObjectsProvider glObjectsProvider,
       @Nullable TextureOutputListener textureOutputListener,
       int textureOutputCapacity)
       throws GlUtil.GlException, VideoFrameProcessingException {
-    checkState(Thread.currentThread().getName().equals(THREAD_NAME));
-
     EGLDisplay eglDisplay = GlUtil.getDefaultEglDisplay();
     int[] configAttributes =
         ColorInfo.isTransferHdr(outputColorInfo)
@@ -608,8 +634,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
         throw new VideoFrameProcessingException("BT.2020 PQ OpenGL output isn't supported.");
       }
     }
-    VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor =
-        new VideoFrameProcessingTaskExecutor(singleThreadExecutorService, listener);
     ColorInfo linearColorInfo =
         outputColorInfo
             .buildUpon()
@@ -784,7 +808,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   /**
    * Releases the {@link GlShaderProgram} instances and destroys the OpenGL context.
    *
-   * <p>This method must be called on the {@linkplain #THREAD_NAME background thread}.
+   * <p>This method must be called on the {@link Factory.Builder#setExecutorService}.
    */
   private void releaseGlObjects() {
     try {
