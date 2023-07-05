@@ -128,7 +128,7 @@ public final class VideoCompositorPixelTest {
                 }
                 compositedOutputBitmap.set(
                     BitmapPixelTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
-                        outputTexture.getWidth(), outputTexture.getHeight()));
+                        outputTexture.width, outputTexture.height));
               } catch (GlUtil.GlException e) {
                 throw VideoFrameProcessingException.from(e);
               } finally {
