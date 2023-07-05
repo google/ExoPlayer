@@ -62,6 +62,7 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
 import com.google.android.exoplayer2.mediacodec.SynchronousMediaCodecAdapter;
 import com.google.android.exoplayer2.testutil.FakeSampleStream;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
+import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
@@ -168,6 +169,7 @@ public class MediaCodecVideoRendererTest {
           }
         };
 
+    mediaCodecVideoRenderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
     surface = new Surface(new SurfaceTexture(/* texName= */ 0));
     mediaCodecVideoRenderer.handleMessage(Renderer.MSG_SET_VIDEO_OUTPUT, surface);
   }
@@ -246,6 +248,7 @@ public class MediaCodecVideoRendererTest {
             /* eventHandler= */ new Handler(testMainLooper),
             /* eventListener= */ eventListener,
             /* maxDroppedFramesToNotify= */ 1);
+    mediaCodecVideoRenderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
     mediaCodecVideoRenderer.handleMessage(Renderer.MSG_SET_VIDEO_OUTPUT, surface);
     mediaCodecVideoRenderer.enable(
         RendererConfiguration.DEFAULT,
@@ -696,7 +699,7 @@ public class MediaCodecVideoRendererTest {
             /* eventHandler= */ new Handler(testMainLooper),
             /* eventListener= */ eventListener,
             /* maxDroppedFramesToNotify= */ 1);
-    renderer.init(/* index= */ 0, PlayerId.UNSET);
+    renderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
 
     @Capabilities
     int capabilitiesDvheDtrFallbackToH265 = renderer.supportsFormat(formatDvheDtrFallbackToH265);
@@ -781,7 +784,7 @@ public class MediaCodecVideoRendererTest {
             /* eventHandler= */ new Handler(testMainLooper),
             /* eventListener= */ eventListener,
             /* maxDroppedFramesToNotify= */ 1);
-    renderer.init(/* index= */ 0, PlayerId.UNSET);
+    renderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
 
     @Capabilities int capabilitiesDvheDtr = renderer.supportsFormat(formatDvheDtr);
 
@@ -841,7 +844,7 @@ public class MediaCodecVideoRendererTest {
             /* eventHandler= */ new Handler(testMainLooper),
             /* eventListener= */ eventListener,
             /* maxDroppedFramesToNotify= */ 1);
-    renderer.init(/* index= */ 0, PlayerId.UNSET);
+    renderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
 
     List<MediaCodecInfo> mediaCodecInfoList =
         renderer.getDecoderInfos(mediaCodecSelector, avcFormat, false);
@@ -884,7 +887,7 @@ public class MediaCodecVideoRendererTest {
             /* eventHandler= */ new Handler(testMainLooper),
             /* eventListener= */ eventListener,
             /* maxDroppedFramesToNotify= */ 1);
-    renderer.init(/* index= */ 0, PlayerId.UNSET);
+    renderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
 
     List<MediaCodecInfo> mediaCodecInfoList =
         renderer.getDecoderInfos(mediaCodecSelector, avcFormat, false);

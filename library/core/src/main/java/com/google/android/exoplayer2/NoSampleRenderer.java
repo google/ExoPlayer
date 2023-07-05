@@ -19,6 +19,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.MediaClock;
 import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -52,7 +53,7 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
   }
 
   @Override
-  public final void init(int index, PlayerId playerId) {
+  public final void init(int index, PlayerId playerId, Clock clock) {
     this.index = index;
   }
 

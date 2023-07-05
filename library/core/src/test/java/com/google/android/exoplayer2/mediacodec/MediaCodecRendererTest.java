@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.testutil.FakeSampleStream;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
+import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
@@ -63,7 +64,7 @@ public class MediaCodecRendererTest {
     FakeSampleStream fakeSampleStream2 =
         createFakeSampleStream(format2, /* sampleTimesUs...= */ 0, 100, 200);
     MediaCodecRenderer renderer = spy(new TestRenderer());
-    renderer.init(/* index= */ 0, PlayerId.UNSET);
+    renderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
 
     renderer.enable(
         RendererConfiguration.DEFAULT,
@@ -116,7 +117,7 @@ public class MediaCodecRendererTest {
     FakeSampleStream fakeSampleStream2 =
         createFakeSampleStream(format2, /* sampleTimesUs...= */ 0, 100, 200);
     MediaCodecRenderer renderer = spy(new TestRenderer());
-    renderer.init(/* index= */ 0, PlayerId.UNSET);
+    renderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
 
     renderer.enable(
         RendererConfiguration.DEFAULT,
@@ -172,7 +173,7 @@ public class MediaCodecRendererTest {
     FakeSampleStream fakeSampleStream2 =
         createFakeSampleStream(format2, /* sampleTimesUs...= */ 0, 100, 200, 300, 400);
     MediaCodecRenderer renderer = spy(new TestRenderer());
-    renderer.init(/* index= */ 0, PlayerId.UNSET);
+    renderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
 
     renderer.enable(
         RendererConfiguration.DEFAULT,
@@ -226,7 +227,7 @@ public class MediaCodecRendererTest {
     FakeSampleStream fakeSampleStream2 =
         createFakeSampleStream(format2, /* sampleTimesUs...= */ 0, 100, 200);
     MediaCodecRenderer renderer = spy(new TestRenderer());
-    renderer.init(/* index= */ 0, PlayerId.UNSET);
+    renderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
 
     renderer.enable(
         RendererConfiguration.DEFAULT,
@@ -277,7 +278,7 @@ public class MediaCodecRendererTest {
     FakeSampleStream fakeSampleStream3 =
         createFakeSampleStream(format3, /* sampleTimesUs...= */ 0, 100, 200);
     MediaCodecRenderer renderer = spy(new TestRenderer());
-    renderer.init(/* index= */ 0, PlayerId.UNSET);
+    renderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
 
     renderer.enable(
         RendererConfiguration.DEFAULT,

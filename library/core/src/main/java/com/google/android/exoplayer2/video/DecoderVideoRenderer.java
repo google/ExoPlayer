@@ -576,7 +576,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
       throws DecoderException {
     if (frameMetadataListener != null) {
       frameMetadataListener.onVideoFrameAboutToBeRendered(
-          presentationTimeUs, System.nanoTime(), outputFormat, /* mediaFormat= */ null);
+          presentationTimeUs, getClock().nanoTime(), outputFormat, /* mediaFormat= */ null);
     }
     lastRenderTimeUs = Util.msToUs(SystemClock.elapsedRealtime() * 1000);
     int bufferMode = outputBuffer.mode;

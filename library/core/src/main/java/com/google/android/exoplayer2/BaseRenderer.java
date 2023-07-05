@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
 import com.google.android.exoplayer2.source.SampleStream.ReadFlags;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.MediaClock;
 import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -49,6 +50,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   @Nullable private RendererConfiguration configuration;
   private int index;
   private @MonotonicNonNull PlayerId playerId;
+  private @MonotonicNonNull Clock clock;
   private int state;
   @Nullable private SampleStream stream;
   @Nullable private Format[] streamFormats;
@@ -84,9 +86,10 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   }
 
   @Override
-  public final void init(int index, PlayerId playerId) {
+  public final void init(int index, PlayerId playerId, Clock clock) {
     this.index = index;
     this.playerId = playerId;
+    this.clock = clock;
   }
 
   @Override
@@ -395,6 +398,15 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    */
   protected final PlayerId getPlayerId() {
     return checkNotNull(playerId);
+  }
+
+  /**
+   * Returns the {@link Clock}.
+   *
+   * <p>Must only be used after the renderer has been initialized by the player.
+   */
+  protected final Clock getClock() {
+    return checkNotNull(clock);
   }
 
   /**

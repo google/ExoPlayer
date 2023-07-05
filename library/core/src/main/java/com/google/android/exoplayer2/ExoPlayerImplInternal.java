@@ -17,6 +17,7 @@ package com.google.android.exoplayer2;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
+import static com.google.android.exoplayer2.util.Util.msToUs;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -25,7 +26,6 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Process;
-import android.os.SystemClock;
 import android.util.Pair;
 import androidx.annotation.CheckResult;
 import androidx.annotation.Nullable;
@@ -276,7 +276,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     RendererCapabilities.Listener rendererCapabilitiesListener =
         trackSelector.getRendererCapabilitiesListener();
     for (int i = 0; i < renderers.length; i++) {
-      renderers[i].init(/* index= */ i, playerId);
+      renderers[i].init(/* index= */ i, playerId, clock);
       rendererCapabilities[i] = renderers[i].getCapabilities();
       if (rendererCapabilitiesListener != null) {
         rendererCapabilities[i].setListener(rendererCapabilitiesListener);
@@ -1055,7 +1055,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     boolean renderersEnded = true;
     boolean renderersAllowPlayback = true;
     if (playingPeriodHolder.prepared) {
-      long rendererPositionElapsedRealtimeUs = SystemClock.elapsedRealtime() * 1000;
+      long rendererPositionElapsedRealtimeUs = msToUs(clock.elapsedRealtime());
       playingPeriodHolder.mediaPeriod.discardBuffer(
           playbackInfo.positionUs - backBufferDurationUs, retainBackBufferFromKeyframe);
       for (int i = 0; i < renderers.length; i++) {

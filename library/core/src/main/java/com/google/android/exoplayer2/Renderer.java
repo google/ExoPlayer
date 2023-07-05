@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.source.SampleStream;
+import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.MediaClock;
 import com.google.android.exoplayer2.util.Size;
@@ -307,8 +308,9 @@ public interface Renderer extends PlayerMessage.Target {
    *
    * @param index The renderer index within the player.
    * @param playerId The {@link PlayerId} of the player.
+   * @param clock The {@link Clock}.
    */
-  void init(int index, PlayerId playerId);
+  void init(int index, PlayerId playerId, Clock clock);
 
   /**
    * If the renderer advances its own playback position then this method returns a corresponding

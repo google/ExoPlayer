@@ -46,6 +46,7 @@ import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.testutil.FakeSampleStream;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
+import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.common.collect.ImmutableList;
 import org.junit.Before;
@@ -91,7 +92,7 @@ public class DecoderAudioRendererTest {
             return FORMAT;
           }
         };
-    audioRenderer.init(/* index= */ 0, PlayerId.UNSET);
+    audioRenderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
   }
 
   @Config(sdk = 19)
