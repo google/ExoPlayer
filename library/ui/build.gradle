@@ -27,6 +27,11 @@ android {
             withSourcesJar()
         }
     }
+
+    sourceSets {
+ androidTest.assets.srcDir '../../testdata/src/test/assets/'
+ test.assets.srcDir '../../testdata/src/test/assets/'
+    }
 }
 
 dependencies {
@@ -36,6 +41,8 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:' + androidxRecyclerViewVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
+    testImplementation project(path: ':lib-exoplayer')
+    testImplementation project(path: ':test-utils-robolectric')
     testImplementation project(modulePrefix + 'testutils')
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
