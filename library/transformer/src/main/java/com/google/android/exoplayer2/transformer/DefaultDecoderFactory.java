@@ -185,7 +185,9 @@ public final class DefaultDecoderFactory implements Codec.DecoderFactory {
       return true;
     }
     if (colorTransfer == C.COLOR_TRANSFER_HLG
-        && (Util.MODEL.startsWith("SM-F936") || Util.MODEL.startsWith("SM-F916"))) {
+        && (Util.MODEL.startsWith("SM-F936")
+            || Util.MODEL.startsWith("SM-F916")
+            || Util.MODEL.equals("SM-X900"))) {
       // Some Samsung Galaxy Z Fold devices report support for HLG tone mapping but the feature only
       // works on PQ (see b/282791751#comment7).
       return true;
