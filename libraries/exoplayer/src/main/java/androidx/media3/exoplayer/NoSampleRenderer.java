@@ -19,6 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.util.Assertions;
+import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.source.SampleStream;
@@ -49,7 +50,7 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
   }
 
   @Override
-  public final void init(int index, PlayerId playerId) {
+  public final void init(int index, PlayerId playerId, Clock clock) {
     this.index = index;
   }
 

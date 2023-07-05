@@ -47,6 +47,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.VideoSize;
+import androidx.media3.common.util.Clock;
 import androidx.media3.decoder.CryptoInfo;
 import androidx.media3.exoplayer.DecoderCounters;
 import androidx.media3.exoplayer.Renderer;
@@ -169,6 +170,7 @@ public class MediaCodecVideoRendererTest {
           }
         };
 
+    mediaCodecVideoRenderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
     surface = new Surface(new SurfaceTexture(/* texName= */ 0));
     mediaCodecVideoRenderer.handleMessage(Renderer.MSG_SET_VIDEO_OUTPUT, surface);
   }
@@ -247,6 +249,7 @@ public class MediaCodecVideoRendererTest {
             /* eventHandler= */ new Handler(testMainLooper),
             /* eventListener= */ eventListener,
             /* maxDroppedFramesToNotify= */ 1);
+    mediaCodecVideoRenderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
     mediaCodecVideoRenderer.handleMessage(Renderer.MSG_SET_VIDEO_OUTPUT, surface);
     mediaCodecVideoRenderer.enable(
         RendererConfiguration.DEFAULT,
@@ -697,7 +700,7 @@ public class MediaCodecVideoRendererTest {
             /* eventHandler= */ new Handler(testMainLooper),
             /* eventListener= */ eventListener,
             /* maxDroppedFramesToNotify= */ 1);
-    renderer.init(/* index= */ 0, PlayerId.UNSET);
+    renderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
 
     @Capabilities
     int capabilitiesDvheDtrFallbackToH265 = renderer.supportsFormat(formatDvheDtrFallbackToH265);
@@ -782,7 +785,7 @@ public class MediaCodecVideoRendererTest {
             /* eventHandler= */ new Handler(testMainLooper),
             /* eventListener= */ eventListener,
             /* maxDroppedFramesToNotify= */ 1);
-    renderer.init(/* index= */ 0, PlayerId.UNSET);
+    renderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
 
     @Capabilities int capabilitiesDvheDtr = renderer.supportsFormat(formatDvheDtr);
 
@@ -842,7 +845,7 @@ public class MediaCodecVideoRendererTest {
             /* eventHandler= */ new Handler(testMainLooper),
             /* eventListener= */ eventListener,
             /* maxDroppedFramesToNotify= */ 1);
-    renderer.init(/* index= */ 0, PlayerId.UNSET);
+    renderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
 
     List<MediaCodecInfo> mediaCodecInfoList =
         renderer.getDecoderInfos(mediaCodecSelector, avcFormat, false);
@@ -885,7 +888,7 @@ public class MediaCodecVideoRendererTest {
             /* eventHandler= */ new Handler(testMainLooper),
             /* eventListener= */ eventListener,
             /* maxDroppedFramesToNotify= */ 1);
-    renderer.init(/* index= */ 0, PlayerId.UNSET);
+    renderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
 
     List<MediaCodecInfo> mediaCodecInfoList =
         renderer.getDecoderInfos(mediaCodecSelector, avcFormat, false);

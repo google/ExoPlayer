@@ -24,6 +24,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.util.Assertions;
+import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.decoder.DecoderInputBuffer.InsufficientCapacityException;
@@ -45,6 +46,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   @Nullable private RendererConfiguration configuration;
   private int index;
   private @MonotonicNonNull PlayerId playerId;
+  private @MonotonicNonNull Clock clock;
   private int state;
   @Nullable private SampleStream stream;
   @Nullable private Format[] streamFormats;
@@ -80,9 +82,10 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   }
 
   @Override
-  public final void init(int index, PlayerId playerId) {
+  public final void init(int index, PlayerId playerId, Clock clock) {
     this.index = index;
     this.playerId = playerId;
+    this.clock = clock;
   }
 
   @Override
@@ -391,6 +394,15 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    */
   protected final PlayerId getPlayerId() {
     return checkNotNull(playerId);
+  }
+
+  /**
+   * Returns the {@link Clock}.
+   *
+   * <p>Must only be used after the renderer has been initialized by the player.
+   */
+  protected final Clock getClock() {
+    return checkNotNull(clock);
   }
 
   /**

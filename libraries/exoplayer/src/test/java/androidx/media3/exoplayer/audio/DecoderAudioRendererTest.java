@@ -35,6 +35,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.common.util.Clock;
 import androidx.media3.decoder.CryptoConfig;
 import androidx.media3.decoder.DecoderException;
 import androidx.media3.decoder.DecoderInputBuffer;
@@ -91,7 +92,7 @@ public class DecoderAudioRendererTest {
             return FORMAT;
           }
         };
-    audioRenderer.init(/* index= */ 0, PlayerId.UNSET);
+    audioRenderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
   }
 
   @Config(sdk = 19)

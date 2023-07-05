@@ -19,6 +19,7 @@ import static android.view.Display.DEFAULT_DISPLAY;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
+import static androidx.media3.common.util.Util.msToUs;
 import static androidx.media3.exoplayer.DecoderReuseEvaluation.DISCARD_REASON_MAX_INPUT_SIZE_EXCEEDED;
 import static androidx.media3.exoplayer.DecoderReuseEvaluation.DISCARD_REASON_VIDEO_MAX_RESOLUTION_EXCEEDED;
 import static androidx.media3.exoplayer.DecoderReuseEvaluation.REUSE_RESULT_NO;
@@ -59,6 +60,7 @@ import androidx.media3.common.SurfaceInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.VideoSize;
+import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.MediaFormatUtil;
 import androidx.media3.common.util.Size;
@@ -644,7 +646,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     } else if (joiningDeadlineMs == C.TIME_UNSET) {
       // Not joining.
       return false;
-    } else if (SystemClock.elapsedRealtime() < joiningDeadlineMs) {
+    } else if (getClock().elapsedRealtime() < joiningDeadlineMs) {
       // Joining and still within the joining deadline.
       return true;
     } else {
@@ -658,8 +660,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   protected void onStarted() {
     super.onStarted();
     droppedFrames = 0;
-    droppedFrameAccumulationStartTimeMs = SystemClock.elapsedRealtime();
-    lastRenderRealtimeUs = SystemClock.elapsedRealtime() * 1000;
+    long elapsedRealtimeMs = getClock().elapsedRealtime();
+    droppedFrameAccumulationStartTimeMs = elapsedRealtimeMs;
+    lastRenderRealtimeUs = msToUs(elapsedRealtimeMs);
     totalVideoFrameProcessingOffsetUs = 0;
     videoFrameProcessingOffsetCount = 0;
     frameReleaseHelper.onStarted();
@@ -1009,7 +1012,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @Override
   protected void onReadyToInitializeCodec(Format format) throws ExoPlaybackException {
     if (!videoFrameProcessorManager.isEnabled()) {
-      videoFrameProcessorManager.maybeEnable(format, getOutputStreamOffsetUs());
+      videoFrameProcessorManager.maybeEnable(format, getOutputStreamOffsetUs(), getClock());
     }
   }
 
@@ -1202,7 +1205,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
     // Note: Use of double rather than float is intentional for accuracy in the calculations below.
     boolean isStarted = getState() == STATE_STARTED;
-    long elapsedRealtimeNowUs = SystemClock.elapsedRealtime() * 1000;
+    long elapsedRealtimeNowUs = msToUs(getClock().elapsedRealtime());
     long earlyUs =
         calculateEarlyTimeUs(
             positionUs,
@@ -1244,7 +1247,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     }
 
     // Compute the buffer's desired release time in nanoseconds.
-    long systemTimeNs = System.nanoTime();
+    long systemTimeNs = getClock().nanoTime();
     long unadjustedFrameReleaseTimeNs = systemTimeNs + (earlyUs * 1000);
 
     // Apply a timestamp adjustment, if there is one.
@@ -1330,7 +1333,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         !renderedFirstFrameAfterEnable
             ? (isStarted || mayRenderFirstFrameAfterEnableIfNotStarted)
             : !renderedFirstFrameAfterReset;
-    long elapsedSinceLastRenderUs = SystemClock.elapsedRealtime() * 1000 - lastRenderRealtimeUs;
+    long elapsedSinceLastRenderUs = msToUs(getClock().elapsedRealtime()) - lastRenderRealtimeUs;
     // Don't force output until we joined and the position reached the current stream.
     return joiningDeadlineMs == C.TIME_UNSET
         && positionUs >= getOutputStreamOffsetUs()
@@ -1597,7 +1600,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
             ? videoFrameProcessorManager.getCorrectedFramePresentationTimeUs(
                     presentationTimeUs, getOutputStreamOffsetUs())
                 * 1000
-            : System.nanoTime();
+            : getClock().nanoTime();
     if (notifyFrameMetadataListener) {
       notifyFrameMetadataListener(presentationTimeUs, releaseTimeNs, format);
     }
@@ -1627,7 +1630,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     decoderCounters.renderedOutputBufferCount++;
     consecutiveDroppedFrameCount = 0;
     if (!videoFrameProcessorManager.isEnabled()) {
-      lastRenderRealtimeUs = SystemClock.elapsedRealtime() * 1000;
+      lastRenderRealtimeUs = msToUs(getClock().elapsedRealtime());
       maybeNotifyVideoSizeChanged(decodedVideoSize);
       maybeNotifyRenderedFirstFrame();
     }
@@ -1655,7 +1658,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     decoderCounters.renderedOutputBufferCount++;
     consecutiveDroppedFrameCount = 0;
     if (!videoFrameProcessorManager.isEnabled()) {
-      lastRenderRealtimeUs = SystemClock.elapsedRealtime() * 1000;
+      lastRenderRealtimeUs = msToUs(getClock().elapsedRealtime());
       maybeNotifyVideoSizeChanged(decodedVideoSize);
       maybeNotifyRenderedFirstFrame();
     }
@@ -1680,7 +1683,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   private void setJoiningDeadlineMs() {
     joiningDeadlineMs =
         allowedJoiningTimeMs > 0
-            ? (SystemClock.elapsedRealtime() + allowedJoiningTimeMs)
+            ? (getClock().elapsedRealtime() + allowedJoiningTimeMs)
             : C.TIME_UNSET;
   }
 
@@ -1734,7 +1737,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   private void maybeNotifyDroppedFrames() {
     if (droppedFrames > 0) {
-      long now = SystemClock.elapsedRealtime();
+      long now = getClock().elapsedRealtime();
       long elapsedMs = now - droppedFrameAccumulationStartTimeMs;
       eventDispatcher.droppedFrames(droppedFrames, elapsedMs);
       droppedFrames = 0;
@@ -1936,6 +1939,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
      */
     private @MonotonicNonNull Pair<Long, Format> currentFrameFormat;
 
+    private @MonotonicNonNull Clock clock;
     @Nullable private Pair<Surface, Size> currentSurfaceAndSize;
 
     private int videoFrameProcessorMaxPendingFrameCount;
@@ -2039,7 +2043,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
      * @throws ExoPlaybackException When enabling the {@link VideoFrameProcessor} failed.
      */
     @CanIgnoreReturnValue
-    public boolean maybeEnable(Format inputFormat, long initialStreamOffsetUs)
+    public boolean maybeEnable(Format inputFormat, long initialStreamOffsetUs, Clock clock)
         throws ExoPlaybackException {
       checkState(!isEnabled());
       if (!canEnableFrameProcessing) {
@@ -2052,6 +2056,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
       // Playback thread handler.
       handler = Util.createHandlerForCurrentLooper();
+      this.clock = clock;
 
       Pair<ColorInfo, ColorInfo> inputAndOutputColorInfos =
           renderer.experimentalGetVideoFrameProcessorColorConfiguration(inputFormat.colorInfo);
@@ -2292,7 +2297,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
             renderer.calculateEarlyTimeUs(
                 positionUs,
                 elapsedRealtimeUs,
-                SystemClock.elapsedRealtime() * 1000,
+                msToUs(clock.elapsedRealtime()),
                 bufferPresentationTimeUs,
                 isStarted);
 
@@ -2313,10 +2318,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         }
 
         frameReleaseHelper.onNextFrame(bufferPresentationTimeUs);
-        long unadjustedFrameReleaseTimeNs = System.nanoTime() + earlyUs * 1000;
+        long systemNanoTime = checkNotNull(clock).nanoTime();
+        long unadjustedFrameReleaseTimeNs = systemNanoTime + earlyUs * 1000;
         long adjustedFrameReleaseTimeNs =
             frameReleaseHelper.adjustReleaseTime(unadjustedFrameReleaseTimeNs);
-        earlyUs = (adjustedFrameReleaseTimeNs - System.nanoTime()) / 1000;
+        earlyUs = (adjustedFrameReleaseTimeNs - systemNanoTime) / 1000;
 
         // TODO(b/238302341) Handle very late buffers and drop to key frame. Need to flush
         //  VideoFrameProcessor input frames in this case.
@@ -2364,7 +2370,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       checkStateNotNull(videoFrameProcessor);
       videoFrameProcessor.renderOutputFrame(releaseTimeNs);
       processedFramesTimestampsUs.remove();
-      renderer.lastRenderRealtimeUs = SystemClock.elapsedRealtime() * 1000;
+      renderer.lastRenderRealtimeUs = msToUs(clock.elapsedRealtime());
       if (releaseTimeNs != VideoFrameProcessor.DROP_OUTPUT_FRAME) {
         renderer.maybeNotifyRenderedFirstFrame();
       }

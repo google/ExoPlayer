@@ -27,6 +27,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.Effect;
 import androidx.media3.common.Format;
 import androidx.media3.common.Player;
+import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.Size;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -305,8 +306,9 @@ public interface Renderer extends PlayerMessage.Target {
    *
    * @param index The renderer index within the player.
    * @param playerId The {@link PlayerId} of the player.
+   * @param clock The {@link Clock}.
    */
-  void init(int index, PlayerId playerId);
+  void init(int index, PlayerId playerId, Clock clock);
 
   /**
    * If the renderer advances its own playback position then this method returns a corresponding

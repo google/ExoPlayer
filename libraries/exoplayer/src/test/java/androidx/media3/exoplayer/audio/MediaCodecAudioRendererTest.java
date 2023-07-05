@@ -38,6 +38,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.PlaybackException;
+import androidx.media3.common.util.Clock;
 import androidx.media3.exoplayer.ExoPlaybackException;
 import androidx.media3.exoplayer.RendererCapabilities;
 import androidx.media3.exoplayer.RendererCapabilities.Capabilities;
@@ -134,7 +135,7 @@ public class MediaCodecAudioRendererTest {
             eventHandler,
             audioRendererEventListener,
             audioSink);
-    mediaCodecAudioRenderer.init(/* index= */ 0, PlayerId.UNSET);
+    mediaCodecAudioRenderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
   }
 
   @Test
@@ -289,7 +290,7 @@ public class MediaCodecAudioRendererTest {
                 oneByteSample(/* timeUs= */ 0, C.BUFFER_FLAG_KEY_FRAME), END_OF_STREAM_ITEM));
     fakeSampleStream.writeData(/* startPositionUs= */ 0);
 
-    exceptionThrowingRenderer.init(/* index= */ 0, PlayerId.UNSET);
+    exceptionThrowingRenderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
     exceptionThrowingRenderer.enable(
         RendererConfiguration.DEFAULT,
         new Format[] {AUDIO_AAC, changedFormat},
@@ -438,7 +439,7 @@ public class MediaCodecAudioRendererTest {
             /* eventHandler= */ new Handler(Looper.getMainLooper()),
             audioRendererEventListener,
             audioSink);
-    renderer.init(/* index= */ 0, PlayerId.UNSET);
+    renderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
 
     @Capabilities int capabilities = renderer.supportsFormat(mediaFormat);
 
