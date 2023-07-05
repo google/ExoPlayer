@@ -44,7 +44,7 @@ import java.io.IOException;
    */
   public HslShaderProgram(Context context, HslAdjustment hslAdjustment, boolean useHdr)
       throws VideoFrameProcessingException {
-    super(useHdr);
+    super(/* useHighPrecisionColorComponents= */ useHdr);
     // TODO(b/241241680): Check if HDR <-> HSL works the same or not.
     checkArgument(!useHdr, "HDR is not yet supported.");
 

@@ -417,7 +417,7 @@ import java.util.List;
       ImmutableList<RgbMatrix> rgbMatrices,
       int outputColorTransfer,
       boolean useHdr) {
-    super(useHdr);
+    super(/* useHighPrecisionColorComponents= */ useHdr);
     this.glProgram = glProgram;
     this.outputColorTransfer = outputColorTransfer;
     this.matrixTransformations = matrixTransformations;
