@@ -57,6 +57,9 @@ import java.util.concurrent.RejectedExecutionException;
     void run() throws VideoFrameProcessingException, GlUtil.GlException;
   }
 
+  private static final long RELEASE_WAIT_TIME_MS = 500;
+
+  private final boolean shouldShutdownExecutorService;
   private final ExecutorService singleThreadExecutorService;
   private final VideoFrameProcessor.Listener listener;
   private final Object lock;
@@ -69,8 +72,11 @@ import java.util.concurrent.RejectedExecutionException;
 
   /** Creates a new instance. */
   public VideoFrameProcessingTaskExecutor(
-      ExecutorService singleThreadExecutorService, VideoFrameProcessor.Listener listener) {
+      ExecutorService singleThreadExecutorService,
+      boolean shouldShutdownExecutorService,
+      VideoFrameProcessor.Listener listener) {
     this.singleThreadExecutorService = singleThreadExecutorService;
+    this.shouldShutdownExecutorService = shouldShutdownExecutorService;
     this.listener = listener;
     lock = new Object();
     highPriorityTasks = new ArrayDeque<>();
@@ -162,24 +168,28 @@ import java.util.concurrent.RejectedExecutionException;
   }
 
   /**
-   * Cancels remaining tasks, runs the given release task, and shuts down the background thread.
+   * Cancels remaining tasks, runs the given release task
+   *
+   * <p>If {@code shouldShutdownExecutorService} is {@code true}, shuts down the {@linkplain
+   * ExecutorService background thread}.
    *
    * @param releaseTask A {@link Task} to execute before shutting down the background thread.
-   * @param releaseWaitTimeMs How long to wait for the release task to terminate, in milliseconds.
    * @throws InterruptedException If interrupted while releasing resources.
    */
-  public void release(Task releaseTask, long releaseWaitTimeMs) throws InterruptedException {
+  public void release(Task releaseTask) throws InterruptedException {
     synchronized (lock) {
       shouldCancelTasks = true;
       highPriorityTasks.clear();
     }
     Future<?> unused =
         wrapTaskAndSubmitToExecutorService(releaseTask, /* isFlushOrReleaseTask= */ true);
-    singleThreadExecutorService.shutdown();
-    if (!singleThreadExecutorService.awaitTermination(releaseWaitTimeMs, MILLISECONDS)) {
-      listener.onError(
-          new VideoFrameProcessingException(
-              "Release timed out. OpenGL resources may not be cleaned up properly."));
+    if (shouldShutdownExecutorService) {
+      singleThreadExecutorService.shutdown();
+      if (!singleThreadExecutorService.awaitTermination(RELEASE_WAIT_TIME_MS, MILLISECONDS)) {
+        listener.onError(
+            new VideoFrameProcessingException(
+                "Release timed out. OpenGL resources may not be cleaned up properly."));
+      }
     }
   }
 

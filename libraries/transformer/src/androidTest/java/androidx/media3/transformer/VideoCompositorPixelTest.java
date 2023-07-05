@@ -22,6 +22,7 @@ import static androidx.media3.test.utils.BitmapPixelTestUtil.maybeSaveTestBitmap
 import static androidx.media3.test.utils.BitmapPixelTestUtil.readBitmap;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.graphics.Bitmap;
 import android.opengl.EGLContext;
@@ -33,6 +34,7 @@ import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.util.GlUtil;
+import androidx.media3.common.util.Util;
 import androidx.media3.effect.DefaultGlObjectsProvider;
 import androidx.media3.effect.DefaultVideoFrameProcessor;
 import androidx.media3.effect.RgbFilter;
@@ -40,16 +42,19 @@ import androidx.media3.effect.ScaleAndRotateTransformation;
 import androidx.media3.effect.VideoCompositor;
 import androidx.media3.test.utils.BitmapPixelTestUtil;
 import androidx.media3.test.utils.VideoFrameProcessorTestRunner;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 /** Pixel test for {@link VideoCompositor} compositing 2 input frames into 1 output frame. */
-@RunWith(AndroidJUnit4.class)
+@RunWith(Parameterized.class)
 public final class VideoCompositorPixelTest {
   private @MonotonicNonNull VideoFrameProcessorTestRunner inputVfpTestRunner1;
   private @MonotonicNonNull VideoFrameProcessorTestRunner inputVfpTestRunner2;
@@ -66,22 +71,42 @@ public final class VideoCompositorPixelTest {
       new ScaleAndRotateTransformation.Builder().setRotationDegrees(180).build();
   private static final Effect GRAYSCALE = RgbFilter.createGrayscaleFilter();
 
-  // TODO: b/262694346 - Create and share a VideoFrameProcessingTaskExecutor for all
-  //  DefaultVideoFrameProcessor and VideoCompositor instances.
+  @Parameterized.Parameters(name = "useSharedExecutor={0}")
+  public static ImmutableList<Boolean> useSharedExecutor() {
+    return ImmutableList.of(true, false);
+  }
+
+  @Parameterized.Parameter public boolean useSharedExecutor;
+
+  public @Nullable ExecutorService executorService;
 
   @After
-  public void release() {
+  public void tearDown() {
     if (inputVfpTestRunner1 != null) {
       inputVfpTestRunner1.release();
     }
     if (inputVfpTestRunner2 != null) {
       inputVfpTestRunner2.release();
     }
+
+    if (executorService != null) {
+      try {
+        executorService.shutdown();
+        if (!executorService.awaitTermination(/* timeout= */ 5000, MILLISECONDS)) {
+          throw new IllegalStateException("Missed shutdown timeout.");
+        }
+      } catch (InterruptedException unexpected) {
+        Thread.currentThread().interrupt();
+        throw new IllegalStateException(unexpected);
+      }
+    }
   }
 
   @Test
   public void compositeTwoFrames_matchesExpected() throws Exception {
-    String testId = "compositeTwoFrames_matchesExpected";
+    String testId =
+        "compositeTwoFrames_matchesExpected[useSharedExecutor=" + useSharedExecutor + "]";
+    executorService = useSharedExecutor ? Util.newSingleThreadExecutor("Effect:GlThread") : null;
 
     // Arrange VideoCompositor and VideoFrameProcessor instances.
     EGLContext sharedEglContext = AndroidTestUtil.createOpenGlObjects();
@@ -96,7 +121,11 @@ public final class VideoCompositorPixelTest {
                 releaseOutputTextureCallback,
                 syncObject) -> {
               try {
-                GlUtil.awaitSyncObject(syncObject);
+                if (useSharedExecutor) {
+                  GlUtil.deleteSyncObject(syncObject);
+                } else {
+                  GlUtil.awaitSyncObject(syncObject);
+                }
                 compositedOutputBitmap.set(
                     BitmapPixelTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
                         outputTexture.getWidth(), outputTexture.getHeight()));
@@ -110,14 +139,22 @@ public final class VideoCompositorPixelTest {
     TextureBitmapReader inputTextureBitmapReader1 = new TextureBitmapReader();
     VideoFrameProcessorTestRunner inputVfpTestRunner1 =
         getFrameProcessorTestRunnerBuilder(
-                testId, inputTextureBitmapReader1, videoCompositor, sharedGlObjectsProvider)
+                testId,
+                inputTextureBitmapReader1,
+                videoCompositor,
+                executorService,
+                sharedGlObjectsProvider)
             .setEffects(GRAYSCALE)
             .build();
     this.inputVfpTestRunner1 = inputVfpTestRunner1;
     TextureBitmapReader inputTextureBitmapReader2 = new TextureBitmapReader();
     VideoFrameProcessorTestRunner inputVfpTestRunner2 =
         getFrameProcessorTestRunnerBuilder(
-                testId, inputTextureBitmapReader2, videoCompositor, sharedGlObjectsProvider)
+                testId,
+                inputTextureBitmapReader2,
+                videoCompositor,
+                executorService,
+                sharedGlObjectsProvider)
             .setEffects(ROTATE_180)
             .build();
     this.inputVfpTestRunner2 = inputVfpTestRunner2;
@@ -172,6 +209,7 @@ public final class VideoCompositorPixelTest {
       String testId,
       TextureBitmapReader textureBitmapReader,
       VideoCompositor videoCompositor,
+      @Nullable ExecutorService executorService,
       GlObjectsProvider glObjectsProvider) {
     int inputId = videoCompositor.registerInputSource();
     VideoFrameProcessor.Factory defaultVideoFrameProcessorFactory =
@@ -189,6 +227,7 @@ public final class VideoCompositorPixelTest {
                       inputId, outputTexture, presentationTimeUs, releaseOutputTextureCallback);
                 },
                 /* textureOutputCapacity= */ 1)
+            .setExecutorService(executorService)
             .build();
     return new VideoFrameProcessorTestRunner.Builder()
         .setTestId(testId)
