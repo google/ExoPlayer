@@ -218,7 +218,7 @@ public final class Ac3Util {
     int numDepSub = dataBitArray.readBits(4); // num_dep_sub
     dataBitArray.skipBits(1); // numDepSub > 0 ? LFE2 : reserved
     if (numDepSub > 0) {
-      dataBitArray.skipBytes(6); // other channel configurations
+      dataBitArray.skipBits(6); // other channel configurations
       // Read Lrs/Rrs pair
       // TODO: Read other channel configuration
       if (dataBitArray.readBits(1) != 0) {
