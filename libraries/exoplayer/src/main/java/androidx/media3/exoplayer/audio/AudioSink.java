@@ -29,6 +29,7 @@ import androidx.media3.common.Format;
 import androidx.media3.common.PlaybackException;
 import androidx.media3.common.PlaybackParameters;
 import androidx.media3.common.Player;
+import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.ExoPlaybackException;
 import androidx.media3.exoplayer.analytics.PlayerId;
@@ -341,6 +342,13 @@ public interface AudioSink {
    * @param playerId The {@link PlayerId}, or null to clear a previously set id.
    */
   default void setPlayerId(@Nullable PlayerId playerId) {}
+
+  /**
+   * Sets the {@link Clock} to use for timing in this audio sink.
+   *
+   * @param clock The {@link Clock}.
+   */
+  default void setClock(Clock clock) {}
 
   /**
    * Returns whether the sink supports a given {@link Format}.

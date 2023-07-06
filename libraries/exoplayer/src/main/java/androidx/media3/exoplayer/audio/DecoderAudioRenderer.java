@@ -599,6 +599,7 @@ public abstract class DecoderAudioRenderer<
       audioSink.disableTunneling();
     }
     audioSink.setPlayerId(getPlayerId());
+    audioSink.setClock(getClock());
   }
 
   @Override

@@ -22,6 +22,7 @@ import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.AuxEffectInfo;
 import androidx.media3.common.Format;
 import androidx.media3.common.PlaybackParameters;
+import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.analytics.PlayerId;
 import java.nio.ByteBuffer;
@@ -44,6 +45,11 @@ public class ForwardingAudioSink implements AudioSink {
   @Override
   public void setPlayerId(@Nullable PlayerId playerId) {
     sink.setPlayerId(playerId);
+  }
+
+  @Override
+  public void setClock(Clock clock) {
+    sink.setClock(clock);
   }
 
   @Override
