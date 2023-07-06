@@ -66,7 +66,8 @@ public class WebvttPlaybackTest {
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
             .setMediaSourceFactory(mediaSourceFactory)
             .build();
-    player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));
+    Surface surface = new Surface(new SurfaceTexture(/* texName= */ 1));
+    player.setVideoSurface(surface);
     PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
     MediaItem mediaItem =
         new MediaItem.Builder()
@@ -86,6 +87,7 @@ public class WebvttPlaybackTest {
     player.play();
     TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
     player.release();
+    surface.release();
 
     DumpFileAsserts.assertOutput(
         applicationContext, playbackOutput, "playbackdumps/webvtt/" + inputFile + ".dump");
