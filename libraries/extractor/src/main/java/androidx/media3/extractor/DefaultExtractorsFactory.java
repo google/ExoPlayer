@@ -130,7 +130,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
   private @Mp3Extractor.Flags int mp3Flags;
   private @TsExtractor.Mode int tsMode;
   private @DefaultTsPayloadReaderFactory.Flags int tsFlags;
-  // TODO (b/260245332): Initialize tsSubtitleFormats in constructor once shrinking bug is fixed.
+  // TODO (b/261183220): Initialize tsSubtitleFormats in constructor once shrinking bug is fixed.
   @Nullable private ImmutableList<Format> tsSubtitleFormats;
   private int tsTimestampSearchBytes;
 
