@@ -4,8 +4,17 @@ ExoPlayer is an application level media player for Android. The latest version
 is published as part of [AndroidX Media][] under a new package name and all
 future development will be in that project.
 
+**This project is deprecated.** All users should migrate to AndroidX Media3.
 Please refer to our [migration guide and script][] to move your codebase to the
 Media3 package names.
+
+*   We plan to release `exoplayer2.X.Y` artifacts that match `media3:1.1.Y`
+    bugfix releases (e.g. we will release `exoplayer:2.19.1` to match
+    `media3:1.1.1`).
+*   We don't plan to release any `exoplayer:2.X.Y` artifacts that match
+    `media3:1.2.Y` releases (or later).
+*   We plan to continue pushing commits to the `dev-v2` branch in this
+    repository until March 2024.
 
 [AndroidX Media]: https://github.com/androidx/media
 [migration guide and script]: https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide
