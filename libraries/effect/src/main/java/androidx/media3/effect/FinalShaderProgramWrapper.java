@@ -67,12 +67,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  */
 /* package */ final class FinalShaderProgramWrapper implements GlShaderProgram {
 
-  /** Listener interface for the current input stream ending. */
   interface OnInputStreamProcessedListener {
-    /**
-     * Returns whether {@link FinalShaderProgramWrapper} should invoke {@link
-     * VideoFrameProcessor.Listener#signalEndOfInput}.
-     */
     void onInputStreamProcessed();
   }
 
