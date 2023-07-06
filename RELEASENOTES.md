@@ -13,6 +13,8 @@
         and nullable array element types are not detected as nullable. Examples
         are `TrackSelectorResult` and `SimpleDecoder` method parameters
         ([6792](https://github.com/google/ExoPlayer/issues/6792)).
+    *   Remove accidentally added `multidex` dependency from all modules
+        ([#499](https://github.com/androidx/media/issues/499)).
 *   ExoPlayer:
     *   Add suppression of playback on unsuitable audio output devices (e.g. the
         built-in speaker on Wear OS devices) when this feature is enabled via
