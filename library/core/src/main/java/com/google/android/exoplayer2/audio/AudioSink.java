@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.analytics.PlayerId;
+import com.google.android.exoplayer2.util.Clock;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -343,6 +344,13 @@ public interface AudioSink {
    * @param playerId The {@link PlayerId}, or null to clear a previously set id.
    */
   default void setPlayerId(@Nullable PlayerId playerId) {}
+
+  /**
+   * Sets the {@link Clock} to use for timing in this audio sink.
+   *
+   * @param clock The {@link Clock}.
+   */
+  default void setClock(Clock clock) {}
 
   /**
    * Returns whether the sink supports a given {@link Format}.

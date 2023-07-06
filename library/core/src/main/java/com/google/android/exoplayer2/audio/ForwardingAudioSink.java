@@ -21,6 +21,7 @@ import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.analytics.PlayerId;
+import com.google.android.exoplayer2.util.Clock;
 import java.nio.ByteBuffer;
 
 /**
@@ -48,6 +49,11 @@ public class ForwardingAudioSink implements AudioSink {
   @Override
   public void setPlayerId(@Nullable PlayerId playerId) {
     sink.setPlayerId(playerId);
+  }
+
+  @Override
+  public void setClock(Clock clock) {
+    sink.setClock(clock);
   }
 
   @Override

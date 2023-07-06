@@ -612,6 +612,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       audioSink.disableTunneling();
     }
     audioSink.setPlayerId(getPlayerId());
+    audioSink.setClock(getClock());
   }
 
   @Override

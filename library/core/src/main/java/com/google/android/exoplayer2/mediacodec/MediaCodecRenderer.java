@@ -833,7 +833,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         while (bypassRender(positionUs, elapsedRealtimeUs)) {}
         TraceUtil.endSection();
       } else if (codec != null) {
-        long renderStartTimeMs = SystemClock.elapsedRealtime();
+        long renderStartTimeMs = getClock().elapsedRealtime();
         TraceUtil.beginSection("drainAndFeed");
         while (drainOutputBuffer(positionUs, elapsedRealtimeUs)
             && shouldContinueRendering(renderStartTimeMs)) {}
@@ -1145,7 +1145,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       codecOperatingRate = CODEC_OPERATING_RATE_UNSET;
     }
     onReadyToInitializeCodec(inputFormat);
-    codecInitializingTimestamp = SystemClock.elapsedRealtime();
+    codecInitializingTimestamp = getClock().elapsedRealtime();
     MediaCodecAdapter.Configuration configuration =
         getMediaCodecConfiguration(codecInfo, inputFormat, crypto, codecOperatingRate);
     if (Util.SDK_INT >= 31) {
@@ -1157,7 +1157,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     } finally {
       TraceUtil.endSection();
     }
-    codecInitializedTimestamp = SystemClock.elapsedRealtime();
+    codecInitializedTimestamp = getClock().elapsedRealtime();
 
     if (!codecInfo.isFormatSupported(inputFormat)) {
       Log.w(
@@ -1193,7 +1193,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
 
     if (getState() == STATE_STARTED) {
-      codecHotswapDeadlineMs = SystemClock.elapsedRealtime() + MAX_CODEC_HOTSWAP_TIME_MS;
+      codecHotswapDeadlineMs = getClock().elapsedRealtime() + MAX_CODEC_HOTSWAP_TIME_MS;
     }
 
     decoderCounters.decoderInitCount++;
@@ -1203,7 +1203,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
   private boolean shouldContinueRendering(long renderStartTimeMs) {
     return renderTimeLimitMs == C.TIME_UNSET
-        || SystemClock.elapsedRealtime() - renderStartTimeMs < renderTimeLimitMs;
+        || getClock().elapsedRealtime() - renderStartTimeMs < renderTimeLimitMs;
   }
 
   private boolean hasOutputBuffer() {
@@ -1715,7 +1715,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
         && (isSourceReady()
             || hasOutputBuffer()
             || (codecHotswapDeadlineMs != C.TIME_UNSET
-                && SystemClock.elapsedRealtime() < codecHotswapDeadlineMs));
+                && getClock().elapsedRealtime() < codecHotswapDeadlineMs));
   }
 
   /** Returns the current playback speed, as set by {@link #setPlaybackSpeed}. */

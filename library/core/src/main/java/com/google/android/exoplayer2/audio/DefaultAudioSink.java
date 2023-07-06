@@ -585,6 +585,11 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   @Override
+  public void setClock(Clock clock) {
+    audioTrackPositionTracker.setClock(clock);
+  }
+
+  @Override
   public boolean supportsFormat(Format format) {
     return getFormatSupport(format) != SINK_FORMAT_UNSUPPORTED;
   }
