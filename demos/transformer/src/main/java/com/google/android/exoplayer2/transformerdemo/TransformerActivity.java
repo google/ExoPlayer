@@ -441,7 +441,7 @@ public final class TransformerActivity extends AppCompatActivity {
     if (selectedEffects[ConfigurationActivity.EDGE_DETECTOR_INDEX]) {
       try {
         Class<?> clazz =
-            Class.forName("com.google.android.exoplayer2.transformerdemo.MediaPipeProcessor");
+            Class.forName("com.google.android.exoplayer2.transformerdemo.MediaPipeShaderProgram");
         Constructor<?> constructor =
             clazz.getConstructor(
                 Context.class,
