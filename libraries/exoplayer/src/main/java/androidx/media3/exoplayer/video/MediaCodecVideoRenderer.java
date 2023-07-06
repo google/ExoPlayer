@@ -1287,7 +1287,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (Util.SDK_INT >= 21) {
       // Let the underlying framework time the release.
       if (earlyUs < 50000) {
-        if (adjustedReleaseTimeNs == lastFrameReleaseTimeNs) {
+        if (shouldSkipBuffersWithIdenticalReleaseTime()
+            && adjustedReleaseTimeNs == lastFrameReleaseTimeNs) {
           // This frame should be displayed on the same vsync with the previous released frame. We
           // are likely rendering frames at a rate higher than the screen refresh rate. Skip
           // this buffer so that it's returned to MediaCodec sooner otherwise MediaCodec may not
@@ -1441,6 +1442,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   protected boolean shouldDropBuffersToKeyframe(
       long earlyUs, long elapsedRealtimeUs, boolean isLastBuffer) {
     return isBufferVeryLate(earlyUs) && !isLastBuffer;
+  }
+
+  /**
+   * Returns whether to skip buffers that have an identical release time as the previous released
+   * buffer.
+   */
+  protected boolean shouldSkipBuffersWithIdenticalReleaseTime() {
+    return true;
   }
 
   /**
