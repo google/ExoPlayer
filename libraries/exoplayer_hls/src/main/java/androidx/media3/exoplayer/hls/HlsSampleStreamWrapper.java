@@ -393,13 +393,12 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
           // If there's still a chance of avoiding a seek, try and seek within the sample queue.
           if (!seekRequired) {
             SampleQueue sampleQueue = sampleQueues[trackGroupToSampleQueueIndex[trackGroupIndex]];
-            // A seek can be avoided if we're able to seek to the current playback position in
-            // the sample queue, or if we haven't read anything from the queue since the previous
-            // seek (this case is common for sparse tracks such as metadata tracks). In all other
-            // cases a seek is required.
+            // A seek can be avoided if we haven't read any samples yet (e.g. for the first track
+            // selection) or we are able to seek to the current playback position in the sample
+            // queue. In all other cases a seek is required.
             seekRequired =
-                !sampleQueue.seekTo(positionUs, /* allowTimeBeyondBuffer= */ true)
-                    && sampleQueue.getReadIndex() != 0;
+                sampleQueue.getReadIndex() != 0
+                    && !sampleQueue.seekTo(positionUs, /* allowTimeBeyondBuffer= */ true);
           }
         }
       }
