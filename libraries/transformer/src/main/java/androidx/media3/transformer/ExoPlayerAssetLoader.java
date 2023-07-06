@@ -164,7 +164,7 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
             .setForceHighestSupportedBitrate(true)
             .build());
     // Arbitrarily decrease buffers for playback so that samples start being sent earlier to the
-    // pipelines (rebuffers are less problematic for the export use case).
+    // exporters (rebuffers are less problematic for the export use case).
     DefaultLoadControl loadControl =
         new DefaultLoadControl.Builder()
             .setBufferDurationsMs(

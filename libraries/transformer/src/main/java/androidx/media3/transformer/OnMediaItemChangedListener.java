@@ -19,20 +19,20 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 
-/** A listener for {@link MediaItem} changes in the {@linkplain SamplePipeline sample pipelines}. */
+/** A listener for {@link MediaItem} changes in the {@linkplain SampleExporter sample exporters}. */
 /* package */ interface OnMediaItemChangedListener {
 
   /**
-   * Called when the {@link MediaItem} whose samples are passed to the {@link SamplePipeline}
+   * Called when the {@link MediaItem} whose samples are passed to the {@link SampleExporter}
    * changes.
    *
    * @param editedMediaItem The {@link MediaItem} with the transformations to apply to it.
    * @param durationUs The duration of the {@link MediaItem}, in microseconds.
    * @param trackFormat The {@link Format} extracted (and possibly decoded) from the {@link
-   *     MediaItem} track, which represents the samples input to the {@link SamplePipeline}. {@code
+   *     MediaItem} track, which represents the samples input to the {@link SampleExporter}. {@code
    *     null} if no such track was extracted.
    * @param isLast Whether the {@link MediaItem} is the last one passed to the {@link
-   *     SamplePipeline}.
+   *     SampleExporter}.
    */
   void onMediaItemChanged(
       EditedMediaItem editedMediaItem,

@@ -35,17 +35,17 @@ import com.google.common.collect.ImmutableSet;
 import java.util.List;
 
 /**
- * Pipeline for processing media data.
+ * Exporter that processes media data.
  *
- * <p>This pipeline can be used to implement transformations of audio or video samples.
+ * <p>This exporter can be used to implement transformations of audio or video samples.
  *
  * <p>The {@link SampleConsumer} and {@link OnMediaItemChangedListener} methods must be called from
  * the same thread. This thread can change when the {@link
  * OnMediaItemChangedListener#onMediaItemChanged(EditedMediaItem, long, Format, boolean) MediaItem}
- * changes, and can be different from the thread used to call the other {@code SamplePipeline}
+ * changes, and can be different from the thread used to call the other {@code SampleExporter}
  * methods.
  */
-/* package */ abstract class SamplePipeline implements SampleConsumer, OnMediaItemChangedListener {
+/* package */ abstract class SampleExporter implements SampleConsumer, OnMediaItemChangedListener {
 
   private final MuxerWrapper muxerWrapper;
   private final @C.TrackType int outputTrackType;
@@ -53,7 +53,7 @@ import java.util.List;
 
   private boolean muxerWrapperTrackAdded;
 
-  public SamplePipeline(Format firstInputFormat, MuxerWrapper muxerWrapper) {
+  public SampleExporter(Format firstInputFormat, MuxerWrapper muxerWrapper) {
     this.muxerWrapper = muxerWrapper;
     this.metadata = firstInputFormat.metadata;
     outputTrackType = getProcessedTrackType(firstInputFormat.sampleMimeType);
@@ -67,7 +67,7 @@ import java.util.List;
     return feedMuxer() || (!isMuxerInputEnded() && processDataUpToMuxer());
   }
 
-  /** Releases all resources held by the pipeline. */
+  /** Releases all resources held by the exporter. */
   public abstract void release();
 
   protected boolean processDataUpToMuxer() throws ExportException {

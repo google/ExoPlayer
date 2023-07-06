@@ -27,8 +27,8 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicLong;
 
-/** Pipeline that muxes encoded samples without any transcoding or transformation. */
-/* package */ final class EncodedSamplePipeline extends SamplePipeline {
+/** Muxes encoded samples without any transcoding or transformation. */
+/* package */ final class EncodedSampleExporter extends SampleExporter {
 
   private static final int MAX_INPUT_BUFFER_COUNT = 10;
 
@@ -41,7 +41,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
   private volatile boolean inputEnded;
 
-  public EncodedSamplePipeline(
+  public EncodedSampleExporter(
       Format format,
       TransformationRequest transformationRequest,
       MuxerWrapper muxerWrapper,

@@ -32,8 +32,8 @@ import androidx.media3.decoder.DecoderInputBuffer;
 import java.nio.ByteBuffer;
 import org.checkerframework.dataflow.qual.Pure;
 
-/** Pipeline to process, re-encode and mux raw audio samples. */
-/* package */ final class AudioSamplePipeline extends SamplePipeline {
+/** Processes, re-encodes and muxes raw audio samples. */
+/* package */ final class AudioSampleExporter extends SampleExporter {
   private static final int DEFAULT_ENCODER_BITRATE = 128 * 1024;
 
   private final Codec encoder;
@@ -44,9 +44,9 @@ import org.checkerframework.dataflow.qual.Pure;
 
   private long encoderTotalInputBytes;
 
-  public AudioSamplePipeline(
+  public AudioSampleExporter(
       Format firstAssetLoaderInputFormat,
-      Format firstPipelineInputFormat,
+      Format firstExporterInputFormat,
       TransformationRequest transformationRequest,
       EditedMediaItem firstEditedMediaItem,
       Codec.EncoderFactory encoderFactory,
@@ -54,10 +54,10 @@ import org.checkerframework.dataflow.qual.Pure;
       FallbackListener fallbackListener)
       throws ExportException {
     super(firstAssetLoaderInputFormat, muxerWrapper);
-    checkArgument(firstPipelineInputFormat.pcmEncoding != Format.NO_VALUE);
+    checkArgument(firstExporterInputFormat.pcmEncoding != Format.NO_VALUE);
 
     try {
-      audioGraph = new AudioGraph(firstPipelineInputFormat, firstEditedMediaItem);
+      audioGraph = new AudioGraph(firstExporterInputFormat, firstEditedMediaItem);
     } catch (AudioProcessor.UnhandledAudioFormatException e) {
       throw ExportException.createForAudioProcessing(e, e.inputAudioFormat);
     }
