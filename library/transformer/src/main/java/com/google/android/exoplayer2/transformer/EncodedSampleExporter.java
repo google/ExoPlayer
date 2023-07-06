@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Pipeline that muxes encoded samples without any transcoding or transformation.
+ * Muxes encoded samples without any transcoding or transformation.
  *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
  *     contains the same ExoPlayer code). See <a
@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicLong;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-/* package */ final class EncodedSamplePipeline extends SamplePipeline {
+/* package */ final class EncodedSampleExporter extends SampleExporter {
 
   private static final int MAX_INPUT_BUFFER_COUNT = 10;
 
@@ -49,7 +49,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
   private volatile boolean inputEnded;
 
-  public EncodedSamplePipeline(
+  public EncodedSampleExporter(
       Format format,
       TransformationRequest transformationRequest,
       MuxerWrapper muxerWrapper,

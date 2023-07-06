@@ -905,7 +905,7 @@ public final class MediaItemExportTest {
   }
 
   @Test
-  public void start_withAssetLoaderAlwaysDecoding_pipelineExpectsDecoded() throws Exception {
+  public void start_withAssetLoaderAlwaysDecoding_exporterExpectsDecoded() throws Exception {
     AtomicReference<SampleConsumer> sampleConsumerRef = new AtomicReference<>();
     Transformer transformer =
         createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false)
@@ -917,7 +917,7 @@ public final class MediaItemExportTest {
     transformer.start(mediaItem, outputPath);
     runLooperUntil(transformer.getApplicationLooper(), () -> sampleConsumerRef.get() != null);
 
-    assertThat(sampleConsumerRef.get()).isNotInstanceOf(EncodedSamplePipeline.class);
+    assertThat(sampleConsumerRef.get()).isNotInstanceOf(EncodedSampleExporter.class);
   }
 
   @Test

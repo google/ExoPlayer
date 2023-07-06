@@ -65,7 +65,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.dataflow.qual.Pure;
 
 /**
- * Pipeline to process, re-encode and mux raw video frames.
+ * Processes, re-encodes and muxes raw video frames.
  *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
  *     contains the same ExoPlayer code). See <a
@@ -73,9 +73,9 @@ import org.checkerframework.dataflow.qual.Pure;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-/* package */ final class VideoSamplePipeline extends SamplePipeline {
+/* package */ final class VideoSampleExporter extends SampleExporter {
 
-  private static final String TAG = "VideoSamplePipeline";
+  private static final String TAG = "VideoSampleExporter";
   private final AtomicLong mediaItemOffsetUs;
   private final VideoFrameProcessor videoFrameProcessor;
   private final ColorInfo videoFrameProcessorInputColor;
@@ -91,7 +91,7 @@ import org.checkerframework.dataflow.qual.Pure;
    */
   private volatile long finalFramePresentationTimeUs;
 
-  public VideoSamplePipeline(
+  public VideoSampleExporter(
       Context context,
       Format firstInputFormat,
       TransformationRequest transformationRequest,
@@ -104,8 +104,8 @@ import org.checkerframework.dataflow.qual.Pure;
       DebugViewProvider debugViewProvider)
       throws ExportException {
     // TODO(b/262693177) Add tests for input format change.
-    // TODO(b/278259383) Consider delaying configuration of VideoSamplePipeline to use the decoder
-    // output format instead of the extractor output format, to match AudioSamplePipeline behavior.
+    // TODO(b/278259383) Consider delaying configuration of VideoSampleExporter to use the decoder
+    //  output format instead of the extractor output format, to match AudioSampleExporter behavior.
     super(firstInputFormat, muxerWrapper);
 
     mediaItemOffsetUs = new AtomicLong();
@@ -197,7 +197,7 @@ import org.checkerframework.dataflow.qual.Pure;
 
                 @Override
                 public void onEnded() {
-                  VideoSamplePipeline.this.finalFramePresentationTimeUs =
+                  VideoSampleExporter.this.finalFramePresentationTimeUs =
                       lastProcessedFramePresentationTimeUs;
                   try {
                     encoderWrapper.signalEndOfInputStream();

@@ -20,7 +20,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 
 /**
- * A listener for {@link MediaItem} changes in the {@linkplain SamplePipeline sample pipelines}.
+ * A listener for {@link MediaItem} changes in the {@linkplain SampleExporter sample exporters}.
  *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
  *     contains the same ExoPlayer code). See <a
@@ -31,16 +31,16 @@ import com.google.android.exoplayer2.MediaItem;
 /* package */ interface OnMediaItemChangedListener {
 
   /**
-   * Called when the {@link MediaItem} whose samples are passed to the {@link SamplePipeline}
+   * Called when the {@link MediaItem} whose samples are passed to the {@link SampleExporter}
    * changes.
    *
    * @param editedMediaItem The {@link MediaItem} with the transformations to apply to it.
    * @param durationUs The duration of the {@link MediaItem}, in microseconds.
    * @param trackFormat The {@link Format} extracted (and possibly decoded) from the {@link
-   *     MediaItem} track, which represents the samples input to the {@link SamplePipeline}. {@code
+   *     MediaItem} track, which represents the samples input to the {@link SampleExporter}. {@code
    *     null} if no such track was extracted.
    * @param isLast Whether the {@link MediaItem} is the last one passed to the {@link
-   *     SamplePipeline}.
+   *     SampleExporter}.
    */
   void onMediaItemChanged(
       EditedMediaItem editedMediaItem,

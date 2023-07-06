@@ -194,7 +194,8 @@ import java.util.concurrent.atomic.AtomicReference;
   /**
    * Attempts to feed input data to the {@link AudioProcessingPipeline}.
    *
-   * @return Whether the {@link AudioSamplePipeline} may be able to continue processing data.
+   * @return Whether it may be possible to process more data immediately by calling this method
+   *     again.
    */
   private boolean feedProcessingPipelineFromInput() {
     if (shouldGenerateSilence()) {

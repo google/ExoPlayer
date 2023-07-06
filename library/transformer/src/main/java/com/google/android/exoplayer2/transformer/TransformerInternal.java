@@ -94,13 +94,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   // Internal messages.
   private static final int MSG_START = 0;
-  private static final int MSG_REGISTER_SAMPLE_PIPELINE = 1;
-  private static final int MSG_DRAIN_PIPELINES = 2;
+  private static final int MSG_REGISTER_SAMPLE_EXPORTER = 1;
+  private static final int MSG_DRAIN_EXPORTERS = 2;
   private static final int MSG_END = 3;
   private static final int MSG_UPDATE_PROGRESS = 4;
 
   private static final String TAG = "TransformerInternal";
-  private static final int DRAIN_PIPELINES_DELAY_MS = 10;
+  private static final int DRAIN_EXPORTERS_DELAY_MS = 10;
 
   private final Context context;
   private final Composition composition;
@@ -116,13 +116,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final AtomicInteger tracksToAdd;
   private final AtomicBoolean outputHasAudio;
   private final AtomicBoolean outputHasVideo;
-  private final List<SamplePipeline> samplePipelines;
+  private final List<SampleExporter> sampleExporters;
   private final Object setMaxSequenceDurationUsLock;
   private final MuxerWrapper muxerWrapper;
   private final ConditionVariable transformerConditionVariable;
   private final ExportResult.Builder exportResultBuilder;
 
-  private boolean isDrainingPipelines;
+  private boolean isDrainingExporters;
   private long currentMaxSequenceDurationUs;
   private int nonLoopingSequencesWithNonFinalDuration;
   private @Transformer.ProgressState int progressState;
@@ -186,7 +186,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     tracksToAdd = new AtomicInteger();
     outputHasAudio = new AtomicBoolean();
     outputHasVideo = new AtomicBoolean();
-    samplePipelines = new ArrayList<>();
+    sampleExporters = new ArrayList<>();
     setMaxSequenceDurationUsLock = new Object();
     transformerConditionVariable = new ConditionVariable();
     exportResultBuilder = new ExportResult.Builder();
@@ -289,11 +289,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         case MSG_START:
           startInternal();
           break;
-        case MSG_REGISTER_SAMPLE_PIPELINE:
-          registerSamplePipelineInternal((SamplePipeline) msg.obj);
+        case MSG_REGISTER_SAMPLE_EXPORTER:
+          registerSampleExporterInternal((SampleExporter) msg.obj);
           break;
-        case MSG_DRAIN_PIPELINES:
-          drainPipelinesInternal();
+        case MSG_DRAIN_EXPORTERS:
+          drainExportersInternal();
           break;
         case MSG_END:
           endInternal(/* endReason= */ msg.arg1, /* exportException= */ (ExportException) msg.obj);
@@ -318,21 +318,21 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
-  private void registerSamplePipelineInternal(SamplePipeline samplePipeline) {
-    samplePipelines.add(samplePipeline);
-    if (!isDrainingPipelines) {
-      internalHandler.sendEmptyMessage(MSG_DRAIN_PIPELINES);
-      isDrainingPipelines = true;
+  private void registerSampleExporterInternal(SampleExporter sampleExporter) {
+    sampleExporters.add(sampleExporter);
+    if (!isDrainingExporters) {
+      internalHandler.sendEmptyMessage(MSG_DRAIN_EXPORTERS);
+      isDrainingExporters = true;
     }
   }
 
-  private void drainPipelinesInternal() throws ExportException {
-    for (int i = 0; i < samplePipelines.size(); i++) {
-      while (samplePipelines.get(i).processData()) {}
+  private void drainExportersInternal() throws ExportException {
+    for (int i = 0; i < sampleExporters.size(); i++) {
+      while (sampleExporters.get(i).processData()) {}
     }
 
     if (!muxerWrapper.isEnded()) {
-      internalHandler.sendEmptyMessageDelayed(MSG_DRAIN_PIPELINES, DRAIN_PIPELINES_DELAY_MS);
+      internalHandler.sendEmptyMessageDelayed(MSG_DRAIN_EXPORTERS, DRAIN_EXPORTERS_DELAY_MS);
     }
   }
 
@@ -352,12 +352,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     boolean releasedPreviously = released;
     if (!released) {
       released = true;
-      // The video sample pipeline can hold buffers from the asset loader's decoder in a surface
-      // texture, so we release the video sample pipeline first to avoid releasing the codec while
-      // its buffers are pending processing.
-      for (int i = 0; i < samplePipelines.size(); i++) {
+      // VideoSampleExporter can hold buffers from the asset loader's decoder in a surface texture,
+      // so we release the VideoSampleExporter first to avoid releasing the codec while its buffers
+      // are pending processing.
+      for (int i = 0; i < sampleExporters.size(); i++) {
         try {
-          samplePipelines.get(i).release();
+          sampleExporters.get(i).release();
         } catch (RuntimeException e) {
           if (releaseExportException == null) {
             releaseExportException = ExportException.createForUnexpected(e);
@@ -526,19 +526,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
       @C.TrackType int trackType = getProcessedTrackType(assetLoaderOutputFormat.sampleMimeType);
       AddedTrackInfo trackInfo = checkStateNotNull(addedTrackInfoByTrackType.get(trackType));
-      SamplePipeline samplePipeline = getSamplePipeline(assetLoaderOutputFormat, trackInfo);
+      SampleExporter sampleExporter = getSampleExporter(assetLoaderOutputFormat, trackInfo);
 
       OnMediaItemChangedListener onMediaItemChangedListener =
           (editedMediaItem, durationUs, trackFormat, isLast) -> {
             onMediaItemChanged(trackType, durationUs, isLast);
-            samplePipeline.onMediaItemChanged(editedMediaItem, durationUs, trackFormat, isLast);
+            sampleExporter.onMediaItemChanged(editedMediaItem, durationUs, trackFormat, isLast);
           };
       sequenceAssetLoaders
           .get(sequenceIndex)
           .addOnMediaItemChangedListener(onMediaItemChangedListener, trackType);
 
-      internalHandler.obtainMessage(MSG_REGISTER_SAMPLE_PIPELINE, samplePipeline).sendToTarget();
-      return samplePipeline;
+      internalHandler.obtainMessage(MSG_REGISTER_SAMPLE_EXPORTER, sampleExporter).sendToTarget();
+      return sampleExporter;
     }
 
     @Override
@@ -548,14 +548,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     // Private methods.
 
-    private SamplePipeline getSamplePipeline(
+    private SampleExporter getSampleExporter(
         Format firstAssetLoaderOutputFormat, AddedTrackInfo addedTrackInfo) throws ExportException {
       if (addedTrackInfo.shouldTranscode) {
         EditedMediaItem firstEditedMediaItem = editedMediaItems.get(0);
         if (MimeTypes.isAudio(firstAssetLoaderOutputFormat.sampleMimeType)) {
-          return new AudioSamplePipeline(
+          return new AudioSampleExporter(
               addedTrackInfo.firstAssetLoaderInputFormat,
-              /* firstPipelineInputFormat= */ firstAssetLoaderOutputFormat,
+              /* firstExporterInputFormat= */ firstAssetLoaderOutputFormat,
               transformationRequest,
               firstEditedMediaItem,
               encoderFactory,
@@ -570,7 +570,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                   : (Presentation) compositionVideoEffects.get(0);
 
           // TODO(b/267301878): Pass firstAssetLoaderOutputFormat once surface creation not in VSP.
-          return new VideoSamplePipeline(
+          return new VideoSampleExporter(
               context,
               addedTrackInfo.firstAssetLoaderInputFormat,
               transformationRequest,
@@ -584,7 +584,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         }
       }
 
-      return new EncodedSamplePipeline(
+      return new EncodedSampleExporter(
           firstAssetLoaderOutputFormat, transformationRequest, muxerWrapper, fallbackListener);
     }
 

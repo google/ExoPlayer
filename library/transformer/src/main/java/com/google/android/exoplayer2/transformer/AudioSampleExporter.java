@@ -33,7 +33,7 @@ import java.nio.ByteBuffer;
 import org.checkerframework.dataflow.qual.Pure;
 
 /**
- * Pipeline to process, re-encode and mux raw audio samples.
+ * Processes, re-encodes and muxes raw audio samples.
  *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
  *     contains the same ExoPlayer code). See <a
@@ -41,7 +41,7 @@ import org.checkerframework.dataflow.qual.Pure;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-/* package */ final class AudioSamplePipeline extends SamplePipeline {
+/* package */ final class AudioSampleExporter extends SampleExporter {
   private static final int DEFAULT_ENCODER_BITRATE = 128 * 1024;
 
   private final Codec encoder;
@@ -52,9 +52,9 @@ import org.checkerframework.dataflow.qual.Pure;
 
   private long encoderTotalInputBytes;
 
-  public AudioSamplePipeline(
+  public AudioSampleExporter(
       Format firstAssetLoaderInputFormat,
-      Format firstPipelineInputFormat,
+      Format firstExporterInputFormat,
       TransformationRequest transformationRequest,
       EditedMediaItem firstEditedMediaItem,
       Codec.EncoderFactory encoderFactory,
@@ -62,10 +62,10 @@ import org.checkerframework.dataflow.qual.Pure;
       FallbackListener fallbackListener)
       throws ExportException {
     super(firstAssetLoaderInputFormat, muxerWrapper);
-    checkArgument(firstPipelineInputFormat.pcmEncoding != Format.NO_VALUE);
+    checkArgument(firstExporterInputFormat.pcmEncoding != Format.NO_VALUE);
 
     try {
-      audioGraph = new AudioGraph(firstPipelineInputFormat, firstEditedMediaItem);
+      audioGraph = new AudioGraph(firstExporterInputFormat, firstEditedMediaItem);
     } catch (AudioProcessor.UnhandledAudioFormatException e) {
       throw ExportException.createForAudioProcessing(e, e.inputAudioFormat);
     }
