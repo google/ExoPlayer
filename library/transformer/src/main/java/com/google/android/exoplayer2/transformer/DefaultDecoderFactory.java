@@ -136,6 +136,10 @@ public final class DefaultDecoderFactory implements Codec.DecoderFactory {
             format, /* reason= */ "Decoding HDR is not supported on this device.");
       }
     }
+    if (deviceNeedsDisable8kWorkaround(format)) {
+      throw createExportException(
+          format, /* reason= */ "Decoding 8k is not supported on this device.");
+    }
 
     MediaFormat mediaFormat = createMediaFormatFromFormat(format);
     if (decoderSupportsKeyAllowFrameDrop) {
@@ -175,6 +179,16 @@ public final class DefaultDecoderFactory implements Codec.DecoderFactory {
     }
 
     return Pair.create(mediaFormat, mediaCodecName);
+  }
+
+  private static boolean deviceNeedsDisable8kWorkaround(Format format) {
+    // Fixed on API 31+. See http://b/278234847#comment40 for more information.
+    return SDK_INT < 31
+        && format.width >= 7680
+        && format.height >= 4320
+        && format.sampleMimeType != null
+        && format.sampleMimeType.equals(MimeTypes.VIDEO_H265)
+        && (Util.MODEL.equals("SM-F711U1") || Util.MODEL.equals("SM-F926U1"));
   }
 
   private static boolean deviceNeedsDisableToneMappingWorkaround(
