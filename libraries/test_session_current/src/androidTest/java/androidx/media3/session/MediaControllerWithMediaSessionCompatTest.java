@@ -140,6 +140,67 @@ public class MediaControllerWithMediaSessionCompatTest {
   }
 
   @Test
+  public void setPlaybackSpeed() throws Exception {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder()
+            .setState(
+                PlaybackStateCompat.STATE_PAUSED,
+                /* position= */ 10_000L,
+                /* playbackSpeed= */ 1.0f)
+            .setActions(PlaybackStateCompat.ACTION_SET_PLAYBACK_SPEED)
+            .build();
+    session.setPlaybackState(playbackStateCompat);
+    MediaController controller = controllerTestRule.createController(session.getSessionToken());
+    CountDownLatch countDownLatch = new CountDownLatch(1);
+    AtomicReference<PlaybackParameters> parametersRef = new AtomicReference<>();
+    controller.addListener(
+        new Player.Listener() {
+          @Override
+          public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+            parametersRef.set(playbackParameters);
+            countDownLatch.countDown();
+          }
+        });
+
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              assertThat(
+                      controller
+                          .getAvailableCommands()
+                          .contains(Player.COMMAND_SET_SPEED_AND_PITCH))
+                  .isTrue();
+              controller.setPlaybackSpeed(2.0f);
+            });
+
+    assertThat(countDownLatch.await(1000, MILLISECONDS)).isTrue();
+    assertThat(parametersRef.get().speed).isEqualTo(2.0f);
+  }
+
+  @Test
+  public void setPlaybackSpeed_actionSetPlaybackSpeedNotAvailable_commandNotAvailable()
+      throws Exception {
+    PlaybackStateCompat playbackStateCompat =
+        new PlaybackStateCompat.Builder()
+            .setState(PlaybackStateCompat.STATE_PAUSED, 10_000L, /* playbackSpeed= */ 1.0f)
+            .setActions(PlaybackStateCompat.ACTION_PAUSE)
+            .build();
+    session.setPlaybackState(playbackStateCompat);
+    MediaController controller = controllerTestRule.createController(session.getSessionToken());
+
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () ->
+                assertThat(
+                        controller
+                            .getAvailableCommands()
+                            .contains(Player.COMMAND_SET_SPEED_AND_PITCH))
+                    .isFalse());
+  }
+
+  @Test
   public void disconnected_bySessionRelease() throws Exception {
     CountDownLatch latch = new CountDownLatch(1);
     MediaController controller =
