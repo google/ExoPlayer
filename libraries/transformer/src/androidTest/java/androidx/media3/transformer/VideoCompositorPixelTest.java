@@ -127,7 +127,7 @@ public final class VideoCompositorPixelTest {
                   GlUtil.awaitSyncObject(syncObject);
                 }
                 compositedOutputBitmap.set(
-                    BitmapPixelTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(
+                    BitmapPixelTestUtil.createArgb8888BitmapFromFocusedGlFramebuffer(
                         outputTexture.width, outputTexture.height));
               } catch (GlUtil.GlException e) {
                 throw VideoFrameProcessingException.from(e);

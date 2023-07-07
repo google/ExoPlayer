@@ -95,9 +95,9 @@ public final class TextureBitmapReader implements VideoFrameProcessorTestRunner.
   private static Bitmap createBitmapFromCurrentGlFrameBuffer(
       int width, int height, boolean useHighPrecisionColorComponents) throws GlUtil.GlException {
     if (!useHighPrecisionColorComponents) {
-      return BitmapPixelTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
+      return BitmapPixelTestUtil.createArgb8888BitmapFromFocusedGlFramebuffer(width, height);
     }
     checkState(Util.SDK_INT > 26, "useHighPrecisionColorComponents only supported on API 26+");
-    return BitmapPixelTestUtil.createFp16BitmapFromCurrentGlFramebuffer(width, height);
+    return BitmapPixelTestUtil.createFp16BitmapFromFocusedGlFramebuffer(width, height);
   }
 }

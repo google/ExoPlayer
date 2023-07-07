@@ -345,7 +345,7 @@ public class BitmapPixelTestUtil {
   }
 
   /**
-   * Creates a {@link Bitmap.Config#ARGB_8888} bitmap with the values of the current OpenGL
+   * Creates a {@link Bitmap.Config#ARGB_8888} bitmap with the values of the focused OpenGL
    * framebuffer.
    *
    * <p>This method may block until any previously called OpenGL commands are complete.
@@ -354,14 +354,14 @@ public class BitmapPixelTestUtil {
    * @param height The height of the pixel rectangle to read.
    * @return A {@link Bitmap} with the framebuffer's values.
    */
-  public static Bitmap createArgb8888BitmapFromCurrentGlFramebuffer(int width, int height)
+  public static Bitmap createArgb8888BitmapFromFocusedGlFramebuffer(int width, int height)
       throws GlUtil.GlException {
-    return createBitmapFromCurrentGlFrameBuffer(
+    return createBitmapFromFocusedGlFrameBuffer(
         width, height, /* pixelSize= */ 4, GLES20.GL_UNSIGNED_BYTE, Bitmap.Config.ARGB_8888);
   }
 
   /**
-   * Creates a {@link Bitmap.Config#RGBA_F16} bitmap with the values of the current OpenGL
+   * Creates a {@link Bitmap.Config#RGBA_F16} bitmap with the values of the focused OpenGL
    * framebuffer.
    *
    * <p>This method may block until any previously called OpenGL commands are complete.
@@ -371,13 +371,13 @@ public class BitmapPixelTestUtil {
    * @return A {@link Bitmap} with the framebuffer's values.
    */
   @RequiresApi(26) // Bitmap.Config.RGBA_F16
-  public static Bitmap createFp16BitmapFromCurrentGlFramebuffer(int width, int height)
+  public static Bitmap createFp16BitmapFromFocusedGlFramebuffer(int width, int height)
       throws GlUtil.GlException {
-    return createBitmapFromCurrentGlFrameBuffer(
+    return createBitmapFromFocusedGlFrameBuffer(
         width, height, /* pixelSize= */ 8, GLES30.GL_HALF_FLOAT, Bitmap.Config.RGBA_F16);
   }
 
-  private static Bitmap createBitmapFromCurrentGlFrameBuffer(
+  private static Bitmap createBitmapFromFocusedGlFrameBuffer(
       int width, int height, int pixelSize, int glReadPixelsFormat, Bitmap.Config bitmapConfig)
       throws GlUtil.GlException {
     ByteBuffer pixelBuffer = ByteBuffer.allocateDirect(width * height * pixelSize);
