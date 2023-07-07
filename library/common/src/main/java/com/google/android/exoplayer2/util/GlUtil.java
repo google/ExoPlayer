@@ -394,6 +394,7 @@ public final class GlUtil {
         EGL_CONTEXT_CLIENT_VERSION,
         currentEglContextVersion,
         /* offset= */ 0);
+    checkGlError();
     if (currentEglContextVersion[0] < 3) {
       return 0;
     }
@@ -445,7 +446,11 @@ public final class GlUtil {
       if (foundError) {
         errorMessageBuilder.append('\n');
       }
-      errorMessageBuilder.append("glError: ").append(gluErrorString(error));
+      @Nullable String errorString = gluErrorString(error);
+      if (errorString == null) {
+        errorString = "error code: 0x" + Integer.toHexString(error);
+      }
+      errorMessageBuilder.append("glError: ").append(errorString);
       foundError = true;
     }
     if (foundError) {
