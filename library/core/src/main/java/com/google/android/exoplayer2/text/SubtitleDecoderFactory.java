@@ -21,7 +21,7 @@ import com.google.android.exoplayer2.text.cea.Cea608Decoder;
 import com.google.android.exoplayer2.text.cea.Cea708Decoder;
 import com.google.android.exoplayer2.text.dvb.DvbDecoder;
 import com.google.android.exoplayer2.text.pgs.PgsDecoder;
-import com.google.android.exoplayer2.text.ssa.SsaDecoder;
+import com.google.android.exoplayer2.text.ssa.SsaParser;
 import com.google.android.exoplayer2.text.subrip.SubripDecoder;
 import com.google.android.exoplayer2.text.ttml.TtmlDecoder;
 import com.google.android.exoplayer2.text.tx3g.Tx3gDecoder;
@@ -68,7 +68,7 @@ public interface SubtitleDecoderFactory {
    *   <li>WebVTT (MP4) ({@link Mp4WebvttDecoder})
    *   <li>TTML ({@link TtmlDecoder})
    *   <li>SubRip ({@link SubripDecoder})
-   *   <li>SSA/ASS ({@link SsaDecoder})
+   *   <li>SSA/ASS ({@link SsaParser})
    *   <li>TX3G ({@link Tx3gDecoder})
    *   <li>Cea608 ({@link Cea608Decoder})
    *   <li>Cea708 ({@link Cea708Decoder})
@@ -105,7 +105,9 @@ public interface SubtitleDecoderFactory {
               case MimeTypes.TEXT_VTT:
                 return new WebvttDecoder();
               case MimeTypes.TEXT_SSA:
-                return new SsaDecoder(format.initializationData);
+                return new DelegatingSubtitleDecoder(
+                    "DelegatingSubtitleDecoderWithSsaParser",
+                    new SsaParser(format.initializationData));
               case MimeTypes.APPLICATION_MP4VTT:
                 return new Mp4WebvttDecoder();
               case MimeTypes.APPLICATION_TTML:

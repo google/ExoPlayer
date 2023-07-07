@@ -29,14 +29,15 @@ import android.text.style.UnderlineSpan;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.text.SimpleSubtitleDecoder;
-import com.google.android.exoplayer2.text.Subtitle;
+import com.google.android.exoplayer2.text.CuesWithTiming;
+import com.google.android.exoplayer2.text.SubtitleParser;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Ascii;
 import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableList;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -47,7 +48,7 @@ import java.util.regex.Pattern;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * A {@link SimpleSubtitleDecoder} for SSA/ASS.
+ * A {@link SubtitleParser} for SSA/ASS.
  *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
  *     contains the same ExoPlayer code). See <a
@@ -55,9 +56,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-public final class SsaDecoder extends SimpleSubtitleDecoder {
+public final class SsaParser implements SubtitleParser {
 
-  private static final String TAG = "SsaDecoder";
+  private static final String TAG = "SsaParser";
 
   private static final Pattern SSA_TIMECODE_PATTERN =
       Pattern.compile("(?:(\\d+):)?(\\d+):(\\d+)[:.](\\d+)");
@@ -87,21 +88,22 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
    */
   private float screenHeight;
 
-  public SsaDecoder() {
+  private byte[] dataScratch = Util.EMPTY_BYTE_ARRAY;
+
+  public SsaParser() {
     this(/* initializationData= */ null);
   }
 
   /**
-   * Constructs an SsaDecoder with optional format and header info.
+   * Constructs an instance with optional format and header info.
    *
-   * @param initializationData Optional initialization data for the decoder. If not null or empty,
+   * @param initializationData Optional initialization data for the parser. If not null or empty,
    *     the initialization data must consist of two byte arrays. The first must contain an SSA
    *     format line. The second must contain an SSA header that will be assumed common to all
    *     samples. The header is everything in an SSA file before the {@code [Events]} section (i.e.
    *     {@code [Script Info]} and optional {@code [V4+ Styles]} section.
    */
-  public SsaDecoder(@Nullable List<byte[]> initializationData) {
-    super("SsaDecoder");
+  public SsaParser(@Nullable List<byte[]> initializationData) {
     screenWidth = Cue.DIMEN_UNSET;
     screenHeight = Cue.DIMEN_UNSET;
 
@@ -122,18 +124,38 @@ public final class SsaDecoder extends SimpleSubtitleDecoder {
   }
 
   @Override
-  protected Subtitle decode(byte[] data, int length, boolean reset) {
-    List<List<Cue>> cues = new ArrayList<>();
-    List<Long> cueTimesUs = new ArrayList<>();
+  public void reset() {}
 
-    ParsableByteArray parsableData = new ParsableByteArray(data, length);
+  @Nullable
+  @Override
+  public ImmutableList<CuesWithTiming> parse(byte[] data, int offset, int length) {
+    List<List<Cue>> cues = new ArrayList<>();
+    List<Long> startTimesUs = new ArrayList<>();
+
+    if (dataScratch.length < length) {
+      dataScratch = new byte[length];
+    }
+    System.arraycopy(
+        /* src= */ data, /* scrPos= */ offset, /* dest= */ dataScratch, /* destPos= */ 0, length);
+    ParsableByteArray parsableData = new ParsableByteArray(dataScratch, length);
     Charset charset = detectUtfCharset(parsableData);
 
     if (!haveInitializationData) {
       parseHeader(parsableData, charset);
     }
-    parseEventBody(parsableData, cues, cueTimesUs, charset);
-    return new SsaSubtitle(cues, cueTimesUs);
+    parseEventBody(parsableData, cues, startTimesUs, charset);
+
+    ImmutableList.Builder<CuesWithTiming> cuesWithStartTimeAndDuration = ImmutableList.builder();
+    for (int i = 0; i < cues.size(); i++) {
+      List<Cue> cuesForThisStartTime = cues.get(i);
+      long startTimeUs = startTimesUs.get(i);
+      // The duration of the last CuesWithTiming is C.TIME_UNSET by design
+      long durationUs =
+          i == cues.size() - 1 ? C.TIME_UNSET : startTimesUs.get(i + 1) - startTimesUs.get(i);
+      cuesWithStartTimeAndDuration.add(
+          new CuesWithTiming(cuesForThisStartTime, startTimeUs, durationUs));
+    }
+    return cuesWithStartTimeAndDuration.build();
   }
 
   /**
