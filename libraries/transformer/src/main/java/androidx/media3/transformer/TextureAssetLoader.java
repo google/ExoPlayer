@@ -36,9 +36,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * android.opengl.GLES10#GL_TEXTURE_2D traditional GLES texture} instances.
  *
  * <p>Typically instantiated in a custom {@link AssetLoader.Factory} saving a reference to the
- * created {@link TextureAssetLoader}. Input is provided calling {@link #queueInputTexture} to
- * provide all the video frames, then {@link #signalEndOfVideoInput() signalling the end of input}
- * when finished.
+ * created {@link TextureAssetLoader}. Provide video frames as input by calling {@link
+ * #queueInputTexture}, then {@link #signalEndOfVideoInput() signal the end of input} when finished.
+ * Those methods must be called from the same thread, which can be any thread.
  */
 @UnstableApi
 public final class TextureAssetLoader implements AssetLoader {
@@ -59,6 +59,13 @@ public final class TextureAssetLoader implements AssetLoader {
    *
    * <p>The {@link EditedMediaItem#durationUs}, {@link Format#width} and {@link Format#height} must
    * be set.
+   *
+   * @param editedMediaItem Information about the media item for which frames are provided.
+   * @param assetLoaderListener Listener for asset loading events.
+   * @param format Information about the format of video frames.
+   * @param frameProcessedListener Listener for the event when a frame has been processed. The
+   *     listener receives a GL sync object (if supported) to allow reusing the texture after it's
+   *     no longer in use.
    */
   public TextureAssetLoader(
       EditedMediaItem editedMediaItem,
