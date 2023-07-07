@@ -177,7 +177,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       public Builder setTextureOutput(
           TextureOutputListener textureOutputListener,
           @IntRange(from = 1) int textureOutputCapacity) {
-        // TODO: http://b/262694346 - Add tests for multiple texture output.
         this.textureOutputListener = textureOutputListener;
         checkArgument(textureOutputCapacity >= 1);
         this.textureOutputCapacity = textureOutputCapacity;
