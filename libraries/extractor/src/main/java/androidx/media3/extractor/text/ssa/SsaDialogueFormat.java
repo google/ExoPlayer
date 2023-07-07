@@ -16,7 +16,7 @@
  */
 package androidx.media3.extractor.text.ssa;
 
-import static androidx.media3.extractor.text.ssa.SsaDecoder.FORMAT_LINE_PREFIX;
+import static androidx.media3.extractor.text.ssa.SsaParser.FORMAT_LINE_PREFIX;
 
 import android.text.TextUtils;
 import androidx.annotation.Nullable;

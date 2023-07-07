@@ -17,7 +17,7 @@
 package androidx.media3.extractor.text.ssa;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
-import static androidx.media3.extractor.text.ssa.SsaDecoder.STYLE_LINE_PREFIX;
+import static androidx.media3.extractor.text.ssa.SsaParser.STYLE_LINE_PREFIX;
 import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
@@ -371,7 +371,7 @@ import java.util.regex.Pattern;
       int strikeoutIndex = C.INDEX_UNSET;
       int borderStyleIndex = C.INDEX_UNSET;
       String[] keys =
-          TextUtils.split(styleFormatLine.substring(SsaDecoder.FORMAT_LINE_PREFIX.length()), ",");
+          TextUtils.split(styleFormatLine.substring(SsaParser.FORMAT_LINE_PREFIX.length()), ",");
       for (int i = 0; i < keys.length; i++) {
         switch (Ascii.toLowerCase(keys[i].trim())) {
           case "name":

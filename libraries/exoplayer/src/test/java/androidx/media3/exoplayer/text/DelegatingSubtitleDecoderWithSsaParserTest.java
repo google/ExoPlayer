@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.media3.extractor.text.ssa;
+package androidx.media3.exoplayer.text;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -23,6 +23,7 @@ import android.text.Layout;
 import android.text.Spanned;
 import androidx.media3.common.text.Cue;
 import androidx.media3.extractor.text.Subtitle;
+import androidx.media3.extractor.text.ssa.SsaParser;
 import androidx.media3.test.utils.TestUtil;
 import androidx.media3.test.utils.truth.SpannedSubject;
 import androidx.test.core.app.ApplicationProvider;
@@ -34,9 +35,9 @@ import java.util.Objects;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Unit test for {@link SsaDecoder}. */
+/** Unit test for a {@link DelegatingSubtitleDecoder} backed by {@link SsaParser}. */
 @RunWith(AndroidJUnit4.class)
-public final class SsaDecoderTest {
+public final class DelegatingSubtitleDecoderWithSsaParserTest {
 
   private static final String EMPTY = "media/ssa/empty";
   private static final String EMPTY_STYLE_LINE = "media/ssa/empty_style_line";
@@ -60,7 +61,7 @@ public final class SsaDecoderTest {
 
   @Test
   public void decodeEmpty() throws IOException {
-    SsaDecoder decoder = new SsaDecoder();
+    DelegatingSubtitleDecoder decoder = new DelegatingSubtitleDecoder("SSA", new SsaParser());
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), EMPTY);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
@@ -69,7 +70,7 @@ public final class SsaDecoderTest {
 
   @Test
   public void decodeEmptyStyleLine() throws IOException {
-    SsaDecoder decoder = new SsaDecoder();
+    DelegatingSubtitleDecoder decoder = new DelegatingSubtitleDecoder("SSA", new SsaParser());
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), EMPTY_STYLE_LINE);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, /* reset= */ false);
@@ -90,7 +91,7 @@ public final class SsaDecoderTest {
 
   @Test
   public void decodeTypical() throws IOException {
-    SsaDecoder decoder = new SsaDecoder();
+    DelegatingSubtitleDecoder decoder = new DelegatingSubtitleDecoder("SSA", new SsaParser());
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TYPICAL);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
@@ -122,7 +123,8 @@ public final class SsaDecoderTest {
     ArrayList<byte[]> initializationData = new ArrayList<>();
     initializationData.add(formatBytes);
     initializationData.add(headerBytes);
-    SsaDecoder decoder = new SsaDecoder(initializationData);
+    DelegatingSubtitleDecoder decoder =
+        new DelegatingSubtitleDecoder("SSA", new SsaParser(initializationData));
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TYPICAL_DIALOGUE_ONLY);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
@@ -135,7 +137,7 @@ public final class SsaDecoderTest {
 
   @Test
   public void decodeTypicalUtf16le() throws IOException {
-    SsaDecoder decoder = new SsaDecoder();
+    DelegatingSubtitleDecoder decoder = new DelegatingSubtitleDecoder("SSA", new SsaParser());
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TYPICAL_UTF16LE);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
@@ -161,7 +163,7 @@ public final class SsaDecoderTest {
 
   @Test
   public void decodeTypicalUtf16be() throws IOException {
-    SsaDecoder decoder = new SsaDecoder();
+    DelegatingSubtitleDecoder decoder = new DelegatingSubtitleDecoder("SSA", new SsaParser());
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TYPICAL_UTF16BE);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
@@ -187,7 +189,7 @@ public final class SsaDecoderTest {
 
   @Test
   public void decodeOverlappingTimecodes() throws IOException {
-    SsaDecoder decoder = new SsaDecoder();
+    DelegatingSubtitleDecoder decoder = new DelegatingSubtitleDecoder("SSA", new SsaParser());
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), OVERLAPPING_TIMECODES);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
@@ -237,7 +239,7 @@ public final class SsaDecoderTest {
 
   @Test
   public void decodePositions() throws IOException {
-    SsaDecoder decoder = new SsaDecoder();
+    DelegatingSubtitleDecoder decoder = new DelegatingSubtitleDecoder("SSA", new SsaParser());
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), POSITIONS);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
 
@@ -290,7 +292,7 @@ public final class SsaDecoderTest {
 
   @Test
   public void decodeInvalidPositions() throws IOException {
-    SsaDecoder decoder = new SsaDecoder();
+    DelegatingSubtitleDecoder decoder = new DelegatingSubtitleDecoder("SSA", new SsaParser());
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), INVALID_POSITIONS);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
@@ -326,7 +328,7 @@ public final class SsaDecoderTest {
 
   @Test
   public void decodePositionsWithMissingPlayResY() throws IOException {
-    SsaDecoder decoder = new SsaDecoder();
+    DelegatingSubtitleDecoder decoder = new DelegatingSubtitleDecoder("SSA", new SsaParser());
     byte[] bytes =
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(), POSITIONS_WITHOUT_PLAYRES);
@@ -343,7 +345,7 @@ public final class SsaDecoderTest {
   @Test
   public void decodeInvalidTimecodes() throws IOException {
     // Parsing should succeed, parsing the third cue only.
-    SsaDecoder decoder = new SsaDecoder();
+    DelegatingSubtitleDecoder decoder = new DelegatingSubtitleDecoder("SSA", new SsaParser());
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), INVALID_TIMECODES);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
@@ -354,7 +356,7 @@ public final class SsaDecoderTest {
 
   @Test
   public void decodePrimaryColor() throws IOException {
-    SsaDecoder decoder = new SsaDecoder();
+    DelegatingSubtitleDecoder decoder = new DelegatingSubtitleDecoder("SSA", new SsaParser());
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), STYLE_PRIMARY_COLOR);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
@@ -403,7 +405,7 @@ public final class SsaDecoderTest {
 
   @Test
   public void decodeOutlineColor() throws IOException {
-    SsaDecoder decoder = new SsaDecoder();
+    DelegatingSubtitleDecoder decoder = new DelegatingSubtitleDecoder("SSA", new SsaParser());
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), STYLE_OUTLINE_COLOR);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
@@ -423,7 +425,7 @@ public final class SsaDecoderTest {
 
   @Test
   public void decodeFontSize() throws IOException {
-    SsaDecoder decoder = new SsaDecoder();
+    DelegatingSubtitleDecoder decoder = new DelegatingSubtitleDecoder("SSA", new SsaParser());
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), STYLE_FONT_SIZE);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
@@ -439,7 +441,7 @@ public final class SsaDecoderTest {
 
   @Test
   public void decodeBoldItalic() throws IOException {
-    SsaDecoder decoder = new SsaDecoder();
+    DelegatingSubtitleDecoder decoder = new DelegatingSubtitleDecoder("SSA", new SsaParser());
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), STYLE_BOLD_ITALIC);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
@@ -458,7 +460,7 @@ public final class SsaDecoderTest {
 
   @Test
   public void decodeUnderline() throws IOException {
-    SsaDecoder decoder = new SsaDecoder();
+    DelegatingSubtitleDecoder decoder = new DelegatingSubtitleDecoder("SSA", new SsaParser());
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), STYLE_UNDERLINE);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
@@ -474,7 +476,7 @@ public final class SsaDecoderTest {
 
   @Test
   public void decodeStrikeout() throws IOException {
-    SsaDecoder decoder = new SsaDecoder();
+    DelegatingSubtitleDecoder decoder = new DelegatingSubtitleDecoder("SSA", new SsaParser());
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), STYLE_STRIKEOUT);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
