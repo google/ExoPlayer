@@ -25,7 +25,7 @@ import androidx.media3.extractor.text.cea.Cea708Decoder;
 import androidx.media3.extractor.text.dvb.DvbDecoder;
 import androidx.media3.extractor.text.pgs.PgsDecoder;
 import androidx.media3.extractor.text.ssa.SsaParser;
-import androidx.media3.extractor.text.subrip.SubripDecoder;
+import androidx.media3.extractor.text.subrip.SubripParser;
 import androidx.media3.extractor.text.ttml.TtmlDecoder;
 import androidx.media3.extractor.text.tx3g.Tx3gDecoder;
 import androidx.media3.extractor.text.webvtt.Mp4WebvttDecoder;
@@ -62,7 +62,7 @@ public interface SubtitleDecoderFactory {
    *   <li>WebVTT ({@link WebvttDecoder})
    *   <li>WebVTT (MP4) ({@link Mp4WebvttDecoder})
    *   <li>TTML ({@link TtmlDecoder})
-   *   <li>SubRip ({@link SubripDecoder})
+   *   <li>SubRip ({@link SubripParser})
    *   <li>SSA/ASS ({@link SsaParser})
    *   <li>TX3G ({@link Tx3gDecoder})
    *   <li>Cea608 ({@link Cea608Decoder})
@@ -108,7 +108,8 @@ public interface SubtitleDecoderFactory {
               case MimeTypes.APPLICATION_TTML:
                 return new TtmlDecoder();
               case MimeTypes.APPLICATION_SUBRIP:
-                return new SubripDecoder();
+                return new DelegatingSubtitleDecoder(
+                    "DelegatingSubtitleDecoderWithSubripParser", new SubripParser());
               case MimeTypes.APPLICATION_TX3G:
                 return new Tx3gDecoder(format.initializationData);
               case MimeTypes.APPLICATION_CEA608:

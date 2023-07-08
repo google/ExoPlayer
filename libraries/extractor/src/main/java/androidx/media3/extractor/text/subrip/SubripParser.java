@@ -15,34 +15,40 @@
  */
 package androidx.media3.extractor.text.subrip;
 
+import static androidx.annotation.VisibleForTesting.PRIVATE;
+
 import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
+import androidx.media3.common.C;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.LongArray;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.UnstableApi;
-import androidx.media3.extractor.text.SimpleSubtitleDecoder;
-import androidx.media3.extractor.text.Subtitle;
+import androidx.media3.common.util.Util;
+import androidx.media3.extractor.text.CuesWithTiming;
+import androidx.media3.extractor.text.SubtitleParser;
 import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableList;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/** A {@link SimpleSubtitleDecoder} for SubRip. */
+/** A {@link SubtitleParser} for SubRip. */
 @UnstableApi
-public final class SubripDecoder extends SimpleSubtitleDecoder {
+public final class SubripParser implements SubtitleParser {
 
   // Fractional positions for use when alignment tags are present.
   private static final float START_FRACTION = 0.08f;
   private static final float END_FRACTION = 1 - START_FRACTION;
   private static final float MID_FRACTION = 0.5f;
 
-  private static final String TAG = "SubripDecoder";
+  private static final String TAG = "SubripParser";
 
   // Some SRT files don't include hours or milliseconds in the timecode, so we use optional groups.
   private static final String SUBRIP_TIMECODE = "(?:(\\d+):)?(\\d+):(\\d+)(?:,(\\d+))?";
@@ -66,18 +72,25 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
 
   private final StringBuilder textBuilder;
   private final ArrayList<String> tags;
+  private byte[] dataScratch = Util.EMPTY_BYTE_ARRAY;
 
-  public SubripDecoder() {
-    super("SubripDecoder");
+  public SubripParser() {
     textBuilder = new StringBuilder();
     tags = new ArrayList<>();
   }
 
+  @Nullable
   @Override
-  protected Subtitle decode(byte[] data, int length, boolean reset) {
+  public ImmutableList<CuesWithTiming> parse(byte[] data, int offset, int length) {
     ArrayList<Cue> cues = new ArrayList<>();
-    LongArray cueTimesUs = new LongArray();
-    ParsableByteArray subripData = new ParsableByteArray(data, length);
+    LongArray startTimesUs = new LongArray();
+
+    if (dataScratch.length < length) {
+      dataScratch = new byte[length];
+    }
+    System.arraycopy(
+        /* src= */ data, /* scrPos= */ offset, /* dest= */ dataScratch, /* destPos= */ 0, length);
+    ParsableByteArray subripData = new ParsableByteArray(dataScratch, length);
     Charset charset = detectUtfCharset(subripData);
 
     @Nullable String currentLine;
@@ -104,8 +117,8 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
 
       Matcher matcher = SUBRIP_TIMING_LINE.matcher(currentLine);
       if (matcher.matches()) {
-        cueTimesUs.add(parseTimecode(matcher, /* groupOffset= */ 1));
-        cueTimesUs.add(parseTimecode(matcher, /* groupOffset= */ 6));
+        startTimesUs.add(parseTimecode(matcher, /* groupOffset= */ 1));
+        startTimesUs.add(parseTimecode(matcher, /* groupOffset= */ 6));
       } else {
         Log.w(TAG, "Skipping invalid timing: " + currentLine);
         continue;
@@ -138,10 +151,21 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
       cues.add(Cue.EMPTY);
     }
 
-    Cue[] cuesArray = cues.toArray(new Cue[0]);
-    long[] cueTimesUsArray = cueTimesUs.toArray();
-    return new SubripSubtitle(cuesArray, cueTimesUsArray);
+    ImmutableList.Builder<CuesWithTiming> cuesWithStartTimeAndDuration = ImmutableList.builder();
+    for (int i = 0; i < cues.size(); i++) {
+      cuesWithStartTimeAndDuration.add(
+          new CuesWithTiming(
+              /* cues= */ ImmutableList.of(cues.get(i)),
+              /* startTimeUs= */ startTimesUs.get(i),
+              /* durationUs= */ i == cues.size() - 1
+                  ? C.TIME_UNSET
+                  : startTimesUs.get(i + 1) - startTimesUs.get(i)));
+    }
+    return cuesWithStartTimeAndDuration.build();
   }
+
+  @Override
+  public void reset() {}
 
   /**
    * Determine UTF encoding of the byte array from a byte order mark (BOM), defaulting to UTF-8 if
@@ -248,14 +272,17 @@ public final class SubripDecoder extends SimpleSubtitleDecoder {
     return timestampMs * 1000;
   }
 
-  /* package */ static float getFractionalPositionForAnchorType(@Cue.AnchorType int anchorType) {
+  // TODO(b/289983417): Make package-private again, once it is no longer needed in
+  // DelegatingSubtitleDecoderWithSubripParserTest.java (i.e. legacy subtitle flow is removed)
+  @VisibleForTesting(otherwise = PRIVATE)
+  public static float getFractionalPositionForAnchorType(@Cue.AnchorType int anchorType) {
     switch (anchorType) {
       case Cue.ANCHOR_TYPE_START:
-        return SubripDecoder.START_FRACTION;
+        return START_FRACTION;
       case Cue.ANCHOR_TYPE_MIDDLE:
-        return SubripDecoder.MID_FRACTION;
+        return MID_FRACTION;
       case Cue.ANCHOR_TYPE_END:
-        return SubripDecoder.END_FRACTION;
+        return END_FRACTION;
       case Cue.TYPE_UNSET:
       default:
         // Should never happen.
