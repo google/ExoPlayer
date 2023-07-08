@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,22 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.text.subrip;
+package com.google.android.exoplayer2.text;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
-import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.text.Subtitle;
+import com.google.android.exoplayer2.text.subrip.SubripParser;
 import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Unit test for {@link SubripDecoder}. */
+/** Unit test for a DelegatingSubtitleDecoder backed by {@link SubripParser}. */
 @RunWith(AndroidJUnit4.class)
-public final class SubripDecoderTest {
+public class DelegatingSubtitleDecoderWithSubripParserTest {
 
   private static final String EMPTY_FILE = "media/subrip/empty";
   private static final String TYPICAL_FILE = "media/subrip/typical";
@@ -48,7 +47,8 @@ public final class SubripDecoderTest {
 
   @Test
   public void decodeEmpty() throws IOException {
-    SubripDecoder decoder = new SubripDecoder();
+    DelegatingSubtitleDecoder decoder =
+        new DelegatingSubtitleDecoder("SubripDecoder", new SubripParser());
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), EMPTY_FILE);
 
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
@@ -59,7 +59,8 @@ public final class SubripDecoderTest {
 
   @Test
   public void decodeTypical() throws IOException {
-    SubripDecoder decoder = new SubripDecoder();
+    DelegatingSubtitleDecoder decoder =
+        new DelegatingSubtitleDecoder("SubripDecoder", new SubripParser());
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TYPICAL_FILE);
 
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
@@ -72,7 +73,8 @@ public final class SubripDecoderTest {
 
   @Test
   public void decodeTypicalWithByteOrderMark() throws IOException {
-    SubripDecoder decoder = new SubripDecoder();
+    DelegatingSubtitleDecoder decoder =
+        new DelegatingSubtitleDecoder("SubripDecoder", new SubripParser());
     byte[] bytes =
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(), TYPICAL_WITH_BYTE_ORDER_MARK);
@@ -87,7 +89,8 @@ public final class SubripDecoderTest {
 
   @Test
   public void decodeTypicalExtraBlankLine() throws IOException {
-    SubripDecoder decoder = new SubripDecoder();
+    DelegatingSubtitleDecoder decoder =
+        new DelegatingSubtitleDecoder("SubripDecoder", new SubripParser());
     byte[] bytes =
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(), TYPICAL_EXTRA_BLANK_LINE);
@@ -103,7 +106,8 @@ public final class SubripDecoderTest {
   @Test
   public void decodeTypicalMissingTimecode() throws IOException {
     // Parsing should succeed, parsing the first and third cues only.
-    SubripDecoder decoder = new SubripDecoder();
+    DelegatingSubtitleDecoder decoder =
+        new DelegatingSubtitleDecoder("SubripDecoder", new SubripParser());
     byte[] bytes =
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(), TYPICAL_MISSING_TIMECODE);
@@ -118,7 +122,8 @@ public final class SubripDecoderTest {
   @Test
   public void decodeTypicalMissingSequence() throws IOException {
     // Parsing should succeed, parsing the first and third cues only.
-    SubripDecoder decoder = new SubripDecoder();
+    DelegatingSubtitleDecoder decoder =
+        new DelegatingSubtitleDecoder("SubripDecoder", new SubripParser());
     byte[] bytes =
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(), TYPICAL_MISSING_SEQUENCE);
@@ -133,7 +138,8 @@ public final class SubripDecoderTest {
   @Test
   public void decodeTypicalNegativeTimestamps() throws IOException {
     // Parsing should succeed, parsing the third cue only.
-    SubripDecoder decoder = new SubripDecoder();
+    DelegatingSubtitleDecoder decoder =
+        new DelegatingSubtitleDecoder("SubripDecoder", new SubripParser());
     byte[] bytes =
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(), TYPICAL_NEGATIVE_TIMESTAMPS);
@@ -147,7 +153,8 @@ public final class SubripDecoderTest {
   @Test
   public void decodeTypicalUnexpectedEnd() throws IOException {
     // Parsing should succeed, parsing the first and second cues only.
-    SubripDecoder decoder = new SubripDecoder();
+    DelegatingSubtitleDecoder decoder =
+        new DelegatingSubtitleDecoder("SubripDecoder", new SubripParser());
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TYPICAL_UNEXPECTED_END);
 
@@ -160,7 +167,8 @@ public final class SubripDecoderTest {
 
   @Test
   public void decodeTypicalUtf16LittleEndian() throws IOException {
-    SubripDecoder decoder = new SubripDecoder();
+    DelegatingSubtitleDecoder decoder =
+        new DelegatingSubtitleDecoder("SubripDecoder", new SubripParser());
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TYPICAL_UTF16LE);
 
@@ -174,7 +182,8 @@ public final class SubripDecoderTest {
 
   @Test
   public void decodeTypicalUtf16BigEndian() throws IOException {
-    SubripDecoder decoder = new SubripDecoder();
+    DelegatingSubtitleDecoder decoder =
+        new DelegatingSubtitleDecoder("SubripDecoder", new SubripParser());
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TYPICAL_UTF16BE);
 
@@ -188,7 +197,8 @@ public final class SubripDecoderTest {
 
   @Test
   public void decodeCueWithTag() throws IOException {
-    SubripDecoder decoder = new SubripDecoder();
+    DelegatingSubtitleDecoder decoder =
+        new DelegatingSubtitleDecoder("SubripDecoder", new SubripParser());
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), TYPICAL_WITH_TAGS);
 
@@ -217,7 +227,8 @@ public final class SubripDecoderTest {
 
   @Test
   public void decodeTypicalNoHoursAndMillis() throws IOException {
-    SubripDecoder decoder = new SubripDecoder();
+    DelegatingSubtitleDecoder decoder =
+        new DelegatingSubtitleDecoder("SubripDecoder", new SubripParser());
     byte[] bytes =
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(), TYPICAL_NO_HOURS_AND_MILLIS);
@@ -263,9 +274,9 @@ public final class SubripDecoderTest {
     Cue cue = subtitle.getCues(eventTimeUs).get(0);
     assertThat(cue.lineType).isEqualTo(Cue.LINE_TYPE_FRACTION);
     assertThat(cue.lineAnchor).isEqualTo(lineAnchor);
-    assertThat(cue.line).isEqualTo(SubripDecoder.getFractionalPositionForAnchorType(lineAnchor));
     assertThat(cue.positionAnchor).isEqualTo(positionAnchor);
+    assertThat(cue.line).isEqualTo(SubripParser.getFractionalPositionForAnchorType(lineAnchor));
     assertThat(cue.position)
-        .isEqualTo(SubripDecoder.getFractionalPositionForAnchorType(positionAnchor));
+        .isEqualTo(SubripParser.getFractionalPositionForAnchorType(positionAnchor));
   }
 }
