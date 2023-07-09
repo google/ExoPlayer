@@ -21,18 +21,20 @@ import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSE
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
+import android.media.MediaCodec;
 import android.media.MediaFormat;
-import android.util.Pair;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import org.json.JSONException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -119,13 +121,11 @@ public class ForceEndOfStreamTest {
   }
 
   private static final class FrameDroppingDecoderFactory implements Codec.DecoderFactory {
-    private final Context context;
     private final DefaultDecoderFactory defaultDecoderFactory;
     private final int sourceFrameCount;
     private final int framesToDrop;
 
     private FrameDroppingDecoderFactory(Context context, int sourceFrameCount, int framesToDrop) {
-      this.context = context;
       this.defaultDecoderFactory = new DefaultDecoderFactory(context);
       this.sourceFrameCount = sourceFrameCount;
       this.framesToDrop = framesToDrop;
@@ -140,51 +140,102 @@ public class ForceEndOfStreamTest {
     public Codec createForVideoDecoding(
         Format format, Surface outputSurface, boolean requestSdrToneMapping)
         throws ExportException {
-      Pair<MediaFormat, String> videoDecoderMediaFormatAndName =
-          defaultDecoderFactory.findVideoDecoder(format, requestSdrToneMapping);
       return new FrameDroppingDecoder(
-          context,
-          format,
-          videoDecoderMediaFormatAndName.first,
-          videoDecoderMediaFormatAndName.second,
-          outputSurface,
+          defaultDecoderFactory.createForVideoDecoding(
+              format, outputSurface, requestSdrToneMapping),
           sourceFrameCount,
           framesToDrop);
     }
 
-    private static final class FrameDroppingDecoder extends DefaultCodec {
+    public static final class FrameDroppingDecoder implements Codec {
 
+      private final DefaultCodec wrappedDecoder;
       private final int sourceFrameCount;
       private final int framesToDrop;
 
       private int framesReceived;
 
-      public FrameDroppingDecoder(
-          Context context,
-          Format configurationFormat,
-          MediaFormat configurationMediaFormat,
-          String mediaCodecName,
-          @Nullable Surface outputSurface,
-          int sourceFrameCount,
-          int framesToDrop)
+      public FrameDroppingDecoder(DefaultCodec decoder, int sourceFrameCount, int framesToDrop)
           throws ExportException {
-        super(
-            context,
-            configurationFormat,
-            configurationMediaFormat,
-            mediaCodecName,
-            /* isDecoder= */ true,
-            outputSurface);
+        wrappedDecoder = decoder;
         this.sourceFrameCount = sourceFrameCount;
         this.framesToDrop = framesToDrop;
       }
 
       @Override
+      public Format getConfigurationFormat() {
+        return wrappedDecoder.getConfigurationFormat();
+      }
+
+      @Override
+      public String getName() {
+        return wrappedDecoder.getName();
+      }
+
+      @Override
+      public Surface getInputSurface() {
+        throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public int getMaxPendingFrameCount() {
+        return wrappedDecoder.getMaxPendingFrameCount();
+      }
+
+      @Override
+      public boolean maybeDequeueInputBuffer(DecoderInputBuffer inputBuffer)
+          throws ExportException {
+        return wrappedDecoder.maybeDequeueInputBuffer(inputBuffer);
+      }
+
+      @Override
+      public void queueInputBuffer(DecoderInputBuffer inputBuffer) throws ExportException {
+        wrappedDecoder.queueInputBuffer(inputBuffer);
+      }
+
+      @Override
+      public void signalEndOfInputStream() throws ExportException {
+        wrappedDecoder.signalEndOfInputStream();
+      }
+
+      @Nullable
+      @Override
+      public Format getOutputFormat() throws ExportException {
+        return wrappedDecoder.getOutputFormat();
+      }
+
+      @Override
+      public ByteBuffer getOutputBuffer() throws ExportException {
+        throw new UnsupportedOperationException();
+      }
+
+      @Nullable
+      @Override
+      public MediaCodec.BufferInfo getOutputBufferInfo() throws ExportException {
+        return wrappedDecoder.getOutputBufferInfo();
+      }
+
+      @Override
+      public void releaseOutputBuffer(boolean render) throws ExportException {
+        wrappedDecoder.releaseOutputBuffer(render);
+      }
+
+      @Override
       public void releaseOutputBuffer(long renderPresentationTimeUs) throws ExportException {
         framesReceived++;
-        super.releaseOutputBuffer(
+        wrappedDecoder.releaseOutputBuffer(
             /* render= */ sourceFrameCount - framesReceived >= framesToDrop,
             renderPresentationTimeUs);
+      }
+
+      @Override
+      public boolean isEnded() {
+        return wrappedDecoder.isEnded();
+      }
+
+      @Override
+      public void release() {
+        wrappedDecoder.release();
       }
     }
   }
