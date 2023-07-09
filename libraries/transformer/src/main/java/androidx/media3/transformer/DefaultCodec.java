@@ -51,7 +51,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A default {@link Codec} implementation that uses {@link MediaCodec}. */
 @UnstableApi
-public class DefaultCodec implements Codec {
+public final class DefaultCodec implements Codec {
   // MediaCodec decoders output 16 bit PCM, unless configured to output PCM float.
   // https://developer.android.com/reference/android/media/MediaCodec#raw-audio-buffers.
   public static final int DEFAULT_PCM_ENCODING = C.ENCODING_PCM_16BIT;

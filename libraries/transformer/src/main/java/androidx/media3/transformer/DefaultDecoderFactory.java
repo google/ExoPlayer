@@ -65,7 +65,7 @@ public final class DefaultDecoderFactory implements Codec.DecoderFactory {
   }
 
   @Override
-  public Codec createForAudioDecoding(Format format) throws ExportException {
+  public DefaultCodec createForAudioDecoding(Format format) throws ExportException {
     checkNotNull(format.sampleMimeType);
     MediaFormat mediaFormat = createMediaFormatFromFormat(format);
 
@@ -96,26 +96,8 @@ public final class DefaultDecoderFactory implements Codec.DecoderFactory {
 
   @SuppressLint("InlinedApi")
   @Override
-  public Codec createForVideoDecoding(
+  public DefaultCodec createForVideoDecoding(
       Format format, Surface outputSurface, boolean requestSdrToneMapping) throws ExportException {
-    Pair<MediaFormat, String> videoDecoderMediaFormatAndName =
-        findVideoDecoder(format, requestSdrToneMapping);
-    return new DefaultCodec(
-        context,
-        format,
-        videoDecoderMediaFormatAndName.first,
-        videoDecoderMediaFormatAndName.second,
-        /* isDecoder= */ true,
-        outputSurface);
-  }
-
-  /**
-   * Returns the {@link MediaFormat} to configure the {@linkplain Codec decoder}, and the name of
-   * the {@link MediaCodec} decoder.
-   */
-  @VisibleForTesting
-  /* package */ Pair<MediaFormat, String> findVideoDecoder(
-      Format format, boolean requestSdrToneMapping) throws ExportException {
     checkNotNull(format.sampleMimeType);
 
     if (ColorInfo.isTransferHdr(format.colorInfo)) {
@@ -173,8 +155,8 @@ public final class DefaultDecoderFactory implements Codec.DecoderFactory {
       MediaFormatUtil.maybeSetInteger(
           mediaFormat, MediaFormat.KEY_LEVEL, codecProfileAndLevel.second);
     }
-
-    return Pair.create(mediaFormat, mediaCodecName);
+    return new DefaultCodec(
+        context, format, mediaFormat, mediaCodecName, /* isDecoder= */ true, outputSurface);
   }
 
   private static boolean deviceNeedsDisable8kWorkaround(Format format) {
