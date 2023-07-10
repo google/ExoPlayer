@@ -15,6 +15,7 @@
  */
 package androidx.media3.session;
 
+import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.test.session.common.CommonConstants.ACTION_MEDIA3_CONTROLLER;
 import static androidx.media3.test.session.common.TestUtils.SERVICE_CONNECTION_TIMEOUT_MS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -40,8 +41,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -56,6 +59,7 @@ public class MediaControllerProviderService extends Service {
   private static final String TAG = "MCProviderService";
 
   Map<String, MediaController> mediaControllerMap = new HashMap<>();
+  Set<String> untrackedControllerIds = new HashSet<>();
   RemoteMediaControllerStub binder;
 
   TestHandler handler;
@@ -136,6 +140,7 @@ public class MediaControllerProviderService extends Service {
               });
 
       if (!waitForConnection) {
+        untrackedControllerIds.add(controllerId);
         return;
       }
 
@@ -696,7 +701,11 @@ public class MediaControllerProviderService extends Service {
       runOnHandler(
           () -> {
             MediaController controller = mediaControllerMap.get(controllerId);
-            controller.release();
+            if (controller != null) {
+              controller.release();
+            } else {
+              checkState(untrackedControllerIds.remove(controllerId));
+            }
           });
     }
 
