@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer2.transformer;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import android.content.Context;
 import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
@@ -61,12 +59,9 @@ public class TransformerWithInAppMuxerEndToEndTest {
             .setEffects(new Effects(/* audioProcessors= */ ImmutableList.of(), videoEffects))
             .build();
 
-    ExportTestResult result =
-        new TransformerAndroidTestRunner.Builder(context, transformer)
-            .build()
-            .run(testId, editedMediaItem);
-
-    assertThat(result.exportResult.exportException).isNull();
+    new TransformerAndroidTestRunner.Builder(context, transformer)
+        .build()
+        .run(testId, editedMediaItem);
   }
 
   @Test
@@ -86,11 +81,8 @@ public class TransformerWithInAppMuxerEndToEndTest {
                     /* videoEffects= */ ImmutableList.of()))
             .build();
 
-    ExportTestResult result =
-        new TransformerAndroidTestRunner.Builder(context, transformer)
-            .build()
-            .run(testId, editedMediaItem);
-
-    assertThat(result.exportResult.exportException).isNull();
+    new TransformerAndroidTestRunner.Builder(context, transformer)
+        .build()
+        .run(testId, editedMediaItem);
   }
 }
