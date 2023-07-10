@@ -38,14 +38,8 @@ import java.util.List;
  * Exporter that processes media data.
  *
  * <p>This exporter can be used to implement transformations of audio or video samples.
- *
- * <p>The {@link SampleConsumer} and {@link OnMediaItemChangedListener} methods must be called from
- * the same thread. This thread can change when the {@link
- * OnMediaItemChangedListener#onMediaItemChanged(EditedMediaItem, long, Format, boolean) MediaItem}
- * changes, and can be different from the thread used to call the other {@code SampleExporter}
- * methods.
  */
-/* package */ abstract class SampleExporter implements SampleConsumer, OnMediaItemChangedListener {
+/* package */ abstract class SampleExporter {
 
   private final MuxerWrapper muxerWrapper;
   private final @C.TrackType int outputTrackType;
@@ -58,6 +52,17 @@ import java.util.List;
     this.metadata = firstInputFormat.metadata;
     outputTrackType = getProcessedTrackType(firstInputFormat.sampleMimeType);
   }
+
+  /**
+   * Returns an {@link GraphInput} to the underlying processing graph.
+   *
+   * <p>The {@link GraphInput} methods must be called from the same thread. This thread can change
+   * when the {@linkplain GraphInput#onMediaItemChanged MediaItem changes}, and can be different
+   * from the thread used to call the other {@link GraphInput} methods. All subsequent {@link
+   * GraphInput} method calls must be made from the thread on which {@link
+   * GraphInput#onMediaItemChanged} is called.
+   */
+  public abstract GraphInput getInput();
 
   /**
    * Processes the input data and returns whether it may be possible to process more data by calling

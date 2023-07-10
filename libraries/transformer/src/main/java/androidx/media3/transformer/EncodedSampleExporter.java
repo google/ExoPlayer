@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicLong;
 
 /** Muxes encoded samples without any transcoding or transformation. */
-/* package */ final class EncodedSampleExporter extends SampleExporter {
+/* package */ final class EncodedSampleExporter extends SampleExporter implements GraphInput {
 
   private static final int MAX_INPUT_BUFFER_COUNT = 10;
 
@@ -86,6 +86,11 @@ import java.util.concurrent.atomic.AtomicLong;
       pendingInputBuffers.add(inputBuffer);
     }
     return true;
+  }
+
+  @Override
+  public GraphInput getInput() {
+    return this;
   }
 
   @Override

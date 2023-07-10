@@ -46,7 +46,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicReference;
 
 /** Processes raw audio samples. */
-/* package */ final class AudioGraph implements SampleConsumer, OnMediaItemChangedListener {
+/* package */ final class AudioGraph implements GraphInput {
   private static final int MAX_INPUT_BUFFER_COUNT = 10;
   private final AudioFormat outputAudioFormat;
   private final SilentAudioGenerator silentAudioGenerator;

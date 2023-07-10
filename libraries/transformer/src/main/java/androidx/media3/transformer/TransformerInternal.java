@@ -526,18 +526,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       @C.TrackType int trackType = getProcessedTrackType(assetLoaderOutputFormat.sampleMimeType);
       AddedTrackInfo trackInfo = checkStateNotNull(addedTrackInfoByTrackType.get(trackType));
       SampleExporter sampleExporter = getSampleExporter(assetLoaderOutputFormat, trackInfo);
+      GraphInput sampleExporterInput = sampleExporter.getInput();
 
       OnMediaItemChangedListener onMediaItemChangedListener =
           (editedMediaItem, durationUs, trackFormat, isLast) -> {
             onMediaItemChanged(trackType, durationUs, isLast);
-            sampleExporter.onMediaItemChanged(editedMediaItem, durationUs, trackFormat, isLast);
+            sampleExporterInput.onMediaItemChanged(
+                editedMediaItem, durationUs, trackFormat, isLast);
           };
       sequenceAssetLoaders
           .get(sequenceIndex)
           .addOnMediaItemChangedListener(onMediaItemChangedListener, trackType);
 
       internalHandler.obtainMessage(MSG_REGISTER_SAMPLE_EXPORTER, sampleExporter).sendToTarget();
-      return sampleExporter;
+      return sampleExporterInput;
     }
 
     @Override

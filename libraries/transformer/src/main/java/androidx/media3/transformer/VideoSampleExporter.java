@@ -64,8 +64,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.dataflow.qual.Pure;
 
-/** Processes, re-encodes and muxes raw video frames. */
-/* package */ final class VideoSampleExporter extends SampleExporter {
+// TODO: b/289986435 - Remove implementations of GraphInput after creating VideoGraph.
+/** Processes, encodes and muxes raw video frames. */
+/* package */ final class VideoSampleExporter extends SampleExporter implements GraphInput {
 
   private static final String TAG = "VideoSampleExporter";
   private final AtomicLong mediaItemOffsetUs;
@@ -264,6 +265,11 @@ import org.checkerframework.dataflow.qual.Pure;
   @Override
   public void signalEndOfVideoInput() {
     videoFrameProcessor.signalEndOfInput();
+  }
+
+  @Override
+  public GraphInput getInput() {
+    return this;
   }
 
   @Override
