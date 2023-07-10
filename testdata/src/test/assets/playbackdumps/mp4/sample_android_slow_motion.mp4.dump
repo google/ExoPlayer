@@ -1,10 +1,60 @@
 MediaCodecAdapter (exotest.video.avc):
-  buffers.length = 8
-  buffers[0] = length 34656, hash D92B66FF
-  buffers[1] = length 768, hash D0C3B229
-  buffers[2] = length 1184, hash C598EFC0
-  buffers[3] = length 576, hash 667AEC2C
-  buffers[4] = length 1456, hash 430D1498
-  buffers[5] = length 1280, hash 12267E0E
-  buffers[6] = length 2400, hash FBCB42C
-  buffers[7] = length 0, hash 1
+  inputBuffers:
+    count = 8
+    input buffer #0:
+      timeUs = 1000000000000
+      contents = length 34656, hash D92B66FF
+    input buffer #1:
+      timeUs = 1000000325344
+      contents = length 768, hash D0C3B229
+    input buffer #2:
+      timeUs = 1000000358677
+      contents = length 1184, hash C598EFC0
+    input buffer #3:
+      timeUs = 1000000392011
+      contents = length 576, hash 667AEC2C
+    input buffer #4:
+      timeUs = 1000000425344
+      contents = length 1456, hash 430D1498
+    input buffer #5:
+      timeUs = 1000000458677
+      contents = length 1280, hash 12267E0E
+    input buffer #6:
+      timeUs = 1000000492011
+      contents = length 2400, hash FBCB42C
+    input buffer #7:
+      timeUs = 0
+      flags = 4
+      contents = length 0, hash 1
+  outputBuffers:
+    count = 7
+    output buffer #0:
+      timeUs = 1000000000000
+      size = 34656
+      rendered = true
+    output buffer #1:
+      timeUs = 1000000325344
+      size = 768
+      rendered = true
+    output buffer #2:
+      timeUs = 1000000358677
+      size = 1184
+      rendered = true
+    output buffer #3:
+      timeUs = 1000000392011
+      size = 576
+      rendered = true
+    output buffer #4:
+      timeUs = 1000000425344
+      size = 1456
+      rendered = true
+    output buffer #5:
+      timeUs = 1000000458677
+      size = 1280
+      rendered = true
+    output buffer #6:
+      timeUs = 1000000492011
+      size = 2400
+      rendered = true
+AudioSink:
+  buffer count = 0

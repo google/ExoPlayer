@@ -1,11 +1,95 @@
 MediaCodecAdapter (exotest.audio.ac3):
-  buffers.length = 9
-  buffers[0] = length 1536, hash 7108D5C2
-  buffers[1] = length 1536, hash 80BF3B34
-  buffers[2] = length 1536, hash 5D09685
-  buffers[3] = length 1536, hash A9A24E44
-  buffers[4] = length 1536, hash 6F856273
-  buffers[5] = length 1536, hash B1737D3C
-  buffers[6] = length 1536, hash 98FDEB9D
-  buffers[7] = length 1536, hash 99B9B943
-  buffers[8] = length 0, hash 1
+  inputBuffers:
+    count = 9
+    input buffer #0:
+      timeUs = 1000000032000
+      contents = length 1536, hash 7108D5C2
+    input buffer #1:
+      timeUs = 1000000064000
+      contents = length 1536, hash 80BF3B34
+    input buffer #2:
+      timeUs = 1000000096000
+      contents = length 1536, hash 5D09685
+    input buffer #3:
+      timeUs = 1000000128000
+      contents = length 1536, hash A9A24E44
+    input buffer #4:
+      timeUs = 1000000160000
+      contents = length 1536, hash 6F856273
+    input buffer #5:
+      timeUs = 1000000192000
+      contents = length 1536, hash B1737D3C
+    input buffer #6:
+      timeUs = 1000000224000
+      contents = length 1536, hash 98FDEB9D
+    input buffer #7:
+      timeUs = 1000000256000
+      contents = length 1536, hash 99B9B943
+    input buffer #8:
+      timeUs = 0
+      flags = 4
+      contents = length 0, hash 1
+  outputBuffers:
+    count = 8
+    output buffer #0:
+      timeUs = 1000000032000
+      size = 0
+      rendered = false
+    output buffer #1:
+      timeUs = 1000000064000
+      size = 0
+      rendered = false
+    output buffer #2:
+      timeUs = 1000000096000
+      size = 0
+      rendered = false
+    output buffer #3:
+      timeUs = 1000000128000
+      size = 0
+      rendered = false
+    output buffer #4:
+      timeUs = 1000000160000
+      size = 0
+      rendered = false
+    output buffer #5:
+      timeUs = 1000000192000
+      size = 0
+      rendered = false
+    output buffer #6:
+      timeUs = 1000000224000
+      size = 0
+      rendered = false
+    output buffer #7:
+      timeUs = 1000000256000
+      size = 0
+      rendered = false
+AudioSink:
+  buffer count = 8
+  config:
+    pcmEncoding = 2
+    channelCount = 6
+    sampleRate = 48000
+  buffer #0:
+    time = 1000000032000
+    data = 1
+  buffer #1:
+    time = 1000000064000
+    data = 1
+  buffer #2:
+    time = 1000000096000
+    data = 1
+  buffer #3:
+    time = 1000000128000
+    data = 1
+  buffer #4:
+    time = 1000000160000
+    data = 1
+  buffer #5:
+    time = 1000000192000
+    data = 1
+  buffer #6:
+    time = 1000000224000
+    data = 1
+  buffer #7:
+    time = 1000000256000
+    data = 1

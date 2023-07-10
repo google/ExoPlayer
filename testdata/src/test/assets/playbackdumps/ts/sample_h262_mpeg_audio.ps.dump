@@ -1,12 +1,78 @@
 MediaCodecAdapter (exotest.audio.mpegl2):
-  buffers.length = 5
-  buffers[0] = length 417, hash 5C710F78
-  buffers[1] = length 418, hash 79CF71F8
-  buffers[2] = length 418, hash 79CF71F8
-  buffers[3] = length 418, hash 79CF71F8
-  buffers[4] = length 0, hash 1
+  inputBuffers:
+    count = 5
+    input buffer #0:
+      timeUs = 1000000029088
+      contents = length 417, hash 5C710F78
+    input buffer #1:
+      timeUs = 1000000055210
+      contents = length 418, hash 79CF71F8
+    input buffer #2:
+      timeUs = 1000000081332
+      contents = length 418, hash 79CF71F8
+    input buffer #3:
+      timeUs = 1000000107454
+      contents = length 418, hash 79CF71F8
+    input buffer #4:
+      timeUs = 0
+      flags = 4
+      contents = length 0, hash 1
+  outputBuffers:
+    count = 4
+    output buffer #0:
+      timeUs = 1000000029088
+      size = 0
+      rendered = false
+    output buffer #1:
+      timeUs = 1000000055210
+      size = 0
+      rendered = false
+    output buffer #2:
+      timeUs = 1000000081332
+      size = 0
+      rendered = false
+    output buffer #3:
+      timeUs = 1000000107454
+      size = 0
+      rendered = false
 MediaCodecAdapter (exotest.video.mpeg2):
-  buffers.length = 3
-  buffers[0] = length 20646, hash 576390B
-  buffers[1] = length 17831, hash 5C5A57F5
-  buffers[2] = length 0, hash 1
+  inputBuffers:
+    count = 3
+    input buffer #0:
+      timeUs = 1000000040000
+      contents = length 20646, hash 576390B
+    input buffer #1:
+      timeUs = 1000000080000
+      contents = length 17831, hash 5C5A57F5
+    input buffer #2:
+      timeUs = 0
+      flags = 4
+      contents = length 0, hash 1
+  outputBuffers:
+    count = 2
+    output buffer #0:
+      timeUs = 1000000040000
+      size = 20646
+      rendered = true
+    output buffer #1:
+      timeUs = 1000000080000
+      size = 17831
+      rendered = true
+AudioSink:
+  buffer count = 4
+  config:
+    pcmEncoding = 2
+    channelCount = 1
+    sampleRate = 44100
+  buffer #0:
+    time = 1000000029088
+    data = 1
+  buffer #1:
+    time = 1000000055210
+    data = 1
+  buffer #2:
+    time = 1000000081332
+    data = 1
+  buffer #3:
+    time = 1000000107454
+    data = 1

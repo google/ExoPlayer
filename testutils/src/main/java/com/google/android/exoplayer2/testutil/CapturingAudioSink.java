@@ -29,7 +29,9 @@ import java.util.List;
 public final class CapturingAudioSink extends ForwardingAudioSink implements Dumper.Dumpable {
 
   private final List<Dumper.Dumpable> interceptedData;
+
   @Nullable private ByteBuffer currentBuffer;
+  private int bufferCount;
 
   public CapturingAudioSink(AudioSink sink) {
     super(sink);
@@ -60,7 +62,7 @@ public final class CapturingAudioSink extends ForwardingAudioSink implements Dum
     // sink. We only want to dump each buffer once, and we need to do so before the sink being
     // forwarded to has a chance to modify its position.
     if (buffer != currentBuffer) {
-      interceptedData.add(new DumpableBuffer(buffer, presentationTimeUs));
+      interceptedData.add(new DumpableBuffer(bufferCount++, buffer, presentationTimeUs));
       currentBuffer = buffer;
     }
     boolean fullyConsumed = super.handleBuffer(buffer, presentationTimeUs, encodedAccessUnitCount);
@@ -84,6 +86,7 @@ public final class CapturingAudioSink extends ForwardingAudioSink implements Dum
 
   @Override
   public void dump(Dumper dumper) {
+    dumper.add("buffer count", bufferCount);
     for (int i = 0; i < interceptedData.size(); i++) {
       interceptedData.get(i).dump(dumper);
     }
@@ -115,10 +118,12 @@ public final class CapturingAudioSink extends ForwardingAudioSink implements Dum
 
   private static final class DumpableBuffer implements Dumper.Dumpable {
 
+    private final int bufferCounter;
     private final long presentationTimeUs;
     private final int dataHashcode;
 
-    public DumpableBuffer(ByteBuffer buffer, long presentationTimeUs) {
+    public DumpableBuffer(int bufferCounter, ByteBuffer buffer, long presentationTimeUs) {
+      this.bufferCounter = bufferCounter;
       this.presentationTimeUs = presentationTimeUs;
       // Compute a hash of the buffer data without changing its position.
       int initialPosition = buffer.position();
@@ -131,7 +136,7 @@ public final class CapturingAudioSink extends ForwardingAudioSink implements Dum
     @Override
     public void dump(Dumper dumper) {
       dumper
-          .startBlock("buffer")
+          .startBlock("buffer #" + bufferCounter)
           .add("time", presentationTimeUs)
           .add("data", dataHashcode)
           .endBlock();

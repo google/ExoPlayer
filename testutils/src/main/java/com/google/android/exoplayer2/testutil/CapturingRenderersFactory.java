@@ -31,7 +31,6 @@ import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RenderersFactory;
-import com.google.android.exoplayer2.audio.AudioCapabilities;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.audio.DefaultAudioSink;
 import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
@@ -44,11 +43,15 @@ import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.text.TextRenderer;
 import com.google.android.exoplayer2.video.MediaCodecVideoRenderer;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSortedMap;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -64,10 +67,12 @@ public class CapturingRenderersFactory implements RenderersFactory, Dumper.Dumpa
 
   private final Context context;
   private final CapturingMediaCodecAdapter.Factory mediaCodecAdapterFactory;
+  private final CapturingAudioSink audioSink;
 
   public CapturingRenderersFactory(Context context) {
     this.context = context;
     this.mediaCodecAdapterFactory = new CapturingMediaCodecAdapter.Factory();
+    this.audioSink = new CapturingAudioSink(new DefaultAudioSink.Builder(context).build());
   }
 
   @Override
@@ -86,7 +91,27 @@ public class CapturingRenderersFactory implements RenderersFactory, Dumper.Dumpa
           /* enableDecoderFallback= */ false,
           eventHandler,
           videoRendererEventListener,
-          DefaultRenderersFactory.MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY),
+          DefaultRenderersFactory.MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY) {
+        @Override
+        protected boolean shouldDropOutputBuffer(
+            long earlyUs, long elapsedRealtimeUs, boolean isLastBuffer) {
+          // Do not drop output buffers due to slow processing.
+          return false;
+        }
+
+        @Override
+        protected boolean shouldDropBuffersToKeyframe(
+            long earlyUs, long elapsedRealtimeUs, boolean isLastBuffer) {
+          // Do not drop output buffers due to slow processing.
+          return false;
+        }
+
+        @Override
+        protected boolean shouldSkipBuffersWithIdenticalReleaseTime() {
+          // Do not skip buffers with identical vsync times as we can't control this from tests.
+          return false;
+        }
+      },
       new MediaCodecAudioRenderer(
           context,
           mediaCodecAdapterFactory,
@@ -94,9 +119,7 @@ public class CapturingRenderersFactory implements RenderersFactory, Dumper.Dumpa
           /* enableDecoderFallback= */ false,
           eventHandler,
           audioRendererEventListener,
-          new DefaultAudioSink.Builder()
-              .setAudioCapabilities(AudioCapabilities.getCapabilities(context))
-              .build()),
+          audioSink),
       new TextRenderer(textRendererOutput, eventHandler.getLooper()),
       new MetadataRenderer(metadataRendererOutput, eventHandler.getLooper())
     };
@@ -105,6 +128,9 @@ public class CapturingRenderersFactory implements RenderersFactory, Dumper.Dumpa
   @Override
   public void dump(Dumper dumper) {
     mediaCodecAdapterFactory.dump(dumper);
+    dumper.startBlock("AudioSink");
+    audioSink.dump(dumper);
+    dumper.endBlock();
   }
 
   /**
@@ -144,6 +170,9 @@ public class CapturingRenderersFactory implements RenderersFactory, Dumper.Dumpa
       }
     }
 
+    private static final String INPUT_BUFFER_INTERACTION_TYPE = "inputBuffers";
+    private static final String OUTPUT_BUFFER_INTERACTION_TYPE = "outputBuffers";
+
     private final MediaCodecAdapter delegate;
     // TODO(internal b/175710547): Consider using MediaCodecInfo, but currently Robolectric (v4.5)
     // doesn't correctly implement MediaCodec#getCodecInfo() (getName() works).
@@ -151,20 +180,25 @@ public class CapturingRenderersFactory implements RenderersFactory, Dumper.Dumpa
 
     /**
      * The client-owned buffers, keyed by the index used by {@link #dequeueInputBufferIndex()} and
-     * {@link #getInputBuffer(int)}.
+     * {@link #getInputBuffer(int)}, or {@link #dequeueOutputBufferIndex} respectively.
      */
     private final SparseArray<ByteBuffer> dequeuedInputBuffers;
 
-    /** All interactions recorded with this adapter. */
-    private final List<CapturedInteraction> capturedInteractions;
+    private final SparseArray<MediaCodec.BufferInfo> dequeuedOutputBuffers;
 
+    /** All interactions recorded with this adapter. */
+    private final ArrayListMultimap<String, CapturedInteraction> capturedInteractions;
+
+    private int inputBufferCount;
+    private int outputBufferCount;
     private final AtomicBoolean isReleased;
 
     private CapturingMediaCodecAdapter(MediaCodecAdapter delegate, String codecName) {
       this.delegate = delegate;
       this.codecName = codecName;
       dequeuedInputBuffers = new SparseArray<>();
-      capturedInteractions = new ArrayList<>();
+      dequeuedOutputBuffers = new SparseArray<>();
+      capturedInteractions = ArrayListMultimap.create();
       isReleased = new AtomicBoolean();
     }
 
@@ -177,7 +211,11 @@ public class CapturingRenderersFactory implements RenderersFactory, Dumper.Dumpa
 
     @Override
     public int dequeueOutputBufferIndex(MediaCodec.BufferInfo bufferInfo) {
-      return delegate.dequeueOutputBufferIndex(bufferInfo);
+      int index = delegate.dequeueOutputBufferIndex(bufferInfo);
+      if (index >= 0) {
+        dequeuedOutputBuffers.put(index, bufferInfo);
+      }
+      return index;
     }
 
     @Override
@@ -205,7 +243,10 @@ public class CapturingRenderersFactory implements RenderersFactory, Dumper.Dumpa
     public void queueInputBuffer(
         int index, int offset, int size, long presentationTimeUs, int flags) {
       ByteBuffer inputBuffer = checkNotNull(dequeuedInputBuffers.get(index));
-      capturedInteractions.add(new CapturedInputBuffer(peekBytes(inputBuffer, offset, size)));
+      capturedInteractions.put(
+          INPUT_BUFFER_INTERACTION_TYPE,
+          new CapturedInputBuffer(
+              inputBufferCount++, peekBytes(inputBuffer, offset, size), presentationTimeUs, flags));
 
       delegate.queueInputBuffer(index, offset, size, presentationTimeUs, flags);
       dequeuedInputBuffers.delete(index);
@@ -219,24 +260,46 @@ public class CapturingRenderersFactory implements RenderersFactory, Dumper.Dumpa
 
     @Override
     public void releaseOutputBuffer(int index, boolean render) {
+      MediaCodec.BufferInfo bufferInfo = checkNotNull(dequeuedOutputBuffers.get(index));
+      capturedInteractions.put(
+          OUTPUT_BUFFER_INTERACTION_TYPE,
+          new CapturedOutputBuffer(
+              outputBufferCount++,
+              bufferInfo.size,
+              bufferInfo.presentationTimeUs,
+              bufferInfo.flags,
+              /* rendered= */ render));
       delegate.releaseOutputBuffer(index, render);
+      dequeuedOutputBuffers.delete(index);
     }
 
     @RequiresApi(21)
     @Override
     public void releaseOutputBuffer(int index, long renderTimeStampNs) {
+      MediaCodec.BufferInfo bufferInfo = checkNotNull(dequeuedOutputBuffers.get(index));
+      capturedInteractions.put(
+          OUTPUT_BUFFER_INTERACTION_TYPE,
+          new CapturedOutputBuffer(
+              outputBufferCount++,
+              bufferInfo.size,
+              bufferInfo.presentationTimeUs,
+              bufferInfo.flags,
+              /* rendered= */ true));
       delegate.releaseOutputBuffer(index, renderTimeStampNs);
+      dequeuedOutputBuffers.delete(index);
     }
 
     @Override
     public void flush() {
       dequeuedInputBuffers.clear();
+      dequeuedOutputBuffers.clear();
       delegate.flush();
     }
 
     @Override
     public void release() {
       dequeuedInputBuffers.clear();
+      dequeuedOutputBuffers.clear();
       isReleased.set(true);
       delegate.release();
     }
@@ -275,13 +338,20 @@ public class CapturingRenderersFactory implements RenderersFactory, Dumper.Dumpa
     @Override
     public void dump(Dumper dumper) {
       checkState(isReleased.get());
+      ImmutableSortedMap<String, Collection<CapturedInteraction>> sortedInteractions =
+          ImmutableSortedMap.copyOf(capturedInteractions.asMap());
 
       dumper.startBlock("MediaCodecAdapter (" + codecName + ")");
-      // TODO: Update this when capturedInteractions contains more than just input buffers.
-      dumper.add("buffers.length", capturedInteractions.size());
-      for (int i = 0; i < capturedInteractions.size(); i++) {
-        CapturedInputBuffer inputBuffer = (CapturedInputBuffer) capturedInteractions.get(i);
-        dumper.add("buffers[" + i + "]", inputBuffer.contents);
+      for (Map.Entry<String, Collection<CapturedInteraction>> interactionEntry :
+          sortedInteractions.entrySet()) {
+        String interactionType = interactionEntry.getKey();
+        Collection<CapturedInteraction> interactions = interactionEntry.getValue();
+        dumper.startBlock(interactionType);
+        dumper.add("count", interactions.size());
+        for (CapturedInteraction interaction : interactions) {
+          dumper.add(interaction);
+        }
+        dumper.endBlock();
       }
       dumper.endBlock();
     }
@@ -301,18 +371,65 @@ public class CapturingRenderersFactory implements RenderersFactory, Dumper.Dumpa
     }
 
     /** A marker interface for different interactions with {@link CapturingMediaCodecAdapter}. */
-    private interface CapturedInteraction {}
+    private interface CapturedInteraction extends Dumper.Dumpable {}
 
     /**
      * Records the data passed to {@link CapturingMediaCodecAdapter#queueInputBuffer(int, int, int,
      * long, int)}.
      */
     private static class CapturedInputBuffer implements CapturedInteraction {
-      // TODO: Add other fields
+      private final int inputBufferCounter;
       private final byte[] contents;
+      private final long bufferTimeUs;
+      private final int flags;
 
-      private CapturedInputBuffer(byte[] contents) {
+      private CapturedInputBuffer(
+          int inputBufferCounter, byte[] contents, long bufferTimeUs, int flags) {
+        this.inputBufferCounter = inputBufferCounter;
         this.contents = contents;
+        this.bufferTimeUs = bufferTimeUs;
+        this.flags = flags;
+      }
+
+      @Override
+      public void dump(Dumper dumper) {
+        dumper.startBlock("input buffer #" + inputBufferCounter);
+        dumper.add("timeUs", bufferTimeUs);
+        if (flags != 0) {
+          dumper.add("flags", flags);
+        }
+        dumper.add("contents", contents);
+        dumper.endBlock();
+      }
+    }
+
+    /** Records the data passed to {@link CapturingMediaCodecAdapter#releaseOutputBuffer}. */
+    private static class CapturedOutputBuffer implements CapturedInteraction {
+      private final int outputBufferCounter;
+      private final int bufferSize;
+      private final long bufferTimeUs;
+      private final int flags;
+      private final boolean rendered;
+
+      private CapturedOutputBuffer(
+          int outputBufferCounter, int bufferSize, long bufferTimeUs, int flags, boolean rendered) {
+        this.outputBufferCounter = outputBufferCounter;
+        this.bufferSize = bufferSize;
+        this.bufferTimeUs = bufferTimeUs;
+        this.flags = flags;
+        this.rendered = rendered;
+      }
+
+      @Override
+      public void dump(Dumper dumper) {
+        dumper.startBlock("output buffer #" + outputBufferCounter);
+        dumper.add("timeUs", bufferTimeUs);
+        if (flags != 0) {
+          dumper.add("flags", flags);
+        }
+        dumper.add("size", bufferSize);
+        dumper.add("rendered", rendered);
+        dumper.endBlock();
       }
     }
   }

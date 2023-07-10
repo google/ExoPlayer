@@ -1,8 +1,65 @@
 MediaCodecAdapter (exotest.audio.aac):
-  buffers.length = 6
-  buffers[0] = length 279, hash 79BF9F9B
-  buffers[1] = length 279, hash C96F4684
-  buffers[2] = length 279, hash 65670B86
-  buffers[3] = length 280, hash 1AF29BCE
-  buffers[4] = length 279, hash C96F4684
-  buffers[5] = length 0, hash 1
+  inputBuffers:
+    count = 6
+    input buffer #0:
+      timeUs = 1000000000000
+      contents = length 279, hash 79BF9F9B
+    input buffer #1:
+      timeUs = 1000000023219
+      contents = length 279, hash C96F4684
+    input buffer #2:
+      timeUs = 1000000046438
+      contents = length 279, hash 65670B86
+    input buffer #3:
+      timeUs = 1000000069657
+      contents = length 280, hash 1AF29BCE
+    input buffer #4:
+      timeUs = 1000000092876
+      contents = length 279, hash C96F4684
+    input buffer #5:
+      timeUs = 0
+      flags = 4
+      contents = length 0, hash 1
+  outputBuffers:
+    count = 5
+    output buffer #0:
+      timeUs = 1000000000000
+      size = 0
+      rendered = false
+    output buffer #1:
+      timeUs = 1000000023219
+      size = 0
+      rendered = false
+    output buffer #2:
+      timeUs = 1000000046438
+      size = 0
+      rendered = false
+    output buffer #3:
+      timeUs = 1000000069657
+      size = 0
+      rendered = false
+    output buffer #4:
+      timeUs = 1000000092876
+      size = 0
+      rendered = false
+AudioSink:
+  buffer count = 5
+  config:
+    pcmEncoding = 2
+    channelCount = 1
+    sampleRate = 44100
+  buffer #0:
+    time = 1000000000000
+    data = 1
+  buffer #1:
+    time = 1000000023219
+    data = 1
+  buffer #2:
+    time = 1000000046438
+    data = 1
+  buffer #3:
+    time = 1000000069657
+    data = 1
+  buffer #4:
+    time = 1000000092876
+    data = 1

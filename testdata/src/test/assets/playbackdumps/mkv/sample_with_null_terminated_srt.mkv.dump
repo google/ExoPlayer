@@ -1,65 +1,524 @@
 MediaCodecAdapter (exotest.audio.ac3):
-  buffers.length = 30
-  buffers[0] = length 416, hash 211F2286
-  buffers[1] = length 418, hash 77425A86
-  buffers[2] = length 418, hash A0FE5CA1
-  buffers[3] = length 418, hash 2309B066
-  buffers[4] = length 418, hash 928A653B
-  buffers[5] = length 418, hash 3422F0CB
-  buffers[6] = length 418, hash EFF43D5B
-  buffers[7] = length 418, hash FC8093C7
-  buffers[8] = length 418, hash CCC08A16
-  buffers[9] = length 418, hash 2A6EE863
-  buffers[10] = length 418, hash D69A9251
-  buffers[11] = length 418, hash BCFB758D
-  buffers[12] = length 418, hash 11B66799
-  buffers[13] = length 418, hash C824D392
-  buffers[14] = length 418, hash C167D872
-  buffers[15] = length 418, hash 4221C855
-  buffers[16] = length 418, hash 4D4FF934
-  buffers[17] = length 418, hash 984AA025
-  buffers[18] = length 418, hash BB788B46
-  buffers[19] = length 418, hash 9EFBFD97
-  buffers[20] = length 418, hash DF1A460C
-  buffers[21] = length 418, hash 2BDB56A
-  buffers[22] = length 418, hash CA230060
-  buffers[23] = length 418, hash D2F19F41
-  buffers[24] = length 418, hash AF392D79
-  buffers[25] = length 418, hash C5D7F2A3
-  buffers[26] = length 418, hash 733A35AE
-  buffers[27] = length 418, hash DE46E5D3
-  buffers[28] = length 418, hash 56AB8D37
-  buffers[29] = length 0, hash 1
+  inputBuffers:
+    count = 30
+    input buffer #0:
+      timeUs = 1000000062000
+      contents = length 416, hash 211F2286
+    input buffer #1:
+      timeUs = 1000000097000
+      contents = length 418, hash 77425A86
+    input buffer #2:
+      timeUs = 1000000131000
+      contents = length 418, hash A0FE5CA1
+    input buffer #3:
+      timeUs = 1000000166000
+      contents = length 418, hash 2309B066
+    input buffer #4:
+      timeUs = 1000000201000
+      contents = length 418, hash 928A653B
+    input buffer #5:
+      timeUs = 1000000236000
+      contents = length 418, hash 3422F0CB
+    input buffer #6:
+      timeUs = 1000000270000
+      contents = length 418, hash EFF43D5B
+    input buffer #7:
+      timeUs = 1000000306000
+      contents = length 418, hash FC8093C7
+    input buffer #8:
+      timeUs = 1000000341000
+      contents = length 418, hash CCC08A16
+    input buffer #9:
+      timeUs = 1000000376000
+      contents = length 418, hash 2A6EE863
+    input buffer #10:
+      timeUs = 1000000410000
+      contents = length 418, hash D69A9251
+    input buffer #11:
+      timeUs = 1000000445000
+      contents = length 418, hash BCFB758D
+    input buffer #12:
+      timeUs = 1000000480000
+      contents = length 418, hash 11B66799
+    input buffer #13:
+      timeUs = 1000000514000
+      contents = length 418, hash C824D392
+    input buffer #14:
+      timeUs = 1000000550000
+      contents = length 418, hash C167D872
+    input buffer #15:
+      timeUs = 1000000585000
+      contents = length 418, hash 4221C855
+    input buffer #16:
+      timeUs = 1000000620000
+      contents = length 418, hash 4D4FF934
+    input buffer #17:
+      timeUs = 1000000654000
+      contents = length 418, hash 984AA025
+    input buffer #18:
+      timeUs = 1000000690000
+      contents = length 418, hash BB788B46
+    input buffer #19:
+      timeUs = 1000000724000
+      contents = length 418, hash 9EFBFD97
+    input buffer #20:
+      timeUs = 1000000759000
+      contents = length 418, hash DF1A460C
+    input buffer #21:
+      timeUs = 1000000793000
+      contents = length 418, hash 2BDB56A
+    input buffer #22:
+      timeUs = 1000000829000
+      contents = length 418, hash CA230060
+    input buffer #23:
+      timeUs = 1000000864000
+      contents = length 418, hash D2F19F41
+    input buffer #24:
+      timeUs = 1000000898000
+      contents = length 418, hash AF392D79
+    input buffer #25:
+      timeUs = 1000000932000
+      contents = length 418, hash C5D7F2A3
+    input buffer #26:
+      timeUs = 1000000968000
+      contents = length 418, hash 733A35AE
+    input buffer #27:
+      timeUs = 1000001002000
+      contents = length 418, hash DE46E5D3
+    input buffer #28:
+      timeUs = 1000001037000
+      contents = length 418, hash 56AB8D37
+    input buffer #29:
+      timeUs = 0
+      flags = 4
+      contents = length 0, hash 1
+  outputBuffers:
+    count = 29
+    output buffer #0:
+      timeUs = 1000000062000
+      size = 0
+      rendered = false
+    output buffer #1:
+      timeUs = 1000000097000
+      size = 0
+      rendered = false
+    output buffer #2:
+      timeUs = 1000000131000
+      size = 0
+      rendered = false
+    output buffer #3:
+      timeUs = 1000000166000
+      size = 0
+      rendered = false
+    output buffer #4:
+      timeUs = 1000000201000
+      size = 0
+      rendered = false
+    output buffer #5:
+      timeUs = 1000000236000
+      size = 0
+      rendered = false
+    output buffer #6:
+      timeUs = 1000000270000
+      size = 0
+      rendered = false
+    output buffer #7:
+      timeUs = 1000000306000
+      size = 0
+      rendered = false
+    output buffer #8:
+      timeUs = 1000000341000
+      size = 0
+      rendered = false
+    output buffer #9:
+      timeUs = 1000000376000
+      size = 0
+      rendered = false
+    output buffer #10:
+      timeUs = 1000000410000
+      size = 0
+      rendered = false
+    output buffer #11:
+      timeUs = 1000000445000
+      size = 0
+      rendered = false
+    output buffer #12:
+      timeUs = 1000000480000
+      size = 0
+      rendered = false
+    output buffer #13:
+      timeUs = 1000000514000
+      size = 0
+      rendered = false
+    output buffer #14:
+      timeUs = 1000000550000
+      size = 0
+      rendered = false
+    output buffer #15:
+      timeUs = 1000000585000
+      size = 0
+      rendered = false
+    output buffer #16:
+      timeUs = 1000000620000
+      size = 0
+      rendered = false
+    output buffer #17:
+      timeUs = 1000000654000
+      size = 0
+      rendered = false
+    output buffer #18:
+      timeUs = 1000000690000
+      size = 0
+      rendered = false
+    output buffer #19:
+      timeUs = 1000000724000
+      size = 0
+      rendered = false
+    output buffer #20:
+      timeUs = 1000000759000
+      size = 0
+      rendered = false
+    output buffer #21:
+      timeUs = 1000000793000
+      size = 0
+      rendered = false
+    output buffer #22:
+      timeUs = 1000000829000
+      size = 0
+      rendered = false
+    output buffer #23:
+      timeUs = 1000000864000
+      size = 0
+      rendered = false
+    output buffer #24:
+      timeUs = 1000000898000
+      size = 0
+      rendered = false
+    output buffer #25:
+      timeUs = 1000000932000
+      size = 0
+      rendered = false
+    output buffer #26:
+      timeUs = 1000000968000
+      size = 0
+      rendered = false
+    output buffer #27:
+      timeUs = 1000001002000
+      size = 0
+      rendered = false
+    output buffer #28:
+      timeUs = 1000001037000
+      size = 0
+      rendered = false
 MediaCodecAdapter (exotest.video.avc):
-  buffers.length = 31
-  buffers[0] = length 36477, hash F0F36CFE
-  buffers[1] = length 5341, hash 40B85E2
-  buffers[2] = length 596, hash 357B4D92
-  buffers[3] = length 7704, hash A39EDA06
-  buffers[4] = length 989, hash 2813C72D
-  buffers[5] = length 721, hash C50D1C73
-  buffers[6] = length 519, hash 65FE1911
-  buffers[7] = length 6160, hash E1CAC0EC
-  buffers[8] = length 953, hash 7160C661
-  buffers[9] = length 620, hash 7A7AE07C
-  buffers[10] = length 405, hash 5CC7F4E7
-  buffers[11] = length 4852, hash 9DB6979D
-  buffers[12] = length 547, hash E31A6979
-  buffers[13] = length 570, hash FEC40D00
-  buffers[14] = length 5525, hash 7C478F7E
-  buffers[15] = length 1082, hash DA07059A
-  buffers[16] = length 807, hash 93478E6B
-  buffers[17] = length 744, hash 9A8E6026
-  buffers[18] = length 4732, hash C73B23C0
-  buffers[19] = length 1004, hash 8A19A228
-  buffers[20] = length 794, hash 8126022C
-  buffers[21] = length 645, hash F08300E5
-  buffers[22] = length 2684, hash 727FE378
-  buffers[23] = length 787, hash 419A7821
-  buffers[24] = length 649, hash 5C159346
-  buffers[25] = length 509, hash F912D655
-  buffers[26] = length 1226, hash 29815C21
-  buffers[27] = length 898, hash D997AD0A
-  buffers[28] = length 476, hash A0423645
-  buffers[29] = length 486, hash DDF32CBB
-  buffers[30] = length 0, hash 1
+  inputBuffers:
+    count = 31
+    input buffer #0:
+      timeUs = 1000000000000
+      contents = length 36477, hash F0F36CFE
+    input buffer #1:
+      timeUs = 1000000067000
+      contents = length 5341, hash 40B85E2
+    input buffer #2:
+      timeUs = 1000000033000
+      contents = length 596, hash 357B4D92
+    input buffer #3:
+      timeUs = 1000000200000
+      contents = length 7704, hash A39EDA06
+    input buffer #4:
+      timeUs = 1000000133000
+      contents = length 989, hash 2813C72D
+    input buffer #5:
+      timeUs = 1000000100000
+      contents = length 721, hash C50D1C73
+    input buffer #6:
+      timeUs = 1000000167000
+      contents = length 519, hash 65FE1911
+    input buffer #7:
+      timeUs = 1000000333000
+      contents = length 6160, hash E1CAC0EC
+    input buffer #8:
+      timeUs = 1000000267000
+      contents = length 953, hash 7160C661
+    input buffer #9:
+      timeUs = 1000000233000
+      contents = length 620, hash 7A7AE07C
+    input buffer #10:
+      timeUs = 1000000300000
+      contents = length 405, hash 5CC7F4E7
+    input buffer #11:
+      timeUs = 1000000433000
+      contents = length 4852, hash 9DB6979D
+    input buffer #12:
+      timeUs = 1000000400000
+      contents = length 547, hash E31A6979
+    input buffer #13:
+      timeUs = 1000000367000
+      contents = length 570, hash FEC40D00
+    input buffer #14:
+      timeUs = 1000000567000
+      contents = length 5525, hash 7C478F7E
+    input buffer #15:
+      timeUs = 1000000500000
+      contents = length 1082, hash DA07059A
+    input buffer #16:
+      timeUs = 1000000467000
+      contents = length 807, hash 93478E6B
+    input buffer #17:
+      timeUs = 1000000533000
+      contents = length 744, hash 9A8E6026
+    input buffer #18:
+      timeUs = 1000000700000
+      contents = length 4732, hash C73B23C0
+    input buffer #19:
+      timeUs = 1000000633000
+      contents = length 1004, hash 8A19A228
+    input buffer #20:
+      timeUs = 1000000600000
+      contents = length 794, hash 8126022C
+    input buffer #21:
+      timeUs = 1000000667000
+      contents = length 645, hash F08300E5
+    input buffer #22:
+      timeUs = 1000000833000
+      contents = length 2684, hash 727FE378
+    input buffer #23:
+      timeUs = 1000000767000
+      contents = length 787, hash 419A7821
+    input buffer #24:
+      timeUs = 1000000733000
+      contents = length 649, hash 5C159346
+    input buffer #25:
+      timeUs = 1000000800000
+      contents = length 509, hash F912D655
+    input buffer #26:
+      timeUs = 1000000967000
+      contents = length 1226, hash 29815C21
+    input buffer #27:
+      timeUs = 1000000900000
+      contents = length 898, hash D997AD0A
+    input buffer #28:
+      timeUs = 1000000867000
+      contents = length 476, hash A0423645
+    input buffer #29:
+      timeUs = 1000000933000
+      contents = length 486, hash DDF32CBB
+    input buffer #30:
+      timeUs = 0
+      flags = 4
+      contents = length 0, hash 1
+  outputBuffers:
+    count = 30
+    output buffer #0:
+      timeUs = 1000000000000
+      size = 36477
+      rendered = true
+    output buffer #1:
+      timeUs = 1000000067000
+      size = 5341
+      rendered = true
+    output buffer #2:
+      timeUs = 1000000033000
+      size = 596
+      rendered = true
+    output buffer #3:
+      timeUs = 1000000200000
+      size = 7704
+      rendered = true
+    output buffer #4:
+      timeUs = 1000000133000
+      size = 989
+      rendered = true
+    output buffer #5:
+      timeUs = 1000000100000
+      size = 721
+      rendered = true
+    output buffer #6:
+      timeUs = 1000000167000
+      size = 519
+      rendered = true
+    output buffer #7:
+      timeUs = 1000000333000
+      size = 6160
+      rendered = true
+    output buffer #8:
+      timeUs = 1000000267000
+      size = 953
+      rendered = true
+    output buffer #9:
+      timeUs = 1000000233000
+      size = 620
+      rendered = true
+    output buffer #10:
+      timeUs = 1000000300000
+      size = 405
+      rendered = true
+    output buffer #11:
+      timeUs = 1000000433000
+      size = 4852
+      rendered = true
+    output buffer #12:
+      timeUs = 1000000400000
+      size = 547
+      rendered = true
+    output buffer #13:
+      timeUs = 1000000367000
+      size = 570
+      rendered = true
+    output buffer #14:
+      timeUs = 1000000567000
+      size = 5525
+      rendered = true
+    output buffer #15:
+      timeUs = 1000000500000
+      size = 1082
+      rendered = true
+    output buffer #16:
+      timeUs = 1000000467000
+      size = 807
+      rendered = true
+    output buffer #17:
+      timeUs = 1000000533000
+      size = 744
+      rendered = true
+    output buffer #18:
+      timeUs = 1000000700000
+      size = 4732
+      rendered = true
+    output buffer #19:
+      timeUs = 1000000633000
+      size = 1004
+      rendered = true
+    output buffer #20:
+      timeUs = 1000000600000
+      size = 794
+      rendered = true
+    output buffer #21:
+      timeUs = 1000000667000
+      size = 645
+      rendered = true
+    output buffer #22:
+      timeUs = 1000000833000
+      size = 2684
+      rendered = true
+    output buffer #23:
+      timeUs = 1000000767000
+      size = 787
+      rendered = true
+    output buffer #24:
+      timeUs = 1000000733000
+      size = 649
+      rendered = true
+    output buffer #25:
+      timeUs = 1000000800000
+      size = 509
+      rendered = true
+    output buffer #26:
+      timeUs = 1000000967000
+      size = 1226
+      rendered = true
+    output buffer #27:
+      timeUs = 1000000900000
+      size = 898
+      rendered = true
+    output buffer #28:
+      timeUs = 1000000867000
+      size = 476
+      rendered = true
+    output buffer #29:
+      timeUs = 1000000933000
+      size = 486
+      rendered = true
+AudioSink:
+  buffer count = 29
+  config:
+    pcmEncoding = 2
+    channelCount = 1
+    sampleRate = 44100
+  buffer #0:
+    time = 1000000062000
+    data = 1
+  buffer #1:
+    time = 1000000097000
+    data = 1
+  buffer #2:
+    time = 1000000131000
+    data = 1
+  buffer #3:
+    time = 1000000166000
+    data = 1
+  buffer #4:
+    time = 1000000201000
+    data = 1
+  buffer #5:
+    time = 1000000236000
+    data = 1
+  buffer #6:
+    time = 1000000270000
+    data = 1
+  buffer #7:
+    time = 1000000306000
+    data = 1
+  buffer #8:
+    time = 1000000341000
+    data = 1
+  buffer #9:
+    time = 1000000376000
+    data = 1
+  buffer #10:
+    time = 1000000410000
+    data = 1
+  buffer #11:
+    time = 1000000445000
+    data = 1
+  buffer #12:
+    time = 1000000480000
+    data = 1
+  buffer #13:
+    time = 1000000514000
+    data = 1
+  buffer #14:
+    time = 1000000550000
+    data = 1
+  buffer #15:
+    time = 1000000585000
+    data = 1
+  buffer #16:
+    time = 1000000620000
+    data = 1
+  buffer #17:
+    time = 1000000654000
+    data = 1
+  buffer #18:
+    time = 1000000690000
+    data = 1
+  buffer #19:
+    time = 1000000724000
+    data = 1
+  buffer #20:
+    time = 1000000759000
+    data = 1
+  buffer #21:
+    time = 1000000793000
+    data = 1
+  buffer #22:
+    time = 1000000829000
+    data = 1
+  buffer #23:
+    time = 1000000864000
+    data = 1
+  buffer #24:
+    time = 1000000898000
+    data = 1
+  buffer #25:
+    time = 1000000932000
+    data = 1
+  buffer #26:
+    time = 1000000968000
+    data = 1
+  buffer #27:
+    time = 1000001002000
+    data = 1
+  buffer #28:
+    time = 1000001037000
+    data = 1

@@ -66,7 +66,9 @@ public class FlacPlaybackTest {
   }
 
   private static void playAndAssertAudioSinkInput(String fileName) throws Exception {
-    CapturingAudioSink audioSink = new CapturingAudioSink(new DefaultAudioSink.Builder().build());
+    CapturingAudioSink audioSink =
+        new CapturingAudioSink(
+            new DefaultAudioSink.Builder(ApplicationProvider.getApplicationContext()).build());
 
     TestPlaybackRunnable testPlaybackRunnable =
         new TestPlaybackRunnable(

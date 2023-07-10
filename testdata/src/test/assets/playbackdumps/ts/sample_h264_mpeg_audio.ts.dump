@@ -1,13 +1,85 @@
 MediaCodecAdapter (exotest.audio.mpegl2):
-  buffers.length = 5
-  buffers[0] = length 1253, hash 727FD1C6
-  buffers[1] = length 1254, hash 73FB07B8
-  buffers[2] = length 1254, hash 73FB07B8
-  buffers[3] = length 1254, hash 73FB07B8
-  buffers[4] = length 0, hash 1
+  inputBuffers:
+    count = 5
+    input buffer #0:
+      timeUs = 1000000066733
+      contents = length 1253, hash 727FD1C6
+    input buffer #1:
+      timeUs = 1000000092855
+      contents = length 1254, hash 73FB07B8
+    input buffer #2:
+      timeUs = 1000000118977
+      contents = length 1254, hash 73FB07B8
+    input buffer #3:
+      timeUs = 1000000145099
+      contents = length 1254, hash 73FB07B8
+    input buffer #4:
+      timeUs = 0
+      flags = 4
+      contents = length 0, hash 1
+  outputBuffers:
+    count = 4
+    output buffer #0:
+      timeUs = 1000000066733
+      size = 0
+      rendered = false
+    output buffer #1:
+      timeUs = 1000000092855
+      size = 0
+      rendered = false
+    output buffer #2:
+      timeUs = 1000000118977
+      size = 0
+      rendered = false
+    output buffer #3:
+      timeUs = 1000000145099
+      size = 0
+      rendered = false
 MediaCodecAdapter (exotest.video.avc):
-  buffers.length = 4
-  buffers[0] = length 12394, hash A39F5311
-  buffers[1] = length 813, hash 99F7B4FA
-  buffers[2] = length 442, hash A7367ECF
-  buffers[3] = length 0, hash 1
+  inputBuffers:
+    count = 4
+    input buffer #0:
+      timeUs = 1000000066733
+      contents = length 12394, hash A39F5311
+    input buffer #1:
+      timeUs = 1000000100100
+      contents = length 813, hash 99F7B4FA
+    input buffer #2:
+      timeUs = 1000000133466
+      contents = length 442, hash A7367ECF
+    input buffer #3:
+      timeUs = 0
+      flags = 4
+      contents = length 0, hash 1
+  outputBuffers:
+    count = 3
+    output buffer #0:
+      timeUs = 1000000066733
+      size = 12394
+      rendered = true
+    output buffer #1:
+      timeUs = 1000000100100
+      size = 813
+      rendered = true
+    output buffer #2:
+      timeUs = 1000000133466
+      size = 442
+      rendered = true
+AudioSink:
+  buffer count = 4
+  config:
+    pcmEncoding = 2
+    channelCount = 1
+    sampleRate = 44100
+  buffer #0:
+    time = 1000000066733
+    data = 1
+  buffer #1:
+    time = 1000000092855
+    data = 1
+  buffer #2:
+    time = 1000000118977
+    data = 1
+  buffer #3:
+    time = 1000000145099
+    data = 1
