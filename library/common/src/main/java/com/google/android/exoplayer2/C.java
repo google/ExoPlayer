@@ -172,10 +172,12 @@ public final class C {
   /**
    * Represents an audio encoding, or an invalid or unset value. One of {@link Format#NO_VALUE},
    * {@link #ENCODING_INVALID}, {@link #ENCODING_PCM_8BIT}, {@link #ENCODING_PCM_16BIT}, {@link
-   * #ENCODING_PCM_16BIT_BIG_ENDIAN}, {@link #ENCODING_PCM_24BIT}, {@link #ENCODING_PCM_32BIT},
-   * {@link #ENCODING_PCM_FLOAT}, {@link #ENCODING_MP3}, {@link #ENCODING_AC3}, {@link
-   * #ENCODING_E_AC3}, {@link #ENCODING_E_AC3_JOC}, {@link #ENCODING_AC4}, {@link #ENCODING_DTS},
-   * {@link #ENCODING_DTS_HD}, {@link #ENCODING_DOLBY_TRUEHD} or {@link #ENCODING_OPUS}.
+   * #ENCODING_PCM_16BIT_BIG_ENDIAN}, {@link #ENCODING_PCM_24BIT}, {@link
+   * #ENCODING_PCM_24BIT_BIG_ENDIAN}, {@link #ENCODING_PCM_32BIT}, {@link
+   * #ENCODING_PCM_32BIT_BIG_ENDIAN}, {@link #ENCODING_PCM_FLOAT}, {@link #ENCODING_MP3}, {@link
+   * #ENCODING_AC3}, {@link #ENCODING_E_AC3}, {@link #ENCODING_E_AC3_JOC}, {@link #ENCODING_AC4},
+   * {@link #ENCODING_DTS}, {@link #ENCODING_DTS_HD}, {@link #ENCODING_DOLBY_TRUEHD} or {@link
+   * #ENCODING_OPUS}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -187,7 +189,9 @@ public final class C {
     ENCODING_PCM_16BIT,
     ENCODING_PCM_16BIT_BIG_ENDIAN,
     ENCODING_PCM_24BIT,
+    ENCODING_PCM_24BIT_BIG_ENDIAN,
     ENCODING_PCM_32BIT,
+    ENCODING_PCM_32BIT_BIG_ENDIAN,
     ENCODING_PCM_FLOAT,
     ENCODING_MP3,
     ENCODING_AAC_LC,
@@ -211,8 +215,9 @@ public final class C {
   /**
    * Represents a PCM audio encoding, or an invalid or unset value. One of {@link Format#NO_VALUE},
    * {@link #ENCODING_INVALID}, {@link #ENCODING_PCM_8BIT}, {@link #ENCODING_PCM_16BIT}, {@link
-   * #ENCODING_PCM_16BIT_BIG_ENDIAN}, {@link #ENCODING_PCM_24BIT}, {@link #ENCODING_PCM_32BIT},
-   * {@link #ENCODING_PCM_FLOAT}.
+   * #ENCODING_PCM_16BIT_BIG_ENDIAN}, {@link #ENCODING_PCM_24BIT}, {@link
+   * #ENCODING_PCM_24BIT_BIG_ENDIAN}, {@link #ENCODING_PCM_32BIT}, {@link
+   * #ENCODING_PCM_32BIT_BIG_ENDIAN}, {@link #ENCODING_PCM_FLOAT}.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -224,7 +229,9 @@ public final class C {
     ENCODING_PCM_16BIT,
     ENCODING_PCM_16BIT_BIG_ENDIAN,
     ENCODING_PCM_24BIT,
+    ENCODING_PCM_24BIT_BIG_ENDIAN,
     ENCODING_PCM_32BIT,
+    ENCODING_PCM_32BIT_BIG_ENDIAN,
     ENCODING_PCM_FLOAT
   })
   public @interface PcmEncoding {}
@@ -244,8 +251,14 @@ public final class C {
   /** PCM encoding with 24 bits per sample. */
   public static final int ENCODING_PCM_24BIT = 0x20000000;
 
+  /** Like {@link #ENCODING_PCM_24BIT} but with the bytes in big endian order. */
+  public static final int ENCODING_PCM_24BIT_BIG_ENDIAN = 0x50000000;
+
   /** PCM encoding with 32 bits per sample. */
   public static final int ENCODING_PCM_32BIT = 0x30000000;
+
+  /** Like {@link #ENCODING_PCM_32BIT} but with the bytes in big endian order. */
+  public static final int ENCODING_PCM_32BIT_BIG_ENDIAN = 0x60000000;
 
   /** See {@link AudioFormat#ENCODING_PCM_FLOAT}. */
   public static final int ENCODING_PCM_FLOAT = AudioFormat.ENCODING_PCM_FLOAT;

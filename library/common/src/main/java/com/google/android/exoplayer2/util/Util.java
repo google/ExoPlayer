@@ -1786,7 +1786,9 @@ public final class Util {
         || encoding == C.ENCODING_PCM_16BIT
         || encoding == C.ENCODING_PCM_16BIT_BIG_ENDIAN
         || encoding == C.ENCODING_PCM_24BIT
+        || encoding == C.ENCODING_PCM_24BIT_BIG_ENDIAN
         || encoding == C.ENCODING_PCM_32BIT
+        || encoding == C.ENCODING_PCM_32BIT_BIG_ENDIAN
         || encoding == C.ENCODING_PCM_FLOAT;
   }
 
@@ -1798,7 +1800,9 @@ public final class Util {
    */
   public static boolean isEncodingHighResolutionPcm(@C.PcmEncoding int encoding) {
     return encoding == C.ENCODING_PCM_24BIT
+        || encoding == C.ENCODING_PCM_24BIT_BIG_ENDIAN
         || encoding == C.ENCODING_PCM_32BIT
+        || encoding == C.ENCODING_PCM_32BIT_BIG_ENDIAN
         || encoding == C.ENCODING_PCM_FLOAT;
   }
 
@@ -1910,8 +1914,10 @@ public final class Util {
       case C.ENCODING_PCM_16BIT_BIG_ENDIAN:
         return channelCount * 2;
       case C.ENCODING_PCM_24BIT:
+      case C.ENCODING_PCM_24BIT_BIG_ENDIAN:
         return channelCount * 3;
       case C.ENCODING_PCM_32BIT:
+      case C.ENCODING_PCM_32BIT_BIG_ENDIAN:
       case C.ENCODING_PCM_FLOAT:
         return channelCount * 4;
       case C.ENCODING_INVALID:
