@@ -68,7 +68,7 @@ public final class SessionCommand implements Bundleable {
   public static final int COMMAND_CODE_CUSTOM = 0;
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
-  // Session commands (i.e. commands to {@link MediaSession#SessionCallback})
+  // Session commands (i.e. commands to MediaSession.Callback)
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   /** Command code for {@link MediaController#setRating(String, Rating)}. */
@@ -78,7 +78,7 @@ public final class SessionCommand implements Bundleable {
       ImmutableList.of(COMMAND_CODE_SESSION_SET_RATING);
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
-  // Library commands (i.e. commands to {@link MediaLibrarySession#MediaLibrarySessionCallback})
+  // Library commands (i.e. commands to MediaLibraryService.MediaLibrarySession.Callback)
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   /** Command code for {@link MediaBrowser#getLibraryRoot(LibraryParams)}. */
