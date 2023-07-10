@@ -109,7 +109,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     public static final class Builder {
       private boolean enableColorTransfers;
       private @MonotonicNonNull GlObjectsProvider glObjectsProvider;
-      @Nullable private ExecutorService executorService;
+      private @MonotonicNonNull ExecutorService executorService;
       private @MonotonicNonNull TextureOutputListener textureOutputListener;
       private int textureOutputCapacity;
 
@@ -143,8 +143,9 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       /**
        * Sets the {@link Util#newSingleThreadScheduledExecutor} to execute GL commands from.
        *
-       * <p>If set and non-null, the {@link ExecutorService} must be {@link
-       * ExecutorService#shutdown} by the caller.
+       * <p>If set, the {@link ExecutorService} must be {@linkplain ExecutorService#shutdown shut
+       * down} by the caller after all {@linkplain VideoFrameProcessor VideoFrameProcessors} using
+       * it have been {@linkplain #release released}.
        *
        * <p>The default value is a new {@link Util#newSingleThreadScheduledExecutor}, owned and
        * {@link ExecutorService#shutdown} by the created {@link DefaultVideoFrameProcessor}.
@@ -153,7 +154,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
        */
       @CanIgnoreReturnValue
       @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
-      public Builder setExecutorService(@Nullable ExecutorService executorService) {
+      public Builder setExecutorService(ExecutorService executorService) {
         this.executorService = executorService;
         return this;
       }

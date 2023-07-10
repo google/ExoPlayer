@@ -40,7 +40,6 @@ import com.google.android.exoplayer2.util.GlTextureInfo;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
-import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
@@ -212,7 +211,7 @@ public final class VideoCompositorPixelTest {
       @Nullable ExecutorService executorService,
       GlObjectsProvider glObjectsProvider) {
     int inputId = videoCompositor.registerInputSource();
-    VideoFrameProcessor.Factory defaultVideoFrameProcessorFactory =
+    DefaultVideoFrameProcessor.Factory.Builder defaultVideoFrameProcessorFactoryBuilder =
         new DefaultVideoFrameProcessor.Factory.Builder()
             .setGlObjectsProvider(glObjectsProvider)
             .setTextureOutput(
@@ -226,12 +225,13 @@ public final class VideoCompositorPixelTest {
                   videoCompositor.queueInputTexture(
                       inputId, outputTexture, presentationTimeUs, releaseOutputTextureCallback);
                 },
-                /* textureOutputCapacity= */ 1)
-            .setExecutorService(executorService)
-            .build();
+                /* textureOutputCapacity= */ 1);
+    if (executorService != null) {
+      defaultVideoFrameProcessorFactoryBuilder.setExecutorService(executorService);
+    }
     return new VideoFrameProcessorTestRunner.Builder()
         .setTestId(testId)
-        .setVideoFrameProcessorFactory(defaultVideoFrameProcessorFactory)
+        .setVideoFrameProcessorFactory(defaultVideoFrameProcessorFactoryBuilder.build())
         .setInputType(INPUT_TYPE_BITMAP)
         .setInputColorInfo(ColorInfo.SRGB_BT709_FULL)
         .setBitmapReader(textureBitmapReader);
