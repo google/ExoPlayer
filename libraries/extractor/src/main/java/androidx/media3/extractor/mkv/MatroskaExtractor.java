@@ -2204,6 +2204,10 @@ public class MatroskaExtractor implements Extractor {
             pcmEncoding = C.ENCODING_PCM_8BIT;
           } else if (audioBitDepth == 16) {
             pcmEncoding = C.ENCODING_PCM_16BIT_BIG_ENDIAN;
+          } else if (audioBitDepth == 24) {
+            pcmEncoding = C.ENCODING_PCM_24BIT_BIG_ENDIAN;
+          } else if (audioBitDepth == 32) {
+            pcmEncoding = C.ENCODING_PCM_32BIT_BIG_ENDIAN;
           } else {
             pcmEncoding = Format.NO_VALUE;
             mimeType = MimeTypes.AUDIO_UNKNOWN;

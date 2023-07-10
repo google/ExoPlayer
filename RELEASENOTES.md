@@ -50,6 +50,8 @@
         implementation details of an `Extractor` you must first call
         `Extractor.getUnderlyingInstance`.
 *   Audio:
+    *   Add support for 24/32-bit big endian PCM in MP4 and Matroska, and parse
+        PCM encoding for `lpcm` in MP4.
 *   Audio Offload:
     *   Add `AudioSink.getFormatOffloadSupport(Format)` that retrieves level of
         offload support the sink can provide for the format through a

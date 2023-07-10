@@ -46,7 +46,8 @@ public final class MediaFormatUtil {
    *
    * <p>Equivalent to {@link MediaFormat#KEY_PCM_ENCODING}, except it allows additional values
    * defined by {@link C.PcmEncoding}, including {@link C#ENCODING_PCM_16BIT_BIG_ENDIAN}, {@link
-   * C#ENCODING_PCM_24BIT}, and {@link C#ENCODING_PCM_32BIT}.
+   * C#ENCODING_PCM_24BIT}, {@link C#ENCODING_PCM_24BIT_BIG_ENDIAN}, {@link C#ENCODING_PCM_32BIT}
+   * and {@link C#ENCODING_PCM_32BIT_BIG_ENDIAN}.
    */
   // The constant value must not be changed, because it's also set by the framework MediaParser API.
   public static final String KEY_PCM_ENCODING_EXTENDED = "exo-pcm-encoding-int";
@@ -445,6 +446,8 @@ public final class MediaFormatUtil {
         break;
       case Format.NO_VALUE:
       case C.ENCODING_PCM_16BIT_BIG_ENDIAN:
+      case C.ENCODING_PCM_24BIT_BIG_ENDIAN:
+      case C.ENCODING_PCM_32BIT_BIG_ENDIAN:
       default:
         // No matching value. Do nothing.
         return;

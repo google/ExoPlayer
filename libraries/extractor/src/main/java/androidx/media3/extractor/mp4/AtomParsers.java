@@ -1493,9 +1493,25 @@ import java.util.List;
       sampleRate = (int) Math.round(parent.readDouble());
       channelCount = parent.readUnsignedIntToInt();
 
-      // Skip always7F000000, sampleSize, formatSpecificFlags, constBytesPerAudioPacket,
-      // constLPCMFramesPerAudioPacket.
-      parent.skipBytes(20);
+      parent.skipBytes(4); // always7F000000
+      int bitsPerSample = parent.readUnsignedIntToInt();
+      int formatSpecificFlags = parent.readUnsignedIntToInt();
+      boolean isFloat = (formatSpecificFlags & 1) != 0;
+      boolean isBigEndian = (formatSpecificFlags & (1 << 1)) != 0;
+      if (!isFloat) {
+        if (bitsPerSample == 8) {
+          pcmEncoding = C.ENCODING_PCM_8BIT;
+        } else if (bitsPerSample == 16) {
+          pcmEncoding = isBigEndian ? C.ENCODING_PCM_16BIT_BIG_ENDIAN : C.ENCODING_PCM_16BIT;
+        } else if (bitsPerSample == 24) {
+          pcmEncoding = isBigEndian ? C.ENCODING_PCM_24BIT_BIG_ENDIAN : C.ENCODING_PCM_24BIT;
+        } else if (bitsPerSample == 32) {
+          pcmEncoding = isBigEndian ? C.ENCODING_PCM_32BIT_BIG_ENDIAN : C.ENCODING_PCM_32BIT;
+        }
+      } else if (bitsPerSample == 32) {
+        pcmEncoding = C.ENCODING_PCM_FLOAT;
+      }
+      parent.skipBytes(8); // constBytesPerAudioPacket, constLPCMFramesPerAudioPacket
     } else {
       // Unsupported version.
       return;
@@ -1541,12 +1557,17 @@ import java.util.List;
       mimeType = MimeTypes.AUDIO_AMR_NB;
     } else if (atomType == Atom.TYPE_sawb) {
       mimeType = MimeTypes.AUDIO_AMR_WB;
-    } else if (atomType == Atom.TYPE_lpcm || atomType == Atom.TYPE_sowt) {
+    } else if (atomType == Atom.TYPE_sowt) {
       mimeType = MimeTypes.AUDIO_RAW;
       pcmEncoding = C.ENCODING_PCM_16BIT;
     } else if (atomType == Atom.TYPE_twos) {
       mimeType = MimeTypes.AUDIO_RAW;
       pcmEncoding = C.ENCODING_PCM_16BIT_BIG_ENDIAN;
+    } else if (atomType == Atom.TYPE_lpcm) {
+      mimeType = MimeTypes.AUDIO_RAW;
+      if (pcmEncoding == Format.NO_VALUE) {
+        pcmEncoding = C.ENCODING_PCM_16BIT;
+      }
     } else if (atomType == Atom.TYPE__mp2 || atomType == Atom.TYPE__mp3) {
       mimeType = MimeTypes.AUDIO_MPEG;
     } else if (atomType == Atom.TYPE_mha1) {
