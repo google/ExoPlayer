@@ -21,7 +21,12 @@ import static org.junit.Assert.assertThrows;
 import android.net.Uri;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.common.Timeline;
+import androidx.media3.exoplayer.analytics.PlayerId;
+import androidx.media3.test.utils.TestUtil;
+import androidx.media3.test.utils.robolectric.RobolectricUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -84,5 +89,40 @@ public class SilenceMediaSourceTest {
     assertThat(mediaItem.mediaId).isEqualTo(SilenceMediaSource.MEDIA_ID);
     assertThat(mediaSource.getMediaItem().localConfiguration.uri).isEqualTo(Uri.EMPTY);
     assertThat(mediaItem.localConfiguration.mimeType).isEqualTo(MimeTypes.AUDIO_RAW);
+  }
+
+  @Test
+  public void canUpdateMediaItem_withFieldsChanged_returnsTrue() {
+    MediaItem updatedMediaItem = TestUtil.buildFullyCustomizedMediaItem();
+    MediaSource mediaSource = buildMediaSource();
+
+    boolean canUpdateMediaItem = mediaSource.canUpdateMediaItem(updatedMediaItem);
+
+    assertThat(canUpdateMediaItem).isTrue();
+  }
+
+  @Test
+  public void updateMediaItem_createsTimelineWithUpdatedItem() throws Exception {
+    MediaItem updatedMediaItem = new MediaItem.Builder().setUri("http://test.test").build();
+    MediaSource mediaSource = buildMediaSource();
+    AtomicReference<Timeline> timelineReference = new AtomicReference<>();
+
+    mediaSource.updateMediaItem(updatedMediaItem);
+    mediaSource.prepareSource(
+        (source, timeline) -> timelineReference.set(timeline),
+        /* mediaTransferListener= */ null,
+        PlayerId.UNSET);
+    RobolectricUtil.runMainLooperUntil(() -> timelineReference.get() != null);
+
+    assertThat(
+            timelineReference
+                .get()
+                .getWindow(/* windowIndex= */ 0, new Timeline.Window())
+                .mediaItem)
+        .isEqualTo(updatedMediaItem);
+  }
+
+  private static MediaSource buildMediaSource() {
+    return new SilenceMediaSource.Factory().setDurationUs(1234).setTag("tag").createMediaSource();
   }
 }

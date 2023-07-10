@@ -18,6 +18,7 @@ package androidx.media3.exoplayer.source;
 import static java.lang.Math.min;
 
 import android.net.Uri;
+import androidx.annotation.GuardedBy;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
@@ -108,7 +109,9 @@ public final class SilenceMediaSource extends BaseMediaSource {
       new byte[Util.getPcmFrameSize(PCM_ENCODING, CHANNEL_COUNT) * 1024];
 
   private final long durationUs;
-  private final MediaItem mediaItem;
+
+  @GuardedBy("this")
+  private MediaItem mediaItem;
 
   /**
    * Creates a new media source providing silent audio of the given duration.
@@ -140,7 +143,7 @@ public final class SilenceMediaSource extends BaseMediaSource {
             /* isDynamic= */ false,
             /* useLiveConfiguration= */ false,
             /* manifest= */ null,
-            mediaItem));
+            getMediaItem()));
   }
 
   @Override
@@ -155,8 +158,18 @@ public final class SilenceMediaSource extends BaseMediaSource {
   public void releasePeriod(MediaPeriod mediaPeriod) {}
 
   @Override
-  public MediaItem getMediaItem() {
+  public synchronized MediaItem getMediaItem() {
     return mediaItem;
+  }
+
+  @Override
+  public boolean canUpdateMediaItem(MediaItem mediaItem) {
+    return true;
+  }
+
+  @Override
+  public synchronized void updateMediaItem(MediaItem mediaItem) {
+    this.mediaItem = mediaItem;
   }
 
   @Override

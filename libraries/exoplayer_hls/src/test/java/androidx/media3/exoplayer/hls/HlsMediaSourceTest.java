@@ -23,6 +23,7 @@ import android.os.SystemClock;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.ParserException;
+import androidx.media3.common.StreamKey;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.analytics.PlayerId;
@@ -31,7 +32,9 @@ import androidx.media3.exoplayer.hls.playlist.HlsPlaylistParser;
 import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.test.utils.FakeDataSet;
 import androidx.media3.test.utils.FakeDataSource;
+import androidx.media3.test.utils.TestUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -773,6 +776,186 @@ public class HlsMediaSourceTest {
         .isEqualTo(8000);
     assertThat(timelines.get(3).getWindow(0, window).liveConfiguration.targetOffsetMs)
         .isEqualTo(8000);
+  }
+
+  @Test
+  public void canUpdateMediaItem_withIrrelevantFieldsChanged_returnsTrue() {
+    String playlistUri = "http://test.test";
+    MediaItem initialMediaItem =
+        new MediaItem.Builder()
+            .setUri(playlistUri)
+            .setStreamKeys(
+                ImmutableList.of(new StreamKey(/* groupIndex= */ 1, /* streamIndex= */ 0)))
+            .setDrmConfiguration(new MediaItem.DrmConfiguration.Builder(C.WIDEVINE_UUID).build())
+            .setLiveConfiguration(
+                new MediaItem.LiveConfiguration.Builder().setTargetOffsetMs(2000).build())
+            .build();
+    MediaItem updatedMediaItem =
+        TestUtil.buildFullyCustomizedMediaItem()
+            .buildUpon()
+            .setUri(playlistUri)
+            .setStreamKeys(
+                ImmutableList.of(new StreamKey(/* groupIndex= */ 1, /* streamIndex= */ 0)))
+            .setDrmConfiguration(new MediaItem.DrmConfiguration.Builder(C.WIDEVINE_UUID).build())
+            .setLiveConfiguration(
+                new MediaItem.LiveConfiguration.Builder().setTargetOffsetMs(2000).build())
+            .build();
+    String playlist =
+        "#EXTM3U\n"
+            + "#EXT-X-PLAYLIST-TYPE:VOD\n"
+            + "#EXT-X-TARGETDURATION:10\n"
+            + "#EXT-X-VERSION:4\n"
+            + "#EXT-X-ENDLIST";
+    HlsMediaSource.Factory factory = createHlsMediaSourceFactory(playlistUri, playlist);
+    HlsMediaSource mediaSource = factory.createMediaSource(initialMediaItem);
+
+    boolean canUpdateMediaItem = mediaSource.canUpdateMediaItem(updatedMediaItem);
+
+    assertThat(canUpdateMediaItem).isTrue();
+  }
+
+  @Test
+  public void canUpdateMediaItem_withNullLocalConfiguration_returnsFalse() {
+    String playlistUri = "http://test.test";
+    MediaItem initialMediaItem = new MediaItem.Builder().setUri(playlistUri).build();
+    MediaItem updatedMediaItem = new MediaItem.Builder().setMediaId("id").build();
+    String playlist =
+        "#EXTM3U\n"
+            + "#EXT-X-PLAYLIST-TYPE:VOD\n"
+            + "#EXT-X-TARGETDURATION:10\n"
+            + "#EXT-X-VERSION:4\n"
+            + "#EXT-X-ENDLIST";
+    HlsMediaSource.Factory factory = createHlsMediaSourceFactory(playlistUri, playlist);
+    HlsMediaSource mediaSource = factory.createMediaSource(initialMediaItem);
+
+    boolean canUpdateMediaItem = mediaSource.canUpdateMediaItem(updatedMediaItem);
+
+    assertThat(canUpdateMediaItem).isFalse();
+  }
+
+  @Test
+  public void canUpdateMediaItem_withChangedUri_returnsFalse() {
+    String playlistUri = "http://test.test";
+    MediaItem initialMediaItem = new MediaItem.Builder().setUri(playlistUri).build();
+    MediaItem updatedMediaItem = new MediaItem.Builder().setUri("http://test2.test").build();
+    String playlist =
+        "#EXTM3U\n"
+            + "#EXT-X-PLAYLIST-TYPE:VOD\n"
+            + "#EXT-X-TARGETDURATION:10\n"
+            + "#EXT-X-VERSION:4\n"
+            + "#EXT-X-ENDLIST";
+    HlsMediaSource.Factory factory = createHlsMediaSourceFactory(playlistUri, playlist);
+    HlsMediaSource mediaSource = factory.createMediaSource(initialMediaItem);
+
+    boolean canUpdateMediaItem = mediaSource.canUpdateMediaItem(updatedMediaItem);
+
+    assertThat(canUpdateMediaItem).isFalse();
+  }
+
+  @Test
+  public void canUpdateMediaItem_withChangedStreamKeys_returnsFalse() {
+    String playlistUri = "http://test.test";
+    MediaItem initialMediaItem =
+        new MediaItem.Builder()
+            .setUri(playlistUri)
+            .setStreamKeys(
+                ImmutableList.of(new StreamKey(/* groupIndex= */ 1, /* streamIndex= */ 0)))
+            .build();
+    MediaItem updatedMediaItem =
+        new MediaItem.Builder()
+            .setUri(playlistUri)
+            .setStreamKeys(
+                ImmutableList.of(new StreamKey(/* groupIndex= */ 2, /* streamIndex= */ 2)))
+            .build();
+    String playlist =
+        "#EXTM3U\n"
+            + "#EXT-X-PLAYLIST-TYPE:VOD\n"
+            + "#EXT-X-TARGETDURATION:10\n"
+            + "#EXT-X-VERSION:4\n"
+            + "#EXT-X-ENDLIST";
+    HlsMediaSource.Factory factory = createHlsMediaSourceFactory(playlistUri, playlist);
+    HlsMediaSource mediaSource = factory.createMediaSource(initialMediaItem);
+
+    boolean canUpdateMediaItem = mediaSource.canUpdateMediaItem(updatedMediaItem);
+
+    assertThat(canUpdateMediaItem).isFalse();
+  }
+
+  @Test
+  public void canUpdateMediaItem_withChangedDrmConfiguration_returnsFalse() {
+    String playlistUri = "http://test.test";
+    MediaItem initialMediaItem =
+        new MediaItem.Builder()
+            .setUri(playlistUri)
+            .setDrmConfiguration(new MediaItem.DrmConfiguration.Builder(C.WIDEVINE_UUID).build())
+            .build();
+    MediaItem updatedMediaItem =
+        new MediaItem.Builder()
+            .setUri(playlistUri)
+            .setDrmConfiguration(new MediaItem.DrmConfiguration.Builder(C.CLEARKEY_UUID).build())
+            .build();
+    String playlist =
+        "#EXTM3U\n"
+            + "#EXT-X-PLAYLIST-TYPE:VOD\n"
+            + "#EXT-X-TARGETDURATION:10\n"
+            + "#EXT-X-VERSION:4\n"
+            + "#EXT-X-ENDLIST";
+    HlsMediaSource.Factory factory = createHlsMediaSourceFactory(playlistUri, playlist);
+    HlsMediaSource mediaSource = factory.createMediaSource(initialMediaItem);
+
+    boolean canUpdateMediaItem = mediaSource.canUpdateMediaItem(updatedMediaItem);
+
+    assertThat(canUpdateMediaItem).isFalse();
+  }
+
+  @Test
+  public void canUpdateMediaItem_withChangedLiveConfiguration_returnsFalse() {
+    String playlistUri = "http://test.test";
+    MediaItem initialMediaItem =
+        new MediaItem.Builder()
+            .setUri(playlistUri)
+            .setLiveConfiguration(
+                new MediaItem.LiveConfiguration.Builder().setTargetOffsetMs(2000).build())
+            .build();
+    MediaItem updatedMediaItem =
+        new MediaItem.Builder()
+            .setUri(playlistUri)
+            .setLiveConfiguration(
+                new MediaItem.LiveConfiguration.Builder().setTargetOffsetMs(5000).build())
+            .build();
+    String playlist =
+        "#EXTM3U\n"
+            + "#EXT-X-PLAYLIST-TYPE:VOD\n"
+            + "#EXT-X-TARGETDURATION:10\n"
+            + "#EXT-X-VERSION:4\n"
+            + "#EXT-X-ENDLIST";
+    HlsMediaSource.Factory factory = createHlsMediaSourceFactory(playlistUri, playlist);
+    HlsMediaSource mediaSource = factory.createMediaSource(initialMediaItem);
+
+    boolean canUpdateMediaItem = mediaSource.canUpdateMediaItem(updatedMediaItem);
+
+    assertThat(canUpdateMediaItem).isFalse();
+  }
+
+  @Test
+  public void updateMediaItem_createsTimelineWithUpdatedItem() throws Exception {
+    String playlistUri = "http://test.test";
+    MediaItem initialMediaItem = new MediaItem.Builder().setUri(playlistUri).setTag("tag1").build();
+    MediaItem updatedMediaItem = new MediaItem.Builder().setUri(playlistUri).setTag("tag2").build();
+    String playlist =
+        "#EXTM3U\n"
+            + "#EXT-X-PLAYLIST-TYPE:VOD\n"
+            + "#EXT-X-TARGETDURATION:10\n"
+            + "#EXT-X-VERSION:4\n"
+            + "#EXT-X-ENDLIST";
+    HlsMediaSource.Factory factory = createHlsMediaSourceFactory(playlistUri, playlist);
+    HlsMediaSource mediaSource = factory.createMediaSource(initialMediaItem);
+
+    mediaSource.updateMediaItem(updatedMediaItem);
+    Timeline timeline = prepareAndWaitForTimeline(mediaSource);
+
+    assertThat(timeline.getWindow(/* windowIndex= */ 0, new Timeline.Window()).mediaItem)
+        .isEqualTo(updatedMediaItem);
   }
 
   private static HlsMediaSource.Factory createHlsMediaSourceFactory(

@@ -29,6 +29,9 @@
     *   Add `MediaSource.canUpdateMediaItem` and `MediaSource.updateMediaItem`
         to accept `MediaItem` updates after creation via
         `Player.replaceMediaItem(s)`.
+    *   Allow `MediaItem` updates for all `MediaSource` classes provided by the
+        library via `Player.replaceMediaItem(s)`
+        (([#33](https://github.com/androidx/media/issues/33)),([#9978](https://github.com/google/ExoPlayer/issues/9978))).
 *   Transformer:
     *   Parse EXIF rotation data for image inputs.
     *   Remove `TransformationRequest.HdrMode` annotation type and its

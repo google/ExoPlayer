@@ -46,6 +46,8 @@ import androidx.media3.exoplayer.util.EventLogger;
 import androidx.media3.test.utils.FakeMediaSource;
 import androidx.media3.test.utils.FakeTimeline;
 import androidx.media3.test.utils.TestExoPlayerBuilder;
+import androidx.media3.test.utils.TestUtil;
+import androidx.media3.test.utils.robolectric.RobolectricUtil;
 import androidx.test.core.app.ApplicationProvider;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
@@ -689,6 +691,38 @@ public final class ConcatenatingMediaSource2Test {
       assertThat(period.getAdGroupIndexForPositionUs(period.durationUs))
           .isNotEqualTo(C.INDEX_UNSET);
     }
+  }
+
+  @Test
+  public void canUpdateMediaItem_withFieldsChanged_returnsTrue() {
+    MediaItem updatedMediaItem =
+        TestUtil.buildFullyCustomizedMediaItem().buildUpon().setUri("http://test.test").build();
+    MediaSource mediaSource = config.mediaSourceSupplier.get();
+
+    boolean canUpdateMediaItem = mediaSource.canUpdateMediaItem(updatedMediaItem);
+
+    assertThat(canUpdateMediaItem).isTrue();
+  }
+
+  @Test
+  public void updateMediaItem_createsTimelineWithUpdatedItem() throws Exception {
+    MediaItem updatedMediaItem = new MediaItem.Builder().setUri("http://test.test").build();
+    MediaSource mediaSource = config.mediaSourceSupplier.get();
+    AtomicReference<Timeline> timelineReference = new AtomicReference<>();
+
+    mediaSource.updateMediaItem(updatedMediaItem);
+    mediaSource.prepareSource(
+        (source, timeline) -> timelineReference.set(timeline),
+        /* mediaTransferListener= */ null,
+        PlayerId.UNSET);
+    RobolectricUtil.runMainLooperUntil(() -> timelineReference.get() != null);
+
+    assertThat(
+            timelineReference
+                .get()
+                .getWindow(/* windowIndex= */ 0, new Timeline.Window())
+                .mediaItem)
+        .isEqualTo(updatedMediaItem);
   }
 
   private static void blockingPrepareMediaPeriod(MediaPeriod mediaPeriod) {

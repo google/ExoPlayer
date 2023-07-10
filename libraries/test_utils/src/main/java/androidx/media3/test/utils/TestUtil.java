@@ -27,6 +27,9 @@ import android.media.MediaCodec;
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.MediaMetadata;
+import androidx.media3.common.StreamKey;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.UnstableApi;
@@ -63,6 +66,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 
 /** Utility methods for tests. */
 @UnstableApi
@@ -560,6 +564,33 @@ public class TestUtil {
     }
 
     return list;
+  }
+
+  /** Returns a {@link MediaItem} that has all fields set to non-default values. */
+  public static MediaItem buildFullyCustomizedMediaItem() {
+    return new MediaItem.Builder()
+        .setUri("http://custom.uri.test")
+        .setCustomCacheKey("custom.cache")
+        .setMediaId("custom.id")
+        .setMediaMetadata(new MediaMetadata.Builder().setTitle("custom.title").build())
+        .setClippingConfiguration(
+            new MediaItem.ClippingConfiguration.Builder().setStartPositionMs(123).build())
+        .setAdsConfiguration(
+            new MediaItem.AdsConfiguration.Builder(Uri.parse("http:://custom.ad.test")).build())
+        .setDrmConfiguration(new MediaItem.DrmConfiguration.Builder(UUID.randomUUID()).build())
+        .setLiveConfiguration(
+            new MediaItem.LiveConfiguration.Builder().setTargetOffsetMs(234).build())
+        .setMimeType("mime")
+        .setRequestMetadata(
+            new MediaItem.RequestMetadata.Builder().setSearchQuery("custom.query").build())
+        .setStreamKeys(ImmutableList.of(new StreamKey(/* groupIndex= */ 0, /* streamIndex= */ 0)))
+        .setTag("tag")
+        .setSubtitleConfigurations(
+            ImmutableList.of(
+                new MediaItem.SubtitleConfiguration.Builder(
+                        Uri.parse("http://custom.subtitle.test"))
+                    .build()))
+        .build();
   }
 
   private static final class NoUidOrShufflingTimeline extends Timeline {

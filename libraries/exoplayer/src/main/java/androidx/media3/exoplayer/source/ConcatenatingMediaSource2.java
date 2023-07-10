@@ -25,6 +25,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Pair;
+import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
@@ -211,12 +212,14 @@ public final class ConcatenatingMediaSource2 extends CompositeMediaSource<Intege
 
   private static final int MSG_UPDATE_TIMELINE = 0;
 
-  private final MediaItem mediaItem;
   private final ImmutableList<MediaSourceHolder> mediaSourceHolders;
   private final IdentityHashMap<MediaPeriod, MediaSourceHolder> mediaSourceByMediaPeriod;
 
   @Nullable private Handler playbackThreadHandler;
   private boolean timelineUpdateScheduled;
+
+  @GuardedBy("this")
+  private MediaItem mediaItem;
 
   private ConcatenatingMediaSource2(
       MediaItem mediaItem, ImmutableList<MediaSourceHolder> mediaSourceHolders) {
@@ -232,8 +235,18 @@ public final class ConcatenatingMediaSource2 extends CompositeMediaSource<Intege
   }
 
   @Override
-  public MediaItem getMediaItem() {
+  public synchronized MediaItem getMediaItem() {
     return mediaItem;
+  }
+
+  @Override
+  public boolean canUpdateMediaItem(MediaItem mediaItem) {
+    return true;
+  }
+
+  @Override
+  public synchronized void updateMediaItem(MediaItem mediaItem) {
+    this.mediaItem = mediaItem;
   }
 
   @Override
@@ -426,7 +439,7 @@ public final class ConcatenatingMediaSource2 extends CompositeMediaSource<Intege
       }
     }
     return new ConcatenatedTimeline(
-        mediaItem,
+        getMediaItem(),
         timelinesBuilder.build(),
         firstPeriodIndicesBuilder.build(),
         periodOffsetsInWindowUsBuilder.build(),

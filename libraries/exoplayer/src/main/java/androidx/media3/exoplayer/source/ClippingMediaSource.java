@@ -22,6 +22,7 @@ import static java.lang.annotation.ElementType.TYPE_USE;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
+import androidx.media3.common.MediaItem;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.UnstableApi;
@@ -192,6 +193,12 @@ public final class ClippingMediaSource extends WrappingMediaSource {
     this.relativeToDefaultPosition = relativeToDefaultPosition;
     mediaPeriods = new ArrayList<>();
     window = new Timeline.Window();
+  }
+
+  @Override
+  public boolean canUpdateMediaItem(MediaItem mediaItem) {
+    return getMediaItem().clippingConfiguration.equals(mediaItem.clippingConfiguration)
+        && mediaSource.canUpdateMediaItem(mediaItem);
   }
 
   @Override
