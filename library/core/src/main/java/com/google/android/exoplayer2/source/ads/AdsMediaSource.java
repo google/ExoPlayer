@@ -196,7 +196,8 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
 
   @Override
   public boolean canUpdateMediaItem(MediaItem mediaItem) {
-    return contentMediaSource.canUpdateMediaItem(mediaItem);
+    return Util.areEqual(getAdsConfiguration(getMediaItem()), getAdsConfiguration(mediaItem))
+        && contentMediaSource.canUpdateMediaItem(mediaItem);
   }
 
   @Override
@@ -371,6 +372,13 @@ public final class AdsMediaSource extends CompositeMediaSource<MediaPeriodId> {
       }
     }
     return adDurationsUs;
+  }
+
+  @Nullable
+  private static MediaItem.AdsConfiguration getAdsConfiguration(MediaItem mediaItem) {
+    return mediaItem.localConfiguration == null
+        ? null
+        : mediaItem.localConfiguration.adsConfiguration;
   }
 
   /** Listener for component events. All methods are called on the main thread. */

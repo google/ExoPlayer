@@ -39,10 +39,12 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.analytics.PlayerId;
+import com.google.android.exoplayer2.robolectric.RobolectricUtil;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.TestExoPlayerBuilder;
+import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -689,6 +691,38 @@ public final class ConcatenatingMediaSource2Test {
       assertThat(period.getAdGroupIndexForPositionUs(period.durationUs))
           .isNotEqualTo(C.INDEX_UNSET);
     }
+  }
+
+  @Test
+  public void canUpdateMediaItem_withFieldsChanged_returnsTrue() {
+    MediaItem updatedMediaItem =
+        TestUtil.buildFullyCustomizedMediaItem().buildUpon().setUri("http://test.test").build();
+    MediaSource mediaSource = config.mediaSourceSupplier.get();
+
+    boolean canUpdateMediaItem = mediaSource.canUpdateMediaItem(updatedMediaItem);
+
+    assertThat(canUpdateMediaItem).isTrue();
+  }
+
+  @Test
+  public void updateMediaItem_createsTimelineWithUpdatedItem() throws Exception {
+    MediaItem updatedMediaItem = new MediaItem.Builder().setUri("http://test.test").build();
+    MediaSource mediaSource = config.mediaSourceSupplier.get();
+    AtomicReference<Timeline> timelineReference = new AtomicReference<>();
+
+    mediaSource.updateMediaItem(updatedMediaItem);
+    mediaSource.prepareSource(
+        (source, timeline) -> timelineReference.set(timeline),
+        /* mediaTransferListener= */ null,
+        PlayerId.UNSET);
+    RobolectricUtil.runMainLooperUntil(() -> timelineReference.get() != null);
+
+    assertThat(
+            timelineReference
+                .get()
+                .getWindow(/* windowIndex= */ 0, new Timeline.Window())
+                .mediaItem)
+        .isEqualTo(updatedMediaItem);
   }
 
   private static void blockingPrepareMediaPeriod(MediaPeriod mediaPeriod) {

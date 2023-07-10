@@ -27,6 +27,8 @@ import android.media.MediaCodec;
 import android.net.Uri;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.database.DatabaseProvider;
 import com.google.android.exoplayer2.database.DefaultDatabaseProvider;
@@ -36,6 +38,7 @@ import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -62,6 +65,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 
 /** Utility methods for tests. */
 public class TestUtil {
@@ -558,6 +562,33 @@ public class TestUtil {
     }
 
     return list;
+  }
+
+  /** Returns a {@link MediaItem} that has all fields set to non-default values. */
+  public static MediaItem buildFullyCustomizedMediaItem() {
+    return new MediaItem.Builder()
+        .setUri("http://custom.uri.test")
+        .setCustomCacheKey("custom.cache")
+        .setMediaId("custom.id")
+        .setMediaMetadata(new MediaMetadata.Builder().setTitle("custom.title").build())
+        .setClippingConfiguration(
+            new MediaItem.ClippingConfiguration.Builder().setStartPositionMs(123).build())
+        .setAdsConfiguration(
+            new MediaItem.AdsConfiguration.Builder(Uri.parse("http:://custom.ad.test")).build())
+        .setDrmConfiguration(new MediaItem.DrmConfiguration.Builder(UUID.randomUUID()).build())
+        .setLiveConfiguration(
+            new MediaItem.LiveConfiguration.Builder().setTargetOffsetMs(234).build())
+        .setMimeType("mime")
+        .setRequestMetadata(
+            new MediaItem.RequestMetadata.Builder().setSearchQuery("custom.query").build())
+        .setStreamKeys(ImmutableList.of(new StreamKey(/* groupIndex= */ 0, /* streamIndex= */ 0)))
+        .setTag("tag")
+        .setSubtitleConfigurations(
+            ImmutableList.of(
+                new MediaItem.SubtitleConfiguration.Builder(
+                        Uri.parse("http://custom.subtitle.test"))
+                    .build()))
+        .build();
   }
 
   private static final class NoUidOrShufflingTimeline extends Timeline {

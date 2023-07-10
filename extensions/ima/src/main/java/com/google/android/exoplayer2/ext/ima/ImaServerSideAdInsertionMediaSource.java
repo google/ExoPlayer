@@ -44,6 +44,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Pair;
 import android.view.ViewGroup;
+import androidx.annotation.GuardedBy;
 import androidx.annotation.MainThread;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
@@ -505,7 +506,6 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
 
   private static final String TAG = "ImaSSAIMediaSource";
 
-  private final MediaItem mediaItem;
   private final Player player;
   private final MediaSource.Factory contentMediaSourceFactory;
   private final AdsLoader adsLoader;
@@ -526,6 +526,9 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
   @Nullable private IOException loadError;
   @Nullable private Timeline contentTimeline;
   private AdPlaybackState adPlaybackState;
+
+  @GuardedBy("this")
+  private MediaItem mediaItem;
 
   private ImaServerSideAdInsertionMediaSource(
       Player player,
@@ -565,8 +568,27 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
   }
 
   @Override
-  public MediaItem getMediaItem() {
+  public synchronized MediaItem getMediaItem() {
     return mediaItem;
+  }
+
+  @Override
+  public boolean canUpdateMediaItem(MediaItem mediaItem) {
+    MediaItem existingMediaItem = getMediaItem();
+    MediaItem.LocalConfiguration existingConfiguration =
+        checkNotNull(existingMediaItem.localConfiguration);
+    @Nullable MediaItem.LocalConfiguration newConfiguration = mediaItem.localConfiguration;
+    return newConfiguration != null
+        && newConfiguration.uri.equals(existingConfiguration.uri)
+        && newConfiguration.streamKeys.equals(existingConfiguration.streamKeys)
+        && Util.areEqual(newConfiguration.customCacheKey, existingConfiguration.customCacheKey)
+        && Util.areEqual(newConfiguration.drmConfiguration, existingConfiguration.drmConfiguration)
+        && existingMediaItem.liveConfiguration.equals(mediaItem.liveConfiguration);
+  }
+
+  @Override
+  public synchronized void updateMediaItem(MediaItem mediaItem) {
+    this.mediaItem = mediaItem;
   }
 
   @Override
@@ -594,6 +616,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
   @Override
   protected void onChildSourceInfoRefreshed(
       Void childSourceId, MediaSource mediaSource, Timeline newTimeline) {
+    MediaItem mediaItem = getMediaItem();
     refreshSourceInfo(
         new ForwardingTimeline(newTimeline) {
           @Override
@@ -734,6 +757,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
 
   private void setContentUri(Uri contentUri) {
     if (serverSideAdInsertionMediaSource == null) {
+      MediaItem mediaItem = getMediaItem();
       MediaItem contentMediaItem =
           new MediaItem.Builder()
               .setUri(contentUri)
@@ -841,6 +865,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
         return;
       }
 
+      MediaItem mediaItem = getMediaItem();
       if (mediaItem.equals(oldPosition.mediaItem) && !mediaItem.equals(newPosition.mediaItem)) {
         // Playback automatically transitioned to the next media item. Notify the SDK.
         streamPlayer.onContentCompleted();
@@ -912,7 +937,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
 
     @Override
     public void onMetadata(Metadata metadata) {
-      if (!isCurrentAdPlaying(player, mediaItem, adsId)) {
+      if (!isCurrentAdPlaying(player, getMediaItem(), adsId)) {
         return;
       }
       for (int i = 0; i < metadata.length(); i++) {
@@ -932,14 +957,14 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
 
     @Override
     public void onPlaybackStateChanged(@Player.State int state) {
-      if (state == Player.STATE_ENDED && isCurrentAdPlaying(player, mediaItem, adsId)) {
+      if (state == Player.STATE_ENDED && isCurrentAdPlaying(player, getMediaItem(), adsId)) {
         streamPlayer.onContentCompleted();
       }
     }
 
     @Override
     public void onVolumeChanged(float volume) {
-      if (!isCurrentAdPlaying(player, mediaItem, adsId)) {
+      if (!isCurrentAdPlaying(player, getMediaItem(), adsId)) {
         return;
       }
       int volumePct = (int) Math.floor(volume * 100);

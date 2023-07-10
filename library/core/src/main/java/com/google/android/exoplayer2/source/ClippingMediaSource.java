@@ -22,6 +22,7 @@ import static java.lang.annotation.ElementType.TYPE_USE;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.util.Assertions;
@@ -196,6 +197,12 @@ public final class ClippingMediaSource extends WrappingMediaSource {
     this.relativeToDefaultPosition = relativeToDefaultPosition;
     mediaPeriods = new ArrayList<>();
     window = new Timeline.Window();
+  }
+
+  @Override
+  public boolean canUpdateMediaItem(MediaItem mediaItem) {
+    return getMediaItem().clippingConfiguration.equals(mediaItem.clippingConfiguration)
+        && mediaSource.canUpdateMediaItem(mediaItem);
   }
 
   @Override

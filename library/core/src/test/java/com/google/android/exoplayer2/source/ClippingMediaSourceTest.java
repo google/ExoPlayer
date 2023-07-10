@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.source;
 
+import static com.google.android.exoplayer2.util.Util.msToUs;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
@@ -26,6 +27,8 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Period;
 import com.google.android.exoplayer2.Timeline.Window;
+import com.google.android.exoplayer2.analytics.PlayerId;
+import com.google.android.exoplayer2.robolectric.RobolectricUtil;
 import com.google.android.exoplayer2.source.ClippingMediaSource.IllegalClippingException;
 import com.google.android.exoplayer2.source.MaskingMediaSource.PlaceholderTimeline;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
@@ -33,8 +36,10 @@ import com.google.android.exoplayer2.testutil.FakeMediaSource;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinition;
 import com.google.android.exoplayer2.testutil.MediaSourceTestRunner;
+import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.testutil.TimelineAsserts;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -477,6 +482,83 @@ public final class ClippingMediaSourceTest {
         clippedTimeline, Player.REPEAT_MODE_OFF, false, C.INDEX_UNSET);
     TimelineAsserts.assertNextWindowIndices(clippedTimeline, Player.REPEAT_MODE_ONE, false, 0);
     TimelineAsserts.assertNextWindowIndices(clippedTimeline, Player.REPEAT_MODE_ALL, false, 0);
+  }
+
+  @Test
+  public void canUpdateMediaItem_withIrrelevantFieldsChanged_returnsTrue() {
+    MediaItem initialMediaItem =
+        new MediaItem.Builder()
+            .setMediaId("id")
+            .setClippingConfiguration(
+                new MediaItem.ClippingConfiguration.Builder().setStartPositionMs(1).build())
+            .build();
+    MediaItem updatedMediaItem =
+        TestUtil.buildFullyCustomizedMediaItem()
+            .buildUpon()
+            .setClippingConfiguration(
+                new MediaItem.ClippingConfiguration.Builder().setStartPositionMs(1).build())
+            .build();
+    MediaSource mediaSource = buildMediaSource(initialMediaItem);
+
+    boolean canUpdateMediaItem = mediaSource.canUpdateMediaItem(updatedMediaItem);
+
+    assertThat(canUpdateMediaItem).isTrue();
+  }
+
+  @Test
+  public void canUpdateMediaItem_withChangedClippingConfiguration_returnsFalse() {
+    MediaItem initialMediaItem =
+        new MediaItem.Builder()
+            .setMediaId("id")
+            .setClippingConfiguration(
+                new MediaItem.ClippingConfiguration.Builder().setStartPositionMs(1).build())
+            .build();
+    MediaItem updatedMediaItem =
+        new MediaItem.Builder()
+            .setMediaId("id")
+            .setClippingConfiguration(
+                new MediaItem.ClippingConfiguration.Builder().setStartPositionMs(2).build())
+            .build();
+    MediaSource mediaSource = buildMediaSource(initialMediaItem);
+
+    boolean canUpdateMediaItem = mediaSource.canUpdateMediaItem(updatedMediaItem);
+
+    assertThat(canUpdateMediaItem).isFalse();
+  }
+
+  @Test
+  public void updateMediaItem_createsTimelineWithUpdatedItem() throws Exception {
+    MediaItem initialMediaItem = new MediaItem.Builder().setUri("http://test.test").build();
+    MediaItem updatedMediaItem = new MediaItem.Builder().setUri("http://test2.test").build();
+    MediaSource mediaSource = buildMediaSource(initialMediaItem);
+    AtomicReference<Timeline> timelineReference = new AtomicReference<>();
+
+    mediaSource.updateMediaItem(updatedMediaItem);
+    mediaSource.prepareSource(
+        (source, timeline) -> timelineReference.set(timeline),
+        /* mediaTransferListener= */ null,
+        PlayerId.UNSET);
+    RobolectricUtil.runMainLooperUntil(() -> timelineReference.get() != null);
+
+    assertThat(
+            timelineReference
+                .get()
+                .getWindow(/* windowIndex= */ 0, new Timeline.Window())
+                .mediaItem)
+        .isEqualTo(updatedMediaItem);
+  }
+
+  private static MediaSource buildMediaSource(MediaItem mediaItem) {
+    FakeMediaSource fakeMediaSource = new FakeMediaSource();
+    fakeMediaSource.setCanUpdateMediaItems(true);
+    fakeMediaSource.updateMediaItem(mediaItem);
+    return new ClippingMediaSource(
+        fakeMediaSource,
+        msToUs(mediaItem.clippingConfiguration.startPositionMs),
+        msToUs(mediaItem.clippingConfiguration.endPositionMs),
+        mediaItem.clippingConfiguration.startsAtKeyFrame,
+        mediaItem.clippingConfiguration.relativeToLiveWindow,
+        mediaItem.clippingConfiguration.relativeToDefaultPosition);
   }
 
   /**
