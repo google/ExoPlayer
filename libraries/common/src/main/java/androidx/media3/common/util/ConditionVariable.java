@@ -35,7 +35,7 @@ public class ConditionVariable {
   private final Clock clock;
   private boolean isOpen;
 
-  /** Creates an instance using {@link Clock#DEFAULT}. */
+  /** Creates a closed instance using {@link Clock#DEFAULT}. */
   public ConditionVariable() {
     this(Clock.DEFAULT);
   }
