@@ -1,4 +1,25 @@
 MediaCodecAdapter (exotest.audio.mpeg):
-  buffers.length = 2
-  buffers[0] = length 418, hash B819987
-  buffers[1] = length 0, hash 1
+  inputBuffers:
+    count = 2
+    input buffer #0:
+      timeUs = 1000000000000
+      contents = length 418, hash B819987
+    input buffer #1:
+      timeUs = 0
+      flags = 4
+      contents = length 0, hash 1
+  outputBuffers:
+    count = 1
+    output buffer #0:
+      timeUs = 1000000000000
+      size = 0
+      rendered = false
+AudioSink:
+  buffer count = 1
+  config:
+    pcmEncoding = 2
+    channelCount = 2
+    sampleRate = 44100
+  buffer #0:
+    time = 1000000000000
+    data = 1
