@@ -20,6 +20,7 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.exoplayer.source.ads.ServerSideAdInsertionUtil.addAdGroupToAdPlaybackState;
 import static androidx.media3.test.utils.robolectric.RobolectricUtil.runMainLooperUntil;
 import static androidx.media3.test.utils.robolectric.TestPlayerRunHelper.playUntilPosition;
+import static androidx.media3.test.utils.robolectric.TestPlayerRunHelper.runUntilIsLoading;
 import static androidx.media3.test.utils.robolectric.TestPlayerRunHelper.runUntilPendingCommandsAreFullyHandled;
 import static androidx.media3.test.utils.robolectric.TestPlayerRunHelper.runUntilPlaybackState;
 import static com.google.common.truth.Truth.assertThat;
@@ -82,7 +83,6 @@ public final class ServerSideAdInsertionMediaSourceTest {
       ShadowMediaCodecConfig.forAllSupportedMimeTypes();
 
   private static final String TEST_ASSET = "asset:///media/mp4/sample.mp4";
-  private static final String TEST_ASSET_DUMP = "playbackdumps/mp4/ssai-sample.mp4.dump";
 
   @Test
   public void timeline_vodSinglePeriod_containsAdsDefinedInAdPlaybackState() throws Exception {
@@ -440,7 +440,8 @@ public final class ServerSideAdInsertionMediaSourceTest {
     player.release();
 
     // Assert all samples have been played.
-    DumpFileAsserts.assertOutput(context, playbackOutput, TEST_ASSET_DUMP);
+    DumpFileAsserts.assertOutput(
+        context, playbackOutput, "playbackdumps/mp4/ssai-predefined-ads.mp4.dump");
     // Assert playback has been reported with ads: [ad0][content][ad1][content][ad2][content]
     // 6*2(audio+video) format changes, 5 discontinuities between parts.
     verify(listener, times(5))
@@ -469,7 +470,7 @@ public final class ServerSideAdInsertionMediaSourceTest {
     AdPlaybackState firstAdPlaybackState =
         addAdGroupToAdPlaybackState(
             new AdPlaybackState(/* adsId= */ new Object()),
-            /* fromPositionUs= */ 900_000,
+            /* fromPositionUs= */ 700_000,
             /* contentResumeOffsetUs= */ 0,
             /* adDurationsUs...= */ 100_000);
     AtomicReference<ServerSideAdInsertionMediaSource> mediaSourceRef = new AtomicReference<>();
@@ -497,6 +498,8 @@ public final class ServerSideAdInsertionMediaSourceTest {
 
     // Add ad at the current playback position during playback.
     runUntilPlaybackState(player, Player.STATE_READY);
+    runUntilIsLoading(player, false);
+    runMainLooperUntil(() -> player.getBufferedPercentage() == 100);
     AdPlaybackState secondAdPlaybackState =
         addAdGroupToAdPlaybackState(
             firstAdPlaybackState,
@@ -514,7 +517,8 @@ public final class ServerSideAdInsertionMediaSourceTest {
     player.release();
 
     // Assert all samples have been played.
-    DumpFileAsserts.assertOutput(context, playbackOutput, TEST_ASSET_DUMP);
+    DumpFileAsserts.assertOutput(
+        context, playbackOutput, "playbackdumps/mp4/ssai-newly-inserted-adgroup.mp4.dump");
     assertThat(contentTimelines).hasSize(2);
     // Assert playback has been reported with ads: [content][ad0][content][ad1][content]
     // 5*2(audio+video) format changes, 4 discontinuities between parts.
@@ -592,7 +596,8 @@ public final class ServerSideAdInsertionMediaSourceTest {
     player.release();
 
     // Assert all samples have been played.
-    DumpFileAsserts.assertOutput(context, playbackOutput, TEST_ASSET_DUMP);
+    DumpFileAsserts.assertOutput(
+        context, playbackOutput, "playbackdumps/mp4/ssai-extended-adgroup.mp4.dump");
     assertThat(contentTimelines).hasSize(2);
     // Assert playback has been reported with ads: [ad0][ad1][ad2][content]
     // 4*2(audio+video) format changes, 3 discontinuities between parts.
@@ -656,7 +661,7 @@ public final class ServerSideAdInsertionMediaSourceTest {
     player.setMediaSource(mediaSourceRef.get());
     player.prepare();
     // Play to the first content part, then seek past the midroll.
-    playUntilPosition(player, /* mediaItemIndex= */ 0, /* positionMs= */ 100);
+    playUntilPosition(player, /* mediaItemIndex= */ 0, /* positionMs= */ 150);
     player.seekTo(/* positionMs= */ 1_600);
     runUntilPendingCommandsAreFullyHandled(player);
     long positionAfterSeekMs = player.getCurrentPosition();
