@@ -32,7 +32,6 @@ import androidx.media3.common.Effect;
 import androidx.media3.common.GlObjectsProvider;
 import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.VideoFrameProcessingException;
-import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Util;
 import androidx.media3.effect.DefaultGlObjectsProvider;
@@ -212,7 +211,7 @@ public final class VideoCompositorPixelTest {
       @Nullable ExecutorService executorService,
       GlObjectsProvider glObjectsProvider) {
     int inputId = videoCompositor.registerInputSource();
-    VideoFrameProcessor.Factory defaultVideoFrameProcessorFactory =
+    DefaultVideoFrameProcessor.Factory.Builder defaultVideoFrameProcessorFactoryBuilder =
         new DefaultVideoFrameProcessor.Factory.Builder()
             .setGlObjectsProvider(glObjectsProvider)
             .setTextureOutput(
@@ -226,12 +225,13 @@ public final class VideoCompositorPixelTest {
                   videoCompositor.queueInputTexture(
                       inputId, outputTexture, presentationTimeUs, releaseOutputTextureCallback);
                 },
-                /* textureOutputCapacity= */ 1)
-            .setExecutorService(executorService)
-            .build();
+                /* textureOutputCapacity= */ 1);
+    if (executorService != null) {
+      defaultVideoFrameProcessorFactoryBuilder.setExecutorService(executorService);
+    }
     return new VideoFrameProcessorTestRunner.Builder()
         .setTestId(testId)
-        .setVideoFrameProcessorFactory(defaultVideoFrameProcessorFactory)
+        .setVideoFrameProcessorFactory(defaultVideoFrameProcessorFactoryBuilder.build())
         .setInputType(INPUT_TYPE_BITMAP)
         .setInputColorInfo(ColorInfo.SRGB_BT709_FULL)
         .setBitmapReader(textureBitmapReader);
