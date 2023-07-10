@@ -237,15 +237,11 @@ public final class TransformerActivity extends AppCompatActivity {
     String filePath = externalCacheFile.getAbsolutePath();
     @Nullable Bundle bundle = intent.getExtras();
     MediaItem mediaItem = createMediaItem(bundle, inputUri);
-    try {
-      Transformer transformer = createTransformer(bundle, inputUri, filePath);
-      Composition composition = createComposition(mediaItem, bundle);
-      exportStopwatch.start();
-      transformer.start(composition, filePath);
-      this.transformer = transformer;
-    } catch (PackageManager.NameNotFoundException e) {
-      throw new IllegalStateException(e);
-    }
+    Transformer transformer = createTransformer(bundle, inputUri, filePath);
+    Composition composition = createComposition(mediaItem, bundle);
+    exportStopwatch.start();
+    transformer.start(composition, filePath);
+    this.transformer = transformer;
     displayInputButton.setVisibility(View.GONE);
     inputCardView.setVisibility(View.GONE);
     outputPlayerView.setVisibility(View.GONE);
@@ -366,8 +362,7 @@ public final class TransformerActivity extends AppCompatActivity {
     "exportStopwatch",
     "progressViewGroup",
   })
-  private Composition createComposition(MediaItem mediaItem, @Nullable Bundle bundle)
-      throws PackageManager.NameNotFoundException {
+  private Composition createComposition(MediaItem mediaItem, @Nullable Bundle bundle) {
     EditedMediaItem.Builder editedMediaItemBuilder = new EditedMediaItem.Builder(mediaItem);
     // For image inputs. Automatically ignored if input is audio/video.
     editedMediaItemBuilder.setDurationUs(5_000_000).setFrameRate(30);
@@ -427,8 +422,7 @@ public final class TransformerActivity extends AppCompatActivity {
     return processors.build();
   }
 
-  private ImmutableList<Effect> createVideoEffectsFromBundle(Bundle bundle)
-      throws PackageManager.NameNotFoundException {
+  private ImmutableList<Effect> createVideoEffectsFromBundle(Bundle bundle) {
     boolean[] selectedEffects =
         checkStateNotNull(bundle.getBooleanArray(ConfigurationActivity.VIDEO_EFFECTS_SELECTIONS));
     ImmutableList.Builder<Effect> effects = new ImmutableList.Builder<>();
@@ -577,8 +571,7 @@ public final class TransformerActivity extends AppCompatActivity {
   }
 
   @Nullable
-  private OverlayEffect createOverlayEffectFromBundle(Bundle bundle, boolean[] selectedEffects)
-      throws PackageManager.NameNotFoundException {
+  private OverlayEffect createOverlayEffectFromBundle(Bundle bundle, boolean[] selectedEffects) {
     ImmutableList.Builder<TextureOverlay> overlaysBuilder = new ImmutableList.Builder<>();
     if (selectedEffects[ConfigurationActivity.OVERLAY_LOGO_AND_TIMER_INDEX]) {
       float[] logoPositioningMatrix = GlUtil.create4x4IdentityMatrix();
@@ -589,7 +582,12 @@ public final class TransformerActivity extends AppCompatActivity {
               .setMatrix(logoPositioningMatrix)
               .setAnchor(/* x= */ -1f, /* y= */ -1f)
               .build();
-      Drawable logo = getPackageManager().getApplicationIcon(getPackageName());
+      Drawable logo;
+      try {
+        logo = getPackageManager().getApplicationIcon(getPackageName());
+      } catch (PackageManager.NameNotFoundException e) {
+        throw new IllegalStateException(e);
+      }
       logo.setBounds(
           /* left= */ 0, /* top= */ 0, logo.getIntrinsicWidth(), logo.getIntrinsicHeight());
       TextureOverlay logoOverlay = DrawableOverlay.createStaticDrawableOverlay(logo, logoSettings);
