@@ -33,7 +33,7 @@ import java.nio.ByteBuffer;
 import org.checkerframework.dataflow.qual.Pure;
 
 /**
- * Processes, re-encodes and muxes raw audio samples.
+ * Processes, encodes and muxes raw audio samples.
  *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
  *     contains the same ExoPlayer code). See <a
@@ -42,6 +42,7 @@ import org.checkerframework.dataflow.qual.Pure;
  */
 @Deprecated
 /* package */ final class AudioSampleExporter extends SampleExporter {
+
   private static final int DEFAULT_ENCODER_BITRATE = 128 * 1024;
 
   private final Codec encoder;
@@ -104,23 +105,8 @@ import org.checkerframework.dataflow.qual.Pure;
   }
 
   @Override
-  public void onMediaItemChanged(
-      EditedMediaItem editedMediaItem,
-      long durationUs,
-      @Nullable Format trackFormat,
-      boolean isLast) {
-    audioGraph.onMediaItemChanged(editedMediaItem, durationUs, trackFormat, isLast);
-  }
-
-  @Override
-  @Nullable
-  public DecoderInputBuffer getInputBuffer() {
-    return audioGraph.getInputBuffer();
-  }
-
-  @Override
-  public boolean queueInputBuffer() {
-    return audioGraph.queueInputBuffer();
+  public GraphInput getInput() {
+    return audioGraph;
   }
 
   @Override

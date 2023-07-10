@@ -54,7 +54,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-/* package */ final class AudioGraph implements SampleConsumer, OnMediaItemChangedListener {
+/* package */ final class AudioGraph implements GraphInput {
   private static final int MAX_INPUT_BUFFER_COUNT = 10;
   private final AudioFormat outputAudioFormat;
   private final SilentAudioGenerator silentAudioGenerator;

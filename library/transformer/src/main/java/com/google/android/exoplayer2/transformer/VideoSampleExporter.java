@@ -64,8 +64,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.dataflow.qual.Pure;
 
+// TODO: b/289986435 - Remove implementations of GraphInput after creating VideoGraph.
 /**
- * Processes, re-encodes and muxes raw video frames.
+ * Processes, encodes and muxes raw video frames.
  *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
  *     contains the same ExoPlayer code). See <a
@@ -73,7 +74,7 @@ import org.checkerframework.dataflow.qual.Pure;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-/* package */ final class VideoSampleExporter extends SampleExporter {
+/* package */ final class VideoSampleExporter extends SampleExporter implements GraphInput {
 
   private static final String TAG = "VideoSampleExporter";
   private final AtomicLong mediaItemOffsetUs;
@@ -272,6 +273,11 @@ import org.checkerframework.dataflow.qual.Pure;
   @Override
   public void signalEndOfVideoInput() {
     videoFrameProcessor.signalEndOfInput();
+  }
+
+  @Override
+  public GraphInput getInput() {
+    return this;
   }
 
   @Override

@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicLong;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-/* package */ final class EncodedSampleExporter extends SampleExporter {
+/* package */ final class EncodedSampleExporter extends SampleExporter implements GraphInput {
 
   private static final int MAX_INPUT_BUFFER_COUNT = 10;
 
@@ -94,6 +94,11 @@ import java.util.concurrent.atomic.AtomicLong;
       pendingInputBuffers.add(inputBuffer);
     }
     return true;
+  }
+
+  @Override
+  public GraphInput getInput() {
+    return this;
   }
 
   @Override
