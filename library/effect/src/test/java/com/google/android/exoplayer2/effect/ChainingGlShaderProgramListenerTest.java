@@ -23,7 +23,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.GlObjectsProvider;
 import com.google.android.exoplayer2.util.GlTextureInfo;
 import com.google.android.exoplayer2.util.Util;
-import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,13 +32,13 @@ import org.junit.runner.RunWith;
 public final class ChainingGlShaderProgramListenerTest {
   private static final long EXECUTOR_WAIT_TIME_MS = 100;
 
-  private final VideoFrameProcessor.Listener mockFrameProcessorListener =
-      mock(VideoFrameProcessor.Listener.class);
+  private final VideoFrameProcessingTaskExecutor.ErrorListener mockErrorListener =
+      mock(VideoFrameProcessingTaskExecutor.ErrorListener.class);
   private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor =
       new VideoFrameProcessingTaskExecutor(
           Util.newSingleThreadExecutor("Test"),
           /* shouldShutdownExecutorService= */ true,
-          mockFrameProcessorListener);
+          mockErrorListener);
   private final GlObjectsProvider mockGlObjectsProvider = mock(GlObjectsProvider.class);
   private final GlShaderProgram mockProducingGlShaderProgram = mock(GlShaderProgram.class);
   private final GlShaderProgram mockConsumingGlShaderProgram = mock(GlShaderProgram.class);

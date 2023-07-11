@@ -557,11 +557,11 @@ public final class AndroidTestUtil {
    */
   public static EGLContext createOpenGlObjects() throws GlUtil.GlException {
     EGLDisplay eglDisplay = GlUtil.getDefaultEglDisplay();
-    int[] configAttributes = GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_8888;
     GlObjectsProvider glObjectsProvider =
         new DefaultGlObjectsProvider(/* sharedEglContext= */ null);
     EGLContext eglContext =
-        glObjectsProvider.createEglContext(eglDisplay, /* openGlVersion= */ 2, configAttributes);
+        glObjectsProvider.createEglContext(
+            eglDisplay, /* openGlVersion= */ 2, GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_8888);
     glObjectsProvider.createFocusedPlaceholderEglSurface(eglContext, eglDisplay);
     return eglContext;
   }

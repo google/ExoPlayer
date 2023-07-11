@@ -137,8 +137,7 @@ public interface VideoFrameProcessor {
     /**
      * Called when an exception occurs during asynchronous video frame processing.
      *
-     * <p>If an error occurred, consuming and producing further frames will not work as expected and
-     * the {@link VideoFrameProcessor} should be released.
+     * <p>Using {@code VideoFrameProcessor} after an error happens is undefined behavior.
      */
     void onError(VideoFrameProcessingException exception);
 

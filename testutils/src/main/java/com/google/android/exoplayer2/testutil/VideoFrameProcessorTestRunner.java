@@ -240,7 +240,7 @@ public final class VideoFrameProcessorTestRunner {
    * Time to wait for the decoded frame to populate the {@link VideoFrameProcessor} instance's input
    * surface and the {@link VideoFrameProcessor} to finish processing the frame, in milliseconds.
    */
-  public static final int VIDEO_FRAME_PROCESSING_WAIT_MS = 5000;
+  public static final int VIDEO_FRAME_PROCESSING_WAIT_MS = 5_000;
 
   private final String testId;
   private final @MonotonicNonNull String videoAssetPath;
