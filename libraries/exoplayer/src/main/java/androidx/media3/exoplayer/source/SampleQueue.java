@@ -103,7 +103,7 @@ public class SampleQueue implements TrackOutput {
   @Nullable private Format unadjustedUpstreamFormat;
   @Nullable private Format upstreamFormat;
   private long upstreamSourceId;
-  private boolean upstreamAllSamplesAreSyncSamples;
+  private boolean allSamplesAreSyncSamples;
   private boolean loggedUnexpectedNonSyncSample;
 
   private long sampleOffsetUs;
@@ -181,6 +181,7 @@ public class SampleQueue implements TrackOutput {
     largestQueuedTimestampUs = Long.MIN_VALUE;
     upstreamFormatRequired = true;
     upstreamKeyframeRequired = true;
+    allSamplesAreSyncSamples = true;
   }
 
   // Called by the consuming thread when there is no loading thread.
@@ -222,6 +223,7 @@ public class SampleQueue implements TrackOutput {
       unadjustedUpstreamFormat = null;
       upstreamFormat = null;
       upstreamFormatRequired = true;
+      allSamplesAreSyncSamples = true;
     }
   }
 
@@ -463,6 +465,9 @@ public class SampleQueue implements TrackOutput {
   /**
    * Attempts to seek the read position to the keyframe before or at the specified time.
    *
+   * <p>For formats where {@linkplain MimeTypes#allSamplesAreSyncSamples all samples are sync
+   * samples}, it seeks the read position to the first sample at or after the specified time.
+   *
    * @param timeUs The time to seek to.
    * @param allowTimeBeyondBuffer Whether the operation can succeed if {@code timeUs} is beyond the
    *     end of the queue, by seeking to the last sample (or keyframe).
@@ -477,7 +482,11 @@ public class SampleQueue implements TrackOutput {
       return false;
     }
     int offset =
-        findSampleBefore(relativeReadIndex, length - readPosition, timeUs, /* keyframe= */ true);
+        allSamplesAreSyncSamples
+            ? findSampleAfter(
+                relativeReadIndex, length - readPosition, timeUs, allowTimeBeyondBuffer)
+            : findSampleBefore(
+                relativeReadIndex, length - readPosition, timeUs, /* keyframe= */ true);
     if (offset == -1) {
       return false;
     }
@@ -618,7 +627,7 @@ public class SampleQueue implements TrackOutput {
     }
 
     timeUs += sampleOffsetUs;
-    if (upstreamAllSamplesAreSyncSamples) {
+    if (allSamplesAreSyncSamples) {
       if (timeUs < startTimeUs) {
         // If we know that all samples are sync samples, we can discard those that come before the
         // start time on the write side of the queue.
@@ -749,7 +758,7 @@ public class SampleQueue implements TrackOutput {
     } else {
       upstreamFormat = format;
     }
-    upstreamAllSamplesAreSyncSamples =
+    allSamplesAreSyncSamples &=
         MimeTypes.allSamplesAreSyncSamples(upstreamFormat.sampleMimeType, upstreamFormat.codecs);
     loggedUnexpectedNonSyncSample = false;
     return true;
@@ -951,14 +960,15 @@ public class SampleQueue implements TrackOutput {
   }
 
   /**
-   * Finds the sample in the specified range that's before or at the specified time. If {@code
-   * keyframe} is {@code true} then the sample is additionally required to be a keyframe.
+   * Finds the offset of the last sample in the specified range that's before or at the specified
+   * time. If {@code keyframe} is {@code true} then the sample is additionally required to be a
+   * keyframe.
    *
    * @param relativeStartIndex The relative index from which to start searching.
    * @param length The length of the range being searched.
-   * @param timeUs The specified time.
+   * @param timeUs The specified time, in microseconds.
    * @param keyframe Whether only keyframes should be considered.
-   * @return The offset from {@code relativeFirstIndex} to the found sample, or -1 if no matching
+   * @return The offset from {@code relativeStartIndex} to the found sample, or -1 if no matching
    *     sample was found.
    */
   private int findSampleBefore(int relativeStartIndex, int length, long timeUs, boolean keyframe) {
@@ -983,6 +993,28 @@ public class SampleQueue implements TrackOutput {
       }
     }
     return sampleCountToTarget;
+  }
+
+  /**
+   * Finds the offset of the first sample in the specified range that's at or after the specified
+   * time.
+   *
+   * @param relativeStartIndex The relative index from which to start searching.
+   * @param length The length of the range being searched.
+   * @param timeUs The specified time, in microseconds.
+   * @param allowTimeBeyondBuffer Whether {@code length} is returned if the {@code timeUs} is beyond
+   *     the last buffer in the specified range.
+   * @return The offset from {@code relativeStartIndex} to the found sample, -1 if no sample is at
+   *     or after the specified time.
+   */
+  private int findSampleAfter(
+      int relativeStartIndex, int length, long timeUs, boolean allowTimeBeyondBuffer) {
+    for (int i = relativeStartIndex; i < length; i++) {
+      if (timesUs[i] >= timeUs) {
+        return i - relativeStartIndex;
+      }
+    }
+    return allowTimeBeyondBuffer ? length : -1;
   }
 
   /**
