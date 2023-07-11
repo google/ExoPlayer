@@ -53,8 +53,8 @@ import java.util.concurrent.atomic.AtomicLong;
     // overflow-safe multiplication & division.
     long outputFrameCount =
         Util.scaleLargeTimestamp(
-            /* timestamp= */ audioFormat.sampleRate,
-            /* multiplier= */ durationUs,
+            /* timestamp= */ durationUs,
+            /* multiplier= */ audioFormat.sampleRate,
             /* divisor= */ C.MICROS_PER_SECOND);
 
     remainingBytesToOutput.addAndGet(audioFormat.bytesPerFrame * outputFrameCount);
