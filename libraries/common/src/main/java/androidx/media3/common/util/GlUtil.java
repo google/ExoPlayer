@@ -407,6 +407,12 @@ public final class GlUtil {
     checkGlError();
   }
 
+  /** Releases the GL sync object if set, suppressing any error. */
+  public static void deleteSyncObjectQuietly(long syncObject) {
+    // glDeleteSync ignores a 0-valued sync object.
+    GLES30.glDeleteSync(syncObject);
+  }
+
   /**
    * Ensures that following commands on the current OpenGL context will not be executed until the
    * sync point has been reached. If {@code syncObject} equals {@code 0}, this does not block the
