@@ -20,7 +20,6 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.media3.common.VideoFrameProcessingException;
-import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.UnstableApi;
 import java.util.ArrayDeque;
@@ -36,11 +35,8 @@ import java.util.concurrent.RejectedExecutionException;
  *
  * <p>Public methods can be called from any thread.
  *
- * <p>The wrapper handles calling {@link
- * VideoFrameProcessor.Listener#onError(VideoFrameProcessingException)} for errors that occur during
- * these tasks. The listener is invoked from the {@link ExecutorService}. Errors are assumed to be
- * non-recoverable, so the {@code VideoFrameProcessingTaskExecutor} should be released if an error
- * occurs.
+ * <p>Calls {@link ErrorListener#onError} for errors that occur during these tasks. The listener is
+ * invoked from the {@link ExecutorService}.
  *
  * <p>{@linkplain #submitWithHighPriority(Task) High priority tasks} are always executed before
  * {@linkplain #submit(Task) default priority tasks}. Tasks with equal priority are executed in FIFO
@@ -52,16 +48,27 @@ import java.util.concurrent.RejectedExecutionException;
    * Interface for tasks that may throw a {@link GlUtil.GlException} or {@link
    * VideoFrameProcessingException}.
    */
-  public interface Task {
+  interface Task {
     /** Runs the task. */
     void run() throws VideoFrameProcessingException, GlUtil.GlException;
+  }
+
+  /** Listener for errors. */
+  interface ErrorListener {
+    /**
+     * Called when an exception occurs while executing submitted tasks.
+     *
+     * <p>Using the {@link VideoFrameProcessingTaskExecutor} after an error happens is undefined
+     * behavior.
+     */
+    void onError(VideoFrameProcessingException exception);
   }
 
   private static final long RELEASE_WAIT_TIME_MS = 500;
 
   private final boolean shouldShutdownExecutorService;
   private final ExecutorService singleThreadExecutorService;
-  private final VideoFrameProcessor.Listener listener;
+  private final ErrorListener errorListener;
   private final Object lock;
 
   @GuardedBy("lock")
@@ -74,10 +81,10 @@ import java.util.concurrent.RejectedExecutionException;
   public VideoFrameProcessingTaskExecutor(
       ExecutorService singleThreadExecutorService,
       boolean shouldShutdownExecutorService,
-      VideoFrameProcessor.Listener listener) {
+      ErrorListener errorListener) {
     this.singleThreadExecutorService = singleThreadExecutorService;
     this.shouldShutdownExecutorService = shouldShutdownExecutorService;
-    this.listener = listener;
+    this.errorListener = errorListener;
     lock = new Object();
     highPriorityTasks = new ArrayDeque<>();
   }
@@ -186,7 +193,7 @@ import java.util.concurrent.RejectedExecutionException;
     if (shouldShutdownExecutorService) {
       singleThreadExecutorService.shutdown();
       if (!singleThreadExecutorService.awaitTermination(RELEASE_WAIT_TIME_MS, MILLISECONDS)) {
-        listener.onError(
+        errorListener.onError(
             new VideoFrameProcessingException(
                 "Release timed out. OpenGL resources may not be cleaned up properly."));
       }
@@ -231,6 +238,6 @@ import java.util.concurrent.RejectedExecutionException;
       }
       shouldCancelTasks = true;
     }
-    listener.onError(VideoFrameProcessingException.from(exception));
+    errorListener.onError(VideoFrameProcessingException.from(exception));
   }
 }

@@ -690,6 +690,9 @@ public final class GlUtil {
   /**
    * Destroys the {@link EGLContext} identified by the provided {@link EGLDisplay} and {@link
    * EGLContext}.
+   *
+   * <p>This is a no-op if called on already-destroyed {@link EGLDisplay} and {@link EGLContext}
+   * instances.
    */
   @RequiresApi(17)
   public static void destroyEglContext(

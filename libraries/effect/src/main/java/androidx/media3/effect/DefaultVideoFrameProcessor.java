@@ -99,7 +99,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
   /** A factory for {@link DefaultVideoFrameProcessor} instances. */
   public static final class Factory implements VideoFrameProcessor.Factory {
-    private static final String THREAD_NAME = "Effect:GlThread";
+    private static final String THREAD_NAME = "Effect:DefaultVideoFrameProcessor:GlThread";
 
     /** A builder for {@link DefaultVideoFrameProcessor.Factory} instances. */
     public static final class Builder {
@@ -285,7 +285,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
           executorService == null ? Util.newSingleThreadExecutor(THREAD_NAME) : executorService;
       VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor =
           new VideoFrameProcessingTaskExecutor(
-              instanceExecutorService, shouldShutdownExecutorService, listener);
+              instanceExecutorService, shouldShutdownExecutorService, listener::onError);
 
       Future<DefaultVideoFrameProcessor> defaultVideoFrameProcessorFuture =
           instanceExecutorService.submit(
@@ -554,9 +554,9 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   public void release() {
     try {
       videoFrameProcessingTaskExecutor.release(/* releaseTask= */ this::releaseGlObjects);
-    } catch (InterruptedException unexpected) {
+    } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
-      throw new IllegalStateException(unexpected);
+      throw new IllegalStateException(e);
     }
   }
 

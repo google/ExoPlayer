@@ -21,7 +21,6 @@ import static org.mockito.Mockito.verify;
 import androidx.media3.common.C;
 import androidx.media3.common.GlObjectsProvider;
 import androidx.media3.common.GlTextureInfo;
-import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.util.Util;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.After;
@@ -33,13 +32,13 @@ import org.junit.runner.RunWith;
 public final class ChainingGlShaderProgramListenerTest {
   private static final long EXECUTOR_WAIT_TIME_MS = 100;
 
-  private final VideoFrameProcessor.Listener mockFrameProcessorListener =
-      mock(VideoFrameProcessor.Listener.class);
+  private final VideoFrameProcessingTaskExecutor.ErrorListener mockErrorListener =
+      mock(VideoFrameProcessingTaskExecutor.ErrorListener.class);
   private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor =
       new VideoFrameProcessingTaskExecutor(
           Util.newSingleThreadExecutor("Test"),
           /* shouldShutdownExecutorService= */ true,
-          mockFrameProcessorListener);
+          mockErrorListener);
   private final GlObjectsProvider mockGlObjectsProvider = mock(GlObjectsProvider.class);
   private final GlShaderProgram mockProducingGlShaderProgram = mock(GlShaderProgram.class);
   private final GlShaderProgram mockConsumingGlShaderProgram = mock(GlShaderProgram.class);

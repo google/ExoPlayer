@@ -87,7 +87,7 @@ public final class TextureBitmapReader implements VideoFrameProcessorTestRunner.
       GlTextureInfo outputTexture,
       long presentationTimeUs,
       DefaultVideoFrameProcessor.ReleaseOutputTextureCallback releaseOutputTextureCallback)
-      throws VideoFrameProcessingException, GlUtil.GlException {
+      throws VideoFrameProcessingException {
     readBitmap(outputTexture, presentationTimeUs);
     releaseOutputTextureCallback.release(presentationTimeUs);
   }
