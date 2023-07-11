@@ -28,7 +28,7 @@ import androidx.media3.extractor.text.ssa.SsaParser;
 import androidx.media3.extractor.text.subrip.SubripParser;
 import androidx.media3.extractor.text.ttml.TtmlDecoder;
 import androidx.media3.extractor.text.tx3g.Tx3gDecoder;
-import androidx.media3.extractor.text.webvtt.Mp4WebvttDecoder;
+import androidx.media3.extractor.text.webvtt.Mp4WebvttParser;
 import androidx.media3.extractor.text.webvtt.WebvttDecoder;
 
 /** A factory for {@link SubtitleDecoder} instances. */
@@ -60,7 +60,7 @@ public interface SubtitleDecoderFactory {
    *
    * <ul>
    *   <li>WebVTT ({@link WebvttDecoder})
-   *   <li>WebVTT (MP4) ({@link Mp4WebvttDecoder})
+   *   <li>WebVTT (MP4) ({@link Mp4WebvttParser})
    *   <li>TTML ({@link TtmlDecoder})
    *   <li>SubRip ({@link SubripParser})
    *   <li>SSA/ASS ({@link SsaParser})
@@ -104,7 +104,8 @@ public interface SubtitleDecoderFactory {
                     "DelegatingSubtitleDecoderWithSsaParser",
                     new SsaParser(format.initializationData));
               case MimeTypes.APPLICATION_MP4VTT:
-                return new Mp4WebvttDecoder();
+                return new DelegatingSubtitleDecoder(
+                    "DelegatingSubtitleDecoderWithMp4WebvttParser", new Mp4WebvttParser());
               case MimeTypes.APPLICATION_TTML:
                 return new TtmlDecoder();
               case MimeTypes.APPLICATION_SUBRIP:

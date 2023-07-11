@@ -16,21 +16,21 @@
 package androidx.media3.extractor.text.webvtt;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThrows;
 
 import androidx.media3.common.text.Cue;
-import androidx.media3.extractor.text.Subtitle;
-import androidx.media3.extractor.text.SubtitleDecoderException;
+import androidx.media3.extractor.text.CuesWithTiming;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.common.collect.ImmutableList;
 import com.google.common.truth.Expect;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Unit test for {@link Mp4WebvttDecoder}. */
+/** Unit test for {@link Mp4WebvttParser}. */
 @RunWith(AndroidJUnit4.class)
-public final class Mp4WebvttDecoderTest {
+public final class Mp4WebvttParserTest {
 
   private static final byte[] SINGLE_CUE_SAMPLE = {
     0x00,
@@ -161,43 +161,36 @@ public final class Mp4WebvttDecoderTest {
   // Positive tests.
 
   @Test
-  public void singleCueSample() throws SubtitleDecoderException {
-    Mp4WebvttDecoder decoder = new Mp4WebvttDecoder();
-    Subtitle result = decoder.decode(SINGLE_CUE_SAMPLE, SINGLE_CUE_SAMPLE.length, false);
+  public void singleCueSample() {
+    Mp4WebvttParser parser = new Mp4WebvttParser();
+    List<CuesWithTiming> result = parser.parse(SINGLE_CUE_SAMPLE);
     // Line feed must be trimmed by the decoder
     Cue expectedCue = WebvttCueParser.newCueForText("Hello World");
     assertMp4WebvttSubtitleEquals(result, expectedCue);
   }
 
   @Test
-  public void twoCuesSample() throws SubtitleDecoderException {
-    Mp4WebvttDecoder decoder = new Mp4WebvttDecoder();
-    Subtitle result = decoder.decode(DOUBLE_CUE_SAMPLE, DOUBLE_CUE_SAMPLE.length, false);
+  public void twoCuesSample() {
+    Mp4WebvttParser parser = new Mp4WebvttParser();
+    List<CuesWithTiming> result = parser.parse(DOUBLE_CUE_SAMPLE);
     Cue firstExpectedCue = WebvttCueParser.newCueForText("Hello World");
     Cue secondExpectedCue = WebvttCueParser.newCueForText("Bye Bye");
     assertMp4WebvttSubtitleEquals(result, firstExpectedCue, secondExpectedCue);
   }
 
   @Test
-  public void noCueSample() throws SubtitleDecoderException {
-    Mp4WebvttDecoder decoder = new Mp4WebvttDecoder();
-    Subtitle result = decoder.decode(NO_CUE_SAMPLE, NO_CUE_SAMPLE.length, false);
-    assertThat(result.getEventTimeCount()).isEqualTo(1);
-    assertThat(result.getEventTime(0)).isEqualTo(0);
-    assertThat(result.getCues(0)).isEmpty();
+  public void noCueSample() {
+    Mp4WebvttParser parser = new Mp4WebvttParser();
+    List<CuesWithTiming> result = parser.parse(NO_CUE_SAMPLE);
+    assertThat(result).isEmpty();
   }
 
   // Negative tests.
 
   @Test
   public void sampleWithIncompleteHeader() {
-    Mp4WebvttDecoder decoder = new Mp4WebvttDecoder();
-    try {
-      decoder.decode(INCOMPLETE_HEADER_SAMPLE, INCOMPLETE_HEADER_SAMPLE.length, false);
-    } catch (SubtitleDecoderException e) {
-      return;
-    }
-    fail();
+    Mp4WebvttParser parser = new Mp4WebvttParser();
+    assertThrows(IllegalArgumentException.class, () -> parser.parse(INCOMPLETE_HEADER_SAMPLE));
   }
 
   // Util methods
@@ -206,16 +199,17 @@ public final class Mp4WebvttDecoderTest {
    * Asserts that the Subtitle's cues (which are all part of the event at t=0) are equal to the
    * expected Cues.
    *
-   * @param subtitle The {@link Subtitle} to check.
+   * @param cuesWithTimings The list of {@link CuesWithTiming} to check.
    * @param expectedCues The expected {@link Cue}s.
    */
-  private void assertMp4WebvttSubtitleEquals(Subtitle subtitle, Cue... expectedCues) {
-    assertThat(subtitle.getEventTimeCount()).isEqualTo(1);
-    assertThat(subtitle.getEventTime(0)).isEqualTo(0);
-    List<Cue> subtitleCues = subtitle.getCues(0);
-    assertThat(subtitleCues).hasSize(expectedCues.length);
-    for (int i = 0; i < subtitleCues.size(); i++) {
-      assertCuesEqual(expectedCues[i], subtitleCues.get(i));
+  private void assertMp4WebvttSubtitleEquals(
+      List<CuesWithTiming> cuesWithTimings, Cue... expectedCues) {
+    assertThat(cuesWithTimings).hasSize(1);
+    assertThat(cuesWithTimings.get(0).startTimeUs).isEqualTo(0);
+    ImmutableList<Cue> allCues = cuesWithTimings.get(0).cues;
+    assertThat(allCues).hasSize(expectedCues.length);
+    for (int i = 0; i < allCues.size(); i++) {
+      assertCuesEqual(expectedCues[i], allCues.get(i));
     }
   }
 

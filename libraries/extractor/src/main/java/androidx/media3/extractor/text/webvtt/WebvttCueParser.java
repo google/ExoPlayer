@@ -15,6 +15,7 @@
  */
 package androidx.media3.extractor.text.webvtt;
 
+import static androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE;
 import static java.lang.Math.min;
 import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
@@ -36,6 +37,7 @@ import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.text.HorizontalTextInVerticalContextSpan;
 import androidx.media3.common.text.RubySpan;
@@ -230,7 +232,8 @@ public final class WebvttCueParser {
   }
 
   /** Create a new {@link Cue} containing {@code text} and with WebVTT default values. */
-  /* package */ static Cue newCueForText(CharSequence text) {
+  @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
+  public static Cue newCueForText(CharSequence text) {
     WebvttCueInfoBuilder infoBuilder = new WebvttCueInfoBuilder();
     infoBuilder.text = text;
     return infoBuilder.toCueBuilder().build();

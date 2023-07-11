@@ -15,22 +15,25 @@
  */
 package androidx.media3.extractor.text.webvtt;
 
+import static androidx.media3.common.util.Assertions.checkArgument;
+
 import androidx.annotation.Nullable;
+import androidx.media3.common.C;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
-import androidx.media3.extractor.text.SimpleSubtitleDecoder;
-import androidx.media3.extractor.text.Subtitle;
-import androidx.media3.extractor.text.SubtitleDecoderException;
+import androidx.media3.extractor.text.CuesWithTiming;
+import androidx.media3.extractor.text.SubtitleParser;
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/** A {@link SimpleSubtitleDecoder} for Webvtt embedded in a Mp4 container file. */
+/** A {@link SubtitleParser} for Webvtt embedded in a Mp4 container file. */
 @SuppressWarnings("ConstantField")
 @UnstableApi
-public final class Mp4WebvttDecoder extends SimpleSubtitleDecoder {
+public final class Mp4WebvttParser implements SubtitleParser {
 
   private static final int BOX_HEADER_SIZE = 8;
 
@@ -44,43 +47,55 @@ public final class Mp4WebvttDecoder extends SimpleSubtitleDecoder {
   private static final int TYPE_vttc = 0x76747463;
 
   private final ParsableByteArray sampleData;
+  private byte[] dataScratch = Util.EMPTY_BYTE_ARRAY;
 
-  public Mp4WebvttDecoder() {
-    super("Mp4WebvttDecoder");
+  public Mp4WebvttParser() {
     sampleData = new ParsableByteArray();
   }
 
   @Override
-  protected Subtitle decode(byte[] data, int length, boolean reset)
-      throws SubtitleDecoderException {
-    // Webvtt in Mp4 samples have boxes inside of them, so we have to do a traditional box parsing:
-    // first 4 bytes size and then 4 bytes type.
-    sampleData.reset(data, length);
-    List<Cue> resultingCueList = new ArrayList<>();
-    while (sampleData.bytesLeft() > 0) {
-      if (sampleData.bytesLeft() < BOX_HEADER_SIZE) {
-        throw new SubtitleDecoderException("Incomplete Mp4Webvtt Top Level box header found.");
+  public ImmutableList<CuesWithTiming> parse(byte[] data, int offset, int length) {
+    if (offset != 0) {
+      if (dataScratch.length < length) {
+        dataScratch = new byte[length];
       }
+      System.arraycopy(
+          /* src= */ data, /* scrPos= */ offset, /* dest= */ dataScratch, /* destPos= */ 0, length);
+      sampleData.reset(dataScratch, length);
+    } else {
+      sampleData.reset(data, length);
+    }
+    List<Cue> cues = new ArrayList<>();
+    while (sampleData.bytesLeft() > 0) {
+      // Webvtt in Mp4 samples have boxes inside of them, so we have to do a traditional box
+      // parsing: first 4 bytes size and then 4 bytes type.
+      checkArgument(
+          sampleData.bytesLeft() >= BOX_HEADER_SIZE,
+          "Incomplete Mp4Webvtt Top Level box header found.");
       int boxSize = sampleData.readInt();
       int boxType = sampleData.readInt();
       if (boxType == TYPE_vttc) {
-        resultingCueList.add(parseVttCueBox(sampleData, boxSize - BOX_HEADER_SIZE));
+        cues.add(parseVttCueBox(sampleData, boxSize - BOX_HEADER_SIZE));
       } else {
         // Peers of the VTTCueBox are still not supported and are skipped.
         sampleData.skipBytes(boxSize - BOX_HEADER_SIZE);
       }
     }
-    return new Mp4WebvttSubtitle(resultingCueList);
+    return cues.isEmpty()
+        ? ImmutableList.of()
+        : ImmutableList.of(
+            new CuesWithTiming(cues, /* startTimeUs= */ 0, /* durationUs= */ C.TIME_UNSET));
   }
 
-  private static Cue parseVttCueBox(ParsableByteArray sampleData, int remainingCueBoxBytes)
-      throws SubtitleDecoderException {
+  @Override
+  public void reset() {}
+
+  private static Cue parseVttCueBox(ParsableByteArray sampleData, int remainingCueBoxBytes) {
     @Nullable Cue.Builder cueBuilder = null;
     @Nullable CharSequence cueText = null;
     while (remainingCueBoxBytes > 0) {
-      if (remainingCueBoxBytes < BOX_HEADER_SIZE) {
-        throw new SubtitleDecoderException("Incomplete vtt cue box header found.");
-      }
+      checkArgument(
+          remainingCueBoxBytes >= BOX_HEADER_SIZE, "Incomplete vtt cue box header found.");
       int boxSize = sampleData.readInt();
       int boxType = sampleData.readInt();
       remainingCueBoxBytes -= BOX_HEADER_SIZE;
