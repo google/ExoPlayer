@@ -177,7 +177,10 @@ public final class Composition {
     /**
      * Sets the {@link HdrMode} for HDR video input.
      *
-     * <p>The default value is {@link #HDR_MODE_KEEP_HDR}.
+     * <p>The default value is {@link #HDR_MODE_KEEP_HDR}. Apps that need to tone-map HDR to SDR
+     * should generally prefer {@link #HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL} over {@link
+     * HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC}, because its behavior is likely to be more
+     * consistent across devices.
      *
      * @param hdrMode The {@link HdrMode} used.
      * @return This builder.
