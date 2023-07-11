@@ -188,6 +188,13 @@ public final class DefaultDecoderFactory implements Codec.DecoderFactory {
       // works on PQ (see b/282791751#comment7).
       return true;
     }
+    if (SDK_INT < 34
+        && colorTransfer == C.COLOR_TRANSFER_ST2084
+        && Util.MODEL.startsWith("SM-F936")) {
+      // The Samsung Fold 4 HDR10 codec plugin for tonemapping sets incorrect crop values, so block
+      // using it (see b/290725189).
+      return true;
+    }
     return false;
   }
 
