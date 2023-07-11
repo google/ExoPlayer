@@ -28,6 +28,7 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.base.Objects;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import com.google.errorprone.annotations.CheckReturnValue;
 import java.util.List;
 
 /**
@@ -35,7 +36,7 @@ import java.util.List;
  * controllers.
  *
  * @see MediaSession#setCustomLayout(MediaSession.ControllerInfo, List)
- * @see MediaController.Listener#onSetCustomLayout(MediaController, List)
+ * @see MediaController.Listener#onCustomLayoutChanged(MediaController, List)
  */
 public final class CommandButton implements Bundleable {
 
@@ -194,6 +195,19 @@ public final class CommandButton implements Bundleable {
     this.displayName = displayName;
     this.extras = new Bundle(extras);
     this.isEnabled = enabled;
+  }
+
+  /** Returns a copy with the new {@link #isEnabled} flag. */
+  @CheckReturnValue
+  /* package */ CommandButton copyWithIsEnabled(boolean isEnabled) {
+    // Because this method is supposed to be used by the library only, this method has been chosen
+    // over the conventional `buildUpon` approach. This aims for keeping this separate from the
+    // public Builder-API used by apps.
+    if (this.isEnabled == isEnabled) {
+      return this;
+    }
+    return new CommandButton(
+        sessionCommand, playerCommand, iconResId, displayName, new Bundle(extras), isEnabled);
   }
 
   @Override

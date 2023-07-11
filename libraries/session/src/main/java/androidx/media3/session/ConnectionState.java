@@ -24,7 +24,10 @@ import androidx.annotation.Nullable;
 import androidx.core.app.BundleCompat;
 import androidx.media3.common.Bundleable;
 import androidx.media3.common.Player;
+import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.Util;
+import com.google.common.collect.ImmutableList;
+import java.util.List;
 
 /**
  * Created by {@link MediaSession} to send its state to the {@link MediaController} when the
@@ -50,11 +53,14 @@ import androidx.media3.common.util.Util;
 
   public final PlayerInfo playerInfo;
 
+  public final ImmutableList<CommandButton> customLayout;
+
   public ConnectionState(
       int libraryVersion,
       int sessionInterfaceVersion,
       IMediaSession sessionBinder,
       @Nullable PendingIntent sessionActivity,
+      ImmutableList<CommandButton> customLayout,
       SessionCommands sessionCommands,
       Player.Commands playerCommandsFromSession,
       Player.Commands playerCommandsFromPlayer,
@@ -69,6 +75,7 @@ import androidx.media3.common.util.Util;
     this.sessionActivity = sessionActivity;
     this.tokenExtras = tokenExtras;
     this.playerInfo = playerInfo;
+    this.customLayout = customLayout;
   }
 
   // Bundleable implementation.
@@ -76,6 +83,7 @@ import androidx.media3.common.util.Util;
   private static final String FIELD_LIBRARY_VERSION = Util.intToStringMaxRadix(0);
   private static final String FIELD_SESSION_BINDER = Util.intToStringMaxRadix(1);
   private static final String FIELD_SESSION_ACTIVITY = Util.intToStringMaxRadix(2);
+  private static final String FIELD_CUSTOM_LAYOUT = Util.intToStringMaxRadix(9);
   private static final String FIELD_SESSION_COMMANDS = Util.intToStringMaxRadix(3);
   private static final String FIELD_PLAYER_COMMANDS_FROM_SESSION = Util.intToStringMaxRadix(4);
   private static final String FIELD_PLAYER_COMMANDS_FROM_PLAYER = Util.intToStringMaxRadix(5);
@@ -83,7 +91,7 @@ import androidx.media3.common.util.Util;
   private static final String FIELD_PLAYER_INFO = Util.intToStringMaxRadix(7);
   private static final String FIELD_SESSION_INTERFACE_VERSION = Util.intToStringMaxRadix(8);
 
-  // Next field key = 9
+  // Next field key = 10
 
   @Override
   public Bundle toBundle() {
@@ -91,6 +99,10 @@ import androidx.media3.common.util.Util;
     bundle.putInt(FIELD_LIBRARY_VERSION, libraryVersion);
     BundleCompat.putBinder(bundle, FIELD_SESSION_BINDER, sessionBinder.asBinder());
     bundle.putParcelable(FIELD_SESSION_ACTIVITY, sessionActivity);
+    if (!customLayout.isEmpty()) {
+      bundle.putParcelableArrayList(
+          FIELD_CUSTOM_LAYOUT, BundleableUtil.toBundleArrayList(customLayout));
+    }
     bundle.putBundle(FIELD_SESSION_COMMANDS, sessionCommands.toBundle());
     bundle.putBundle(FIELD_PLAYER_COMMANDS_FROM_SESSION, playerCommandsFromSession.toBundle());
     bundle.putBundle(FIELD_PLAYER_COMMANDS_FROM_PLAYER, playerCommandsFromPlayer.toBundle());
@@ -114,6 +126,12 @@ import androidx.media3.common.util.Util;
         bundle.getInt(FIELD_SESSION_INTERFACE_VERSION, /* defaultValue= */ 0);
     IBinder sessionBinder = checkNotNull(BundleCompat.getBinder(bundle, FIELD_SESSION_BINDER));
     @Nullable PendingIntent sessionActivity = bundle.getParcelable(FIELD_SESSION_ACTIVITY);
+    @Nullable
+    List<Bundle> commandButtonArrayList = bundle.getParcelableArrayList(FIELD_CUSTOM_LAYOUT);
+    ImmutableList<CommandButton> customLayout =
+        commandButtonArrayList != null
+            ? BundleableUtil.fromBundleList(CommandButton.CREATOR, commandButtonArrayList)
+            : ImmutableList.of();
     @Nullable Bundle sessionCommandsBundle = bundle.getBundle(FIELD_SESSION_COMMANDS);
     SessionCommands sessionCommands =
         sessionCommandsBundle == null
@@ -142,6 +160,7 @@ import androidx.media3.common.util.Util;
         sessionInterfaceVersion,
         IMediaSession.Stub.asInterface(sessionBinder),
         sessionActivity,
+        customLayout,
         sessionCommands,
         playerCommandsFromSession,
         playerCommandsFromPlayer,

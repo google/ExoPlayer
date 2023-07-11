@@ -33,6 +33,7 @@ import androidx.media3.datasource.DataSourceBitmapLoader
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.*
 import androidx.media3.session.LibraryResult.RESULT_ERROR_NOT_SUPPORTED
+import androidx.media3.session.MediaSession.ConnectionResult
 import androidx.media3.session.MediaSession.ControllerInfo
 import com.google.common.collect.ImmutableList
 import com.google.common.util.concurrent.Futures
@@ -44,8 +45,6 @@ class PlaybackService : MediaLibraryService() {
   private lateinit var player: ExoPlayer
   private lateinit var mediaLibrarySession: MediaLibrarySession
   private lateinit var customCommands: List<CommandButton>
-
-  private var customLayout = ImmutableList.of<CommandButton>()
 
   companion object {
     private const val SEARCH_QUERY_PREFIX_COMPAT = "androidx://media3-session/playFromSearch"
@@ -70,7 +69,6 @@ class PlaybackService : MediaLibraryService() {
           SessionCommand(CUSTOM_COMMAND_TOGGLE_SHUFFLE_MODE_OFF, Bundle.EMPTY)
         )
       )
-    customLayout = ImmutableList.of(customCommands[0])
     initializeSessionAndPlayer()
     setListener(MediaSessionServiceListener())
   }
@@ -95,28 +93,16 @@ class PlaybackService : MediaLibraryService() {
 
   private inner class CustomMediaLibrarySessionCallback : MediaLibrarySession.Callback {
 
-    override fun onConnect(
-      session: MediaSession,
-      controller: ControllerInfo
-    ): MediaSession.ConnectionResult {
-      val connectionResult = super.onConnect(session, controller)
-      val availableSessionCommands = connectionResult.availableSessionCommands.buildUpon()
+    override fun onConnect(session: MediaSession, controller: ControllerInfo): ConnectionResult {
+      val availableSessionCommands =
+        ConnectionResult.DEFAULT_SESSION_AND_LIBRARY_COMMANDS.buildUpon()
       for (commandButton in customCommands) {
         // Add custom command to available session commands.
         commandButton.sessionCommand?.let { availableSessionCommands.add(it) }
       }
-      return MediaSession.ConnectionResult.accept(
-        availableSessionCommands.build(),
-        connectionResult.availablePlayerCommands
-      )
-    }
-
-    override fun onPostConnect(session: MediaSession, controller: ControllerInfo) {
-      if (!customLayout.isEmpty() && controller.controllerVersion != 0) {
-        // Let Media3 controller (for instance the MediaNotificationProvider) know about the custom
-        // layout right after it connected.
-        ignoreFuture(mediaLibrarySession.setCustomLayout(controller, customLayout))
-      }
+      return ConnectionResult.AcceptedResultBuilder(session)
+        .setAvailableSessionCommands(availableSessionCommands.build())
+        .build()
     }
 
     override fun onCustomCommand(
@@ -129,16 +115,12 @@ class PlaybackService : MediaLibraryService() {
         // Enable shuffling.
         player.shuffleModeEnabled = true
         // Change the custom layout to contain the `Disable shuffling` command.
-        customLayout = ImmutableList.of(customCommands[1])
-        // Send the updated custom layout to controllers.
-        session.setCustomLayout(customLayout)
+        session.setCustomLayout(ImmutableList.of(customCommands[1]))
       } else if (CUSTOM_COMMAND_TOGGLE_SHUFFLE_MODE_OFF == customCommand.customAction) {
         // Disable shuffling.
         player.shuffleModeEnabled = false
         // Change the custom layout to contain the `Enable shuffling` command.
-        customLayout = ImmutableList.of(customCommands[0])
-        // Send the updated custom layout to controllers.
-        session.setCustomLayout(customLayout)
+        session.setCustomLayout(ImmutableList.of(customCommands[0]))
       }
       return Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
     }
@@ -241,12 +223,9 @@ class PlaybackService : MediaLibraryService() {
     mediaLibrarySession =
       MediaLibrarySession.Builder(this, player, librarySessionCallback)
         .setSessionActivity(getSingleTopActivity())
+        .setCustomLayout(ImmutableList.of(customCommands[0]))
         .setBitmapLoader(CacheBitmapLoader(DataSourceBitmapLoader(/* context= */ this)))
         .build()
-    if (!customLayout.isEmpty()) {
-      // Send custom layout to legacy session.
-      mediaLibrarySession.setCustomLayout(customLayout)
-    }
   }
 
   private fun getSingleTopActivity(): PendingIntent {

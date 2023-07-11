@@ -16,6 +16,7 @@
 package androidx.media3.session;
 
 import static androidx.media3.test.session.common.CommonConstants.ACTION_MEDIA3_CONTROLLER;
+import static androidx.media3.test.session.common.CommonConstants.KEY_COMMAND_BUTTON_LIST;
 import static androidx.media3.test.session.common.CommonConstants.MEDIA3_CONTROLLER_PROVIDER_SERVICE;
 import static androidx.media3.test.session.common.TestUtils.SERVICE_CONNECTION_TIMEOUT_MS;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -40,6 +41,8 @@ import androidx.media3.common.util.BundleableUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.test.session.common.IRemoteMediaController;
 import androidx.media3.test.session.common.TestUtils;
+import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -347,6 +350,16 @@ public class RemoteMediaController {
         BundleableUtil.toBundleList(initialMediaItems),
         BundleableUtil.toBundleList(addedMediaItems),
         seekIndex);
+  }
+
+  public ImmutableList<CommandButton> getCustomLayout() throws RemoteException {
+    Bundle customLayoutBundle = binder.getCustomLayout(controllerId);
+    ArrayList<Bundle> list = customLayoutBundle.getParcelableArrayList(KEY_COMMAND_BUTTON_LIST);
+    ImmutableList.Builder<CommandButton> customLayout = new ImmutableList.Builder<>();
+    for (Bundle bundle : list) {
+      customLayout.add(CommandButton.CREATOR.fromBundle(bundle));
+    }
+    return customLayout.build();
   }
 
   ////////////////////////////////////////////////////////////////////////////////

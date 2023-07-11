@@ -76,10 +76,20 @@ import java.util.concurrent.Future;
       String id,
       Player player,
       @Nullable PendingIntent sessionActivity,
+      ImmutableList<CommandButton> customLayout,
       MediaLibrarySession.Callback callback,
       Bundle tokenExtras,
       BitmapLoader bitmapLoader) {
-    super(instance, context, id, player, sessionActivity, callback, tokenExtras, bitmapLoader);
+    super(
+        instance,
+        context,
+        id,
+        player,
+        sessionActivity,
+        customLayout,
+        callback,
+        tokenExtras,
+        bitmapLoader);
     this.instance = instance;
     this.callback = callback;
     subscriptions = new ArrayMap<>();

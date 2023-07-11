@@ -21,6 +21,7 @@ import static androidx.media3.session.MediaUtils.createPlayerCommandsWithout;
 import static androidx.media3.test.session.common.CommonConstants.DEFAULT_TEST_NAME;
 import static androidx.media3.test.session.common.CommonConstants.SUPPORT_APP_PACKAGE_NAME;
 import static androidx.media3.test.session.common.MediaSessionConstants.KEY_AVAILABLE_SESSION_COMMANDS;
+import static androidx.media3.test.session.common.MediaSessionConstants.TEST_GET_CUSTOM_LAYOUT;
 import static androidx.media3.test.session.common.MediaSessionConstants.TEST_GET_SESSION_ACTIVITY;
 import static androidx.media3.test.session.common.MediaSessionConstants.TEST_IS_SESSION_COMMAND_AVAILABLE;
 import static androidx.media3.test.session.common.TestUtils.LONG_TIMEOUT_MS;
@@ -57,6 +58,7 @@ import androidx.media3.common.TrackSelectionParameters;
 import androidx.media3.common.Tracks;
 import androidx.media3.common.VideoSize;
 import androidx.media3.common.util.Util;
+import androidx.media3.test.session.R;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.MainLooperTestRule;
 import androidx.media3.test.session.common.PollingCheck;
@@ -65,6 +67,8 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -166,6 +170,255 @@ public class MediaControllerTest {
       // TODO: Add getPid/getUid in MediaControllerProviderService and compare them.
       // assertThat(sessionActivity.getCreatorUid()).isEqualTo(remoteSession.getUid());
     }
+    session.cleanUp();
+  }
+
+  @Test
+  public void getCustomLayout_customLayoutBuiltWithSession_includedOnConnect() throws Exception {
+    RemoteMediaSession session =
+        createRemoteMediaSession(TEST_GET_CUSTOM_LAYOUT, /* tokenExtras= */ null);
+    CommandButton button1 =
+        new CommandButton.Builder()
+            .setDisplayName("button1")
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setSessionCommand(new SessionCommand("command1", Bundle.EMPTY))
+            .build();
+    CommandButton button2 =
+        new CommandButton.Builder()
+            .setDisplayName("button2")
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setSessionCommand(new SessionCommand("command2", Bundle.EMPTY))
+            .build();
+    CommandButton button3 =
+        new CommandButton.Builder()
+            .setDisplayName("button3")
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setSessionCommand(new SessionCommand("command3", Bundle.EMPTY))
+            .build();
+    setupCustomLayout(session, ImmutableList.of(button1, button2, button3));
+    MediaController controller = controllerTestRule.createController(session.getToken());
+
+    assertThat(threadTestRule.getHandler().postAndSync(controller::getCustomLayout))
+        .containsExactly(button1.copyWithIsEnabled(true), button2.copyWithIsEnabled(true), button3)
+        .inOrder();
+
+    session.cleanUp();
+  }
+
+  @Test
+  public void getCustomLayout_sessionSetCustomLayout_customLayoutChanged() throws Exception {
+    RemoteMediaSession session =
+        createRemoteMediaSession(TEST_GET_CUSTOM_LAYOUT, /* tokenExtras= */ null);
+    CommandButton button1 =
+        new CommandButton.Builder()
+            .setDisplayName("button1")
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setSessionCommand(new SessionCommand("command1", Bundle.EMPTY))
+            .build();
+    CommandButton button2 =
+        new CommandButton.Builder()
+            .setDisplayName("button2")
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setSessionCommand(new SessionCommand("command2", Bundle.EMPTY))
+            .build();
+    CommandButton button3 =
+        new CommandButton.Builder()
+            .setDisplayName("button3")
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setSessionCommand(new SessionCommand("command3", Bundle.EMPTY))
+            .build();
+    CommandButton button4 =
+        new CommandButton.Builder()
+            .setDisplayName("button4")
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setSessionCommand(new SessionCommand("command4", Bundle.EMPTY))
+            .build();
+    setupCustomLayout(session, ImmutableList.of(button1, button2));
+    CountDownLatch latch = new CountDownLatch(2);
+    AtomicReference<List<CommandButton>> reportedCustomLayout = new AtomicReference<>();
+    AtomicReference<List<CommandButton>> reportedCustomLayoutChanged = new AtomicReference<>();
+    MediaController controller =
+        controllerTestRule.createController(
+            session.getToken(),
+            Bundle.EMPTY,
+            new MediaController.Listener() {
+              @Override
+              public ListenableFuture<SessionResult> onSetCustomLayout(
+                  MediaController controller1, List<CommandButton> layout) {
+                latch.countDown();
+                reportedCustomLayout.set(layout);
+                return Futures.immediateFuture(new SessionResult(SessionResult.RESULT_SUCCESS));
+              }
+
+              @Override
+              public void onCustomLayoutChanged(
+                  MediaController controller1, List<CommandButton> layout) {
+                reportedCustomLayoutChanged.set(layout);
+                latch.countDown();
+              }
+            });
+    ImmutableList<CommandButton> initialCustomLayoutFromGetter =
+        threadTestRule.getHandler().postAndSync(controller::getCustomLayout);
+    session.setCustomLayout(ImmutableList.of(button3, button4));
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+
+    ImmutableList<CommandButton> newCustomLayoutFromGetter =
+        threadTestRule.getHandler().postAndSync(controller::getCustomLayout);
+
+    assertThat(initialCustomLayoutFromGetter)
+        .containsExactly(button1.copyWithIsEnabled(true), button2.copyWithIsEnabled(true))
+        .inOrder();
+    assertThat(newCustomLayoutFromGetter).containsExactly(button3, button4).inOrder();
+    assertThat(reportedCustomLayout.get()).containsExactly(button3, button4).inOrder();
+    assertThat(reportedCustomLayoutChanged.get()).containsExactly(button3, button4).inOrder();
+    session.cleanUp();
+  }
+
+  @Test
+  public void getCustomLayout_setAvailableCommandsAddOrRemoveCommands_reportsCustomLayoutChanged()
+      throws Exception {
+    RemoteMediaSession session = createRemoteMediaSession(TEST_GET_CUSTOM_LAYOUT, null);
+    CommandButton button1 =
+        new CommandButton.Builder()
+            .setDisplayName("button1")
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setSessionCommand(new SessionCommand("command1", Bundle.EMPTY))
+            .build();
+    CommandButton button2 =
+        new CommandButton.Builder()
+            .setDisplayName("button2")
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setSessionCommand(new SessionCommand("command2", Bundle.EMPTY))
+            .build();
+    setupCustomLayout(session, ImmutableList.of(button1, button2));
+    CountDownLatch latch = new CountDownLatch(2);
+    List<List<CommandButton>> reportedCustomLayoutChanged = new ArrayList<>();
+    List<List<CommandButton>> getterCustomLayoutChanged = new ArrayList<>();
+    MediaController.Listener listener =
+        new MediaController.Listener() {
+          @Override
+          public void onCustomLayoutChanged(
+              MediaController controller, List<CommandButton> layout) {
+            reportedCustomLayoutChanged.add(layout);
+            getterCustomLayoutChanged.add(controller.getCustomLayout());
+            latch.countDown();
+          }
+        };
+    MediaController controller =
+        controllerTestRule.createController(
+            session.getToken(), /* connectionHints= */ Bundle.EMPTY, listener);
+    ImmutableList<CommandButton> initialCustomLayout =
+        threadTestRule.getHandler().postAndSync(controller::getCustomLayout);
+
+    // Remove commands in custom layout from available commands.
+    session.setAvailableCommands(SessionCommands.EMPTY, Player.Commands.EMPTY);
+    // Add one command back.
+    session.setAvailableCommands(
+        new SessionCommands.Builder().add(button2.sessionCommand).build(), Player.Commands.EMPTY);
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(initialCustomLayout)
+        .containsExactly(button1.copyWithIsEnabled(true), button2.copyWithIsEnabled(true));
+    assertThat(reportedCustomLayoutChanged).hasSize(2);
+    assertThat(reportedCustomLayoutChanged.get(0)).containsExactly(button1, button2).inOrder();
+    assertThat(reportedCustomLayoutChanged.get(1))
+        .containsExactly(button1, button2.copyWithIsEnabled(true))
+        .inOrder();
+    assertThat(getterCustomLayoutChanged).hasSize(2);
+    assertThat(getterCustomLayoutChanged.get(0)).containsExactly(button1, button2).inOrder();
+    assertThat(getterCustomLayoutChanged.get(1))
+        .containsExactly(button1, button2.copyWithIsEnabled(true))
+        .inOrder();
+  }
+
+  @Test
+  public void getCustomLayout_sessionSetCustomLayoutNoChange_listenerNotCalledWithEqualLayout()
+      throws Exception {
+    RemoteMediaSession session =
+        createRemoteMediaSession(TEST_GET_CUSTOM_LAYOUT, /* tokenExtras= */ null);
+    CommandButton button1 =
+        new CommandButton.Builder()
+            .setDisplayName("button1")
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setSessionCommand(new SessionCommand("command1", Bundle.EMPTY))
+            .build();
+    CommandButton button2 =
+        new CommandButton.Builder()
+            .setDisplayName("button2")
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setSessionCommand(new SessionCommand("command2", Bundle.EMPTY))
+            .build();
+    CommandButton button3 =
+        new CommandButton.Builder()
+            .setDisplayName("button3")
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setSessionCommand(new SessionCommand("command3", Bundle.EMPTY))
+            .build();
+    CommandButton button4 =
+        new CommandButton.Builder()
+            .setDisplayName("button4")
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setSessionCommand(new SessionCommand("command4", Bundle.EMPTY))
+            .build();
+    setupCustomLayout(session, ImmutableList.of(button1, button2));
+    CountDownLatch latch = new CountDownLatch(5);
+    List<List<CommandButton>> reportedCustomLayout = new ArrayList<>();
+    List<List<CommandButton>> getterCustomLayout = new ArrayList<>();
+    List<List<CommandButton>> reportedCustomLayoutChanged = new ArrayList<>();
+    List<List<CommandButton>> getterCustomLayoutChanged = new ArrayList<>();
+    MediaController.Listener listener =
+        new MediaController.Listener() {
+          @Override
+          public ListenableFuture<SessionResult> onSetCustomLayout(
+              MediaController controller, List<CommandButton> layout) {
+            reportedCustomLayout.add(layout);
+            getterCustomLayout.add(controller.getCustomLayout());
+            latch.countDown();
+            return MediaController.Listener.super.onSetCustomLayout(controller, layout);
+          }
+
+          @Override
+          public void onCustomLayoutChanged(
+              MediaController controller, List<CommandButton> layout) {
+            reportedCustomLayoutChanged.add(layout);
+            getterCustomLayoutChanged.add(controller.getCustomLayout());
+            latch.countDown();
+          }
+        };
+    MediaController controller =
+        controllerTestRule.createController(session.getToken(), Bundle.EMPTY, listener);
+    ImmutableList<CommandButton> initialCustomLayout =
+        threadTestRule.getHandler().postAndSync(controller::getCustomLayout);
+
+    // First call does not trigger onCustomLayoutChanged.
+    session.setCustomLayout(ImmutableList.of(button1, button2));
+    session.setCustomLayout(ImmutableList.of(button3, button4));
+    session.setCustomLayout(ImmutableList.of(button1, button2));
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    CommandButton button1Enabled = button1.copyWithIsEnabled(true);
+    CommandButton button2Enabled = button2.copyWithIsEnabled(true);
+    assertThat(initialCustomLayout).containsExactly(button1Enabled, button2Enabled).inOrder();
+    assertThat(reportedCustomLayout)
+        .containsExactly(
+            ImmutableList.of(button1Enabled, button2Enabled),
+            ImmutableList.of(button3, button4),
+            ImmutableList.of(button1Enabled, button2Enabled))
+        .inOrder();
+    assertThat(getterCustomLayout)
+        .containsExactly(
+            ImmutableList.of(button1Enabled, button2Enabled),
+            ImmutableList.of(button3, button4),
+            ImmutableList.of(button1Enabled, button2Enabled))
+        .inOrder();
+    assertThat(reportedCustomLayoutChanged)
+        .containsExactly(
+            ImmutableList.of(button3, button4), ImmutableList.of(button1Enabled, button2Enabled))
+        .inOrder();
+    assertThat(getterCustomLayoutChanged)
+        .containsExactly(
+            ImmutableList.of(button3, button4), ImmutableList.of(button1Enabled, button2Enabled))
+        .inOrder();
     session.cleanUp();
   }
 
@@ -1460,5 +1713,22 @@ public class MediaControllerTest {
                           /* startPositionMs= */ C.TIME_UNSET);
                       return controller.getCurrentMediaItemIndex();
                     }));
+  }
+
+  private void setupCustomLayout(RemoteMediaSession session, List<CommandButton> customLayout)
+      throws RemoteException, InterruptedException, Exception {
+    CountDownLatch latch = new CountDownLatch(1);
+    controllerTestRule.createController(
+        session.getToken(),
+        /* connectionHints= */ null,
+        new MediaController.Listener() {
+          @Override
+          public void onCustomLayoutChanged(
+              MediaController controller, List<CommandButton> layout) {
+            latch.countDown();
+          }
+        });
+    session.setCustomLayout(ImmutableList.copyOf(customLayout));
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
   }
 }

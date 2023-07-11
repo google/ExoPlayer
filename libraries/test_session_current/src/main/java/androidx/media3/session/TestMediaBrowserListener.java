@@ -58,6 +58,11 @@ public final class TestMediaBrowserListener implements MediaBrowser.Listener {
   }
 
   @Override
+  public void onCustomLayoutChanged(MediaController controller, List<CommandButton> layout) {
+    delegate.onCustomLayoutChanged(controller, layout);
+  }
+
+  @Override
   public void onExtrasChanged(MediaController controller, Bundle extras) {
     delegate.onExtrasChanged(controller, extras);
   }

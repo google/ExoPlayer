@@ -88,6 +88,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -119,6 +120,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   private boolean released;
   private PlayerInfo playerInfo;
   @Nullable private PendingIntent sessionActivity;
+  private ImmutableList<CommandButton> customLayout;
   private SessionCommands sessionCommands;
   private Commands playerCommandsFromSession;
   private Commands playerCommandsFromPlayer;
@@ -143,6 +145,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     playerInfo = PlayerInfo.DEFAULT;
     surfaceSize = Size.UNKNOWN;
     sessionCommands = SessionCommands.EMPTY;
+    customLayout = ImmutableList.of();
     playerCommandsFromSession = Commands.EMPTY;
     playerCommandsFromPlayer = Commands.EMPTY;
     intersectedPlayerCommands =
@@ -522,11 +525,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   @Override
-  public PendingIntent getSessionActivity() {
-    return sessionActivity;
-  }
-
-  @Override
   public void setPlayWhenReady(boolean playWhenReady) {
     if (!isPlayerCommandAvailable(Player.COMMAND_PLAY_PAUSE)) {
       return;
@@ -708,6 +706,16 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     return dispatchRemoteSessionTaskWithSessionCommand(
         command,
         (iSession, seq) -> iSession.onCustomCommand(controllerStub, seq, command.toBundle(), args));
+  }
+
+  @Override
+  public PendingIntent getSessionActivity() {
+    return sessionActivity;
+  }
+
+  @Override
+  public ImmutableList<CommandButton> getCustomLayout() {
+    return customLayout;
   }
 
   @Override
@@ -2477,6 +2485,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     playerCommandsFromPlayer = result.playerCommandsFromPlayer;
     intersectedPlayerCommands =
         createIntersectedCommands(playerCommandsFromSession, playerCommandsFromPlayer);
+    customLayout =
+        getEnabledCustomLayout(result.customLayout, intersectedPlayerCommands, sessionCommands);
     playerInfo = result.playerInfo;
     try {
       // Implementation for the local binder is no-op,
@@ -2636,8 +2646,13 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       intersectedPlayerCommandsChanged =
           !Util.areEqual(intersectedPlayerCommands, prevIntersectedPlayerCommands);
     }
+    boolean customLayoutChanged = false;
     if (sessionCommandsChanged) {
       this.sessionCommands = sessionCommands;
+      ImmutableList<CommandButton> oldCustomLayout = customLayout;
+      customLayout =
+          getEnabledCustomLayout(customLayout, intersectedPlayerCommands, sessionCommands);
+      customLayoutChanged = !customLayout.equals(oldCustomLayout);
     }
     if (intersectedPlayerCommandsChanged) {
       listeners.sendEvent(
@@ -2649,6 +2664,11 @@ import org.checkerframework.checker.nullness.qual.NonNull;
           .notifyControllerListener(
               listener ->
                   listener.onAvailableSessionCommandsChanged(getInstance(), sessionCommands));
+    }
+    if (customLayoutChanged) {
+      getInstance()
+          .notifyControllerListener(
+              listener -> listener.onCustomLayoutChanged(getInstance(), customLayout));
     }
   }
 
@@ -2672,27 +2692,25 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
   }
 
+  // Calling deprecated listener callback method for backwards compatibility.
+  @SuppressWarnings("deprecation")
   void onSetCustomLayout(int seq, List<CommandButton> layout) {
     if (!isConnected()) {
       return;
     }
-    List<CommandButton> validatedCustomLayout = new ArrayList<>();
-    for (int i = 0; i < layout.size(); i++) {
-      CommandButton button = layout.get(i);
-      if (intersectedPlayerCommands.contains(button.playerCommand)
-          || (button.sessionCommand != null && sessionCommands.contains(button.sessionCommand))
-          || (button.playerCommand != Player.COMMAND_INVALID
-              && sessionCommands.contains(button.playerCommand))) {
-        validatedCustomLayout.add(button);
-      }
-    }
+    ImmutableList<CommandButton> oldCustomLayout = customLayout;
+    customLayout = getEnabledCustomLayout(layout, intersectedPlayerCommands, sessionCommands);
+    boolean hasCustomLayoutChanged = !Objects.equals(customLayout, oldCustomLayout);
     getInstance()
         .notifyControllerListener(
             listener -> {
               ListenableFuture<SessionResult> future =
                   checkNotNull(
-                      listener.onSetCustomLayout(getInstance(), validatedCustomLayout),
+                      listener.onSetCustomLayout(getInstance(), customLayout),
                       "MediaController.Listener#onSetCustomLayout() must not return null");
+              if (hasCustomLayoutChanged) {
+                listener.onCustomLayoutChanged(getInstance(), customLayout);
+              }
               sendControllerResultWhenReady(seq, future);
             });
   }
@@ -2705,7 +2723,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
         .notifyControllerListener(listener -> listener.onExtrasChanged(getInstance(), extras));
   }
 
-  void onSetSessionActivity(int seq, PendingIntent sessionActivity) {
+  public void onSetSessionActivity(int seq, PendingIntent sessionActivity) {
     if (!isConnected()) {
       return;
     }
@@ -2732,6 +2750,23 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       }
       playerInfo = playerInfo.copyWithSessionPositionInfo(sessionPositionInfo);
     }
+  }
+
+  private static ImmutableList<CommandButton> getEnabledCustomLayout(
+      List<CommandButton> customLayout,
+      Player.Commands playerCommands,
+      SessionCommands sessionCommands) {
+    ImmutableList.Builder<CommandButton> availableCustomLayout = new ImmutableList.Builder<>();
+    for (int i = 0; i < customLayout.size(); i++) {
+      CommandButton button = customLayout.get(i);
+      boolean isEnabled =
+          playerCommands.contains(button.playerCommand)
+              || (button.sessionCommand != null && sessionCommands.contains(button.sessionCommand))
+              || (button.playerCommand != Player.COMMAND_INVALID
+                  && sessionCommands.contains(button.playerCommand));
+      availableCustomLayout.add(button.copyWithIsEnabled(isEnabled));
+    }
+    return availableCustomLayout.build();
   }
 
   @Player.RepeatMode

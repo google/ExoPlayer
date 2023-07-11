@@ -442,6 +442,11 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
   }
 
   @Override
+  public ImmutableList<CommandButton> getCustomLayout() {
+    return controllerInfo.customLayout;
+  }
+
+  @Override
   @Nullable
   public PlaybackException getPlayerError() {
     return controllerInfo.playerInfo.playerError;
@@ -1512,6 +1517,8 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
         mediaItemTransitionReason);
   }
 
+  // Calling deprecated listener callback method for backwards compatibility.
+  @SuppressWarnings("deprecation")
   private void updateControllerInfo(
       boolean notifyConnected,
       LegacyPlayerInfo newLegacyPlayerInfo,
@@ -1531,9 +1538,11 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
       if (!oldControllerInfo.customLayout.equals(newControllerInfo.customLayout)) {
         getInstance()
             .notifyControllerListener(
-                listener ->
-                    ignoreFuture(
-                        listener.onSetCustomLayout(getInstance(), newControllerInfo.customLayout)));
+                listener -> {
+                  ignoreFuture(
+                      listener.onSetCustomLayout(getInstance(), newControllerInfo.customLayout));
+                  listener.onCustomLayoutChanged(getInstance(), newControllerInfo.customLayout);
+                });
       }
       return;
     }
@@ -1662,9 +1671,11 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
     if (!oldControllerInfo.customLayout.equals(newControllerInfo.customLayout)) {
       getInstance()
           .notifyControllerListener(
-              listener ->
-                  ignoreFuture(
-                      listener.onSetCustomLayout(getInstance(), newControllerInfo.customLayout)));
+              listener -> {
+                ignoreFuture(
+                    listener.onSetCustomLayout(getInstance(), newControllerInfo.customLayout));
+                listener.onCustomLayoutChanged(getInstance(), newControllerInfo.customLayout);
+              });
     }
     listeners.flushEvents();
   }

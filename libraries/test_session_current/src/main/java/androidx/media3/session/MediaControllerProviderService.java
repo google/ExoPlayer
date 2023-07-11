@@ -17,6 +17,7 @@ package androidx.media3.session;
 
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.test.session.common.CommonConstants.ACTION_MEDIA3_CONTROLLER;
+import static androidx.media3.test.session.common.CommonConstants.KEY_COMMAND_BUTTON_LIST;
 import static androidx.media3.test.session.common.TestUtils.SERVICE_CONNECTION_TIMEOUT_MS;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
@@ -807,6 +808,19 @@ public class MediaControllerProviderService extends Service {
                           : MediaLibraryService.LibraryParams.CREATOR.fromBundle(libraryParams)));
       LibraryResult<ImmutableList<MediaItem>> result = getFutureResult(future);
       return result.toBundle();
+    }
+
+    @Override
+    public Bundle getCustomLayout(String controllerId) throws RemoteException {
+      MediaController controller = mediaControllerMap.get(controllerId);
+      ArrayList<Bundle> customLayout = new ArrayList<>();
+      ImmutableList<CommandButton> commandButtons = runOnHandler(controller::getCustomLayout);
+      for (CommandButton button : commandButtons) {
+        customLayout.add(button.toBundle());
+      }
+      Bundle bundle = new Bundle();
+      bundle.putParcelableArrayList(KEY_COMMAND_BUTTON_LIST, customLayout);
+      return bundle;
     }
 
     @Override

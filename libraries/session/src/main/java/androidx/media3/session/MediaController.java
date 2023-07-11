@@ -58,6 +58,7 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Size;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
+import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -343,21 +344,37 @@ public class MediaController implements Player {
     /**
      * Called when the session sets the custom layout through {@link MediaSession#setCustomLayout}.
      *
-     * <p>Return a {@link ListenableFuture} to reply with a {@link SessionResult} to the session
-     * asynchronously. You can also return a {@link SessionResult} directly by using Guava's {@link
-     * Futures#immediateFuture(Object)}.
+     * <p>This method will be deprecated. Use {@link #onCustomLayoutChanged(MediaController, List)}
+     * instead.
      *
-     * <p>The default implementation returns a {@link ListenableFuture} of {@link
-     * SessionResult#RESULT_ERROR_NOT_SUPPORTED}.
+     * <p>There is a slight difference in behaviour. This to be deprecated method may be
+     * consecutively called with an unchanged custom layout passed into it, in which case the new
+     * {@link #onCustomLayoutChanged(MediaController, List)} isn't called again for equal arguments.
      *
-     * @param controller The controller.
-     * @param layout The ordered list of {@link CommandButton}.
-     * @return The result of handling the custom layout.
+     * <p>Further, when the available commands of a controller change in a way that affect whether
+     * buttons of the custom layout are enabled or disabled, the new callback {@link
+     * #onCustomLayoutChanged(MediaController, List)} is called, in which case the deprecated
+     * callback isn't called.
      */
     default ListenableFuture<SessionResult> onSetCustomLayout(
         MediaController controller, List<CommandButton> layout) {
       return Futures.immediateFuture(new SessionResult(SessionResult.RESULT_ERROR_NOT_SUPPORTED));
     }
+
+    /**
+     * Called when the {@linkplain #getCustomLayout() custom layout} changed.
+     *
+     * <p>The custom layout can change when either the session {@linkplain
+     * MediaSession#setCustomLayout changes the custom layout}, or when the session {@linkplain
+     * MediaSession#setAvailableCommands(MediaSession.ControllerInfo, SessionCommands, Commands)
+     * changes the available commands} for a controller that affect whether buttons of the custom
+     * layout are enabled or disabled.
+     *
+     * @param controller The controller.
+     * @param layout The ordered list of {@linkplain CommandButton command buttons}.
+     */
+    @UnstableApi
+    default void onCustomLayoutChanged(MediaController controller, List<CommandButton> layout) {}
 
     /**
      * Called when the available session commands are changed by session.
@@ -933,6 +950,20 @@ public class MediaController implements Player {
       return impl.sendCustomCommand(command, args);
     }
     return createDisconnectedFuture();
+  }
+
+  /**
+   * Returns the custom layout.
+   *
+   * <p>After being connected, a change of the custom layout is reported with {@link
+   * Listener#onCustomLayoutChanged(MediaController, List)}.
+   *
+   * @return The custom layout.
+   */
+  @UnstableApi
+  public final ImmutableList<CommandButton> getCustomLayout() {
+    verifyApplicationThread();
+    return isConnected() ? impl.getCustomLayout() : ImmutableList.of();
   }
 
   /** Returns {@code null}. */
@@ -1984,6 +2015,8 @@ public class MediaController implements Player {
     ListenableFuture<SessionResult> setRating(Rating rating);
 
     ListenableFuture<SessionResult> sendCustomCommand(SessionCommand command, Bundle args);
+
+    ImmutableList<CommandButton> getCustomLayout();
 
     Timeline getCurrentTimeline();
 

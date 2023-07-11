@@ -99,6 +99,7 @@ interface IRemoteMediaController {
       int page,
       int pageSize,
       in Bundle libraryParams);
+  Bundle getCustomLayout(String controllerId);
   Bundle getItem(String controllerId, String mediaId);
   Bundle search(String controllerId, String query, in Bundle libraryParams);
   Bundle getSearchResult(

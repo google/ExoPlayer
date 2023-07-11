@@ -41,6 +41,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.util.List;
 
 /**
  * Superclass to be extended by services hosting {@link MediaLibrarySession media library sessions}.
@@ -123,14 +124,6 @@ public abstract class MediaLibraryService extends MediaSessionService {
      * MediaMetadata#isPlayable} in its {@link MediaItem#mediaMetadata}.
      */
     public interface Callback extends MediaSession.Callback {
-
-      @Override
-      default ConnectionResult onConnect(MediaSession session, ControllerInfo controller) {
-        SessionCommands sessionCommands =
-            new SessionCommands.Builder().addAllLibraryCommands().addAllSessionCommands().build();
-        Player.Commands playerCommands = new Player.Commands.Builder().addAllCommands().build();
-        return ConnectionResult.accept(sessionCommands, playerCommands);
-      }
 
       /**
        * Called when a {@link MediaBrowser} requests the root {@link MediaItem} by {@link
@@ -440,6 +433,35 @@ public abstract class MediaLibraryService extends MediaSessionService {
       }
 
       /**
+       * Sets the custom layout of the session.
+       *
+       * <p>The buttons are converted to custom actions in the legacy media session playback state
+       * for legacy controllers (see {@code
+       * PlaybackStateCompat.Builder#addCustomAction(PlaybackStateCompat.CustomAction)}). When
+       * converting, the {@linkplain SessionCommand#customExtras custom extras of the session
+       * command} is used for the extras of the legacy custom action.
+       *
+       * <p>Controllers that connect have the custom layout of the session available with the
+       * initial connection result by default. A custom layout specific to a controller can be set
+       * when the controller {@linkplain MediaLibrarySession.Callback#onConnect connects} by using
+       * an {@link ConnectionResult.AcceptedResultBuilder}.
+       *
+       * <p>On the controller side, {@link CommandButton#isEnabled} is overridden according to the
+       * available commands of the controller.
+       *
+       * <p>Use {@link MediaSession#setCustomLayout} to update the custom layout during the lifetime
+       * of the session.
+       *
+       * @param customLayout The ordered list of {@link CommandButton command buttons}.
+       * @return The builder to allow chaining.
+       */
+      @UnstableApi
+      @Override
+      public Builder setCustomLayout(List<CommandButton> customLayout) {
+        return super.setCustomLayout(customLayout);
+      }
+
+      /**
        * Builds a {@link MediaLibrarySession}.
        *
        * @return A new session.
@@ -452,7 +474,14 @@ public abstract class MediaLibraryService extends MediaSessionService {
           bitmapLoader = new CacheBitmapLoader(new SimpleBitmapLoader());
         }
         return new MediaLibrarySession(
-            context, id, player, sessionActivity, callback, extras, checkNotNull(bitmapLoader));
+            context,
+            id,
+            player,
+            sessionActivity,
+            customLayout,
+            callback,
+            extras,
+            checkNotNull(bitmapLoader));
       }
     }
 
@@ -461,10 +490,12 @@ public abstract class MediaLibraryService extends MediaSessionService {
         String id,
         Player player,
         @Nullable PendingIntent sessionActivity,
+        ImmutableList<CommandButton> customLayout,
         MediaSession.Callback callback,
         Bundle tokenExtras,
         BitmapLoader bitmapLoader) {
-      super(context, id, player, sessionActivity, callback, tokenExtras, bitmapLoader);
+      super(
+          context, id, player, sessionActivity, customLayout, callback, tokenExtras, bitmapLoader);
     }
 
     @Override
@@ -473,6 +504,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
         String id,
         Player player,
         @Nullable PendingIntent sessionActivity,
+        ImmutableList<CommandButton> customLayout,
         MediaSession.Callback callback,
         Bundle tokenExtras,
         BitmapLoader bitmapLoader) {
@@ -482,6 +514,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
           id,
           player,
           sessionActivity,
+          customLayout,
           (Callback) callback,
           tokenExtras,
           bitmapLoader);

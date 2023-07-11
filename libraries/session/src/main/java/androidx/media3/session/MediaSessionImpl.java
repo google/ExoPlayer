@@ -128,6 +128,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   // Should be only accessed on the application looper
   private long sessionPositionUpdateDelayMs;
+  private ImmutableList<CommandButton> customLayout;
 
   public MediaSessionImpl(
       MediaSession instance,
@@ -135,6 +136,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       String id,
       Player player,
       @Nullable PendingIntent sessionActivity,
+      ImmutableList<CommandButton> customLayout,
       MediaSession.Callback callback,
       Bundle tokenExtras,
       BitmapLoader bitmapLoader) {
@@ -147,6 +149,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     sessionStub = new MediaSessionStub(thisRef);
     this.sessionActivity = sessionActivity;
+    this.customLayout = customLayout;
 
     mainHandler = new Handler(Looper.getMainLooper());
     applicationHandler = new Handler(player.getApplicationLooper());
@@ -187,6 +190,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     PlayerWrapper playerWrapper = new PlayerWrapper(player);
     this.playerWrapper = playerWrapper;
+    this.playerWrapper.setCustomLayout(customLayout);
     postOrRun(
         applicationHandler,
         () ->
@@ -209,6 +213,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private void setPlayerInternal(
       @Nullable PlayerWrapper oldPlayerWrapper, PlayerWrapper newPlayerWrapper) {
     playerWrapper = newPlayerWrapper;
+    playerWrapper.setCustomLayout(customLayout);
     if (oldPlayerWrapper != null) {
       oldPlayerWrapper.removeListener(checkStateNotNull(this.playerListener));
     }
@@ -307,7 +312,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   public void setCustomLayout(List<CommandButton> layout) {
-    playerWrapper.setCustomLayout(ImmutableList.copyOf(layout));
+    customLayout = ImmutableList.copyOf(layout);
+    playerWrapper.setCustomLayout(customLayout);
     dispatchRemoteControllerTaskWithoutReturn(
         (controller, seq) -> controller.setCustomLayout(seq, layout));
   }
@@ -501,6 +507,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable
   protected PendingIntent getSessionActivity() {
     return sessionActivity;
+  }
+
+  protected ImmutableList<CommandButton> getCustomLayout() {
+    return customLayout;
   }
 
   @UnstableApi

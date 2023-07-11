@@ -34,7 +34,9 @@ import androidx.media3.common.DeviceInfo;
 import androidx.media3.common.FlagSet;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.Player;
+import androidx.media3.common.util.ConditionVariable;
 import androidx.media3.common.util.Util;
+import androidx.media3.test.session.R;
 import androidx.media3.test.session.common.CommonConstants;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.MainLooperTestRule;
@@ -42,6 +44,7 @@ import androidx.media3.test.session.common.TestUtils;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
@@ -360,5 +363,88 @@ public class MediaControllerListenerWithMediaSessionCompatTest {
     assertThat(deviceVolumeGetter.get()).isEqualTo(50);
     assertThat(deviceVolumeOnEvents.get()).isEqualTo(50);
     assertThat(getEventsAsList(onEvents.get())).contains(Player.EVENT_DEVICE_VOLUME_CHANGED);
+  }
+
+  @Test
+  public void getCustomLayout() throws Exception {
+    CommandButton button1 =
+        new CommandButton.Builder()
+            .setDisplayName("button1")
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setSessionCommand(new SessionCommand("command1", Bundle.EMPTY))
+            .build();
+    CommandButton button2 =
+        new CommandButton.Builder()
+            .setDisplayName("button2")
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setSessionCommand(new SessionCommand("command2", Bundle.EMPTY))
+            .build();
+    ConditionVariable onSetCustomLayoutCalled = new ConditionVariable();
+    ConditionVariable onCustomLayoutChangedCalled = new ConditionVariable();
+    List<List<CommandButton>> setCustomLayoutArguments = new ArrayList<>();
+    List<List<CommandButton>> customLayoutChangedArguments = new ArrayList<>();
+    List<List<CommandButton>> customLayoutFromGetter = new ArrayList<>();
+    controllerTestRule.createController(
+        session.getSessionToken(),
+        new MediaController.Listener() {
+          @Override
+          public ListenableFuture<SessionResult> onSetCustomLayout(
+              MediaController controller, List<CommandButton> layout) {
+            setCustomLayoutArguments.add(layout);
+            onSetCustomLayoutCalled.open();
+            return MediaController.Listener.super.onSetCustomLayout(controller, layout);
+          }
+
+          @Override
+          public void onCustomLayoutChanged(
+              MediaController controller, List<CommandButton> layout) {
+            customLayoutChangedArguments.add(layout);
+            customLayoutFromGetter.add(controller.getCustomLayout());
+            onCustomLayoutChangedCalled.open();
+          }
+        });
+    Bundle extras1 = new Bundle();
+    extras1.putString("key", "value-1");
+    PlaybackStateCompat.CustomAction customAction1 =
+        new PlaybackStateCompat.CustomAction.Builder(
+                "command1", "button1", /* icon= */ R.drawable.media3_notification_small_icon)
+            .setExtras(extras1)
+            .build();
+    Bundle extras2 = new Bundle();
+    extras2.putString("key", "value-2");
+    PlaybackStateCompat.CustomAction customAction2 =
+        new PlaybackStateCompat.CustomAction.Builder(
+                "command2", "button2", /* icon= */ R.drawable.media3_notification_small_icon)
+            .setExtras(extras2)
+            .build();
+    PlaybackStateCompat.Builder playbackState1 =
+        new PlaybackStateCompat.Builder()
+            .addCustomAction(customAction1)
+            .addCustomAction(customAction2);
+    PlaybackStateCompat.Builder playbackState2 =
+        new PlaybackStateCompat.Builder().addCustomAction(customAction1);
+
+    session.setPlaybackState(playbackState1.build());
+    assertThat(onSetCustomLayoutCalled.block(TIMEOUT_MS)).isTrue();
+    assertThat(onCustomLayoutChangedCalled.block(TIMEOUT_MS)).isTrue();
+    onSetCustomLayoutCalled.close();
+    onCustomLayoutChangedCalled.close();
+    session.setPlaybackState(playbackState2.build());
+    assertThat(onSetCustomLayoutCalled.block(TIMEOUT_MS)).isTrue();
+    assertThat(onCustomLayoutChangedCalled.block(TIMEOUT_MS)).isTrue();
+
+    ImmutableList<CommandButton> expectedFirstCustomLayout =
+        ImmutableList.of(button1.copyWithIsEnabled(true), button2.copyWithIsEnabled(true));
+    ImmutableList<CommandButton> expectedSecondCustomLayout =
+        ImmutableList.of(button1.copyWithIsEnabled(true));
+    assertThat(setCustomLayoutArguments)
+        .containsExactly(expectedFirstCustomLayout, expectedSecondCustomLayout)
+        .inOrder();
+    assertThat(customLayoutChangedArguments)
+        .containsExactly(expectedFirstCustomLayout, expectedSecondCustomLayout)
+        .inOrder();
+    assertThat(customLayoutFromGetter)
+        .containsExactly(expectedFirstCustomLayout, expectedSecondCustomLayout)
+        .inOrder();
   }
 }

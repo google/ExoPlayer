@@ -522,6 +522,9 @@ import java.util.concurrent.ExecutionException;
                     MediaSessionStub.VERSION_INT,
                     MediaSessionStub.this,
                     sessionImpl.getSessionActivity(),
+                    connectionResult.customLayout != null
+                        ? connectionResult.customLayout
+                        : sessionImpl.getCustomLayout(),
                     connectionResult.availableSessionCommands,
                     connectionResult.availablePlayerCommands,
                     playerWrapper.getAvailableCommands(),

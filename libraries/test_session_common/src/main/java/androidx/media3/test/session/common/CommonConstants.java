@@ -102,6 +102,7 @@ public class CommonConstants {
   public static final String KEY_TRACK_SELECTION_PARAMETERS = "trackSelectionParameters";
   public static final String KEY_CURRENT_TRACKS = "currentTracks";
   public static final String KEY_AVAILABLE_COMMANDS = "availableCommands";
+  public static final String KEY_COMMAND_BUTTON_LIST = "command_button_list";
 
   // SessionCompat arguments
   public static final String KEY_SESSION_COMPAT_TOKEN = "sessionCompatToken";

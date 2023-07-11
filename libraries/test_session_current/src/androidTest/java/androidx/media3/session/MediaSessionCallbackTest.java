@@ -17,6 +17,7 @@ package androidx.media3.session;
 
 import static androidx.media3.session.MediaTestUtils.createMediaItem;
 import static androidx.media3.session.SessionResult.RESULT_ERROR_INVALID_STATE;
+import static androidx.media3.session.SessionResult.RESULT_ERROR_PERMISSION_DENIED;
 import static androidx.media3.session.SessionResult.RESULT_INFO_SKIPPED;
 import static androidx.media3.session.SessionResult.RESULT_SUCCESS;
 import static androidx.media3.test.session.common.CommonConstants.METADATA_MEDIA_URI;
@@ -35,7 +36,9 @@ import androidx.media3.common.MediaLibraryInfo;
 import androidx.media3.common.Player;
 import androidx.media3.common.Rating;
 import androidx.media3.common.StarRating;
+import androidx.media3.session.MediaSession.ConnectionResult.AcceptedResultBuilder;
 import androidx.media3.session.MediaSession.ControllerInfo;
+import androidx.media3.test.session.R;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.MainLooperTestRule;
 import androidx.media3.test.session.common.TestUtils;
@@ -128,6 +131,66 @@ public class MediaSessionCallbackTest {
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(controllerVersion.get()).isEqualTo(MediaLibraryInfo.VERSION_INT);
     assertThat(controllerInterfaceVersion.get()).isEqualTo(MediaControllerStub.VERSION_INT);
+  }
+
+  @Test
+  public void onConnect_acceptWithMissingSessionCommand_buttonDisabledAndPermissionDenied()
+      throws Exception {
+    CommandButton button1 =
+        new CommandButton.Builder()
+            .setDisplayName("button1")
+            .setIconResId(R.drawable.media3_notification_play)
+            .setSessionCommand(new SessionCommand("command1", Bundle.EMPTY))
+            .setEnabled(true)
+            .build();
+    CommandButton button1Disabled = button1.copyWithIsEnabled(false);
+    CommandButton button2 =
+        new CommandButton.Builder()
+            .setDisplayName("button2")
+            .setIconResId(R.drawable.media3_notification_pause)
+            .setSessionCommand(new SessionCommand("command2", Bundle.EMPTY))
+            .setEnabled(true)
+            .build();
+    ImmutableList<CommandButton> customLayout = ImmutableList.of(button1, button2);
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
+          @Override
+          public MediaSession.ConnectionResult onConnect(
+              MediaSession session, ControllerInfo controller) {
+            return new AcceptedResultBuilder(session)
+                .setAvailableSessionCommands(
+                    new SessionCommands.Builder().add(button2.sessionCommand).build())
+                .setCustomLayout(ImmutableList.of(button1, button2))
+                .build();
+          }
+
+          @Override
+          public ListenableFuture<SessionResult> onCustomCommand(
+              MediaSession session,
+              ControllerInfo controller,
+              SessionCommand customCommand,
+              Bundle args) {
+            return Futures.immediateFuture(new SessionResult(RESULT_SUCCESS));
+          }
+        };
+    MediaSession session =
+        sessionTestRule.ensureReleaseAfterTest(
+            new MediaSession.Builder(context, player)
+                .setCallback(callback)
+                .setCustomLayout(customLayout)
+                .setId(
+                    "onConnect_acceptWithMissingSessionCommand_buttonDisabledAndPermissionDenied")
+                .build());
+    RemoteMediaController remoteController =
+        controllerTestRule.createRemoteController(session.getToken());
+
+    ImmutableList<CommandButton> layout = remoteController.getCustomLayout();
+
+    assertThat(layout).containsExactly(button1Disabled, button2).inOrder();
+    assertThat(remoteController.sendCustomCommand(button1.sessionCommand, Bundle.EMPTY).resultCode)
+        .isEqualTo(RESULT_ERROR_PERMISSION_DENIED);
+    assertThat(remoteController.sendCustomCommand(button2.sessionCommand, Bundle.EMPTY).resultCode)
+        .isEqualTo(RESULT_SUCCESS);
   }
 
   @Test
