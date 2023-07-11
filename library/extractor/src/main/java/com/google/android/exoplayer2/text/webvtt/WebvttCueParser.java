@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.text.webvtt;
 
+import static androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE;
 import static java.lang.Math.min;
 import static java.lang.annotation.ElementType.TYPE_USE;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
@@ -36,6 +37,7 @@ import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.span.HorizontalTextInVerticalContextSpan;
 import com.google.android.exoplayer2.text.span.RubySpan;
@@ -236,7 +238,8 @@ public final class WebvttCueParser {
   }
 
   /** Create a new {@link Cue} containing {@code text} and with WebVTT default values. */
-  /* package */ static Cue newCueForText(CharSequence text) {
+  @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
+  public static Cue newCueForText(CharSequence text) {
     WebvttCueInfoBuilder infoBuilder = new WebvttCueInfoBuilder();
     infoBuilder.text = text;
     return infoBuilder.toCueBuilder().build();
