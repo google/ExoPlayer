@@ -232,7 +232,8 @@ public final class MimeTypes {
   /**
    * Returns true if it is known that all samples in a stream of the given MIME type and codec are
    * guaranteed to be sync samples (i.e., {@link C#BUFFER_FLAG_KEY_FRAME} is guaranteed to be set on
-   * every sample).
+   * every sample) and the inherent duration of each sample is negligible (i.e., we never expect to
+   * require a sample because playback partially falls into its duration).
    *
    * @param mimeType The MIME type of the stream.
    * @param codec The RFC 6381 codec string of the stream, or {@code null} if unknown.
