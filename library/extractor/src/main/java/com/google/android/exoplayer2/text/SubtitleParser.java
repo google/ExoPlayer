@@ -17,6 +17,7 @@
 package com.google.android.exoplayer2.text;
 
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import java.util.List;
 
@@ -63,7 +64,10 @@ public interface SubtitleParser {
    *
    * <p>{@link CuesWithTiming#startTimeUs} in the returned instance is derived only from the
    * provided sample data, so has to be considered together with any relevant {@link
-   * Format#subsampleOffsetUs}.
+   * Format#subsampleOffsetUs}. If the provided sample doesn't contain any timing information then
+   * at most one {@link CuesWithTiming} instance will be returned, with {@link
+   * CuesWithTiming#startTimeUs} set to {@link C#TIME_UNSET}, in which case {@link
+   * Format#subsampleOffsetUs} <b>must</b> be {@link Format#OFFSET_SAMPLE_RELATIVE}.
    *
    * @param data The subtitle data to parse. This must contain only complete samples. For subtitles
    *     muxed inside a media container, a sample is usually defined by the container. For subtitles
