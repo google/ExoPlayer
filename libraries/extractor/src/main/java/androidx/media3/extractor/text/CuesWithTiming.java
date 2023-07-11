@@ -30,7 +30,8 @@ public class CuesWithTiming {
   public final ImmutableList<Cue> cues;
 
   /**
-   * The time at which {@link #cues} should be shown on screen, in microseconds.
+   * The time at which {@link #cues} should be shown on screen, in microseconds, or {@link
+   * C#TIME_UNSET} if not known.
    *
    * <p>The time base of this depends on the context from which this instance was obtained.
    */
