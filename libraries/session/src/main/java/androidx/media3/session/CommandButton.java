@@ -17,6 +17,7 @@ package androidx.media3.session;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.common.util.Assertions.checkState;
 
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -147,17 +148,20 @@ public final class CommandButton implements Bundleable {
 
     /** Builds a {@link CommandButton}. */
     public CommandButton build() {
+      checkState(
+          (sessionCommand == null) != (playerCommand == Player.COMMAND_INVALID),
+          "Exactly one of sessionCommand and playerCommand should be set");
       return new CommandButton(
           sessionCommand, playerCommand, iconResId, displayName, extras, enabled);
     }
   }
 
-  /** The session command of the button. Can be {@code null} if the button is a placeholder. */
+  /** The session command of the button. Will be {@code null} if {@link #playerCommand} is set. */
   @Nullable public final SessionCommand sessionCommand;
 
   /**
-   * The {@link Player.Command} command of the button. Can be {@link Player#COMMAND_INVALID} if the
-   * button is a placeholder.
+   * The {@link Player.Command} command of the button. Will be {@link Player#COMMAND_INVALID} if
+   * {@link #sessionCommand} is set.
    */
   public final @Player.Command int playerCommand;
 

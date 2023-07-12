@@ -17,6 +17,7 @@ package androidx.media3.session;
 
 import static androidx.media3.session.CommandButton.CREATOR;
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import android.os.Bundle;
 import androidx.media3.common.Player;
@@ -198,5 +199,14 @@ public class CommandButtonTest {
                 .setPlayerCommand(Player.COMMAND_SEEK_TO_NEXT)
                 .build()
                 .hashCode());
+  }
+
+  @Test
+  public void build_withoutSessionOrPlayerCommandSet_throwsIllegalStateException() {
+    CommandButton.Builder builder =
+        new CommandButton.Builder()
+            .setDisplayName("button")
+            .setIconResId(R.drawable.media3_notification_small_icon);
+    assertThrows(IllegalStateException.class, builder::build);
   }
 }
