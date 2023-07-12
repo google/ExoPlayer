@@ -522,6 +522,8 @@ public final class MimeTypes {
         return MimeTypes.AUDIO_OPUS;
       case 0xAE:
         return MimeTypes.AUDIO_AC4;
+      case 0xDD:
+        return MimeTypes.AUDIO_VORBIS;
       default:
         return null;
     }

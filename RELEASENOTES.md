@@ -54,6 +54,7 @@
 *   Audio:
     *   Add support for 24/32-bit big endian PCM in MP4 and Matroska, and parse
         PCM encoding for `lpcm` in MP4.
+    *   Add support for extracting Vorbis audio in MP4.
 *   Audio Offload:
     *   Add `AudioSink.getFormatOffloadSupport(Format)` that retrieves level of
         offload support the sink can provide for the format through a

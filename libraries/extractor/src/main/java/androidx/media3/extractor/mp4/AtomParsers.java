@@ -45,6 +45,7 @@ import androidx.media3.extractor.ExtractorUtil;
 import androidx.media3.extractor.GaplessInfoHolder;
 import androidx.media3.extractor.HevcConfig;
 import androidx.media3.extractor.OpusUtil;
+import androidx.media3.extractor.VorbisUtil;
 import androidx.media3.extractor.metadata.mp4.SmtaMetadataEntry;
 import androidx.media3.extractor.mp4.Atom.LeafAtom;
 import com.google.common.base.Function;
@@ -1615,15 +1616,21 @@ import java.util.List;
           mimeType = esdsData.mimeType;
           @Nullable byte[] initializationDataBytes = esdsData.initializationData;
           if (initializationDataBytes != null) {
-            if (MimeTypes.AUDIO_AAC.equals(mimeType)) {
-              // Update sampleRate and channelCount from the AudioSpecificConfig initialization
-              // data, which is more reliable. See [Internal: b/10903778].
-              AacUtil.Config aacConfig = AacUtil.parseAudioSpecificConfig(initializationDataBytes);
-              sampleRate = aacConfig.sampleRateHz;
-              channelCount = aacConfig.channelCount;
-              codecs = aacConfig.codecs;
+            if (MimeTypes.AUDIO_VORBIS.equals(mimeType)) {
+              initializationData =
+                  VorbisUtil.parseVorbisCsdFromEsdsInitializationData(initializationDataBytes);
+            } else {
+              if (MimeTypes.AUDIO_AAC.equals(mimeType)) {
+                // Update sampleRate and channelCount from the AudioSpecificConfig initialization
+                // data, which is more reliable. See [Internal: b/10903778].
+                AacUtil.Config aacConfig =
+                    AacUtil.parseAudioSpecificConfig(initializationDataBytes);
+                sampleRate = aacConfig.sampleRateHz;
+                channelCount = aacConfig.channelCount;
+                codecs = aacConfig.codecs;
+              }
+              initializationData = ImmutableList.of(initializationDataBytes);
             }
-            initializationData = ImmutableList.of(initializationDataBytes);
           }
         }
       } else if (childAtomType == Atom.TYPE_dac3) {
