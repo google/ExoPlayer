@@ -53,6 +53,8 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.audio.AudioProcessor;
+import com.google.android.exoplayer2.audio.ChannelMixingAudioProcessor;
+import com.google.android.exoplayer2.audio.ChannelMixingMatrix;
 import com.google.android.exoplayer2.audio.SilenceSkippingAudioProcessor;
 import com.google.android.exoplayer2.audio.SonicAudioProcessor;
 import com.google.android.exoplayer2.effect.BitmapOverlay;
@@ -99,6 +101,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -417,6 +420,18 @@ public final class TransformerActivity extends AppCompatActivity {
           new SilenceSkippingAudioProcessor();
       silenceSkippingAudioProcessor.setEnabled(true);
       processors.add(silenceSkippingAudioProcessor);
+    }
+
+    if (selectedAudioEffects[ConfigurationActivity.CHANNEL_MIXING_INDEX]) {
+      ChannelMixingAudioProcessor mixingAudioProcessor = new ChannelMixingAudioProcessor();
+      for (int inputChannelCount = 1; inputChannelCount <= 6; inputChannelCount++) {
+        float[] mixingCoefficients = new float[inputChannelCount];
+        Arrays.fill(mixingCoefficients, 1f / inputChannelCount);
+        mixingAudioProcessor.putChannelMixingMatrix(
+            new ChannelMixingMatrix(
+                inputChannelCount, /* outputChannelCount= */ 1, mixingCoefficients));
+      }
+      processors.add(mixingAudioProcessor);
     }
 
     return processors.build();
