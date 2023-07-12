@@ -19,9 +19,6 @@ package androidx.media3.transformer;
 import static androidx.media3.common.ColorInfo.SDR_BT709_LIMITED;
 import static androidx.media3.common.ColorInfo.SRGB_BT709_FULL;
 import static androidx.media3.common.ColorInfo.isTransferHdr;
-import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_BITMAP;
-import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_SURFACE;
-import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_TEXTURE_ID;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.transformer.Composition.HDR_MODE_KEEP_HDR;
@@ -30,7 +27,6 @@ import static androidx.media3.transformer.Composition.HDR_MODE_TONE_MAP_HDR_TO_S
 import static androidx.media3.transformer.EncoderUtil.getSupportedEncodersForHdrEditing;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.util.Pair;
@@ -40,17 +36,13 @@ import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.DebugViewProvider;
-import androidx.media3.common.Effect;
 import androidx.media3.common.Format;
-import androidx.media3.common.FrameInfo;
 import androidx.media3.common.MimeTypes;
-import androidx.media3.common.OnInputFrameProcessedListener;
 import androidx.media3.common.SurfaceInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.util.Consumer;
 import androidx.media3.common.util.Log;
-import androidx.media3.common.util.Size;
 import androidx.media3.common.util.Util;
 import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.effect.DebugTraceUtil;
@@ -60,29 +52,23 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.nio.ByteBuffer;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.dataflow.qual.Pure;
 
-// TODO: b/289986435 - Remove implementations of GraphInput after creating VideoGraph.
 /** Processes, encodes and muxes raw video frames. */
-/* package */ final class VideoSampleExporter extends SampleExporter implements GraphInput {
+/* package */ final class VideoSampleExporter extends SampleExporter {
 
   private static final String TAG = "VideoSampleExporter";
-  private final AtomicLong mediaItemOffsetUs;
-  private final VideoFrameProcessor videoFrameProcessor;
-  private final ColorInfo videoFrameProcessorInputColor;
+  private final SingleInputVideoGraph singleInputVideoGraph;
   private final EncoderWrapper encoderWrapper;
-  private final DecoderInputBuffer encoderOutputBuffer;
-  @Nullable final Presentation presentation;
-
-  private volatile boolean encoderExpectsTimestampZero;
 
   /**
    * The timestamp of the last buffer processed before {@linkplain
    * VideoFrameProcessor.Listener#onEnded() frame processing has ended}.
    */
   private volatile long finalFramePresentationTimeUs;
+
+  private boolean hasMuxedTimestampZero;
 
   public VideoSampleExporter(
       Context context,
@@ -100,11 +86,7 @@ import org.checkerframework.dataflow.qual.Pure;
     //  output format instead of the extractor output format, to match AudioSampleExporter behavior.
     super(firstInputFormat, muxerWrapper);
 
-    mediaItemOffsetUs = new AtomicLong();
     finalFramePresentationTimeUs = C.TIME_UNSET;
-
-    encoderOutputBuffer =
-        new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
 
     ColorInfo decoderInputColor;
     if (firstInputFormat.colorInfo == null || !firstInputFormat.colorInfo.isValid()) {
@@ -125,7 +107,8 @@ import org.checkerframework.dataflow.qual.Pure;
     boolean isMediaCodecToneMapping =
         encoderWrapper.getHdrModeAfterFallback() == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC
             && ColorInfo.isTransferHdr(decoderInputColor);
-    videoFrameProcessorInputColor = isMediaCodecToneMapping ? SDR_BT709_LIMITED : decoderInputColor;
+    ColorInfo videoFrameProcessorInputColor =
+        isMediaCodecToneMapping ? SDR_BT709_LIMITED : decoderInputColor;
 
     boolean isGlToneMapping =
         ColorInfo.isTransferHdr(decoderInputColor)
@@ -149,131 +132,55 @@ import org.checkerframework.dataflow.qual.Pure;
       videoFrameProcessorOutputColor = videoFrameProcessorInputColor;
     }
 
-    this.presentation = presentation;
     try {
-      videoFrameProcessor =
-          videoFrameProcessorFactory.create(
+      singleInputVideoGraph =
+          new SingleInputVideoGraph(
               context,
-              debugViewProvider,
+              videoFrameProcessorFactory,
               videoFrameProcessorInputColor,
               videoFrameProcessorOutputColor,
-              /* renderFramesAutomatically= */ true,
-              MoreExecutors.directExecutor(),
-              new VideoFrameProcessor.Listener() {
-                private long lastProcessedFramePresentationTimeUs;
-
+              new SingleInputVideoGraph.Listener() {
+                @Nullable
                 @Override
-                public void onOutputSizeChanged(int width, int height) {
+                public SurfaceInfo onOutputSizeChanged(int width, int height) {
+                  @Nullable SurfaceInfo surfaceInfo = null;
                   try {
-                    checkNotNull(videoFrameProcessor)
-                        .setOutputSurfaceInfo(encoderWrapper.getSurfaceInfo(width, height));
-                  } catch (ExportException exception) {
-                    errorConsumer.accept(exception);
+                    surfaceInfo = encoderWrapper.getSurfaceInfo(width, height);
+                  } catch (ExportException e) {
+                    errorConsumer.accept(e);
                   }
+                  return surfaceInfo;
                 }
 
                 @Override
-                public void onOutputFrameAvailableForRendering(long presentationTimeUs) {
-                  // Frames are rendered automatically.
-                  if (presentationTimeUs == 0) {
-                    encoderExpectsTimestampZero = true;
-                  }
-                  lastProcessedFramePresentationTimeUs = presentationTimeUs;
-                }
-
-                @Override
-                public void onError(VideoFrameProcessingException exception) {
-                  errorConsumer.accept(
-                      ExportException.createForVideoFrameProcessingException(exception));
-                }
-
-                @Override
-                public void onEnded() {
+                public void onEnded(long finalFramePresentationTimeUs) {
                   VideoSampleExporter.this.finalFramePresentationTimeUs =
-                      lastProcessedFramePresentationTimeUs;
+                      finalFramePresentationTimeUs;
                   try {
                     encoderWrapper.signalEndOfInputStream();
-                  } catch (ExportException exception) {
-                    errorConsumer.accept(exception);
+                  } catch (ExportException e) {
+                    errorConsumer.accept(e);
                   }
                 }
-              });
+              },
+              errorConsumer,
+              debugViewProvider,
+              MoreExecutors.directExecutor(),
+              /* renderFramesAutomatically= */ true,
+              presentation);
     } catch (VideoFrameProcessingException e) {
       throw ExportException.createForVideoFrameProcessingException(e);
     }
   }
 
   @Override
-  public void onMediaItemChanged(
-      EditedMediaItem editedMediaItem,
-      long durationUs,
-      @Nullable Format trackFormat,
-      boolean isLast) {
-    if (trackFormat != null) {
-      Size decodedSize = getDecodedSize(trackFormat);
-      videoFrameProcessor.registerInputStream(
-          getInputType(checkNotNull(trackFormat.sampleMimeType)),
-          createEffectListWithPresentation(editedMediaItem.effects.videoEffects, presentation));
-      videoFrameProcessor.setInputFrameInfo(
-          new FrameInfo.Builder(decodedSize.getWidth(), decodedSize.getHeight())
-              .setPixelWidthHeightRatio(trackFormat.pixelWidthHeightRatio)
-              .setOffsetToAddUs(mediaItemOffsetUs.get())
-              .build());
-    }
-    mediaItemOffsetUs.addAndGet(durationUs);
-  }
-
-  @Override
-  public boolean queueInputBitmap(Bitmap inputBitmap, long durationUs, int frameRate) {
-    videoFrameProcessor.queueInputBitmap(inputBitmap, durationUs, frameRate);
-    return true;
-  }
-
-  @Override
-  public void setOnInputFrameProcessedListener(OnInputFrameProcessedListener listener) {
-    videoFrameProcessor.setOnInputFrameProcessedListener(listener);
-  }
-
-  @Override
-  public boolean queueInputTexture(int texId, long presentationTimeUs) {
-    videoFrameProcessor.queueInputTexture(texId, presentationTimeUs);
-    return true;
-  }
-
-  @Override
-  public Surface getInputSurface() {
-    return videoFrameProcessor.getInputSurface();
-  }
-
-  @Override
-  public ColorInfo getExpectedInputColorInfo() {
-    return videoFrameProcessorInputColor;
-  }
-
-  @Override
-  public boolean registerVideoFrame(long presentationTimeUs) {
-    videoFrameProcessor.registerInputFrame();
-    return true;
-  }
-
-  @Override
-  public int getPendingVideoFrameCount() {
-    return videoFrameProcessor.getPendingInputFrameCount();
-  }
-
-  @Override
-  public void signalEndOfVideoInput() {
-    videoFrameProcessor.signalEndOfInput();
-  }
-
-  @Override
   public GraphInput getInput() {
-    return this;
+    return singleInputVideoGraph;
   }
 
   @Override
   public void release() {
-    videoFrameProcessor.release();
+    singleInputVideoGraph.release();
     encoderWrapper.release();
   }
 
@@ -286,6 +193,8 @@ import org.checkerframework.dataflow.qual.Pure;
   @Override
   @Nullable
   protected DecoderInputBuffer getMuxerInputBuffer() throws ExportException {
+    DecoderInputBuffer encoderOutputBuffer =
+        new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
     encoderOutputBuffer.data = encoderWrapper.getOutputBuffer();
     if (encoderOutputBuffer.data == null) {
       return null;
@@ -295,10 +204,12 @@ import org.checkerframework.dataflow.qual.Pure;
       // Internal ref b/235045165: Some encoder incorrectly set a zero presentation time on the
       // penultimate buffer (before EOS), and sets the actual timestamp on the EOS buffer. Use the
       // last processed frame presentation time instead.
-      if (encoderExpectsTimestampZero) {
-        encoderExpectsTimestampZero = false;
-      } else if (finalFramePresentationTimeUs != C.TIME_UNSET && bufferInfo.size > 0) {
+      if (singleInputVideoGraph.hasProducedFrameWithTimestampZero() == hasMuxedTimestampZero
+          && finalFramePresentationTimeUs != C.TIME_UNSET
+          && bufferInfo.size > 0) {
         bufferInfo.presentationTimeUs = finalFramePresentationTimeUs;
+      } else {
+        hasMuxedTimestampZero = true;
       }
     }
     DebugTraceUtil.recordEncodedFrame();
@@ -315,36 +226,6 @@ import org.checkerframework.dataflow.qual.Pure;
   @Override
   protected boolean isMuxerInputEnded() {
     return encoderWrapper.isEnded();
-  }
-
-  private static @VideoFrameProcessor.InputType int getInputType(String sampleMimeType) {
-    if (MimeTypes.isImage(sampleMimeType)) {
-      return INPUT_TYPE_BITMAP;
-    }
-    if (sampleMimeType.equals(MimeTypes.VIDEO_RAW)) {
-      return INPUT_TYPE_TEXTURE_ID;
-    }
-    if (MimeTypes.isVideo(sampleMimeType)) {
-      return INPUT_TYPE_SURFACE;
-    }
-    throw new IllegalArgumentException("MIME type not supported " + sampleMimeType);
-  }
-
-  private static Size getDecodedSize(Format format) {
-    // The decoder rotates encoded frames for display by firstInputFormat.rotationDegrees.
-    int decodedWidth = (format.rotationDegrees % 180 == 0) ? format.width : format.height;
-    int decodedHeight = (format.rotationDegrees % 180 == 0) ? format.height : format.width;
-    return new Size(decodedWidth, decodedHeight);
-  }
-
-  private static ImmutableList<Effect> createEffectListWithPresentation(
-      List<Effect> effects, @Nullable Presentation presentation) {
-    if (presentation == null) {
-      return ImmutableList.copyOf(effects);
-    }
-    ImmutableList.Builder<Effect> effectsWithPresentationBuilder = new ImmutableList.Builder<>();
-    effectsWithPresentationBuilder.addAll(effects).add(presentation);
-    return effectsWithPresentationBuilder.build();
   }
 
   /**
