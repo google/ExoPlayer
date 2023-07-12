@@ -16,14 +16,20 @@
 package com.google.android.exoplayer2.upstream;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableMap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Represents the data for CMCD (Common Media Client Data) in adaptive streaming formats DASH, HLS,
@@ -41,6 +47,35 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 @Deprecated
 public final class CmcdLog {
 
+  /** Indicates the streaming format used for media content. */
+  @Retention(RetentionPolicy.SOURCE)
+  @StringDef({STREAMING_FORMAT_DASH, STREAMING_FORMAT_HLS, STREAMING_FORMAT_SS})
+  @Documented
+  @Target(TYPE_USE)
+  public @interface StreamingFormat {}
+
+  /** Indicates the type of streaming for media content. */
+  @Retention(RetentionPolicy.SOURCE)
+  @StringDef({STREAM_TYPE_VOD, STREAM_TYPE_LIVE})
+  @Documented
+  @Target(TYPE_USE)
+  public @interface StreamType {}
+
+  /** Represents the Dynamic Adaptive Streaming over HTTP (DASH) format. */
+  public static final String STREAMING_FORMAT_DASH = "d";
+
+  /** Represents the HTTP Live Streaming (HLS) format. */
+  public static final String STREAMING_FORMAT_HLS = "h";
+
+  /** Represents the Smooth Streaming (SS) format. */
+  public static final String STREAMING_FORMAT_SS = "s";
+
+  /** Represents the Video on Demand (VOD) stream type. */
+  public static final String STREAM_TYPE_VOD = "v";
+
+  /** Represents the Live Streaming stream type. */
+  public static final String STREAM_TYPE_LIVE = "l";
+
   /**
    * Creates a new instance.
    *
@@ -48,11 +83,17 @@ public final class CmcdLog {
    * @param trackSelection The {@linkplain ExoTrackSelection track selection}.
    * @param bufferedDurationUs The duration of media currently buffered from the current playback
    *     position, in microseconds.
+   * @param streamingFormat The streaming format of the media content. Must be one of the allowed
+   *     streaming formats specified by the {@link StreamingFormat} annotation.
+   * @param isLive {@code true} if the media content is being streamed live, {@code false}
+   *     otherwise.
    */
   public static CmcdLog createInstance(
       CmcdConfiguration cmcdConfiguration,
       ExoTrackSelection trackSelection,
-      long bufferedDurationUs) {
+      long bufferedDurationUs,
+      @StreamingFormat String streamingFormat,
+      boolean isLive) {
     ImmutableMap<@CmcdConfiguration.HeaderKey String, String> customData =
         cmcdConfiguration.requestConfig.getCustomData();
     int bitrateKbps = trackSelection.getSelectedFormat().bitrate / 1000;
@@ -79,6 +120,12 @@ public final class CmcdLog {
     }
     if (cmcdConfiguration.isSessionIdLoggingAllowed()) {
       cmcdSession.setSessionId(cmcdConfiguration.sessionId);
+    }
+    if (cmcdConfiguration.isStreamingFormatLoggingAllowed()) {
+      cmcdSession.setStreamingFormat(streamingFormat);
+    }
+    if (cmcdConfiguration.isStreamTypeLoggingAllowed()) {
+      cmcdSession.setStreamType(isLive ? STREAM_TYPE_LIVE : STREAM_TYPE_VOD);
     }
 
     CmcdLog.CmcdStatus.Builder cmcdStatus =
@@ -292,6 +339,8 @@ public final class CmcdLog {
     public static final class Builder {
       @Nullable private String contentId;
       @Nullable private String sessionId;
+      @Nullable private String streamingFormat;
+      @Nullable private String streamType;
       @Nullable private String customData;
 
       /**
@@ -316,6 +365,20 @@ public final class CmcdLog {
         return this;
       }
 
+      /** Sets the {@link CmcdSession#streamingFormat}. The default value is {@code null}. */
+      @CanIgnoreReturnValue
+      public Builder setStreamingFormat(@Nullable @StreamingFormat String streamingFormat) {
+        this.streamingFormat = streamingFormat;
+        return this;
+      }
+
+      /** Sets the {@link CmcdSession#streamType}. The default value is {@code null}. */
+      @CanIgnoreReturnValue
+      public Builder setStreamType(@Nullable @StreamType String streamType) {
+        this.streamType = streamType;
+        return this;
+      }
+
       /** Sets the {@link CmcdSession#customData}. The default value is {@code null}. */
       @CanIgnoreReturnValue
       public CmcdSession.Builder setCustomData(@Nullable String customData) {
@@ -327,6 +390,13 @@ public final class CmcdLog {
         return new CmcdSession(this);
       }
     }
+
+    /**
+     * The version of this specification used for interpreting the defined key names and values. If
+     * this key is omitted, the client and server MUST interpret the values as being defined by
+     * version 1. Client SHOULD omit this field if the version is 1.
+     */
+    public static final int VERSION = 1;
 
     /**
      * A GUID identifying the current content, or {@code null} if unset.
@@ -343,6 +413,19 @@ public final class CmcdLog {
      */
     @Nullable public final String sessionId;
     /**
+     * The streaming format that defines the current request. d = MPEG DASH, h = HTTP Live Streaming
+     * (HLS), s = Smooth Streaming and o = other. If the streaming format being requested is
+     * unknown, then this key MUST NOT be used.
+     */
+    @Nullable public final String streamingFormat;
+
+    /**
+     * Type of stream. v = all segments are available – e.g., VOD and l = segments become available
+     * over time – e.g., LIVE.
+     */
+    @Nullable public final String streamType;
+
+    /**
      * Custom data where the values of the keys are expected to be invariant over the life of the
      * session, or {@code null} if unset.
      *
@@ -354,6 +437,8 @@ public final class CmcdLog {
     private CmcdSession(Builder builder) {
       this.contentId = builder.contentId;
       this.sessionId = builder.sessionId;
+      this.streamingFormat = builder.streamingFormat;
+      this.streamType = builder.streamType;
       this.customData = builder.customData;
     }
 
@@ -373,6 +458,18 @@ public final class CmcdLog {
       if (!TextUtils.isEmpty(this.sessionId)) {
         headerValue.append(
             Util.formatInvariant("%s=\"%s\",", CmcdConfiguration.KEY_SESSION_ID, sessionId));
+      }
+      if (!TextUtils.isEmpty(this.streamingFormat)) {
+        headerValue.append(
+            Util.formatInvariant(
+                "%s=%s,", CmcdConfiguration.KEY_STREAMING_FORMAT, streamingFormat));
+      }
+      if (!TextUtils.isEmpty(this.streamType)) {
+        headerValue.append(
+            Util.formatInvariant("%s=%s,", CmcdConfiguration.KEY_STREAM_TYPE, streamType));
+      }
+      if (VERSION != 1) {
+        headerValue.append(Util.formatInvariant("%s=%d,", CmcdConfiguration.KEY_VERSION, VERSION));
       }
       if (!TextUtils.isEmpty(customData)) {
         headerValue.append(Util.formatInvariant("%s,", customData));

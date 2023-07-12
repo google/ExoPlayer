@@ -214,7 +214,7 @@ public class HlsChunkSourceTest {
             "CMCD-Request",
             "bl=0",
             "CMCD-Session",
-            "cid=\"mediaId\",sid=\"" + cmcdConfiguration.sessionId + "\"");
+            "cid=\"mediaId\",sid=\"" + cmcdConfiguration.sessionId + "\",sf=h,st=v");
   }
 
   @Test
@@ -260,7 +260,7 @@ public class HlsChunkSourceTest {
             "CMCD-Request",
             "bl=0",
             "CMCD-Session",
-            "cid=\"mediaIdcontentIdSuffix\"",
+            "cid=\"mediaIdcontentIdSuffix\",sf=h,st=v",
             "CMCD-Status",
             "rtp=4000");
   }
@@ -307,7 +307,7 @@ public class HlsChunkSourceTest {
             "CMCD-Request",
             "bl=0,key2=\"stringValue\"",
             "CMCD-Session",
-            "cid=\"mediaId\",sid=\"" + cmcdConfiguration.sessionId + "\",key3=1",
+            "cid=\"mediaId\",sid=\"" + cmcdConfiguration.sessionId + "\",sf=h,st=v,key3=1",
             "CMCD-Status",
             "key4=5.0");
   }
