@@ -380,7 +380,12 @@ public class DefaultDashChunkSource implements DashChunkSource {
     CmcdLog cmcdLog =
         cmcdConfiguration == null
             ? null
-            : CmcdLog.createInstance(cmcdConfiguration, trackSelection, bufferedDurationUs);
+            : CmcdLog.createInstance(
+                cmcdConfiguration,
+                trackSelection,
+                bufferedDurationUs,
+                CmcdLog.STREAMING_FORMAT_DASH,
+                manifest.dynamic);
 
     RepresentationHolder representationHolder =
         updateSelectedBaseUrl(trackSelection.getSelectedIndex());
