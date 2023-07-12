@@ -118,6 +118,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
   public static final int HIGH_PITCHED_INDEX = 0;
   public static final int SAMPLE_RATE_INDEX = 1;
   public static final int SKIP_SILENCE_INDEX = 2;
+  public static final int CHANNEL_MIXING_INDEX = 3;
 
   // Color filter options.
   public static final int COLOR_FILTER_GRAYSCALE = 0;
@@ -164,7 +165,7 @@ public final class ConfigurationActivity extends AppCompatActivity {
     "720p H264 video with no audio",
   };
   private static final String[] AUDIO_EFFECTS = {
-    "High pitched", "Sample rate of 48000Hz", "Skip silence"
+    "High pitched", "Sample rate of 48000Hz", "Skip silence", "Mix channels into mono"
   };
   private static final String[] VIDEO_EFFECTS = {
     "Dizzy crop",
