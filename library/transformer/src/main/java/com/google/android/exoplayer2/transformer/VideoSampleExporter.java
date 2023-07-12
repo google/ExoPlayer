@@ -104,7 +104,6 @@ import org.checkerframework.dataflow.qual.Pure;
       FallbackListener fallbackListener,
       DebugViewProvider debugViewProvider)
       throws ExportException {
-    // TODO(b/262693177) Add tests for input format change.
     // TODO(b/278259383) Consider delaying configuration of VideoSampleExporter to use the decoder
     //  output format instead of the extractor output format, to match AudioSampleExporter behavior.
     super(firstInputFormat, muxerWrapper);
