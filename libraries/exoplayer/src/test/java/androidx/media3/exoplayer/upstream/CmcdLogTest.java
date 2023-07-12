@@ -60,7 +60,11 @@ public class CmcdLogTest {
         .thenReturn(new Format.Builder().setPeakBitrate(840_000).build());
     CmcdLog cmcdLog =
         CmcdLog.createInstance(
-            cmcdConfiguration, trackSelection, /* bufferedDurationUs= */ 1_760_000);
+            cmcdConfiguration,
+            trackSelection,
+            /* bufferedDurationUs= */ 1_760_000,
+            CmcdLog.STREAMING_FORMAT_DASH,
+            true);
 
     ImmutableMap<@CmcdConfiguration.HeaderKey String, String> requestHeaders =
         cmcdLog.getHttpRequestHeaders();
@@ -72,7 +76,7 @@ public class CmcdLogTest {
             "CMCD-Request",
             "bl=1800,key2=\"stringValue\"",
             "CMCD-Session",
-            "cid=\"mediaId\",sid=\"sessionId\"",
+            "cid=\"mediaId\",sid=\"sessionId\",sf=d,st=l",
             "CMCD-Status",
             "rtp=1700");
   }
