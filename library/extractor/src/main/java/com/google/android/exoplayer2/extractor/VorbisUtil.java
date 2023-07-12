@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.metadata.vorbis.VorbisComment;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -163,6 +164,56 @@ public final class VorbisUtil {
       x >>>= 1;
     }
     return val;
+  }
+
+  /**
+   * Returns codec-specific data for configuring a media codec for decoding Vorbis.
+   *
+   * @param initializationData The initialization data from the ESDS box.
+   * @return Codec-specific data for configuring a media codec for decoding Vorbis.
+   */
+  public static ImmutableList<byte[]> parseVorbisCsdFromEsdsInitializationData(
+      byte[] initializationData) {
+    ParsableByteArray buffer = new ParsableByteArray(initializationData);
+    buffer.skipBytes(1); // 0x02 for vorbis audio
+
+    int identificationHeaderLength = 0;
+    while (buffer.bytesLeft() > 0 && buffer.peekUnsignedByte() == 0xFF) {
+      identificationHeaderLength += 0xFF;
+      buffer.skipBytes(1);
+    }
+    identificationHeaderLength += buffer.readUnsignedByte();
+
+    int commentHeaderLength = 0;
+    while (buffer.bytesLeft() > 0 && buffer.peekUnsignedByte() == 0xFF) {
+      commentHeaderLength += 0xFF;
+      buffer.skipBytes(1);
+    }
+    commentHeaderLength += buffer.readUnsignedByte();
+
+    // csd-0 is the identification header.
+    byte[] csd0 = new byte[identificationHeaderLength];
+    int identificationHeaderOffset = buffer.getPosition();
+    System.arraycopy(
+        /* src= */ initializationData,
+        /* srcPos= */ identificationHeaderOffset,
+        /* dest= */ csd0,
+        /* destPos= */ 0,
+        /* length= */ identificationHeaderLength);
+
+    // csd-1 is the setup header, which is the remaining data after the identification and comment
+    // headers.
+    int setupHeaderOffset =
+        identificationHeaderOffset + identificationHeaderLength + commentHeaderLength;
+    int setupHeaderLength = initializationData.length - setupHeaderOffset;
+    byte[] csd1 = new byte[setupHeaderLength];
+    System.arraycopy(
+        /* src= */ initializationData,
+        /* srcPos= */ setupHeaderOffset,
+        /* dest= */ csd1,
+        /* destPos= */ 0,
+        /* length= */ setupHeaderLength);
+    return ImmutableList.of(csd0, csd1);
   }
 
   /**
@@ -324,7 +375,7 @@ public final class VorbisUtil {
    * @param headerType the type of the header expected.
    * @param header the alleged header bytes.
    * @param quiet if {@code true} no exceptions are thrown. Instead {@code false} is returned.
-   * @return the number of bytes read.
+   * @return Whether the header is a Vorbis header.
    * @throws ParserException thrown if header type or capture pattern is not as expected.
    */
   public static boolean verifyVorbisHeaderCapturePattern(

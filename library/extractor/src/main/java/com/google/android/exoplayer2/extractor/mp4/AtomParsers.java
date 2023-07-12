@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.container.Mp4TimestampData;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.extractor.ExtractorUtil;
 import com.google.android.exoplayer2.extractor.GaplessInfoHolder;
+import com.google.android.exoplayer2.extractor.VorbisUtil;
 import com.google.android.exoplayer2.extractor.mp4.Atom.LeafAtom;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.mp4.SmtaMetadataEntry;
@@ -1623,15 +1624,21 @@ import java.util.List;
           mimeType = esdsData.mimeType;
           @Nullable byte[] initializationDataBytes = esdsData.initializationData;
           if (initializationDataBytes != null) {
-            if (MimeTypes.AUDIO_AAC.equals(mimeType)) {
-              // Update sampleRate and channelCount from the AudioSpecificConfig initialization
-              // data, which is more reliable. See [Internal: b/10903778].
-              AacUtil.Config aacConfig = AacUtil.parseAudioSpecificConfig(initializationDataBytes);
-              sampleRate = aacConfig.sampleRateHz;
-              channelCount = aacConfig.channelCount;
-              codecs = aacConfig.codecs;
+            if (MimeTypes.AUDIO_VORBIS.equals(mimeType)) {
+              initializationData =
+                  VorbisUtil.parseVorbisCsdFromEsdsInitializationData(initializationDataBytes);
+            } else {
+              if (MimeTypes.AUDIO_AAC.equals(mimeType)) {
+                // Update sampleRate and channelCount from the AudioSpecificConfig initialization
+                // data, which is more reliable. See [Internal: b/10903778].
+                AacUtil.Config aacConfig =
+                    AacUtil.parseAudioSpecificConfig(initializationDataBytes);
+                sampleRate = aacConfig.sampleRateHz;
+                channelCount = aacConfig.channelCount;
+                codecs = aacConfig.codecs;
+              }
+              initializationData = ImmutableList.of(initializationDataBytes);
             }
-            initializationData = ImmutableList.of(initializationDataBytes);
           }
         }
       } else if (childAtomType == Atom.TYPE_dac3) {
