@@ -61,32 +61,6 @@ public final class DecodeOneFrameUtil {
   private static final int DEQUEUE_TIMEOUT_US = 5_000_000;
 
   /**
-   * Reads and decodes one frame from the {@code cacheFilePath} and renders it to the {@code
-   * surface}.
-   *
-   * @param cacheFilePath The path to the file in the cache directory.
-   * @param listener A {@link Listener} implementation.
-   * @param surface The {@link Surface} to render the decoded frame to, {@code null} if the decoded
-   *     frame is not needed.
-   * @throws IOException If the {@link MediaExtractor} or {@link MediaCodec} cannot be created.
-   */
-  public static void decodeOneCacheFileFrame(
-      String cacheFilePath, Listener listener, @Nullable Surface surface) throws IOException {
-    MediaExtractor mediaExtractor = new MediaExtractor();
-
-    try {
-      mediaExtractor.setDataSource(cacheFilePath);
-      if (surface == null) {
-        decodeOneVideoFrame(mediaExtractor, listener);
-      } else {
-        decodeOneVideoFrame(mediaExtractor, listener, surface);
-      }
-    } finally {
-      mediaExtractor.release();
-    }
-  }
-
-  /**
    * Reads and decodes one frame from the {@code assetFilePath} and renders it to the {@code
    * surface}.
    *
