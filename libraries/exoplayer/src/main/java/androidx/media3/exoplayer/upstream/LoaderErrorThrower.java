@@ -44,7 +44,7 @@ public interface LoaderErrorThrower {
   void maybeThrowError(int minRetryCount) throws IOException;
 
   /** A {@link LoaderErrorThrower} that never throws. */
-  final class Dummy implements LoaderErrorThrower {
+  final class Placeholder implements LoaderErrorThrower {
 
     @Override
     public void maybeThrowError() {

@@ -86,7 +86,7 @@ public class DefaultDashChunkSourceTest {
     DefaultDashChunkSource chunkSource =
         new DefaultDashChunkSource(
             BundledChunkExtractor.FACTORY,
-            new LoaderErrorThrower.Dummy(),
+            new LoaderErrorThrower.Placeholder(),
             manifest,
             new BaseUrlExclusionList(),
             /* periodIndex= */ 0,
@@ -136,7 +136,7 @@ public class DefaultDashChunkSourceTest {
     DefaultDashChunkSource chunkSource =
         new DefaultDashChunkSource(
             BundledChunkExtractor.FACTORY,
-            new LoaderErrorThrower.Dummy(),
+            new LoaderErrorThrower.Placeholder(),
             manifest,
             new BaseUrlExclusionList(),
             /* periodIndex= */ 0,
@@ -444,7 +444,7 @@ public class DefaultDashChunkSourceTest {
             new DefaultBandwidthMeter.Builder(ApplicationProvider.getApplicationContext()).build());
     return new DefaultDashChunkSource(
         BundledChunkExtractor.FACTORY,
-        new LoaderErrorThrower.Dummy(),
+        new LoaderErrorThrower.Placeholder(),
         manifest,
         new BaseUrlExclusionList(new Random(/* seed= */ 1234)),
         /* periodIndex= */ 0,
