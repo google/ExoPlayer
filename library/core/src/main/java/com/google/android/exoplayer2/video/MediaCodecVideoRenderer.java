@@ -608,6 +608,11 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   @Override
+  public void enableMayRenderStartOfStream() {
+    mayRenderFirstFrameAfterEnableIfNotStarted = true;
+  }
+
+  @Override
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
     super.onPositionReset(positionUs, joining);
     if (videoFrameProcessorManager.isEnabled()) {

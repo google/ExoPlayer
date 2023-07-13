@@ -465,6 +465,15 @@ public interface Renderer extends PlayerMessage.Target {
       throws ExoPlaybackException {}
 
   /**
+   * Enables this renderer to render the start of the stream even if the state is not {@link
+   * #STATE_STARTED} yet.
+   *
+   * <p>This is used to update the value of {@code mayRenderStartOfStream} passed to {@link
+   * #enable}.
+   */
+  default void enableMayRenderStartOfStream() {}
+
+  /**
    * Incrementally renders the {@link SampleStream}.
    *
    * <p>If the renderer is in the {@link #STATE_ENABLED} state then each call to this method will do

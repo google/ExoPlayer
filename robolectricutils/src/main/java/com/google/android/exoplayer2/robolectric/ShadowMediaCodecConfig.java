@@ -25,6 +25,7 @@ import android.media.MediaFormat;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -74,6 +75,10 @@ public final class ShadowMediaCodecConfig extends ExternalResource {
 
   @Override
   protected void before() throws Throwable {
+    if (Util.SDK_INT <= 19) {
+      // Codec config not supported with Robolectric on API <= 19. Skip rule set up step.
+      return;
+    }
     configureCodecs(supportedMimeTypes);
   }
 
@@ -81,6 +86,10 @@ public final class ShadowMediaCodecConfig extends ExternalResource {
   protected void after() {
     supportedMimeTypes.clear();
     MediaCodecUtil.clearDecoderInfoCache();
+    if (Util.SDK_INT <= 19) {
+      // Codec config not supported with Robolectric on API <= 19. Skip rule tear down step.
+      return;
+    }
     ShadowMediaCodecList.reset();
     ShadowMediaCodec.clearCodecs();
   }
