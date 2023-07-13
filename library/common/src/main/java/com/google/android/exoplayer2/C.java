@@ -89,13 +89,13 @@ public final class C {
   public static final int PERCENTAGE_UNSET = -1;
 
   /** The number of milliseconds in one second. */
-  public static final long MILLIS_PER_SECOND = 1000L;
+  public static final long MILLIS_PER_SECOND = 1_000L;
 
   /** The number of microseconds in one second. */
-  public static final long MICROS_PER_SECOND = 1000000L;
+  public static final long MICROS_PER_SECOND = 1_000_000L;
 
   /** The number of nanoseconds in one second. */
-  public static final long NANOS_PER_SECOND = 1000000000L;
+  public static final long NANOS_PER_SECOND = 1_000_000_000L;
 
   /** The number of bits per byte. */
   public static final int BITS_PER_BYTE = 8;
