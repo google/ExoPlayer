@@ -62,6 +62,7 @@ import static androidx.media3.test.utils.robolectric.TestPlayerRunHelper.playUnt
 import static androidx.media3.test.utils.robolectric.TestPlayerRunHelper.playUntilStartOfMediaItem;
 import static androidx.media3.test.utils.robolectric.TestPlayerRunHelper.runUntilError;
 import static androidx.media3.test.utils.robolectric.TestPlayerRunHelper.runUntilPendingCommandsAreFullyHandled;
+import static androidx.media3.test.utils.robolectric.TestPlayerRunHelper.runUntilPlayWhenReady;
 import static androidx.media3.test.utils.robolectric.TestPlayerRunHelper.runUntilPlaybackState;
 import static androidx.media3.test.utils.robolectric.TestPlayerRunHelper.runUntilPositionDiscontinuity;
 import static androidx.media3.test.utils.robolectric.TestPlayerRunHelper.runUntilSleepingForOffload;
@@ -129,6 +130,7 @@ import androidx.media3.common.util.HandlerWrapper;
 import androidx.media3.common.util.SystemClock;
 import androidx.media3.common.util.Util;
 import androidx.media3.datasource.TransferListener;
+import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.exoplayer.analytics.AnalyticsListener;
 import androidx.media3.exoplayer.audio.AudioRendererEventListener;
 import androidx.media3.exoplayer.drm.DrmSessionEventListener;
@@ -178,6 +180,7 @@ import androidx.media3.test.utils.FakeTrackSelection;
 import androidx.media3.test.utils.FakeTrackSelector;
 import androidx.media3.test.utils.FakeVideoRenderer;
 import androidx.media3.test.utils.TestExoPlayerBuilder;
+import androidx.media3.test.utils.robolectric.ShadowMediaCodecConfig;
 import androidx.media3.test.utils.robolectric.TestPlayerRunHelper;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -201,6 +204,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -227,8 +231,14 @@ public final class ExoPlayerTest {
    */
   private static final int TIMEOUT_MS = 10_000;
 
+  private static final String SAMPLE_URI = "asset://android_asset/media/mp4/sample.mp4";
+
   private Context context;
   private Timeline placeholderTimeline;
+
+  @Rule
+  public ShadowMediaCodecConfig mediaCodecConfig =
+      ShadowMediaCodecConfig.forAllSupportedMimeTypes();
 
   @Before
   public void setUp() {
@@ -12542,7 +12552,7 @@ public final class ExoPlayerTest {
     MediaItem mediaItem =
         new MediaItem.Builder()
             .setMediaId("id")
-            .setUri(Uri.parse("asset://android_asset/media/mp4/sample.mp4"))
+            .setUri(Uri.parse(SAMPLE_URI))
             .setMediaMetadata(mediaMetadata)
             .build();
     player.setMediaItem(mediaItem);
@@ -13727,6 +13737,110 @@ public final class ExoPlayerTest {
 
     assertThat(playbackSuppressionList).isEmpty();
     player.release();
+  }
+
+  @Test
+  public void pauseAtEndOfMediaItem_withSecondStreamDelayed_playsSuccessfully() throws Exception {
+    // Set allowed video joining time to zero so that the renderer is not automatically considered
+    // ready when we re-enable it at the transition.
+    ExoPlayer player =
+        new ExoPlayer.Builder(context)
+            .setRenderersFactory(
+                new DefaultRenderersFactory(context).setAllowedVideoJoiningTimeMs(0))
+            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
+            .build();
+    player.setPauseAtEndOfMediaItems(true);
+    Surface surface = new Surface(new SurfaceTexture(/* texName= */ 0));
+    player.setVideoSurface(surface);
+    player.addMediaItem(MediaItem.fromUri(SAMPLE_URI));
+    Timeline timeline = new FakeTimeline();
+    AtomicBoolean allowStreamRead = new AtomicBoolean();
+    MediaSource delayedStreamSource =
+        new FakeMediaSource(timeline, ExoPlayerTestRunner.VIDEO_FORMAT) {
+          @Override
+          protected MediaPeriod createMediaPeriod(
+              MediaPeriodId id,
+              TrackGroupArray trackGroupArray,
+              Allocator allocator,
+              MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher,
+              DrmSessionManager drmSessionManager,
+              DrmSessionEventListener.EventDispatcher drmEventDispatcher,
+              @Nullable TransferListener transferListener) {
+            long startPositionUs =
+                -timeline
+                    .getPeriodByUid(id.periodUid, new Timeline.Period())
+                    .getPositionInWindowUs();
+            // Add enough samples to the source so that the decoder can't decode everything at once.
+            return new FakeMediaPeriod(
+                trackGroupArray,
+                allocator,
+                (format, mediaPerioid) ->
+                    ImmutableList.of(
+                        oneByteSample(startPositionUs, C.BUFFER_FLAG_KEY_FRAME),
+                        oneByteSample(startPositionUs + 10_000),
+                        oneByteSample(startPositionUs + 20_000),
+                        oneByteSample(startPositionUs + 30_000),
+                        oneByteSample(startPositionUs + 40_000),
+                        oneByteSample(startPositionUs + 50_000),
+                        oneByteSample(startPositionUs + 60_000),
+                        oneByteSample(startPositionUs + 70_000),
+                        oneByteSample(startPositionUs + 80_000),
+                        oneByteSample(startPositionUs + 90_000),
+                        oneByteSample(startPositionUs + 100_000),
+                        END_OF_STREAM_ITEM),
+                mediaSourceEventDispatcher,
+                drmSessionManager,
+                drmEventDispatcher,
+                /* deferOnPrepared= */ false) {
+              @Override
+              protected FakeSampleStream createSampleStream(
+                  Allocator allocator,
+                  @Nullable MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher,
+                  DrmSessionManager drmSessionManager,
+                  DrmSessionEventListener.EventDispatcher drmEventDispatcher,
+                  Format initialFormat,
+                  List<FakeSampleStreamItem> fakeSampleStreamItems) {
+                return new FakeSampleStream(
+                    allocator,
+                    mediaSourceEventDispatcher,
+                    drmSessionManager,
+                    drmEventDispatcher,
+                    initialFormat,
+                    fakeSampleStreamItems) {
+                  @Override
+                  public int readData(
+                      FormatHolder formatHolder,
+                      DecoderInputBuffer buffer,
+                      @ReadFlags int readFlags) {
+                    return allowStreamRead.get()
+                        ? super.readData(formatHolder, buffer, readFlags)
+                        : C.RESULT_NOTHING_READ;
+                  }
+                };
+              }
+            };
+          }
+        };
+    player.addMediaSource(delayedStreamSource);
+    Player.Listener listener = mock(Player.Listener.class);
+    player.addListener(listener);
+
+    player.play();
+    player.prepare();
+    runUntilPlayWhenReady(player, /* expectedPlayWhenReady= */ false);
+    player.play();
+    runUntilPlaybackState(player, Player.STATE_BUFFERING);
+    allowStreamRead.set(true);
+    runUntilPlaybackState(player, Player.STATE_ENDED);
+    player.release();
+    surface.release();
+
+    // Verify that playback is paused at the end and buffered at the start of each item.
+    verify(listener, times(2))
+        .onPlayWhenReadyChanged(
+            /* playWhenReady= */ eq(false),
+            eq(Player.PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM));
+    verify(listener, times(2)).onPlaybackStateChanged(Player.STATE_BUFFERING);
   }
 
   // Internal methods.

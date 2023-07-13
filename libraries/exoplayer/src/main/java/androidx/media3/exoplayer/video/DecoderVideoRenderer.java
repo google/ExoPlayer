@@ -281,6 +281,11 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
   }
 
   @Override
+  public void enableMayRenderStartOfStream() {
+    mayRenderFirstFrameAfterEnableIfNotStarted = true;
+  }
+
+  @Override
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
     inputStreamEnded = false;
     outputStreamEnded = false;

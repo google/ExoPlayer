@@ -2265,7 +2265,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
               Player.DISCONTINUITY_REASON_AUTO_TRANSITION);
       resetPendingPauseAtEndOfPeriod();
       updatePlaybackPositions();
+      allowRenderersToRenderStartOfStreams();
       advancedPlayingPeriod = true;
+    }
+  }
+
+  private void allowRenderersToRenderStartOfStreams() {
+    TrackSelectorResult playingTracks = queue.getPlayingPeriod().getTrackSelectorResult();
+    for (int i = 0; i < renderers.length; i++) {
+      if (playingTracks.isRendererEnabled(i)) {
+        renderers[i].enableMayRenderStartOfStream();
+      }
     }
   }
 
