@@ -476,7 +476,7 @@ public final class DashMediaSource extends BaseMediaSource {
       manifestCallback = null;
       refreshManifestRunnable = null;
       simulateManifestRefreshRunnable = null;
-      manifestLoadErrorThrower = new LoaderErrorThrower.Dummy();
+      manifestLoadErrorThrower = new LoaderErrorThrower.Placeholder();
     } else {
       manifestCallback = new ManifestCallback();
       manifestLoadErrorThrower = new ManifestLoadErrorThrower();

@@ -407,7 +407,7 @@ public final class SsMediaSource extends BaseMediaSource
     drmSessionManager.setPlayer(/* playbackLooper= */ Looper.myLooper(), getPlayerId());
     drmSessionManager.prepare();
     if (sideloadedManifest) {
-      manifestLoaderErrorThrower = new LoaderErrorThrower.Dummy();
+      manifestLoaderErrorThrower = new LoaderErrorThrower.Placeholder();
       processManifest();
     } else {
       manifestDataSource = manifestDataSourceFactory.createDataSource();
