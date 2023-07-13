@@ -75,8 +75,6 @@ import java.util.List;
     return new SubtitleFromCuesWithTiming(cuesWithTiming);
   }
 
-  // TODO: ImmutableLongArray is no longer Beta, remove suppression when we upgrade Guava dep
-  @SuppressWarnings("UnstableApiUsage")
   private static final class SubtitleFromCuesWithTiming implements Subtitle {
 
     private final ImmutableList<ImmutableList<Cue>> cuesListForUniqueStartTimes;
@@ -84,7 +82,7 @@ import java.util.List;
 
     /** Ordering of two CuesWithTiming objects based on their startTimeUs values. */
     private static final Ordering<CuesWithTiming> CUES_BY_START_TIME_ASCENDING =
-        Ordering.natural().onResultOf(c -> c.startTimeUs);
+        Ordering.natural().onResultOf(c -> normalizeUnsetStartTimeToZero(c.startTimeUs));
 
     SubtitleFromCuesWithTiming(List<CuesWithTiming> cuesWithTimingList) {
       this.cuesStartTimesUs = new long[cuesWithTimingList.size()];
@@ -94,7 +92,8 @@ import java.util.List;
           ImmutableList.sortedCopyOf(CUES_BY_START_TIME_ASCENDING, cuesWithTimingList);
       for (int i = 0; i < sortedCuesWithTimingList.size(); i++) {
         cuesListForUniqueStartTimes.add(sortedCuesWithTimingList.get(i).cues);
-        cuesStartTimesUs[i] = sortedCuesWithTimingList.get(i).startTimeUs;
+        cuesStartTimesUs[i] =
+            normalizeUnsetStartTimeToZero(sortedCuesWithTimingList.get(i).startTimeUs);
       }
       this.cuesListForUniqueStartTimes = cuesListForUniqueStartTimes.build();
     }
@@ -134,6 +133,14 @@ import java.util.List;
       } else {
         return cuesListForUniqueStartTimes.get(index);
       }
+    }
+
+    // SubtitleParser can return CuesWithTiming with startTimeUs == TIME_UNSET, indicating the
+    // start time should be derived from the surrounding sample timestamp. In the context of the
+    // Subtitle interface, this means starting at zero, so we can just always interpret TIME_UNSET
+    // as zero here.
+    private static long normalizeUnsetStartTimeToZero(long startTime) {
+      return startTime == C.TIME_UNSET ? 0 : startTime;
     }
   }
 }

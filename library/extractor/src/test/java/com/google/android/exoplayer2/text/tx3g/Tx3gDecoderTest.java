@@ -79,6 +79,17 @@ public final class Tx3gDecoderTest {
   }
 
   @Test
+  public void decode_noCuesBeforeStartTIme() throws Exception {
+    Tx3gDecoder decoder = new Tx3gDecoder(ImmutableList.of());
+    byte[] bytes =
+        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_JUST_TEXT);
+
+    Subtitle subtitle = decoder.decode(bytes, bytes.length, /* reset= */ false);
+
+    assertThat(subtitle.getCues(/* timeUs= */ -1)).isEmpty();
+  }
+
+  @Test
   public void decodeWithStyl() throws Exception {
     Tx3gDecoder decoder = new Tx3gDecoder(ImmutableList.of());
     byte[] bytes =
