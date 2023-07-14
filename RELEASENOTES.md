@@ -311,13 +311,6 @@ This release contains the following changes since the
     *   Add "seek to previous" and "seek to next" command buttons on compact
         media notification view by default for Android 12 and below
         ([#410](https://github.com/androidx/media/issues/410)).
-    *   Add default implementation to `MediaSession.Callback.onAddMediaItems` to
-        allow requested `MediaItems` to be passed onto `Player` if they have
-        `LocalConfiguration` (e.g. URI)
-        ([#282](https://github.com/androidx/media/issues/282)).
-    *   Add "seek to previous" and "seek to next" command buttons on compact
-        media notification view by default for Android 12 and below
-        ([#410](https://github.com/androidx/media/issues/410)).
 *   UI:
     *   Add Util methods `shouldShowPlayButton` and
         `handlePlayPauseButtonAction` to write custom UI elements with a
