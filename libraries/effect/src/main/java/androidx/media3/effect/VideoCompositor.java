@@ -21,6 +21,7 @@ import static androidx.media3.common.util.Assertions.checkState;
 import android.content.Context;
 import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
+import android.opengl.EGLSurface;
 import android.opengl.GLES20;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntRange;
@@ -52,6 +53,7 @@ public final class VideoCompositor {
   //  * Handle mismatched timestamps
   //  * Before allowing customization of this class, add an interface, and rename this class to
   //    DefaultCompositor.
+  //  * Use a lock to synchronize inputFrameInfos more narrowly, to reduce blocking.
 
   /** Listener for errors. */
   public interface ErrorListener {
@@ -79,11 +81,13 @@ public final class VideoCompositor {
   private final List<Queue<InputFrameInfo>> inputFrameInfos;
 
   private final TexturePool outputTexturePool;
+  private final Queue<Long> outputTextureTimestamps; // Synchronized with outputTexturePool.
+  private final Queue<Long> syncObjects; // Synchronized with outputTexturePool.
   // Only used on the GL Thread.
   private @MonotonicNonNull EGLContext eglContext;
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull GlProgram glProgram;
-  private long syncObject;
+  private @MonotonicNonNull EGLSurface placeholderEglSurface;
 
   /**
    * Creates an instance.
@@ -105,6 +109,8 @@ public final class VideoCompositor {
     inputFrameInfos = new ArrayList<>();
     outputTexturePool =
         new TexturePool(/* useHighPrecisionColorComponents= */ false, textureOutputCapacity);
+    outputTextureTimestamps = new ArrayDeque<>(textureOutputCapacity);
+    syncObjects = new ArrayDeque<>(textureOutputCapacity);
 
     boolean ownsExecutor = executorService == null;
     ExecutorService instanceExecutorService =
@@ -142,13 +148,7 @@ public final class VideoCompositor {
     InputFrameInfo inputFrameInfo =
         new InputFrameInfo(inputTexture, presentationTimeUs, releaseTextureCallback);
     checkNotNull(inputFrameInfos.get(inputId)).add(inputFrameInfo);
-
-    videoFrameProcessingTaskExecutor.submit(
-        () -> {
-          if (isReadyToComposite()) {
-            compositeToOutputTexture();
-          }
-        });
+    videoFrameProcessingTaskExecutor.submit(this::maybeComposite);
   }
 
   public void release() {
@@ -162,25 +162,19 @@ public final class VideoCompositor {
 
   // Below methods must be called on the GL thread.
   private void setupGlObjects() throws GlUtil.GlException {
-    EGLDisplay eglDisplay = GlUtil.getDefaultEglDisplay();
-    EGLContext eglContext =
+    eglDisplay = GlUtil.getDefaultEglDisplay();
+    eglContext =
         glObjectsProvider.createEglContext(
             eglDisplay, /* openGlVersion= */ 2, GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_8888);
-    glObjectsProvider.createFocusedPlaceholderEglSurface(eglContext, eglDisplay);
+    placeholderEglSurface =
+        glObjectsProvider.createFocusedPlaceholderEglSurface(eglContext, eglDisplay);
   }
 
-  private synchronized boolean isReadyToComposite() {
-    // TODO: b/262694346 - Use timestamps to determine when to composite instead of number of
-    //  frames.
-    for (int inputId = 0; inputId < inputFrameInfos.size(); inputId++) {
-      if (checkNotNull(inputFrameInfos.get(inputId)).isEmpty()) {
-        return false;
-      }
+  private synchronized void maybeComposite() throws VideoFrameProcessingException {
+    if (!isReadyToComposite()) {
+      return;
     }
-    return true;
-  }
 
-  private synchronized void compositeToOutputTexture() throws VideoFrameProcessingException {
     List<InputFrameInfo> framesToComposite = new ArrayList<>();
     for (int inputId = 0; inputId < inputFrameInfos.size(); inputId++) {
       framesToComposite.add(checkNotNull(inputFrameInfos.get(inputId)).remove());
@@ -199,25 +193,53 @@ public final class VideoCompositor {
       outputTexturePool.ensureConfigured(
           glObjectsProvider, inputFrame1.texture.width, inputFrame1.texture.height);
       GlTextureInfo outputTexture = outputTexturePool.useTexture();
+      long outputPresentationTimestampUs = framesToComposite.get(0).presentationTimeUs;
+      outputTextureTimestamps.add(outputPresentationTimestampUs);
 
       drawFrame(inputFrame1.texture, inputFrame2.texture, outputTexture);
-      syncObject = GlUtil.createGlSyncFence();
-
+      long syncObject = GlUtil.createGlSyncFence();
+      syncObjects.add(syncObject);
+      textureOutputListener.onTextureRendered(
+          outputTexture,
+          /* presentationTimeUs= */ framesToComposite.get(0).presentationTimeUs,
+          this::releaseOutputFrame,
+          syncObject);
       for (int i = 0; i < framesToComposite.size(); i++) {
         InputFrameInfo inputFrameInfo = framesToComposite.get(i);
         inputFrameInfo.releaseCallback.release(inputFrameInfo.presentationTimeUs);
       }
-
-      // TODO: b/262694346 - Use presentationTimeUs here for freeing textures.
-      textureOutputListener.onTextureRendered(
-          checkNotNull(outputTexture),
-          /* presentationTimeUs= */ framesToComposite.get(0).presentationTimeUs,
-          (presentationTimeUs) ->
-              videoFrameProcessingTaskExecutor.submit(outputTexturePool::freeTexture),
-          syncObject);
     } catch (GlUtil.GlException e) {
       throw VideoFrameProcessingException.from(e);
     }
+  }
+
+  private synchronized boolean isReadyToComposite() {
+    if (outputTexturePool.freeTextureCount() == 0) {
+      return false;
+    }
+    // TODO: b/262694346 - Use timestamps to determine when to composite instead of number of
+    //  frames.
+    for (int inputId = 0; inputId < inputFrameInfos.size(); inputId++) {
+      if (checkNotNull(inputFrameInfos.get(inputId)).isEmpty()) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private void releaseOutputFrame(long presentationTimeUs) {
+    videoFrameProcessingTaskExecutor.submit(() -> releaseOutputFrameInternal(presentationTimeUs));
+  }
+
+  private synchronized void releaseOutputFrameInternal(long presentationTimeUs)
+      throws VideoFrameProcessingException, GlUtil.GlException {
+    while (outputTexturePool.freeTextureCount() < outputTexturePool.capacity()
+        && checkNotNull(outputTextureTimestamps.peek()) <= presentationTimeUs) {
+      outputTexturePool.freeTexture();
+      outputTextureTimestamps.remove();
+      GlUtil.deleteSyncObject(syncObjects.remove());
+    }
+    maybeComposite();
   }
 
   private void ensureGlProgramConfigured() throws VideoFrameProcessingException {
@@ -262,10 +284,11 @@ public final class VideoCompositor {
   private void releaseGlObjects() {
     try {
       outputTexturePool.deleteAllTextures();
+      GlUtil.destroyEglSurface(eglDisplay, placeholderEglSurface);
       if (glProgram != null) {
         glProgram.delete();
       }
-    } catch (Exception e) {
+    } catch (GlUtil.GlException e) {
       Log.e(TAG, "Error releasing GL resources", e);
     } finally {
       try {
