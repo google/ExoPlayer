@@ -408,7 +408,11 @@ public final class GlUtil {
     return syncObject;
   }
 
-  /** Releases the underlying native object. */
+  /**
+   * Deletes the underlying native object.
+   *
+   * <p>The {@code syncObject} must not be used after deletion.
+   */
   public static void deleteSyncObject(long syncObject) throws GlException {
     GLES30.glDeleteSync(syncObject);
     checkGlError();

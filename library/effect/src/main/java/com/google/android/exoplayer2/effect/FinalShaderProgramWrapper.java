@@ -219,6 +219,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     throw new UnsupportedOperationException();
   }
 
+  private void releaseOutputFrame(long presentationTimeUs) {
+    videoFrameProcessingTaskExecutor.submit(() -> releaseOutputFrameInternal(presentationTimeUs));
+  }
+
+  private void releaseOutputFrameInternal(long presentationTimeUs) throws GlUtil.GlException {
+    while (outputTexturePool.freeTextureCount() < outputTexturePool.capacity()
+        && checkNotNull(outputTextureTimestamps.peek()) <= presentationTimeUs) {
+      outputTexturePool.freeTexture();
+      outputTextureTimestamps.remove();
+      GlUtil.deleteSyncObject(syncObjects.remove());
+      maybeOnReadyToAcceptInputFrame();
+    }
+  }
+
   /**
    * Sets the list of {@link GlMatrixTransformation GlMatrixTransformations} and list of {@link
    * RgbMatrix RgbMatrices} to apply to the next {@linkplain #queueInputFrame queued} frame.
@@ -233,20 +247,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.rgbMatrices.clear();
     this.rgbMatrices.addAll(rgbMatrices);
     matrixTransformationsChanged = true;
-  }
-
-  public void releaseOutputFrame(long presentationTimeUs) {
-    videoFrameProcessingTaskExecutor.submit(() -> releaseOutputFrameInternal(presentationTimeUs));
-  }
-
-  private void releaseOutputFrameInternal(long presentationTimeUs) throws GlUtil.GlException {
-    while (outputTexturePool.freeTextureCount() < outputTexturePool.capacity()
-        && checkNotNull(outputTextureTimestamps.peek()) <= presentationTimeUs) {
-      outputTexturePool.freeTexture();
-      outputTextureTimestamps.remove();
-      GlUtil.deleteSyncObject(syncObjects.remove());
-      maybeOnReadyToAcceptInputFrame();
-    }
   }
 
   @Override

@@ -96,9 +96,7 @@ public final class VideoCompositorPixelTest {
             testId,
             (outputTexture, presentationTimeUs, releaseOutputTextureCallback, syncObject) -> {
               try {
-                if (useSharedExecutor) {
-                  GlUtil.deleteSyncObject(syncObject);
-                } else {
+                if (!useSharedExecutor) {
                   GlUtil.awaitSyncObject(syncObject);
                 }
                 compositedOutputBitmap.set(
@@ -146,9 +144,7 @@ public final class VideoCompositorPixelTest {
             testId,
             (outputTexture, presentationTimeUs, releaseOutputTextureCallback, syncObject) -> {
               try {
-                if (useSharedExecutor) {
-                  GlUtil.deleteSyncObject(syncObject);
-                } else {
+                if (!useSharedExecutor) {
                   GlUtil.awaitSyncObject(syncObject);
                 }
                 if (compositedFirstOutputBitmap.get() == null) {
