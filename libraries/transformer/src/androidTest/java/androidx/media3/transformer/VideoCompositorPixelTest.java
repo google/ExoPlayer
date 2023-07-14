@@ -44,10 +44,10 @@ import androidx.media3.test.utils.VideoFrameProcessorTestRunner;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -114,16 +114,14 @@ public final class VideoCompositorPixelTest {
 
     videoCompositorTestRunner.queueBitmapsToBothInputs(/* count= */ 1);
 
-    Bitmap actualCompositorInputBitmap1 = videoCompositorTestRunner.inputBitmapReader1.getBitmap();
     saveAndAssertBitmapMatchesExpected(
         testId,
-        actualCompositorInputBitmap1,
+        videoCompositorTestRunner.inputBitmapReader1.getBitmap(),
         /* actualBitmapLabel= */ "actualCompositorInputBitmap1",
         GRAYSCALE_PNG_ASSET_PATH);
-    Bitmap actualCompositorInputBitmap2 = videoCompositorTestRunner.inputBitmapReader2.getBitmap();
     saveAndAssertBitmapMatchesExpected(
         testId,
-        actualCompositorInputBitmap2,
+        videoCompositorTestRunner.inputBitmapReader2.getBitmap(),
         /* actualBitmapLabel= */ "actualCompositorInputBitmap2",
         ROTATE180_PNG_ASSET_PATH);
     saveAndAssertBitmapMatchesExpected(
@@ -176,13 +174,59 @@ public final class VideoCompositorPixelTest {
             2L * C.MICROS_PER_SECOND,
             3L * C.MICROS_PER_SECOND,
             4L * C.MICROS_PER_SECOND);
-    Set<Long> inputTimestampsSource1 =
-        videoCompositorTestRunner.inputBitmapReader1.getOutputTimestamps();
-    assertThat(inputTimestampsSource1).containsExactlyElementsIn(expectedTimestamps).inOrder();
-    Set<Long> inputTimestampsSource2 =
-        videoCompositorTestRunner.inputBitmapReader2.getOutputTimestamps();
-    assertThat(inputTimestampsSource2).containsExactlyElementsIn(expectedTimestamps).inOrder();
+    assertThat(videoCompositorTestRunner.inputBitmapReader1.getOutputTimestamps())
+        .containsExactlyElementsIn(expectedTimestamps)
+        .inOrder();
+    assertThat(videoCompositorTestRunner.inputBitmapReader2.getOutputTimestamps())
+        .containsExactlyElementsIn(expectedTimestamps)
+        .inOrder();
     assertThat(compositorTimestamps).containsExactlyElementsIn(expectedTimestamps).inOrder();
+    saveAndAssertBitmapMatchesExpected(
+        testId,
+        compositedFirstOutputBitmap.get(),
+        /* actualBitmapLabel= */ "compositorOutputBitmap",
+        GRAYSCALE_AND_ROTATE180_COMPOSITE_PNG_ASSET_PATH);
+  }
+
+  @Test
+  public void compositeTwoInputs_withTenFramesFromEach_matchesExpectedFrameCount()
+      throws Exception {
+    String testId =
+        "compositeTwoInputs_withTenFramesFromEach_matchesExpectedFrameCount[useSharedExecutor="
+            + useSharedExecutor
+            + "]";
+    AtomicInteger compositedFrameCount = new AtomicInteger();
+    AtomicReference<Bitmap> compositedFirstOutputBitmap = new AtomicReference<>();
+    videoCompositorTestRunner =
+        new VideoCompositorTestRunner(
+            testId,
+            (outputTexture, presentationTimeUs, releaseOutputTextureCallback, syncObject) -> {
+              try {
+                if (!useSharedExecutor) {
+                  GlUtil.awaitSyncObject(syncObject);
+                }
+                if (compositedFirstOutputBitmap.get() == null) {
+                  compositedFirstOutputBitmap.set(
+                      BitmapPixelTestUtil.createArgb8888BitmapFromFocusedGlFramebuffer(
+                          outputTexture.width, outputTexture.height));
+                }
+                compositedFrameCount.incrementAndGet();
+              } catch (GlUtil.GlException e) {
+                throw VideoFrameProcessingException.from(e);
+              } finally {
+                releaseOutputTextureCallback.release(presentationTimeUs);
+              }
+            },
+            useSharedExecutor);
+    int numberOfFramesToQueue = 10;
+
+    videoCompositorTestRunner.queueBitmapsToBothInputs(numberOfFramesToQueue);
+
+    assertThat(videoCompositorTestRunner.inputBitmapReader1.getOutputTimestamps())
+        .hasSize(numberOfFramesToQueue);
+    assertThat(videoCompositorTestRunner.inputBitmapReader2.getOutputTimestamps())
+        .hasSize(numberOfFramesToQueue);
+    assertThat(compositedFrameCount.get()).isEqualTo(numberOfFramesToQueue);
     saveAndAssertBitmapMatchesExpected(
         testId,
         compositedFirstOutputBitmap.get(),
