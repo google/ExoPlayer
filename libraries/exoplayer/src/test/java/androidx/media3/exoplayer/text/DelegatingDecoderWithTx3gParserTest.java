@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.media3.extractor.text.tx3g;
+package androidx.media3.exoplayer.text;
 
 import static androidx.media3.test.utils.truth.SpannedSubject.assertThat;
 import static com.google.common.truth.Truth.assertThat;
@@ -23,6 +23,7 @@ import android.text.SpannedString;
 import androidx.media3.common.C;
 import androidx.media3.common.text.Cue;
 import androidx.media3.extractor.text.Subtitle;
+import androidx.media3.extractor.text.tx3g.Tx3gParser;
 import androidx.media3.test.utils.TestUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -31,10 +32,9 @@ import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Unit test for {@link Tx3gDecoder}. */
+/** Unit test for a {@link DelegatingSubtitleDecoder} backed by {@link Tx3gParser}. */
 @RunWith(AndroidJUnit4.class)
-public final class Tx3gDecoderTest {
-
+public final class DelegatingDecoderWithTx3gParserTest {
   private static final String NO_SUBTITLE = "media/tx3g/no_subtitle";
   private static final String SAMPLE_JUST_TEXT = "media/tx3g/sample_just_text";
   private static final String SAMPLE_WITH_STYL = "media/tx3g/sample_with_styl";
@@ -56,7 +56,8 @@ public final class Tx3gDecoderTest {
 
   @Test
   public void decodeNoSubtitle() throws Exception {
-    Tx3gDecoder decoder = new Tx3gDecoder(ImmutableList.of());
+    DelegatingSubtitleDecoder decoder =
+        new DelegatingSubtitleDecoder("TestTx3g", new Tx3gParser(ImmutableList.of()));
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), NO_SUBTITLE);
 
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
@@ -66,7 +67,8 @@ public final class Tx3gDecoderTest {
 
   @Test
   public void decodeJustText() throws Exception {
-    Tx3gDecoder decoder = new Tx3gDecoder(ImmutableList.of());
+    DelegatingSubtitleDecoder decoder =
+        new DelegatingSubtitleDecoder("TestTx3g", new Tx3gParser(ImmutableList.of()));
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_JUST_TEXT);
 
@@ -80,7 +82,8 @@ public final class Tx3gDecoderTest {
 
   @Test
   public void decode_noCuesBeforeStartTIme() throws Exception {
-    Tx3gDecoder decoder = new Tx3gDecoder(ImmutableList.of());
+    DelegatingSubtitleDecoder decoder =
+        new DelegatingSubtitleDecoder("TestTx3g", new Tx3gParser(ImmutableList.of()));
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_JUST_TEXT);
 
@@ -91,7 +94,8 @@ public final class Tx3gDecoderTest {
 
   @Test
   public void decodeWithStyl() throws Exception {
-    Tx3gDecoder decoder = new Tx3gDecoder(ImmutableList.of());
+    DelegatingSubtitleDecoder decoder =
+        new DelegatingSubtitleDecoder("TestTx3g", new Tx3gParser(ImmutableList.of()));
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_WITH_STYL);
 
@@ -114,7 +118,8 @@ public final class Tx3gDecoderTest {
    */
   @Test
   public void decodeWithStyl_startTooLarge_noSpanAdded() throws Exception {
-    Tx3gDecoder decoder = new Tx3gDecoder(ImmutableList.of());
+    DelegatingSubtitleDecoder decoder =
+        new DelegatingSubtitleDecoder("TestTx3g", new Tx3gParser(ImmutableList.of()));
     byte[] bytes =
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(), SAMPLE_WITH_STYL_START_TOO_LARGE);
@@ -136,7 +141,8 @@ public final class Tx3gDecoderTest {
    */
   @Test
   public void decodeWithStyl_endTooLarge_clippedToEndOfText() throws Exception {
-    Tx3gDecoder decoder = new Tx3gDecoder(ImmutableList.of());
+    DelegatingSubtitleDecoder decoder =
+        new DelegatingSubtitleDecoder("TestTx3g", new Tx3gParser(ImmutableList.of()));
     byte[] bytes =
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(), SAMPLE_WITH_STYL_END_TOO_LARGE);
@@ -153,7 +159,8 @@ public final class Tx3gDecoderTest {
 
   @Test
   public void decodeWithStylAllDefaults() throws Exception {
-    Tx3gDecoder decoder = new Tx3gDecoder(ImmutableList.of());
+    DelegatingSubtitleDecoder decoder =
+        new DelegatingSubtitleDecoder("TestTx3g", new Tx3gParser(ImmutableList.of()));
     byte[] bytes =
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(), SAMPLE_WITH_STYL_ALL_DEFAULTS);
@@ -168,7 +175,8 @@ public final class Tx3gDecoderTest {
 
   @Test
   public void decodeUtf16BeNoStyl() throws Exception {
-    Tx3gDecoder decoder = new Tx3gDecoder(ImmutableList.of());
+    DelegatingSubtitleDecoder decoder =
+        new DelegatingSubtitleDecoder("TestTx3g", new Tx3gParser(ImmutableList.of()));
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_UTF16_BE_NO_STYL);
 
@@ -182,7 +190,8 @@ public final class Tx3gDecoderTest {
 
   @Test
   public void decodeUtf16LeNoStyl() throws Exception {
-    Tx3gDecoder decoder = new Tx3gDecoder(ImmutableList.of());
+    DelegatingSubtitleDecoder decoder =
+        new DelegatingSubtitleDecoder("TestTx3g", new Tx3gParser(ImmutableList.of()));
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_UTF16_LE_NO_STYL);
     Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
@@ -196,7 +205,8 @@ public final class Tx3gDecoderTest {
 
   @Test
   public void decodeWithMultipleStyl() throws Exception {
-    Tx3gDecoder decoder = new Tx3gDecoder(ImmutableList.of());
+    DelegatingSubtitleDecoder decoder =
+        new DelegatingSubtitleDecoder("TestTx3g", new Tx3gParser(ImmutableList.of()));
     byte[] bytes =
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(), SAMPLE_WITH_MULTIPLE_STYL);
@@ -214,7 +224,8 @@ public final class Tx3gDecoderTest {
 
   @Test
   public void decodeWithOtherExtension() throws Exception {
-    Tx3gDecoder decoder = new Tx3gDecoder(ImmutableList.of());
+    DelegatingSubtitleDecoder decoder =
+        new DelegatingSubtitleDecoder("TestTx3g", new Tx3gParser(ImmutableList.of()));
     byte[] bytes =
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(), SAMPLE_WITH_OTHER_EXTENSION);
@@ -232,7 +243,9 @@ public final class Tx3gDecoderTest {
   public void initializationDecodeWithStyl() throws Exception {
     byte[] initBytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), INITIALIZATION);
-    Tx3gDecoder decoder = new Tx3gDecoder(Collections.singletonList(initBytes));
+    DelegatingSubtitleDecoder decoder =
+        new DelegatingSubtitleDecoder(
+            "TestTx3g", new Tx3gParser(Collections.singletonList(initBytes)));
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_WITH_STYL);
 
@@ -243,7 +256,7 @@ public final class Tx3gDecoderTest {
     assertThat(text).hasBoldItalicSpanBetween(0, 7);
     assertThat(text).hasUnderlineSpanBetween(0, 7);
     assertThat(text).hasTypefaceSpanBetween(0, 7).withFamily(C.SERIF_NAME);
-    // TODO(internal b/171984212): Fix Tx3gDecoder to avoid overlapping spans of the same type.
+    // TODO(internal b/171984212): Fix Tx3gParser to avoid overlapping spans of the same type.
     assertThat(text).hasForegroundColorSpanBetween(0, 7).withColor(Color.RED);
     assertThat(text).hasForegroundColorSpanBetween(0, 6).withColor(Color.GREEN);
     assertFractionalLinePosition(subtitle.getCues(0).get(0), 0.1f);
@@ -253,7 +266,9 @@ public final class Tx3gDecoderTest {
   public void initializationDecodeWithTbox() throws Exception {
     byte[] initBytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), INITIALIZATION);
-    Tx3gDecoder decoder = new Tx3gDecoder(Collections.singletonList(initBytes));
+    DelegatingSubtitleDecoder decoder =
+        new DelegatingSubtitleDecoder(
+            "TestTx3g", new Tx3gParser(Collections.singletonList(initBytes)));
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_WITH_TBOX);
 
@@ -273,7 +288,9 @@ public final class Tx3gDecoderTest {
     byte[] initBytes =
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(), INITIALIZATION_ALL_DEFAULTS);
-    Tx3gDecoder decoder = new Tx3gDecoder(Collections.singletonList(initBytes));
+    DelegatingSubtitleDecoder decoder =
+        new DelegatingSubtitleDecoder(
+            "TestTx3g", new Tx3gParser(Collections.singletonList(initBytes)));
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_WITH_STYL);
 

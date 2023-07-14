@@ -17,6 +17,7 @@ package androidx.media3.extractor.text.tx3g;
 
 import static androidx.media3.common.text.Cue.ANCHOR_TYPE_START;
 import static androidx.media3.common.text.Cue.LINE_TYPE_FRACTION;
+import static androidx.media3.common.util.Assertions.checkArgument;
 
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -33,22 +34,22 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
-import androidx.media3.extractor.text.SimpleSubtitleDecoder;
-import androidx.media3.extractor.text.Subtitle;
-import androidx.media3.extractor.text.SubtitleDecoderException;
+import androidx.media3.extractor.text.CuesWithTiming;
+import androidx.media3.extractor.text.SubtitleParser;
 import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableList;
 import java.nio.charset.Charset;
 import java.util.List;
 
 /**
- * A {@link SimpleSubtitleDecoder} for tx3g.
+ * A {@link SubtitleParser} for tx3g.
  *
  * <p>Currently supports parsing of a single text track with embedded styles.
  */
 @UnstableApi
-public final class Tx3gDecoder extends SimpleSubtitleDecoder {
+public final class Tx3gParser implements SubtitleParser {
 
-  private static final String TAG = "Tx3gDecoder";
+  private static final String TAG = "Tx3gParser";
 
   private static final int TYPE_STYL = 0x7374796c;
   private static final int TYPE_TBOX = 0x74626f78;
@@ -78,14 +79,14 @@ public final class Tx3gDecoder extends SimpleSubtitleDecoder {
   private final String defaultFontFamily;
   private final float defaultVerticalPlacement;
   private final int calculatedVideoTrackHeight;
+  private byte[] dataScratch = Util.EMPTY_BYTE_ARRAY;
 
   /**
-   * Sets up a new {@link Tx3gDecoder} with default values.
+   * Sets up a new {@link Tx3gParser} with default values.
    *
    * @param initializationData Sample description atom ('stsd') data with default subtitle styles.
    */
-  public Tx3gDecoder(List<byte[]> initializationData) {
-    super("Tx3gDecoder");
+  public Tx3gParser(List<byte[]> initializationData) {
     parsableByteArray = new ParsableByteArray();
 
     if (initializationData.size() == 1
@@ -123,12 +124,27 @@ public final class Tx3gDecoder extends SimpleSubtitleDecoder {
   }
 
   @Override
-  protected Subtitle decode(byte[] data, int length, boolean reset)
-      throws SubtitleDecoderException {
-    parsableByteArray.reset(data, length);
+  public void reset() {}
+
+  @Override
+  public ImmutableList<CuesWithTiming> parse(byte[] data, int offset, int length) {
+    if (offset != 0) {
+      if (dataScratch.length < length) {
+        dataScratch = new byte[length];
+      }
+      System.arraycopy(
+          /* src= */ data, /* scrPos= */ offset, /* dest= */ dataScratch, /* destPos= */ 0, length);
+      parsableByteArray.reset(dataScratch, length);
+    } else {
+      parsableByteArray.reset(data, length);
+    }
     String cueTextString = readSubtitleText(parsableByteArray);
     if (cueTextString.isEmpty()) {
-      return Tx3gSubtitle.EMPTY;
+      return ImmutableList.of(
+          new CuesWithTiming(
+              /* cues= */ ImmutableList.of(),
+              /* startTimeUs= */ C.TIME_UNSET,
+              /* durationUs= */ C.TIME_UNSET));
     }
     // Attach default styles.
     SpannableStringBuilder cueText = new SpannableStringBuilder(cueTextString);
@@ -143,30 +159,34 @@ public final class Tx3gDecoder extends SimpleSubtitleDecoder {
       int atomSize = parsableByteArray.readInt();
       int atomType = parsableByteArray.readInt();
       if (atomType == TYPE_STYL) {
-        assertTrue(parsableByteArray.bytesLeft() >= SIZE_SHORT);
+        checkArgument(parsableByteArray.bytesLeft() >= SIZE_SHORT);
         int styleRecordCount = parsableByteArray.readUnsignedShort();
         for (int i = 0; i < styleRecordCount; i++) {
           applyStyleRecord(parsableByteArray, cueText);
         }
       } else if (atomType == TYPE_TBOX && customVerticalPlacement) {
-        assertTrue(parsableByteArray.bytesLeft() >= SIZE_SHORT);
+        checkArgument(parsableByteArray.bytesLeft() >= SIZE_SHORT);
         int requestedVerticalPlacement = parsableByteArray.readUnsignedShort();
         verticalPlacement = (float) requestedVerticalPlacement / calculatedVideoTrackHeight;
         verticalPlacement = Util.constrainValue(verticalPlacement, 0.0f, 0.95f);
       }
       parsableByteArray.setPosition(position + atomSize);
     }
-    return new Tx3gSubtitle(
+    Cue cue =
         new Cue.Builder()
             .setText(cueText)
             .setLine(verticalPlacement, LINE_TYPE_FRACTION)
             .setLineAnchor(ANCHOR_TYPE_START)
-            .build());
+            .build();
+    return ImmutableList.of(
+        new CuesWithTiming(
+            ImmutableList.of(cue),
+            /* startTimeUs= */ C.TIME_UNSET,
+            /* durationUs= */ C.TIME_UNSET));
   }
 
-  private static String readSubtitleText(ParsableByteArray parsableByteArray)
-      throws SubtitleDecoderException {
-    assertTrue(parsableByteArray.bytesLeft() >= SIZE_SHORT);
+  private static String readSubtitleText(ParsableByteArray parsableByteArray) {
+    checkArgument(parsableByteArray.bytesLeft() >= SIZE_SHORT);
     int textLength = parsableByteArray.readUnsignedShort();
     if (textLength == 0) {
       return "";
@@ -178,9 +198,9 @@ public final class Tx3gDecoder extends SimpleSubtitleDecoder {
         textLength - bomSize, charset != null ? charset : Charsets.UTF_8);
   }
 
-  private void applyStyleRecord(ParsableByteArray parsableByteArray, SpannableStringBuilder cueText)
-      throws SubtitleDecoderException {
-    assertTrue(parsableByteArray.bytesLeft() >= SIZE_STYLE_RECORD);
+  private void applyStyleRecord(
+      ParsableByteArray parsableByteArray, SpannableStringBuilder cueText) {
+    checkArgument(parsableByteArray.bytesLeft() >= SIZE_STYLE_RECORD);
     int start = parsableByteArray.readUnsignedShort();
     int end = parsableByteArray.readUnsignedShort();
     parsableByteArray.skipBytes(2); // font identifier
@@ -251,18 +271,12 @@ public final class Tx3gDecoder extends SimpleSubtitleDecoder {
   @SuppressWarnings("ReferenceEquality")
   private static void attachFontFamily(
       SpannableStringBuilder cueText, String fontFamily, int start, int end) {
-    if (fontFamily != Tx3gDecoder.DEFAULT_FONT_FAMILY) {
+    if (fontFamily != Tx3gParser.DEFAULT_FONT_FAMILY) {
       cueText.setSpan(
           new TypefaceSpan(fontFamily),
           start,
           end,
-          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE | Tx3gDecoder.SPAN_PRIORITY_LOW);
-    }
-  }
-
-  private static void assertTrue(boolean checkValue) throws SubtitleDecoderException {
-    if (!checkValue) {
-      throw new SubtitleDecoderException("Unexpected subtitle format.");
+          Spanned.SPAN_EXCLUSIVE_EXCLUSIVE | Tx3gParser.SPAN_PRIORITY_LOW);
     }
   }
 }
