@@ -35,6 +35,7 @@ import android.opengl.Matrix;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Size;
@@ -71,6 +72,8 @@ public class OverlayShaderProgramPixelTest {
       "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_bitmap_translucent.png";
   private static final String OVERLAY_TEXT_DEFAULT =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_text_default.png";
+  private static final String OVERLAY_TEXT_SPAN_SCALED =
+      "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_text_span_scaled.png";
   private static final String OVERLAY_TEXT_TRANSLATE =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_text_translate.png";
   private static final String OVERLAY_MULTIPLE =
@@ -291,6 +294,33 @@ public class OverlayShaderProgramPixelTest {
     Size outputSize = overlayShaderProgram.configure(inputWidth, inputHeight);
     setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
     Bitmap expectedBitmap = readBitmap(OVERLAY_TEXT_DEFAULT);
+
+    overlayShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    Bitmap actualBitmap =
+        createArgb8888BitmapFromFocusedGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
+
+    maybeSaveTestBitmap(testId, /* bitmapLabel= */ "actual", actualBitmap, /* path= */ null);
+    float averagePixelAbsoluteDifference =
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
+  public void drawFrame_textOverlayWithRelativeScaleSpan_blendsTextIntoFrame() throws Exception {
+    String testId = "drawFrame_textOverlayWithRelativeScaleSpan";
+    SpannableString overlayText = new SpannableString(/* source= */ "helllllloooo!!!");
+    overlayText.setSpan(
+        new RelativeSizeSpan(2f),
+        /* start= */ 0,
+        /* end= */ overlayText.length(),
+        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+    TextOverlay staticTextOverlay = TextOverlay.createStaticTextOverlay(overlayText);
+    overlayShaderProgram =
+        new OverlayEffect(ImmutableList.of(staticTextOverlay))
+            .toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = overlayShaderProgram.configure(inputWidth, inputHeight);
+    setupOutputTexture(outputSize.getWidth(), outputSize.getHeight());
+    Bitmap expectedBitmap = readBitmap(OVERLAY_TEXT_SPAN_SCALED);
 
     overlayShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
