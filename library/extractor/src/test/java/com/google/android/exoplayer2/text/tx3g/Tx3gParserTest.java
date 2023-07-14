@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,15 +25,16 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.text.Subtitle;
+import com.google.android.exoplayer2.text.CuesWithTiming;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Unit test for {@link Tx3gDecoder}. */
+/** Unit test for {@link Tx3gParser}. */
 @RunWith(AndroidJUnit4.class)
-public final class Tx3gDecoderTest {
+public final class Tx3gParserTest {
 
   private static final String NO_SUBTITLE = "media/tx3g/no_subtitle";
   private static final String SAMPLE_JUST_TEXT = "media/tx3g/sample_just_text";
@@ -55,54 +56,51 @@ public final class Tx3gDecoderTest {
       "media/tx3g/initialization_all_defaults";
 
   @Test
-  public void decodeNoSubtitle() throws Exception {
-    Tx3gDecoder decoder = new Tx3gDecoder(ImmutableList.of());
+  public void parseNoSubtitle() throws Exception {
+    Tx3gParser parser = new Tx3gParser(ImmutableList.of());
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), NO_SUBTITLE);
 
-    Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
+    CuesWithTiming cuesWithTiming = Iterables.getOnlyElement(parser.parse(bytes));
 
-    assertThat(subtitle.getCues(0)).isEmpty();
+    assertThat(cuesWithTiming.cues).isEmpty();
+    assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
+    assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
   }
 
   @Test
-  public void decodeJustText() throws Exception {
-    Tx3gDecoder decoder = new Tx3gDecoder(ImmutableList.of());
+  public void parseJustText() throws Exception {
+    Tx3gParser parser = new Tx3gParser(ImmutableList.of());
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_JUST_TEXT);
 
-    Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
+    CuesWithTiming cuesWithTiming = Iterables.getOnlyElement(parser.parse(bytes));
+    Cue singleCue = Iterables.getOnlyElement(cuesWithTiming.cues);
+    SpannedString text = new SpannedString(singleCue.text);
 
-    SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
+    assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
+    assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
     assertThat(text.toString()).isEqualTo("CC Test");
     assertThat(text).hasNoSpans();
-    assertFractionalLinePosition(subtitle.getCues(0).get(0), 0.85f);
+    assertFractionalLinePosition(singleCue, 0.85f);
   }
 
   @Test
-  public void decode_noCuesBeforeStartTIme() throws Exception {
-    Tx3gDecoder decoder = new Tx3gDecoder(ImmutableList.of());
-    byte[] bytes =
-        TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_JUST_TEXT);
-
-    Subtitle subtitle = decoder.decode(bytes, bytes.length, /* reset= */ false);
-
-    assertThat(subtitle.getCues(/* timeUs= */ -1)).isEmpty();
-  }
-
-  @Test
-  public void decodeWithStyl() throws Exception {
-    Tx3gDecoder decoder = new Tx3gDecoder(ImmutableList.of());
+  public void parseWithStyl() throws Exception {
+    Tx3gParser parser = new Tx3gParser(ImmutableList.of());
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_WITH_STYL);
 
-    Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
+    CuesWithTiming cuesWithTiming = Iterables.getOnlyElement(parser.parse(bytes));
+    Cue singleCue = Iterables.getOnlyElement(cuesWithTiming.cues);
+    SpannedString text = new SpannedString(singleCue.text);
 
-    SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
+    assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
+    assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
     assertThat(text.toString()).isEqualTo("CC Test");
     assertThat(text).hasBoldItalicSpanBetween(0, 6);
     assertThat(text).hasUnderlineSpanBetween(0, 6);
     assertThat(text).hasForegroundColorSpanBetween(0, 6).withColor(Color.GREEN);
-    assertFractionalLinePosition(subtitle.getCues(0).get(0), 0.85f);
+    assertFractionalLinePosition(singleCue, 0.85f);
   }
 
   /**
@@ -113,18 +111,19 @@ public final class Tx3gDecoderTest {
    * <p>https://github.com/google/ExoPlayer/pull/8133
    */
   @Test
-  public void decodeWithStyl_startTooLarge_noSpanAdded() throws Exception {
-    Tx3gDecoder decoder = new Tx3gDecoder(ImmutableList.of());
+  public void parseWithStyl_startTooLarge_noSpanAdded() throws Exception {
+    Tx3gParser parser = new Tx3gParser(ImmutableList.of());
     byte[] bytes =
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(), SAMPLE_WITH_STYL_START_TOO_LARGE);
 
-    Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
-    SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
+    CuesWithTiming cuesWithTiming = Iterables.getOnlyElement(parser.parse(bytes));
+    Cue singleCue = Iterables.getOnlyElement(cuesWithTiming.cues);
+    SpannedString text = new SpannedString(singleCue.text);
 
     assertThat(text.toString()).isEqualTo("CC 🙂");
     assertThat(text).hasNoSpans();
-    assertFractionalLinePosition(subtitle.getCues(0).get(0), 0.85f);
+    assertFractionalLinePosition(singleCue, 0.85f);
   }
 
   /**
@@ -135,137 +134,159 @@ public final class Tx3gDecoderTest {
    * <p>https://github.com/google/ExoPlayer/pull/8133
    */
   @Test
-  public void decodeWithStyl_endTooLarge_clippedToEndOfText() throws Exception {
-    Tx3gDecoder decoder = new Tx3gDecoder(ImmutableList.of());
+  public void parseWithStyl_endTooLarge_clippedToEndOfText() throws Exception {
+    Tx3gParser parser = new Tx3gParser(ImmutableList.of());
     byte[] bytes =
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(), SAMPLE_WITH_STYL_END_TOO_LARGE);
 
-    Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
-    SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
+    CuesWithTiming cuesWithTiming = Iterables.getOnlyElement(parser.parse(bytes));
+    Cue singleCue = Iterables.getOnlyElement(cuesWithTiming.cues);
+    SpannedString text = new SpannedString(singleCue.text);
 
     assertThat(text.toString()).isEqualTo("CC 🙂");
     assertThat(text).hasBoldItalicSpanBetween(0, 5);
     assertThat(text).hasUnderlineSpanBetween(0, 5);
     assertThat(text).hasForegroundColorSpanBetween(0, 5).withColor(Color.GREEN);
-    assertFractionalLinePosition(subtitle.getCues(0).get(0), 0.85f);
+    assertFractionalLinePosition(singleCue, 0.85f);
   }
 
   @Test
-  public void decodeWithStylAllDefaults() throws Exception {
-    Tx3gDecoder decoder = new Tx3gDecoder(ImmutableList.of());
+  public void parseWithStylAllDefaults() throws Exception {
+    Tx3gParser parser = new Tx3gParser(ImmutableList.of());
     byte[] bytes =
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(), SAMPLE_WITH_STYL_ALL_DEFAULTS);
 
-    Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
+    CuesWithTiming cuesWithTiming = Iterables.getOnlyElement(parser.parse(bytes));
+    Cue singleCue = Iterables.getOnlyElement(cuesWithTiming.cues);
+    SpannedString text = new SpannedString(singleCue.text);
 
-    SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
+    assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
+    assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
     assertThat(text.toString()).isEqualTo("CC Test");
     assertThat(text).hasNoSpans();
-    assertFractionalLinePosition(subtitle.getCues(0).get(0), 0.85f);
+    assertFractionalLinePosition(singleCue, 0.85f);
   }
 
   @Test
-  public void decodeUtf16BeNoStyl() throws Exception {
-    Tx3gDecoder decoder = new Tx3gDecoder(ImmutableList.of());
+  public void parseUtf16BeNoStyl() throws Exception {
+    Tx3gParser parser = new Tx3gParser(ImmutableList.of());
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_UTF16_BE_NO_STYL);
 
-    Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
+    CuesWithTiming cuesWithTiming = Iterables.getOnlyElement(parser.parse(bytes));
+    Cue singleCue = Iterables.getOnlyElement(cuesWithTiming.cues);
+    SpannedString text = new SpannedString(singleCue.text);
 
-    SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
+    assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
+    assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
     assertThat(text.toString()).isEqualTo("你好");
     assertThat(text).hasNoSpans();
-    assertFractionalLinePosition(subtitle.getCues(0).get(0), 0.85f);
+    assertFractionalLinePosition(singleCue, 0.85f);
   }
 
   @Test
-  public void decodeUtf16LeNoStyl() throws Exception {
-    Tx3gDecoder decoder = new Tx3gDecoder(ImmutableList.of());
+  public void parseUtf16LeNoStyl() throws Exception {
+    Tx3gParser parser = new Tx3gParser(ImmutableList.of());
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_UTF16_LE_NO_STYL);
-    Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
+    CuesWithTiming cuesWithTiming = Iterables.getOnlyElement(parser.parse(bytes));
+    Cue singleCue = Iterables.getOnlyElement(cuesWithTiming.cues);
+    SpannedString text = new SpannedString(singleCue.text);
 
-    SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
+    assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
+    assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
 
     assertThat(text.toString()).isEqualTo("你好");
     assertThat(text).hasNoSpans();
-    assertFractionalLinePosition(subtitle.getCues(0).get(0), 0.85f);
+    assertFractionalLinePosition(singleCue, 0.85f);
   }
 
   @Test
-  public void decodeWithMultipleStyl() throws Exception {
-    Tx3gDecoder decoder = new Tx3gDecoder(ImmutableList.of());
+  public void parseWithMultipleStyl() throws Exception {
+    Tx3gParser parser = new Tx3gParser(ImmutableList.of());
     byte[] bytes =
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(), SAMPLE_WITH_MULTIPLE_STYL);
 
-    Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
+    CuesWithTiming cuesWithTiming = Iterables.getOnlyElement(parser.parse(bytes));
+    Cue singleCue = Iterables.getOnlyElement(cuesWithTiming.cues);
+    SpannedString text = new SpannedString(singleCue.text);
 
-    SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
+    assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
+    assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
     assertThat(text.toString()).isEqualTo("Line 2\nLine 3");
     assertThat(text).hasItalicSpanBetween(0, 5);
     assertThat(text).hasUnderlineSpanBetween(7, 12);
     assertThat(text).hasForegroundColorSpanBetween(0, 5).withColor(Color.GREEN);
     assertThat(text).hasForegroundColorSpanBetween(7, 12).withColor(Color.GREEN);
-    assertFractionalLinePosition(subtitle.getCues(0).get(0), 0.85f);
+    assertFractionalLinePosition(singleCue, 0.85f);
   }
 
   @Test
-  public void decodeWithOtherExtension() throws Exception {
-    Tx3gDecoder decoder = new Tx3gDecoder(ImmutableList.of());
+  public void parseWithOtherExtension() throws Exception {
+    Tx3gParser parser = new Tx3gParser(ImmutableList.of());
     byte[] bytes =
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(), SAMPLE_WITH_OTHER_EXTENSION);
 
-    Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
+    CuesWithTiming cuesWithTiming = Iterables.getOnlyElement(parser.parse(bytes));
+    Cue singleCue = Iterables.getOnlyElement(cuesWithTiming.cues);
+    SpannedString text = new SpannedString(singleCue.text);
 
-    SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
+    assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
+    assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
     assertThat(text.toString()).isEqualTo("CC Test");
     assertThat(text).hasBoldSpanBetween(0, 6);
     assertThat(text).hasForegroundColorSpanBetween(0, 6).withColor(Color.GREEN);
-    assertFractionalLinePosition(subtitle.getCues(0).get(0), 0.85f);
+    assertFractionalLinePosition(singleCue, 0.85f);
   }
 
   @Test
   public void initializationDecodeWithStyl() throws Exception {
     byte[] initBytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), INITIALIZATION);
-    Tx3gDecoder decoder = new Tx3gDecoder(Collections.singletonList(initBytes));
+    Tx3gParser parser = new Tx3gParser(Collections.singletonList(initBytes));
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_WITH_STYL);
 
-    Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
+    CuesWithTiming cuesWithTiming = Iterables.getOnlyElement(parser.parse(bytes));
+    Cue singleCue = Iterables.getOnlyElement(cuesWithTiming.cues);
+    SpannedString text = new SpannedString(singleCue.text);
 
-    SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
+    assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
+    assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
     assertThat(text.toString()).isEqualTo("CC Test");
     assertThat(text).hasBoldItalicSpanBetween(0, 7);
     assertThat(text).hasUnderlineSpanBetween(0, 7);
     assertThat(text).hasTypefaceSpanBetween(0, 7).withFamily(C.SERIF_NAME);
-    // TODO(internal b/171984212): Fix Tx3gDecoder to avoid overlapping spans of the same type.
+    // TODO(internal b/171984212): Fix Tx3gParser to avoid overlapping spans of the same type.
     assertThat(text).hasForegroundColorSpanBetween(0, 7).withColor(Color.RED);
     assertThat(text).hasForegroundColorSpanBetween(0, 6).withColor(Color.GREEN);
-    assertFractionalLinePosition(subtitle.getCues(0).get(0), 0.1f);
+    assertFractionalLinePosition(singleCue, 0.1f);
   }
 
   @Test
   public void initializationDecodeWithTbox() throws Exception {
     byte[] initBytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), INITIALIZATION);
-    Tx3gDecoder decoder = new Tx3gDecoder(Collections.singletonList(initBytes));
+    Tx3gParser parser = new Tx3gParser(Collections.singletonList(initBytes));
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_WITH_TBOX);
 
-    Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
+    CuesWithTiming cuesWithTiming = Iterables.getOnlyElement(parser.parse(bytes));
+    Cue singleCue = Iterables.getOnlyElement(cuesWithTiming.cues);
+    SpannedString text = new SpannedString(singleCue.text);
 
-    SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
+    assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
+    assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
     assertThat(text.toString()).isEqualTo("CC Test");
     assertThat(text).hasBoldItalicSpanBetween(0, 7);
     assertThat(text).hasUnderlineSpanBetween(0, 7);
     assertThat(text).hasTypefaceSpanBetween(0, 7).withFamily(C.SERIF_NAME);
     assertThat(text).hasForegroundColorSpanBetween(0, 7).withColor(Color.RED);
-    assertFractionalLinePosition(subtitle.getCues(0).get(0), 0.1875f);
+    assertFractionalLinePosition(singleCue, 0.1875f);
   }
 
   @Test
@@ -273,18 +294,21 @@ public final class Tx3gDecoderTest {
     byte[] initBytes =
         TestUtil.getByteArray(
             ApplicationProvider.getApplicationContext(), INITIALIZATION_ALL_DEFAULTS);
-    Tx3gDecoder decoder = new Tx3gDecoder(Collections.singletonList(initBytes));
+    Tx3gParser parser = new Tx3gParser(Collections.singletonList(initBytes));
     byte[] bytes =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), SAMPLE_WITH_STYL);
 
-    Subtitle subtitle = decoder.decode(bytes, bytes.length, false);
+    CuesWithTiming cuesWithTiming = Iterables.getOnlyElement(parser.parse(bytes));
+    Cue singleCue = Iterables.getOnlyElement(cuesWithTiming.cues);
+    SpannedString text = new SpannedString(singleCue.text);
 
-    SpannedString text = new SpannedString(subtitle.getCues(0).get(0).text);
+    assertThat(cuesWithTiming.startTimeUs).isEqualTo(C.TIME_UNSET);
+    assertThat(cuesWithTiming.durationUs).isEqualTo(C.TIME_UNSET);
     assertThat(text.toString()).isEqualTo("CC Test");
     assertThat(text).hasBoldItalicSpanBetween(0, 6);
     assertThat(text).hasUnderlineSpanBetween(0, 6);
     assertThat(text).hasForegroundColorSpanBetween(0, 6).withColor(Color.GREEN);
-    assertFractionalLinePosition(subtitle.getCues(0).get(0), 0.85f);
+    assertFractionalLinePosition(singleCue, 0.85f);
   }
 
   private static void assertFractionalLinePosition(Cue cue, float expectedFraction) {

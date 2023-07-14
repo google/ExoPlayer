@@ -24,7 +24,7 @@ import com.google.android.exoplayer2.text.pgs.PgsDecoder;
 import com.google.android.exoplayer2.text.ssa.SsaParser;
 import com.google.android.exoplayer2.text.subrip.SubripParser;
 import com.google.android.exoplayer2.text.ttml.TtmlDecoder;
-import com.google.android.exoplayer2.text.tx3g.Tx3gDecoder;
+import com.google.android.exoplayer2.text.tx3g.Tx3gParser;
 import com.google.android.exoplayer2.text.webvtt.Mp4WebvttParser;
 import com.google.android.exoplayer2.text.webvtt.WebvttDecoder;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -69,7 +69,7 @@ public interface SubtitleDecoderFactory {
    *   <li>TTML ({@link TtmlDecoder})
    *   <li>SubRip ({@link SubripParser})
    *   <li>SSA/ASS ({@link SsaParser})
-   *   <li>TX3G ({@link Tx3gDecoder})
+   *   <li>TX3G ({@link Tx3gParser})
    *   <li>Cea608 ({@link Cea608Decoder})
    *   <li>Cea708 ({@link Cea708Decoder})
    *   <li>DVB ({@link DvbDecoder})
@@ -117,7 +117,9 @@ public interface SubtitleDecoderFactory {
                 return new DelegatingSubtitleDecoder(
                     "DelegatingSubtitleDecoderWithSubripParser", new SubripParser());
               case MimeTypes.APPLICATION_TX3G:
-                return new Tx3gDecoder(format.initializationData);
+                return new DelegatingSubtitleDecoder(
+                    "DelegatingSubtitleDecoderWithTx3gParser",
+                    new Tx3gParser(format.initializationData));
               case MimeTypes.APPLICATION_CEA608:
               case MimeTypes.APPLICATION_MP4CEA608:
                 return new Cea608Decoder(
