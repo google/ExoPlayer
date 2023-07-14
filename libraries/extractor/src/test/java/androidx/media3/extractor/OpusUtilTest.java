@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.media3.common.C;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.common.primitives.Bytes;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
@@ -30,32 +31,138 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class OpusUtilTest {
 
-  private static final byte[] HEADER =
-      new byte[] {79, 112, 117, 115, 72, 101, 97, 100, 0, 2, 1, 56, 0, 0, -69, -128, 0, 0, 0};
+  /** Ogg Packet Header in accordance with RFC 3533 for an Ogg ID Header Page. */
+  private static final byte[] OGG_ID_HEADER_PACKET_HEADER =
+      new byte[] {
+        79, 103, 103, 83, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 28, -43, -59, -9, 1,
+        19
+      };
 
-  private static final int HEADER_PRE_SKIP_SAMPLES = 14337;
-  private static final byte[] HEADER_PRE_SKIP_BYTES =
-      buildNativeOrderByteArray(sampleCountToNanoseconds(HEADER_PRE_SKIP_SAMPLES));
+  /** Payload for Ogg ID Header Page in accordance with RFC 7845. */
+  private static final byte[] OGG_ID_HEADER_PAYLOAD =
+      new byte[] {79, 112, 117, 115, 72, 101, 97, 100, 1, 2, 56, 1, -128, -69, 0, 0, 0, 0, 0};
 
+  private static final int OGG_ID_HEADER_PRE_SKIP_SAMPLES = 312;
+  private static final byte[] OGG_ID_HEADER_PRE_SKIP_BYTES =
+      buildNativeOrderByteArray(sampleCountToNanoseconds(OGG_ID_HEADER_PRE_SKIP_SAMPLES));
   private static final int DEFAULT_SEEK_PRE_ROLL_SAMPLES = 3840;
   private static final byte[] DEFAULT_SEEK_PRE_ROLL_BYTES =
       buildNativeOrderByteArray(sampleCountToNanoseconds(DEFAULT_SEEK_PRE_ROLL_SAMPLES));
 
+  /** Ogg Packet Header in accordance with RFC 3533 for an Ogg Comment Header Page. */
+  private static final byte[] OGG_COMMENT_HEADER_PACKET_HEADER =
+      new byte[] {
+        79, 103, 103, 83, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 11, -103, 87, 83, 1,
+        16
+      };
+
+  /** Payload for Ogg Comment Header Page with empty vendor and comment sections. */
+  private static final byte[] OGG_COMMENT_HEADER_PACKET_PAYLOAD =
+      new byte[] {79, 112, 117, 115, 84, 97, 103, 115, 0, 0, 0, 0, 0, 0, 0, 0};
+
+  /** Ogg Packet Header for an page of an Opus audio sample contained in a single segment. */
+  private static final byte[] OGG_OPUS_PACKET_HEADER_SINGLE_SEGMENT =
+      new byte[] {
+        79, 103, 103, 83, 0, 0, -32, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 54, -31, -124, 22,
+        1, -22
+      };
+
+  /** Ogg Packet Header for an page of an Opus audio sample that takes up multiple segments. */
+  private static final byte[] OGG_OPUS_PACKET_HEADER_MULTIPLE_SEGMENTS =
+      new byte[] {
+        79, 103, 103, 83, 0, 0, -32, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 54, -31, -124, 22,
+        2, -1, -22
+      };
+
+  private static final byte[] OGG_OPUS_PACKET_PAYLOAD_CODE_ZERO_TOC = getBytesFromHexString("04");
+  private static final byte[] OGG_OPUS_PACKET_PAYLOAD_CODE_THREE_TOC =
+      getBytesFromHexString("078C");
+
   @Test
   public void buildInitializationData_returnsExpectedHeaderWithPreSkipAndPreRoll() {
-    List<byte[]> initializationData = OpusUtil.buildInitializationData(HEADER);
+    List<byte[]> initializationData = OpusUtil.buildInitializationData(OGG_ID_HEADER_PAYLOAD);
 
     assertThat(initializationData).hasSize(3);
-    assertThat(initializationData.get(0)).isEqualTo(HEADER);
-    assertThat(initializationData.get(1)).isEqualTo(HEADER_PRE_SKIP_BYTES);
+    assertThat(initializationData.get(0)).isEqualTo(OGG_ID_HEADER_PAYLOAD);
+    assertThat(initializationData.get(1)).isEqualTo(OGG_ID_HEADER_PRE_SKIP_BYTES);
     assertThat(initializationData.get(2)).isEqualTo(DEFAULT_SEEK_PRE_ROLL_BYTES);
   }
 
   @Test
   public void getChannelCount_returnsChannelCount() {
-    int channelCount = OpusUtil.getChannelCount(HEADER);
+    int channelCount = OpusUtil.getChannelCount(OGG_ID_HEADER_PAYLOAD);
 
     assertThat(channelCount).isEqualTo(2);
+  }
+
+  @Test
+  public void parseOggPacketForPreAudioSampleByteCount_returnsExpectedByteCount() {
+    byte[] packetData =
+        Bytes.concat(
+            OGG_ID_HEADER_PACKET_HEADER,
+            OGG_ID_HEADER_PAYLOAD,
+            OGG_COMMENT_HEADER_PACKET_HEADER,
+            OGG_COMMENT_HEADER_PACKET_PAYLOAD,
+            OGG_OPUS_PACKET_HEADER_SINGLE_SEGMENT,
+            OGG_OPUS_PACKET_PAYLOAD_CODE_ZERO_TOC);
+    ByteBuffer preAudioOggPacketsByteBuffer = ByteBuffer.wrap(packetData);
+
+    int preAudioSampleByteCount =
+        OpusUtil.parseOggPacketForPreAudioSampleByteCount(preAudioOggPacketsByteBuffer);
+
+    assertThat(preAudioSampleByteCount).isEqualTo(91);
+  }
+
+  @Test
+  public void parseOggPacketAudioSampleCount_withCodeZeroToc_returnsExpectedAudioSampleCount() {
+    byte[] packetData =
+        Bytes.concat(
+            OGG_ID_HEADER_PACKET_HEADER,
+            OGG_ID_HEADER_PAYLOAD,
+            OGG_COMMENT_HEADER_PACKET_HEADER,
+            OGG_COMMENT_HEADER_PACKET_PAYLOAD,
+            OGG_OPUS_PACKET_HEADER_SINGLE_SEGMENT,
+            OGG_OPUS_PACKET_PAYLOAD_CODE_ZERO_TOC);
+    ByteBuffer oggPacketsByteBuffer = ByteBuffer.wrap(packetData);
+
+    int audioSampleCount = OpusUtil.parseOggPacketAudioSampleCount(oggPacketsByteBuffer);
+
+    assertThat(audioSampleCount).isEqualTo(480);
+  }
+
+  @Test
+  public void
+      parseOggPacketAudioSampleCount_withMultipleOggPageSegments_returnsExpectedAudioSampleCount() {
+    byte[] packetData =
+        Bytes.concat(
+            OGG_ID_HEADER_PACKET_HEADER,
+            OGG_ID_HEADER_PAYLOAD,
+            OGG_COMMENT_HEADER_PACKET_HEADER,
+            OGG_COMMENT_HEADER_PACKET_PAYLOAD,
+            OGG_OPUS_PACKET_HEADER_MULTIPLE_SEGMENTS,
+            OGG_OPUS_PACKET_PAYLOAD_CODE_ZERO_TOC);
+    ByteBuffer oggPacketsByteBuffer = ByteBuffer.wrap(packetData);
+
+    int audioSampleCount = OpusUtil.parseOggPacketAudioSampleCount(oggPacketsByteBuffer);
+
+    assertThat(audioSampleCount).isEqualTo(480);
+  }
+
+  @Test
+  public void parseOggPacketAudioSampleCount_withCodeThreeToc_returnsExpectedAudioSampleCount() {
+    byte[] packetData =
+        Bytes.concat(
+            OGG_ID_HEADER_PACKET_HEADER,
+            OGG_ID_HEADER_PAYLOAD,
+            OGG_COMMENT_HEADER_PACKET_HEADER,
+            OGG_COMMENT_HEADER_PACKET_PAYLOAD,
+            OGG_OPUS_PACKET_HEADER_SINGLE_SEGMENT,
+            OGG_OPUS_PACKET_PAYLOAD_CODE_THREE_TOC);
+    ByteBuffer oggPacketsByteBuffer = ByteBuffer.wrap(packetData);
+
+    int audioSampleCount = OpusUtil.parseOggPacketAudioSampleCount(oggPacketsByteBuffer);
+
+    assertThat(audioSampleCount).isEqualTo(5760);
   }
 
   @Test

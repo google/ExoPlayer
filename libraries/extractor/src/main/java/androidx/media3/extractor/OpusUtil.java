@@ -76,13 +76,43 @@ public class OpusUtil {
    */
   public static int parseOggPacketAudioSampleCount(ByteBuffer buffer) {
     // RFC 3433 section 6 - The Ogg page format.
-    int numPageSegments = buffer.get(/* index= */ 26);
-    int indexFirstOpusPacket = 27 + numPageSegments; // Skip Ogg header and segment table.
+    int preAudioPacketByteCount = parseOggPacketForPreAudioSampleByteCount(buffer);
+    int numPageSegments = buffer.get(/* index= */ 26 + preAudioPacketByteCount);
+    // Skip Ogg header + segment table.
+    int indexFirstOpusPacket = 27 + numPageSegments + preAudioPacketByteCount;
     long packetDurationUs =
         getPacketDurationUs(
             buffer.get(indexFirstOpusPacket),
-            buffer.limit() > 1 ? buffer.get(indexFirstOpusPacket + 1) : 0);
+            buffer.limit() - indexFirstOpusPacket > 1 ? buffer.get(indexFirstOpusPacket + 1) : 0);
     return (int) (packetDurationUs * SAMPLE_RATE / C.MICROS_PER_SECOND);
+  }
+
+  /**
+   * Calculate the offset from the start of the buffer to audio sample Ogg packets.
+   *
+   * @param buffer containing the Ogg Encapsulated Opus audio bitstream.
+   * @return the offset before the Ogg packet containing audio samples.
+   */
+  public static int parseOggPacketForPreAudioSampleByteCount(ByteBuffer buffer) {
+    // Parse Ogg Packet Type from Header at index 5
+    if ((buffer.get(/* index= */ 5) & 0x02) == 0) {
+      // Ogg Page packet header type is not beginning of logical stream. Must be an Audio page.
+      return 0;
+    }
+    // ID Header Page size is Ogg packet header size + sum(lacing values: 1..number_page_segments).
+    int idHeaderPageSize = 28;
+    int idHeaderPageNumOfSegments = buffer.get(/* index= */ 26);
+    for (int i = 0; i < idHeaderPageNumOfSegments; i++) {
+      idHeaderPageSize += buffer.get(/* index= */ 27 + i);
+    }
+    // Comment Header Page size is Ogg packet header size + sum(lacing values:
+    // 1..number_page_segments).
+    int commentHeaderPageSize = 28;
+    int commentHeaderPageSizeNumOfSegments = buffer.get(/* index= */ idHeaderPageSize + 26);
+    for (int i = 0; i < commentHeaderPageSizeNumOfSegments; i++) {
+      commentHeaderPageSize += buffer.get(/* index= */ idHeaderPageSize + 27 + i);
+    }
+    return idHeaderPageSize + commentHeaderPageSize;
   }
 
   /**
