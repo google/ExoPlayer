@@ -393,10 +393,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     dispatchRemoteSessionTaskWithPlayerCommand(
         (iSession, seq) -> iSession.play(controllerStub, seq));
 
-    setPlayWhenReady(
-        /* playWhenReady= */ true,
-        Player.PLAYBACK_SUPPRESSION_REASON_NONE,
-        Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
+    setPlayWhenReady(/* playWhenReady= */ true, Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
   }
 
   @Override
@@ -408,10 +405,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     dispatchRemoteSessionTaskWithPlayerCommand(
         (iSession, seq) -> iSession.pause(controllerStub, seq));
 
-    setPlayWhenReady(
-        /* playWhenReady= */ false,
-        Player.PLAYBACK_SUPPRESSION_REASON_NONE,
-        Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
+    setPlayWhenReady(/* playWhenReady= */ false, Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
   }
 
   @Override
@@ -533,10 +527,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     dispatchRemoteSessionTaskWithPlayerCommand(
         (iSession, seq) -> iSession.setPlayWhenReady(controllerStub, seq, playWhenReady));
 
-    setPlayWhenReady(
-        playWhenReady,
-        Player.PLAYBACK_SUPPRESSION_REASON_NONE,
-        Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
+    setPlayWhenReady(playWhenReady, Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST);
   }
 
   @Override
@@ -2154,11 +2145,15 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   private void setPlayWhenReady(
-      boolean playWhenReady,
-      @Player.PlaybackSuppressionReason int playbackSuppressionReason,
-      @Player.PlayWhenReadyChangeReason int playWhenReadyChangeReason) {
+      boolean playWhenReady, @Player.PlayWhenReadyChangeReason int playWhenReadyChangeReason) {
+    // Transient audio focus loss will  be resolved by requesting focus again, so eagerly remove it
+    // here in the masked value.
+    @Player.PlaybackSuppressionReason int maskedSuppressionReason = getPlaybackSuppressionReason();
+    if (maskedSuppressionReason == Player.PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS) {
+      maskedSuppressionReason = Player.PLAYBACK_SUPPRESSION_REASON_NONE;
+    }
     if (playerInfo.playWhenReady == playWhenReady
-        && playerInfo.playbackSuppressionReason == playbackSuppressionReason) {
+        && playerInfo.playbackSuppressionReason == maskedSuppressionReason) {
       return;
     }
 
@@ -2167,7 +2162,7 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     lastSetPlayWhenReadyCalledTimeMs = SystemClock.elapsedRealtime();
     PlayerInfo newPlayerInfo =
         this.playerInfo.copyWithPlayWhenReady(
-            playWhenReady, playWhenReadyChangeReason, playbackSuppressionReason);
+            playWhenReady, playWhenReadyChangeReason, maskedSuppressionReason);
     updatePlayerInfo(
         newPlayerInfo,
         /* timelineChangeReason= */ null,

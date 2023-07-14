@@ -171,6 +171,103 @@ public class MediaControllerStateMaskingTest {
   }
 
   @Test
+  public void setPlayWhenReady_forTrueWhenPlaybackSuppressed_shouldNotChangePlaybackSuppression()
+      throws Exception {
+    CountDownLatch eventCallsCountDownLatch = new CountDownLatch(1);
+    AtomicReference<@Player.PlaybackSuppressionReason Integer> playbackSuppressionReasonChangedRef =
+        new AtomicReference<>();
+    AtomicReference<Player.Events> eventsRef = new AtomicReference<>();
+    MediaController controller =
+        getMediaControllerToTestPlaybackSuppression(
+            /* initialPlayWhenReadyState= */ false,
+            playbackSuppressionReasonChangedRef,
+            eventsRef,
+            eventCallsCountDownLatch);
+
+    threadTestRule.getHandler().postAndSync(() -> controller.setPlayWhenReady(true));
+
+    assertNoPlaybackSuppressionReasonChange(
+        playbackSuppressionReasonChangedRef, eventsRef, eventCallsCountDownLatch);
+  }
+
+  @Test
+  public void setPlayWhenReady_withFalseWhenPlaybackSuppressed_shouldNotChangePlaybackSuppression()
+      throws Exception {
+    CountDownLatch eventCallsCountDownLatch = new CountDownLatch(1);
+    AtomicReference<@Player.PlaybackSuppressionReason Integer> playbackSuppressionReasonChangedRef =
+        new AtomicReference<>();
+    AtomicReference<Player.Events> eventsRef = new AtomicReference<>();
+    MediaController controller =
+        getMediaControllerToTestPlaybackSuppression(
+            /* initialPlayWhenReadyState= */ true,
+            playbackSuppressionReasonChangedRef,
+            eventsRef,
+            eventCallsCountDownLatch);
+
+    threadTestRule.getHandler().postAndSync(() -> controller.setPlayWhenReady(false));
+
+    assertNoPlaybackSuppressionReasonChange(
+        playbackSuppressionReasonChangedRef, eventsRef, eventCallsCountDownLatch);
+  }
+
+  private MediaController getMediaControllerToTestPlaybackSuppression(
+      boolean initialPlayWhenReadyState,
+      AtomicReference<@Player.PlaybackSuppressionReason Integer>
+          playbackSuppressionReasonChangedRef,
+      AtomicReference<Player.Events> eventsRef,
+      CountDownLatch countDownLatchForOnEventCalls)
+      throws Exception {
+    Bundle playerConfig =
+        new RemoteMediaSession.MockPlayerConfigBuilder()
+            .setPlaybackState(Player.STATE_READY)
+            .setPlayWhenReady(initialPlayWhenReadyState)
+            .setPlaybackSuppressionReason(
+                Player.PLAYBACK_SUPPRESSION_REASON_UNSUITABLE_AUDIO_OUTPUT)
+            .build();
+    remoteSession.setPlayer(playerConfig);
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () ->
+                controller.addListener(
+                    getPlayerListenerToCapturePlaybackSuppression(
+                        playbackSuppressionReasonChangedRef,
+                        eventsRef,
+                        countDownLatchForOnEventCalls)));
+    return controller;
+  }
+
+  private Player.Listener getPlayerListenerToCapturePlaybackSuppression(
+      AtomicReference<@Player.PlaybackSuppressionReason Integer>
+          playbackSuppressionReasonChangedRef,
+      AtomicReference<Player.Events> eventsRef,
+      CountDownLatch countDownLatchForOnEventCalls) {
+    return new Player.Listener() {
+      @Override
+      public void onEvents(Player player, Player.Events events) {
+        eventsRef.set(events);
+        if (events.contains(Player.EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED)) {
+          playbackSuppressionReasonChangedRef.set(player.getPlaybackSuppressionReason());
+        }
+        countDownLatchForOnEventCalls.countDown();
+      }
+    };
+  }
+
+  private void assertNoPlaybackSuppressionReasonChange(
+      AtomicReference<@Player.PlaybackSuppressionReason Integer>
+          playbackSuppressionReasonChangedRef,
+      AtomicReference<Player.Events> eventsRef,
+      CountDownLatch countDownLatchForOnEventCalls)
+      throws Exception {
+    assertThat(countDownLatchForOnEventCalls.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(playbackSuppressionReasonChangedRef.get()).isNull();
+    assertThat(eventsRef.get().contains(Player.EVENT_PLAYBACK_SUPPRESSION_REASON_CHANGED))
+        .isFalse();
+  }
+
+  @Test
   public void setShuffleModeEnabled() throws Exception {
     boolean testShuffleModeEnabled = true;
     Bundle playerConfig =
