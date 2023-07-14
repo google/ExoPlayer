@@ -41,8 +41,8 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:' + androidxRecyclerViewVersion
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     compileOnly 'org.jetbrains.kotlin:kotlin-annotations-jvm:' + kotlinAnnotationsVersion
-    testImplementation project(path: ':lib-exoplayer')
-    testImplementation project(path: ':test-utils-robolectric')
+    testImplementation project(modulePrefix + 'lib-exoplayer')
+    testImplementation project(modulePrefix + 'test-utils-robolectric')
     testImplementation project(modulePrefix + 'test-utils')
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
 }
