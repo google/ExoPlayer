@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.effect;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.SDK_INT;
+import static java.lang.Math.ceil;
 
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
@@ -91,7 +92,6 @@ public abstract class TextOverlay extends BitmapOverlay {
    */
   public abstract SpannableString getText(long presentationTimeUs);
 
-  @SuppressLint("InlinedApi") // Inlined Layout constants.
   @Override
   public Bitmap getBitmap(long presentationTimeUs) {
     SpannableString overlayText = getText(presentationTimeUs);
@@ -99,21 +99,8 @@ public abstract class TextOverlay extends BitmapOverlay {
       lastText = overlayText;
       TextPaint textPaint = new TextPaint();
       textPaint.setTextSize(TEXT_SIZE_PIXELS);
-      StaticLayout staticLayout;
-      int width = (int) textPaint.measureText(overlayText, /* start= */ 0, overlayText.length());
-      if (SDK_INT >= 23) {
-        staticLayout = Api23.getStaticLayout(overlayText, textPaint, width);
-      } else {
-        staticLayout =
-            new StaticLayout(
-                overlayText,
-                textPaint,
-                width,
-                Layout.Alignment.ALIGN_NORMAL,
-                Layout.DEFAULT_LINESPACING_MULTIPLIER,
-                Layout.DEFAULT_LINESPACING_ADDITION,
-                /* includepad= */ true);
-      }
+      StaticLayout staticLayout =
+          createStaticLayout(overlayText, textPaint, getSpannedTextWidth(overlayText, textPaint));
       lastBitmap =
           Bitmap.createBitmap(
               staticLayout.getWidth(), staticLayout.getHeight(), Bitmap.Config.ARGB_8888);
@@ -121,6 +108,33 @@ public abstract class TextOverlay extends BitmapOverlay {
       staticLayout.draw(canvas);
     }
     return checkNotNull(lastBitmap);
+  }
+
+  private int getSpannedTextWidth(SpannableString text, TextPaint textPaint) {
+    // measureText doesn't take scaling spans into account so using a StaticLayout to measure
+    // the actual text width, then use a different StaticLayout to draw the text onto a Bitmap.
+    int measureTextWidth = (int) textPaint.measureText(text, /* start= */ 0, text.length());
+    StaticLayout widthMeasuringLayout = createStaticLayout(text, textPaint, measureTextWidth);
+    int lineCount = widthMeasuringLayout.getLineCount();
+    float realTextWidth = 0;
+    for (int i = 0; i < lineCount; i++) {
+      realTextWidth += widthMeasuringLayout.getLineWidth(i);
+    }
+    return (int) ceil(realTextWidth);
+  }
+
+  @SuppressLint("InlinedApi") // Inlined Layout constants.
+  private StaticLayout createStaticLayout(SpannableString text, TextPaint textPaint, int width) {
+    return SDK_INT >= 23
+        ? Api23.getStaticLayout(text, textPaint, width)
+        : new StaticLayout(
+            text,
+            textPaint,
+            width,
+            Layout.Alignment.ALIGN_NORMAL,
+            Layout.DEFAULT_LINESPACING_MULTIPLIER,
+            Layout.DEFAULT_LINESPACING_ADDITION,
+            /* includepad= */ true);
   }
 
   @RequiresApi(23)
