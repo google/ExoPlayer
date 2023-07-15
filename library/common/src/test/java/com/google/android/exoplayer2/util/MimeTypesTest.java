@@ -106,6 +106,7 @@ public final class MimeTypesTest {
     assertThat(MimeTypes.isText(MimeTypes.APPLICATION_VOBSUB)).isTrue();
     assertThat(MimeTypes.isText(MimeTypes.APPLICATION_PGS)).isTrue();
     assertThat(MimeTypes.isText(MimeTypes.APPLICATION_DVBSUBS)).isTrue();
+    assertThat(MimeTypes.isText(MimeTypes.APPLICATION_TELETEXT)).isTrue();
     assertThat(MimeTypes.isText("text/custom")).isTrue();
 
     assertThat(MimeTypes.isText(MimeTypes.VIDEO_MP4)).isFalse();

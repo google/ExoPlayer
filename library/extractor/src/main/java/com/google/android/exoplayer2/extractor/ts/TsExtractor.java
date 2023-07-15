@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.extractor.ts.DefaultTsPayloadReaderFactory.Flags;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.DvbSubtitleInfo;
+import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.DvbTeletextInfo;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.EsInfo;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader.TrackIdGenerator;
 import com.google.android.exoplayer2.util.Assertions;
@@ -42,6 +43,7 @@ import com.google.android.exoplayer2.util.ParsableBitArray;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Charsets;
 import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -107,6 +109,7 @@ public final class TsExtractor implements Extractor {
   public static final int TS_STREAM_TYPE_H265 = 0x24;
   public static final int TS_STREAM_TYPE_ID3 = 0x15;
   public static final int TS_STREAM_TYPE_SPLICE_INFO = 0x86;
+  public static final int TS_STREAM_TYPE_TELETEXT = 0x56;
   public static final int TS_STREAM_TYPE_DVBSUBS = 0x59;
 
   // Stream types that aren't defined by the MPEG-2 TS specification.
@@ -568,6 +571,7 @@ public final class TsExtractor implements Extractor {
     private static final int TS_PMT_DESC_EAC3 = 0x7A;
     private static final int TS_PMT_DESC_DTS = 0x7B;
     private static final int TS_PMT_DESC_DVB_EXT = 0x7F;
+    private static final int TS_PMT_DESC_TELETEXT = 0x56;
     private static final int TS_PMT_DESC_DVBSUBS = 0x59;
 
     private static final int TS_PMT_DESC_DVB_EXT_AC4 = 0x15;
@@ -640,7 +644,7 @@ public final class TsExtractor implements Extractor {
       if (mode == MODE_HLS && id3Reader == null) {
         // Setup an ID3 track regardless of whether there's a corresponding entry, in case one
         // appears intermittently during playback. See [Internal: b/20261500].
-        EsInfo id3EsInfo = new EsInfo(TS_STREAM_TYPE_ID3, null, null, Util.EMPTY_BYTE_ARRAY);
+        EsInfo id3EsInfo = new EsInfo(TS_STREAM_TYPE_ID3, null, null, null, Util.EMPTY_BYTE_ARRAY);
         id3Reader = payloadReaderFactory.createPayloadReader(TS_STREAM_TYPE_ID3, id3EsInfo);
         if (id3Reader != null) {
           id3Reader.init(
@@ -731,6 +735,7 @@ public final class TsExtractor implements Extractor {
       int streamType = -1;
       String language = null;
       List<DvbSubtitleInfo> dvbSubtitleInfos = null;
+      List<DvbTeletextInfo> dvbTeletextInfos = null;
       while (data.getPosition() < descriptorsEndPosition) {
         int descriptorTag = data.readUnsignedByte();
         int descriptorLength = data.readUnsignedByte();
@@ -766,6 +771,23 @@ public final class TsExtractor implements Extractor {
         } else if (descriptorTag == TS_PMT_DESC_ISO639_LANG) {
           language = data.readString(3).trim();
           // Audio type is ignored.
+        } else if (descriptorTag == TS_PMT_DESC_TELETEXT) {
+          // ETSI EN 300 468 - V1.16.1 - 6.2.43 Teletext descriptor
+          streamType = TS_STREAM_TYPE_TELETEXT;
+          dvbTeletextInfos = new ArrayList<>();
+          while (data.getPosition() < positionOfNextDescriptor) {
+            ParsableBitArray scratch = new ParsableBitArray(new byte[5]);
+            data.readBytes(scratch, 5);
+            String teletextLanguage = scratch.readBytesAsString(3, Charsets.ISO_8859_1).trim();
+            int type = scratch.readBits(5);
+            int magazineNumber = scratch.readBits(3);
+            int pageNumber = scratch.readBits(8);
+            dvbTeletextInfos.add(
+                new DvbTeletextInfo(
+                    teletextLanguage, (byte) type,
+                    new byte[] { (byte) magazineNumber, (byte) pageNumber })
+            );
+          }
         } else if (descriptorTag == TS_PMT_DESC_DVBSUBS) {
           streamType = TS_STREAM_TYPE_DVBSUBS;
           dvbSubtitleInfos = new ArrayList<>();
@@ -788,6 +810,7 @@ public final class TsExtractor implements Extractor {
           streamType,
           language,
           dvbSubtitleInfos,
+          dvbTeletextInfos,
           Arrays.copyOfRange(data.getData(), descriptorsStartPosition, descriptorsEndPosition));
     }
   }

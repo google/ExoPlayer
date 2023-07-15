@@ -199,6 +199,8 @@ public final class DefaultTsPayloadReaderFactory implements TsPayloadReader.Fact
             : new SectionReader(new PassthroughSectionPayloadReader(MimeTypes.APPLICATION_SCTE35));
       case TsExtractor.TS_STREAM_TYPE_ID3:
         return new PesReader(new Id3Reader());
+      case TsExtractor.TS_STREAM_TYPE_TELETEXT:
+        return new PesReader(new DvbTeletextSubtitleReader(esInfo.dvbTeletextInfos));
       case TsExtractor.TS_STREAM_TYPE_DVBSUBS:
         return new PesReader(new DvbSubtitleReader(esInfo.dvbSubtitleInfos));
       case TsExtractor.TS_STREAM_TYPE_AIT:

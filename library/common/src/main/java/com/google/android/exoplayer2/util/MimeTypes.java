@@ -150,6 +150,7 @@ public final class MimeTypes {
 
   public static final String APPLICATION_EMSG = BASE_TYPE_APPLICATION + "/x-emsg";
   public static final String APPLICATION_DVBSUBS = BASE_TYPE_APPLICATION + "/dvbsubs";
+  public static final String APPLICATION_TELETEXT = BASE_TYPE_APPLICATION + "/teletext";
   public static final String APPLICATION_EXIF = BASE_TYPE_APPLICATION + "/x-exif";
   public static final String APPLICATION_ICY = BASE_TYPE_APPLICATION + "/x-icy";
   public static final String APPLICATION_AIT = BASE_TYPE_APPLICATION + "/vnd.dvb.ait";
@@ -221,7 +222,8 @@ public final class MimeTypes {
         || APPLICATION_RAWCC.equals(mimeType)
         || APPLICATION_VOBSUB.equals(mimeType)
         || APPLICATION_PGS.equals(mimeType)
-        || APPLICATION_DVBSUBS.equals(mimeType);
+        || APPLICATION_DVBSUBS.equals(mimeType)
+        || APPLICATION_TELETEXT.equals(mimeType);
   }
 
   /** Returns whether the given string is an image MIME type. */
