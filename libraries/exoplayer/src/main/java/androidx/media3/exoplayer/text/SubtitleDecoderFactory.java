@@ -19,17 +19,14 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.extractor.text.DefaultSubtitleParserFactory;
 import androidx.media3.extractor.text.SubtitleDecoder;
+import androidx.media3.extractor.text.SubtitleParser;
 import androidx.media3.extractor.text.cea.Cea608Decoder;
 import androidx.media3.extractor.text.cea.Cea708Decoder;
-import androidx.media3.extractor.text.dvb.DvbParser;
-import androidx.media3.extractor.text.pgs.PgsParser;
-import androidx.media3.extractor.text.ssa.SsaParser;
-import androidx.media3.extractor.text.subrip.SubripParser;
 import androidx.media3.extractor.text.ttml.TtmlDecoder;
-import androidx.media3.extractor.text.tx3g.Tx3gParser;
-import androidx.media3.extractor.text.webvtt.Mp4WebvttParser;
 import androidx.media3.extractor.text.webvtt.WebvttDecoder;
+import java.util.Objects;
 
 /** A factory for {@link SubtitleDecoder} instances. */
 @UnstableApi
@@ -56,65 +53,47 @@ public interface SubtitleDecoderFactory {
   /**
    * Default {@link SubtitleDecoderFactory} implementation.
    *
-   * <p>The formats supported by this factory are:
+   * <p>Supports formats supported by {@link DefaultSubtitleParserFactory} as well as the following:
    *
    * <ul>
    *   <li>WebVTT ({@link WebvttDecoder})
-   *   <li>WebVTT (MP4) ({@link Mp4WebvttParser})
    *   <li>TTML ({@link TtmlDecoder})
-   *   <li>SubRip ({@link SubripParser})
-   *   <li>SSA/ASS ({@link SsaParser})
-   *   <li>TX3G ({@link Tx3gParser})
    *   <li>Cea608 ({@link Cea608Decoder})
    *   <li>Cea708 ({@link Cea708Decoder})
-   *   <li>DVB ({@link DvbParser})
-   *   <li>PGS ({@link PgsParser})
    *   <li>Exoplayer Cues ({@link ExoplayerCuesDecoder})
    * </ul>
    */
   SubtitleDecoderFactory DEFAULT =
       new SubtitleDecoderFactory() {
 
+        private final DefaultSubtitleParserFactory delegate = new DefaultSubtitleParserFactory();
+
         @Override
         public boolean supportsFormat(Format format) {
           @Nullable String mimeType = format.sampleMimeType;
-          return MimeTypes.TEXT_VTT.equals(mimeType)
-              || MimeTypes.TEXT_SSA.equals(mimeType)
-              || MimeTypes.APPLICATION_TTML.equals(mimeType)
-              || MimeTypes.APPLICATION_MP4VTT.equals(mimeType)
-              || MimeTypes.APPLICATION_SUBRIP.equals(mimeType)
-              || MimeTypes.APPLICATION_TX3G.equals(mimeType)
-              || MimeTypes.APPLICATION_CEA608.equals(mimeType)
-              || MimeTypes.APPLICATION_MP4CEA608.equals(mimeType)
-              || MimeTypes.APPLICATION_CEA708.equals(mimeType)
-              || MimeTypes.APPLICATION_DVBSUBS.equals(mimeType)
-              || MimeTypes.APPLICATION_PGS.equals(mimeType)
-              || MimeTypes.TEXT_EXOPLAYER_CUES.equals(mimeType);
+          return delegate.supportsFormat(format)
+              || Objects.equals(mimeType, MimeTypes.TEXT_VTT)
+              || Objects.equals(mimeType, MimeTypes.APPLICATION_TTML)
+              || Objects.equals(mimeType, MimeTypes.APPLICATION_CEA608)
+              || Objects.equals(mimeType, MimeTypes.APPLICATION_MP4CEA608)
+              || Objects.equals(mimeType, MimeTypes.APPLICATION_CEA708)
+              || Objects.equals(mimeType, MimeTypes.TEXT_EXOPLAYER_CUES);
         }
 
         @Override
         public SubtitleDecoder createDecoder(Format format) {
+          if (delegate.supportsFormat(format)) {
+            SubtitleParser subtitleParser = delegate.create(format);
+            return new DelegatingSubtitleDecoder(
+                subtitleParser.getClass().getSimpleName() + "Decoder", subtitleParser);
+          }
           @Nullable String mimeType = format.sampleMimeType;
           if (mimeType != null) {
             switch (mimeType) {
               case MimeTypes.TEXT_VTT:
                 return new WebvttDecoder();
-              case MimeTypes.TEXT_SSA:
-                return new DelegatingSubtitleDecoder(
-                    "DelegatingSubtitleDecoderWithSsaParser",
-                    new SsaParser(format.initializationData));
-              case MimeTypes.APPLICATION_MP4VTT:
-                return new DelegatingSubtitleDecoder(
-                    "DelegatingSubtitleDecoderWithMp4WebvttParser", new Mp4WebvttParser());
               case MimeTypes.APPLICATION_TTML:
                 return new TtmlDecoder();
-              case MimeTypes.APPLICATION_SUBRIP:
-                return new DelegatingSubtitleDecoder(
-                    "DelegatingSubtitleDecoderWithSubripParser", new SubripParser());
-              case MimeTypes.APPLICATION_TX3G:
-                return new DelegatingSubtitleDecoder(
-                    "DelegatingSubtitleDecoderWithTx3gParser",
-                    new Tx3gParser(format.initializationData));
               case MimeTypes.APPLICATION_CEA608:
               case MimeTypes.APPLICATION_MP4CEA608:
                 return new Cea608Decoder(
@@ -123,13 +102,6 @@ public interface SubtitleDecoderFactory {
                     Cea608Decoder.MIN_DATA_CHANNEL_TIMEOUT_MS);
               case MimeTypes.APPLICATION_CEA708:
                 return new Cea708Decoder(format.accessibilityChannel, format.initializationData);
-              case MimeTypes.APPLICATION_DVBSUBS:
-                return new DelegatingSubtitleDecoder(
-                    "DelegatingSubtitleDecoderWithDvbParser",
-                    new DvbParser(format.initializationData));
-              case MimeTypes.APPLICATION_PGS:
-                return new DelegatingSubtitleDecoder(
-                    "DelegatingSubtitleDecoderWithPgsParser", new PgsParser());
               case MimeTypes.TEXT_EXOPLAYER_CUES:
                 return new ExoplayerCuesDecoder();
               default:
