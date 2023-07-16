@@ -20,7 +20,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.text.cea.Cea608Decoder;
 import com.google.android.exoplayer2.text.cea.Cea708Decoder;
 import com.google.android.exoplayer2.text.dvb.DvbParser;
-import com.google.android.exoplayer2.text.pgs.PgsDecoder;
+import com.google.android.exoplayer2.text.pgs.PgsParser;
 import com.google.android.exoplayer2.text.ssa.SsaParser;
 import com.google.android.exoplayer2.text.subrip.SubripParser;
 import com.google.android.exoplayer2.text.ttml.TtmlDecoder;
@@ -73,7 +73,7 @@ public interface SubtitleDecoderFactory {
    *   <li>Cea608 ({@link Cea608Decoder})
    *   <li>Cea708 ({@link Cea708Decoder})
    *   <li>DVB ({@link DvbParser})
-   *   <li>PGS ({@link PgsDecoder})
+   *   <li>PGS ({@link PgsParser})
    *   <li>Exoplayer Cues ({@link ExoplayerCuesDecoder})
    * </ul>
    */
@@ -133,7 +133,8 @@ public interface SubtitleDecoderFactory {
                     "DelegatingSubtitleDecoderWithDvbParser",
                     new DvbParser(format.initializationData));
               case MimeTypes.APPLICATION_PGS:
-                return new PgsDecoder();
+                return new DelegatingSubtitleDecoder(
+                    "DelegatingSubtitleDecoderWithPgsParser", new PgsParser());
               case MimeTypes.TEXT_EXOPLAYER_CUES:
                 return new ExoplayerCuesDecoder();
               default:

@@ -19,19 +19,19 @@ import static java.lang.Math.min;
 
 import android.graphics.Bitmap;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.text.SimpleSubtitleDecoder;
-import com.google.android.exoplayer2.text.Subtitle;
-import com.google.android.exoplayer2.text.SubtitleDecoderException;
+import com.google.android.exoplayer2.text.CuesWithTiming;
+import com.google.android.exoplayer2.text.SubtitleParser;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.zip.Inflater;
 
 /**
- * A {@link SimpleSubtitleDecoder} for PGS subtitles.
+ * A {@link SubtitleParser} for PGS subtitles.
  *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
  *     contains the same ExoPlayer code). See <a
@@ -39,7 +39,7 @@ import java.util.zip.Inflater;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-public final class PgsDecoder extends SimpleSubtitleDecoder {
+public final class PgsParser implements SubtitleParser {
 
   private static final int SECTION_TYPE_PALETTE = 0x14;
   private static final int SECTION_TYPE_BITMAP_PICTURE = 0x15;
@@ -51,20 +51,30 @@ public final class PgsDecoder extends SimpleSubtitleDecoder {
   private final ParsableByteArray buffer;
   private final ParsableByteArray inflatedBuffer;
   private final CueBuilder cueBuilder;
-
+  private byte[] dataScratch = Util.EMPTY_BYTE_ARRAY;
   @Nullable private Inflater inflater;
 
-  public PgsDecoder() {
-    super("PgsDecoder");
+  public PgsParser() {
     buffer = new ParsableByteArray();
     inflatedBuffer = new ParsableByteArray();
     cueBuilder = new CueBuilder();
   }
 
   @Override
-  protected Subtitle decode(byte[] data, int length, boolean reset)
-      throws SubtitleDecoderException {
-    buffer.reset(data, length);
+  public void reset() {}
+
+  @Override
+  public ImmutableList<CuesWithTiming> parse(byte[] data, int offset, int length) {
+    if (offset != 0) {
+      if (dataScratch.length < length) {
+        dataScratch = new byte[length];
+      }
+      System.arraycopy(
+          /* src= */ data, /* scrPos= */ offset, /* dest= */ dataScratch, /* destPos= */ 0, length);
+      buffer.reset(dataScratch, length);
+    } else {
+      buffer.reset(data, length);
+    }
     maybeInflateData(buffer);
     cueBuilder.reset();
     ArrayList<Cue> cues = new ArrayList<>();
@@ -74,7 +84,8 @@ public final class PgsDecoder extends SimpleSubtitleDecoder {
         cues.add(cue);
       }
     }
-    return new PgsSubtitle(Collections.unmodifiableList(cues));
+    return ImmutableList.of(
+        new CuesWithTiming(cues, /* startTimeUs= */ C.TIME_UNSET, /* durationUs= */ C.TIME_UNSET));
   }
 
   private void maybeInflateData(ParsableByteArray buffer) {
