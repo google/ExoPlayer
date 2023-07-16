@@ -40,6 +40,15 @@ public interface SubtitleParser {
   /** Factory for {@link SubtitleParser} instances. */
   interface Factory {
 
+    /**
+     * Returns whether the factory is able to instantiate a {@link SubtitleParser} for the given
+     * {@link Format}.
+     *
+     * @param format The {@link Format}.
+     * @return Whether the factory can instantiate a suitable {@link SubtitleParser}.
+     */
+    boolean supportsFormat(Format format);
+
     /** Creates a {@link SubtitleParser} for the given {@link Format}. */
     SubtitleParser create(Format format);
   }
