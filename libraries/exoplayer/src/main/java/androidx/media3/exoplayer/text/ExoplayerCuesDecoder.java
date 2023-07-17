@@ -24,10 +24,8 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.MimeTypes;
-import androidx.media3.common.text.Cue;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.extractor.text.CueDecoder;
-import androidx.media3.extractor.text.CuesWithTiming;
 import androidx.media3.extractor.text.Subtitle;
 import androidx.media3.extractor.text.SubtitleDecoder;
 import androidx.media3.extractor.text.SubtitleDecoderException;
@@ -40,7 +38,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.List;
 
 /**
  * A {@link SubtitleDecoder} that decodes subtitle samples of type {@link
@@ -118,9 +115,10 @@ public final class ExoplayerCuesDecoder implements SubtitleDecoder {
     if (inputBuffer.isEndOfStream()) {
       outputBuffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
     } else {
-      SubtitleImpl subtitle =
-          new SubtitleImpl(
-              cueDecoder.decode(inputBuffer.timeUs, checkNotNull(inputBuffer.data).array()));
+      Subtitle subtitle =
+          new CuesWithTimingSubtitle(
+              ImmutableList.of(
+                  cueDecoder.decode(inputBuffer.timeUs, checkNotNull(inputBuffer.data).array())));
       outputBuffer.setContent(inputBuffer.timeUs, subtitle, /* subsampleOffsetUs= */ 0);
     }
     inputBuffer.clear();
@@ -150,54 +148,5 @@ public final class ExoplayerCuesDecoder implements SubtitleDecoder {
     checkArgument(!availableOutputBuffers.contains(outputBuffer));
     outputBuffer.clear();
     availableOutputBuffers.addFirst(outputBuffer);
-  }
-
-  private static final class SubtitleImpl implements Subtitle {
-    private final CuesWithTiming cuesWithTiming;
-
-    public SubtitleImpl(CuesWithTiming cuesWithTiming) {
-      this.cuesWithTiming = cuesWithTiming;
-    }
-
-    @Override
-    public int getNextEventTimeIndex(long timeUs) {
-      if (timeUs < cuesWithTiming.startTimeUs) {
-        return 0;
-      } else if (cuesWithTiming.durationUs != C.TIME_UNSET
-          && timeUs < cuesWithTiming.startTimeUs + cuesWithTiming.durationUs) {
-        return 1;
-      } else {
-        return C.INDEX_UNSET;
-      }
-    }
-
-    @Override
-    public int getEventTimeCount() {
-      return cuesWithTiming.durationUs == C.TIME_UNSET ? 1 : 2;
-    }
-
-    @Override
-    public long getEventTime(int index) {
-      if (index == 0) {
-        return cuesWithTiming.startTimeUs;
-      } else if (cuesWithTiming.durationUs != C.TIME_UNSET && index == 1) {
-        return cuesWithTiming.startTimeUs + cuesWithTiming.durationUs;
-      } else {
-        throw new IndexOutOfBoundsException("Invalid index: " + index);
-      }
-    }
-
-    @Override
-    public List<Cue> getCues(long timeUs) {
-      if (timeUs < cuesWithTiming.startTimeUs) {
-        return ImmutableList.of();
-      } else if (cuesWithTiming.durationUs == C.TIME_UNSET) {
-        return cuesWithTiming.cues;
-      } else if (timeUs < cuesWithTiming.startTimeUs + cuesWithTiming.durationUs) {
-        return cuesWithTiming.cues;
-      } else {
-        return ImmutableList.of();
-      }
-    }
   }
 }

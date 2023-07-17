@@ -16,15 +16,11 @@
 package androidx.media3.exoplayer.text;
 
 import androidx.annotation.Nullable;
-import androidx.media3.common.C;
-import androidx.media3.common.text.Cue;
-import androidx.media3.common.util.Util;
 import androidx.media3.extractor.text.CuesWithTiming;
 import androidx.media3.extractor.text.SimpleSubtitleDecoder;
 import androidx.media3.extractor.text.Subtitle;
 import androidx.media3.extractor.text.SubtitleParser;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Ordering;
 import java.util.List;
 
 /**
@@ -54,7 +50,7 @@ import java.util.List;
  */
 /* package */ final class DelegatingSubtitleDecoder extends SimpleSubtitleDecoder {
 
-  private static final Subtitle EMPTY = new SubtitleFromCuesWithTiming(ImmutableList.of());
+  private static final Subtitle EMPTY_SUBTITLE = new CuesWithTimingSubtitle(ImmutableList.of());
   private final SubtitleParser subtitleParser;
 
   /* package */ DelegatingSubtitleDecoder(String name, SubtitleParser subtitleParser) {
@@ -69,77 +65,8 @@ import java.util.List;
     }
     @Nullable List<CuesWithTiming> cuesWithTiming = subtitleParser.parse(data);
     if (cuesWithTiming == null) {
-      return EMPTY;
+      return EMPTY_SUBTITLE;
     }
-    return new SubtitleFromCuesWithTiming(cuesWithTiming);
-  }
-
-  private static final class SubtitleFromCuesWithTiming implements Subtitle {
-
-    private final ImmutableList<ImmutableList<Cue>> cuesListForUniqueStartTimes;
-    private final long[] cuesStartTimesUs;
-
-    /** Ordering of two CuesWithTiming objects based on their startTimeUs values. */
-    private static final Ordering<CuesWithTiming> CUES_BY_START_TIME_ASCENDING =
-        Ordering.natural().onResultOf(c -> normalizeUnsetStartTimeToZero(c.startTimeUs));
-
-    SubtitleFromCuesWithTiming(List<CuesWithTiming> cuesWithTimingList) {
-      this.cuesStartTimesUs = new long[cuesWithTimingList.size()];
-      ImmutableList.Builder<ImmutableList<Cue>> cuesListForUniqueStartTimes =
-          ImmutableList.builder();
-      ImmutableList<CuesWithTiming> sortedCuesWithTimingList =
-          ImmutableList.sortedCopyOf(CUES_BY_START_TIME_ASCENDING, cuesWithTimingList);
-      for (int i = 0; i < sortedCuesWithTimingList.size(); i++) {
-        cuesListForUniqueStartTimes.add(sortedCuesWithTimingList.get(i).cues);
-        cuesStartTimesUs[i] =
-            normalizeUnsetStartTimeToZero(sortedCuesWithTimingList.get(i).startTimeUs);
-      }
-      this.cuesListForUniqueStartTimes = cuesListForUniqueStartTimes.build();
-    }
-
-    @Override
-    public int getNextEventTimeIndex(long timeUs) {
-      int index =
-          Util.binarySearchCeil(
-              cuesStartTimesUs,
-              /* value= */ timeUs,
-              /* inclusive= */ false,
-              /* stayInBounds= */ false);
-      return index < cuesStartTimesUs.length ? index : C.INDEX_UNSET;
-    }
-
-    @Override
-    public int getEventTimeCount() {
-      return cuesStartTimesUs.length;
-    }
-
-    @Override
-    public long getEventTime(int index) {
-      return cuesStartTimesUs[index];
-    }
-
-    @Override
-    public ImmutableList<Cue> getCues(long timeUs) {
-      int index =
-          Util.binarySearchFloor(
-              cuesStartTimesUs,
-              /* value= */ timeUs,
-              /* inclusive= */ true,
-              /* stayInBounds= */ false);
-      if (index == -1) {
-        // timeUs is earlier than the start of the first List<Cue> in cuesListForUniqueStartTimes.
-        return ImmutableList.of();
-      } else {
-        return cuesListForUniqueStartTimes.get(index);
-      }
-    }
-
-    // SubtitleParser can return CuesWithTiming with startTimeUs == TIME_UNSET, indicating the
-    // start time should be derived from the surrounding sample timestamp. In the context of the
-    // Subtitle interface, this means starting at zero, so we can just always interpret TIME_UNSET
-    // as zero here.
-    private static long normalizeUnsetStartTimeToZero(long startTime) {
-      return startTime == C.TIME_UNSET ? 0 : startTime;
-    }
+    return new CuesWithTimingSubtitle(cuesWithTiming);
   }
 }
