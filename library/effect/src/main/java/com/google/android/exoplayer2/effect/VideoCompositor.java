@@ -26,6 +26,7 @@ import android.opengl.GLES20;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.GlObjectsProvider;
 import com.google.android.exoplayer2.util.GlProgram;
 import com.google.android.exoplayer2.util.GlTextureInfo;
@@ -45,6 +46,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * A basic VideoCompositor that takes in frames from exactly 2 input sources and combines it to one
  * output.
  *
+ * <p>The first {@linkplain #registerInputSource registered source} will be the primary stream,
+ * which is used to determine the output frames' timestamps and dimensions.
+ *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
  *     contains the same ExoPlayer code). See <a
  *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
@@ -53,7 +57,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 @Deprecated
 public final class VideoCompositor {
   // TODO: b/262694346 -  Flesh out this implementation by doing the following:
-  //  * Handle matched timestamps.
   //  * Handle mismatched timestamps
   //  * Before allowing customization of this class, add an interface, and rename this class to
   //    DefaultCompositor.
@@ -221,11 +224,21 @@ public final class VideoCompositor {
     if (outputTexturePool.freeTextureCount() == 0) {
       return false;
     }
-    // TODO: b/262694346 - Use timestamps to determine when to composite instead of number of
-    //  frames.
+    long compositeTimestampUs = C.TIME_UNSET;
     for (int inputId = 0; inputId < inputFrameInfos.size(); inputId++) {
-      if (checkNotNull(inputFrameInfos.get(inputId)).isEmpty()) {
+      Queue<InputFrameInfo> inputFrameInfoQueue = checkNotNull(inputFrameInfos.get(inputId));
+      if (inputFrameInfoQueue.isEmpty()) {
         return false;
+      }
+
+      long inputTimestampUs = checkNotNull(inputFrameInfoQueue.peek()).presentationTimeUs;
+      if (inputId == 0) {
+        compositeTimestampUs = inputTimestampUs;
+      }
+      // TODO: b/262694346 - Allow for different frame-rates to be composited, by potentially
+      //  dropping some frames in non-primary streams.
+      if (inputTimestampUs != compositeTimestampUs) {
+        throw new IllegalStateException("Non-matched timestamps not yet supported.");
       }
     }
     return true;
