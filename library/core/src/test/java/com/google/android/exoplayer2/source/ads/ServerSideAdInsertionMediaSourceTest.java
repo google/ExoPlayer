@@ -21,6 +21,8 @@ import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.play
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilPendingCommandsAreFullyHandled;
 import static com.google.android.exoplayer2.robolectric.TestPlayerRunHelper.runUntilPlaybackState;
 import static com.google.android.exoplayer2.source.ads.ServerSideAdInsertionUtil.addAdGroupToAdPlaybackState;
+import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.END_OF_STREAM_ITEM;
+import static com.google.android.exoplayer2.testutil.FakeSampleStream.FakeSampleStreamItem.oneByteSample;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -43,29 +45,46 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.analytics.PlayerId;
+import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
+import com.google.android.exoplayer2.drm.DrmSessionEventListener;
+import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.robolectric.PlaybackOutput;
+import com.google.android.exoplayer2.robolectric.RobolectricUtil;
 import com.google.android.exoplayer2.robolectric.ShadowMediaCodecConfig;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
+import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.SinglePeriodTimeline;
+import com.google.android.exoplayer2.source.TrackGroup;
+import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.testutil.CapturingRenderersFactory;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.testutil.FakeClock;
+import com.google.android.exoplayer2.testutil.FakeMediaPeriod;
 import com.google.android.exoplayer2.testutil.FakeMediaSource;
+import com.google.android.exoplayer2.testutil.FakeSampleStream;
 import com.google.android.exoplayer2.testutil.FakeTimeline;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
+import com.google.android.exoplayer2.trackselection.FixedTrackSelection;
+import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
+import com.google.android.exoplayer2.upstream.TransferListener;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -682,5 +701,129 @@ public final class ServerSideAdInsertionMediaSourceTest {
     verify(listener, times(2)).onAudioEnabled(any(), any());
     // Assert playback progression was smooth (=no unexpected delays that cause audio to underrun)
     verify(listener, never()).onAudioUnderrun(any(), anyInt(), anyLong(), anyLong());
+  }
+
+  @Test
+  public void serverSideAdInsertionSampleStream_withFastLoadingSourceAfterFirstRead_canBeReadFully()
+      throws Exception {
+    TrackGroup trackGroup = new TrackGroup(new Format.Builder().build());
+    // Set up MediaPeriod with no samples and only add samples after the first SampleStream read.
+    FakeMediaPeriod mediaPeriod =
+        new FakeMediaPeriod(
+            new TrackGroupArray(trackGroup),
+            new DefaultAllocator(/* trimOnReset= */ true, /* individualAllocationSize= */ 1024),
+            /* trackDataFactory= */ (format, mediaPeriodId) -> ImmutableList.of(),
+            new MediaSourceEventListener.EventDispatcher()
+                .withParameters(
+                    /* windowIndex= */ 0,
+                    new MediaSource.MediaPeriodId(/* periodUid= */ new Object())),
+            DrmSessionManager.DRM_UNSUPPORTED,
+            new DrmSessionEventListener.EventDispatcher(),
+            /* deferOnPrepared= */ false) {
+          @Override
+          protected FakeSampleStream createSampleStream(
+              Allocator allocator,
+              @Nullable MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher,
+              DrmSessionManager drmSessionManager,
+              DrmSessionEventListener.EventDispatcher drmEventDispatcher,
+              Format initialFormat,
+              List<FakeSampleStream.FakeSampleStreamItem> fakeSampleStreamItems) {
+            return new FakeSampleStream(
+                allocator,
+                mediaSourceEventDispatcher,
+                drmSessionManager,
+                drmEventDispatcher,
+                initialFormat,
+                /* fakeSampleStreamItems= */ ImmutableList.of()) {
+              private boolean addedSamples = false;
+
+              @Override
+              public int readData(
+                  FormatHolder formatHolder, DecoderInputBuffer buffer, @ReadFlags int readFlags) {
+                int result = super.readData(formatHolder, buffer, readFlags);
+                if (!addedSamples) {
+                  append(
+                      ImmutableList.of(
+                          oneByteSample(/* timeUs= */ 0, C.BUFFER_FLAG_KEY_FRAME),
+                          oneByteSample(/* timeUs= */ 200, C.BUFFER_FLAG_KEY_FRAME),
+                          oneByteSample(/* timeUs= */ 400, C.BUFFER_FLAG_KEY_FRAME),
+                          oneByteSample(/* timeUs= */ 600, C.BUFFER_FLAG_KEY_FRAME),
+                          oneByteSample(/* timeUs= */ 800, C.BUFFER_FLAG_KEY_FRAME),
+                          END_OF_STREAM_ITEM));
+                  writeData(/* startPositionUs= */ 0);
+                  addedSamples = true;
+                }
+                return result;
+              }
+            };
+          }
+        };
+    FakeMediaSource mediaSource =
+        new FakeMediaSource() {
+          @Override
+          protected MediaPeriod createMediaPeriod(
+              MediaPeriodId id,
+              TrackGroupArray trackGroupArray,
+              Allocator allocator,
+              MediaSourceEventListener.EventDispatcher mediaSourceEventDispatcher,
+              DrmSessionManager drmSessionManager,
+              DrmSessionEventListener.EventDispatcher drmEventDispatcher,
+              @Nullable TransferListener transferListener) {
+            return mediaPeriod;
+          }
+        };
+    ServerSideAdInsertionMediaSource serverSideAdInsertionMediaSource =
+        new ServerSideAdInsertionMediaSource(mediaSource, /* adPlaybackStateUpdater= */ null);
+    Timeline timeline = new FakeTimeline();
+    Object periodUid = timeline.getUidOfPeriod(/* periodIndex= */ 0);
+    serverSideAdInsertionMediaSource.setAdPlaybackStates(
+        ImmutableMap.of(periodUid, new AdPlaybackState(/* adsId= */ new Object())), timeline);
+    AtomicBoolean sourcePrepared = new AtomicBoolean();
+    serverSideAdInsertionMediaSource.prepareSource(
+        (source, newTimeline) -> sourcePrepared.set(true),
+        /* mediaTransferListener= */ null,
+        PlayerId.UNSET);
+    RobolectricUtil.runMainLooperUntil(sourcePrepared::get);
+    MediaPeriod serverSideAdInsertionMediaPeriod =
+        serverSideAdInsertionMediaSource.createPeriod(
+            new MediaSource.MediaPeriodId(periodUid),
+            /* allocator= */ null,
+            /* startPositionUs= */ 0);
+    AtomicBoolean periodPrepared = new AtomicBoolean();
+    serverSideAdInsertionMediaPeriod.prepare(
+        new MediaPeriod.Callback() {
+          @Override
+          public void onPrepared(MediaPeriod mediaPeriod) {
+            periodPrepared.set(true);
+          }
+
+          @Override
+          public void onContinueLoadingRequested(MediaPeriod source) {
+            serverSideAdInsertionMediaPeriod.continueLoading(/* positionUs= */ 0);
+          }
+        },
+        /* positionUs= */ 0);
+    RobolectricUtil.runMainLooperUntil(periodPrepared::get);
+    SampleStream[] sampleStreams = new SampleStream[1];
+    serverSideAdInsertionMediaPeriod.selectTracks(
+        new ExoTrackSelection[] {new FixedTrackSelection(trackGroup, /* track= */ 0)},
+        /* mayRetainStreamFlags= */ new boolean[] {false},
+        sampleStreams,
+        /* streamResetFlags= */ new boolean[] {true},
+        /* positionUs= */ 0);
+    FormatHolder formatHolder = new FormatHolder();
+    DecoderInputBuffer buffer =
+        new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
+    ArrayList<Long> readSamples = new ArrayList<>();
+
+    int result;
+    do {
+      result = sampleStreams[0].readData(formatHolder, buffer, /* readFlags= */ 0);
+      if (result == C.RESULT_BUFFER_READ && !buffer.isEndOfStream()) {
+        readSamples.add(buffer.timeUs);
+      }
+    } while (result != C.RESULT_BUFFER_READ || !buffer.isEndOfStream());
+
+    assertThat(readSamples).containsExactly(0L, 200L, 400L, 600L, 800L).inOrder();
   }
 }

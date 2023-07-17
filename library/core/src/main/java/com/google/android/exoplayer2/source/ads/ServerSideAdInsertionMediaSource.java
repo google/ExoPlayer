@@ -872,6 +872,7 @@ public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
         @SampleStream.ReadFlags int readFlags) {
       @SampleStream.ReadFlags
       int peekingFlags = readFlags | SampleStream.FLAG_PEEK | SampleStream.FLAG_OMIT_SAMPLE_DATA;
+      long bufferedPositionUs = getBufferedPositionUs(mediaPeriod);
       @SampleStream.ReadDataResult
       int result =
           castNonNull(sampleStreams[streamIndex]).readData(formatHolder, buffer, peekingFlags);
@@ -879,7 +880,7 @@ public final class ServerSideAdInsertionMediaSource extends BaseMediaSource
           getMediaPeriodPositionUsWithEndOfSourceHandling(mediaPeriod, buffer.timeUs);
       if ((result == C.RESULT_BUFFER_READ && adjustedTimeUs == C.TIME_END_OF_SOURCE)
           || (result == C.RESULT_NOTHING_READ
-              && getBufferedPositionUs(mediaPeriod) == C.TIME_END_OF_SOURCE
+              && bufferedPositionUs == C.TIME_END_OF_SOURCE
               && !buffer.waitingForKeys)) {
         maybeNotifyDownstreamFormatChanged(mediaPeriod, streamIndex);
         buffer.clear();
