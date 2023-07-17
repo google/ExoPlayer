@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer2.e2etest;
 
-import static org.junit.Assume.assumeTrue;
-
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.view.Surface;
@@ -86,11 +84,6 @@ public final class MergingPlaylistPlaybackTest {
 
   @Test
   public void test() throws Exception {
-    // TODO: These cases are reliably failing due to a bug in ExoPlayerImplInternal that doesn't
-    // reset its loading period when reading a discontinuity and the current period requires more
-    // loading as a result.
-    assumeTrue(!firstItemVideoClipped);
-
     Context applicationContext = ApplicationProvider.getApplicationContext();
     CapturingRenderersFactory capturingRenderersFactory =
         new CapturingRenderersFactory(applicationContext);
