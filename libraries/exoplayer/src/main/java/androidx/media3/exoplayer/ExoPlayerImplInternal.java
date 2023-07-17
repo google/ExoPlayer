@@ -965,6 +965,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
             ? playingPeriodHolder.mediaPeriod.readDiscontinuity()
             : C.TIME_UNSET;
     if (discontinuityPositionUs != C.TIME_UNSET) {
+      if (!playingPeriodHolder.isFullyBuffered()) {
+        // The discontinuity caused the period to not be fully buffered. Continue loading from this
+        // period again and discard all other periods we already started loading.
+        queue.removeAfter(playingPeriodHolder);
+        handleLoadingMediaPeriodChanged(/* loadingTrackSelectionChanged= */ false);
+        maybeContinueLoading();
+      }
       resetRendererPosition(discontinuityPositionUs);
       // A MediaPeriod may report a discontinuity at the current playback position to ensure the
       // renderers are flushed. Only report the discontinuity externally if the position changed.
