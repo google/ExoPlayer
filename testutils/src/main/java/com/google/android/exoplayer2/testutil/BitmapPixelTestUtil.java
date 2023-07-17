@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.testutil;
 
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.common.truth.Truth.assertThat;
 import static java.lang.Math.abs;
@@ -41,6 +42,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
@@ -339,6 +342,19 @@ public class BitmapPixelTestUtil {
       Log.d(TAG, "Saved bitmap to file path: " + file.getAbsolutePath());
     } catch (IOException e) {
       Log.e(TAG, "Could not write Bitmap to file path: " + file.getAbsolutePath(), e);
+    }
+
+    try {
+      // Use reflection here as this is an experimental API that may not work for all users
+      Class<?> testStorageClass = Class.forName("androidx.test.services.storage.TestStorage");
+      Method method = testStorageClass.getMethod("openOutputFile", String.class);
+      Object testStorage = testStorageClass.getDeclaredConstructor().newInstance();
+      OutputStream outputStream = (OutputStream) method.invoke(testStorage, fileName);
+      bitmap.compress(Bitmap.CompressFormat.PNG, /* quality= */ 100, checkNotNull(outputStream));
+    } catch (ClassNotFoundException e) {
+      // Do nothing
+    } catch (Exception e) {
+      Log.i(TAG, "Could not write Bitmap to test storage: " + fileName, e);
     }
   }
 
