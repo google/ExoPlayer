@@ -178,9 +178,7 @@ public final class GlUtil {
       return false;
     }
 
-    EGLDisplay display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
-    @Nullable String eglExtensions = EGL14.eglQueryString(display, EGL10.EGL_EXTENSIONS);
-    return eglExtensions != null && eglExtensions.contains(EXTENSION_PROTECTED_CONTENT);
+    return Api17.isExtensionSupported(EXTENSION_PROTECTED_CONTENT);
   }
 
   /**
@@ -191,12 +189,7 @@ public final class GlUtil {
    * EGLContext)}.
    */
   public static boolean isSurfacelessContextExtensionSupported() {
-    if (Util.SDK_INT < 17) {
-      return false;
-    }
-    EGLDisplay display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
-    @Nullable String eglExtensions = EGL14.eglQueryString(display, EGL10.EGL_EXTENSIONS);
-    return eglExtensions != null && eglExtensions.contains(EXTENSION_SURFACELESS_CONTEXT);
+    return Util.SDK_INT >= 17 && Api17.isExtensionSupported(EXTENSION_SURFACELESS_CONTEXT);
   }
 
   /**
@@ -209,9 +202,8 @@ public final class GlUtil {
     if (Util.SDK_INT < 17) {
       return false;
     }
-
     @Nullable String glExtensions;
-    if (Util.areEqual(EGL14.eglGetCurrentContext(), EGL14.EGL_NO_CONTEXT)) {
+    if (Util.areEqual(Api17.getCurrentContext(), EGL14.EGL_NO_CONTEXT)) {
       // Create a placeholder context and make it current to allow calling GLES20.glGetString().
       try {
         EGLDisplay eglDisplay = getDefaultEglDisplay();
@@ -231,9 +223,7 @@ public final class GlUtil {
 
   /** Returns whether {@link #EXTENSION_COLORSPACE_BT2020_PQ} is supported. */
   public static boolean isBt2020PqExtensionSupported() {
-    EGLDisplay display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
-    @Nullable String eglExtensions = EGL14.eglQueryString(display, EGL10.EGL_EXTENSIONS);
-    return eglExtensions != null && eglExtensions.contains(EXTENSION_COLORSPACE_BT2020_PQ);
+    return Util.SDK_INT >= 17 && Api17.isExtensionSupported(EXTENSION_COLORSPACE_BT2020_PQ);
   }
 
   /** Returns an initialized default {@link EGLDisplay}. */
@@ -360,9 +350,9 @@ public final class GlUtil {
   @RequiresApi(17)
   public static EGLSurface createFocusedPlaceholderEglSurface(
       EGLContext eglContext, EGLDisplay eglDisplay) throws GlException {
-    // EGL_CONFIG_ATTRIBUTES_RGBA_1010102 could be used for HDR input, but
-    // EGL14.EGL_NO_SURFACE support was added before EGL 2, so HDR-capable devices should have
-    // support for EGL_NO_SURFACE and therefore configAttributes shouldn't matter for HDR.
+    // EGL_CONFIG_ATTRIBUTES_RGBA_1010102 could be used for HDR input, but EGL14.EGL_NO_SURFACE
+    // support was added before EGL 2, so HDR-capable devices should have support for EGL_NO_SURFACE
+    // and therefore configAttributes shouldn't matter for HDR.
     int[] configAttributes = EGL_CONFIG_ATTRIBUTES_RGBA_8888;
     EGLSurface eglSurface =
         isSurfacelessContextExtensionSupported()
@@ -379,26 +369,10 @@ public final class GlUtil {
    * <p>Returns {@code 0} if the operation failed or the {@link EGLContext} version is less than
    * 3.0.
    */
+  @RequiresApi(17)
   public static long createGlSyncFence() throws GlException {
-    int[] currentEglContextVersion = new int[1];
-    EGL14.eglQueryContext(
-        EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY),
-        EGL14.eglGetCurrentContext(),
-        EGL_CONTEXT_CLIENT_VERSION,
-        currentEglContextVersion,
-        /* offset= */ 0);
-    checkGlError();
-    if (currentEglContextVersion[0] < 3) {
-      return 0;
-    }
-    long syncObject = GLES30.glFenceSync(GLES30.GL_SYNC_GPU_COMMANDS_COMPLETE, /* flags= */ 0);
-    checkGlError();
-    // Due to specifics of OpenGL, it might happen that the fence creation command is not yet
-    // sent into the GPU command queue, which can cause other threads to wait infinitely if
-    // the glSyncWait/glClientSyncWait command went into the GPU earlier. Hence, we have to
-    // call glFlush to ensure that glFenceSync is inside of the GPU command queue.
-    GLES20.glFlush();
-    return syncObject;
+    // If the context is an OpenGL 3.0 context, we must be running API 18 or later.
+    return Api17.getContextMajorVersion() >= 3 ? Api18.createSyncFence() : 0;
   }
 
   /**
@@ -407,14 +381,22 @@ public final class GlUtil {
    * <p>The {@code syncObject} must not be used after deletion.
    */
   public static void deleteSyncObject(long syncObject) throws GlException {
-    GLES30.glDeleteSync(syncObject);
-    checkGlError();
+    // If the sync object is set, we must be running API 18 or later.
+    if (Util.SDK_INT >= 18) {
+      Api18.deleteSyncObject(syncObject);
+    }
   }
 
   /** Releases the GL sync object if set, suppressing any error. */
   public static void deleteSyncObjectQuietly(long syncObject) {
-    // glDeleteSync ignores a 0-valued sync object.
-    GLES30.glDeleteSync(syncObject);
+    if (Util.SDK_INT >= 18) {
+      try {
+        // glDeleteSync ignores a 0-valued sync object.
+        Api18.deleteSyncObject(syncObject);
+      } catch (GlException unused) {
+        // Suppress exceptions.
+      }
+    }
   }
 
   /**
@@ -427,14 +409,15 @@ public final class GlUtil {
       // Fallback to using glFinish for synchronization when fence creation failed.
       GLES20.glFinish();
     } else {
-      GLES30.glWaitSync(syncObject, /* flags= */ 0, GLES30.GL_TIMEOUT_IGNORED);
-      checkGlError();
+      // If the sync object is set, we must be running API 18 or later.
+      Api18.waitSync(syncObject);
     }
   }
 
   /** Gets the current {@link EGLContext context}. */
+  @RequiresApi(17)
   public static EGLContext getCurrentContext() {
-    return EGL14.eglGetCurrentContext();
+    return Api17.getCurrentContext();
   }
 
   /**
@@ -543,10 +526,16 @@ public final class GlUtil {
    * @param width The viewport width, in pixels.
    * @param height The viewport height, in pixels.
    */
-  @RequiresApi(17)
   public static void focusFramebufferUsingCurrentContext(int framebuffer, int width, int height)
       throws GlException {
-    Api17.focusFramebufferUsingCurrentContext(framebuffer, width, height);
+    int[] boundFramebuffer = new int[1];
+    GLES20.glGetIntegerv(GLES20.GL_FRAMEBUFFER_BINDING, boundFramebuffer, /* offset= */ 0);
+    if (boundFramebuffer[0] != framebuffer) {
+      GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, framebuffer);
+    }
+    checkGlError();
+    GLES20.glViewport(/* x= */ 0, /* y= */ 0, width, height);
+    checkGlError();
   }
 
   /**
@@ -630,9 +619,6 @@ public final class GlUtil {
 
   /** Returns a new GL texture identifier. */
   private static int generateTexture() throws GlException {
-    checkGlException(
-        !Util.areEqual(EGL14.eglGetCurrentContext(), EGL14.EGL_NO_CONTEXT), "No current context");
-
     int[] texId = new int[1];
     GLES20.glGenTextures(/* n= */ 1, texId, /* offset= */ 0);
     checkGlError();
@@ -667,9 +653,6 @@ public final class GlUtil {
    * @param texId The identifier of the texture to attach to the framebuffer.
    */
   public static int createFboForTexture(int texId) throws GlException {
-    checkGlException(
-        !Util.areEqual(EGL14.eglGetCurrentContext(), EGL14.EGL_NO_CONTEXT), "No current context");
-
     int[] fboId = new int[1];
     GLES20.glGenFramebuffers(/* n= */ 1, fboId, /* offset= */ 0);
     checkGlError();
@@ -737,13 +720,6 @@ public final class GlUtil {
     }
   }
 
-  private static void checkEglException(String errorMessage) throws GlException {
-    int error = EGL14.eglGetError();
-    if (error != EGL14.EGL_SUCCESS) {
-      throw new GlException(errorMessage + ", error code: 0x" + Integer.toHexString(error));
-    }
-  }
-
   @RequiresApi(17)
   private static final class Api17 {
     private Api17() {}
@@ -785,6 +761,49 @@ public final class GlUtil {
       }
       checkGlError();
       return eglContext;
+    }
+
+    @DoNotInline
+    public static EGLContext getCurrentContext() {
+      return EGL14.eglGetCurrentContext();
+    }
+
+    @DoNotInline
+    private static EGLConfig getEglConfig(EGLDisplay eglDisplay, int[] attributes)
+        throws GlException {
+      EGLConfig[] eglConfigs = new EGLConfig[1];
+      if (!EGL14.eglChooseConfig(
+          eglDisplay,
+          attributes,
+          /* attrib_listOffset= */ 0,
+          eglConfigs,
+          /* configsOffset= */ 0,
+          /* config_size= */ 1,
+          /* unusedNumConfig */ new int[1],
+          /* num_configOffset= */ 0)) {
+        throw new GlException("eglChooseConfig failed.");
+      }
+      return eglConfigs[0];
+    }
+
+    @DoNotInline
+    public static boolean isExtensionSupported(String extensionName) {
+      EGLDisplay display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
+      @Nullable String eglExtensions = EGL14.eglQueryString(display, EGL10.EGL_EXTENSIONS);
+      return eglExtensions != null && eglExtensions.contains(extensionName);
+    }
+
+    @DoNotInline
+    public static int getContextMajorVersion() throws GlException {
+      int[] currentEglContextVersion = new int[1];
+      EGL14.eglQueryContext(
+          EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY),
+          EGL14.eglGetCurrentContext(),
+          EGL_CONTEXT_CLIENT_VERSION,
+          currentEglContextVersion,
+          /* offset= */ 0);
+      checkGlError();
+      return currentEglContextVersion[0];
     }
 
     @DoNotInline
@@ -830,22 +849,6 @@ public final class GlUtil {
     }
 
     @DoNotInline
-    public static void focusFramebufferUsingCurrentContext(int framebuffer, int width, int height)
-        throws GlException {
-      checkGlException(
-          !Util.areEqual(EGL14.eglGetCurrentContext(), EGL14.EGL_NO_CONTEXT), "No current context");
-
-      int[] boundFramebuffer = new int[1];
-      GLES20.glGetIntegerv(GLES20.GL_FRAMEBUFFER_BINDING, boundFramebuffer, /* offset= */ 0);
-      if (boundFramebuffer[0] != framebuffer) {
-        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, framebuffer);
-      }
-      checkGlError();
-      GLES20.glViewport(/* x= */ 0, /* y= */ 0, width, height);
-      checkGlError();
-    }
-
-    @DoNotInline
     public static void destroyEglContext(
         @Nullable EGLDisplay eglDisplay, @Nullable EGLContext eglContext) throws GlException {
       if (eglDisplay == null) {
@@ -875,21 +878,41 @@ public final class GlUtil {
     }
 
     @DoNotInline
-    private static EGLConfig getEglConfig(EGLDisplay eglDisplay, int[] attributes)
-        throws GlException {
-      EGLConfig[] eglConfigs = new EGLConfig[1];
-      if (!EGL14.eglChooseConfig(
-          eglDisplay,
-          attributes,
-          /* attrib_listOffset= */ 0,
-          eglConfigs,
-          /* configsOffset= */ 0,
-          /* config_size= */ 1,
-          /* unusedNumConfig */ new int[1],
-          /* num_configOffset= */ 0)) {
-        throw new GlException("eglChooseConfig failed.");
+    public static void checkEglException(String errorMessage) throws GlException {
+      int error = EGL14.eglGetError();
+      if (error != EGL14.EGL_SUCCESS) {
+        throw new GlException(errorMessage + ", error code: 0x" + Integer.toHexString(error));
       }
-      return eglConfigs[0];
+    }
+  }
+
+  @RequiresApi(18)
+  private static final class Api18 {
+    private Api18() {}
+
+    @DoNotInline
+    public static long createSyncFence() throws GlException {
+      long syncObject = GLES30.glFenceSync(GLES30.GL_SYNC_GPU_COMMANDS_COMPLETE, /* flags= */ 0);
+      checkGlError();
+      // Due to specifics of OpenGL, it might happen that the fence creation command is not yet
+      // sent into the GPU command queue, which can cause other threads to wait infinitely if
+      // the glSyncWait/glClientSyncWait command went into the GPU earlier. Hence, we have to
+      // call glFlush to ensure that glFenceSync is inside of the GPU command queue.
+      GLES20.glFlush();
+      checkGlError();
+      return syncObject;
+    }
+
+    @DoNotInline
+    public static void deleteSyncObject(long syncObject) throws GlException {
+      GLES30.glDeleteSync(syncObject);
+      checkGlError();
+    }
+
+    @DoNotInline
+    public static void waitSync(long syncObject) throws GlException {
+      GLES30.glWaitSync(syncObject, /* flags= */ 0, GLES30.GL_TIMEOUT_IGNORED);
+      checkGlError();
     }
   }
 }
