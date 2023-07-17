@@ -53,6 +53,12 @@ public final class MatroskaExtractorTest {
   }
 
   @Test
+  public void mkvSample_withOverlappingSubripSubtitles() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        MatroskaExtractor::new, "media/mkv/sample_with_overlapping_srt.mkv", simulationConfig);
+  }
+
+  @Test
   public void mkvSample_withSsaSubtitles() throws Exception {
     ExtractorAsserts.assertBehavior(
         MatroskaExtractor::new, "media/mkv/sample_with_ssa_subtitles.mkv", simulationConfig);
@@ -64,6 +70,14 @@ public final class MatroskaExtractorTest {
     ExtractorAsserts.assertBehavior(
         MatroskaExtractor::new,
         "media/mkv/sample_with_null_terminated_ssa_subtitles.mkv",
+        simulationConfig);
+  }
+
+  @Test
+  public void mkvSample_withOverlappingSsaSubtitles() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        MatroskaExtractor::new,
+        "media/mkv/sample_with_overlapping_ssa_subtitles.mkv",
         simulationConfig);
   }
 

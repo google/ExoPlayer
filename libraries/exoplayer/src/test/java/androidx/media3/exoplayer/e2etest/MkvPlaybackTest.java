@@ -47,8 +47,10 @@ public final class MkvPlaybackTest {
         "sample_with_htc_rotation_track_name.mkv",
         "sample_with_ssa_subtitles.mkv",
         "sample_with_null_terminated_ssa_subtitles.mkv",
+        "sample_with_overlapping_ssa_subtitles.mkv",
         "sample_with_srt.mkv",
         "sample_with_null_terminated_srt.mkv",
+        "sample_with_overlapping_srt.mkv",
         "sample_with_vtt_subtitles.mkv",
         "sample_with_null_terminated_vtt_subtitles.mkv");
   }
