@@ -83,7 +83,6 @@ import java.lang.annotation.Target;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -317,7 +316,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private final DecoderInputBuffer buffer;
   private final DecoderInputBuffer bypassSampleBuffer;
   private final BatchBuffer bypassBatchBuffer;
-  private final ArrayList<Long> decodeOnlyPresentationTimestamps;
   private final MediaCodec.BufferInfo outputBufferInfo;
   private final ArrayDeque<OutputStreamInfo> pendingOutputStreamChanges;
   private final OggOpusAudioPacketizer oggOpusAudioPacketizer;
@@ -418,7 +416,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     buffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
     bypassSampleBuffer = new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT);
     bypassBatchBuffer = new BatchBuffer();
-    decodeOnlyPresentationTimestamps = new ArrayList<>();
     outputBufferInfo = new MediaCodec.BufferInfo();
     currentPlaybackSpeed = 1f;
     targetPlaybackSpeed = 1f;
@@ -939,7 +936,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     shouldSkipAdaptationWorkaroundOutputBuffer = false;
     isDecodeOnlyOutputBuffer = false;
     isLastOutputBuffer = false;
-    decodeOnlyPresentationTimestamps.clear();
     largestQueuedPresentationTimeUs = C.TIME_UNSET;
     lastBufferInStreamPresentationTimeUs = C.TIME_UNSET;
     lastProcessedOutputBufferTimeUs = C.TIME_UNSET;
@@ -1396,9 +1392,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
               c2Mp3TimestampTracker.getLastOutputBufferPresentationTimeUs(inputFormat));
     }
 
-    if (buffer.isDecodeOnly()) {
-      decodeOnlyPresentationTimestamps.add(presentationTimeUs);
-    }
     if (waitingForFirstSampleInFormat) {
       if (!pendingOutputStreamChanges.isEmpty()) {
         pendingOutputStreamChanges.peekLast().formatQueue.add(presentationTimeUs, inputFormat);
@@ -1928,7 +1921,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           && largestQueuedPresentationTimeUs != C.TIME_UNSET) {
         outputBufferInfo.presentationTimeUs = largestQueuedPresentationTimeUs;
       }
-      isDecodeOnlyOutputBuffer = isDecodeOnlyBuffer(outputBufferInfo.presentationTimeUs);
+      isDecodeOnlyOutputBuffer = outputBufferInfo.presentationTimeUs < getLastResetPositionUs();
       isLastOutputBuffer =
           lastBufferInStreamPresentationTimeUs == outputBufferInfo.presentationTimeUs;
       updateOutputFormatForTime(outputBufferInfo.presentationTimeUs);
@@ -2217,19 +2210,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private void reinitializeCodec() throws ExoPlaybackException {
     releaseCodec();
     maybeInitCodecOrBypass();
-  }
-
-  private boolean isDecodeOnlyBuffer(long presentationTimeUs) {
-    // We avoid using decodeOnlyPresentationTimestamps.remove(presentationTimeUs) because it would
-    // box presentationTimeUs, creating a Long object that would need to be garbage collected.
-    int size = decodeOnlyPresentationTimestamps.size();
-    for (int i = 0; i < size; i++) {
-      if (decodeOnlyPresentationTimestamps.get(i) == presentationTimeUs) {
-        decodeOnlyPresentationTimestamps.remove(i);
-        return true;
-      }
-    }
-    return false;
   }
 
   @RequiresApi(23)
