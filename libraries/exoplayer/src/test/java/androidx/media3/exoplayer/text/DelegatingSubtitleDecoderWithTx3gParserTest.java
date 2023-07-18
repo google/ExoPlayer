@@ -34,7 +34,7 @@ import org.junit.runner.RunWith;
 
 /** Unit test for a {@link DelegatingSubtitleDecoder} backed by {@link Tx3gParser}. */
 @RunWith(AndroidJUnit4.class)
-public final class DelegatingDecoderWithTx3gParserTest {
+public final class DelegatingSubtitleDecoderWithTx3gParserTest {
   private static final String NO_SUBTITLE = "media/tx3g/no_subtitle";
   private static final String SAMPLE_JUST_TEXT = "media/tx3g/sample_just_text";
   private static final String SAMPLE_WITH_STYL = "media/tx3g/sample_with_styl";

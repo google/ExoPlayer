@@ -27,9 +27,9 @@ import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Unit test for a DelegatingSubtitleDecoder backed by {@link SubripParser}. */
+/** Unit test for a {@link DelegatingSubtitleDecoder} backed by {@link SubripParser}. */
 @RunWith(AndroidJUnit4.class)
-public class DelegatingSubtitleDecoderWithSubripParserTest {
+public final class DelegatingSubtitleDecoderWithSubripParserTest {
 
   private static final String EMPTY_FILE = "media/subrip/empty";
   private static final String TYPICAL_FILE = "media/subrip/typical";
