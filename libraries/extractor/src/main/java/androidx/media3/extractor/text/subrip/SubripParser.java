@@ -22,11 +22,9 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-import androidx.media3.common.C;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Log;
-import androidx.media3.common.util.LongArray;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -82,8 +80,7 @@ public final class SubripParser implements SubtitleParser {
   @Nullable
   @Override
   public ImmutableList<CuesWithTiming> parse(byte[] data, int offset, int length) {
-    ArrayList<Cue> cues = new ArrayList<>();
-    LongArray startTimesUs = new LongArray();
+    ImmutableList.Builder<CuesWithTiming> cues = new ImmutableList.Builder<>();
 
     if (dataScratch.length < length) {
       dataScratch = new byte[length];
@@ -115,10 +112,12 @@ public final class SubripParser implements SubtitleParser {
         break;
       }
 
+      long startTimeUs;
+      long endTimeUs;
       Matcher matcher = SUBRIP_TIMING_LINE.matcher(currentLine);
       if (matcher.matches()) {
-        startTimesUs.add(parseTimecode(matcher, /* groupOffset= */ 1));
-        startTimesUs.add(parseTimecode(matcher, /* groupOffset= */ 6));
+        startTimeUs = parseTimecode(matcher, /* groupOffset= */ 1);
+        endTimeUs = parseTimecode(matcher, /* groupOffset= */ 6);
       } else {
         Log.w(TAG, "Skipping invalid timing: " + currentLine);
         continue;
@@ -147,21 +146,13 @@ public final class SubripParser implements SubtitleParser {
           break;
         }
       }
-      cues.add(buildCue(text, alignmentTag));
-      cues.add(Cue.EMPTY);
-    }
-
-    ImmutableList.Builder<CuesWithTiming> cuesWithStartTimeAndDuration = ImmutableList.builder();
-    for (int i = 0; i < cues.size(); i++) {
-      cuesWithStartTimeAndDuration.add(
+      cues.add(
           new CuesWithTiming(
-              /* cues= */ ImmutableList.of(cues.get(i)),
-              /* startTimeUs= */ startTimesUs.get(i),
-              /* durationUs= */ i == cues.size() - 1
-                  ? C.TIME_UNSET
-                  : startTimesUs.get(i + 1) - startTimesUs.get(i)));
+              ImmutableList.of(buildCue(text, alignmentTag)),
+              startTimeUs,
+              /* durationUs= */ endTimeUs - startTimeUs));
     }
-    return cuesWithStartTimeAndDuration.build();
+    return cues.build();
   }
 
   @Override

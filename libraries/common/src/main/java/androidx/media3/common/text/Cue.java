@@ -50,8 +50,11 @@ import org.checkerframework.dataflow.qual.Pure;
 // information around in a sidecar object.
 public final class Cue implements Bundleable {
 
-  /** The empty cue. */
-  public static final Cue EMPTY = new Cue.Builder().setText("").build();
+  /**
+   * @deprecated There's no general need for a cue with an empty text string. If you need one,
+   *     create it yourself.
+   */
+  @Deprecated public static final Cue EMPTY = new Cue.Builder().setText("").build();
 
   /** An unset position, width or size. */
   // Note: We deliberately don't use Float.MIN_VALUE because it's positive & very close to zero.

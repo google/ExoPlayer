@@ -1188,7 +1188,7 @@ package androidx.media3.common.text {
     field public static final int ANCHOR_TYPE_MIDDLE = 1; // 0x1
     field public static final int ANCHOR_TYPE_START = 0; // 0x0
     field public static final float DIMEN_UNSET = -3.4028235E38f;
-    field public static final androidx.media3.common.text.Cue EMPTY;
+    field @Deprecated public static final androidx.media3.common.text.Cue EMPTY;
     field public static final int LINE_TYPE_FRACTION = 0; // 0x0
     field public static final int LINE_TYPE_NUMBER = 1; // 0x1
     field public static final int TEXT_SIZE_TYPE_ABSOLUTE = 2; // 0x2
