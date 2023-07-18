@@ -487,6 +487,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     seenExpectedPlaylistError = false;
     expectedPlaylistUrl = null;
 
+    long chunkDurationUs = 0;
+    if (selectedTrackIndex < mediaChunkIterators.length
+        && mediaChunkIterators[selectedTrackIndex].next()) {
+      chunkDurationUs =
+          mediaChunkIterators[selectedTrackIndex].getChunkEndTimeUs()
+              - mediaChunkIterators[selectedTrackIndex].getChunkStartTimeUs();
+    }
     @Nullable
     CmcdLog cmcdLog =
         cmcdConfiguration == null
@@ -495,6 +502,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 cmcdConfiguration,
                 trackSelection,
                 bufferedDurationUs,
+                chunkDurationUs,
                 CmcdLog.STREAMING_FORMAT_HLS,
                 !playlist.hasEndTag);
 

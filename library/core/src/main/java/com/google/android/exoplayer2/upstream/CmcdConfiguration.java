@@ -69,7 +69,9 @@ public final class CmcdConfiguration {
     KEY_MAXIMUM_REQUESTED_BITRATE,
     KEY_STREAMING_FORMAT,
     KEY_STREAM_TYPE,
-    KEY_VERSION
+    KEY_VERSION,
+    KEY_TOP_BITRATE,
+    KEY_OBJECT_DURATION
   })
   @Documented
   @Target(TYPE_USE)
@@ -90,6 +92,8 @@ public final class CmcdConfiguration {
   public static final String KEY_STREAMING_FORMAT = "sf";
   public static final String KEY_STREAM_TYPE = "st";
   public static final String KEY_VERSION = "v";
+  public static final String KEY_TOP_BITRATE = "tb";
+  public static final String KEY_OBJECT_DURATION = "d";
 
   /**
    * Factory for {@link CmcdConfiguration} instances.
@@ -264,5 +268,21 @@ public final class CmcdConfiguration {
    */
   public boolean isStreamTypeLoggingAllowed() {
     return requestConfig.isKeyAllowed(KEY_STREAM_TYPE);
+  }
+
+  /**
+   * Returns whether logging top bitrate is allowed based on the {@linkplain RequestConfig request
+   * configuration}.
+   */
+  public boolean isTopBitrateLoggingAllowed() {
+    return requestConfig.isKeyAllowed(KEY_TOP_BITRATE);
+  }
+
+  /**
+   * Returns whether logging object duration is allowed based on the {@linkplain RequestConfig
+   * request configuration}.
+   */
+  public boolean isObjectDurationLoggingAllowed() {
+    return requestConfig.isKeyAllowed(KEY_OBJECT_DURATION);
   }
 }
