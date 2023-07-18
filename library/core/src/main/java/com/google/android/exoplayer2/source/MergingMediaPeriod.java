@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.source;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
-import static java.lang.Math.max;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -468,7 +467,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         FormatHolder formatHolder, DecoderInputBuffer buffer, @ReadFlags int readFlags) {
       int readResult = sampleStream.readData(formatHolder, buffer, readFlags);
       if (readResult == C.RESULT_BUFFER_READ) {
-        buffer.timeUs = max(0, buffer.timeUs + timeOffsetUs);
+        buffer.timeUs = buffer.timeUs + timeOffsetUs;
       }
       return readResult;
     }
