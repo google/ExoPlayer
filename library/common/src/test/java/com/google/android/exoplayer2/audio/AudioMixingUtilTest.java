@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.transformer;
+package com.google.android.exoplayer2.audio;
 
 import static com.google.android.exoplayer2.testutil.TestUtil.createByteBuffer;
 import static com.google.android.exoplayer2.testutil.TestUtil.createFloatArray;
@@ -23,21 +23,21 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat;
-import com.google.android.exoplayer2.audio.ChannelMixingMatrix;
 import java.nio.ByteBuffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Unit tests for {@link FloatAudioMixingAlgorithm}. */
+// TODO(b/290002720): Consider parameterization of these test cases.
+/** Unit tests for {@link AudioMixingUtil}. */
 @RunWith(AndroidJUnit4.class)
-public final class FloatAudioMixingAlgorithmTest {
-  private static final AudioFormat AUDIO_FORMAT_STEREO_PCM_FLOAT =
+public final class AudioMixingUtilTest {
+  private static final AudioFormat STEREO_44100_PCM_FLOAT =
       new AudioFormat(/* sampleRate= */ 44100, /* channelCount= */ 2, C.ENCODING_PCM_FLOAT);
-  private static final AudioFormat AUDIO_FORMAT_MONO_PCM_FLOAT =
+  private static final AudioFormat MONO_44100_PCM_FLOAT =
       new AudioFormat(/* sampleRate= */ 44100, /* channelCount= */ 1, C.ENCODING_PCM_FLOAT);
-  private static final AudioFormat AUDIO_FORMAT_STEREO_PCM_16BIT =
+  private static final AudioFormat STEREO_44100_PCM_16BIT =
       new AudioFormat(/* sampleRate= */ 44100, /* channelCount= */ 2, C.ENCODING_PCM_16BIT);
-  private static final AudioFormat AUDIO_FORMAT_MONO_PCM_16BIT =
+  private static final AudioFormat MONO_44100_PCM_16BIT =
       new AudioFormat(/* sampleRate= */ 44100, /* channelCount= */ 1, C.ENCODING_PCM_16BIT);
 
   private static final ChannelMixingMatrix STEREO_TO_STEREO =
@@ -50,95 +50,47 @@ public final class FloatAudioMixingAlgorithmTest {
       ChannelMixingMatrix.create(/* inputChannelCount= */ 1, /* outputChannelCount= */ 1);
 
   @Test
-  public void supportsSourceAudioFormatsForStereoMixing() {
-    AudioMixingAlgorithm algorithm = new FloatAudioMixingAlgorithm(AUDIO_FORMAT_STEREO_PCM_FLOAT);
-    assertThat(algorithm.supportsSourceAudioFormat(AUDIO_FORMAT_STEREO_PCM_FLOAT)).isTrue();
-    assertThat(algorithm.supportsSourceAudioFormat(AUDIO_FORMAT_MONO_PCM_FLOAT)).isTrue();
-    assertThat(algorithm.supportsSourceAudioFormat(AUDIO_FORMAT_STEREO_PCM_16BIT)).isTrue();
-    assertThat(algorithm.supportsSourceAudioFormat(AUDIO_FORMAT_MONO_PCM_16BIT)).isTrue();
-  }
-
-  @Test
-  public void supportsSourceAudioFormatsForMonoMixing() {
-    AudioMixingAlgorithm algorithm = new FloatAudioMixingAlgorithm(AUDIO_FORMAT_MONO_PCM_FLOAT);
-    assertThat(algorithm.supportsSourceAudioFormat(AUDIO_FORMAT_STEREO_PCM_FLOAT)).isTrue();
-    assertThat(algorithm.supportsSourceAudioFormat(AUDIO_FORMAT_MONO_PCM_FLOAT)).isTrue();
-    assertThat(algorithm.supportsSourceAudioFormat(AUDIO_FORMAT_STEREO_PCM_16BIT)).isTrue();
-    assertThat(algorithm.supportsSourceAudioFormat(AUDIO_FORMAT_MONO_PCM_16BIT)).isTrue();
-  }
-
-  @Test
-  public void doesNotSupportSampleRateConversion() {
-    AudioMixingAlgorithm algorithm =
-        new FloatAudioMixingAlgorithm(
-            new AudioFormat(/* sampleRate= */ 44100, /* channelCount= */ 2, C.ENCODING_PCM_FLOAT));
-
-    assertThat(
-            algorithm.supportsSourceAudioFormat(
-                new AudioFormat(
-                    /* sampleRate= */ 48000, /* channelCount= */ 2, C.ENCODING_PCM_FLOAT)))
-        .isFalse();
-  }
-
-  @Test
-  public void doesNotSupportSampleFormats() {
-    AudioMixingAlgorithm algorithm =
-        new FloatAudioMixingAlgorithm(
-            new AudioFormat(/* sampleRate= */ 44100, /* channelCount= */ 2, C.ENCODING_PCM_FLOAT));
-
-    assertThat(
-            algorithm.supportsSourceAudioFormat(
-                new AudioFormat(
-                    /* sampleRate= */ 44100, /* channelCount= */ 2, C.ENCODING_PCM_24BIT)))
-        .isFalse();
-    assertThat(
-            algorithm.supportsSourceAudioFormat(
-                new AudioFormat(
-                    /* sampleRate= */ 44100, /* channelCount= */ 2, C.ENCODING_PCM_32BIT)))
-        .isFalse();
-  }
-
-  @Test
-  public void mixStereoFloatIntoStereoFloat() {
-    AudioMixingAlgorithm algorithm = new FloatAudioMixingAlgorithm(AUDIO_FORMAT_STEREO_PCM_FLOAT);
+  public void mixToStereoFloat_withStereoFloatInput() {
     ByteBuffer mixingBuffer = createByteBuffer(new float[] {0.25f, -0.25f, 0.5f, -0.5f});
     ByteBuffer sourceBuffer = createByteBuffer(new float[] {-0.5f, 0.25f, -0.25f, 0.5f});
 
-    algorithm.mix(
+    AudioMixingUtil.mix(
         sourceBuffer,
-        AUDIO_FORMAT_STEREO_PCM_FLOAT,
+        STEREO_44100_PCM_FLOAT,
+        mixingBuffer,
+        STEREO_44100_PCM_FLOAT,
         STEREO_TO_STEREO.scaleBy(0.5f),
-        /* frameCount= */ 2,
-        mixingBuffer);
+        /* framesToMix= */ 2,
+        /* accumulate= */ true);
 
     assertWithMessage("Source buffer").that(sourceBuffer.remaining()).isEqualTo(0);
     assertWithMessage("Mixing buffer").that(mixingBuffer.remaining()).isEqualTo(0);
-    mixingBuffer.flip();
+    mixingBuffer.rewind();
     assertThat(createFloatArray(mixingBuffer)).isEqualTo(new float[] {0f, -0.125f, 0.375f, -0.25f});
   }
 
   @Test
-  public void mixMonoFloatIntoStereoFloat() {
-    AudioMixingAlgorithm algorithm = new FloatAudioMixingAlgorithm(AUDIO_FORMAT_STEREO_PCM_FLOAT);
+  public void mixToStereoFloat_withMonoFloatInput() {
     ByteBuffer mixingBuffer = createByteBuffer(new float[] {0.25f, -0.25f, 0.5f, -0.5f});
     ByteBuffer sourceBuffer = createByteBuffer(new float[] {-0.5f, 0.5f});
 
-    algorithm.mix(
+    AudioMixingUtil.mix(
         sourceBuffer,
-        AUDIO_FORMAT_MONO_PCM_FLOAT,
+        MONO_44100_PCM_FLOAT,
+        mixingBuffer,
+        STEREO_44100_PCM_FLOAT,
         MONO_TO_STEREO.scaleBy(0.5f),
-        /* frameCount= */ 2,
-        mixingBuffer);
+        /* framesToMix= */ 2,
+        /* accumulate= */ true);
 
     assertWithMessage("Source buffer").that(sourceBuffer.remaining()).isEqualTo(0);
     assertWithMessage("Mixing buffer").that(mixingBuffer.remaining()).isEqualTo(0);
-    mixingBuffer.flip();
+    mixingBuffer.rewind();
     assertThat(createFloatArray(mixingBuffer)).isEqualTo(new float[] {0f, -0.5f, 0.75f, -0.25f});
   }
 
   @Test
-  public void mixStereoS16IntoStereoFloat() {
-    AudioMixingAlgorithm algorithm = new FloatAudioMixingAlgorithm(AUDIO_FORMAT_STEREO_PCM_FLOAT);
+  public void mixToStereoFloat_withStereo16Input() {
     ByteBuffer mixingBuffer = createByteBuffer(new float[] {0.25f, -0.25f, 0.5f, -0.5f});
     ByteBuffer sourceBuffer =
         createByteBuffer(
@@ -149,16 +101,18 @@ public final class FloatAudioMixingAlgorithmTest {
               16384 /* 0.50001525925f */
             });
 
-    algorithm.mix(
+    AudioMixingUtil.mix(
         sourceBuffer,
-        AUDIO_FORMAT_STEREO_PCM_16BIT,
+        STEREO_44100_PCM_16BIT,
+        mixingBuffer,
+        STEREO_44100_PCM_FLOAT,
         STEREO_TO_STEREO.scaleBy(0.5f),
-        /* frameCount= */ 2,
-        mixingBuffer);
+        /* framesToMix= */ 2,
+        /* accumulate= */ true);
 
     assertWithMessage("Source buffer").that(sourceBuffer.remaining()).isEqualTo(0);
     assertWithMessage("Mixing buffer").that(mixingBuffer.remaining()).isEqualTo(0);
-    mixingBuffer.flip();
+    mixingBuffer.rewind();
     assertThat(createFloatArray(mixingBuffer))
         .usingTolerance(1f / Short.MAX_VALUE)
         .containsExactly(new float[] {0f, -0.125f, 0.375f, -0.25f})
@@ -166,22 +120,23 @@ public final class FloatAudioMixingAlgorithmTest {
   }
 
   @Test
-  public void mixMonoS16IntoStereoFloat() {
-    AudioMixingAlgorithm algorithm = new FloatAudioMixingAlgorithm(AUDIO_FORMAT_STEREO_PCM_FLOAT);
+  public void mixToStereoFloat_withMono16Input() {
     ByteBuffer mixingBuffer = createByteBuffer(new float[] {0.25f, -0.25f, 0.5f, -0.5f});
     ByteBuffer sourceBuffer =
         createByteBuffer(new short[] {-16384 /* -0.5f */, 16384 /* 0.50001525925f */});
 
-    algorithm.mix(
+    AudioMixingUtil.mix(
         sourceBuffer,
-        AUDIO_FORMAT_MONO_PCM_16BIT,
+        MONO_44100_PCM_16BIT,
+        mixingBuffer,
+        STEREO_44100_PCM_FLOAT,
         MONO_TO_STEREO.scaleBy(0.5f),
-        /* frameCount= */ 2,
-        mixingBuffer);
+        /* framesToMix= */ 2,
+        /* accumulate= */ true);
 
     assertWithMessage("Source buffer").that(sourceBuffer.remaining()).isEqualTo(0);
     assertWithMessage("Mixing buffer").that(mixingBuffer.remaining()).isEqualTo(0);
-    mixingBuffer.flip();
+    mixingBuffer.rewind();
     assertThat(createFloatArray(mixingBuffer))
         .usingTolerance(1f / Short.MAX_VALUE)
         .containsExactly(new float[] {0f, -0.5f, 0.75f, -0.25f})
@@ -189,45 +144,47 @@ public final class FloatAudioMixingAlgorithmTest {
   }
 
   @Test
-  public void mixStereoFloatIntoMonoFloat() {
-    AudioMixingAlgorithm algorithm = new FloatAudioMixingAlgorithm(AUDIO_FORMAT_MONO_PCM_FLOAT);
+  public void mixToMonoFloat_withStereoFloatInput() {
     ByteBuffer mixingBuffer = createByteBuffer(new float[] {0.25f, 0.5f});
     ByteBuffer sourceBuffer = createByteBuffer(new float[] {-0.5f, 0.25f, -0.25f, 0.5f});
 
-    algorithm.mix(
+    AudioMixingUtil.mix(
         sourceBuffer,
-        AUDIO_FORMAT_STEREO_PCM_FLOAT,
+        STEREO_44100_PCM_FLOAT,
+        mixingBuffer,
+        MONO_44100_PCM_FLOAT,
         STEREO_TO_MONO.scaleBy(0.5f),
-        /* frameCount= */ 2,
-        mixingBuffer);
+        /* framesToMix= */ 2,
+        /* accumulate= */ true);
 
     assertWithMessage("Source buffer").that(sourceBuffer.remaining()).isEqualTo(0);
     assertWithMessage("Mixing buffer").that(mixingBuffer.remaining()).isEqualTo(0);
-    mixingBuffer.flip();
+    mixingBuffer.rewind();
     assertThat(createFloatArray(mixingBuffer)).isEqualTo(new float[] {0.1875f, 0.5625f});
   }
 
   @Test
-  public void mixMonoFloatIntoMonoFloat() {
-    AudioMixingAlgorithm algorithm = new FloatAudioMixingAlgorithm(AUDIO_FORMAT_MONO_PCM_FLOAT);
+  public void mixToMonoFloat_withMonoFloatInput() {
     ByteBuffer mixingBuffer = createByteBuffer(new float[] {0.25f, -0.25f});
     ByteBuffer sourceBuffer = createByteBuffer(new float[] {0.5f, 0.25f});
-    algorithm.mix(
+
+    AudioMixingUtil.mix(
         sourceBuffer,
-        AUDIO_FORMAT_MONO_PCM_FLOAT,
+        MONO_44100_PCM_FLOAT,
+        mixingBuffer,
+        MONO_44100_PCM_FLOAT,
         MONO_TO_MONO.scaleBy(0.5f),
-        /* frameCount= */ 2,
-        mixingBuffer);
+        /* framesToMix= */ 2,
+        /* accumulate= */ true);
 
     assertWithMessage("Source buffer").that(sourceBuffer.remaining()).isEqualTo(0);
     assertWithMessage("Mixing buffer").that(mixingBuffer.remaining()).isEqualTo(0);
-    mixingBuffer.flip();
+    mixingBuffer.rewind();
     assertThat(createFloatArray(mixingBuffer)).isEqualTo(new float[] {0.5f, -0.125f});
   }
 
   @Test
-  public void mixStereoS16IntoMonoFloat() {
-    AudioMixingAlgorithm algorithm = new FloatAudioMixingAlgorithm(AUDIO_FORMAT_MONO_PCM_FLOAT);
+  public void mixToMonoFloat_withStereo16Input() {
     ByteBuffer mixingBuffer = createByteBuffer(new float[] {0.25f, 0.5f});
     ByteBuffer sourceBuffer =
         createByteBuffer(
@@ -238,16 +195,18 @@ public final class FloatAudioMixingAlgorithmTest {
               16384 /* 0.50001525925f */
             });
 
-    algorithm.mix(
+    AudioMixingUtil.mix(
         sourceBuffer,
-        AUDIO_FORMAT_STEREO_PCM_16BIT,
+        STEREO_44100_PCM_16BIT,
+        mixingBuffer,
+        MONO_44100_PCM_FLOAT,
         STEREO_TO_MONO.scaleBy(0.5f),
-        /* frameCount= */ 2,
-        mixingBuffer);
+        /* framesToMix= */ 2,
+        /* accumulate= */ true);
 
     assertWithMessage("Source buffer").that(sourceBuffer.remaining()).isEqualTo(0);
     assertWithMessage("Mixing buffer").that(mixingBuffer.remaining()).isEqualTo(0);
-    mixingBuffer.flip();
+    mixingBuffer.rewind();
     assertThat(createFloatArray(mixingBuffer))
         .usingTolerance(1f / Short.MAX_VALUE)
         .containsExactly(new float[] {0.1875f, 0.5625f})
@@ -255,25 +214,152 @@ public final class FloatAudioMixingAlgorithmTest {
   }
 
   @Test
-  public void mixMonoS16IntoMonoFloat() {
-    AudioMixingAlgorithm algorithm = new FloatAudioMixingAlgorithm(AUDIO_FORMAT_MONO_PCM_FLOAT);
+  public void mixToMonoFloat_withMono16Input() {
     ByteBuffer mixingBuffer = createByteBuffer(new float[] {0.25f, 0.5f});
     ByteBuffer sourceBuffer =
         createByteBuffer(new short[] {-16384 /* -0.5f */, 8192 /* 0.25000762962f */});
 
-    algorithm.mix(
+    AudioMixingUtil.mix(
         sourceBuffer,
-        AUDIO_FORMAT_MONO_PCM_16BIT,
+        MONO_44100_PCM_16BIT,
+        mixingBuffer,
+        MONO_44100_PCM_FLOAT,
         MONO_TO_MONO.scaleBy(0.5f),
-        /* frameCount= */ 2,
-        mixingBuffer);
+        /* framesToMix= */ 2,
+        /* accumulate= */ true);
 
     assertWithMessage("Source buffer").that(sourceBuffer.remaining()).isEqualTo(0);
     assertWithMessage("Mixing buffer").that(mixingBuffer.remaining()).isEqualTo(0);
-    mixingBuffer.flip();
+    mixingBuffer.rewind();
     assertThat(createFloatArray(mixingBuffer))
         .usingTolerance(1f / Short.MAX_VALUE)
         .containsExactly(new float[] {0f, 0.625f})
         .inOrder();
+  }
+
+  @Test
+  public void mixToStereo16_withMono16Input() {
+    ByteBuffer mixingBuffer = createByteBuffer(new short[] {0, 0, 0, 0, 0, 0});
+    ByteBuffer sourceBuffer = createByteBuffer(new short[] {-1000, -6004, 33});
+    ByteBuffer expectedBuffer = createByteBuffer(new short[] {-1000, -1000, -6004, -6004, 33, 33});
+
+    AudioMixingUtil.mix(
+        sourceBuffer,
+        MONO_44100_PCM_16BIT,
+        mixingBuffer,
+        STEREO_44100_PCM_16BIT,
+        MONO_TO_STEREO,
+        /* framesToMix= */ 3,
+        /* accumulate= */ true);
+
+    assertWithMessage("Source buffer").that(sourceBuffer.remaining()).isEqualTo(0);
+    assertWithMessage("Mixing buffer").that(mixingBuffer.remaining()).isEqualTo(0);
+
+    mixingBuffer.rewind();
+    assertThat(mixingBuffer).isEqualTo(expectedBuffer);
+  }
+
+  @Test
+  public void mixToMono16_withMono16Input() {
+    ByteBuffer mixingBuffer = createByteBuffer(new short[] {-10, 50, 12, -12});
+    ByteBuffer sourceBuffer = createByteBuffer(new short[] {128, -66});
+    ByteBuffer expectedBuffer = createByteBuffer(new short[] {118, -16, 12, -12});
+
+    AudioMixingUtil.mix(
+        sourceBuffer,
+        MONO_44100_PCM_16BIT,
+        mixingBuffer,
+        MONO_44100_PCM_16BIT,
+        MONO_TO_MONO,
+        /* framesToMix= */ 2,
+        /* accumulate= */ true);
+
+    assertWithMessage("Source buffer").that(sourceBuffer.remaining()).isEqualTo(0);
+    assertWithMessage("Mixing buffer")
+        .that(mixingBuffer.remaining())
+        .isEqualTo(2 * MONO_44100_PCM_16BIT.bytesPerFrame);
+
+    mixingBuffer.rewind();
+    assertThat(mixingBuffer).isEqualTo(expectedBuffer);
+  }
+
+  @Test
+  public void mixToMono16_withMono16Input_clamps() {
+    ByteBuffer mixingBuffer =
+        createByteBuffer(
+            new short[] {Short.MAX_VALUE, Short.MAX_VALUE, Short.MIN_VALUE, Short.MIN_VALUE});
+
+    ByteBuffer sourceBuffer = createByteBuffer(new short[] {1, -1, 1, -1});
+
+    ByteBuffer expectedBuffer =
+        createByteBuffer(
+            new short[] {
+              Short.MAX_VALUE, Short.MAX_VALUE - 1, Short.MIN_VALUE + 1, Short.MIN_VALUE
+            });
+
+    AudioMixingUtil.mix(
+        sourceBuffer,
+        MONO_44100_PCM_16BIT,
+        mixingBuffer,
+        MONO_44100_PCM_16BIT,
+        MONO_TO_MONO,
+        /* framesToMix= */ 4,
+        /* accumulate= */ true);
+
+    assertWithMessage("Source buffer").that(sourceBuffer.remaining()).isEqualTo(0);
+    assertWithMessage("Mixing buffer").that(mixingBuffer.remaining()).isEqualTo(0);
+
+    mixingBuffer.rewind();
+    assertThat(mixingBuffer).isEqualTo(expectedBuffer);
+  }
+
+  @Test
+  public void mixToStereo16_withStereo16Input() {
+    ByteBuffer mixingBuffer = createByteBuffer(new short[] {-4, 4, -512, 821, 0, -422});
+    ByteBuffer sourceBuffer =
+        createByteBuffer(new short[] {26000, -26423, -5723, -5723, 23, 12312});
+    ByteBuffer expectedBuffer =
+        createByteBuffer(new short[] {25996, -26419, -6235, -4902, 23, 11890});
+
+    AudioMixingUtil.mix(
+        sourceBuffer,
+        STEREO_44100_PCM_16BIT,
+        mixingBuffer,
+        STEREO_44100_PCM_16BIT,
+        STEREO_TO_STEREO,
+        /* framesToMix= */ 3,
+        /* accumulate= */ true);
+
+    assertWithMessage("Source buffer").that(sourceBuffer.remaining()).isEqualTo(0);
+    assertWithMessage("Mixing buffer").that(mixingBuffer.remaining()).isEqualTo(0);
+
+    mixingBuffer.rewind();
+    assertThat(mixingBuffer).isEqualTo(expectedBuffer);
+  }
+
+  @Test
+  public void mixToStereo16_withStereo16Input_noAccumulation() {
+    ByteBuffer mixingBuffer = createByteBuffer(new short[] {-4, 4, -512, 821, 0, -422});
+    ByteBuffer sourceBuffer = createByteBuffer(new short[] {260, -26423, -5723, -5723, 23, 12312});
+    ByteBuffer expectedBuffer = createByteBuffer(new short[] {260, -26423, -5723, -5723, 0, -422});
+
+    AudioMixingUtil.mix(
+        sourceBuffer,
+        STEREO_44100_PCM_16BIT,
+        mixingBuffer,
+        STEREO_44100_PCM_16BIT,
+        STEREO_TO_STEREO,
+        /* framesToMix= */ 2,
+        /* accumulate= */ false);
+
+    assertWithMessage("Source buffer")
+        .that(sourceBuffer.remaining())
+        .isEqualTo(STEREO_44100_PCM_16BIT.bytesPerFrame);
+    assertWithMessage("Mixing buffer")
+        .that(mixingBuffer.remaining())
+        .isEqualTo(STEREO_44100_PCM_16BIT.bytesPerFrame);
+
+    mixingBuffer.rewind();
+    assertThat(mixingBuffer).isEqualTo(expectedBuffer);
   }
 }

@@ -16,14 +16,13 @@
 package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
-import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static java.lang.Math.min;
 
 import android.util.SparseArray;
-import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.audio.AudioMixingUtil;
 import com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat;
 import com.google.android.exoplayer2.audio.AudioProcessor.UnhandledAudioFormatException;
 import com.google.android.exoplayer2.audio.ChannelMixingMatrix;
@@ -48,7 +47,6 @@ import java.nio.ByteOrder;
   private final SparseArray<SourceInfo> sources;
   private int nextSourceId;
   private AudioFormat outputAudioFormat;
-  @Nullable private AudioMixingAlgorithm mixingAlgorithm;
   private int bufferSizeFrames;
   private MixingBuffer[] mixingBuffers;
   private long mixerStartTimeUs;
@@ -75,10 +73,13 @@ import java.nio.ByteOrder;
   @Override
   public void configure(AudioFormat outputAudioFormat, int bufferSizeMs, long startTimeUs)
       throws UnhandledAudioFormatException {
-    checkState(!isConfigured(), "Audio mixer already configured.");
+    checkState(
+        this.outputAudioFormat.equals(AudioFormat.NOT_SET), "Audio mixer already configured.");
 
-    // Create algorithm first in case it throws.
-    mixingAlgorithm = AudioMixingAlgorithm.create(outputAudioFormat);
+    if (!AudioMixingUtil.canMix(outputAudioFormat)) {
+      throw new UnhandledAudioFormatException(
+          "Can not mix to this AudioFormat.", outputAudioFormat);
+    }
     this.outputAudioFormat = outputAudioFormat;
     bufferSizeFrames = bufferSizeMs * outputAudioFormat.sampleRate / 1000;
     mixerStartTimeUs = startTimeUs;
@@ -105,7 +106,7 @@ import java.nio.ByteOrder;
   @Override
   public boolean supportsSourceAudioFormat(AudioFormat sourceFormat) {
     checkStateIsConfigured();
-    return checkStateNotNull(mixingAlgorithm).supportsSourceAudioFormat(sourceFormat);
+    return AudioMixingUtil.canMix(sourceFormat, outputAudioFormat);
   }
 
   @Override
@@ -182,8 +183,8 @@ import java.nio.ByteOrder;
       source.mixTo(
           sourceBuffer,
           min(newSourcePosition, mixingBuffer.limit),
-          checkNotNull(mixingAlgorithm),
-          mixingBuffer.buffer);
+          mixingBuffer.buffer,
+          outputAudioFormat);
       mixingBuffer.buffer.reset();
 
       if (source.position == newSourcePosition) {
@@ -236,7 +237,6 @@ import java.nio.ByteOrder;
     sources.clear();
     nextSourceId = 0;
     outputAudioFormat = AudioFormat.NOT_SET;
-    mixingAlgorithm = null;
     bufferSizeFrames = C.LENGTH_UNSET;
     mixingBuffers = new MixingBuffer[0];
     mixerStartTimeUs = C.TIME_UNSET;
@@ -245,12 +245,8 @@ import java.nio.ByteOrder;
     endPosition = Long.MAX_VALUE;
   }
 
-  private boolean isConfigured() {
-    return mixingAlgorithm != null;
-  }
-
   private void checkStateIsConfigured() {
-    checkState(isConfigured(), "Audio mixer is not configured.");
+    checkState(!outputAudioFormat.equals(AudioFormat.NOT_SET), "Audio mixer is not configured.");
   }
 
   private MixingBuffer allocateMixingBuffer(long position) {
@@ -339,12 +335,18 @@ import java.nio.ByteOrder;
     public void mixTo(
         ByteBuffer sourceBuffer,
         long newPosition,
-        AudioMixingAlgorithm mixingAlgorithm,
-        ByteBuffer mixingBuffer) {
+        ByteBuffer mixingBuffer,
+        AudioFormat mixingAudioFormat) {
       checkArgument(newPosition >= position);
       int framesToMix = (int) (newPosition - position);
-      mixingAlgorithm.mix(
-          sourceBuffer, audioFormat, channelMixingMatrix, framesToMix, mixingBuffer);
+      AudioMixingUtil.mix(
+          sourceBuffer,
+          audioFormat,
+          mixingBuffer,
+          mixingAudioFormat,
+          channelMixingMatrix,
+          framesToMix,
+          /* accumulate= */ true);
       position = newPosition;
     }
   }
