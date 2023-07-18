@@ -494,34 +494,34 @@ MediaCodecAdapter (exotest.video.avc):
       flags = 4
       contents = length 0, hash 1
     input buffer #31:
-      timeUs = 1000001024000
+      timeUs = 1000000724000
       contents = length 36692, hash D216076E
     input buffer #32:
-      timeUs = 1000001024000
+      timeUs = 1000000790733
       contents = length 5312, hash D45D3CA0
     input buffer #33:
-      timeUs = 1000001024000
+      timeUs = 1000000757366
       contents = length 599, hash 1BE7812D
     input buffer #34:
-      timeUs = 1000001024000
+      timeUs = 1000000924200
       contents = length 7735, hash 4490F110
     input buffer #35:
-      timeUs = 1000001024000
+      timeUs = 1000000857466
       contents = length 987, hash 560B5036
     input buffer #36:
-      timeUs = 1000001024000
+      timeUs = 1000000824100
       contents = length 673, hash ED7CD8C7
     input buffer #37:
-      timeUs = 1000001024000
+      timeUs = 1000000890833
       contents = length 523, hash 3020DF50
     input buffer #38:
       timeUs = 1000001057666
       contents = length 6061, hash 736C72B2
     input buffer #39:
-      timeUs = 1000001024000
+      timeUs = 1000000990933
       contents = length 992, hash FE132F23
     input buffer #40:
-      timeUs = 1000001024000
+      timeUs = 1000000957566
       contents = length 623, hash 5B2C1816
     input buffer #41:
       timeUs = 1000001024300
@@ -674,31 +674,31 @@ MediaCodecAdapter (exotest.video.avc):
       size = 568
       rendered = true
     output buffer #30:
-      timeUs = 1000001024000
+      timeUs = 1000000724000
       size = 36692
       rendered = false
     output buffer #31:
-      timeUs = 1000001024000
+      timeUs = 1000000790733
       size = 5312
       rendered = false
     output buffer #32:
-      timeUs = 1000001024000
+      timeUs = 1000000757366
       size = 599
       rendered = false
     output buffer #33:
-      timeUs = 1000001024000
+      timeUs = 1000000924200
       size = 7735
       rendered = false
     output buffer #34:
-      timeUs = 1000001024000
+      timeUs = 1000000857466
       size = 987
       rendered = false
     output buffer #35:
-      timeUs = 1000001024000
+      timeUs = 1000000824100
       size = 673
       rendered = false
     output buffer #36:
-      timeUs = 1000001024000
+      timeUs = 1000000890833
       size = 523
       rendered = false
     output buffer #37:
@@ -706,11 +706,11 @@ MediaCodecAdapter (exotest.video.avc):
       size = 6061
       rendered = true
     output buffer #38:
-      timeUs = 1000001024000
+      timeUs = 1000000990933
       size = 992
       rendered = false
     output buffer #39:
-      timeUs = 1000001024000
+      timeUs = 1000000957566
       size = 623
       rendered = false
     output buffer #40:
