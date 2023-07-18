@@ -16,6 +16,9 @@
     *   Remove accidentally added `multidex` dependency from all modules
         ([#499](https://github.com/androidx/media/issues/499)).
 *   ExoPlayer:
+    *   Fix seeking issues in AC4 streams caused by not identifying decode-only
+        samples correctly
+        ([#11000](https://github.com/google/ExoPlayer/issues/11000)).
     *   Add suppression of playback on unsuitable audio output devices (e.g. the
         built-in speaker on Wear OS devices) when this feature is enabled via
         `ExoPlayer.Builder.setSuppressPlaybackOnUnsuitableOutput`. The playback
