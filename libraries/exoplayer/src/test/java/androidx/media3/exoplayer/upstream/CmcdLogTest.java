@@ -21,6 +21,7 @@ import static org.mockito.Mockito.when;
 
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
+import androidx.media3.common.TrackGroup;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableMap;
@@ -56,13 +57,16 @@ public class CmcdLogTest {
     CmcdConfiguration cmcdConfiguration =
         cmcdConfigurationFactory.createCmcdConfiguration(mediaItem);
     ExoTrackSelection trackSelection = mock(ExoTrackSelection.class);
-    when(trackSelection.getSelectedFormat())
-        .thenReturn(new Format.Builder().setPeakBitrate(840_000).build());
+    Format format = new Format.Builder().setPeakBitrate(840_000).build();
+    when(trackSelection.getSelectedFormat()).thenReturn(format);
+    when(trackSelection.getTrackGroup())
+        .thenReturn(new TrackGroup(format, new Format.Builder().setPeakBitrate(1_000_000).build()));
     CmcdLog cmcdLog =
         CmcdLog.createInstance(
             cmcdConfiguration,
             trackSelection,
             /* bufferedDurationUs= */ 1_760_000,
+            /* chunkDurationUs= */ 3_000_000,
             CmcdLog.STREAMING_FORMAT_DASH,
             true);
 
@@ -72,7 +76,7 @@ public class CmcdLogTest {
     assertThat(requestHeaders)
         .containsExactly(
             "CMCD-Object",
-            "br=840,key1=value1",
+            "br=840,tb=1000,d=3000,key1=value1",
             "CMCD-Request",
             "bl=1800,key2=\"stringValue\"",
             "CMCD-Session",

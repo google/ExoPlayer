@@ -16,12 +16,14 @@
 package androidx.media3.exoplayer.upstream;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
+import static java.lang.Math.max;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringDef;
 import androidx.media3.common.C;
+import androidx.media3.common.TrackGroup;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
@@ -79,6 +81,7 @@ public final class CmcdLog {
    * @param trackSelection The {@linkplain ExoTrackSelection track selection}.
    * @param bufferedDurationUs The duration of media currently buffered from the current playback
    *     position, in microseconds.
+   * @param chunkDurationUs The duration of current media chunk being requested, in microseconds.
    * @param streamingFormat The streaming format of the media content. Must be one of the allowed
    *     streaming formats specified by the {@link StreamingFormat} annotation.
    * @param isLive {@code true} if the media content is being streamed live, {@code false}
@@ -88,6 +91,7 @@ public final class CmcdLog {
       CmcdConfiguration cmcdConfiguration,
       ExoTrackSelection trackSelection,
       long bufferedDurationUs,
+      long chunkDurationUs,
       @StreamingFormat String streamingFormat,
       boolean isLive) {
     ImmutableMap<@CmcdConfiguration.HeaderKey String, String> customData =
@@ -99,6 +103,17 @@ public final class CmcdLog {
             .setCustomData(customData.get(CmcdConfiguration.KEY_CMCD_OBJECT));
     if (cmcdConfiguration.isBitrateLoggingAllowed()) {
       cmcdObject.setBitrateKbps(bitrateKbps);
+    }
+    if (cmcdConfiguration.isTopBitrateLoggingAllowed()) {
+      TrackGroup trackGroup = trackSelection.getTrackGroup();
+      int topBitrate = trackSelection.getSelectedFormat().bitrate;
+      for (int i = 0; i < trackGroup.length; i++) {
+        topBitrate = max(topBitrate, trackGroup.getFormat(i).bitrate);
+      }
+      cmcdObject.setTopBitrateKbps(topBitrate / 1000);
+    }
+    if (cmcdConfiguration.isObjectDurationLoggingAllowed()) {
+      cmcdObject.setObjectDurationMs(chunkDurationUs / 1000);
     }
 
     CmcdLog.CmcdRequest.Builder cmcdRequest =
@@ -167,17 +182,43 @@ public final class CmcdLog {
     /** Builder for {@link CmcdObject} instances. */
     public static final class Builder {
       private int bitrateKbps;
+      private int topBitrateKbps;
+      private long objectDurationMs;
       @Nullable private String customData;
 
       /** Creates a new instance with default values. */
       public Builder() {
         this.bitrateKbps = C.RATE_UNSET_INT;
+        this.topBitrateKbps = C.RATE_UNSET_INT;
+        this.objectDurationMs = C.TIME_UNSET;
       }
 
       /** Sets the {@link CmcdObject#bitrateKbps}. The default value is {@link C#RATE_UNSET_INT}. */
       @CanIgnoreReturnValue
       public Builder setBitrateKbps(int bitrateKbps) {
         this.bitrateKbps = bitrateKbps;
+        return this;
+      }
+
+      /**
+       * Sets the {@link CmcdObject#topBitrateKbps}. The default value is {@link C#RATE_UNSET_INT}.
+       */
+      @CanIgnoreReturnValue
+      public Builder setTopBitrateKbps(int topBitrateKbps) {
+        this.topBitrateKbps = topBitrateKbps;
+        return this;
+      }
+
+      /**
+       * Sets the {@link CmcdObject#objectDurationMs}. The default value is {@link C#TIME_UNSET}.
+       *
+       * @throws IllegalArgumentException If {@code objectDurationMs} is not equal to {@link
+       *     C#TIME_UNSET} and is non-positive.
+       */
+      @CanIgnoreReturnValue
+      public Builder setObjectDurationMs(long objectDurationMs) {
+        checkArgument(objectDurationMs == C.TIME_UNSET || objectDurationMs >= 0);
+        this.objectDurationMs = objectDurationMs;
         return this;
       }
 
@@ -204,6 +245,21 @@ public final class CmcdLog {
     public final int bitrateKbps;
 
     /**
+     * The highest bitrate rendition, in kbps, in the manifest or playlist that the client is
+     * allowed to play, given current codec, licensing and sizing constraints. If unset, it is
+     * represented by the value {@link C#RATE_UNSET_INT}.
+     */
+    public final int topBitrateKbps;
+
+    /**
+     * The playback duration in milliseconds of the object being requested, or {@link C#TIME_UNSET}
+     * if unset. If a partial segment is being requested, then this value MUST indicate the playback
+     * duration of that part and not that of its parent segment. This value can be an approximation
+     * of the estimated duration if the explicit value is not known.
+     */
+    public final long objectDurationMs;
+
+    /**
      * Custom data where the values of the keys vary with the object being requested, or {@code
      * null} if unset.
      *
@@ -214,6 +270,8 @@ public final class CmcdLog {
 
     private CmcdObject(Builder builder) {
       this.bitrateKbps = builder.bitrateKbps;
+      this.topBitrateKbps = builder.topBitrateKbps;
+      this.objectDurationMs = builder.objectDurationMs;
       this.customData = builder.customData;
     }
 
@@ -229,6 +287,15 @@ public final class CmcdLog {
       if (bitrateKbps != C.RATE_UNSET_INT) {
         headerValue.append(
             Util.formatInvariant("%s=%d,", CmcdConfiguration.KEY_BITRATE, bitrateKbps));
+      }
+      if (topBitrateKbps != C.RATE_UNSET_INT) {
+        headerValue.append(
+            Util.formatInvariant("%s=%d,", CmcdConfiguration.KEY_TOP_BITRATE, topBitrateKbps));
+      }
+      if (objectDurationMs != C.TIME_UNSET) {
+        headerValue.append(
+            Util.formatInvariant(
+                "%s=%d,", CmcdConfiguration.KEY_OBJECT_DURATION, objectDurationMs));
       }
       if (!TextUtils.isEmpty(customData)) {
         headerValue.append(Util.formatInvariant("%s,", customData));
@@ -259,6 +326,9 @@ public final class CmcdLog {
       /**
        * Sets the {@link CmcdRequest#bufferLengthMs}. Rounded to nearest 100 ms. The default value
        * is {@link C#TIME_UNSET}.
+       *
+       * @throws IllegalArgumentException If {@code bufferLengthMs} is not equal to {@link
+       *     C#TIME_UNSET} and is non-positive.
        */
       @CanIgnoreReturnValue
       public Builder setBufferLengthMs(long bufferLengthMs) {
@@ -270,7 +340,7 @@ public final class CmcdLog {
 
       /** Sets the {@link CmcdRequest#customData}. The default value is {@code null}. */
       @CanIgnoreReturnValue
-      public CmcdRequest.Builder setCustomData(@Nullable String customData) {
+      public Builder setCustomData(@Nullable String customData) {
         this.customData = customData;
         return this;
       }
@@ -344,6 +414,9 @@ public final class CmcdLog {
       /**
        * Sets the {@link CmcdSession#contentId}. Maximum length allowed is 64 characters. The
        * default value is {@code null}.
+       *
+       * @throws IllegalArgumentException If {@code contentId} is null or its length exceeds {@link
+       *     CmcdConfiguration#MAX_ID_LENGTH}.
        */
       @CanIgnoreReturnValue
       public Builder setContentId(@Nullable String contentId) {
@@ -355,6 +428,9 @@ public final class CmcdLog {
       /**
        * Sets the {@link CmcdSession#sessionId}. Maximum length allowed is 64 characters. The
        * default value is {@code null}.
+       *
+       * @throws IllegalArgumentException If {@code sessionId} is null or its length exceeds {@link
+       *     CmcdConfiguration#MAX_ID_LENGTH}.
        */
       @CanIgnoreReturnValue
       public Builder setSessionId(@Nullable String sessionId) {
@@ -502,6 +578,9 @@ public final class CmcdLog {
       /**
        * Sets the {@link CmcdStatus#maximumRequestedThroughputKbps}. Rounded to nearest 100 kbps.
        * The default value is {@link C#RATE_UNSET_INT}.
+       *
+       * @throws IllegalArgumentException If {@code maximumRequestedThroughputKbps} is not equal to
+       *     {@link C#RATE_UNSET_INT} and is non-positive.
        */
       @CanIgnoreReturnValue
       public Builder setMaximumRequestedThroughputKbps(int maximumRequestedThroughputKbps) {

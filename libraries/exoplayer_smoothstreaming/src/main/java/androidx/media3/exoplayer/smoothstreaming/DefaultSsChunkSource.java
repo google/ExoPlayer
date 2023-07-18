@@ -280,6 +280,12 @@ public class DefaultSsChunkSource implements SsChunkSource {
     int manifestTrackIndex = trackSelection.getIndexInTrackGroup(trackSelectionIndex);
     Uri uri = streamElement.buildRequestUri(manifestTrackIndex, chunkIndex);
 
+    long chunkDurationUs = 0;
+    if (trackSelectionIndex < chunkIterators.length && chunkIterators[trackSelectionIndex].next()) {
+      chunkDurationUs =
+          chunkIterators[trackSelectionIndex].getChunkEndTimeUs()
+              - chunkIterators[trackSelectionIndex].getChunkStartTimeUs();
+    }
     @Nullable
     CmcdLog cmcdLog =
         cmcdConfiguration == null
@@ -288,6 +294,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
                 cmcdConfiguration,
                 trackSelection,
                 bufferedDurationUs,
+                chunkDurationUs,
                 CmcdLog.STREAMING_FORMAT_SS,
                 manifest.isLive);
 

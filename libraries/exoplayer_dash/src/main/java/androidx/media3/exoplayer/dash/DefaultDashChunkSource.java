@@ -370,6 +370,13 @@ public class DefaultDashChunkSource implements DashChunkSource {
     trackSelection.updateSelectedTrack(
         playbackPositionUs, bufferedDurationUs, availableLiveDurationUs, queue, chunkIterators);
 
+    int selectedTrackIndex = trackSelection.getSelectedIndex();
+    long chunkDurationUs = 0;
+    if (selectedTrackIndex < chunkIterators.length && chunkIterators[selectedTrackIndex].next()) {
+      chunkDurationUs =
+          chunkIterators[selectedTrackIndex].getChunkEndTimeUs()
+              - chunkIterators[selectedTrackIndex].getChunkStartTimeUs();
+    }
     @Nullable
     CmcdLog cmcdLog =
         cmcdConfiguration == null
@@ -378,11 +385,11 @@ public class DefaultDashChunkSource implements DashChunkSource {
                 cmcdConfiguration,
                 trackSelection,
                 bufferedDurationUs,
+                chunkDurationUs,
                 CmcdLog.STREAMING_FORMAT_DASH,
                 manifest.dynamic);
 
-    RepresentationHolder representationHolder =
-        updateSelectedBaseUrl(trackSelection.getSelectedIndex());
+    RepresentationHolder representationHolder = updateSelectedBaseUrl(selectedTrackIndex);
     if (representationHolder.chunkExtractor != null) {
       Representation selectedRepresentation = representationHolder.representation;
       @Nullable RangedUri pendingInitializationUri = null;
