@@ -17,6 +17,7 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.transformer.AndroidTestUtil.FORCE_TRANSCODE_VIDEO_EFFECTS;
+import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_FRAME_COUNT;
 import static com.google.common.truth.Truth.assertThat;
 
@@ -57,6 +58,13 @@ public class ForceEndOfStreamTest {
     if (skipTestBelowApi29(context, testId)) {
       return;
     }
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_FORMAT,
+        /* outputFormat= */ MP4_ASSET_FORMAT)) {
+      return;
+    }
     int framesToSkip = 4;
 
     ExportTestResult testResult =
@@ -74,6 +82,13 @@ public class ForceEndOfStreamTest {
   public void transcode_decoderDroppingNoFrame_exportSucceeds() throws Exception {
     String testId = "transcode_decoderDroppingNoFrame_exportSucceeds";
     if (skipTestBelowApi29(context, testId)) {
+      return;
+    }
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_FORMAT,
+        /* outputFormat= */ MP4_ASSET_FORMAT)) {
       return;
     }
 
