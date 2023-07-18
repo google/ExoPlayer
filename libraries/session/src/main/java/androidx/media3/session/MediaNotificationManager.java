@@ -19,6 +19,7 @@ import static android.app.Service.STOP_FOREGROUND_DETACH;
 import static android.app.Service.STOP_FOREGROUND_REMOVE;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
@@ -346,14 +347,15 @@ import java.util.concurrent.TimeoutException;
     }
   }
 
+  @SuppressLint("InlinedApi") // Using compile time constant FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
   private void startForeground(MediaNotification mediaNotification) {
     ContextCompat.startForegroundService(mediaSessionService, startSelfIntent);
-    if (Util.SDK_INT >= 29) {
-      Api29.startForeground(mediaSessionService, mediaNotification);
-    } else {
-      mediaSessionService.startForeground(
-          mediaNotification.notificationId, mediaNotification.notification);
-    }
+    Util.setForegroundServiceNotification(
+        mediaSessionService,
+        mediaNotification.notificationId,
+        mediaNotification.notification,
+        ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK,
+        "mediaPlayback");
     startedInForeground = true;
   }
 
@@ -379,30 +381,5 @@ import java.util.concurrent.TimeoutException;
     }
 
     private Api24() {}
-  }
-
-  @RequiresApi(29)
-  private static class Api29 {
-
-    @DoNotInline
-    public static void startForeground(
-        MediaSessionService mediaSessionService, MediaNotification mediaNotification) {
-      try {
-        // startForeground() will throw if the service's foregroundServiceType is not defined in the
-        // manifest to include mediaPlayback.
-        mediaSessionService.startForeground(
-            mediaNotification.notificationId,
-            mediaNotification.notification,
-            ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
-      } catch (RuntimeException e) {
-        Log.e(
-            TAG,
-            "The service must be declared with a foregroundServiceType that includes "
-                + " mediaPlayback");
-        throw e;
-      }
-    }
-
-    private Api29() {}
   }
 }

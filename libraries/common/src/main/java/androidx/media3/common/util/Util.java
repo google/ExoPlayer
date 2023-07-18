@@ -36,6 +36,8 @@ import static java.lang.Math.min;
 import android.Manifest.permission;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Notification;
+import android.app.Service;
 import android.app.UiModeManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -295,6 +297,36 @@ public final class Util {
       return context.startForegroundService(intent);
     } else {
       return context.startService(intent);
+    }
+  }
+
+  /**
+   * Sets the notification required for a foreground service.
+   *
+   * @param service The foreground {@link Service}.
+   * @param notificationId The notification id.
+   * @param notification The {@link Notification}.
+   * @param foregroundServiceType The foreground service type defined in {@link
+   *     android.content.pm.ServiceInfo}.
+   * @param foregroundServiceManifestType The required foreground service type string for the {@code
+   *     <service>} element in the manifest.
+   */
+  @UnstableApi
+  public static void setForegroundServiceNotification(
+      Service service,
+      int notificationId,
+      Notification notification,
+      int foregroundServiceType,
+      String foregroundServiceManifestType) {
+    if (Util.SDK_INT >= 29) {
+      Api29.startForeground(
+          service,
+          notificationId,
+          notification,
+          foregroundServiceType,
+          foregroundServiceManifestType);
+    } else {
+      service.startForeground(notificationId, notification);
     }
   }
 
@@ -3355,5 +3387,30 @@ public final class Util {
     public static Drawable getDrawable(Context context, Resources resources, @DrawableRes int res) {
       return resources.getDrawable(res, context.getTheme());
     }
+  }
+
+  @RequiresApi(29)
+  private static class Api29 {
+
+    @DoNotInline
+    public static void startForeground(
+        Service mediaSessionService,
+        int notificationId,
+        Notification notification,
+        int foregroundServiceType,
+        String foregroundServiceManifestType) {
+      try {
+        // startForeground() will throw if the service's foregroundServiceType is not defined.
+        mediaSessionService.startForeground(notificationId, notification, foregroundServiceType);
+      } catch (RuntimeException e) {
+        Log.e(
+            TAG,
+            "The service must be declared with a foregroundServiceType that includes "
+                + foregroundServiceManifestType);
+        throw e;
+      }
+    }
+
+    private Api29() {}
   }
 }

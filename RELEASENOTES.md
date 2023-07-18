@@ -115,6 +115,11 @@
         playback if a suitable device is connected within a configurable timeout
         (default is 5 minutes).
 *   Downloads:
+    *   Declare "data sync" foreground service type for `DownloadService` for
+        Android 14 compatibility. When using this service, the app also needs to
+        add `dataSync` as `foregroundServiceType` in the manifest and add the
+        `FOREGROUND_SERVICE_DATA_SYNC` permission
+        ([#11239](https://github.com/google/ExoPlayer/issues/11239)).
 *   OkHttp Extension:
 *   Cronet Extension:
 *   RTMP Extension:
