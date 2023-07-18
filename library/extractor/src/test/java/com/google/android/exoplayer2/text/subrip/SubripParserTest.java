@@ -65,10 +65,10 @@ public final class SubripParserTest {
 
     List<CuesWithTiming> allCues = parser.parse(bytes);
 
-    assertThat(allCues).hasSize(6);
+    assertThat(allCues).hasSize(3);
     assertTypicalCue1(allCues.get(0));
-    assertTypicalCue2(allCues.get(2));
-    assertTypicalCue3(allCues.get(4));
+    assertTypicalCue2(allCues.get(1));
+    assertTypicalCue3(allCues.get(2));
   }
 
   @Test
@@ -78,11 +78,11 @@ public final class SubripParserTest {
 
     ImmutableList<CuesWithTiming> allCues = parser.parse(bytes, 10, bytes.length - 15);
 
-    assertThat(allCues).hasSize(4);
+    assertThat(allCues).hasSize(2);
     // Because of the offset, we skip the first line of dialogue
     assertTypicalCue2(allCues.get(0));
     // Because of the length restriction, we only partially parse the third line of dialogue
-    Cue thirdCue = allCues.get(2).cues.get(0);
+    Cue thirdCue = allCues.get(1).cues.get(0);
     assertThat(thirdCue.text.toString()).isEqualTo("This is the third subti");
   }
 
@@ -95,10 +95,10 @@ public final class SubripParserTest {
 
     List<CuesWithTiming> allCues = parser.parse(bytes);
 
-    assertThat(allCues).hasSize(6);
+    assertThat(allCues).hasSize(3);
     assertTypicalCue1(allCues.get(0));
-    assertTypicalCue2(allCues.get(2));
-    assertTypicalCue3(allCues.get(4));
+    assertTypicalCue2(allCues.get(1));
+    assertTypicalCue3(allCues.get(2));
   }
 
   @Test
@@ -110,10 +110,10 @@ public final class SubripParserTest {
 
     List<CuesWithTiming> allCues = parser.parse(bytes);
 
-    assertThat(allCues).hasSize(6);
+    assertThat(allCues).hasSize(3);
     assertTypicalCue1(allCues.get(0));
-    assertTypicalCue2(allCues.get(2));
-    assertTypicalCue3(allCues.get(4));
+    assertTypicalCue2(allCues.get(1));
+    assertTypicalCue3(allCues.get(2));
   }
 
   @Test
@@ -126,9 +126,9 @@ public final class SubripParserTest {
 
     List<CuesWithTiming> allCues = parser.parse(bytes);
 
-    assertThat(allCues).hasSize(4);
+    assertThat(allCues).hasSize(2);
     assertTypicalCue1(allCues.get(0));
-    assertTypicalCue3(allCues.get(2));
+    assertTypicalCue3(allCues.get(1));
   }
 
   @Test
@@ -141,9 +141,9 @@ public final class SubripParserTest {
 
     List<CuesWithTiming> allCues = parser.parse(bytes);
 
-    assertThat(allCues).hasSize(4);
+    assertThat(allCues).hasSize(2);
     assertTypicalCue1(allCues.get(0));
-    assertTypicalCue3(allCues.get(2));
+    assertTypicalCue3(allCues.get(1));
   }
 
   @Test
@@ -156,7 +156,7 @@ public final class SubripParserTest {
 
     List<CuesWithTiming> allCues = parser.parse(bytes);
 
-    assertThat(allCues).hasSize(2);
+    assertThat(allCues).hasSize(1);
     assertTypicalCue3(allCues.get(0));
   }
 
@@ -169,9 +169,9 @@ public final class SubripParserTest {
 
     List<CuesWithTiming> allCues = parser.parse(bytes);
 
-    assertThat(allCues).hasSize(4);
+    assertThat(allCues).hasSize(2);
     assertTypicalCue1(allCues.get(0));
-    assertTypicalCue2(allCues.get(2));
+    assertTypicalCue2(allCues.get(1));
   }
 
   @Test
@@ -182,10 +182,10 @@ public final class SubripParserTest {
 
     List<CuesWithTiming> allCues = parser.parse(bytes);
 
-    assertThat(allCues).hasSize(6);
+    assertThat(allCues).hasSize(3);
     assertTypicalCue1(allCues.get(0));
-    assertTypicalCue2(allCues.get(2));
-    assertTypicalCue3(allCues.get(4));
+    assertTypicalCue2(allCues.get(1));
+    assertTypicalCue3(allCues.get(2));
   }
 
   @Test
@@ -196,10 +196,10 @@ public final class SubripParserTest {
 
     List<CuesWithTiming> allCues = parser.parse(bytes);
 
-    assertThat(allCues).hasSize(6);
+    assertThat(allCues).hasSize(3);
     assertTypicalCue1(allCues.get(0));
-    assertTypicalCue2(allCues.get(2));
-    assertTypicalCue3(allCues.get(4));
+    assertTypicalCue2(allCues.get(1));
+    assertTypicalCue3(allCues.get(2));
   }
 
   @Test
@@ -212,22 +212,22 @@ public final class SubripParserTest {
 
     assertThat(allCues).isNotNull();
     assertThat(allCues.get(0).cues.get(0).text.toString()).isEqualTo("This is the first subtitle.");
-    assertThat(allCues.get(2).cues.get(0).text.toString())
+    assertThat(allCues.get(1).cues.get(0).text.toString())
         .isEqualTo("This is the second subtitle.\nSecond subtitle with second line.");
-    assertThat(allCues.get(4).cues.get(0).text.toString()).isEqualTo("This is the third subtitle.");
-    assertThat(allCues.get(6).cues.get(0).text.toString())
+    assertThat(allCues.get(2).cues.get(0).text.toString()).isEqualTo("This is the third subtitle.");
+    assertThat(allCues.get(3).cues.get(0).text.toString())
         .isEqualTo("This { \\an2} is not a valid tag due to the space after the opening bracket.");
-    assertThat(allCues.get(8).cues.get(0).text.toString())
+    assertThat(allCues.get(4).cues.get(0).text.toString())
         .isEqualTo("This is the fifth subtitle with multiple valid tags.");
-    assertAlignmentCue(allCues.get(10), Cue.ANCHOR_TYPE_END, Cue.ANCHOR_TYPE_START); // {/an1}
-    assertAlignmentCue(allCues.get(12), Cue.ANCHOR_TYPE_END, Cue.ANCHOR_TYPE_MIDDLE); // {/an2}
-    assertAlignmentCue(allCues.get(14), Cue.ANCHOR_TYPE_END, Cue.ANCHOR_TYPE_END); // {/an3}
-    assertAlignmentCue(allCues.get(16), Cue.ANCHOR_TYPE_MIDDLE, Cue.ANCHOR_TYPE_START); // {/an4}
-    assertAlignmentCue(allCues.get(18), Cue.ANCHOR_TYPE_MIDDLE, Cue.ANCHOR_TYPE_MIDDLE); // {/an5}
-    assertAlignmentCue(allCues.get(20), Cue.ANCHOR_TYPE_MIDDLE, Cue.ANCHOR_TYPE_END); // {/an6}
-    assertAlignmentCue(allCues.get(22), Cue.ANCHOR_TYPE_START, Cue.ANCHOR_TYPE_START); // {/an7}
-    assertAlignmentCue(allCues.get(24), Cue.ANCHOR_TYPE_START, Cue.ANCHOR_TYPE_MIDDLE); // {/an8}
-    assertAlignmentCue(allCues.get(26), Cue.ANCHOR_TYPE_START, Cue.ANCHOR_TYPE_END); // {/an9}
+    assertAlignmentCue(allCues.get(5), Cue.ANCHOR_TYPE_END, Cue.ANCHOR_TYPE_START); // {/an1}
+    assertAlignmentCue(allCues.get(6), Cue.ANCHOR_TYPE_END, Cue.ANCHOR_TYPE_MIDDLE); // {/an2}
+    assertAlignmentCue(allCues.get(7), Cue.ANCHOR_TYPE_END, Cue.ANCHOR_TYPE_END); // {/an3}
+    assertAlignmentCue(allCues.get(8), Cue.ANCHOR_TYPE_MIDDLE, Cue.ANCHOR_TYPE_START); // {/an4}
+    assertAlignmentCue(allCues.get(9), Cue.ANCHOR_TYPE_MIDDLE, Cue.ANCHOR_TYPE_MIDDLE); // {/an5}
+    assertAlignmentCue(allCues.get(10), Cue.ANCHOR_TYPE_MIDDLE, Cue.ANCHOR_TYPE_END); // {/an6}
+    assertAlignmentCue(allCues.get(11), Cue.ANCHOR_TYPE_START, Cue.ANCHOR_TYPE_START); // {/an7}
+    assertAlignmentCue(allCues.get(12), Cue.ANCHOR_TYPE_START, Cue.ANCHOR_TYPE_MIDDLE); // {/an8}
+    assertAlignmentCue(allCues.get(13), Cue.ANCHOR_TYPE_START, Cue.ANCHOR_TYPE_END); // {/an9}
   }
 
   @Test
@@ -239,11 +239,11 @@ public final class SubripParserTest {
 
     List<CuesWithTiming> allCues = parser.parse(bytes);
 
-    assertThat(allCues).hasSize(6);
+    assertThat(allCues).hasSize(3);
     assertTypicalCue1(allCues.get(0));
-    assertThat(allCues.get(2).startTimeUs).isEqualTo(2_000_000);
-    assertThat(allCues.get(3).startTimeUs).isEqualTo(3_000_000);
-    assertTypicalCue3(allCues.get(4));
+    assertThat(allCues.get(1).startTimeUs).isEqualTo(2_000_000);
+    assertThat(allCues.get(1).durationUs).isEqualTo(1_000_000);
+    assertTypicalCue3(allCues.get(2));
   }
 
   private static void assertTypicalCue1(CuesWithTiming cuesWithTiming) {
