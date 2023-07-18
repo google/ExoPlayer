@@ -420,6 +420,10 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
     long firstAvailableSegmentNum = representationHolder.getFirstAvailableSegmentNum(nowUnixTimeUs);
     long lastAvailableSegmentNum = representationHolder.getLastAvailableSegmentNum(nowUnixTimeUs);
+    if(manifest.dynamic) {
+      long lastAvailableSegmentEndTimeUs = representationHolder.getSegmentEndTimeUs(lastAvailableSegmentNum);
+      periodEnded &= (lastAvailableSegmentEndTimeUs >= periodDurationUs);
+    }
     long segmentNum =
         getSegmentNum(
             representationHolder,
