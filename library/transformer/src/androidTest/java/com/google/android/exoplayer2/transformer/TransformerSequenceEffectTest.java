@@ -22,6 +22,7 @@ import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.maybeSa
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.readBitmap;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.JPG_ASSET_URI_STRING;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.JPG_PORTRAIT_ASSET_URI_STRING;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_PORTRAIT_ASSET_URI_STRING;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
@@ -74,6 +75,13 @@ public final class TransformerSequenceEffectTest {
   @Test
   public void export_withNoCompositionPresentationAndWithPerMediaItemEffects() throws Exception {
     String testId = "export_withNoCompositionPresentationAndWithPerMediaItemEffects";
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_FORMAT,
+        /* outputFormat= */ MP4_ASSET_FORMAT)) {
+      return;
+    }
     OverlayEffect overlayEffect = createOverlayEffect();
     Composition composition =
         createComposition(
@@ -111,6 +119,13 @@ public final class TransformerSequenceEffectTest {
   @Test
   public void export_withCompositionPresentationAndWithPerMediaItemEffects() throws Exception {
     String testId = "export_withCompositionPresentationAndWithPerMediaItemEffects";
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_FORMAT,
+        /* outputFormat= */ MP4_ASSET_FORMAT)) {
+      return;
+    }
     Composition composition =
         createComposition(
             Presentation.createForWidthAndHeight(
@@ -144,6 +159,13 @@ public final class TransformerSequenceEffectTest {
   @Test
   public void export_withCompositionPresentationAndNoVideoEffects() throws Exception {
     String testId = "export_withCompositionPresentationAndNoVideoEffects";
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_FORMAT,
+        /* outputFormat= */ MP4_ASSET_FORMAT)) {
+      return;
+    }
     Composition composition =
         createComposition(
             Presentation.createForHeight(EXPORT_HEIGHT),
@@ -166,6 +188,13 @@ public final class TransformerSequenceEffectTest {
   public void export_withCompositionPresentationAndNoVideoEffectsForFirstMediaItem()
       throws Exception {
     String testId = "export_withCompositionPresentationAndNoVideoEffectsForFirstMediaItem";
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_FORMAT,
+        /* outputFormat= */ MP4_ASSET_FORMAT)) {
+      return;
+    }
     Composition composition =
         createComposition(
             Presentation.createForHeight(EXPORT_HEIGHT),

@@ -16,7 +16,9 @@
 package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP3_ASSET_URI_STRING;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_URI_STRING;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.PNG_ASSET_URI_STRING;
@@ -222,6 +224,14 @@ public class TransformerEndToEndTest {
 
   @Test
   public void videoEditing_completesWithConsistentFrameCount() throws Exception {
+    String testId = "videoEditing_completesWithConsistentFrameCount";
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_FORMAT,
+        /* outputFormat= */ MP4_ASSET_FORMAT)) {
+      return;
+    }
     Transformer transformer =
         new Transformer.Builder(context)
             .setEncoderFactory(
@@ -246,6 +256,14 @@ public class TransformerEndToEndTest {
 
   @Test
   public void videoEditing_effectsOverTime_completesWithConsistentFrameCount() throws Exception {
+    String testId = "videoEditing_effectsOverTime_completesWithConsistentFrameCount";
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_FORMAT,
+        /* outputFormat= */ MP4_ASSET_FORMAT)) {
+      return;
+    }
     Transformer transformer =
         new Transformer.Builder(context)
             .setEncoderFactory(
@@ -281,6 +299,14 @@ public class TransformerEndToEndTest {
 
   @Test
   public void videoOnly_completesWithConsistentDuration() throws Exception {
+    String testId = "videoOnly_completesWithConsistentDuration";
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_FORMAT,
+        /* outputFormat= */ MP4_ASSET_FORMAT)) {
+      return;
+    }
     Transformer transformer =
         new Transformer.Builder(context)
             .setEncoderFactory(
@@ -303,6 +329,14 @@ public class TransformerEndToEndTest {
 
   @Test
   public void clippedMedia_completesWithClippedDuration() throws Exception {
+    String testId = "clippedMedia_completesWithClippedDuration";
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_FORMAT,
+        /* outputFormat= */ MP4_ASSET_WITH_INCREASING_TIMESTAMPS_320W_240H_15S_FORMAT)) {
+      return;
+    }
     Transformer transformer = new Transformer.Builder(context).build();
     long clippingStartMs = 10_000;
     long clippingEndMs = 11_000;
@@ -325,7 +359,15 @@ public class TransformerEndToEndTest {
   }
 
   @Test
-  public void videoEncoderFormatUnsupported_completesWithError() {
+  public void videoEncoderFormatUnsupported_completesWithError() throws Exception {
+    String testId = "videoEncoderFormatUnsupported_completesWithError";
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_FORMAT,
+        /* outputFormat= */ MP4_ASSET_FORMAT)) {
+      return;
+    }
     Transformer transformer =
         new Transformer.Builder(context)
             .setEncoderFactory(new VideoUnsupportedEncoderFactory(context))
@@ -354,6 +396,13 @@ public class TransformerEndToEndTest {
   public void audioVideoTranscodedFromDifferentSequences_producesExpectedResult() throws Exception {
     Transformer transformer = new Transformer.Builder(context).build();
     String testId = "audioVideoTranscodedFromDifferentSequences_producesExpectedResult";
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_FORMAT,
+        /* outputFormat= */ MP4_ASSET_FORMAT)) {
+      return;
+    }
     ImmutableList<AudioProcessor> audioProcessors = ImmutableList.of(new SonicAudioProcessor());
     ImmutableList<Effect> videoEffects = ImmutableList.of(RgbFilter.createGrayscaleFilter());
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_URI_STRING));
@@ -398,6 +447,13 @@ public class TransformerEndToEndTest {
   public void loopingTranscodedAudio_producesExpectedResult() throws Exception {
     Transformer transformer = new Transformer.Builder(context).build();
     String testId = "loopingTranscodedAudio_producesExpectedResult";
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_FORMAT,
+        /* outputFormat= */ MP4_ASSET_FORMAT)) {
+      return;
+    }
     EditedMediaItem audioEditedMediaItem =
         new EditedMediaItem.Builder(MediaItem.fromUri(MP3_ASSET_URI_STRING)).build();
     EditedMediaItemSequence audioSequence =
@@ -431,6 +487,13 @@ public class TransformerEndToEndTest {
   public void loopingTranscodedVideo_producesExpectedResult() throws Exception {
     Transformer transformer = new Transformer.Builder(context).build();
     String testId = "loopingTranscodedVideo_producesExpectedResult";
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_FORMAT,
+        /* outputFormat= */ MP4_ASSET_FORMAT)) {
+      return;
+    }
     EditedMediaItem audioEditedMediaItem =
         new EditedMediaItem.Builder(MediaItem.fromUri(MP3_ASSET_URI_STRING)).build();
     EditedMediaItemSequence audioSequence =
