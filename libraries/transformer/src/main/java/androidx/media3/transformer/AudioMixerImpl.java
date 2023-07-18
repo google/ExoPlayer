@@ -16,14 +16,13 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
-import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static java.lang.Math.min;
 
 import android.util.SparseArray;
-import androidx.annotation.Nullable;
 import androidx.media3.common.C;
+import androidx.media3.common.audio.AudioMixingUtil;
 import androidx.media3.common.audio.AudioProcessor.AudioFormat;
 import androidx.media3.common.audio.AudioProcessor.UnhandledAudioFormatException;
 import androidx.media3.common.audio.ChannelMixingMatrix;
@@ -40,7 +39,6 @@ import java.nio.ByteOrder;
   private final SparseArray<SourceInfo> sources;
   private int nextSourceId;
   private AudioFormat outputAudioFormat;
-  @Nullable private AudioMixingAlgorithm mixingAlgorithm;
   private int bufferSizeFrames;
   private MixingBuffer[] mixingBuffers;
   private long mixerStartTimeUs;
@@ -67,10 +65,13 @@ import java.nio.ByteOrder;
   @Override
   public void configure(AudioFormat outputAudioFormat, int bufferSizeMs, long startTimeUs)
       throws UnhandledAudioFormatException {
-    checkState(!isConfigured(), "Audio mixer already configured.");
+    checkState(
+        this.outputAudioFormat.equals(AudioFormat.NOT_SET), "Audio mixer already configured.");
 
-    // Create algorithm first in case it throws.
-    mixingAlgorithm = AudioMixingAlgorithm.create(outputAudioFormat);
+    if (!AudioMixingUtil.canMix(outputAudioFormat)) {
+      throw new UnhandledAudioFormatException(
+          "Can not mix to this AudioFormat.", outputAudioFormat);
+    }
     this.outputAudioFormat = outputAudioFormat;
     bufferSizeFrames = bufferSizeMs * outputAudioFormat.sampleRate / 1000;
     mixerStartTimeUs = startTimeUs;
@@ -97,7 +98,7 @@ import java.nio.ByteOrder;
   @Override
   public boolean supportsSourceAudioFormat(AudioFormat sourceFormat) {
     checkStateIsConfigured();
-    return checkStateNotNull(mixingAlgorithm).supportsSourceAudioFormat(sourceFormat);
+    return AudioMixingUtil.canMix(sourceFormat, outputAudioFormat);
   }
 
   @Override
@@ -174,8 +175,8 @@ import java.nio.ByteOrder;
       source.mixTo(
           sourceBuffer,
           min(newSourcePosition, mixingBuffer.limit),
-          checkNotNull(mixingAlgorithm),
-          mixingBuffer.buffer);
+          mixingBuffer.buffer,
+          outputAudioFormat);
       mixingBuffer.buffer.reset();
 
       if (source.position == newSourcePosition) {
@@ -228,7 +229,6 @@ import java.nio.ByteOrder;
     sources.clear();
     nextSourceId = 0;
     outputAudioFormat = AudioFormat.NOT_SET;
-    mixingAlgorithm = null;
     bufferSizeFrames = C.LENGTH_UNSET;
     mixingBuffers = new MixingBuffer[0];
     mixerStartTimeUs = C.TIME_UNSET;
@@ -237,12 +237,8 @@ import java.nio.ByteOrder;
     endPosition = Long.MAX_VALUE;
   }
 
-  private boolean isConfigured() {
-    return mixingAlgorithm != null;
-  }
-
   private void checkStateIsConfigured() {
-    checkState(isConfigured(), "Audio mixer is not configured.");
+    checkState(!outputAudioFormat.equals(AudioFormat.NOT_SET), "Audio mixer is not configured.");
   }
 
   private MixingBuffer allocateMixingBuffer(long position) {
@@ -331,12 +327,18 @@ import java.nio.ByteOrder;
     public void mixTo(
         ByteBuffer sourceBuffer,
         long newPosition,
-        AudioMixingAlgorithm mixingAlgorithm,
-        ByteBuffer mixingBuffer) {
+        ByteBuffer mixingBuffer,
+        AudioFormat mixingAudioFormat) {
       checkArgument(newPosition >= position);
       int framesToMix = (int) (newPosition - position);
-      mixingAlgorithm.mix(
-          sourceBuffer, audioFormat, channelMixingMatrix, framesToMix, mixingBuffer);
+      AudioMixingUtil.mix(
+          sourceBuffer,
+          audioFormat,
+          mixingBuffer,
+          mixingAudioFormat,
+          channelMixingMatrix,
+          framesToMix,
+          /* accumulate= */ true);
       position = newPosition;
     }
   }

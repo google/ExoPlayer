@@ -21,7 +21,6 @@ import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.util.UnstableApi;
-import androidx.media3.common.util.Util;
 import java.nio.ByteBuffer;
 
 /**
@@ -52,6 +51,7 @@ public final class ChannelMixingAudioProcessor extends BaseAudioProcessor {
   @Override
   protected AudioFormat onConfigure(AudioFormat inputAudioFormat)
       throws UnhandledAudioFormatException {
+    // TODO(b/290002731): Expand to allow float due to AudioMixingUtil built-in support for float.
     if (inputAudioFormat.encoding != C.ENCODING_PCM_16BIT) {
       throw new UnhandledAudioFormatException(inputAudioFormat);
     }
@@ -76,35 +76,16 @@ public final class ChannelMixingAudioProcessor extends BaseAudioProcessor {
     ChannelMixingMatrix channelMixingMatrix =
         checkStateNotNull(matrixByInputChannelCount.get(inputAudioFormat.channelCount));
 
-    int inputFramesToMix = inputBuffer.remaining() / inputAudioFormat.bytesPerFrame;
-    ByteBuffer outputBuffer =
-        replaceOutputBuffer(inputFramesToMix * outputAudioFormat.bytesPerFrame);
-    int inputChannelCount = channelMixingMatrix.getInputChannelCount();
-    int outputChannelCount = channelMixingMatrix.getOutputChannelCount();
-    float[] outputFrame = new float[outputChannelCount];
-    while (inputBuffer.hasRemaining()) {
-      for (int inputChannelIndex = 0; inputChannelIndex < inputChannelCount; inputChannelIndex++) {
-        short inputValue = inputBuffer.getShort();
-        for (int outputChannelIndex = 0;
-            outputChannelIndex < outputChannelCount;
-            outputChannelIndex++) {
-          outputFrame[outputChannelIndex] +=
-              channelMixingMatrix.getMixingCoefficient(inputChannelIndex, outputChannelIndex)
-                  * inputValue;
-        }
-      }
-      for (int outputChannelIndex = 0;
-          outputChannelIndex < outputChannelCount;
-          outputChannelIndex++) {
-        short shortValue =
-            (short)
-                Util.constrainValue(
-                    outputFrame[outputChannelIndex], Short.MIN_VALUE, Short.MAX_VALUE);
-        outputBuffer.put((byte) (shortValue & 0xFF));
-        outputBuffer.put((byte) ((shortValue >> 8) & 0xFF));
-        outputFrame[outputChannelIndex] = 0;
-      }
-    }
+    int framesToMix = inputBuffer.remaining() / inputAudioFormat.bytesPerFrame;
+    ByteBuffer outputBuffer = replaceOutputBuffer(framesToMix * outputAudioFormat.bytesPerFrame);
+    AudioMixingUtil.mix(
+        inputBuffer,
+        inputAudioFormat,
+        outputBuffer,
+        outputAudioFormat,
+        channelMixingMatrix,
+        framesToMix,
+        /* accumulate= */ false);
     outputBuffer.flip();
   }
 }
