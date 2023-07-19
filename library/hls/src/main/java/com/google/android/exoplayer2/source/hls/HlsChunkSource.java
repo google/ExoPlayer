@@ -489,7 +489,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     seenExpectedPlaylistError = false;
     expectedPlaylistUrl = null;
 
-    long chunkDurationUs = 0;
+    long chunkDurationUs = C.TIME_UNSET;
     if (selectedTrackIndex < mediaChunkIterators.length
         && mediaChunkIterators[selectedTrackIndex].next()) {
       chunkDurationUs =

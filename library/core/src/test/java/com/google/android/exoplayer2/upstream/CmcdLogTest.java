@@ -61,6 +61,7 @@ public class CmcdLogTest {
     when(trackSelection.getSelectedFormat()).thenReturn(format);
     when(trackSelection.getTrackGroup())
         .thenReturn(new TrackGroup(format, new Format.Builder().setPeakBitrate(1_000_000).build()));
+    when(trackSelection.getLatestBitrateEstimate()).thenReturn(500_000L);
     CmcdLog cmcdLog =
         CmcdLog.createInstance(
             cmcdConfiguration,
@@ -78,7 +79,7 @@ public class CmcdLogTest {
             "CMCD-Object",
             "br=840,tb=1000,d=3000,key1=value1",
             "CMCD-Request",
-            "bl=1800,key2=\"stringValue\"",
+            "bl=1800,mtp=500,key2=\"stringValue\"",
             "CMCD-Session",
             "cid=\"mediaId\",sid=\"sessionId\",sf=d,st=l",
             "CMCD-Status",
