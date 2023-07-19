@@ -23,7 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.Format;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
-import androidx.media3.common.audio.AudioProcessor.AudioFormat;
+import androidx.media3.common.audio.AudioProcessor.UnhandledAudioFormatException;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -283,14 +283,15 @@ public final class ExportException extends Exception {
   /**
    * Creates an instance for an audio processing related exception.
    *
-   * @param cause The cause of the failure.
-   * @param audioFormat The {@link AudioFormat} used.
+   * @param exception The cause of the failure.
+   * @param details The details associated with this exception.
    * @return The created instance.
    */
-  public static ExportException createForAudioProcessing(Throwable cause, AudioFormat audioFormat) {
+  public static ExportException createForAudioProcessing(
+      UnhandledAudioFormatException exception, String details) {
     return new ExportException(
-        "Audio processing error, audio_format=" + audioFormat,
-        cause,
+        "Audio error: " + details + ", audioFormat=" + exception.inputAudioFormat,
+        exception,
         ERROR_CODE_AUDIO_PROCESSING_FAILED);
   }
 

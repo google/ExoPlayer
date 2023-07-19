@@ -60,7 +60,7 @@ import org.checkerframework.dataflow.qual.Pure;
     try {
       audioGraph = new AudioGraph(firstExporterInputFormat, firstEditedMediaItem);
     } catch (AudioProcessor.UnhandledAudioFormatException e) {
-      throw ExportException.createForAudioProcessing(e, e.inputAudioFormat);
+      throw ExportException.createForAudioProcessing(e, "AudioGraph initialization");
     }
     encoderInputAudioFormat = audioGraph.getOutputAudioFormat();
     checkState(!encoderInputAudioFormat.equals(AudioFormat.NOT_SET));
