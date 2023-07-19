@@ -522,3 +522,20 @@ AudioSink:
   buffer #28:
     time = 1000001104319
     data = 1
+TextOutput:
+  Subtitle[0]:
+    presentationTimeUs = 0
+    Cues = []
+  Subtitle[1]:
+    presentationTimeUs = 0
+    Cue[0]:
+      text = This is the first subtitle.
+      textAlignment = ALIGN_CENTER
+      line = 0.95
+      lineType = 0
+      lineAnchor = 2
+      position = 0.5
+      positionAnchor = 1
+  Subtitle[2]:
+    presentationTimeUs = 500000
+    Cues = []

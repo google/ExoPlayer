@@ -522,3 +522,22 @@ AudioSink:
   buffer #28:
     time = 1000001104319
     data = 1
+TextOutput:
+  Subtitle[0]:
+    presentationTimeUs = 0
+    Cues = []
+  Subtitle[1]:
+    presentationTimeUs = 100000
+    Cue[0]:
+      text = First subtitle - end overlaps second
+  Subtitle[2]:
+    presentationTimeUs = 150000
+    Cue[0]:
+      text = Third subtitle - fully encompasses second
+  Subtitle[3]:
+    presentationTimeUs = 200000
+    Cue[0]:
+      text = Second subtitle - beginning overlaps first
+  Subtitle[4]:
+    presentationTimeUs = 450000
+    Cues = []

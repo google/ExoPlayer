@@ -22,7 +22,9 @@ import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.Player;
 import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
+import androidx.media3.extractor.DefaultExtractorsFactory;
 import androidx.media3.test.utils.CapturingRenderersFactory;
 import androidx.media3.test.utils.DumpFileAsserts;
 import androidx.media3.test.utils.FakeClock;
@@ -66,21 +68,27 @@ public final class MkvPlaybackTest {
     Context applicationContext = ApplicationProvider.getApplicationContext();
     CapturingRenderersFactory capturingRenderersFactory =
         new CapturingRenderersFactory(applicationContext);
+    // TODO: b/289916598 - Remove this when transcoding is the default.
+    DefaultExtractorsFactory extractorsFactory =
+        new DefaultExtractorsFactory().setTextTrackTranscodingEnabled(true);
+    DefaultMediaSourceFactory mediaSourceFactory =
+        new DefaultMediaSourceFactory(applicationContext, extractorsFactory);
     ExoPlayer player =
-        new ExoPlayer.Builder(applicationContext, capturingRenderersFactory)
+        new ExoPlayer.Builder(applicationContext, capturingRenderersFactory, mediaSourceFactory)
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
             .build();
-    // TODO(internal b/174661563): Remove the for-loop below to enable the text renderer when
-    //  subtitle output is not flaky.
-    for (int textRendererIndex = 0;
-        textRendererIndex < player.getRendererCount();
-        textRendererIndex++) {
-      if (player.getRendererType(textRendererIndex) == C.TRACK_TYPE_TEXT) {
-        player.setTrackSelectionParameters(
-            new DefaultTrackSelector.ParametersBuilder(applicationContext)
-                .setRendererDisabled(textRendererIndex, /* disabled= */ true)
-                .build());
-        break;
+    // TODO: b/181312195 - Remove this when WebVTT is supported by DefaultSubtitleParserFactory.
+    if (inputFile.contains("_vtt_")) {
+      for (int textRendererIndex = 0;
+          textRendererIndex < player.getRendererCount();
+          textRendererIndex++) {
+        if (player.getRendererType(textRendererIndex) == C.TRACK_TYPE_TEXT) {
+          player.setTrackSelectionParameters(
+              new DefaultTrackSelector.ParametersBuilder(applicationContext)
+                  .setRendererDisabled(textRendererIndex, /* disabled= */ true)
+                  .build());
+          break;
+        }
       }
     }
     Surface surface = new Surface(new SurfaceTexture(/* texName= */ 1));

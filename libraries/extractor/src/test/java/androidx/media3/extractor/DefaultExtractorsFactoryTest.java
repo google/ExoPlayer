@@ -15,6 +15,7 @@
  */
 package androidx.media3.extractor;
 
+import static androidx.media3.common.util.Assertions.checkState;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
@@ -29,6 +30,7 @@ import androidx.media3.extractor.mp3.Mp3Extractor;
 import androidx.media3.extractor.mp4.FragmentedMp4Extractor;
 import androidx.media3.extractor.mp4.Mp4Extractor;
 import androidx.media3.extractor.ogg.OggExtractor;
+import androidx.media3.extractor.text.SubtitleTranscodingExtractor;
 import androidx.media3.extractor.ts.Ac3Extractor;
 import androidx.media3.extractor.ts.Ac4Extractor;
 import androidx.media3.extractor.ts.AdtsExtractor;
@@ -54,7 +56,7 @@ public final class DefaultExtractorsFactoryTest {
 
     Extractor[] extractors = defaultExtractorsFactory.createExtractors();
 
-    List<Class<? extends Extractor>> extractorClasses = getExtractorClasses(extractors);
+    List<Class<? extends Extractor>> extractorClasses = getUnderlyingExtractorClasses(extractors);
     assertThat(extractorClasses.subList(0, 3))
         .containsExactly(FlvExtractor.class, FlacExtractor.class, WavExtractor.class)
         .inOrder();
@@ -85,7 +87,7 @@ public final class DefaultExtractorsFactoryTest {
 
     Extractor[] extractors = defaultExtractorsFactory.createExtractors(uri, responseHeaders);
 
-    List<Class<? extends Extractor>> extractorClasses = getExtractorClasses(extractors);
+    List<Class<? extends Extractor>> extractorClasses = getUnderlyingExtractorClasses(extractors);
     assertThat(extractorClasses.subList(0, 2))
         .containsExactly(Mp4Extractor.class, FragmentedMp4Extractor.class);
     assertThat(extractorClasses.get(2)).isEqualTo(Mp3Extractor.class);
@@ -100,7 +102,7 @@ public final class DefaultExtractorsFactoryTest {
 
     Extractor[] extractors = defaultExtractorsFactory.createExtractors(uri, responseHeaders);
 
-    List<Class<? extends Extractor>> extractorClasses = getExtractorClasses(extractors);
+    List<Class<? extends Extractor>> extractorClasses = getUnderlyingExtractorClasses(extractors);
     assertThat(extractorClasses.subList(3, extractors.length))
         .containsExactly(
             FlvExtractor.class,
@@ -119,10 +121,60 @@ public final class DefaultExtractorsFactoryTest {
         .inOrder();
   }
 
-  private static List<Class<? extends Extractor>> getExtractorClasses(Extractor[] extractors) {
+  @Test
+  public void subtitleTranscoding_notEnabledByDefault() {
+    DefaultExtractorsFactory defaultExtractorsFactory = new DefaultExtractorsFactory();
+
+    Extractor[] extractors = defaultExtractorsFactory.createExtractors();
+
+    for (Extractor extractor : extractors) {
+      assertThat(extractor.getClass()).isNotEqualTo(SubtitleTranscodingExtractor.class);
+    }
+  }
+
+  @Test
+  public void subtitleTranscoding_ifEnabled_wrapsExtractorsThatSupportMuxedSubtitles() {
+    DefaultExtractorsFactory defaultExtractorsFactory =
+        new DefaultExtractorsFactory().setTextTrackTranscodingEnabled(true);
+
+    Extractor[] extractors = defaultExtractorsFactory.createExtractors();
+
+    Extractor aviExtractor = null;
+    Extractor matroskaExtractor = null;
+    Extractor mp4Extractor = null;
+    Extractor fragmentedMp4Extractor = null;
+    Extractor tsExtractor = null;
+
+    for (Extractor extractor : extractors) {
+      if (extractor.getUnderlyingImplementation() instanceof AviExtractor) {
+        checkState(aviExtractor == null);
+        aviExtractor = extractor;
+      } else if (extractor.getUnderlyingImplementation() instanceof MatroskaExtractor) {
+        checkState(matroskaExtractor == null);
+        matroskaExtractor = extractor;
+      } else if (extractor.getUnderlyingImplementation() instanceof Mp4Extractor) {
+        checkState(mp4Extractor == null);
+        mp4Extractor = extractor;
+      } else if (extractor.getUnderlyingImplementation() instanceof FragmentedMp4Extractor) {
+        checkState(fragmentedMp4Extractor == null);
+        fragmentedMp4Extractor = extractor;
+      } else if (extractor.getUnderlyingImplementation() instanceof TsExtractor) {
+        checkState(tsExtractor == null);
+        tsExtractor = extractor;
+      }
+    }
+    assertThat(aviExtractor).isInstanceOf(SubtitleTranscodingExtractor.class);
+    assertThat(matroskaExtractor).isInstanceOf(SubtitleTranscodingExtractor.class);
+    assertThat(mp4Extractor).isInstanceOf(SubtitleTranscodingExtractor.class);
+    assertThat(fragmentedMp4Extractor).isInstanceOf(SubtitleTranscodingExtractor.class);
+    assertThat(tsExtractor).isInstanceOf(SubtitleTranscodingExtractor.class);
+  }
+
+  private static List<Class<? extends Extractor>> getUnderlyingExtractorClasses(
+      Extractor[] extractors) {
     List<Class<? extends Extractor>> extractorClasses = new ArrayList<>();
     for (Extractor extractor : extractors) {
-      extractorClasses.add(extractor.getClass());
+      extractorClasses.add(extractor.getUnderlyingImplementation().getClass());
     }
     return extractorClasses;
   }
