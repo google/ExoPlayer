@@ -108,6 +108,20 @@ public final class AdaptiveTrackSelectionTest {
   }
 
   @Test
+  public void initial_updateSelectedTrack_returnsCorrectLatestBitrateEstimate() {
+    Format format1 = videoFormat(/* bitrate= */ 500, /* width= */ 320, /* height= */ 240);
+    Format format2 = videoFormat(/* bitrate= */ 1000, /* width= */ 640, /* height= */ 480);
+    TrackGroup trackGroup = new TrackGroup(format1, format2);
+
+    when(mockBandwidthMeter.getBitrateEstimate()).thenReturn(2000L);
+    AdaptiveTrackSelection adaptiveTrackSelection =
+        prepareAdaptiveTrackSelectionWithBandwidthFraction(
+            trackGroup, /* bandwidthFraction= */ 0.5f);
+
+    assertThat(adaptiveTrackSelection.getLatestBitrateEstimate()).isEqualTo(2000L);
+  }
+
+  @Test
   public void updateSelectedTrackDoNotSwitchUpIfNotBufferedEnough() {
     Format format1 = videoFormat(/* bitrate= */ 500, /* width= */ 320, /* height= */ 240);
     Format format2 = videoFormat(/* bitrate= */ 1000, /* width= */ 640, /* height= */ 480);

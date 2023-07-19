@@ -66,7 +66,7 @@ public class DefaultSsChunkSourceTest {
             "CMCD-Object",
             "br=307,tb=1536,d=1968",
             "CMCD-Request",
-            "bl=0",
+            "bl=0,mtp=1000",
             "CMCD-Session",
             "cid=\"mediaId\",sid=\"" + cmcdConfiguration.sessionId + "\",sf=s,st=v");
   }
@@ -111,7 +111,7 @@ public class DefaultSsChunkSourceTest {
             "CMCD-Object",
             "br=307,tb=1536,d=1968",
             "CMCD-Request",
-            "bl=0",
+            "bl=0,mtp=1000",
             "CMCD-Session",
             "cid=\"mediaIdcontentIdSuffix\",sf=s,st=v",
             "CMCD-Status",
@@ -157,7 +157,7 @@ public class DefaultSsChunkSourceTest {
             "CMCD-Object",
             "br=307,tb=1536,d=1968,key1=value1",
             "CMCD-Request",
-            "bl=0,key2=\"stringValue\"",
+            "bl=0,mtp=1000,key2=\"stringValue\"",
             "CMCD-Session",
             "cid=\"mediaId\",sid=\"" + cmcdConfiguration.sessionId + "\",sf=s,st=v,key3=1",
             "CMCD-Status",

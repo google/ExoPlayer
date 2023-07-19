@@ -316,7 +316,7 @@ public class DefaultDashChunkSourceTest {
             "CMCD-Object",
             "br=700,tb=1300,d=4000",
             "CMCD-Request",
-            "bl=0",
+            "bl=0,mtp=1000",
             "CMCD-Session",
             "cid=\"mediaId\",sid=\"" + cmcdConfiguration.sessionId + "\",sf=d,st=v");
   }
@@ -361,7 +361,7 @@ public class DefaultDashChunkSourceTest {
             "CMCD-Object",
             "br=700,tb=1300,d=4000",
             "CMCD-Request",
-            "bl=0",
+            "bl=0,mtp=1000",
             "CMCD-Session",
             "cid=\"mediaIdcontentIdSuffix\",sf=d,st=v",
             "CMCD-Status",
@@ -407,7 +407,7 @@ public class DefaultDashChunkSourceTest {
             "CMCD-Object",
             "br=700,tb=1300,d=4000,key1=value1",
             "CMCD-Request",
-            "bl=0,key2=\"stringValue\"",
+            "bl=0,mtp=1000,key2=\"stringValue\"",
             "CMCD-Session",
             "cid=\"mediaId\",sid=\"" + cmcdConfiguration.sessionId + "\",sf=d,st=v,key3=1",
             "CMCD-Status",

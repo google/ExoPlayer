@@ -35,10 +35,9 @@
     *   Allow `MediaItem` updates for all `MediaSource` classes provided by the
         library via `Player.replaceMediaItem(s)`
         (([#33](https://github.com/androidx/media/issues/33)),([#9978](https://github.com/google/ExoPlayer/issues/9978))).
-    *   Add fields streaming format (sf), stream type (st) and version (v) to
-        Common Media Client Data (CMCD) logging.
-    *   Add fields top birate (tb) and object duration (d) to Common Media
-        Client Data (CMCD) logging.
+    *   Add additional fields to Common Media Client Data (CMCD) logging:
+        streaming format (sf), stream type (st), version (v), top birate (tb),
+        object duration (d) and measured throughput (mtp).
 *   Transformer:
     *   Parse EXIF rotation data for image inputs.
     *   Remove `TransformationRequest.HdrMode` annotation type and its

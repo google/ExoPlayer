@@ -280,7 +280,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
     int manifestTrackIndex = trackSelection.getIndexInTrackGroup(trackSelectionIndex);
     Uri uri = streamElement.buildRequestUri(manifestTrackIndex, chunkIndex);
 
-    long chunkDurationUs = 0;
+    long chunkDurationUs = C.TIME_UNSET;
     if (trackSelectionIndex < chunkIterators.length && chunkIterators[trackSelectionIndex].next()) {
       chunkDurationUs =
           chunkIterators[trackSelectionIndex].getChunkEndTimeUs()

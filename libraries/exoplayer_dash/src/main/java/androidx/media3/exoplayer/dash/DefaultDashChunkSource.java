@@ -371,7 +371,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
         playbackPositionUs, bufferedDurationUs, availableLiveDurationUs, queue, chunkIterators);
 
     int selectedTrackIndex = trackSelection.getSelectedIndex();
-    long chunkDurationUs = 0;
+    long chunkDurationUs = C.TIME_UNSET;
     if (selectedTrackIndex < chunkIterators.length && chunkIterators[selectedTrackIndex].next()) {
       chunkDurationUs =
           chunkIterators[selectedTrackIndex].getChunkEndTimeUs()

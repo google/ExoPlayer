@@ -81,7 +81,8 @@ public final class CmcdLog {
    * @param trackSelection The {@linkplain ExoTrackSelection track selection}.
    * @param bufferedDurationUs The duration of media currently buffered from the current playback
    *     position, in microseconds.
-   * @param chunkDurationUs The duration of current media chunk being requested, in microseconds.
+   * @param chunkDurationUs The duration of current media chunk being requested, in microseconds. If
+   *     the duration is not known, it can be set to {@link C#TIME_UNSET}.
    * @param streamingFormat The streaming format of the media content. Must be one of the allowed
    *     streaming formats specified by the {@link StreamingFormat} annotation.
    * @param isLive {@code true} if the media content is being streamed live, {@code false}
@@ -112,7 +113,7 @@ public final class CmcdLog {
       }
       cmcdObject.setTopBitrateKbps(topBitrate / 1000);
     }
-    if (cmcdConfiguration.isObjectDurationLoggingAllowed()) {
+    if (cmcdConfiguration.isObjectDurationLoggingAllowed() && chunkDurationUs != C.TIME_UNSET) {
       cmcdObject.setObjectDurationMs(chunkDurationUs / 1000);
     }
 
@@ -121,6 +122,10 @@ public final class CmcdLog {
             .setCustomData(customData.get(CmcdConfiguration.KEY_CMCD_REQUEST));
     if (cmcdConfiguration.isBufferLengthLoggingAllowed()) {
       cmcdRequest.setBufferLengthMs(bufferedDurationUs / 1000);
+    }
+    if (cmcdConfiguration.isMeasuredThroughputLoggingAllowed()
+        && trackSelection.getLatestBitrateEstimate() != Long.MIN_VALUE) {
+      cmcdRequest.setMeasuredThroughputInKbps(trackSelection.getLatestBitrateEstimate() / 1000);
     }
 
     CmcdLog.CmcdSession.Builder cmcdSession =
@@ -212,12 +217,11 @@ public final class CmcdLog {
       /**
        * Sets the {@link CmcdObject#objectDurationMs}. The default value is {@link C#TIME_UNSET}.
        *
-       * @throws IllegalArgumentException If {@code objectDurationMs} is not equal to {@link
-       *     C#TIME_UNSET} and is non-positive.
+       * @throws IllegalArgumentException If {@code objectDurationMs} is negative.
        */
       @CanIgnoreReturnValue
       public Builder setObjectDurationMs(long objectDurationMs) {
-        checkArgument(objectDurationMs == C.TIME_UNSET || objectDurationMs >= 0);
+        checkArgument(objectDurationMs >= 0);
         this.objectDurationMs = objectDurationMs;
         return this;
       }
@@ -316,25 +320,39 @@ public final class CmcdLog {
     /** Builder for {@link CmcdRequest} instances. */
     public static final class Builder {
       private long bufferLengthMs;
+      private long measuredThroughputInKbps;
       @Nullable private String customData;
 
       /** Creates a new instance with default values. */
       public Builder() {
         this.bufferLengthMs = C.TIME_UNSET;
+        this.measuredThroughputInKbps = Long.MIN_VALUE;
       }
 
       /**
        * Sets the {@link CmcdRequest#bufferLengthMs}. Rounded to nearest 100 ms. The default value
        * is {@link C#TIME_UNSET}.
        *
-       * @throws IllegalArgumentException If {@code bufferLengthMs} is not equal to {@link
-       *     C#TIME_UNSET} and is non-positive.
+       * @throws IllegalArgumentException If {@code bufferLengthMs} is negative.
        */
       @CanIgnoreReturnValue
       public Builder setBufferLengthMs(long bufferLengthMs) {
-        checkArgument(bufferLengthMs == C.TIME_UNSET || bufferLengthMs >= 0);
-        this.bufferLengthMs =
-            bufferLengthMs == C.TIME_UNSET ? bufferLengthMs : ((bufferLengthMs + 50) / 100) * 100;
+        checkArgument(bufferLengthMs >= 0);
+        this.bufferLengthMs = ((bufferLengthMs + 50) / 100) * 100;
+        return this;
+      }
+
+      /**
+       * Sets the {@link CmcdRequest#measuredThroughputInKbps}. Rounded to nearest 100 kbps. The
+       * default value is {@link Long#MIN_VALUE}.
+       *
+       * @throws IllegalArgumentException If {@code measuredThroughputInKbps} is negative.
+       */
+      @CanIgnoreReturnValue
+      public Builder setMeasuredThroughputInKbps(long measuredThroughputInKbps) {
+        checkArgument(measuredThroughputInKbps >= 0);
+        this.measuredThroughputInKbps = ((measuredThroughputInKbps + 50) / 100) * 100;
+
         return this;
       }
 
@@ -359,6 +377,19 @@ public final class CmcdLog {
     public final long bufferLengthMs;
 
     /**
+     * The throughput between client and server, as measured by the client, or {@link
+     * Long#MIN_VALUE} if unset.
+     *
+     * <p>This value MUST be rounded to the nearest 100 kbps. This value, however derived, SHOULD be
+     * the value that the client is using to make its next Adaptive Bitrate switching decision. If
+     * the client is connected to multiple servers concurrently, it must take care to report only
+     * the throughput measured against the receiving server. If the client has multiple concurrent
+     * connections to the server, then the intent is that this value communicates the aggregate
+     * throughput the client sees across all those connections.
+     */
+    public final long measuredThroughputInKbps;
+
+    /**
      * Custom data where the values of the keys vary with each request, or {@code null} if unset.
      *
      * <p>The String consists of key-value pairs separated by commas.<br>
@@ -368,6 +399,7 @@ public final class CmcdLog {
 
     private CmcdRequest(Builder builder) {
       this.bufferLengthMs = builder.bufferLengthMs;
+      this.measuredThroughputInKbps = builder.measuredThroughputInKbps;
       this.customData = builder.customData;
     }
 
@@ -383,6 +415,11 @@ public final class CmcdLog {
       if (bufferLengthMs != C.TIME_UNSET) {
         headerValue.append(
             Util.formatInvariant("%s=%d,", CmcdConfiguration.KEY_BUFFER_LENGTH, bufferLengthMs));
+      }
+      if (measuredThroughputInKbps != Long.MIN_VALUE) {
+        headerValue.append(
+            Util.formatInvariant(
+                "%s=%d,", CmcdConfiguration.KEY_MEASURED_THROUGHPUT, measuredThroughputInKbps));
       }
       if (!TextUtils.isEmpty(customData)) {
         headerValue.append(Util.formatInvariant("%s,", customData));
@@ -580,7 +617,7 @@ public final class CmcdLog {
        * The default value is {@link C#RATE_UNSET_INT}.
        *
        * @throws IllegalArgumentException If {@code maximumRequestedThroughputKbps} is not equal to
-       *     {@link C#RATE_UNSET_INT} and is non-positive.
+       *     {@link C#RATE_UNSET_INT} and is negative.
        */
       @CanIgnoreReturnValue
       public Builder setMaximumRequestedThroughputKbps(int maximumRequestedThroughputKbps) {
