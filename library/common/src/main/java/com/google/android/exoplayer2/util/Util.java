@@ -73,6 +73,7 @@ import android.util.SparseLongArray;
 import android.view.Display;
 import android.view.SurfaceView;
 import android.view.WindowManager;
+import androidx.annotation.ChecksSdkIntAtLeast;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
@@ -328,19 +329,12 @@ public final class Util {
   }
 
   /**
-   * Checks whether it's necessary to request the {@link permission#READ_EXTERNAL_STORAGE}
-   * permission read the specified {@link Uri}s, requesting the permission if necessary.
-   *
-   * @param activity The host activity for checking and requesting the permission.
-   * @param uris {@link Uri}s that may require {@link permission#READ_EXTERNAL_STORAGE} to read.
-   * @return Whether a permission request was made.
+   * @deprecated Use {@link #maybeRequestReadStoragePermission(Activity, MediaItem...)} instead.
    */
+  @Deprecated
   public static boolean maybeRequestReadExternalStoragePermission(Activity activity, Uri... uris) {
-    if (SDK_INT < 23) {
-      return false;
-    }
     for (Uri uri : uris) {
-      if (maybeRequestReadExternalStoragePermission(activity, uri)) {
+      if (maybeRequestReadStoragePermission(activity, uri)) {
         return true;
       }
     }
@@ -348,16 +342,24 @@ public final class Util {
   }
 
   /**
-   * Checks whether it's necessary to request the {@link permission#READ_EXTERNAL_STORAGE}
-   * permission for the specified {@link MediaItem media items}, requesting the permission if
-   * necessary.
+   * @deprecated Use {@link #maybeRequestReadStoragePermission(Activity, MediaItem...)} instead.
+   */
+  @Deprecated
+  public static boolean maybeRequestReadExternalStoragePermission(
+      Activity activity, MediaItem... mediaItems) {
+    return maybeRequestReadStoragePermission(activity, mediaItems);
+  }
+
+  /**
+   * Checks whether it's necessary to request storage reading permissions for the specified {@link
+   * MediaItem media items}, requesting the permissions if necessary.
    *
    * @param activity The host activity for checking and requesting the permission.
-   * @param mediaItems {@link MediaItem Media items}s that may require {@link
-   *     permission#READ_EXTERNAL_STORAGE} to read.
+   * @param mediaItems {@link MediaItem Media items}s that may require storage reading permissions
+   *     to read.
    * @return Whether a permission request was made.
    */
-  public static boolean maybeRequestReadExternalStoragePermission(
+  public static boolean maybeRequestReadStoragePermission(
       Activity activity, MediaItem... mediaItems) {
     if (SDK_INT < 23) {
       return false;
@@ -366,13 +368,13 @@ public final class Util {
       if (mediaItem.localConfiguration == null) {
         continue;
       }
-      if (maybeRequestReadExternalStoragePermission(activity, mediaItem.localConfiguration.uri)) {
+      if (maybeRequestReadStoragePermission(activity, mediaItem.localConfiguration.uri)) {
         return true;
       }
       List<MediaItem.SubtitleConfiguration> subtitleConfigs =
           mediaItem.localConfiguration.subtitleConfigurations;
       for (int i = 0; i < subtitleConfigs.size(); i++) {
-        if (maybeRequestReadExternalStoragePermission(activity, subtitleConfigs.get(i).uri)) {
+        if (maybeRequestReadStoragePermission(activity, subtitleConfigs.get(i).uri)) {
           return true;
         }
       }
@@ -380,10 +382,50 @@ public final class Util {
     return false;
   }
 
-  private static boolean maybeRequestReadExternalStoragePermission(Activity activity, Uri uri) {
-    return SDK_INT >= 23
-        && (isLocalFileUri(uri) || isMediaStoreExternalContentUri(uri))
-        && requestExternalStoragePermission(activity);
+  private static boolean maybeRequestReadStoragePermission(Activity activity, Uri uri) {
+    if (!isReadStoragePermissionRequestNeeded(activity, uri)) {
+      return false;
+    }
+    if (SDK_INT < 33) {
+      return requestExternalStoragePermission(activity);
+    } else {
+      return requestReadMediaPermissions(activity);
+    }
+  }
+
+  @ChecksSdkIntAtLeast(api = 23)
+  private static boolean isReadStoragePermissionRequestNeeded(Activity activity, Uri uri) {
+    if (SDK_INT < 23) {
+      // Permission automatically granted via manifest below API 23.
+      return false;
+    }
+    if (isLocalFileUri(uri)) {
+      return !isAppSpecificStorageFileUri(activity, uri);
+    }
+    if (isMediaStoreExternalContentUri(uri)) {
+      return true;
+    }
+    return false;
+  }
+
+  private static boolean isAppSpecificStorageFileUri(Activity activity, Uri uri) {
+    try {
+      @Nullable String uriPath = uri.getPath();
+      if (uriPath == null) {
+        return false;
+      }
+      String filePath = new File(uriPath).getCanonicalPath();
+      String internalAppDirectoryPath = activity.getFilesDir().getCanonicalPath();
+      @Nullable File externalAppDirectory = activity.getExternalFilesDir(/* type= */ null);
+      @Nullable
+      String externalAppDirectoryPath =
+          externalAppDirectory == null ? null : externalAppDirectory.getCanonicalPath();
+      return filePath.startsWith(internalAppDirectoryPath)
+          || (externalAppDirectoryPath != null && filePath.startsWith(externalAppDirectoryPath));
+    } catch (IOException e) {
+      // Error while querying canonical paths.
+      return false;
+    }
   }
 
   private static boolean isMediaStoreExternalContentUri(Uri uri) {
@@ -3097,6 +3139,24 @@ public final class Util {
         != PackageManager.PERMISSION_GRANTED) {
       activity.requestPermissions(
           new String[] {permission.READ_EXTERNAL_STORAGE}, /* requestCode= */ 0);
+      return true;
+    }
+    return false;
+  }
+
+  @RequiresApi(api = 33)
+  private static boolean requestReadMediaPermissions(Activity activity) {
+    if (activity.checkSelfPermission(permission.READ_MEDIA_AUDIO)
+            != PackageManager.PERMISSION_GRANTED
+        || activity.checkSelfPermission(permission.READ_MEDIA_VIDEO)
+            != PackageManager.PERMISSION_GRANTED
+        || activity.checkSelfPermission(permission.READ_MEDIA_IMAGES)
+            != PackageManager.PERMISSION_GRANTED) {
+      activity.requestPermissions(
+          new String[] {
+            permission.READ_MEDIA_AUDIO, permission.READ_MEDIA_IMAGES, permission.READ_MEDIA_VIDEO
+          },
+          /* requestCode= */ 0);
       return true;
     }
     return false;
