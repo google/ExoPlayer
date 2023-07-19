@@ -42,7 +42,11 @@ import com.google.android.exoplayer2.extractor.ts.PsExtractor;
 import com.google.android.exoplayer2.extractor.ts.TsExtractor;
 import com.google.android.exoplayer2.extractor.ts.TsPayloadReader;
 import com.google.android.exoplayer2.extractor.wav.WavExtractor;
+import com.google.android.exoplayer2.text.DefaultSubtitleParserFactory;
+import com.google.android.exoplayer2.text.SubtitleParser;
+import com.google.android.exoplayer2.text.SubtitleTranscodingExtractor;
 import com.google.android.exoplayer2.util.FileTypes;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -137,10 +141,13 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
   // TODO (b/261183220): Initialize tsSubtitleFormats in constructor once shrinking bug is fixed.
   @Nullable private ImmutableList<Format> tsSubtitleFormats;
   private int tsTimestampSearchBytes;
+  private boolean textTrackTranscodingEnabled;
+  private SubtitleParser.Factory subtitleParserFactory;
 
   public DefaultExtractorsFactory() {
     tsMode = TsExtractor.MODE_SINGLE_PMT;
     tsTimestampSearchBytes = TsExtractor.DEFAULT_TIMESTAMP_SEARCH_BYTES;
+    subtitleParserFactory = new DefaultSubtitleParserFactory();
   }
 
   /**
@@ -340,6 +347,40 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
     return this;
   }
 
+  /**
+   * Enables transcoding of text track samples to {@link MimeTypes#TEXT_EXOPLAYER_CUES} before the
+   * data is emitted to {@link TrackOutput}.
+   *
+   * <p>Transcoding is disabled by default.
+   *
+   * @param textTrackTranscodingEnabled Whether to enable transcoding.
+   * @return The factory, for convenience.
+   */
+  // TODO: b/289916598 - Flip this to default to enabled and deprecate it.
+  @CanIgnoreReturnValue
+  public synchronized DefaultExtractorsFactory setTextTrackTranscodingEnabled(
+      boolean textTrackTranscodingEnabled) {
+    this.textTrackTranscodingEnabled = textTrackTranscodingEnabled;
+    return this;
+  }
+
+  /**
+   * Sets a {@link SubtitleParser.Factory} to use when transcoding text tracks.
+   *
+   * <p>This is only used if {@link #setTextTrackTranscodingEnabled(boolean)} is enabled.
+   *
+   * <p>The default value is {@link DefaultSubtitleParserFactory}.
+   *
+   * @param subtitleParserFactory The factory for {@link SubtitleParser} instances.
+   * @return The factory, for convenience.
+   */
+  @CanIgnoreReturnValue
+  public synchronized DefaultExtractorsFactory setSubtitleParserFactory(
+      SubtitleParser.Factory subtitleParserFactory) {
+    this.subtitleParserFactory = subtitleParserFactory;
+    return this;
+  }
+
   @Override
   public synchronized Extractor[] createExtractors() {
     return createExtractors(Uri.EMPTY, new HashMap<>());
@@ -368,8 +409,14 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
         addExtractorsForFileType(fileType, extractors);
       }
     }
-
-    return extractors.toArray(new Extractor[extractors.size()]);
+    Extractor[] result = new Extractor[extractors.size()];
+    for (int i = 0; i < extractors.size(); i++) {
+      result[i] =
+          textTrackTranscodingEnabled
+              ? new SubtitleTranscodingExtractor(extractors.get(i), subtitleParserFactory)
+              : extractors.get(i);
+    }
+    return result;
   }
 
   private void addExtractorsForFileType(@FileTypes.Type int fileType, List<Extractor> extractors) {

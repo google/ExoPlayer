@@ -23,9 +23,11 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.robolectric.PlaybackOutput;
 import com.google.android.exoplayer2.robolectric.ShadowMediaCodecConfig;
 import com.google.android.exoplayer2.robolectric.TestPlayerRunHelper;
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.testutil.CapturingRenderersFactory;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.testutil.FakeClock;
@@ -66,21 +68,27 @@ public final class MkvPlaybackTest {
     Context applicationContext = ApplicationProvider.getApplicationContext();
     CapturingRenderersFactory capturingRenderersFactory =
         new CapturingRenderersFactory(applicationContext);
+    // TODO: b/289916598 - Remove this when transcoding is the default.
+    DefaultExtractorsFactory extractorsFactory =
+        new DefaultExtractorsFactory().setTextTrackTranscodingEnabled(true);
+    DefaultMediaSourceFactory mediaSourceFactory =
+        new DefaultMediaSourceFactory(applicationContext, extractorsFactory);
     ExoPlayer player =
-        new ExoPlayer.Builder(applicationContext, capturingRenderersFactory)
+        new ExoPlayer.Builder(applicationContext, capturingRenderersFactory, mediaSourceFactory)
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
             .build();
-    // TODO(internal b/174661563): Remove the for-loop below to enable the text renderer when
-    //  subtitle output is not flaky.
-    for (int textRendererIndex = 0;
-        textRendererIndex < player.getRendererCount();
-        textRendererIndex++) {
-      if (player.getRendererType(textRendererIndex) == C.TRACK_TYPE_TEXT) {
-        player.setTrackSelectionParameters(
-            new DefaultTrackSelector.ParametersBuilder(applicationContext)
-                .setRendererDisabled(textRendererIndex, /* disabled= */ true)
-                .build());
-        break;
+    // TODO: b/181312195 - Remove this when WebVTT is supported by DefaultSubtitleParserFactory.
+    if (inputFile.contains("_vtt_")) {
+      for (int textRendererIndex = 0;
+          textRendererIndex < player.getRendererCount();
+          textRendererIndex++) {
+        if (player.getRendererType(textRendererIndex) == C.TRACK_TYPE_TEXT) {
+          player.setTrackSelectionParameters(
+              new DefaultTrackSelector.ParametersBuilder(applicationContext)
+                  .setRendererDisabled(textRendererIndex, /* disabled= */ true)
+                  .build());
+          break;
+        }
       }
     }
     Surface surface = new Surface(new SurfaceTexture(/* texName= */ 1));
