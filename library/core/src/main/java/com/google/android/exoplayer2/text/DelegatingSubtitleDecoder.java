@@ -15,7 +15,10 @@
  */
 package com.google.android.exoplayer2.text;
 
+import static androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE;
+
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 
@@ -40,22 +43,24 @@ import java.util.List;
  *   <li>XXXDecoder(initializationData)
  * </ul>
  *
- * <p>TODO(b/289983417): this will only be used in the old decoding flow (Decoder after SampleQueue)
- * while we maintain dual architecture. Once we fully migrate to the pre-SampleQueue flow, it can be
- * deprecated and later deleted.
- *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
  *     contains the same ExoPlayer code). See <a
  *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
  *     migration guide</a> for more details, including a script to help with the migration.
  */
+// TODO(b/289983417): this will only be used in the old decoding flow (Decoder after SampleQueue)
+// while we maintain dual architecture. Once we fully migrate to the pre-SampleQueue flow, it can be
+// deprecated and later deleted.
+// TODO: remove VisibleForTesting annotation once SubtitleExtractor uses SubtitleParser (rather than
+// SubtitleDecoder) and SubtitleExtractorTest is refactored
+@VisibleForTesting(otherwise = PACKAGE_PRIVATE)
 @Deprecated
-/* package */ final class DelegatingSubtitleDecoder extends SimpleSubtitleDecoder {
+public final class DelegatingSubtitleDecoder extends SimpleSubtitleDecoder {
 
   private static final Subtitle EMPTY_SUBTITLE = new CuesWithTimingSubtitle(ImmutableList.of());
   private final SubtitleParser subtitleParser;
 
-  /* package */ DelegatingSubtitleDecoder(String name, SubtitleParser subtitleParser) {
+  public DelegatingSubtitleDecoder(String name, SubtitleParser subtitleParser) {
     super(name);
     this.subtitleParser = subtitleParser;
   }
@@ -65,7 +70,8 @@ import java.util.List;
     if (reset) {
       subtitleParser.reset();
     }
-    @Nullable List<CuesWithTiming> cuesWithTiming = subtitleParser.parse(data);
+    @Nullable
+    List<CuesWithTiming> cuesWithTiming = subtitleParser.parse(data, /* offset= */ 0, length);
     if (cuesWithTiming == null) {
       return EMPTY_SUBTITLE;
     }
