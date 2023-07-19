@@ -21,7 +21,7 @@ import android.os.SystemClock;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat;
+import com.google.android.exoplayer2.audio.AudioProcessor.UnhandledAudioFormatException;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
@@ -289,14 +289,15 @@ public final class ExportException extends Exception {
   /**
    * Creates an instance for an audio processing related exception.
    *
-   * @param cause The cause of the failure.
-   * @param audioFormat The {@link AudioFormat} used.
+   * @param exception The cause of the failure.
+   * @param details The details associated with this exception.
    * @return The created instance.
    */
-  public static ExportException createForAudioProcessing(Throwable cause, AudioFormat audioFormat) {
+  public static ExportException createForAudioProcessing(
+      UnhandledAudioFormatException exception, String details) {
     return new ExportException(
-        "Audio processing error, audio_format=" + audioFormat,
-        cause,
+        "Audio error: " + details + ", audioFormat=" + exception.inputAudioFormat,
+        exception,
         ERROR_CODE_AUDIO_PROCESSING_FAILED);
   }
 

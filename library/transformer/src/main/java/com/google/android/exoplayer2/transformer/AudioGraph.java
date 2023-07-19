@@ -114,7 +114,7 @@ import java.util.concurrent.atomic.AtomicReference;
       try {
         reconfigureProcessingForPendingMediaItem();
       } catch (AudioProcessor.UnhandledAudioFormatException e) {
-        throw ExportException.createForAudioProcessing(e, e.inputAudioFormat);
+        throw ExportException.createForAudioProcessing(e, "AudioGraph reconfiguration");
       }
     }
 
