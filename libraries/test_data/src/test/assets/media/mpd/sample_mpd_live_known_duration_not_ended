@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD
+    type="dynamic"
+    timeShiftBufferDepth="PT16S"
+    minimumUpdatePeriod="PT4M"
+    availabilityStartTime="2024-01-01T00:01:00Z">
+  <UTCTiming
+      schemeIdUri="urn:mpeg:dash:utc:direct:2014"
+      value="2024-01-01T00:01:00Z" />
+  <Period id="1" start="PT0S" duration="PT10S">
+    <AdaptationSet id="0" contentType="video">
+      <SegmentTemplate presentationTimeOffset="0" timescale="1000" startNumber="1" media="video_$Time$.m4s">
+        <SegmentTimeline>
+          <S t="0" d="4000"/>
+        </SegmentTimeline>
+      </SegmentTemplate>
+      <Representation id="0"/>
+    </AdaptationSet>
+  </Period>
+</MPD>
