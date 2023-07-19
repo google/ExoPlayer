@@ -421,6 +421,10 @@ import com.google.common.collect.ImmutableMap;
     formatBuilder.setPixelWidthHeightRatio(spsData.pixelWidthHeightRatio);
     formatBuilder.setHeight(spsData.height);
     formatBuilder.setWidth(spsData.width);
+    int bitdepthLuma = spsData.bitDepthLumaMinus8 + 8;
+    formatBuilder.setLumaBitdepth(bitdepthLuma);
+    int bitdepthChroma = spsData.bitDepthChromaMinus8 + 8;
+    formatBuilder.setChromaBitdepth(bitdepthChroma);
 
     @Nullable String profileLevel = fmtpAttributes.get(PARAMETER_PROFILE_LEVEL_ID);
     if (profileLevel != null) {
@@ -464,6 +468,10 @@ import com.google.common.collect.ImmutableMap;
             spsNalDataWithStartCode, NAL_START_CODE.length, spsNalDataWithStartCode.length);
     formatBuilder.setPixelWidthHeightRatio(spsData.pixelWidthHeightRatio);
     formatBuilder.setHeight(spsData.height).setWidth(spsData.width);
+    int bitdepthLuma = spsData.bitDepthLumaMinus8 + 8;
+    formatBuilder.setLumaBitdepth(bitdepthLuma);
+    int bitdepthChroma = spsData.bitDepthChromaMinus8 + 8;
+    formatBuilder.setChromaBitdepth(bitdepthChroma);
 
     formatBuilder.setCodecs(
         CodecSpecificDataUtil.buildHevcCodecString(
