@@ -732,6 +732,26 @@ public final class Transformer {
   /**
    * Starts an asynchronous operation to export the given {@link Composition}.
    *
+   * <p>The first {@link EditedMediaItem} in the first {@link EditedMediaItemSequence} that has a
+   * given {@linkplain C.TrackType track} will determine the output format for that track, unless
+   * the format is set when {@linkplain Builder#build building} the {@code Transformer}. For
+   * example, consider the following composition
+   *
+   * <pre>
+   *   Composition {
+   *     EditedMediaItemSequence {
+   *       [ImageMediaItem, VideoMediaItem]
+   *     },
+   *     EditedMediaItemSequence {
+   *       [AudioMediaItem]
+   *     },
+   *   }
+   * </pre>
+   *
+   * The video format will be determined by the {@code ImageMediaItem} in the first {@link
+   * EditedMediaItemSequence}, while the audio format will be determined by the {@code
+   * AudioMediaItem} in the second {@code EditedMediaItemSequence}.
+   *
    * <p>This method is under implementation. Only the {@linkplain Composition compositions} meeting
    * the below conditions are supported:
    *
@@ -743,7 +763,6 @@ public final class Transformer {
    *   <li>A sequence cannot contain both HDR and SDR video input.
    *   <li>A sequence cannot have gaps in its video or image samples. In other words, if a sequence
    *       contains video or image data, it must contain this type of data in the entire sequence.
-   *   <li>All the {@link EditedMediaItem} instances in a sequence must have the same audio format.
    *   <li>The {@linkplain Composition#effects composition effects} must contain no {@linkplain
    *       Effects#audioProcessors audio effects}.
    *   <li>The composition effects must either contain no {@linkplain Effects#videoEffects video

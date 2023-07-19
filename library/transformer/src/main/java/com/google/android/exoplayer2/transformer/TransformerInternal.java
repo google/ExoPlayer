@@ -28,7 +28,6 @@ import static com.google.android.exoplayer2.transformer.TransformerUtil.contains
 import static com.google.android.exoplayer2.transformer.TransformerUtil.getProcessedTrackType;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
-import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static java.lang.Math.max;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
@@ -37,6 +36,8 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.util.SparseArray;
+import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -56,11 +57,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 @Deprecated
@@ -112,10 +109,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final HandlerThread internalHandlerThread;
   private final HandlerWrapper internalHandler;
   private final List<SequenceAssetLoader> sequenceAssetLoaders;
-  private final AtomicInteger trackCountsToReport;
-  private final AtomicInteger tracksToAdd;
-  private final AtomicBoolean outputHasAudio;
-  private final AtomicBoolean outputHasVideo;
+  private final Object assetLoaderLock;
+
+  @GuardedBy("assetLoaderLock")
+  private final AssetLoaderInputTracker assetLoaderInputTracker;
+
   private final List<SampleExporter> sampleExporters;
   private final Object setMaxSequenceDurationUsLock;
   private final MuxerWrapper muxerWrapper;
@@ -156,6 +154,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     internalHandlerThread.start();
     sequenceAssetLoaders = new ArrayList<>();
     Looper internalLooper = internalHandlerThread.getLooper();
+    assetLoaderLock = new Object();
+    assetLoaderInputTracker = new AssetLoaderInputTracker(composition);
     for (int i = 0; i < composition.sequences.size(); i++) {
       SequenceAssetLoaderListener sequenceAssetLoaderListener =
           new SequenceAssetLoaderListener(
@@ -182,10 +182,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
     compositionHasLoopingSequence =
         nonLoopingSequencesWithNonFinalDuration != composition.sequences.size();
-    trackCountsToReport = new AtomicInteger(composition.sequences.size());
-    tracksToAdd = new AtomicInteger();
-    outputHasAudio = new AtomicBoolean();
-    outputHasVideo = new AtomicBoolean();
     sampleExporters = new ArrayList<>();
     setMaxSequenceDurationUsLock = new Object();
     transformerConditionVariable = new ConditionVariable();
@@ -456,8 +452,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     private final VideoFrameProcessor.Factory videoFrameProcessorFactory;
     private final FallbackListener fallbackListener;
     private final DebugViewProvider debugViewProvider;
-    private final Map<Integer, AddedTrackInfo> addedTrackInfoByTrackType;
-
     private long currentSequenceDurationUs;
 
     public SequenceAssetLoaderListener(
@@ -468,13 +462,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         FallbackListener fallbackListener,
         DebugViewProvider debugViewProvider) {
       this.sequenceIndex = sequenceIndex;
-      editedMediaItems = composition.sequences.get(sequenceIndex).editedMediaItems;
+      this.editedMediaItems = composition.sequences.get(sequenceIndex).editedMediaItems;
       this.composition = composition;
       this.transformationRequest = transformationRequest;
       this.videoFrameProcessorFactory = videoFrameProcessorFactory;
       this.fallbackListener = fallbackListener;
       this.debugViewProvider = debugViewProvider;
-      addedTrackInfoByTrackType = new HashMap<>();
     }
 
     @Override
@@ -489,8 +482,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 ERROR_CODE_FAILED_RUNTIME_CHECK));
         return;
       }
-      tracksToAdd.addAndGet(trackCount);
-      trackCountsToReport.decrementAndGet();
+
+      synchronized (assetLoaderLock) {
+        assetLoaderInputTracker.setTrackCount(sequenceIndex, trackCount);
+      }
     }
 
     @Override
@@ -499,48 +494,66 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         @AssetLoader.SupportedOutputTypes int supportedOutputTypes) {
       @C.TrackType
       int trackType = getProcessedTrackType(firstAssetLoaderInputFormat.sampleMimeType);
-      AddedTrackInfo trackInfo =
-          new AddedTrackInfo(firstAssetLoaderInputFormat, supportedOutputTypes);
-      addedTrackInfoByTrackType.put(trackType, trackInfo);
+      synchronized (assetLoaderLock) {
+        assetLoaderInputTracker.registerTrack(sequenceIndex, firstAssetLoaderInputFormat);
+        if (assetLoaderInputTracker.hasRegisteredAllTracks()) {
+          int outputTrackCount = assetLoaderInputTracker.getOutputTrackCount();
+          muxerWrapper.setTrackCount(outputTrackCount);
+          fallbackListener.setTrackCount(outputTrackCount);
+        }
 
-      if (trackType == C.TRACK_TYPE_AUDIO) {
-        outputHasAudio.set(true);
-      } else {
-        outputHasVideo.set(true);
+        boolean shouldTranscode =
+            shouldTranscode(firstAssetLoaderInputFormat, supportedOutputTypes);
+        assetLoaderInputTracker.setShouldTranscode(trackType, shouldTranscode);
+        return shouldTranscode;
       }
-      if (tracksToAdd.decrementAndGet() == 0 && trackCountsToReport.get() == 0) {
-        int outputTrackCount = (outputHasAudio.get() ? 1 : 0) + (outputHasVideo.get() ? 1 : 0);
-        muxerWrapper.setTrackCount(outputTrackCount);
-        fallbackListener.setTrackCount(outputTrackCount);
-      }
-
-      return trackInfo.shouldTranscode;
     }
 
     @Nullable
     @Override
     public SampleConsumer onOutputFormat(Format assetLoaderOutputFormat) throws ExportException {
-      if (trackCountsToReport.get() > 0 || tracksToAdd.get() > 0) {
-        return null;
+      synchronized (assetLoaderLock) {
+        if (!assetLoaderInputTracker.hasRegisteredAllTracks()) {
+          return null;
+        }
+
+        @C.TrackType int trackType = getProcessedTrackType(assetLoaderOutputFormat.sampleMimeType);
+        if (assetLoaderInputTracker.shouldTranscode(trackType)) {
+          if (assetLoaderInputTracker.getIndexForPrimarySequence(trackType) == sequenceIndex) {
+            createDecodedSampleExporter(assetLoaderOutputFormat);
+          }
+        } else {
+          createEncodedSampleExporter(trackType);
+        }
+
+        @Nullable
+        SampleExporter sampleExporter = assetLoaderInputTracker.getSampleExporter(trackType);
+        if (sampleExporter == null) {
+          return null;
+        }
+
+        GraphInput sampleExporterInput = sampleExporter.getInput();
+        OnMediaItemChangedListener onMediaItemChangedListener =
+            (editedMediaItem, durationUs, trackFormat, isLast) -> {
+              onMediaItemChanged(trackType, durationUs, isLast);
+              sampleExporterInput.onMediaItemChanged(
+                  editedMediaItem, durationUs, trackFormat, isLast);
+            };
+        sequenceAssetLoaders
+            .get(sequenceIndex)
+            .addOnMediaItemChangedListener(onMediaItemChangedListener, trackType);
+        assetLoaderInputTracker.registerGraphInput(trackType);
+
+        // Register SampleExporter after all tracks are associated with GraphInputs, only after
+        // which the AssetLoader are allowed to send data. This way SampleExporter understands all
+        // the inputs are registered when AssetLoader sends data.
+        if (assetLoaderInputTracker.hasAssociatedAllTracksWithGraphInput(trackType)) {
+          internalHandler
+              .obtainMessage(MSG_REGISTER_SAMPLE_EXPORTER, sampleExporter)
+              .sendToTarget();
+        }
+        return sampleExporterInput;
       }
-
-      @C.TrackType int trackType = getProcessedTrackType(assetLoaderOutputFormat.sampleMimeType);
-      AddedTrackInfo trackInfo = checkStateNotNull(addedTrackInfoByTrackType.get(trackType));
-      SampleExporter sampleExporter = getSampleExporter(assetLoaderOutputFormat, trackInfo);
-      GraphInput sampleExporterInput = sampleExporter.getInput();
-
-      OnMediaItemChangedListener onMediaItemChangedListener =
-          (editedMediaItem, durationUs, trackFormat, isLast) -> {
-            onMediaItemChanged(trackType, durationUs, isLast);
-            sampleExporterInput.onMediaItemChanged(
-                editedMediaItem, durationUs, trackFormat, isLast);
-          };
-      sequenceAssetLoaders
-          .get(sequenceIndex)
-          .addOnMediaItemChangedListener(onMediaItemChangedListener, trackType);
-
-      internalHandler.obtainMessage(MSG_REGISTER_SAMPLE_EXPORTER, sampleExporter).sendToTarget();
-      return sampleExporterInput;
     }
 
     @Override
@@ -550,44 +563,60 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     // Private methods.
 
-    private SampleExporter getSampleExporter(
-        Format firstAssetLoaderOutputFormat, AddedTrackInfo addedTrackInfo) throws ExportException {
-      if (addedTrackInfo.shouldTranscode) {
-        EditedMediaItem firstEditedMediaItem = editedMediaItems.get(0);
-        if (MimeTypes.isAudio(firstAssetLoaderOutputFormat.sampleMimeType)) {
-          return new AudioSampleExporter(
-              addedTrackInfo.firstAssetLoaderInputFormat,
-              /* firstExporterInputFormat= */ firstAssetLoaderOutputFormat,
-              transformationRequest,
-              firstEditedMediaItem,
-              encoderFactory,
-              muxerWrapper,
-              fallbackListener);
-        } else { // MIME type is video or image.
-          ImmutableList<Effect> compositionVideoEffects = composition.effects.videoEffects;
-          @Nullable
-          Presentation compositionPresentation =
-              compositionVideoEffects.isEmpty()
-                  ? null
-                  : (Presentation) compositionVideoEffects.get(0);
+    @GuardedBy("assetLoaderLock")
+    private void createDecodedSampleExporter(Format assetLoaderOutputFormat)
+        throws ExportException {
+      @C.TrackType int trackType = getProcessedTrackType(assetLoaderOutputFormat.sampleMimeType);
+      checkState(assetLoaderInputTracker.getSampleExporter(trackType) == null);
+      Format firstAssetLoaderInputFormat =
+          assetLoaderInputTracker.getAssetLoaderInputFormat(sequenceIndex, trackType);
+      EditedMediaItem firstEditedMediaItem = editedMediaItems.get(0);
+      if (MimeTypes.isAudio(assetLoaderOutputFormat.sampleMimeType)) {
+        assetLoaderInputTracker.registerSampleExporter(
+            C.TRACK_TYPE_AUDIO,
+            new AudioSampleExporter(
+                firstAssetLoaderInputFormat,
+                /* firstExporterInputFormat= */ assetLoaderOutputFormat,
+                transformationRequest,
+                firstEditedMediaItem,
+                encoderFactory,
+                muxerWrapper,
+                fallbackListener));
 
-          // TODO(b/267301878): Pass firstAssetLoaderOutputFormat once surface creation not in VSP.
-          return new VideoSampleExporter(
-              context,
-              addedTrackInfo.firstAssetLoaderInputFormat,
-              transformationRequest,
-              compositionPresentation,
-              videoFrameProcessorFactory,
-              encoderFactory,
-              muxerWrapper,
-              /* errorConsumer= */ this::onError,
-              fallbackListener,
-              debugViewProvider);
-        }
+      } else {
+        ImmutableList<Effect> compositionVideoEffects = composition.effects.videoEffects;
+        @Nullable
+        Presentation compositionPresentation =
+            compositionVideoEffects.isEmpty()
+                ? null
+                : (Presentation) compositionVideoEffects.get(0);
+        // TODO(b/267301878): Pass firstAssetLoaderOutputFormat once surface creation not in VSP.
+        assetLoaderInputTracker.registerSampleExporter(
+            C.TRACK_TYPE_VIDEO,
+            new VideoSampleExporter(
+                context,
+                firstAssetLoaderInputFormat,
+                transformationRequest,
+                compositionPresentation,
+                videoFrameProcessorFactory,
+                encoderFactory,
+                muxerWrapper,
+                /* errorConsumer= */ this::onError,
+                fallbackListener,
+                debugViewProvider));
       }
+    }
 
-      return new EncodedSampleExporter(
-          firstAssetLoaderOutputFormat, transformationRequest, muxerWrapper, fallbackListener);
+    @GuardedBy("assetLoaderLock")
+    private void createEncodedSampleExporter(@C.TrackType int trackType) {
+      checkState(assetLoaderInputTracker.getSampleExporter(trackType) == null);
+      assetLoaderInputTracker.registerSampleExporter(
+          trackType,
+          new EncodedSampleExporter(
+              assetLoaderInputTracker.getAssetLoaderInputFormat(sequenceIndex, trackType),
+              transformationRequest,
+              muxerWrapper,
+              fallbackListener));
     }
 
     /**
@@ -598,10 +627,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         // The code in this method handles looping sequences. Skip it if there are none.
         return;
       }
-      if (addedTrackInfoByTrackType.size() > 1 && trackType == C.TRACK_TYPE_VIDEO) {
-        // Make sure this method is only executed once per MediaItem (and not per track).
-        return;
+
+      synchronized (assetLoaderLock) {
+        if (assetLoaderInputTracker.sequenceHasMultipleTracks(sequenceIndex)
+            && trackType == C.TRACK_TYPE_VIDEO) {
+          // Make sure this method is only executed once per MediaItem (and not per track).
+          return;
+        }
       }
+
       if (composition.sequences.get(sequenceIndex).isLooping) {
         return;
       }
@@ -630,121 +664,309 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       }
     }
 
-    private final class AddedTrackInfo {
-      public final Format firstAssetLoaderInputFormat;
-      public final boolean shouldTranscode;
+    private boolean shouldTranscode(
+        Format inputFormat, @AssetLoader.SupportedOutputTypes int supportedOutputTypes) {
+      boolean assetLoaderCanOutputDecoded =
+          (supportedOutputTypes & SUPPORTED_OUTPUT_TYPE_DECODED) != 0;
+      boolean assetLoaderCanOutputEncoded =
+          (supportedOutputTypes & SUPPORTED_OUTPUT_TYPE_ENCODED) != 0;
+      checkArgument(assetLoaderCanOutputDecoded || assetLoaderCanOutputEncoded);
 
-      public AddedTrackInfo(
-          Format firstAssetLoaderInputFormat,
-          @AssetLoader.SupportedOutputTypes int supportedOutputTypes) {
-        this.firstAssetLoaderInputFormat = firstAssetLoaderInputFormat;
-        shouldTranscode = shouldTranscode(firstAssetLoaderInputFormat, supportedOutputTypes);
+      @C.TrackType int trackType = getProcessedTrackType(inputFormat.sampleMimeType);
+
+      boolean shouldTranscode = false;
+      if (!assetLoaderCanOutputEncoded) {
+        shouldTranscode = true;
+      } else if (trackType == C.TRACK_TYPE_AUDIO) {
+        shouldTranscode = shouldTranscodeAudio(inputFormat);
+      } else if (trackType == C.TRACK_TYPE_VIDEO) {
+        shouldTranscode = shouldTranscodeVideo(inputFormat);
       }
 
-      private boolean shouldTranscode(
-          Format inputFormat, @AssetLoader.SupportedOutputTypes int supportedOutputTypes) {
-        boolean assetLoaderCanOutputDecoded =
-            (supportedOutputTypes & SUPPORTED_OUTPUT_TYPE_DECODED) != 0;
-        boolean assetLoaderCanOutputEncoded =
-            (supportedOutputTypes & SUPPORTED_OUTPUT_TYPE_ENCODED) != 0;
-        checkArgument(assetLoaderCanOutputDecoded || assetLoaderCanOutputEncoded);
+      checkState(!shouldTranscode || assetLoaderCanOutputDecoded);
 
-        @C.TrackType int trackType = getProcessedTrackType(inputFormat.sampleMimeType);
+      return shouldTranscode;
+    }
 
-        boolean shouldTranscode = false;
-        if (!assetLoaderCanOutputEncoded) {
-          shouldTranscode = true;
-        } else if (trackType == C.TRACK_TYPE_AUDIO) {
-          shouldTranscode = shouldTranscodeAudio(inputFormat);
-        } else if (trackType == C.TRACK_TYPE_VIDEO) {
-          shouldTranscode = shouldTranscodeVideo(inputFormat);
-        }
-
-        checkState(!shouldTranscode || assetLoaderCanOutputDecoded);
-
-        return shouldTranscode;
+    private boolean shouldTranscodeAudio(Format inputFormat) {
+      if (composition.sequences.size() > 1 || editedMediaItems.size() > 1) {
+        return !composition.transmuxAudio;
       }
+      if (encoderFactory.audioNeedsEncoding()) {
+        return true;
+      }
+      if (transformationRequest.audioMimeType != null
+          && !transformationRequest.audioMimeType.equals(inputFormat.sampleMimeType)) {
+        return true;
+      }
+      if (transformationRequest.audioMimeType == null
+          && !muxerWrapper.supportsSampleMimeType(inputFormat.sampleMimeType)) {
+        return true;
+      }
+      EditedMediaItem firstEditedMediaItem = editedMediaItems.get(0);
+      if (firstEditedMediaItem.flattenForSlowMotion && containsSlowMotionData(inputFormat)) {
+        return true;
+      }
+      if (!firstEditedMediaItem.effects.audioProcessors.isEmpty()) {
+        return true;
+      }
+      return false;
+    }
 
-      private boolean shouldTranscodeAudio(Format inputFormat) {
-        if (composition.sequences.size() > 1 || editedMediaItems.size() > 1) {
-          return !composition.transmuxAudio;
-        }
-        if (encoderFactory.audioNeedsEncoding()) {
-          return true;
-        }
-        if (transformationRequest.audioMimeType != null
-            && !transformationRequest.audioMimeType.equals(inputFormat.sampleMimeType)) {
-          return true;
-        }
-        if (transformationRequest.audioMimeType == null
-            && !muxerWrapper.supportsSampleMimeType(inputFormat.sampleMimeType)) {
-          return true;
-        }
-        EditedMediaItem firstEditedMediaItem = editedMediaItems.get(0);
-        if (firstEditedMediaItem.flattenForSlowMotion && containsSlowMotionData(inputFormat)) {
-          return true;
-        }
-        if (!firstEditedMediaItem.effects.audioProcessors.isEmpty()) {
-          return true;
-        }
+    private boolean shouldTranscodeVideo(Format inputFormat) {
+      if (composition.sequences.size() > 1 || editedMediaItems.size() > 1) {
+        return !composition.transmuxVideo;
+      }
+      EditedMediaItem firstEditedMediaItem = editedMediaItems.get(0);
+      if (firstEditedMediaItem.mediaItem.clippingConfiguration.startPositionMs > 0
+          && !firstEditedMediaItem.mediaItem.clippingConfiguration.startsAtKeyFrame) {
+        return true;
+      }
+      if (encoderFactory.videoNeedsEncoding()) {
+        return true;
+      }
+      if (transformationRequest.hdrMode != HDR_MODE_KEEP_HDR) {
+        return true;
+      }
+      if (transformationRequest.videoMimeType != null
+          && !transformationRequest.videoMimeType.equals(inputFormat.sampleMimeType)) {
+        return true;
+      }
+      if (transformationRequest.videoMimeType == null
+          && !muxerWrapper.supportsSampleMimeType(inputFormat.sampleMimeType)) {
+        return true;
+      }
+      if (inputFormat.pixelWidthHeightRatio != 1f) {
+        return true;
+      }
+      ImmutableList<Effect> videoEffects = firstEditedMediaItem.effects.videoEffects;
+      return !videoEffects.isEmpty()
+          && !areVideoEffectsAllNoOp(videoEffects, inputFormat)
+          && !hasOnlyRegularRotationEffect(videoEffects);
+    }
+
+    private boolean hasOnlyRegularRotationEffect(ImmutableList<Effect> videoEffects) {
+      if (videoEffects.size() != 1) {
         return false;
       }
-
-      private boolean shouldTranscodeVideo(Format inputFormat) {
-        if (composition.sequences.size() > 1 || editedMediaItems.size() > 1) {
-          return !composition.transmuxVideo;
-        }
-        EditedMediaItem firstEditedMediaItem = editedMediaItems.get(0);
-        if (firstEditedMediaItem.mediaItem.clippingConfiguration.startPositionMs > 0
-            && !firstEditedMediaItem.mediaItem.clippingConfiguration.startsAtKeyFrame) {
-          return true;
-        }
-        if (encoderFactory.videoNeedsEncoding()) {
-          return true;
-        }
-        if (transformationRequest.hdrMode != HDR_MODE_KEEP_HDR) {
-          return true;
-        }
-        if (transformationRequest.videoMimeType != null
-            && !transformationRequest.videoMimeType.equals(inputFormat.sampleMimeType)) {
-          return true;
-        }
-        if (transformationRequest.videoMimeType == null
-            && !muxerWrapper.supportsSampleMimeType(inputFormat.sampleMimeType)) {
-          return true;
-        }
-        if (inputFormat.pixelWidthHeightRatio != 1f) {
-          return true;
-        }
-        ImmutableList<Effect> videoEffects = firstEditedMediaItem.effects.videoEffects;
-        return !videoEffects.isEmpty()
-            && !areVideoEffectsAllNoOp(videoEffects, inputFormat)
-            && !hasOnlyRegularRotationEffect(videoEffects);
-      }
-
-      private boolean hasOnlyRegularRotationEffect(ImmutableList<Effect> videoEffects) {
-        if (videoEffects.size() != 1) {
-          return false;
-        }
-        Effect videoEffect = videoEffects.get(0);
-        if (!(videoEffect instanceof ScaleAndRotateTransformation)) {
-          return false;
-        }
-        ScaleAndRotateTransformation scaleAndRotateTransformation =
-            (ScaleAndRotateTransformation) videoEffect;
-        if (scaleAndRotateTransformation.scaleX != 1f
-            || scaleAndRotateTransformation.scaleY != 1f) {
-          return false;
-        }
-        float rotationDegrees = scaleAndRotateTransformation.rotationDegrees;
-        if (rotationDegrees == 90f || rotationDegrees == 180f || rotationDegrees == 270f) {
-          // The MuxerWrapper rotation is clockwise while the ScaleAndRotateTransformation rotation
-          // is counterclockwise.
-          muxerWrapper.setAdditionalRotationDegrees(360 - Math.round(rotationDegrees));
-          return true;
-        }
+      Effect videoEffect = videoEffects.get(0);
+      if (!(videoEffect instanceof ScaleAndRotateTransformation)) {
         return false;
       }
+      ScaleAndRotateTransformation scaleAndRotateTransformation =
+          (ScaleAndRotateTransformation) videoEffect;
+      if (scaleAndRotateTransformation.scaleX != 1f || scaleAndRotateTransformation.scaleY != 1f) {
+        return false;
+      }
+      float rotationDegrees = scaleAndRotateTransformation.rotationDegrees;
+      if (rotationDegrees == 90f || rotationDegrees == 180f || rotationDegrees == 270f) {
+        // The MuxerWrapper rotation is clockwise while the ScaleAndRotateTransformation rotation
+        // is counterclockwise.
+        muxerWrapper.setAdditionalRotationDegrees(360 - Math.round(rotationDegrees));
+        return true;
+      }
+      return false;
+    }
+  }
+
+  /** Tracks the inputs and outputs of {@link AssetLoader AssetLoaders}. */
+  private static final class AssetLoaderInputTracker {
+    private final List<SequenceMetadata> sequencesMetadata;
+    private final SparseArray<SampleExporter> trackTypeToSampleExporter;
+    private final SparseArray<Boolean> trackTypeToShouldTranscode;
+    private final SparseArray<Integer> trackTypeToNumberOfRegisteredGraphInput;
+
+    public AssetLoaderInputTracker(Composition composition) {
+      sequencesMetadata = new ArrayList<>();
+      for (int i = 0; i < composition.sequences.size(); i++) {
+        sequencesMetadata.add(new SequenceMetadata());
+      }
+      trackTypeToSampleExporter = new SparseArray<>();
+      trackTypeToShouldTranscode = new SparseArray<>();
+      trackTypeToNumberOfRegisteredGraphInput = new SparseArray<>();
+    }
+
+    /**
+     * Returns the input {@link Format} to the {@link SequenceAssetLoader} identified by the {@code
+     * sequenceIndex} and {@link C.TrackType trackType}.
+     */
+    public Format getAssetLoaderInputFormat(int sequenceIndex, @C.TrackType int trackType) {
+      SparseArray<Format> trackTypeToFirstAssetLoaderInputFormat =
+          sequencesMetadata.get(sequenceIndex).trackTypeToFirstAssetLoaderInputFormat;
+      checkState(contains(trackTypeToFirstAssetLoaderInputFormat, trackType));
+      return trackTypeToFirstAssetLoaderInputFormat.get(trackType);
+    }
+
+    /**
+     * Returns whether a sequence has multiple {@linkplain SequenceAssetLoaderListener#onTrackAdded
+     * added tracks}.
+     */
+    public boolean sequenceHasMultipleTracks(int sequenceIndex) {
+      return sequencesMetadata.get(sequenceIndex).trackTypeToFirstAssetLoaderInputFormat.size() > 1;
+    }
+
+    /**
+     * Sets the required {@linkplain SequenceAssetLoaderListener#onTrackCount number of tracks} on a
+     * given sequence.
+     */
+    public void setTrackCount(int sequenceIndex, int trackCount) {
+      sequencesMetadata.get(sequenceIndex).requiredTrackCount = trackCount;
+    }
+
+    /**
+     * Returns whether the {@linkplain SequenceAssetLoaderListener#onTrackCount number of tracks} is
+     * reported by all sequences.
+     */
+    public boolean hasAllTrackCounts() {
+      for (int i = 0; i < sequencesMetadata.size(); i++) {
+        if (sequencesMetadata.get(i).requiredTrackCount == C.INDEX_UNSET) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    /**
+     * Registers a {@linkplain SequenceAssetLoaderListener#onTrackAdded track} with its {@link
+     * Format assetLoaderInputFormat} in a given sequence.
+     */
+    public void registerTrack(int sequenceIndex, Format assetLoaderInputFormat) {
+      @C.TrackType int trackType = getProcessedTrackType(assetLoaderInputFormat.sampleMimeType);
+      SparseArray<Format> trackTypeToFirstAssetLoaderInputFormat =
+          sequencesMetadata.get(sequenceIndex).trackTypeToFirstAssetLoaderInputFormat;
+      checkState(!contains(trackTypeToFirstAssetLoaderInputFormat, trackType));
+      trackTypeToFirstAssetLoaderInputFormat.put(trackType, assetLoaderInputFormat);
+    }
+
+    /**
+     * Returns the index of the primary sequence for a given {@link C.TrackType trackType}.
+     *
+     * <p>A primary sequence for a {@link C.TrackType trackType} is defined as the lowest indexed
+     * sequence that contains a track of the given {@code trackType}.
+     */
+    public int getIndexForPrimarySequence(@C.TrackType int trackType) {
+      checkState(
+          hasRegisteredAllTracks(),
+          "Primary track can only be queried after all tracks are added.");
+      for (int i = 0; i < sequencesMetadata.size(); i++) {
+        SparseArray<Format> trackTypeToFirstAssetLoaderInputFormat =
+            sequencesMetadata.get(i).trackTypeToFirstAssetLoaderInputFormat;
+        if (contains(trackTypeToFirstAssetLoaderInputFormat, trackType)) {
+          return i;
+        }
+      }
+      return C.INDEX_UNSET;
+    }
+
+    /**
+     * Returns whether all the {@linkplain #setTrackCount tracks} in all sequences have been
+     * {@linkplain #registerTrack registered}.
+     */
+    public boolean hasRegisteredAllTracks() {
+      if (!hasAllTrackCounts()) {
+        return false;
+      }
+      for (int i = 0; i < sequencesMetadata.size(); i++) {
+        SequenceMetadata sequenceMetadata = sequencesMetadata.get(i);
+        if (sequenceMetadata.requiredTrackCount
+            != sequenceMetadata.trackTypeToFirstAssetLoaderInputFormat.size()) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    /**
+     * Associates a {@link GraphInput} for track identified by the {@code sequenceIndex} and {@link
+     * C.TrackType trackType}.
+     */
+    public void registerGraphInput(@C.TrackType int trackType) {
+      int numberOfGraphInputForTrackType = 1;
+      if (contains(trackTypeToNumberOfRegisteredGraphInput, trackType)) {
+        numberOfGraphInputForTrackType += trackTypeToNumberOfRegisteredGraphInput.get(trackType);
+      }
+      trackTypeToNumberOfRegisteredGraphInput.put(trackType, numberOfGraphInputForTrackType);
+    }
+
+    /**
+     * Returns whether all the {@linkplain #registerTrack registered tracks} are {@linkplain
+     * #registerGraphInput associated} with a {@link GraphInput}.
+     */
+    public boolean hasAssociatedAllTracksWithGraphInput(@C.TrackType int trackType) {
+      int numberOfTracksForTrackType = 0;
+      for (int i = 0; i < sequencesMetadata.size(); i++) {
+        if (contains(sequencesMetadata.get(i).trackTypeToFirstAssetLoaderInputFormat, trackType)) {
+          numberOfTracksForTrackType++;
+        }
+      }
+      return trackTypeToNumberOfRegisteredGraphInput.get(trackType) == numberOfTracksForTrackType;
+    }
+
+    /** Returns the number of output tracks. */
+    public int getOutputTrackCount() {
+      boolean outputHasAudio = false;
+      boolean outputHasVideo = false;
+      for (int i = 0; i < sequencesMetadata.size(); i++) {
+        SparseArray<Format> trackTypeToFirstAssetLoaderInputFormat =
+            sequencesMetadata.get(i).trackTypeToFirstAssetLoaderInputFormat;
+        if (contains(trackTypeToFirstAssetLoaderInputFormat, C.TRACK_TYPE_AUDIO)) {
+          outputHasAudio = true;
+        }
+        if (contains(trackTypeToFirstAssetLoaderInputFormat, C.TRACK_TYPE_VIDEO)) {
+          outputHasVideo = true;
+        }
+      }
+      return (outputHasAudio ? 1 : 0) + (outputHasVideo ? 1 : 0);
+    }
+
+    /** Registers a {@link SampleExporter} for the given {@link C.TrackType trackType}. */
+    public void registerSampleExporter(int trackType, SampleExporter sampleExporter) {
+      checkState(
+          !contains(trackTypeToSampleExporter, trackType),
+          "Exactly one SampleExporter can be added for each track type.");
+      trackTypeToSampleExporter.put(trackType, sampleExporter);
+    }
+
+    /** Sets whether a track should be transcoded. */
+    public void setShouldTranscode(@C.TrackType int trackType, boolean shouldTranscode) {
+      if (contains(trackTypeToShouldTranscode, trackType)) {
+        checkState(shouldTranscode == trackTypeToShouldTranscode.get(trackType));
+        return;
+      }
+      trackTypeToShouldTranscode.put(trackType, shouldTranscode);
+    }
+
+    /** Returns whether a track should be transcoded. */
+    public boolean shouldTranscode(@C.TrackType int trackType) {
+      checkState(contains(trackTypeToShouldTranscode, trackType));
+      return trackTypeToShouldTranscode.get(trackType);
+    }
+
+    /**
+     * Returns the {@link SampleExporter} that is {@linkplain #registerSampleExporter registered} to
+     * a {@link C.TrackType trackType}, {@code null} if the {@code SampleExporter} is not yet
+     * registered.
+     */
+    @Nullable
+    public SampleExporter getSampleExporter(@C.TrackType int trackType) {
+      return trackTypeToSampleExporter.get(trackType);
+    }
+
+    private static final class SequenceMetadata {
+      public final SparseArray<Format> trackTypeToFirstAssetLoaderInputFormat;
+
+      /** The number of tracks corresponding to the sequence. */
+      public int requiredTrackCount;
+
+      public SequenceMetadata() {
+        trackTypeToFirstAssetLoaderInputFormat = new SparseArray<>();
+        requiredTrackCount = C.LENGTH_UNSET;
+      }
+    }
+
+    /** Implements {@code SparseArray#contains} for lower API versions. */
+    private static <T> boolean contains(SparseArray<T> sparseArray, int key) {
+      return sparseArray.get(key) != null;
     }
   }
 }
