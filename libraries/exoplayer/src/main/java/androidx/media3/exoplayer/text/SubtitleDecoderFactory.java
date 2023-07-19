@@ -25,7 +25,6 @@ import androidx.media3.extractor.text.SubtitleParser;
 import androidx.media3.extractor.text.cea.Cea608Decoder;
 import androidx.media3.extractor.text.cea.Cea708Decoder;
 import androidx.media3.extractor.text.ttml.TtmlDecoder;
-import androidx.media3.extractor.text.webvtt.WebvttDecoder;
 import java.util.Objects;
 
 /** A factory for {@link SubtitleDecoder} instances. */
@@ -56,7 +55,6 @@ public interface SubtitleDecoderFactory {
    * <p>Supports formats supported by {@link DefaultSubtitleParserFactory} as well as the following:
    *
    * <ul>
-   *   <li>WebVTT ({@link WebvttDecoder})
    *   <li>TTML ({@link TtmlDecoder})
    *   <li>Cea608 ({@link Cea608Decoder})
    *   <li>Cea708 ({@link Cea708Decoder})
@@ -72,7 +70,6 @@ public interface SubtitleDecoderFactory {
         public boolean supportsFormat(Format format) {
           @Nullable String mimeType = format.sampleMimeType;
           return delegate.supportsFormat(format)
-              || Objects.equals(mimeType, MimeTypes.TEXT_VTT)
               || Objects.equals(mimeType, MimeTypes.APPLICATION_TTML)
               || Objects.equals(mimeType, MimeTypes.APPLICATION_CEA608)
               || Objects.equals(mimeType, MimeTypes.APPLICATION_MP4CEA608)
@@ -90,8 +87,6 @@ public interface SubtitleDecoderFactory {
           @Nullable String mimeType = format.sampleMimeType;
           if (mimeType != null) {
             switch (mimeType) {
-              case MimeTypes.TEXT_VTT:
-                return new WebvttDecoder();
               case MimeTypes.APPLICATION_TTML:
                 return new TtmlDecoder();
               case MimeTypes.APPLICATION_CEA608:

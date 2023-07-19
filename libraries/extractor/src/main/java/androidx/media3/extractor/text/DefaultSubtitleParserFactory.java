@@ -25,6 +25,7 @@ import androidx.media3.extractor.text.ssa.SsaParser;
 import androidx.media3.extractor.text.subrip.SubripParser;
 import androidx.media3.extractor.text.tx3g.Tx3gParser;
 import androidx.media3.extractor.text.webvtt.Mp4WebvttParser;
+import androidx.media3.extractor.text.webvtt.WebvttParser;
 import java.util.Objects;
 
 /**
@@ -33,9 +34,10 @@ import java.util.Objects;
  * <p>The formats supported by this factory are:
  *
  * <ul>
+ *   <li>SSA/ASS ({@link SsaParser})
+ *   <li>WebVTT ({@link WebvttParser})
  *   <li>WebVTT (MP4) ({@link Mp4WebvttParser})
  *   <li>SubRip ({@link SubripParser})
- *   <li>SSA/ASS ({@link SsaParser})
  *   <li>TX3G ({@link Tx3gParser})
  *   <li>PGS ({@link PgsParser})
  *   <li>DVB ({@link DvbParser})
@@ -48,6 +50,7 @@ public final class DefaultSubtitleParserFactory implements SubtitleParser.Factor
   public boolean supportsFormat(Format format) {
     @Nullable String mimeType = format.sampleMimeType;
     return Objects.equals(mimeType, MimeTypes.TEXT_SSA)
+        || Objects.equals(mimeType, MimeTypes.TEXT_VTT)
         || Objects.equals(mimeType, MimeTypes.APPLICATION_MP4VTT)
         || Objects.equals(mimeType, MimeTypes.APPLICATION_SUBRIP)
         || Objects.equals(mimeType, MimeTypes.APPLICATION_TX3G)
@@ -62,6 +65,8 @@ public final class DefaultSubtitleParserFactory implements SubtitleParser.Factor
       switch (mimeType) {
         case MimeTypes.TEXT_SSA:
           return new SsaParser(format.initializationData);
+        case MimeTypes.TEXT_VTT:
+          return new WebvttParser();
         case MimeTypes.APPLICATION_MP4VTT:
           return new Mp4WebvttParser();
         case MimeTypes.APPLICATION_SUBRIP:

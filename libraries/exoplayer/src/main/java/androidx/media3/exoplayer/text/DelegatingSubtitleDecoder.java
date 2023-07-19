@@ -15,7 +15,10 @@
  */
 package androidx.media3.exoplayer.text;
 
+import static androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE;
+
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.media3.extractor.text.CuesWithTiming;
 import androidx.media3.extractor.text.SimpleSubtitleDecoder;
 import androidx.media3.extractor.text.Subtitle;
@@ -43,17 +46,19 @@ import java.util.List;
  *   <li>DelegatingSubtitleDecoder("XXX", new XXXParser(initializationData))
  *   <li>XXXDecoder(initializationData)
  * </ul>
- *
- * <p>TODO(b/289983417): this will only be used in the old decoding flow (Decoder after SampleQueue)
- * while we maintain dual architecture. Once we fully migrate to the pre-SampleQueue flow, it can be
- * deprecated and later deleted.
  */
-/* package */ final class DelegatingSubtitleDecoder extends SimpleSubtitleDecoder {
+// TODO(b/289983417): this will only be used in the old decoding flow (Decoder after SampleQueue)
+// while we maintain dual architecture. Once we fully migrate to the pre-SampleQueue flow, it can be
+// deprecated and later deleted.
+// TODO: remove VisibleForTesting annotation once SubtitleExtractor uses SubtitleParser (rather than
+// SubtitleDecoder) and SubtitleExtractorTest is refactored
+@VisibleForTesting(otherwise = PACKAGE_PRIVATE)
+public final class DelegatingSubtitleDecoder extends SimpleSubtitleDecoder {
 
   private static final Subtitle EMPTY_SUBTITLE = new CuesWithTimingSubtitle(ImmutableList.of());
   private final SubtitleParser subtitleParser;
 
-  /* package */ DelegatingSubtitleDecoder(String name, SubtitleParser subtitleParser) {
+  public DelegatingSubtitleDecoder(String name, SubtitleParser subtitleParser) {
     super(name);
     this.subtitleParser = subtitleParser;
   }
@@ -63,7 +68,8 @@ import java.util.List;
     if (reset) {
       subtitleParser.reset();
     }
-    @Nullable List<CuesWithTiming> cuesWithTiming = subtitleParser.parse(data);
+    @Nullable
+    List<CuesWithTiming> cuesWithTiming = subtitleParser.parse(data, /* offset= */ 0, length);
     if (cuesWithTiming == null) {
       return EMPTY_SUBTITLE;
     }
