@@ -80,7 +80,6 @@ public class SampleChooserActivity extends AppCompatActivity
   private static final String TAG = "SampleChooserActivity";
   private static final String GROUP_POSITION_PREFERENCE_KEY = "sample_chooser_group_position";
   private static final String CHILD_POSITION_PREFERENCE_KEY = "sample_chooser_child_position";
-  private static final int POST_NOTIFICATION_PERMISSION_REQUEST_CODE = 100;
 
   private String[] uris;
   private boolean useExtensionRenderers;
@@ -179,14 +178,6 @@ public class SampleChooserActivity extends AppCompatActivity
   public void onRequestPermissionsResult(
       int requestCode, String[] permissions, int[] grantResults) {
     super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    if (requestCode == POST_NOTIFICATION_PERMISSION_REQUEST_CODE) {
-      handlePostNotificationPermissionGrantResults(grantResults);
-    } else {
-      handleExternalStoragePermissionGrantResults(grantResults);
-    }
-  }
-
-  private void handlePostNotificationPermissionGrantResults(int[] grantResults) {
     if (!notificationPermissionToastShown
         && (grantResults.length == 0 || grantResults[0] != PackageManager.PERMISSION_GRANTED)) {
       Toast.makeText(
@@ -201,30 +192,8 @@ public class SampleChooserActivity extends AppCompatActivity
     }
   }
 
-  private void handleExternalStoragePermissionGrantResults(int[] grantResults) {
-    if (grantResults.length == 0) {
-      // Empty results are triggered if a permission is requested while another request was already
-      // pending and can be safely ignored in this case.
-      return;
-    } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-      loadSample();
-    } else {
-      Toast.makeText(getApplicationContext(), R.string.sample_list_load_error, Toast.LENGTH_LONG)
-          .show();
-      finish();
-    }
-  }
-
   private void loadSample() {
     checkNotNull(uris);
-
-    for (int i = 0; i < uris.length; i++) {
-      Uri uri = Uri.parse(uris[i]);
-      if (Util.maybeRequestReadExternalStoragePermission(this, uri)) {
-        return;
-      }
-    }
-
     SampleListLoader loaderTask = new SampleListLoader();
     loaderTask.execute(uris);
   }
@@ -279,8 +248,7 @@ public class SampleChooserActivity extends AppCompatActivity
             != PackageManager.PERMISSION_GRANTED) {
       downloadMediaItemWaitingForNotificationPermission = playlistHolder.mediaItems.get(0);
       requestPermissions(
-          new String[] {Api33.getPostNotificationPermissionString()},
-          /* requestCode= */ POST_NOTIFICATION_PERMISSION_REQUEST_CODE);
+          new String[] {Api33.getPostNotificationPermissionString()}, /* requestCode= */ 0);
     } else {
       toggleDownload(playlistHolder.mediaItems.get(0));
     }

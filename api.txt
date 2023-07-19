@@ -1246,8 +1246,9 @@ package androidx.media3.common.util {
     method @androidx.media3.common.C.ContentType public static int inferContentType(android.net.Uri);
     method @androidx.media3.common.C.ContentType public static int inferContentTypeForExtension(String);
     method @androidx.media3.common.C.ContentType public static int inferContentTypeForUriAndMimeType(android.net.Uri, @Nullable String);
-    method public static boolean maybeRequestReadExternalStoragePermission(android.app.Activity, android.net.Uri...);
-    method public static boolean maybeRequestReadExternalStoragePermission(android.app.Activity, androidx.media3.common.MediaItem...);
+    method @Deprecated public static boolean maybeRequestReadExternalStoragePermission(android.app.Activity, android.net.Uri...);
+    method @Deprecated public static boolean maybeRequestReadExternalStoragePermission(android.app.Activity, androidx.media3.common.MediaItem...);
+    method public static boolean maybeRequestReadStoragePermission(android.app.Activity, androidx.media3.common.MediaItem...);
     method @org.checkerframework.checker.nullness.qual.EnsuresNonNullIf(result=false, expression="#1") public static boolean shouldShowPlayButton(@Nullable androidx.media3.common.Player);
   }
 

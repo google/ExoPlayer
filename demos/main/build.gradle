@@ -30,9 +30,7 @@ android {
         versionName project.ext.releaseVersion
         versionCode project.ext.releaseVersionCode
         minSdkVersion project.ext.minSdkVersion
-        // Not using appTargetSDKVersion to allow local file access on API 29
-        // and higher [Internal ref: b/191644662]
-        targetSdkVersion project.ext.mainDemoAppTargetSdkVersion
+        targetSdkVersion project.ext.appTargetSdkVersion
         multiDexEnabled true
     }
 
