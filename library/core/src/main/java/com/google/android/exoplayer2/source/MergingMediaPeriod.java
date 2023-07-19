@@ -613,6 +613,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     @Override
+    public long getLatestBitrateEstimate() {
+      return trackSelection.getLatestBitrateEstimate();
+    }
+
+    @Override
     public boolean equals(@Nullable Object o) {
       if (this == o) {
         return true;

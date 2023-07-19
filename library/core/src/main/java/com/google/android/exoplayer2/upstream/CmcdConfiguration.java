@@ -71,7 +71,8 @@ public final class CmcdConfiguration {
     KEY_STREAM_TYPE,
     KEY_VERSION,
     KEY_TOP_BITRATE,
-    KEY_OBJECT_DURATION
+    KEY_OBJECT_DURATION,
+    KEY_MEASURED_THROUGHPUT
   })
   @Documented
   @Target(TYPE_USE)
@@ -94,6 +95,7 @@ public final class CmcdConfiguration {
   public static final String KEY_VERSION = "v";
   public static final String KEY_TOP_BITRATE = "tb";
   public static final String KEY_OBJECT_DURATION = "d";
+  public static final String KEY_MEASURED_THROUGHPUT = "mtp";
 
   /**
    * Factory for {@link CmcdConfiguration} instances.
@@ -284,5 +286,13 @@ public final class CmcdConfiguration {
    */
   public boolean isObjectDurationLoggingAllowed() {
     return requestConfig.isKeyAllowed(KEY_OBJECT_DURATION);
+  }
+
+  /**
+   * Returns whether logging object duration is allowed based on the {@linkplain RequestConfig
+   * request configuration}.
+   */
+  public boolean isMeasuredThroughputLoggingAllowed() {
+    return requestConfig.isKeyAllowed(KEY_MEASURED_THROUGHPUT);
   }
 }

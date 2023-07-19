@@ -294,4 +294,14 @@ public interface ExoTrackSelection extends TrackSelection {
    *     android.os.SystemClock#elapsedRealtime()}.
    */
   boolean isTrackExcluded(int index, long nowMs);
+
+  /**
+   * Returns the most recent bitrate estimate utilised for track selection.
+   *
+   * <p>The default behavior is to return {@link Long#MIN_VALUE}, indicating that the bitrate
+   * estimate was not computed for the track selection decision.
+   */
+  default long getLatestBitrateEstimate() {
+    return Long.MIN_VALUE;
+  }
 }
