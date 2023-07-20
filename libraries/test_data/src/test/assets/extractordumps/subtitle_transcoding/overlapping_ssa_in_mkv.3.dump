@@ -267,8 +267,8 @@ track 2:
     flags = 1
     data = length 418, hash 56AB8D37
 track 3:
-  total output bytes = 3746
-  sample count = 6
+  total output bytes = 3002
+  sample count = 3
   format 0:
     id = 3
     sampleMimeType = text/x-exoplayer-cues
@@ -283,23 +283,11 @@ track 3:
     flags = 1
     data = length 997, hash A1198858
   sample 1:
-    time = 330000
-    flags = 1
-    data = length 248, hash FD751B3
-  sample 2:
     time = 150000
     flags = 1
     data = length 1002, hash E686A781
-  sample 3:
-    time = 550000
-    flags = 1
-    data = length 248, hash FD751B3
-  sample 4:
+  sample 2:
     time = 200000
     flags = 1
     data = length 1003, hash 27A316D2
-  sample 5:
-    time = 450000
-    flags = 1
-    data = length 248, hash FD751B3
 tracksEnded = true

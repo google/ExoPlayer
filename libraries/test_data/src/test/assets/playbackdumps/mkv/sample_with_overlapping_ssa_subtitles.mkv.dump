@@ -532,19 +532,15 @@ TextOutput:
       text = First subtitle - end overlaps second
       lineType = 0
   Subtitle[2]:
-    presentationTimeUs = 330000
-    Cues = []
-  Subtitle[3]:
     presentationTimeUs = 150000
     Cue[0]:
       text = Third subtitle - fully encompasses second
       lineType = 0
+  Subtitle[3]:
+    presentationTimeUs = 200000
+    Cue[0]:
+      text = Second subtitle - beginning overlaps first
+      lineType = 0
   Subtitle[4]:
-    presentationTimeUs = 550000
-    Cues = []
-  Subtitle[5]:
-    presentationTimeUs = 450000
-    Cues = []
-  Subtitle[6]:
     presentationTimeUs = 450000
     Cues = []
