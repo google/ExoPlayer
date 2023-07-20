@@ -15,7 +15,7 @@
       <p style="s0" begin="10s" end="18s" tts:textDecoration="noUnderline">text 1</p>
     </div>
     <div>
-      <p style="s1" begin="20s" end="28s" tts:textDecoration="noLineThrough">text 1</p>
+      <p style="s1" begin="20s" end="28s" tts:textDecoration="noLineThrough">text 2</p>
     </div>
   </body>
 </tt>
