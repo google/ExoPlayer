@@ -49,6 +49,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.SettableFuture;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -604,6 +605,62 @@ public class DefaultMediaNotificationProviderTest {
 
     verify(mockOnNotificationChangedCallback2).onNotificationChanged(any());
     verifyNoInteractions(mockOnNotificationChangedCallback1);
+  }
+
+  @Test
+  public void createNotification_invalidButtons_enabledSessionCommandsOnlyForGetMediaButtons() {
+    DefaultActionFactory defaultActionFactory =
+        new DefaultActionFactory(Robolectric.setupService(TestService.class));
+    List<CommandButton> filteredEnabledLayout = new ArrayList<>();
+    DefaultMediaNotificationProvider defaultMediaNotificationProvider =
+        new DefaultMediaNotificationProvider(ApplicationProvider.getApplicationContext()) {
+          @Override
+          protected ImmutableList<CommandButton> getMediaButtons(
+              MediaSession session,
+              Commands playerCommands,
+              ImmutableList<CommandButton> customLayout,
+              boolean showPauseButton) {
+            filteredEnabledLayout.addAll(customLayout);
+            return super.getMediaButtons(session, playerCommands, customLayout, showPauseButton);
+          }
+        };
+    MediaSession mediaSession =
+        new MediaSession.Builder(
+                ApplicationProvider.getApplicationContext(),
+                new TestExoPlayerBuilder(context).build())
+            .build();
+    CommandButton button1 =
+        new CommandButton.Builder()
+            .setDisplayName("button1")
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setPlayerCommand(Player.COMMAND_SEEK_TO_PREVIOUS)
+            .build();
+    CommandButton button2 =
+        new CommandButton.Builder()
+            .setDisplayName("button2")
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setSessionCommand(new SessionCommand("command2", Bundle.EMPTY))
+            .build()
+            .copyWithIsEnabled(true);
+    CommandButton button3 =
+        new CommandButton.Builder()
+            .setDisplayName("button3")
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setPlayerCommand(Player.COMMAND_PLAY_PAUSE)
+            .build()
+            .copyWithIsEnabled(true);
+
+    defaultMediaNotificationProvider.createNotification(
+        mediaSession,
+        /* customLayout= */ ImmutableList.of(button1, button2, button3),
+        defaultActionFactory,
+        notification -> {
+          /* Do nothing. */
+        });
+
+    assertThat(filteredEnabledLayout).containsExactly(button2);
+    mediaSession.getPlayer().release();
+    mediaSession.release();
   }
 
   @Test

@@ -752,6 +752,35 @@ public class MediaSession {
   }
 
   /**
+   * Returns whether the given media controller info belongs to the media notification controller.
+   *
+   * <p>Use this method for instance in {@link Callback#onConnect(MediaSession, ControllerInfo)} to
+   * recognize the media notification controller and provide a {@link ConnectionResult} with a
+   * custom layout specific for this controller.
+   *
+   * @param controllerInfo The controller info.
+   * @return Whether the controller info belongs to the media notification controller.
+   */
+  @UnstableApi
+  public boolean isMediaNotificationController(ControllerInfo controllerInfo) {
+    return impl.isMediaNotificationController(controllerInfo);
+  }
+
+  /**
+   * Returns the {@link ControllerInfo} of the media notification controller.
+   *
+   * <p>Use this controller info to set {@linkplain #setAvailableCommands(ControllerInfo,
+   * SessionCommands, Player.Commands) available commands} and {@linkplain
+   * #setCustomLayout(ControllerInfo, List) custom layout} that are applied to the media
+   * notification.
+   */
+  @UnstableApi
+  @Nullable
+  public ControllerInfo getMediaNotificationControllerInfo() {
+    return impl.getMediaNotificationControllerInfo();
+  }
+
+  /**
    * Sets the custom layout for the given Media3 controller.
    *
    * <p>Make sure to have the session commands of all command buttons of the custom layout
@@ -775,11 +804,12 @@ public class MediaSession {
    * @param controller The controller for which to set the custom layout.
    * @param layout The ordered list of {@linkplain CommandButton command buttons}.
    */
+  @CanIgnoreReturnValue
   public final ListenableFuture<SessionResult> setCustomLayout(
       ControllerInfo controller, List<CommandButton> layout) {
     checkNotNull(controller, "controller must not be null");
     checkNotNull(layout, "layout must not be null");
-    return impl.setCustomLayout(controller, layout);
+    return impl.setCustomLayout(controller, ImmutableList.copyOf(layout));
   }
 
   /**
@@ -811,7 +841,7 @@ public class MediaSession {
    */
   public final void setCustomLayout(List<CommandButton> layout) {
     checkNotNull(layout, "layout must not be null");
-    impl.setCustomLayout(layout);
+    impl.setCustomLayout(ImmutableList.copyOf(layout));
   }
 
   /**

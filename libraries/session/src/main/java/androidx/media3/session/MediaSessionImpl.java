@@ -86,6 +86,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /* package */ class MediaSessionImpl {
 
+  private static final String SYSTEM_UI_PACKAGE_NAME = "com.android.systemui";
   private static final String WRONG_THREAD_ERROR_MESSAGE =
       "Player callback method is called from a wrong thread. "
           + "See javadoc of MediaSession for details.";
@@ -303,6 +304,68 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public boolean isConnected(ControllerInfo controller) {
     return sessionStub.getConnectedControllersManager().isConnected(controller)
         || sessionLegacyStub.getConnectedControllersManager().isConnected(controller);
+  }
+
+  /**
+   * Returns whether the given {@link ControllerInfo} belongs to the the System UI controller.
+   *
+   * @param controllerInfo The controller info.
+   * @return Whether the controller info belongs to the System UI controller.
+   */
+  protected boolean isSystemUiController(@Nullable MediaSession.ControllerInfo controllerInfo) {
+    return controllerInfo != null
+        && controllerInfo.getControllerVersion() == ControllerInfo.LEGACY_CONTROLLER_VERSION
+        && Objects.equals(controllerInfo.getPackageName(), SYSTEM_UI_PACKAGE_NAME);
+  }
+
+  /**
+   * Returns whether the given {@link ControllerInfo} belongs to the media notification controller.
+   *
+   * @param controllerInfo The controller info.
+   * @return Whether the given controller info belongs to the media notification controller.
+   */
+  public boolean isMediaNotificationController(MediaSession.ControllerInfo controllerInfo) {
+    return Objects.equals(controllerInfo.getPackageName(), context.getPackageName())
+        && controllerInfo.getControllerVersion()
+            != ControllerInfo.LEGACY_CONTROLLER_INTERFACE_VERSION
+        && controllerInfo
+            .getConnectionHints()
+            .getBoolean(
+                MediaNotificationManager.KEY_MEDIA_NOTIFICATION_MANAGER, /* defaultValue= */ false);
+  }
+
+  /**
+   * Returns the {@link ControllerInfo} of the system UI notification controller, or {@code null} if
+   * the System UI controller is not connected.
+   */
+  @Nullable
+  protected ControllerInfo getSystemUiControllerInfo() {
+    ImmutableList<ControllerInfo> connectedControllers =
+        sessionLegacyStub.getConnectedControllersManager().getConnectedControllers();
+    for (int i = 0; i < connectedControllers.size(); i++) {
+      ControllerInfo controllerInfo = connectedControllers.get(i);
+      if (isSystemUiController(controllerInfo)) {
+        return controllerInfo;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Returns the {@link ControllerInfo} of the media notification controller, or {@code null} if the
+   * media notification controller is not connected.
+   */
+  @Nullable
+  public ControllerInfo getMediaNotificationControllerInfo() {
+    ImmutableList<ControllerInfo> connectedControllers =
+        sessionStub.getConnectedControllersManager().getConnectedControllers();
+    for (int i = 0; i < connectedControllers.size(); i++) {
+      ControllerInfo controllerInfo = connectedControllers.get(i);
+      if (isMediaNotificationController(controllerInfo)) {
+        return controllerInfo;
+      }
+    }
+    return null;
   }
 
   public ListenableFuture<SessionResult> setCustomLayout(

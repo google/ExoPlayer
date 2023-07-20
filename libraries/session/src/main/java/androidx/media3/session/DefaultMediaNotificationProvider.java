@@ -298,6 +298,16 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
       Callback onNotificationChangedCallback) {
     ensureNotificationChannel();
 
+    ImmutableList.Builder<CommandButton> customLayoutWithEnabledCommandButtonsOnly =
+        new ImmutableList.Builder<>();
+    for (int i = 0; i < customLayout.size(); i++) {
+      CommandButton button = customLayout.get(i);
+      if (button.sessionCommand != null
+          && button.sessionCommand.commandCode == SessionCommand.COMMAND_CODE_CUSTOM
+          && button.isEnabled) {
+        customLayoutWithEnabledCommandButtonsOnly.add(customLayout.get(i));
+      }
+    }
     Player player = mediaSession.getPlayer();
     NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId);
     int notificationId = notificationIdProvider.getNotificationId(mediaSession);
@@ -309,7 +319,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
             getMediaButtons(
                 mediaSession,
                 player.getAvailableCommands(),
-                customLayout,
+                customLayoutWithEnabledCommandButtonsOnly.build(),
                 /* showPauseButton= */ player.getPlayWhenReady()
                     && player.getPlaybackState() != STATE_ENDED),
             builder,

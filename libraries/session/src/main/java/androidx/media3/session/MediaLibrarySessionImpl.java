@@ -61,7 +61,6 @@ import java.util.concurrent.Future;
 /* package */ class MediaLibrarySessionImpl extends MediaSessionImpl {
 
   private static final String RECENT_LIBRARY_ROOT_MEDIA_ID = "androidx.media3.session.recent.root";
-  private static final String SYSTEM_UI_PACKAGE_NAME = "com.android.systemui";
 
   private final MediaLibrarySession instance;
   private final MediaLibrarySession.Callback callback;
@@ -145,9 +144,7 @@ import java.util.concurrent.Future;
 
   public ListenableFuture<LibraryResult<MediaItem>> onGetLibraryRootOnHandler(
       ControllerInfo browser, @Nullable LibraryParams params) {
-    if (params != null
-        && params.isRecent
-        && Objects.equals(browser.getPackageName(), SYSTEM_UI_PACKAGE_NAME)) {
+    if (params != null && params.isRecent && isSystemUiController(browser)) {
       // Advertise support for playback resumption, if enabled.
       return !canResumePlaybackOnStart()
           ? Futures.immediateFuture(LibraryResult.ofError(RESULT_ERROR_NOT_SUPPORTED))

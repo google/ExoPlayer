@@ -17,7 +17,6 @@ package androidx.media3.session;
 
 import static android.app.Service.STOP_FOREGROUND_DETACH;
 import static android.app.Service.STOP_FOREGROUND_REMOVE;
-import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -56,6 +55,8 @@ import java.util.concurrent.TimeoutException;
  */
 /* package */ final class MediaNotificationManager {
 
+  /* package */ static final String KEY_MEDIA_NOTIFICATION_MANAGER =
+      "androidx.media3.session.MediaNotificationManager";
   private static final String TAG = "MediaNtfMng";
 
   private final MediaSessionService mediaSessionService;
@@ -65,7 +66,6 @@ import java.util.concurrent.TimeoutException;
   private final Executor mainExecutor;
   private final Intent startSelfIntent;
   private final Map<MediaSession, ListenableFuture<MediaController>> controllerMap;
-  private final Map<MediaSession, ImmutableList<CommandButton>> customLayoutMap;
 
   private int totalNotificationCount;
   @Nullable private MediaNotification mediaNotification;
@@ -83,7 +83,6 @@ import java.util.concurrent.TimeoutException;
     mainExecutor = (runnable) -> Util.postOrRun(mainHandler, runnable);
     startSelfIntent = new Intent(mediaSessionService, mediaSessionService.getClass());
     controllerMap = new HashMap<>();
-    customLayoutMap = new HashMap<>();
     startedInForeground = false;
   }
 
@@ -91,11 +90,12 @@ import java.util.concurrent.TimeoutException;
     if (controllerMap.containsKey(session)) {
       return;
     }
-    customLayoutMap.put(session, ImmutableList.of());
-    MediaControllerListener listener =
-        new MediaControllerListener(mediaSessionService, session, customLayoutMap);
+    MediaControllerListener listener = new MediaControllerListener(mediaSessionService, session);
+    Bundle connectionHints = new Bundle();
+    connectionHints.putBoolean(KEY_MEDIA_NOTIFICATION_MANAGER, true);
     ListenableFuture<MediaController> controllerFuture =
         new MediaController.Builder(mediaSessionService, session.getToken())
+            .setConnectionHints(connectionHints)
             .setListener(listener)
             .setApplicationLooper(Looper.getMainLooper())
             .buildAsync();
@@ -118,7 +118,6 @@ import java.util.concurrent.TimeoutException;
   }
 
   public void removeSession(MediaSession session) {
-    customLayoutMap.remove(session);
     @Nullable ListenableFuture<MediaController> controllerFuture = controllerMap.remove(session);
     if (controllerFuture != null) {
       MediaController.releaseFuture(controllerFuture);
@@ -154,7 +153,19 @@ import java.util.concurrent.TimeoutException;
     }
 
     int notificationSequence = ++totalNotificationCount;
-    ImmutableList<CommandButton> customLayout = checkStateNotNull(customLayoutMap.get(session));
+    MediaController mediaNotificationController = null;
+    @Nullable ListenableFuture<MediaController> controllerFuture = controllerMap.get(session);
+    if (controllerFuture != null && controllerFuture.isDone()) {
+      try {
+        mediaNotificationController = Futures.getDone(controllerFuture);
+      } catch (ExecutionException e) {
+        // Ignore.
+      }
+    }
+    ImmutableList<CommandButton> customLayout =
+        mediaNotificationController != null
+            ? mediaNotificationController.getCustomLayout()
+            : ImmutableList.of();
     MediaNotification.Provider.Callback callback =
         notification ->
             mainExecutor.execute(
@@ -297,15 +308,10 @@ import java.util.concurrent.TimeoutException;
       implements MediaController.Listener, Player.Listener {
     private final MediaSessionService mediaSessionService;
     private final MediaSession session;
-    private final Map<MediaSession, ImmutableList<CommandButton>> customLayoutMap;
 
-    public MediaControllerListener(
-        MediaSessionService mediaSessionService,
-        MediaSession session,
-        Map<MediaSession, ImmutableList<CommandButton>> customLayoutMap) {
+    public MediaControllerListener(MediaSessionService mediaSessionService, MediaSession session) {
       this.mediaSessionService = mediaSessionService;
       this.session = session;
-      this.customLayoutMap = customLayoutMap;
     }
 
     public void onConnected(boolean shouldShowNotification) {
@@ -316,12 +322,16 @@ import java.util.concurrent.TimeoutException;
     }
 
     @Override
-    public ListenableFuture<SessionResult> onSetCustomLayout(
-        MediaController controller, List<CommandButton> layout) {
-      customLayoutMap.put(session, ImmutableList.copyOf(layout));
+    public void onCustomLayoutChanged(MediaController controller, List<CommandButton> layout) {
       mediaSessionService.onUpdateNotificationInternal(
           session, /* startInForegroundWhenPaused= */ false);
-      return Futures.immediateFuture(new SessionResult(SessionResult.RESULT_SUCCESS));
+    }
+
+    @Override
+    public void onAvailableSessionCommandsChanged(
+        MediaController controller, SessionCommands commands) {
+      mediaSessionService.onUpdateNotificationInternal(
+          session, /* startInForegroundWhenPaused= */ false);
     }
 
     @Override
