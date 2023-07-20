@@ -1,19 +1,21 @@
 # AndroidX Media
 
 AndroidX Media is a collection of libraries for implementing media use cases on
-Android, including local playback (via ExoPlayer) and media sessions.
+Android, including local playback (via ExoPlayer), video editing (via Transformer) and media sessions.
 
 ## Documentation
 
 *   The [developer guide][] provides a wealth of information.
 *   The [class reference][] documents the classes and methods.
 *   The [release notes][] document the major changes in each release.
+*   The [media dev center][] provides samples and guidelines.
 *   Follow our [developer blog][] to keep up to date with the latest
     developments!
 
 [developer guide]: https://developer.android.com/guide/topics/media/media3
 [class reference]: https://developer.android.com/reference/androidx/media3/common/package-summary
 [release notes]: RELEASENOTES.md
+[media dev center]: https://developer.android.com/media
 [developer blog]: https://medium.com/google-exoplayer
 
 ## Migration for existing ExoPlayer and MediaSession projects
