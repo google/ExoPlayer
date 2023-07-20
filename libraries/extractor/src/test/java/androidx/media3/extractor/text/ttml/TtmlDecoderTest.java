@@ -17,7 +17,6 @@ package androidx.media3.extractor.text.ttml;
 
 import static androidx.media3.test.utils.truth.SpannedSubject.assertThat;
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.text.Layout;
 import android.text.Spanned;
@@ -35,7 +34,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -330,11 +328,10 @@ public final class TtmlDecoderTest {
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(12);
 
-    TtmlNode root = subtitle.getRoot();
-    TtmlNode body = queryChildrenForTag(root, TtmlNode.TAG_BODY, 0);
-    TtmlNode fourthDiv = queryChildrenForTag(body, TtmlNode.TAG_DIV, 3);
+    Spanned spanned = getOnlyCueTextAtTimeUs(subtitle, 40_000_000);
 
-    assertThat(queryChildrenForTag(fourthDiv, TtmlNode.TAG_P, 0).getStyleIds()).isNull();
+    assertThat(spanned.toString()).isEqualTo("text 3");
+    assertThat(spanned).hasNoSpans();
   }
 
   @Test
@@ -343,11 +340,10 @@ public final class TtmlDecoderTest {
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(12);
 
-    TtmlNode root = subtitle.getRoot();
-    TtmlNode body = queryChildrenForTag(root, TtmlNode.TAG_BODY, 0);
-    TtmlNode fifthDiv = queryChildrenForTag(body, TtmlNode.TAG_DIV, 4);
+    Spanned spanned = getOnlyCueTextAtTimeUs(subtitle, 50_000_000);
 
-    assertThat(queryChildrenForTag(fifthDiv, TtmlNode.TAG_P, 0).getStyleIds()).hasLength(1);
+    assertThat(spanned.toString()).isEqualTo("text 4");
+    assertThat(spanned).hasNoSpans();
   }
 
   @Test
@@ -357,36 +353,33 @@ public final class TtmlDecoderTest {
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(12);
 
-    TtmlNode root = subtitle.getRoot();
-    TtmlNode body = queryChildrenForTag(root, TtmlNode.TAG_BODY, 0);
-    TtmlNode sixthDiv = queryChildrenForTag(body, TtmlNode.TAG_DIV, 5);
-
-    String[] styleIds = queryChildrenForTag(sixthDiv, TtmlNode.TAG_P, 0).getStyleIds();
-    assertThat(styleIds).hasLength(2);
+    Spanned spanned = getOnlyCueTextAtTimeUs(subtitle, 60_000_000);
+    assertThat(spanned.toString()).isEqualTo("text 5");
+    assertThat(spanned).hasBackgroundColorSpanBetween(0, spanned.length()).withColor(0xFFFF0000);
   }
 
   @Test
   public void multipleChaining() throws IOException, SubtitleDecoderException {
     TtmlSubtitle subtitle = getSubtitle(CHAIN_MULTIPLE_STYLES_TTML_FILE);
 
-    assertThat(subtitle.getEventTimeCount()).isEqualTo(2);
+    assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
 
-    Map<String, TtmlStyle> globalStyles = subtitle.getGlobalStyles();
+    Spanned spanned1 = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
+    assertThat(spanned1.toString()).isEqualTo("text 1");
+    assertThat(spanned1).hasTypefaceSpanBetween(0, spanned1.length()).withFamily("serif");
+    assertThat(spanned1).hasBackgroundColorSpanBetween(0, spanned1.length()).withColor(0xFFFF0000);
+    assertThat(spanned1).hasForegroundColorSpanBetween(0, spanned1.length()).withColor(0xFF000000);
+    assertThat(spanned1).hasBoldItalicSpanBetween(0, spanned1.length());
+    assertThat(spanned1).hasStrikethroughSpanBetween(0, spanned1.length());
 
-    TtmlStyle style = globalStyles.get("s2");
-    assertThat(style.getFontFamily()).isEqualTo("serif");
-    assertThat(style.getBackgroundColor()).isEqualTo(0xFFFF0000);
-    assertThat(style.getFontColor()).isEqualTo(0xFF000000);
-    assertThat(style.getStyle()).isEqualTo(TtmlStyle.STYLE_BOLD_ITALIC);
-    assertThat(style.isLinethrough()).isTrue();
-
-    style = globalStyles.get("s3");
-    // only difference: color must be RED
-    assertThat(style.getFontColor()).isEqualTo(0xFFFF0000);
-    assertThat(style.getFontFamily()).isEqualTo("serif");
-    assertThat(style.getBackgroundColor()).isEqualTo(0xFFFF0000);
-    assertThat(style.getStyle()).isEqualTo(TtmlStyle.STYLE_BOLD_ITALIC);
-    assertThat(style.isLinethrough()).isTrue();
+    // only difference: foreground (font) color must be RED
+    Spanned spanned2 = getOnlyCueTextAtTimeUs(subtitle, 20_000_000);
+    assertThat(spanned2.toString()).isEqualTo("text 2");
+    assertThat(spanned2).hasTypefaceSpanBetween(0, spanned2.length()).withFamily("serif");
+    assertThat(spanned2).hasBackgroundColorSpanBetween(0, spanned2.length()).withColor(0xFFFF0000);
+    assertThat(spanned2).hasForegroundColorSpanBetween(0, spanned2.length()).withColor(0xFFFF0000);
+    assertThat(spanned2).hasBoldItalicSpanBetween(0, spanned2.length());
+    assertThat(spanned2).hasStrikethroughSpanBetween(0, spanned2.length());
   }
 
   @Test
@@ -395,14 +388,10 @@ public final class TtmlDecoderTest {
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
 
-    TtmlNode root = subtitle.getRoot();
-    TtmlNode body = queryChildrenForTag(root, TtmlNode.TAG_BODY, 0);
-    TtmlNode div = queryChildrenForTag(body, TtmlNode.TAG_DIV, 0);
-
-    TtmlStyle style = queryChildrenForTag(div, TtmlNode.TAG_P, 0).style;
-    assertWithMessage("noUnderline from inline attribute expected")
-        .that(style.isUnderline())
-        .isFalse();
+    Spanned spanned = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
+    assertThat(spanned.toString()).isEqualTo("text 1");
+    // noUnderline from inline attribute overrides s0 global underline style id
+    assertThat(spanned).hasNoUnderlineSpanBetween(0, spanned.length());
   }
 
   @Test
@@ -411,14 +400,10 @@ public final class TtmlDecoderTest {
 
     assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
 
-    TtmlNode root = subtitle.getRoot();
-    TtmlNode body = queryChildrenForTag(root, TtmlNode.TAG_BODY, 0);
-    TtmlNode div = queryChildrenForTag(body, TtmlNode.TAG_DIV, 1);
-
-    TtmlStyle style = queryChildrenForTag(div, TtmlNode.TAG_P, 0).style;
-    assertWithMessage("noLineThrough from inline attribute expected in second pNode")
-        .that(style.isLinethrough())
-        .isFalse();
+    Spanned spanned = getOnlyCueTextAtTimeUs(subtitle, 20_000_000);
+    assertThat(spanned.toString()).isEqualTo("text 2");
+    // noLineThrough from inline attribute overrides s1 global lineThrough style id
+    assertThat(spanned).hasNoStrikethroughSpanBetween(0, spanned.length());
   }
 
   @Test
@@ -935,18 +920,6 @@ public final class TtmlDecoderTest {
     List<Cue> cues = subtitle.getCues(timeUs);
     assertThat(cues).hasSize(1);
     return cues.get(0);
-  }
-
-  private static TtmlNode queryChildrenForTag(TtmlNode node, String tag, int pos) {
-    int count = 0;
-    for (int i = 0; i < node.getChildCount(); i++) {
-      if (tag.equals(node.getChild(i).tag)) {
-        if (pos == count++) {
-          return node.getChild(i);
-        }
-      }
-    }
-    throw new IllegalStateException("tag not found");
   }
 
   private static TtmlSubtitle getSubtitle(String file)

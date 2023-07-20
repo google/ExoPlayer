@@ -27,5 +27,8 @@
     <div>
       <p style="s2" begin="10s" end="18s">text 1</p>
     </div>
+    <div>
+      <p style="s3" begin="20s" end="28s">text 2</p>
+    </div>
   </body>
 </tt>
