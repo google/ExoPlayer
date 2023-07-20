@@ -27,7 +27,6 @@ import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.UnstableApi;
-import androidx.media3.common.util.Util;
 import androidx.media3.extractor.text.CuesWithTiming;
 import androidx.media3.extractor.text.SubtitleParser;
 import com.google.common.base.Charsets;
@@ -70,11 +69,12 @@ public final class SubripParser implements SubtitleParser {
 
   private final StringBuilder textBuilder;
   private final ArrayList<String> tags;
-  private byte[] dataScratch = Util.EMPTY_BYTE_ARRAY;
+  private final ParsableByteArray parsableByteArray;
 
   public SubripParser() {
     textBuilder = new StringBuilder();
     tags = new ArrayList<>();
+    parsableByteArray = new ParsableByteArray();
   }
 
   @Nullable
@@ -82,16 +82,12 @@ public final class SubripParser implements SubtitleParser {
   public ImmutableList<CuesWithTiming> parse(byte[] data, int offset, int length) {
     ImmutableList.Builder<CuesWithTiming> cues = new ImmutableList.Builder<>();
 
-    if (dataScratch.length < length) {
-      dataScratch = new byte[length];
-    }
-    System.arraycopy(
-        /* src= */ data, /* scrPos= */ offset, /* dest= */ dataScratch, /* destPos= */ 0, length);
-    ParsableByteArray subripData = new ParsableByteArray(dataScratch, length);
-    Charset charset = detectUtfCharset(subripData);
+    parsableByteArray.reset(data, /* limit= */ offset + length);
+    parsableByteArray.setPosition(offset);
+    Charset charset = detectUtfCharset(parsableByteArray);
 
     @Nullable String currentLine;
-    while ((currentLine = subripData.readLine(charset)) != null) {
+    while ((currentLine = parsableByteArray.readLine(charset)) != null) {
       if (currentLine.length() == 0) {
         // Skip blank lines.
         continue;
@@ -106,7 +102,7 @@ public final class SubripParser implements SubtitleParser {
       }
 
       // Read and parse the timing line.
-      currentLine = subripData.readLine(charset);
+      currentLine = parsableByteArray.readLine(charset);
       if (currentLine == null) {
         Log.w(TAG, "Unexpected end");
         break;
@@ -126,13 +122,13 @@ public final class SubripParser implements SubtitleParser {
       // Read and parse the text and tags.
       textBuilder.setLength(0);
       tags.clear();
-      currentLine = subripData.readLine(charset);
+      currentLine = parsableByteArray.readLine(charset);
       while (!TextUtils.isEmpty(currentLine)) {
         if (textBuilder.length() > 0) {
           textBuilder.append("<br>");
         }
         textBuilder.append(processLine(currentLine, tags));
-        currentLine = subripData.readLine(charset);
+        currentLine = parsableByteArray.readLine(charset);
       }
 
       Spanned text = Html.fromHtml(textBuilder.toString());

@@ -45,7 +45,6 @@ public final class PgsParser implements SubtitleParser {
   private final ParsableByteArray buffer;
   private final ParsableByteArray inflatedBuffer;
   private final CueBuilder cueBuilder;
-  private byte[] dataScratch = Util.EMPTY_BYTE_ARRAY;
   @Nullable private Inflater inflater;
 
   public PgsParser() {
@@ -59,16 +58,8 @@ public final class PgsParser implements SubtitleParser {
 
   @Override
   public ImmutableList<CuesWithTiming> parse(byte[] data, int offset, int length) {
-    if (offset != 0) {
-      if (dataScratch.length < length) {
-        dataScratch = new byte[length];
-      }
-      System.arraycopy(
-          /* src= */ data, /* scrPos= */ offset, /* dest= */ dataScratch, /* destPos= */ 0, length);
-      buffer.reset(dataScratch, length);
-    } else {
-      buffer.reset(data, length);
-    }
+    buffer.reset(data, /* limit= */ offset + length);
+    buffer.setPosition(offset);
     maybeInflateData(buffer);
     cueBuilder.reset();
     ArrayList<Cue> cues = new ArrayList<>();

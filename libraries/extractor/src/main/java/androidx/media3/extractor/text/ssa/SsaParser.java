@@ -65,6 +65,7 @@ public final class SsaParser implements SubtitleParser {
 
   private final boolean haveInitializationData;
   @Nullable private final SsaDialogueFormat dialogueFormatFromInitializationData;
+  private final ParsableByteArray parsableByteArray;
 
   private @MonotonicNonNull Map<String, SsaStyle> styles;
 
@@ -82,8 +83,6 @@ public final class SsaParser implements SubtitleParser {
    */
   private float screenHeight;
 
-  private byte[] dataScratch = Util.EMPTY_BYTE_ARRAY;
-
   public SsaParser() {
     this(/* initializationData= */ null);
   }
@@ -100,6 +99,7 @@ public final class SsaParser implements SubtitleParser {
   public SsaParser(@Nullable List<byte[]> initializationData) {
     screenWidth = Cue.DIMEN_UNSET;
     screenHeight = Cue.DIMEN_UNSET;
+    parsableByteArray = new ParsableByteArray();
 
     if (initializationData != null && !initializationData.isEmpty()) {
       haveInitializationData = true;
@@ -126,18 +126,14 @@ public final class SsaParser implements SubtitleParser {
     List<List<Cue>> cues = new ArrayList<>();
     List<Long> startTimesUs = new ArrayList<>();
 
-    if (dataScratch.length < length) {
-      dataScratch = new byte[length];
-    }
-    System.arraycopy(
-        /* src= */ data, /* scrPos= */ offset, /* dest= */ dataScratch, /* destPos= */ 0, length);
-    ParsableByteArray parsableData = new ParsableByteArray(dataScratch, length);
-    Charset charset = detectUtfCharset(parsableData);
+    parsableByteArray.reset(data, /* limit= */ offset + length);
+    parsableByteArray.setPosition(offset);
+    Charset charset = detectUtfCharset(parsableByteArray);
 
     if (!haveInitializationData) {
-      parseHeader(parsableData, charset);
+      parseHeader(parsableByteArray, charset);
     }
-    parseEventBody(parsableData, cues, startTimesUs, charset);
+    parseEventBody(parsableByteArray, cues, startTimesUs, charset);
 
     ImmutableList.Builder<CuesWithTiming> cuesWithStartTimeAndDuration = ImmutableList.builder();
     for (int i = 0; i < cues.size(); i++) {
