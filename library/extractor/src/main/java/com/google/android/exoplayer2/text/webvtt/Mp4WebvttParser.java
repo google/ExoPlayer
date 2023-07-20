@@ -52,39 +52,30 @@ public final class Mp4WebvttParser implements SubtitleParser {
   @SuppressWarnings("ConstantCaseForConstants")
   private static final int TYPE_vttc = 0x76747463;
 
-  private final ParsableByteArray sampleData;
-  private byte[] dataScratch = Util.EMPTY_BYTE_ARRAY;
+  private final ParsableByteArray parsableByteArray;
 
   public Mp4WebvttParser() {
-    sampleData = new ParsableByteArray();
+    parsableByteArray = new ParsableByteArray();
   }
 
   @Override
   public ImmutableList<CuesWithTiming> parse(byte[] data, int offset, int length) {
-    if (offset != 0) {
-      if (dataScratch.length < length) {
-        dataScratch = new byte[length];
-      }
-      System.arraycopy(
-          /* src= */ data, /* scrPos= */ offset, /* dest= */ dataScratch, /* destPos= */ 0, length);
-      sampleData.reset(dataScratch, length);
-    } else {
-      sampleData.reset(data, length);
-    }
+    parsableByteArray.reset(data, /* limit= */ offset + length);
+    parsableByteArray.setPosition(offset);
     List<Cue> cues = new ArrayList<>();
-    while (sampleData.bytesLeft() > 0) {
+    while (parsableByteArray.bytesLeft() > 0) {
       // Webvtt in Mp4 samples have boxes inside of them, so we have to do a traditional box
       // parsing: first 4 bytes size and then 4 bytes type.
       checkArgument(
-          sampleData.bytesLeft() >= BOX_HEADER_SIZE,
+          parsableByteArray.bytesLeft() >= BOX_HEADER_SIZE,
           "Incomplete Mp4Webvtt Top Level box header found.");
-      int boxSize = sampleData.readInt();
-      int boxType = sampleData.readInt();
+      int boxSize = parsableByteArray.readInt();
+      int boxType = parsableByteArray.readInt();
       if (boxType == TYPE_vttc) {
-        cues.add(parseVttCueBox(sampleData, boxSize - BOX_HEADER_SIZE));
+        cues.add(parseVttCueBox(parsableByteArray, boxSize - BOX_HEADER_SIZE));
       } else {
         // Peers of the VTTCueBox are still not supported and are skipped.
-        sampleData.skipBytes(boxSize - BOX_HEADER_SIZE);
+        parsableByteArray.skipBytes(boxSize - BOX_HEADER_SIZE);
       }
     }
     return cues.isEmpty()

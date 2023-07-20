@@ -57,7 +57,7 @@ public final class WebvttParser implements SubtitleParser {
 
   @Override
   public ImmutableList<CuesWithTiming> parse(byte[] data, int offset, int length) {
-    parsableWebvttData.reset(data, length);
+    parsableWebvttData.reset(data, /* limit= */ offset + length);
     parsableWebvttData.setPosition(offset);
     List<WebvttCssStyle> definedStyles = new ArrayList<>();
 

@@ -97,7 +97,6 @@ public final class DvbParser implements SubtitleParser {
   private final DisplayDefinition defaultDisplayDefinition;
   private final ClutDefinition defaultClutDefinition;
   private final SubtitleService subtitleService;
-  private byte[] dataScratch = Util.EMPTY_BYTE_ARRAY;
 
   private @MonotonicNonNull Bitmap bitmap;
 
@@ -137,13 +136,8 @@ public final class DvbParser implements SubtitleParser {
 
   @Override
   public ImmutableList<CuesWithTiming> parse(byte[] data, int offset, int length) {
-    // Parse the input data.
-    if (dataScratch.length < length) {
-      dataScratch = new byte[length];
-    }
-    System.arraycopy(
-        /* src= */ data, /* scrPos= */ offset, /* dest= */ dataScratch, /* destPos= */ 0, length);
-    ParsableBitArray dataBitArray = new ParsableBitArray(dataScratch, length);
+    ParsableBitArray dataBitArray = new ParsableBitArray(data, /* limit= */ offset + length);
+    dataBitArray.setPosition(offset);
     while (dataBitArray.bitsLeft() >= 48 // sync_byte (8) + segment header (40)
         && dataBitArray.readBits(8) == 0x0F) {
       parseSubtitlingSegment(dataBitArray, subtitleService);

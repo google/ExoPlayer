@@ -83,7 +83,6 @@ public final class Tx3gParser implements SubtitleParser {
   private final String defaultFontFamily;
   private final float defaultVerticalPlacement;
   private final int calculatedVideoTrackHeight;
-  private byte[] dataScratch = Util.EMPTY_BYTE_ARRAY;
 
   /**
    * Sets up a new {@link Tx3gParser} with default values.
@@ -132,16 +131,8 @@ public final class Tx3gParser implements SubtitleParser {
 
   @Override
   public ImmutableList<CuesWithTiming> parse(byte[] data, int offset, int length) {
-    if (offset != 0) {
-      if (dataScratch.length < length) {
-        dataScratch = new byte[length];
-      }
-      System.arraycopy(
-          /* src= */ data, /* scrPos= */ offset, /* dest= */ dataScratch, /* destPos= */ 0, length);
-      parsableByteArray.reset(dataScratch, length);
-    } else {
-      parsableByteArray.reset(data, length);
-    }
+    parsableByteArray.reset(data, /* limit= */ offset + length);
+    parsableByteArray.setPosition(offset);
     String cueTextString = readSubtitleText(parsableByteArray);
     if (cueTextString.isEmpty()) {
       return ImmutableList.of(
