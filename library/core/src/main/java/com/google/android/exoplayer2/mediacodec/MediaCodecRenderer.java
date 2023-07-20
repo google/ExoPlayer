@@ -384,7 +384,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   private boolean codecNeedsAdaptationWorkaroundBuffer;
   private boolean shouldSkipAdaptationWorkaroundOutputBuffer;
   private boolean codecNeedsEosPropagation;
-  @Nullable private C2Mp3TimestampTracker c2Mp3TimestampTracker;
   private long codecHotswapDeadlineMs;
   private int inputIndex;
   private int outputIndex;
@@ -962,9 +961,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     largestQueuedPresentationTimeUs = C.TIME_UNSET;
     lastBufferInStreamPresentationTimeUs = C.TIME_UNSET;
     lastProcessedOutputBufferTimeUs = C.TIME_UNSET;
-    if (c2Mp3TimestampTracker != null) {
-      c2Mp3TimestampTracker.reset();
-    }
     codecDrainState = DRAIN_STATE_NONE;
     codecDrainAction = DRAIN_ACTION_NONE;
     // Reconfiguration data sent shortly before the flush may not have been processed by the
@@ -985,7 +981,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     resetCodecStateForFlush();
 
     pendingPlaybackException = null;
-    c2Mp3TimestampTracker = null;
     availableCodecInfos = null;
     codecInfo = null;
     codecInputFormat = null;
@@ -1208,9 +1203,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       this.codecNeedsAdaptationWorkaroundBuffer =
           codecAdaptationWorkaroundMode != ADAPTATION_WORKAROUND_MODE_NEVER;
     }
-    if ("c2.android.mp3.decoder".equals(codecInfo.name)) {
-      c2Mp3TimestampTracker = new C2Mp3TimestampTracker();
-    }
 
     if (getState() == STATE_STARTED) {
       codecHotswapDeadlineMs = getClock().elapsedRealtime() + MAX_CODEC_HOTSWAP_TIME_MS;
@@ -1401,19 +1393,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
 
     long presentationTimeUs = buffer.timeUs;
-
-    if (c2Mp3TimestampTracker != null) {
-      presentationTimeUs =
-          c2Mp3TimestampTracker.updateAndGetPresentationTimeUs(inputFormat, buffer);
-      // When draining the C2 MP3 decoder it produces an extra non-empty buffer with a timestamp
-      // after all queued input buffer timestamps (unlike other decoders, which generally propagate
-      // the input timestamps to output buffers 1:1). To detect the end of the stream when this
-      // buffer is dequeued we override the largest queued timestamp accordingly.
-      largestQueuedPresentationTimeUs =
-          max(
-              largestQueuedPresentationTimeUs,
-              c2Mp3TimestampTracker.getLastOutputBufferPresentationTimeUs(inputFormat));
-    }
 
     if (waitingForFirstSampleInFormat) {
       if (!pendingOutputStreamChanges.isEmpty()) {
