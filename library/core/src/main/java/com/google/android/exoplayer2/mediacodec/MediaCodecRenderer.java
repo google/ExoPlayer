@@ -93,6 +93,29 @@ import java.util.List;
  *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
  *     migration guide</a> for more details, including a script to help with the migration.
  */
+//
+// The input media in the SampleStreams and the behavior of MediaCodec are outside of the control of
+// this class and we try to make as few assumptions as possible.
+//
+// Assumptions about the input streams:
+// - The first stream may pre-roll samples from a keyframe preceding the start time. Subsequent
+//   streams added via replaceSampleStream are always fully rendered.
+//
+// Assumptions about the codec output:
+// - Output timestamps from one stream are monotonically increasing.
+// - Output samples from the first stream with less than the declared start time are pre-rolled
+//   samples that are meant to be dropped. Output samples from subsequent streams are always fully
+//   rendered.
+// - There is exactly one last output sample with a timestamp greater or equal to the largest input
+//   sample timestamp of this stream.
+//
+// Explicit non-assumptions this class accepts as valid behavior:
+// - Input sample timestamps may not be monotonically increasing (e.g. for B-frames).
+// - Input and output sample timestamps may be less than the declared stream start time.
+// - Input and output sample timestamps may exceed the stream start time of the next stream.
+//   (The points above imply that output sample timestamps may jump backwards at stream transitions)
+// - Input and output sample timestamps may not be the same.
+// - The number of output samples may be different from the number of input samples.
 @Deprecated
 public abstract class MediaCodecRenderer extends BaseRenderer {
 
