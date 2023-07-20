@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_FORMAT;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
 
 import android.content.Context;
 import android.net.Uri;
@@ -52,7 +53,9 @@ public class TransformerWithInAppMuxerEndToEndTest {
   @Test
   public void videoEditing_completesSuccessfully() throws Exception {
     String testId = "videoEditing_completesSuccessfully";
-    // TODO ME This is an incorrect format used just to avoid needing to figure out the skip format
+    // Use MP4_ASSET_FORMAT for H265_MP4_ASSET_URI_STRING test skipping as well, because emulators
+    // signal a lack of support for H265_MP4's actual format, but pass this test when using
+    // MP4_ASSET_FORMAT for skipping.
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
@@ -77,7 +80,6 @@ public class TransformerWithInAppMuxerEndToEndTest {
   @Test
   public void audioEditing_completesSuccessfully() throws Exception {
     String testId = "audioEditing_completesSuccessfully";
-    // TODO ME This is an incorrect format used just to avoid needing to figure out the skip format
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
@@ -90,7 +92,7 @@ public class TransformerWithInAppMuxerEndToEndTest {
     ChannelMixingAudioProcessor channelMixingAudioProcessor = new ChannelMixingAudioProcessor();
     channelMixingAudioProcessor.putChannelMixingMatrix(
         ChannelMixingMatrix.create(/* inputChannelCount= */ 1, /* outputChannelCount= */ 2));
-    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_FILE_ASSET_DIRECTORY + H264_MP4));
+    MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_URI_STRING));
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(mediaItem)
             .setEffects(
