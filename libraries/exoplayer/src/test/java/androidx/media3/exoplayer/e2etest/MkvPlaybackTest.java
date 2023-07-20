@@ -18,12 +18,10 @@ package androidx.media3.exoplayer.e2etest;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.view.Surface;
-import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.Player;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
-import androidx.media3.exoplayer.trackselection.DefaultTrackSelector;
 import androidx.media3.extractor.DefaultExtractorsFactory;
 import androidx.media3.test.utils.CapturingRenderersFactory;
 import androidx.media3.test.utils.DumpFileAsserts;
@@ -77,20 +75,6 @@ public final class MkvPlaybackTest {
         new ExoPlayer.Builder(applicationContext, capturingRenderersFactory, mediaSourceFactory)
             .setClock(new FakeClock(/* isAutoAdvancing= */ true))
             .build();
-    // TODO: b/181312195 - Remove this when WebVTT is supported by DefaultSubtitleParserFactory.
-    if (inputFile.contains("_vtt_")) {
-      for (int textRendererIndex = 0;
-          textRendererIndex < player.getRendererCount();
-          textRendererIndex++) {
-        if (player.getRendererType(textRendererIndex) == C.TRACK_TYPE_TEXT) {
-          player.setTrackSelectionParameters(
-              new DefaultTrackSelector.ParametersBuilder(applicationContext)
-                  .setRendererDisabled(textRendererIndex, /* disabled= */ true)
-                  .build());
-          break;
-        }
-      }
-    }
     Surface surface = new Surface(new SurfaceTexture(/* texName= */ 1));
     player.setVideoSurface(surface);
     PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
