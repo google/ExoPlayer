@@ -144,6 +144,11 @@ public final class SsaParser implements SubtitleParser {
     ImmutableList.Builder<CuesWithTiming> cuesWithStartTimeAndDuration = ImmutableList.builder();
     for (int i = 0; i < cues.size(); i++) {
       List<Cue> cuesForThisStartTime = cues.get(i);
+      if (cuesForThisStartTime.isEmpty() && i != 0) {
+        // An empty cue list has already been implicitly encoded in the duration of the previous
+        // sample (unless there was no previous sample).
+        continue;
+      }
       long startTimeUs = startTimesUs.get(i);
       // The duration of the last CuesWithTiming is C.TIME_UNSET by design
       long durationUs =
