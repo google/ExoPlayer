@@ -72,10 +72,8 @@ public final class Mp4WebvttParser implements SubtitleParser {
         parsableByteArray.skipBytes(boxSize - BOX_HEADER_SIZE);
       }
     }
-    return cues.isEmpty()
-        ? ImmutableList.of()
-        : ImmutableList.of(
-            new CuesWithTiming(cues, /* startTimeUs= */ 0, /* durationUs= */ C.TIME_UNSET));
+    return ImmutableList.of(
+        new CuesWithTiming(cues, /* startTimeUs= */ C.TIME_UNSET, /* durationUs= */ C.TIME_UNSET));
   }
 
   @Override

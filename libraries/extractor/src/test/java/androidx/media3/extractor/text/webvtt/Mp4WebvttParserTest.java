@@ -18,6 +18,7 @@ package androidx.media3.extractor.text.webvtt;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
+import androidx.media3.common.C;
 import androidx.media3.common.text.Cue;
 import androidx.media3.extractor.text.CuesWithTiming;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -181,8 +182,13 @@ public final class Mp4WebvttParserTest {
   @Test
   public void noCueSample() {
     Mp4WebvttParser parser = new Mp4WebvttParser();
+
     List<CuesWithTiming> result = parser.parse(NO_CUE_SAMPLE);
-    assertThat(result).isEmpty();
+
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).cues).isEmpty();
+    assertThat(result.get(0).startTimeUs).isEqualTo(C.TIME_UNSET);
+    assertThat(result.get(0).durationUs).isEqualTo(C.TIME_UNSET);
   }
 
   // Negative tests.
@@ -205,7 +211,7 @@ public final class Mp4WebvttParserTest {
   private void assertMp4WebvttSubtitleEquals(
       List<CuesWithTiming> cuesWithTimings, Cue... expectedCues) {
     assertThat(cuesWithTimings).hasSize(1);
-    assertThat(cuesWithTimings.get(0).startTimeUs).isEqualTo(0);
+    assertThat(cuesWithTimings.get(0).startTimeUs).isEqualTo(C.TIME_UNSET);
     ImmutableList<Cue> allCues = cuesWithTimings.get(0).cues;
     assertThat(allCues).hasSize(expectedCues.length);
     for (int i = 0; i < allCues.size(); i++) {

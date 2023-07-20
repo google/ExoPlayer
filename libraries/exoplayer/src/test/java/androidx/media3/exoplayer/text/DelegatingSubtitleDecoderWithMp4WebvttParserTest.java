@@ -166,7 +166,9 @@ public final class DelegatingSubtitleDecoderWithMp4WebvttParserTest {
     DelegatingSubtitleDecoder decoder =
         new DelegatingSubtitleDecoder(
             "DelegatingSubtitleDecoderWithMp4WebvttParser", new Mp4WebvttParser());
+
     Subtitle result = decoder.decode(SINGLE_CUE_SAMPLE, SINGLE_CUE_SAMPLE.length, false);
+
     // Line feed must be trimmed by the decoder
     Cue expectedCue = WebvttCueParser.newCueForText("Hello World");
     assertMp4WebvttSubtitleEquals(result, expectedCue);
@@ -177,7 +179,9 @@ public final class DelegatingSubtitleDecoderWithMp4WebvttParserTest {
     DelegatingSubtitleDecoder decoder =
         new DelegatingSubtitleDecoder(
             "DelegatingSubtitleDecoderWithMp4WebvttParser", new Mp4WebvttParser());
+
     Subtitle result = decoder.decode(DOUBLE_CUE_SAMPLE, DOUBLE_CUE_SAMPLE.length, false);
+
     Cue firstExpectedCue = WebvttCueParser.newCueForText("Hello World");
     Cue secondExpectedCue = WebvttCueParser.newCueForText("Bye Bye");
     assertMp4WebvttSubtitleEquals(result, firstExpectedCue, secondExpectedCue);
@@ -188,8 +192,12 @@ public final class DelegatingSubtitleDecoderWithMp4WebvttParserTest {
     DelegatingSubtitleDecoder decoder =
         new DelegatingSubtitleDecoder(
             "DelegatingSubtitleDecoderWithMp4WebvttParser", new Mp4WebvttParser());
+
     Subtitle result = decoder.decode(NO_CUE_SAMPLE, NO_CUE_SAMPLE.length, false);
-    assertThat(result.getEventTimeCount()).isEqualTo(0);
+
+    assertThat(result.getEventTimeCount()).isEqualTo(1);
+    assertThat(result.getEventTime(0)).isEqualTo(0);
+    assertThat(result.getCues(0)).isEmpty();
   }
 
   // Negative tests.
@@ -199,6 +207,7 @@ public final class DelegatingSubtitleDecoderWithMp4WebvttParserTest {
     DelegatingSubtitleDecoder decoder =
         new DelegatingSubtitleDecoder(
             "DelegatingSubtitleDecoderWithMp4WebvttParser", new Mp4WebvttParser());
+
     assertThrows(
         IllegalArgumentException.class,
         () -> decoder.decode(INCOMPLETE_HEADER_SAMPLE, INCOMPLETE_HEADER_SAMPLE.length, false));
