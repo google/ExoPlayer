@@ -46,7 +46,10 @@ import java.util.concurrent.ExecutionException;
       trackGroupArray =
           MetadataRetriever.retrieveMetadata(context, MediaItem.fromUri("file://" + filePath))
               .get();
-    } catch (ExecutionException | InterruptedException e) {
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new IllegalStateException(e);
+    } catch (ExecutionException e) {
       throw new IllegalStateException(e);
     }
 

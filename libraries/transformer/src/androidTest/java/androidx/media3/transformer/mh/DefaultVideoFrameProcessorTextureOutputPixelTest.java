@@ -558,6 +558,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
     try {
       videoFrameProcessorTestRunner.endFrameProcessing(VIDEO_FRAME_PROCESSING_WAIT_MS / 2);
     } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
       throw new VideoFrameProcessingException(e);
     }
     releaseOutputTextureCallback.release(presentationTimeUs);

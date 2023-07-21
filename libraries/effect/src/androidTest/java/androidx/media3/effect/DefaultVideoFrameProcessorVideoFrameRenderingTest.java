@@ -112,6 +112,7 @@ public final class DefaultVideoFrameProcessorVideoFrameRenderingTest {
             // to swap buffers, to avoid this behavior.
             Thread.sleep(PER_FRAME_RENDERING_WAIT_TIME_MS);
           } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new IllegalStateException(e);
           }
         },
@@ -228,6 +229,7 @@ public final class DefaultVideoFrameProcessorVideoFrameRenderingTest {
             // to swap buffers, to avoid this behavior.
             Thread.sleep(PER_FRAME_RENDERING_WAIT_TIME_MS);
           } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new IllegalStateException(e);
           }
         },

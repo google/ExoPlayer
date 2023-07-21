@@ -202,10 +202,13 @@ public class TransformerAndroidTestRunner {
         throw exportTestResult.analysisException;
       }
       return exportTestResult;
-    } catch (InterruptedException
-        | IOException
-        | TimeoutException
-        | UnsupportedOperationException e) {
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      resultJson.put(
+          "exportResult",
+          new JSONObject().put("testException", AndroidTestUtil.exceptionAsJsonObject(e)));
+      throw e;
+    } catch (IOException | TimeoutException | UnsupportedOperationException e) {
       resultJson.put(
           "exportResult",
           new JSONObject().put("testException", AndroidTestUtil.exceptionAsJsonObject(e)));
@@ -404,6 +407,7 @@ public class TransformerAndroidTestRunner {
               /* distortedVideoPath= */ outputVideoFile.getPath());
       testResultBuilder.setSsim(ssim);
     } catch (InterruptedException interruptedException) {
+      Thread.currentThread().interrupt();
       // InterruptedException is a special unexpected case because it is not related to Ssim
       // calculation, so it should be thrown, rather than processed as part of the
       // ExportTestResult.

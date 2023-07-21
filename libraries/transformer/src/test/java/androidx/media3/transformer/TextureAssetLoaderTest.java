@@ -95,6 +95,7 @@ public class TextureAssetLoaderTest {
             try {
               Thread.sleep(10);
             } catch (InterruptedException e) {
+              Thread.currentThread().interrupt();
               exceptionRef.set(e);
             }
           }
