@@ -21,6 +21,7 @@ import static androidx.media3.common.MimeTypes.VIDEO_H264;
 import static androidx.media3.common.MimeTypes.VIDEO_H265;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
+import static androidx.media3.transformer.DefaultDecoderFactory.deviceNeedsDisableDecoding8kWorkaround;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -853,7 +854,8 @@ public final class AndroidTestUtil {
       MediaFormatUtil.maybeSetInteger(
           mediaFormat, MediaFormat.KEY_PROFILE, codecProfileAndLevel.first);
     }
-    return EncoderUtil.findCodecForFormat(mediaFormat, /* isDecoder= */ true) != null;
+    return EncoderUtil.findCodecForFormat(mediaFormat, /* isDecoder= */ true) != null
+        && !deviceNeedsDisableDecoding8kWorkaround(format);
   }
 
   private static boolean canEncode(Format format) {
