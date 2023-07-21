@@ -19,37 +19,50 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 
 import android.util.Pair;
 import androidx.annotation.FloatRange;
-import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.UnstableApi;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
-/** Contains information to control how an {@link TextureOverlay} is displayed on the screen. */
+/** Contains information to control how a {@link TextureOverlay} is displayed on the screen. */
 @UnstableApi
 public final class OverlaySettings {
   public final boolean useHdr;
   public final float alpha;
-  public final float[] matrix;
-  public final Pair<Float, Float> anchor;
+  public final Pair<Float, Float> videoFrameAnchor;
+  public final Pair<Float, Float> overlayAnchor;
+  public final Pair<Float, Float> scale;
+  public final float rotationDegrees;
 
-  private OverlaySettings(boolean useHdr, float alpha, float[] matrix, Pair<Float, Float> anchor) {
+  private OverlaySettings(
+      boolean useHdr,
+      float alpha,
+      Pair<Float, Float> videoFrameAnchor,
+      Pair<Float, Float> overlayAnchor,
+      Pair<Float, Float> scale,
+      float rotationDegrees) {
     this.useHdr = useHdr;
     this.alpha = alpha;
-    this.matrix = matrix;
-    this.anchor = anchor;
+    this.videoFrameAnchor = videoFrameAnchor;
+    this.overlayAnchor = overlayAnchor;
+    this.scale = scale;
+    this.rotationDegrees = rotationDegrees;
   }
 
   /** A builder for {@link OverlaySettings} instances. */
   public static final class Builder {
     private boolean useHdr;
     private float alpha;
-    private float[] matrix;
-    private Pair<Float, Float> anchor;
+    private Pair<Float, Float> videoFrameAnchor;
+    private Pair<Float, Float> overlayAnchor;
+    private Pair<Float, Float> scale;
+    private float rotationDegrees;
 
     /** Creates a new {@link Builder}. */
     public Builder() {
       alpha = 1f;
-      matrix = GlUtil.create4x4IdentityMatrix();
-      anchor = Pair.create(0f, 0f);
+      videoFrameAnchor = Pair.create(0f, 0f);
+      overlayAnchor = Pair.create(0f, 0f);
+      scale = Pair.create(1f, 1f);
+      rotationDegrees = 0f;
     }
 
     /**
@@ -61,18 +74,6 @@ public final class OverlaySettings {
     @CanIgnoreReturnValue
     public Builder setUsesHdr(boolean useHdr) {
       this.useHdr = useHdr;
-      return this;
-    }
-
-    /**
-     * Sets the {@link android.opengl.Matrix} used to transform the overlay before applying it to a
-     * frame.
-     *
-     * <p>Set to always return the identity matrix by default.
-     */
-    @CanIgnoreReturnValue
-    public Builder setMatrix(float[] matrix) {
-      this.matrix = matrix;
       return this;
     }
 
@@ -91,28 +92,79 @@ public final class OverlaySettings {
     }
 
     /**
-     * Sets the coordinates for the anchor point of the overlay.
+     * Sets the coordinates for the anchor point of the overlay within the video frame.
      *
-     * <p>The anchor point is the point inside the overlay that the overlay is positioned from.
+     * <p>The coordinates are specified in Normalised Device Coordinates (NDCs) relative to the
+     * video frame. Set to always return {@code (0,0)} (the center of the video frame) by default.
      *
-     * <p>The coordinates are specified in Normalised Device Coordinates (NDCs). Set to always
-     * return {@code (0,0)} (the center) by default.
+     * <p>For example, a value of {@code (+1,+1)} will move the overlay's {@linkplain
+     * #setOverlayAnchor anchor point} to the top right corner of the video frame.
      *
      * @param x The NDC x-coordinate in the range [-1, 1].
      * @param y The NDC y-coordinate in the range [-1, 1].
      */
     @CanIgnoreReturnValue
-    public Builder setAnchor(
+    public Builder setVideoFrameAnchor(
         @FloatRange(from = -1, to = 1) float x, @FloatRange(from = -1, to = 1) float y) {
       checkArgument(-1 <= x && x <= 1);
       checkArgument(-1 <= y && y <= 1);
-      this.anchor = Pair.create(x, y);
+      this.videoFrameAnchor = Pair.create(x, y);
+      return this;
+    }
+
+    /**
+     * Sets the coordinates for the anchor point of the overlay.
+     *
+     * <p>The anchor point is the point inside the overlay that is placed on the {@linkplain
+     * #setVideoFrameAnchor video frame anchor}
+     *
+     * <p>The coordinates are specified in Normalised Device Coordinates (NDCs) relative to the
+     * overlay frame. Set to return {@code (0,0)} (the center of the overlay) by default.
+     *
+     * <p>For example, a value of {@code (+1,-1)} will result in the overlay being positioned from
+     * the bottom right corner of its frame.
+     *
+     * @param x The NDC x-coordinate in the range [-1, 1].
+     * @param y The NDC y-coordinate in the range [-1, 1].
+     */
+    @CanIgnoreReturnValue
+    public Builder setOverlayAnchor(
+        @FloatRange(from = -1, to = 1) float x, @FloatRange(from = -1, to = 1) float y) {
+      checkArgument(-1 <= x && x <= 1);
+      checkArgument(-1 <= y && y <= 1);
+      this.overlayAnchor = Pair.create(x, y);
+      return this;
+    }
+
+    /**
+     * Sets the scaling of the overlay.
+     *
+     * @param x The desired scaling in the x axis of the overlay.
+     * @param y The desired scaling in the y axis of the overlay.
+     */
+    @CanIgnoreReturnValue
+    public Builder setScale(float x, float y) {
+      this.scale = Pair.create(x, y);
+      return this;
+    }
+
+    /**
+     * Sets the rotation of the overlay, counter-clockwise.
+     *
+     * <p>The overlay is rotated at the center of its frame.
+     *
+     * @param rotationDegree The desired degrees of rotation, counter-clockwise.
+     */
+    @CanIgnoreReturnValue
+    public Builder setRotationDegrees(float rotationDegree) {
+      this.rotationDegrees = rotationDegree;
       return this;
     }
 
     /** Creates an instance of {@link OverlaySettings}, using defaults if values are unset. */
     public OverlaySettings build() {
-      return new OverlaySettings(useHdr, alpha, matrix, anchor);
+      return new OverlaySettings(
+          useHdr, alpha, videoFrameAnchor, overlayAnchor, scale, rotationDegrees);
     }
   }
 }

@@ -43,6 +43,7 @@
     *   Remove `TransformationRequest.HdrMode` annotation type and its
         associated constants. Use `Composition.HdrMode` and its associated
         constants instead.
+    *   Simplify the `OverlaySettings` to fix rotation issues.
 *   Track Selection:
 *   Extractors:
     *   MPEG-TS: Ensure the last frame is rendered by passing the last access

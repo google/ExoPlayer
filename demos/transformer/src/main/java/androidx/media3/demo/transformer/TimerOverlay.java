@@ -16,12 +16,10 @@
 package androidx.media3.demo.transformer;
 
 import android.graphics.Color;
-import android.opengl.Matrix;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import androidx.media3.common.C;
-import androidx.media3.common.util.GlUtil;
 import androidx.media3.effect.OverlaySettings;
 import androidx.media3.effect.TextOverlay;
 import androidx.media3.effect.TextureOverlay;
@@ -36,13 +34,12 @@ import java.util.Locale;
   private final OverlaySettings overlaySettings;
 
   public TimerOverlay() {
-    float[] positioningMatrix = GlUtil.create4x4IdentityMatrix();
-    Matrix.translateM(
-        positioningMatrix, /* mOffset= */ 0, /* x= */ -0.7f, /* y= */ -0.95f, /* z= */ 1);
     overlaySettings =
         new OverlaySettings.Builder()
-            .setAnchor(/* x= */ -1f, /* y= */ -1f)
-            .setMatrix(positioningMatrix)
+            // Place the timer in the bottom left corner of the screen with some padding from the
+            // edges.
+            .setOverlayAnchor(/* x= */ 1f, /* y= */ 1f)
+            .setVideoFrameAnchor(/* x= */ -0.7f, /* y= */ -0.95f)
             .build();
   }
 

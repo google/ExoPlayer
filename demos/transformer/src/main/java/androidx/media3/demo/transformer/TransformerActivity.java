@@ -31,7 +31,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.opengl.Matrix;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Spannable;
@@ -58,7 +57,6 @@ import androidx.media3.common.audio.ChannelMixingAudioProcessor;
 import androidx.media3.common.audio.ChannelMixingMatrix;
 import androidx.media3.common.audio.SonicAudioProcessor;
 import androidx.media3.common.util.BitmapLoader;
-import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.datasource.DataSourceBitmapLoader;
 import androidx.media3.effect.BitmapOverlay;
@@ -580,13 +578,12 @@ public final class TransformerActivity extends AppCompatActivity {
   private OverlayEffect createOverlayEffectFromBundle(Bundle bundle, boolean[] selectedEffects) {
     ImmutableList.Builder<TextureOverlay> overlaysBuilder = new ImmutableList.Builder<>();
     if (selectedEffects[ConfigurationActivity.OVERLAY_LOGO_AND_TIMER_INDEX]) {
-      float[] logoPositioningMatrix = GlUtil.create4x4IdentityMatrix();
-      Matrix.translateM(
-          logoPositioningMatrix, /* mOffset= */ 0, /* x= */ -0.95f, /* y= */ -0.95f, /* z= */ 1);
       OverlaySettings logoSettings =
           new OverlaySettings.Builder()
-              .setMatrix(logoPositioningMatrix)
-              .setAnchor(/* x= */ -1f, /* y= */ -1f)
+              // Place the logo in the bottom left corner of the screen with some padding from the
+              // edges.
+              .setOverlayAnchor(/* x= */ 1f, /* y= */ 1f)
+              .setVideoFrameAnchor(/* x= */ -0.95f, /* y= */ -0.95f)
               .build();
       Drawable logo;
       try {
