@@ -1239,6 +1239,7 @@ public final class MediaItemExportTest {
         try {
           Thread.sleep(delayBetweenReadsMs);
         } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
           throw new IllegalStateException(e);
         }
         return extractor.read(input, seekPosition);

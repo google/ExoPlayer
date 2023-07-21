@@ -150,7 +150,10 @@ public abstract class BitmapOverlay extends TextureOverlay {
           ListenableFuture<Bitmap> future = bitmapLoader.loadBitmap(overlayBitmapUri);
           try {
             lastBitmap = future.get();
-          } catch (ExecutionException | InterruptedException e) {
+          } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new VideoFrameProcessingException(e);
+          } catch (ExecutionException e) {
             throw new VideoFrameProcessingException(e);
           }
         }
