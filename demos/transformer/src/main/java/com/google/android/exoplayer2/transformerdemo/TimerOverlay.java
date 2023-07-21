@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.transformerdemo;
 
 import android.graphics.Color;
-import android.opengl.Matrix;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -24,7 +23,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.effect.OverlaySettings;
 import com.google.android.exoplayer2.effect.TextOverlay;
 import com.google.android.exoplayer2.effect.TextureOverlay;
-import com.google.android.exoplayer2.util.GlUtil;
 import java.util.Locale;
 
 /**
@@ -42,13 +40,12 @@ import java.util.Locale;
   private final OverlaySettings overlaySettings;
 
   public TimerOverlay() {
-    float[] positioningMatrix = GlUtil.create4x4IdentityMatrix();
-    Matrix.translateM(
-        positioningMatrix, /* mOffset= */ 0, /* x= */ -0.7f, /* y= */ -0.95f, /* z= */ 1);
     overlaySettings =
         new OverlaySettings.Builder()
-            .setAnchor(/* x= */ -1f, /* y= */ -1f)
-            .setMatrix(positioningMatrix)
+            // Place the timer in the bottom left corner of the screen with some padding from the
+            // edges.
+            .setOverlayAnchor(/* x= */ 1f, /* y= */ 1f)
+            .setVideoFrameAnchor(/* x= */ -0.7f, /* y= */ -0.95f)
             .build();
   }
 

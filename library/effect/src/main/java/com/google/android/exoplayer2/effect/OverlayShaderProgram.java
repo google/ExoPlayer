@@ -43,9 +43,16 @@ import com.google.common.collect.ImmutableList;
 
   private final GlProgram glProgram;
   private final ImmutableList<TextureOverlay> overlays;
+  private final float[] videoFrameAnchorMatrix;
+  private final float[] videoFrameAnchorMatrixInv;
   private final float[] aspectRatioMatrix;
-  private final float[] overlayMatrix;
-  private final float[] anchorMatrix;
+  private final float[] scaleMatrix;
+  private final float[] scaleMatrixInv;
+  private final float[] overlayAnchorMatrix;
+  private final float[] overlayAnchorMatrixInv;
+  private final float[] rotateMatrix;
+  private final float[] overlayAspectRatioMatrix;
+  private final float[] overlayAspectRatioMatrixInv;
   private final float[] transformationMatrix;
 
   private int videoWidth;
@@ -71,8 +78,15 @@ import com.google.common.collect.ImmutableList;
         "OverlayShaderProgram does not support more than 15 overlays in the same instance.");
     this.overlays = overlays;
     aspectRatioMatrix = GlUtil.create4x4IdentityMatrix();
-    overlayMatrix = GlUtil.create4x4IdentityMatrix();
-    anchorMatrix = GlUtil.create4x4IdentityMatrix();
+    videoFrameAnchorMatrix = GlUtil.create4x4IdentityMatrix();
+    videoFrameAnchorMatrixInv = GlUtil.create4x4IdentityMatrix();
+    overlayAnchorMatrix = GlUtil.create4x4IdentityMatrix();
+    overlayAnchorMatrixInv = GlUtil.create4x4IdentityMatrix();
+    rotateMatrix = GlUtil.create4x4IdentityMatrix();
+    scaleMatrix = GlUtil.create4x4IdentityMatrix();
+    scaleMatrixInv = GlUtil.create4x4IdentityMatrix();
+    overlayAspectRatioMatrix = GlUtil.create4x4IdentityMatrix();
+    overlayAspectRatioMatrixInv = GlUtil.create4x4IdentityMatrix();
     transformationMatrix = GlUtil.create4x4IdentityMatrix();
     try {
       glProgram =
@@ -113,43 +127,163 @@ import com.google.common.collect.ImmutableList;
               texUnitIndex);
 
           GlUtil.setToIdentity(aspectRatioMatrix);
+          GlUtil.setToIdentity(videoFrameAnchorMatrix);
+          GlUtil.setToIdentity(videoFrameAnchorMatrixInv);
+          GlUtil.setToIdentity(overlayAnchorMatrix);
+          GlUtil.setToIdentity(overlayAnchorMatrixInv);
+          GlUtil.setToIdentity(scaleMatrix);
+          GlUtil.setToIdentity(scaleMatrixInv);
+          GlUtil.setToIdentity(rotateMatrix);
+          GlUtil.setToIdentity(overlayAspectRatioMatrix);
+          GlUtil.setToIdentity(overlayAspectRatioMatrixInv);
+          GlUtil.setToIdentity(transformationMatrix);
+
+          // Anchor point of overlay within output frame.
+          Pair<Float, Float> videoFrameAnchor =
+              overlay.getOverlaySettings(presentationTimeUs).videoFrameAnchor;
+          Matrix.translateM(
+              videoFrameAnchorMatrix,
+              MATRIX_OFFSET,
+              videoFrameAnchor.first,
+              videoFrameAnchor.second,
+              /* z= */ 0f);
+          Matrix.invertM(
+              videoFrameAnchorMatrixInv, MATRIX_OFFSET, videoFrameAnchorMatrix, MATRIX_OFFSET);
+
           Matrix.scaleM(
               aspectRatioMatrix,
               MATRIX_OFFSET,
               videoWidth / (float) overlay.getTextureSize(presentationTimeUs).getWidth(),
               videoHeight / (float) overlay.getTextureSize(presentationTimeUs).getHeight(),
-              /* z= */ 1);
-          Matrix.invertM(
-              overlayMatrix,
+              /* z= */ 1f);
+
+          // Scale the image.
+          Pair<Float, Float> scale = overlay.getOverlaySettings(presentationTimeUs).scale;
+          Matrix.setIdentityM(scaleMatrix, MATRIX_OFFSET);
+          Matrix.scaleM(
+              scaleMatrix,
               MATRIX_OFFSET,
-              overlay.getOverlaySettings(presentationTimeUs).matrix,
-              MATRIX_OFFSET);
-          Pair<Float, Float> overlayAnchor = overlay.getOverlaySettings(presentationTimeUs).anchor;
-          GlUtil.setToIdentity(anchorMatrix);
+              scaleMatrix,
+              MATRIX_OFFSET,
+              scale.first,
+              scale.second,
+              /* z= */ 1f);
+          Matrix.invertM(scaleMatrixInv, MATRIX_OFFSET, scaleMatrix, MATRIX_OFFSET);
+
+          // Translate the overlay within its frame.
+          Pair<Float, Float> overlayAnchor =
+              overlay.getOverlaySettings(presentationTimeUs).overlayAnchor;
+          Matrix.setIdentityM(overlayAnchorMatrix, MATRIX_OFFSET);
           Matrix.translateM(
-              anchorMatrix,
-              /* mOffset= */ 0,
-              overlayAnchor.first
-                  * overlay.getTextureSize(presentationTimeUs).getWidth()
-                  / videoWidth,
-              overlayAnchor.second
-                  * overlay.getTextureSize(presentationTimeUs).getHeight()
-                  / videoHeight,
-              /* z= */ 1);
+              overlayAnchorMatrix,
+              MATRIX_OFFSET,
+              overlayAnchor.first,
+              overlayAnchor.second,
+              /* z= */ 0f);
+          Matrix.invertM(overlayAnchorMatrixInv, MATRIX_OFFSET, overlayAnchorMatrix, MATRIX_OFFSET);
+
+          // Rotate the image.
+          Matrix.setIdentityM(rotateMatrix, MATRIX_OFFSET);
+          Matrix.rotateM(
+              rotateMatrix,
+              MATRIX_OFFSET,
+              rotateMatrix,
+              MATRIX_OFFSET,
+              overlay.getOverlaySettings(presentationTimeUs).rotationDegrees,
+              /* x= */ 0f,
+              /* y= */ 0f,
+              /* z= */ 1f);
+          Matrix.invertM(rotateMatrix, MATRIX_OFFSET, rotateMatrix, MATRIX_OFFSET);
+
+          // Rotation matrix needs to account for overlay aspect ratio to prevent stretching.
+          Matrix.scaleM(
+              overlayAspectRatioMatrix,
+              MATRIX_OFFSET,
+              (float) overlay.getTextureSize(presentationTimeUs).getHeight()
+                  / (float) overlay.getTextureSize(presentationTimeUs).getWidth(),
+              /* y= */ 1f,
+              /* z= */ 1f);
+          Matrix.invertM(
+              overlayAspectRatioMatrixInv, MATRIX_OFFSET, overlayAspectRatioMatrix, MATRIX_OFFSET);
+
+          // Rotation needs to be agnostic of the scaling matrix and the aspect ratios.
           Matrix.multiplyMM(
               transformationMatrix,
               MATRIX_OFFSET,
-              overlayMatrix,
+              transformationMatrix,
               MATRIX_OFFSET,
-              anchorMatrix,
+              scaleMatrixInv,
               MATRIX_OFFSET);
+
           Matrix.multiplyMM(
+              transformationMatrix,
+              MATRIX_OFFSET,
+              transformationMatrix,
+              MATRIX_OFFSET,
+              overlayAspectRatioMatrix,
+              MATRIX_OFFSET);
+
+          // Rotation matrix.
+          Matrix.multiplyMM(
+              transformationMatrix,
+              MATRIX_OFFSET,
+              transformationMatrix,
+              MATRIX_OFFSET,
+              rotateMatrix,
+              MATRIX_OFFSET);
+
+          Matrix.multiplyMM(
+              transformationMatrix,
+              MATRIX_OFFSET,
+              transformationMatrix,
+              MATRIX_OFFSET,
+              overlayAspectRatioMatrixInv,
+              MATRIX_OFFSET);
+
+          Matrix.multiplyMM(
+              transformationMatrix,
+              MATRIX_OFFSET,
+              transformationMatrix,
+              MATRIX_OFFSET,
+              scaleMatrix,
+              MATRIX_OFFSET);
+
+          // Translate image.
+          Matrix.multiplyMM(
+              transformationMatrix,
+              MATRIX_OFFSET,
+              transformationMatrix,
+              MATRIX_OFFSET,
+              overlayAnchorMatrixInv,
+              MATRIX_OFFSET);
+
+          // Scale image.
+          Matrix.multiplyMM(
+              transformationMatrix,
+              MATRIX_OFFSET,
+              transformationMatrix,
+              MATRIX_OFFSET,
+              scaleMatrixInv,
+              MATRIX_OFFSET);
+
+          // Correct for aspect ratio of image in output frame.
+          Matrix.multiplyMM(
+              transformationMatrix,
+              MATRIX_OFFSET,
               transformationMatrix,
               MATRIX_OFFSET,
               aspectRatioMatrix,
+              MATRIX_OFFSET);
+
+          // Anchor position in output frame.
+          Matrix.multiplyMM(
+              transformationMatrix,
               MATRIX_OFFSET,
               transformationMatrix,
+              MATRIX_OFFSET,
+              videoFrameAnchorMatrixInv,
               MATRIX_OFFSET);
+
           glProgram.setFloatsUniform(
               Util.formatInvariant("uTransformationMatrix%d", texUnitIndex), transformationMatrix);
 
