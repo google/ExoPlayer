@@ -118,7 +118,7 @@ public final class DefaultDecoderFactory implements Codec.DecoderFactory {
             format, /* reason= */ "Decoding HDR is not supported on this device.");
       }
     }
-    if (deviceNeedsDisable8kWorkaround(format)) {
+    if (deviceNeedsDisableDecoding8kWorkaround(format)) {
       throw createExportException(
           format, /* reason= */ "Decoding 8k is not supported on this device.");
     }
@@ -163,7 +163,8 @@ public final class DefaultDecoderFactory implements Codec.DecoderFactory {
         context, format, mediaFormat, mediaCodecName, /* isDecoder= */ true, outputSurface);
   }
 
-  private static boolean deviceNeedsDisable8kWorkaround(Format format) {
+  @VisibleForTesting
+  public static boolean deviceNeedsDisableDecoding8kWorkaround(Format format) {
     // Fixed on API 31+. See http://b/278234847#comment40 for more information.
     return SDK_INT < 31
         && format.width >= 7680

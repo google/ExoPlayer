@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.transformer.DefaultDecoderFactory.deviceNeedsDisableDecoding8kWorkaround;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_AV1;
@@ -853,7 +854,8 @@ public final class AndroidTestUtil {
       MediaFormatUtil.maybeSetInteger(
           mediaFormat, MediaFormat.KEY_PROFILE, codecProfileAndLevel.first);
     }
-    return EncoderUtil.findCodecForFormat(mediaFormat, /* isDecoder= */ true) != null;
+    return EncoderUtil.findCodecForFormat(mediaFormat, /* isDecoder= */ true) != null
+        && !deviceNeedsDisableDecoding8kWorkaround(format);
   }
 
   private static boolean canEncode(Format format) {
