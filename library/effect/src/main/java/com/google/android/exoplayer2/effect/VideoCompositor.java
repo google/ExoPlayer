@@ -177,7 +177,8 @@ public final class VideoCompositor {
         glObjectsProvider.createFocusedPlaceholderEglSurface(eglContext, eglDisplay);
   }
 
-  private synchronized void maybeComposite() throws VideoFrameProcessingException {
+  private synchronized void maybeComposite()
+      throws VideoFrameProcessingException, GlUtil.GlException {
     if (!isReadyToComposite()) {
       return;
     }
@@ -196,27 +197,20 @@ public final class VideoCompositor {
     InputFrameInfo inputFrame2 = framesToComposite.get(1);
     checkState(inputFrame1.texture.width == inputFrame2.texture.width);
     checkState(inputFrame1.texture.height == inputFrame2.texture.height);
-    try {
-      outputTexturePool.ensureConfigured(
-          glObjectsProvider, inputFrame1.texture.width, inputFrame1.texture.height);
-      GlTextureInfo outputTexture = outputTexturePool.useTexture();
-      long outputPresentationTimestampUs = framesToComposite.get(0).presentationTimeUs;
-      outputTextureTimestamps.add(outputPresentationTimestampUs);
+    outputTexturePool.ensureConfigured(
+        glObjectsProvider, inputFrame1.texture.width, inputFrame1.texture.height);
+    GlTextureInfo outputTexture = outputTexturePool.useTexture();
+    long outputPresentationTimestampUs = framesToComposite.get(0).presentationTimeUs;
+    outputTextureTimestamps.add(outputPresentationTimestampUs);
 
-      drawFrame(inputFrame1.texture, inputFrame2.texture, outputTexture);
-      long syncObject = GlUtil.createGlSyncFence();
-      syncObjects.add(syncObject);
-      textureOutputListener.onTextureRendered(
-          outputTexture,
-          /* presentationTimeUs= */ framesToComposite.get(0).presentationTimeUs,
-          this::releaseOutputFrame,
-          syncObject);
-      for (int i = 0; i < framesToComposite.size(); i++) {
-        InputFrameInfo inputFrameInfo = framesToComposite.get(i);
-        inputFrameInfo.releaseCallback.release(inputFrameInfo.presentationTimeUs);
-      }
-    } catch (GlUtil.GlException e) {
-      throw VideoFrameProcessingException.from(e);
+    drawFrame(inputFrame1.texture, inputFrame2.texture, outputTexture);
+    long syncObject = GlUtil.createGlSyncFence();
+    syncObjects.add(syncObject);
+    textureOutputListener.onTextureRendered(
+        outputTexture, outputPresentationTimestampUs, this::releaseOutputFrame, syncObject);
+    for (int i = 0; i < framesToComposite.size(); i++) {
+      InputFrameInfo inputFrameInfo = framesToComposite.get(i);
+      inputFrameInfo.releaseCallback.release(inputFrameInfo.presentationTimeUs);
     }
   }
 
@@ -259,7 +253,8 @@ public final class VideoCompositor {
     maybeComposite();
   }
 
-  private void ensureGlProgramConfigured() throws VideoFrameProcessingException {
+  private void ensureGlProgramConfigured()
+      throws VideoFrameProcessingException, GlUtil.GlException {
     if (glProgram != null) {
       return;
     }
@@ -269,7 +264,7 @@ public final class VideoCompositor {
           "aFramePosition",
           GlUtil.getNormalizedCoordinateBounds(),
           GlUtil.HOMOGENEOUS_COORDINATE_VECTOR_SIZE);
-    } catch (GlUtil.GlException | IOException e) {
+    } catch (IOException e) {
       throw new VideoFrameProcessingException(e);
     }
   }
