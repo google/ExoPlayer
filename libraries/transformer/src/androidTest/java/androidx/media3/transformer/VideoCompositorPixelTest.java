@@ -16,7 +16,6 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_BITMAP;
-import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.maybeSaveTestBitmap;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.readBitmap;
@@ -248,7 +247,7 @@ public final class VideoCompositorPixelTest {
     private final VideoCompositor videoCompositor;
     private final @Nullable ExecutorService sharedExecutorService;
     private final AtomicReference<VideoFrameProcessingException> compositionException;
-    private @MonotonicNonNull CountDownLatch compositorEnded;
+    private final CountDownLatch compositorEnded;
 
     public VideoCompositorTestRunner(
         String testId,
@@ -263,17 +262,25 @@ public final class VideoCompositorPixelTest {
               /* sharedEglContext= */ useSharedExecutor ? null : sharedEglContext);
 
       compositionException = new AtomicReference<>();
+      compositorEnded = new CountDownLatch(1);
       videoCompositor =
           new VideoCompositor(
               getApplicationContext(),
               glObjectsProvider,
               sharedExecutorService,
-              /* errorListener= */ compositionException::set,
-              (outputTexture, presentationTimeUs, releaseOutputTextureCallback, syncObject) -> {
-                compositorTextureOutputListener.onTextureRendered(
-                    outputTexture, presentationTimeUs, releaseOutputTextureCallback, syncObject);
-                checkNotNull(compositorEnded).countDown();
+              new VideoCompositor.Listener() {
+                @Override
+                public void onError(VideoFrameProcessingException exception) {
+                  compositionException.set(exception);
+                  compositorEnded.countDown();
+                }
+
+                @Override
+                public void onEnded() {
+                  compositorEnded.countDown();
+                }
               },
+              compositorTextureOutputListener,
               /* textureOutputCapacity= */ 1);
       inputBitmapReader1 = new TextureBitmapReader();
       inputVideoFrameProcessorTestRunner1 =
@@ -302,7 +309,6 @@ public final class VideoCompositorPixelTest {
      * seconds.
      */
     public void queueBitmapsToBothInputs(int count) throws IOException, InterruptedException {
-      compositorEnded = new CountDownLatch(count);
       inputVideoFrameProcessorTestRunner1.queueInputBitmap(
           readBitmap(ORIGINAL_PNG_ASSET_PATH),
           /* durationUs= */ count * C.MICROS_PER_SECOND,
@@ -315,9 +321,21 @@ public final class VideoCompositorPixelTest {
           /* frameRate= */ 1);
       inputVideoFrameProcessorTestRunner1.endFrameProcessing();
       inputVideoFrameProcessorTestRunner2.endFrameProcessing();
-      compositorEnded.await(COMPOSITOR_TIMEOUT_MS, MILLISECONDS);
+
+      videoCompositor.signalEndOfInputSource(/* inputId= */ 0);
+      videoCompositor.signalEndOfInputSource(/* inputId= */ 1);
+      @Nullable Exception endCompositingException = null;
+      try {
+        if (!compositorEnded.await(COMPOSITOR_TIMEOUT_MS, MILLISECONDS)) {
+          endCompositingException = new IllegalStateException("Compositing timed out.");
+        }
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        endCompositingException = e;
+      }
 
       assertThat(compositionException.get()).isNull();
+      assertThat(endCompositingException).isNull();
     }
 
     public void release() {
