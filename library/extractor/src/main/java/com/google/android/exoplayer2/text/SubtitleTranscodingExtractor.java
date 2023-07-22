@@ -29,11 +29,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A wrapping {@link Extractor} that transcodes {@linkplain C#TRACK_TYPE_TEXT text samples} from
- * supported subtitle formats to {@link MimeTypes#TEXT_EXOPLAYER_CUES}.
+ * supported subtitle formats to {@link MimeTypes#APPLICATION_MEDIA3_CUES}.
  *
  * <p>Samples emitted by the delegate {@link Extractor} to {@linkplain C#TRACK_TYPE_TEXT text
  * tracks} with a supported subtitle format are transcoded and the resulting {@link
- * MimeTypes#TEXT_EXOPLAYER_CUES} samples are emitted to the underlying {@link TrackOutput}.
+ * MimeTypes#APPLICATION_MEDIA3_CUES} samples are emitted to the underlying {@link TrackOutput}.
  *
  * <p>Samples emitted by the delegate {@link Extractor} to non-text tracks (or text tracks with an
  * unsupported format) are passed through to the underlying {@link TrackOutput} without

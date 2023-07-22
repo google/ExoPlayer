@@ -113,8 +113,6 @@ public final class MimeTypes {
   public static final String TEXT_VTT = BASE_TYPE_TEXT + "/vtt";
   public static final String TEXT_SSA = BASE_TYPE_TEXT + "/x-ssa";
 
-  public static final String TEXT_EXOPLAYER_CUES = BASE_TYPE_TEXT + "/x-exoplayer-cues";
-
   public static final String TEXT_UNKNOWN = BASE_TYPE_TEXT + "/x-unknown";
 
   // application/ MIME types
@@ -154,6 +152,8 @@ public final class MimeTypes {
   public static final String APPLICATION_ICY = BASE_TYPE_APPLICATION + "/x-icy";
   public static final String APPLICATION_AIT = BASE_TYPE_APPLICATION + "/vnd.dvb.ait";
   public static final String APPLICATION_RTSP = BASE_TYPE_APPLICATION + "/x-rtsp";
+
+  public static final String APPLICATION_MEDIA3_CUES = BASE_TYPE_APPLICATION + "/x-media3-cues";
 
   // image/ MIME types
 
