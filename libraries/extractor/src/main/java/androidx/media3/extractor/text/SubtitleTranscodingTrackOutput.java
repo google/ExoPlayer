@@ -38,7 +38,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /**
  * A wrapping {@link TrackOutput} which transcodes from a source subtitle format like {@link
  * MimeTypes#APPLICATION_SUBRIP} to ExoPlayer's internal binary cue representation ({@link
- * MimeTypes#TEXT_EXOPLAYER_CUES}).
+ * MimeTypes#APPLICATION_MEDIA3_CUES}).
  */
 /* package */ class SubtitleTranscodingTrackOutput implements TrackOutput {
 
@@ -89,7 +89,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       delegate.format(
           format
               .buildUpon()
-              .setSampleMimeType(MimeTypes.TEXT_EXOPLAYER_CUES)
+              .setSampleMimeType(MimeTypes.APPLICATION_MEDIA3_CUES)
               .setCodecs(format.sampleMimeType)
               // Reset this value to the default. All non-default timestamp adjustments are done
               // below in sampleMetadata() and there are no 'subsamples' after transcoding.

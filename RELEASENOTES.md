@@ -38,6 +38,8 @@
     *   Add additional fields to Common Media Client Data (CMCD) logging:
         streaming format (sf), stream type (st), version (v), top birate (tb),
         object duration (d) and measured throughput (mtp).
+    *   Rename `MimeTypes.TEXT_EXOPLAYER_CUES` to
+        `MimeTypes.APPLICATION_MEDIA3_CUES`.
 *   Transformer:
     *   Parse EXIF rotation data for image inputs.
     *   Remove `TransformationRequest.HdrMode` annotation type and its

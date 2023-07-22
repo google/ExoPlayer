@@ -344,8 +344,8 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
   }
 
   /**
-   * Enables transcoding of text track samples to {@link MimeTypes#TEXT_EXOPLAYER_CUES} before the
-   * data is emitted to {@link TrackOutput}.
+   * Enables transcoding of text track samples to {@link MimeTypes#APPLICATION_MEDIA3_CUES} before
+   * the data is emitted to {@link TrackOutput}.
    *
    * <p>Transcoding is disabled by default.
    *

@@ -107,7 +107,7 @@ public class SubtitleExtractor implements Extractor {
     this.format =
         format
             .buildUpon()
-            .setSampleMimeType(MimeTypes.TEXT_EXOPLAYER_CUES)
+            .setSampleMimeType(MimeTypes.APPLICATION_MEDIA3_CUES)
             .setCodecs(format.sampleMimeType)
             .build();
     timestamps = new ArrayList<>();

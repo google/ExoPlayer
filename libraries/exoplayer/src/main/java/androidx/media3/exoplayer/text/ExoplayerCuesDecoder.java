@@ -41,7 +41,7 @@ import java.util.Deque;
 
 /**
  * A {@link SubtitleDecoder} that decodes subtitle samples of type {@link
- * MimeTypes#TEXT_EXOPLAYER_CUES}
+ * MimeTypes#APPLICATION_MEDIA3_CUES}
  */
 @UnstableApi
 public final class ExoplayerCuesDecoder implements SubtitleDecoder {

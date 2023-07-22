@@ -73,7 +73,7 @@ public class SubtitleExtractorTest {
     while (extractor.read(input, null) != Extractor.RESULT_END_OF_INPUT) {}
 
     FakeTrackOutput trackOutput = output.trackOutputs.get(0);
-    assertThat(trackOutput.lastFormat.sampleMimeType).isEqualTo(MimeTypes.TEXT_EXOPLAYER_CUES);
+    assertThat(trackOutput.lastFormat.sampleMimeType).isEqualTo(MimeTypes.APPLICATION_MEDIA3_CUES);
     assertThat(trackOutput.lastFormat.codecs).isEqualTo(MimeTypes.TEXT_VTT);
     assertThat(trackOutput.getSampleCount()).isEqualTo(4);
     CuesWithTiming cues0 = decodeSample(trackOutput, 0);
@@ -121,7 +121,7 @@ public class SubtitleExtractorTest {
     trackOutput.clear();
     while (extractor.read(input, null) != Extractor.RESULT_END_OF_INPUT) {}
 
-    assertThat(trackOutput.lastFormat.sampleMimeType).isEqualTo(MimeTypes.TEXT_EXOPLAYER_CUES);
+    assertThat(trackOutput.lastFormat.sampleMimeType).isEqualTo(MimeTypes.APPLICATION_MEDIA3_CUES);
     assertThat(trackOutput.lastFormat.codecs).isEqualTo(MimeTypes.TEXT_VTT);
     assertThat(trackOutput.getSampleCount()).isEqualTo(3);
     CuesWithTiming cues0 = decodeSample(trackOutput, 0);
@@ -164,7 +164,7 @@ public class SubtitleExtractorTest {
     trackOutput.clear();
     while (extractor.read(input, null) != Extractor.RESULT_END_OF_INPUT) {}
 
-    assertThat(trackOutput.lastFormat.sampleMimeType).isEqualTo(MimeTypes.TEXT_EXOPLAYER_CUES);
+    assertThat(trackOutput.lastFormat.sampleMimeType).isEqualTo(MimeTypes.APPLICATION_MEDIA3_CUES);
     assertThat(trackOutput.lastFormat.codecs).isEqualTo(MimeTypes.TEXT_VTT);
     assertThat(trackOutput.getSampleCount()).isEqualTo(3);
     CuesWithTiming cues0 = decodeSample(trackOutput, 0);

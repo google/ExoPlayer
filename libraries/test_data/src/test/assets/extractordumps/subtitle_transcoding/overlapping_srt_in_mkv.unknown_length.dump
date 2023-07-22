@@ -271,7 +271,7 @@ track 3:
   sample count = 3
   format 0:
     id = 3
-    sampleMimeType = text/x-exoplayer-cues
+    sampleMimeType = application/x-media3-cues
     codecs = application/x-subrip
     selectionFlags = 1
     language = und
