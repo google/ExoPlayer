@@ -407,7 +407,6 @@ public class TransformerAndroidTestRunner {
               /* distortedVideoPath= */ outputVideoFile.getPath());
       testResultBuilder.setSsim(ssim);
     } catch (InterruptedException interruptedException) {
-      Thread.currentThread().interrupt();
       // InterruptedException is a special unexpected case because it is not related to Ssim
       // calculation, so it should be thrown, rather than processed as part of the
       // ExportTestResult.
