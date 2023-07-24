@@ -25,7 +25,7 @@ import androidx.annotation.RequiresApi;
 import androidx.media3.common.util.GlUtil.GlException;
 import androidx.media3.common.util.UnstableApi;
 
-// TODO(271433904): Expand this class to cover more methods in GlUtil.
+// TODO(b/271433904): Expand this class to cover more methods in GlUtil.
 /** Provider to customize the creation and maintenance of GL objects. */
 @UnstableApi
 public interface GlObjectsProvider {

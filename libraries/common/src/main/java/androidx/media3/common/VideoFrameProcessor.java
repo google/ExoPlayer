@@ -72,7 +72,7 @@ public interface VideoFrameProcessor {
   /** A factory for {@link VideoFrameProcessor} instances. */
   interface Factory {
 
-    // TODO(271433904): Turn parameters with default values into setters.
+    // TODO(b/271433904): Turn parameters with default values into setters.
     /**
      * Creates a new {@link VideoFrameProcessor} instance.
      *
@@ -208,7 +208,7 @@ public interface VideoFrameProcessor {
    * @param inputType The {@link InputType} of the new input stream.
    * @param effects The list of {@link Effect effects} to apply to the new input stream.
    */
-  // TODO(b/286032822) Merge this and setInputFrameInfo.
+  // TODO(b/286032822): Merge this and setInputFrameInfo.
   void registerInputStream(@InputType int inputType, List<Effect> effects);
 
   /**

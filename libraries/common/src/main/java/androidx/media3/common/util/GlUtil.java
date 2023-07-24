@@ -303,7 +303,7 @@ public final class GlUtil {
         // color output, and GL windowAttributes overrides encoder settings.
         windowAttributes = EGL_WINDOW_SURFACE_ATTRIBUTES_NONE;
       } else {
-        // TODO(b/262259999) HDR10 PQ content looks dark on the screen.
+        // TODO(b/262259999): HDR10 PQ content looks dark on the screen.
         windowAttributes = EGL_WINDOW_SURFACE_ATTRIBUTES_BT2020_PQ;
       }
     } else if (colorTransfer == C.COLOR_TRANSFER_HLG) {
@@ -579,7 +579,7 @@ public final class GlUtil {
    */
   public static int createTexture(int width, int height, boolean useHighPrecisionColorComponents)
       throws GlException {
-    // TODO(227624622): Implement a pixel test that confirms 16f has less posterization.
+    // TODO(b/227624622): Implement a pixel test that confirms 16f has less posterization.
     if (useHighPrecisionColorComponents) {
       checkState(Util.SDK_INT >= 18, "GLES30 extensions are not supported below API 18.");
       return createTexture(width, height, GLES30.GL_RGBA16F, GLES30.GL_HALF_FLOAT);
