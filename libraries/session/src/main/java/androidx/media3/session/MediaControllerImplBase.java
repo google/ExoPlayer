@@ -2481,7 +2481,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     intersectedPlayerCommands =
         createIntersectedCommands(playerCommandsFromSession, playerCommandsFromPlayer);
     customLayout =
-        getEnabledCustomLayout(result.customLayout, intersectedPlayerCommands, sessionCommands);
+        CommandButton.getEnabledCommandButtons(
+            result.customLayout, sessionCommands, intersectedPlayerCommands);
     playerInfo = result.playerInfo;
     try {
       // Implementation for the local binder is no-op,
@@ -2646,7 +2647,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       this.sessionCommands = sessionCommands;
       ImmutableList<CommandButton> oldCustomLayout = customLayout;
       customLayout =
-          getEnabledCustomLayout(customLayout, intersectedPlayerCommands, sessionCommands);
+          CommandButton.getEnabledCommandButtons(
+              customLayout, sessionCommands, intersectedPlayerCommands);
       customLayoutChanged = !customLayout.equals(oldCustomLayout);
     }
     if (intersectedPlayerCommandsChanged) {
@@ -2694,7 +2696,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       return;
     }
     ImmutableList<CommandButton> oldCustomLayout = customLayout;
-    customLayout = getEnabledCustomLayout(layout, intersectedPlayerCommands, sessionCommands);
+    customLayout =
+        CommandButton.getEnabledCommandButtons(layout, sessionCommands, intersectedPlayerCommands);
     boolean hasCustomLayoutChanged = !Objects.equals(customLayout, oldCustomLayout);
     getInstance()
         .notifyControllerListener(
@@ -2745,23 +2748,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       }
       playerInfo = playerInfo.copyWithSessionPositionInfo(sessionPositionInfo);
     }
-  }
-
-  private static ImmutableList<CommandButton> getEnabledCustomLayout(
-      List<CommandButton> customLayout,
-      Player.Commands playerCommands,
-      SessionCommands sessionCommands) {
-    ImmutableList.Builder<CommandButton> availableCustomLayout = new ImmutableList.Builder<>();
-    for (int i = 0; i < customLayout.size(); i++) {
-      CommandButton button = customLayout.get(i);
-      boolean isEnabled =
-          playerCommands.contains(button.playerCommand)
-              || (button.sessionCommand != null && sessionCommands.contains(button.sessionCommand))
-              || (button.playerCommand != Player.COMMAND_INVALID
-                  && sessionCommands.contains(button.playerCommand));
-      availableCustomLayout.add(button.copyWithIsEnabled(isEnabled));
-    }
-    return availableCustomLayout.build();
   }
 
   @Player.RepeatMode

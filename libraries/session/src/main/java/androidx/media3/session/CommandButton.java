@@ -28,6 +28,7 @@ import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.google.errorprone.annotations.CheckReturnValue;
 import java.util.List;
@@ -233,6 +234,39 @@ public final class CommandButton implements Bundleable {
   @Override
   public int hashCode() {
     return Objects.hashCode(sessionCommand, playerCommand, iconResId, displayName, isEnabled);
+  }
+
+  /**
+   * Returns a list of command buttons with the {@link CommandButton#isEnabled} flag set according
+   * to the available commands passed in.
+   */
+  /* package */ static ImmutableList<CommandButton> getEnabledCommandButtons(
+      List<CommandButton> commandButtons,
+      SessionCommands sessionCommands,
+      Player.Commands playerCommands) {
+    ImmutableList.Builder<CommandButton> enabledButtons = new ImmutableList.Builder<>();
+    for (int i = 0; i < commandButtons.size(); i++) {
+      CommandButton button = commandButtons.get(i);
+      enabledButtons.add(
+          button.copyWithIsEnabled(isEnabled(button, sessionCommands, playerCommands)));
+    }
+    return enabledButtons.build();
+  }
+
+  /**
+   * Returns whether the {@link CommandButton} is enabled given the available commands passed in.
+   *
+   * @param button The command button.
+   * @param sessionCommands The available session commands.
+   * @param playerCommands The available player commands.
+   * @return Whether the button is enabled given the available commands.
+   */
+  /* package */ static boolean isEnabled(
+      CommandButton button, SessionCommands sessionCommands, Player.Commands playerCommands) {
+    return playerCommands.contains(button.playerCommand)
+        || (button.sessionCommand != null && sessionCommands.contains(button.sessionCommand))
+        || (button.playerCommand != Player.COMMAND_INVALID
+            && sessionCommands.contains(button.playerCommand));
   }
 
   // Bundleable implementation.
