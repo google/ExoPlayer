@@ -119,7 +119,7 @@ public class SsimMapperTest {
     List<Object[]> parameterList = new ArrayList<>();
     for (String file : INPUT_FILES) {
       parameterList.add(new Object[] {file, MimeTypes.VIDEO_H264});
-      // TODO(210593256): Test pre 24 once in-app muxing implemented.
+      // TODO(b/210593256): Test pre 24 once in-app muxing implemented.
       if (Util.SDK_INT >= 24) {
         parameterList.add(new Object[] {file, MimeTypes.VIDEO_H265});
       }

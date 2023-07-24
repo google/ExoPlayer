@@ -25,7 +25,7 @@ import androidx.annotation.RequiresApi;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.util.GlUtil.GlException;
 
-// TODO(271433904): Expand this class to cover more methods in GlUtil.
+// TODO(b/271433904): Expand this class to cover more methods in GlUtil.
 /**
  * Provider to customize the creation and maintenance of GL objects.
  *
