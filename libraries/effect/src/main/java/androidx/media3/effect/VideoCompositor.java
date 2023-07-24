@@ -238,6 +238,9 @@ public final class VideoCompositor {
       InputFrameInfo inputFrameInfo = framesToComposite.get(i);
       inputFrameInfo.releaseCallback.release(inputFrameInfo.presentationTimeUs);
     }
+    if (allInputsEnded && inputSources.get(PRIMARY_INPUT_ID).frameInfos.isEmpty()) {
+      listener.onEnded();
+    }
   }
 
   private synchronized boolean isReadyToComposite() {
