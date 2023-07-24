@@ -2528,8 +2528,8 @@ public class MediaControllerListenerTest {
           @Override
           public void onSessionActivityChanged(
               MediaController controller, PendingIntent sessionActivity) {
-            latch.countDown();
             receivedSessionActivities.add(sessionActivity);
+            latch.countDown();
           }
         };
     MediaController controller =
