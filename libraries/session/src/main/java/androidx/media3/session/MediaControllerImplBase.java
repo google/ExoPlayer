@@ -149,7 +149,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     playerCommandsFromSession = Commands.EMPTY;
     playerCommandsFromPlayer = Commands.EMPTY;
     intersectedPlayerCommands =
-        createIntersectedCommands(playerCommandsFromSession, playerCommandsFromPlayer);
+        createIntersectedCommandsEnsuringCommandReleaseAvailable(
+            playerCommandsFromSession, playerCommandsFromPlayer);
     listeners =
         new ListenerSet<>(
             applicationLooper,
@@ -2479,7 +2480,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     playerCommandsFromSession = result.playerCommandsFromSession;
     playerCommandsFromPlayer = result.playerCommandsFromPlayer;
     intersectedPlayerCommands =
-        createIntersectedCommands(playerCommandsFromSession, playerCommandsFromPlayer);
+        createIntersectedCommandsEnsuringCommandReleaseAvailable(
+            playerCommandsFromSession, playerCommandsFromPlayer);
     customLayout =
         CommandButton.getEnabledCommandButtons(
             result.customLayout, sessionCommands, intersectedPlayerCommands);
@@ -2638,7 +2640,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
       playerCommandsFromSession = playerCommands;
       Commands prevIntersectedPlayerCommands = intersectedPlayerCommands;
       intersectedPlayerCommands =
-          createIntersectedCommands(playerCommandsFromSession, playerCommandsFromPlayer);
+          createIntersectedCommandsEnsuringCommandReleaseAvailable(
+              playerCommandsFromSession, playerCommandsFromPlayer);
       intersectedPlayerCommandsChanged =
           !Util.areEqual(intersectedPlayerCommands, prevIntersectedPlayerCommands);
     }
@@ -2679,7 +2682,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     playerCommandsFromPlayer = commandsFromPlayer;
     Commands prevIntersectedPlayerCommands = intersectedPlayerCommands;
     intersectedPlayerCommands =
-        createIntersectedCommands(playerCommandsFromSession, playerCommandsFromPlayer);
+        createIntersectedCommandsEnsuringCommandReleaseAvailable(
+            playerCommandsFromSession, playerCommandsFromPlayer);
     boolean intersectedPlayerCommandsChanged =
         !Util.areEqual(intersectedPlayerCommands, prevIntersectedPlayerCommands);
     if (intersectedPlayerCommandsChanged) {
@@ -3082,17 +3086,13 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     return newMediaItemIndex;
   }
 
-  private static Commands createIntersectedCommands(
+  private static Commands createIntersectedCommandsEnsuringCommandReleaseAvailable(
       Commands commandFromSession, Commands commandsFromPlayer) {
-    Commands.Builder intersectCommandsBuilder = new Commands.Builder();
+    Commands intersectedCommands = MediaUtils.intersect(commandFromSession, commandsFromPlayer);
     // Release is always available as it just releases the connection, not the underlying player.
-    intersectCommandsBuilder.add(Player.COMMAND_RELEASE);
-    for (int i = 0; i < commandFromSession.size(); i++) {
-      if (commandsFromPlayer.contains(commandFromSession.get(i))) {
-        intersectCommandsBuilder.add(commandFromSession.get(i));
-      }
-    }
-    return intersectCommandsBuilder.build();
+    return intersectedCommands.contains(Player.COMMAND_RELEASE)
+        ? intersectedCommands
+        : intersectedCommands.buildUpon().add(Player.COMMAND_RELEASE).build();
   }
 
   // This will be called on the main thread.

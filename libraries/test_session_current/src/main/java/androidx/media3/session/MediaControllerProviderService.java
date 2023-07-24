@@ -824,6 +824,12 @@ public class MediaControllerProviderService extends Service {
     }
 
     @Override
+    public Bundle getAvailableCommands(String controllerId) throws RemoteException {
+      MediaController controller = mediaControllerMap.get(controllerId);
+      return runOnHandler(controller::getAvailableCommands).toBundle();
+    }
+
+    @Override
     public Bundle getItem(String controllerId, String mediaId) throws RemoteException {
       MediaBrowser browser = (MediaBrowser) mediaControllerMap.get(controllerId);
       Future<LibraryResult<MediaItem>> future = runOnHandler(() -> browser.getItem(mediaId));

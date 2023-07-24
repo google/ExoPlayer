@@ -194,6 +194,31 @@ public class MediaSessionCallbackTest {
   }
 
   @Test
+  public void onConnect_emptyPlayerCommands_commandReleaseAlwaysIncluded() throws Exception {
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
+          @Override
+          public MediaSession.ConnectionResult onConnect(
+              MediaSession session, ControllerInfo controller) {
+            return new AcceptedResultBuilder(session)
+                .setAvailablePlayerCommands(Player.Commands.EMPTY)
+                .build();
+          }
+        };
+    MediaSession session =
+        sessionTestRule.ensureReleaseAfterTest(
+            new MediaSession.Builder(context, player)
+                .setCallback(callback)
+                .setId("onConnect_emptyPlayerCommands_commandReleaseAlwaysIncluded")
+                .build());
+    RemoteMediaController remoteController =
+        controllerTestRule.createRemoteController(session.getToken());
+
+    assertThat(remoteController.getAvailableCommands().size()).isEqualTo(1);
+    assertThat(remoteController.getAvailableCommands().contains(Player.COMMAND_RELEASE)).isTrue();
+  }
+
+  @Test
   public void onPostConnect_afterConnected() throws Exception {
     CountDownLatch latch = new CountDownLatch(1);
     MediaSession.Callback callback =
