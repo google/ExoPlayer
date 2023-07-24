@@ -691,6 +691,13 @@ import java.util.List;
         long editDuration =
             Util.scaleLargeTimestamp(
                 track.editListDurations[i], track.timescale, track.movieTimescale);
+        // The timestamps array is in the order read from the media, which might not be strictly
+        // sorted, but will ensure that a) all sync frames are in-order and b) any out-of-order
+        // frames are after their respective sync frames. This means that although the result of
+        // this binary search might be slightly incorrect (due to out-of-order timestamps), the loop
+        // below that walks forward to find the next sync frame will result in a correct start
+        // index. The start index would also be correct if we walk backwards to the previous sync
+        // frame (https://github.com/google/ExoPlayer/issues/1659).
         startIndices[i] =
             Util.binarySearchFloor(
                 timestamps, editMediaTime, /* inclusive= */ true, /* stayInBounds= */ true);
