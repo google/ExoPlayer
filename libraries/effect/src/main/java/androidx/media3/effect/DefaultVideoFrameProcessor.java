@@ -383,7 +383,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
           }
           if (inputEndedAfterThisInputStream) {
             listenerExecutor.execute(listener::onEnded);
-            DebugTraceUtil.recordVideoFrameProcessorSignalEos();
+            DebugTraceUtil.logEvent(DebugTraceUtil.EVENT_VFP_SIGNAL_EOS, C.TIME_END_OF_SOURCE);
           }
         });
     this.intermediateGlShaderPrograms = new ArrayList<>();
@@ -530,7 +530,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
   @Override
   public void signalEndOfInput() {
-    DebugTraceUtil.recordVideoFrameProcessorReceiveDecoderEos();
+    DebugTraceUtil.logEvent(DebugTraceUtil.EVENT_VFP_RECEIVE_DECODER_EOS, C.TIME_END_OF_SOURCE);
     checkState(!inputStreamEnded);
     inputStreamEnded = true;
     inputSwitcher.signalEndOfCurrentInputStream();

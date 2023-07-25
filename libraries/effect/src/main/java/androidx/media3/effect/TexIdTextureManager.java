@@ -114,7 +114,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     videoFrameProcessingTaskExecutor.submit(
         () -> {
           frameConsumptionManager.signalEndOfCurrentStream();
-          DebugTraceUtil.recordTexIdTextureManagerSignalEndOfCurrentInputStream();
+          DebugTraceUtil.logEvent(
+              DebugTraceUtil.EVENT_TEX_ID_TEXTURE_MANAGER_SIGNAL_EOS, C.TIME_END_OF_SOURCE);
         });
   }
 

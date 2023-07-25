@@ -459,7 +459,7 @@ public class TransformerAndroidTestRunner {
   }
 
   private static void logTimeoutDiagnostics() {
-    Log.e(TAG, "Effect debug traces at timeout: " + DebugTraceUtil.generateTrace());
+    Log.e(TAG, "Effect debug traces at timeout: " + DebugTraceUtil.generateTraceSummary());
     Log.e(TAG, "Thread state at timeout:");
     Set<Map.Entry<Thread, StackTraceElement[]>> entries = Thread.getAllStackTraces().entrySet();
     for (Map.Entry<Thread, StackTraceElement[]> threadAndStackTraceElements : entries) {
