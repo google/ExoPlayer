@@ -16,14 +16,27 @@
 
 package com.google.android.exoplayer2.effect;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringDef;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.SystemClock;
 import com.google.android.exoplayer2.util.Util;
-import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
+import java.io.IOException;
+import java.io.Writer;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 
 /**
@@ -36,240 +49,197 @@ import java.util.Queue;
  */
 @Deprecated
 public final class DebugTraceUtil {
+  /** Events logged by {@link #logEvent}. */
+  @Retention(RetentionPolicy.SOURCE)
+  @StringDef({
+    EVENT_VIDEO_INPUT_FORMAT,
+    EVENT_DECODER_SIGNAL_EOS,
+    EVENT_DECODER_DECODED_FRAME,
+    EVENT_MUXER_CAN_WRITE_SAMPLE_VIDEO,
+    EVENT_MUXER_CAN_WRITE_SAMPLE_AUDIO,
+    EVENT_DECODER_RECEIVE_EOS,
+    EVENT_ENCODER_ENCODED_FRAME,
+    EVENT_ENCODER_RECEIVE_EOS,
+    EVENT_EXTERNAL_INPUT_MANAGER_SIGNAL_EOS,
+    EVENT_MUXER_INPUT_VIDEO,
+    EVENT_MUXER_INPUT_AUDIO,
+    EVENT_MUXER_TRACK_ENDED_VIDEO,
+    EVENT_MUXER_TRACK_ENDED_AUDIO,
+    EVENT_VFP_FRAME_DEQUEUED,
+    EVENT_VFP_RECEIVE_DECODER_EOS,
+    EVENT_VFP_RENDERED_TO_INPUT,
+    EVENT_VFP_RENDERED_TO_OUTPUT,
+    EVENT_VFP_SIGNAL_EOS,
+    EVENT_BITMAP_TEXTURE_MANAGER_SIGNAL_EOS,
+    EVENT_TEX_ID_TEXTURE_MANAGER_SIGNAL_EOS
+  })
+  @Documented
+  @Target(TYPE_USE)
+  public @interface DebugTraceEvent {}
 
-  private static final int MUXER_CAN_WRITE_SAMPLE_RECORD_COUNT = 10;
+  public static final String EVENT_VIDEO_INPUT_FORMAT = "VideoInputFormat";
+  public static final String EVENT_DECODER_SIGNAL_EOS = "Decoder-SignalEOS";
+  public static final String EVENT_DECODER_DECODED_FRAME = "Decoder-DecodedFrame";
+  public static final String EVENT_MUXER_CAN_WRITE_SAMPLE_VIDEO = "Muxer-CanWriteSample_Video";
+  public static final String EVENT_MUXER_CAN_WRITE_SAMPLE_AUDIO = "Muxer-CanWriteSample_Audio";
+  public static final String EVENT_DECODER_RECEIVE_EOS = "Decoder-ReceiveEOS";
+  public static final String EVENT_ENCODER_ENCODED_FRAME = "Encoder-EncodedFrame";
+  public static final String EVENT_ENCODER_RECEIVE_EOS = "Encoder-ReceiveEOS";
+  public static final String EVENT_EXTERNAL_INPUT_MANAGER_SIGNAL_EOS =
+      "ExternalInputManager-SignalEOS";
+  public static final String EVENT_MUXER_INPUT_VIDEO = "Muxer-Input_Video";
+  public static final String EVENT_MUXER_INPUT_AUDIO = "Muxer-Input_Audio";
+  public static final String EVENT_MUXER_TRACK_ENDED_VIDEO = "Muxer-TrackEnded_Video";
+  public static final String EVENT_MUXER_TRACK_ENDED_AUDIO = "Muxer-TrackEnded_Audio";
+  public static final String EVENT_VFP_FRAME_DEQUEUED = "VFP-FrameDequeued";
+  public static final String EVENT_VFP_RECEIVE_DECODER_EOS = "VFP-ReceiveDecoderEOS";
+  public static final String EVENT_VFP_RENDERED_TO_INPUT = "VFP-RenderedToInput";
+  public static final String EVENT_VFP_RENDERED_TO_OUTPUT = "VFP-RenderedToOutput";
+  public static final String EVENT_VFP_SIGNAL_EOS = "VFP-SignalEOS";
+  public static final String EVENT_BITMAP_TEXTURE_MANAGER_SIGNAL_EOS =
+      "BitmapTextureManager-SignalEOS";
+  public static final String EVENT_TEX_ID_TEXTURE_MANAGER_SIGNAL_EOS =
+      "TexIdTextureManager-SignalEOS";
 
-  /** The timestamps at which the decoder received end of stream signal, in milliseconds. */
+  private static final int MAX_FIRST_LAST_LOGS = 10;
+
   @GuardedBy("DebugTraceUtil.class")
-  private static final Queue<Long> DECODER_RECEIVE_EOS_TIMES_MS = new ArrayDeque<>();
+  private static final Map<String, EventLogger> events = new LinkedHashMap<>();
 
-  /** The timestamps at which the decoder signalled end of stream, in milliseconds. */
   @GuardedBy("DebugTraceUtil.class")
-  private static final Queue<Long> DECODER_SIGNAL_EOS_TIMES_MS = new ArrayDeque<>();
-
-  /**
-   * The timestamps at which {@code VideoFrameProcessor} received end of stream signal from the
-   * decoder, in milliseconds.
-   */
-  @GuardedBy("DebugTraceUtil.class")
-  private static final Queue<Long> VIDEO_FRAME_PROCESSOR_RECEIVE_DECODER_EOS_TIMES_MS =
-      new ArrayDeque<>();
-
-  /**
-   * The timestamps at which {@code ExternalTextureManager} signalled end of current input stream,
-   * in milliseconds.
-   */
-  @GuardedBy("DebugTraceUtil.class")
-  private static final Queue<Long> EXTERNAL_TEXTURE_MANAGER_SIGNAL_EOCIS_TIMES_MS =
-      new ArrayDeque<>();
-
-  /**
-   * The timestamps at which {@code BitmapTextureManager} signalled end of current input stream, in
-   * milliseconds.
-   */
-  @GuardedBy("DebugTraceUtil.class")
-  private static final Queue<Long> BITMAP_TEXTURE_MANAGER_SIGNAL_EOCIS_TIMES_MS =
-      new ArrayDeque<>();
-
-  /**
-   * The timestamps at which {@code TexIdTextureManager} signalled end of current input stream, in
-   * milliseconds.
-   */
-  @GuardedBy("DebugTraceUtil.class")
-  private static final Queue<Long> TEX_ID_TEXTURE_MANAGER_SIGNAL_EOCIS_TIMES_MS =
-      new ArrayDeque<>();
-
-  /**
-   * The timestamps at which {@code VideoFrameProcessor} signalled end of stream, in milliseconds.
-   */
-  @GuardedBy("DebugTraceUtil.class")
-  private static final Queue<Long> VIDEO_FRAME_PROCESSOR_SIGNAL_EOS_TIMES_MS = new ArrayDeque<>();
-
-  /** The timestamps at which the encoder received end of stream signal, in milliseconds. */
-  @GuardedBy("DebugTraceUtil.class")
-  private static final Queue<Long> ENCODER_RECEIVE_EOS_TIMES_MS = new ArrayDeque<>();
-
-  /**
-   * The last {@link #MUXER_CAN_WRITE_SAMPLE_RECORD_COUNT} values returned by {@code
-   * MuxerWrapper#canWriteSample}.
-   */
-  @GuardedBy("DebugTraceUtil.class")
-  private static final Queue<Boolean> MUXER_CAN_WRITE_VIDEO_SAMPLE = new ArrayDeque<>();
-
-  /** The timestamps at which the muxer video track is stopped, in milliseconds. */
-  @GuardedBy("DebugTraceUtil.class")
-  private static final Queue<Long> MUXER_TRACK_END_TIMES_MS = new ArrayDeque<>();
-
-  /** The input {@link Format} of the latest media item. */
-  @GuardedBy("DebugTraceUtil.class")
-  private static @Nullable Format latestVideoInputFormat = null;
-
-  /** The number of decoded frames. */
-  @GuardedBy("DebugTraceUtil.class")
-  private static int numberOfDecodedFrames = 0;
-
-  /** The number of frames made available on {@code VideoFrameProcessor}'s input surface. */
-  @GuardedBy("DebugTraceUtil.class")
-  private static int numberOfFramesRenderedToVideoFrameProcessorInput = 0;
-
-  /**
-   * The number of frames sent to the {@link GlShaderProgram} after they arrive on {@code
-   * VideoFrameProcessor}'s input surface.
-   */
-  @GuardedBy("DebugTraceUtil.class")
-  private static int numberOfFramesDequeuedFromVideoProcessorInput = 0;
-
-  /** The number of frames rendered to {@code VideoFrameProcessor}'s output. */
-  @GuardedBy("DebugTraceUtil.class")
-  private static int numberOfFramesRenderedToVideoFrameProcessorOutput = 0;
-
-  /** The number of encoded frames. */
-  @GuardedBy("DebugTraceUtil.class")
-  private static int numberOfEncodedFrames = 0;
-
-  /** The number of video frames written to the muxer. */
-  @GuardedBy("DebugTraceUtil.class")
-  private static int numberOfMuxedFrames = 0;
-
-  private DebugTraceUtil() {}
+  private static long startTimeMs = SystemClock.DEFAULT.elapsedRealtime();
 
   public static synchronized void reset() {
-    latestVideoInputFormat = null;
-    numberOfDecodedFrames = 0;
-    numberOfFramesRenderedToVideoFrameProcessorInput = 0;
-    numberOfFramesDequeuedFromVideoProcessorInput = 0;
-    numberOfFramesRenderedToVideoFrameProcessorOutput = 0;
-    numberOfEncodedFrames = 0;
-    numberOfMuxedFrames = 0;
-    DECODER_RECEIVE_EOS_TIMES_MS.clear();
-    DECODER_SIGNAL_EOS_TIMES_MS.clear();
-    VIDEO_FRAME_PROCESSOR_RECEIVE_DECODER_EOS_TIMES_MS.clear();
-    EXTERNAL_TEXTURE_MANAGER_SIGNAL_EOCIS_TIMES_MS.clear();
-    BITMAP_TEXTURE_MANAGER_SIGNAL_EOCIS_TIMES_MS.clear();
-    TEX_ID_TEXTURE_MANAGER_SIGNAL_EOCIS_TIMES_MS.clear();
-    VIDEO_FRAME_PROCESSOR_SIGNAL_EOS_TIMES_MS.clear();
-    ENCODER_RECEIVE_EOS_TIMES_MS.clear();
-    MUXER_CAN_WRITE_VIDEO_SAMPLE.clear();
-    MUXER_TRACK_END_TIMES_MS.clear();
+    events.clear();
+    startTimeMs = SystemClock.DEFAULT.elapsedRealtime();
   }
 
-  public static synchronized void recordLatestVideoInputFormat(Format format) {
-    latestVideoInputFormat = format;
-  }
-
-  public static synchronized void recordDecodedFrame() {
-    numberOfDecodedFrames++;
-  }
-
-  public static synchronized void recordFrameRenderedToVideoFrameProcessorInput() {
-    numberOfFramesRenderedToVideoFrameProcessorInput++;
-  }
-
-  public static synchronized void recordFrameDequeuedFromVideoFrameProcessorInput() {
-    numberOfFramesDequeuedFromVideoProcessorInput++;
-  }
-
-  public static synchronized void recordFrameRenderedToVideoFrameProcessorOutput() {
-    numberOfFramesRenderedToVideoFrameProcessorOutput++;
-  }
-
-  public static synchronized void recordEncodedFrame() {
-    numberOfEncodedFrames++;
-  }
-
-  public static synchronized void recordMuxerInput(@C.TrackType int trackType) {
-    if (trackType == C.TRACK_TYPE_VIDEO) {
-      numberOfMuxedFrames++;
+  /**
+   * Logs a new event.
+   *
+   * @param eventName The {@linkplain DebugTraceEvent event name} to log.
+   * @param presentationTimeUs The current presentation time of the media. Use {@link C#TIME_UNSET}
+   *     if unknown, {@link C#TIME_END_OF_SOURCE} if EOS.
+   * @param extra Optional extra info about the event being logged.
+   */
+  public static synchronized void logEvent(
+      @DebugTraceEvent String eventName, long presentationTimeUs, @Nullable String extra) {
+    long eventTimeMs = SystemClock.DEFAULT.elapsedRealtime() - startTimeMs;
+    if (!events.containsKey(eventName)) {
+      events.put(eventName, new EventLogger());
     }
+    EventLogger logger = events.get(eventName);
+    logger.addLog(new EventLog(presentationTimeUs, eventTimeMs, extra));
   }
 
-  public static synchronized void recordDecoderReceiveEos() {
-    DECODER_RECEIVE_EOS_TIMES_MS.add(SystemClock.DEFAULT.elapsedRealtime());
+  /**
+   * Logs a new event.
+   *
+   * @param eventName The {@linkplain DebugTraceEvent event name} to log.
+   * @param presentationTimeUs The current presentation time of the media. Use {@link C#TIME_UNSET}
+   *     if unknown, {@link C#TIME_END_OF_SOURCE} if EOS.
+   */
+  public static synchronized void logEvent(
+      @DebugTraceEvent String eventName, long presentationTimeUs) {
+    logEvent(eventName, presentationTimeUs, null);
   }
 
-  public static synchronized void recordDecoderSignalEos() {
-    DECODER_SIGNAL_EOS_TIMES_MS.add(SystemClock.DEFAULT.elapsedRealtime());
-  }
-
-  public static synchronized void recordVideoFrameProcessorReceiveDecoderEos() {
-    VIDEO_FRAME_PROCESSOR_RECEIVE_DECODER_EOS_TIMES_MS.add(SystemClock.DEFAULT.elapsedRealtime());
-  }
-
-  public static synchronized void recordExternalInputManagerSignalEndOfCurrentInputStream() {
-    EXTERNAL_TEXTURE_MANAGER_SIGNAL_EOCIS_TIMES_MS.add(SystemClock.DEFAULT.elapsedRealtime());
-  }
-
-  public static synchronized void recordBitmapTextureManagerSignalEndOfCurrentInputStream() {
-    BITMAP_TEXTURE_MANAGER_SIGNAL_EOCIS_TIMES_MS.add(SystemClock.DEFAULT.elapsedRealtime());
-  }
-
-  public static synchronized void recordTexIdTextureManagerSignalEndOfCurrentInputStream() {
-    TEX_ID_TEXTURE_MANAGER_SIGNAL_EOCIS_TIMES_MS.add(SystemClock.DEFAULT.elapsedRealtime());
-  }
-
-  public static synchronized void recordVideoFrameProcessorSignalEos() {
-    VIDEO_FRAME_PROCESSOR_SIGNAL_EOS_TIMES_MS.add(SystemClock.DEFAULT.elapsedRealtime());
-  }
-
-  public static synchronized void recordEncoderReceiveEos() {
-    ENCODER_RECEIVE_EOS_TIMES_MS.add(SystemClock.DEFAULT.elapsedRealtime());
-  }
-
-  public static synchronized void recordMuxerCanAddSample(
-      @C.TrackType int trackType, boolean canAddSample) {
-    if (trackType == C.TRACK_TYPE_VIDEO) {
-      if (MUXER_CAN_WRITE_VIDEO_SAMPLE.size() == MUXER_CAN_WRITE_SAMPLE_RECORD_COUNT) {
-        MUXER_CAN_WRITE_VIDEO_SAMPLE.poll();
+  /**
+   * Generate a summary of the traced events, containing the total number of times an event happened
+   * and the detailed log on the first and last {@link #MAX_FIRST_LAST_LOGS} times.
+   */
+  public static synchronized String generateTraceSummary() {
+    StringBuilder stringBuilder = new StringBuilder();
+    for (Map.Entry<String, EventLogger> entry : events.entrySet()) {
+      EventLogger logger = entry.getValue();
+      stringBuilder.append(
+          Util.formatInvariant("%s[%d]: [", entry.getKey(), logger.getTotalCount()));
+      String separator = "";
+      ImmutableList<EventLog> eventLogs = logger.getLogs();
+      for (int i = 0; i < eventLogs.size(); i++) {
+        EventLog eventLog = eventLogs.get(i);
+        String logTime =
+            Util.formatInvariant(
+                "%s@%d",
+                presentationTimeToString(eventLog.presentationTimeUs), eventLog.eventTimeMs);
+        String extra = eventLog.extra != null ? Util.formatInvariant("(%s)", eventLog.extra) : "";
+        stringBuilder.append(separator).append(logTime).append(extra);
+        separator = ",";
       }
-      MUXER_CAN_WRITE_VIDEO_SAMPLE.add(canAddSample);
+      stringBuilder.append("]; ");
+    }
+    return stringBuilder.toString();
+  }
+
+  /** Dumps all the stored events to a tsv file. */
+  public static synchronized void dumpTsv(Writer writer) throws IOException {
+    writer.write("event\ttimestamp\tpresentation\textra\n");
+    for (Map.Entry<String, EventLogger> entry : events.entrySet()) {
+      ImmutableList<EventLog> eventLogs = entry.getValue().getLogs();
+      for (int i = 0; i < eventLogs.size(); i++) {
+        EventLog eventLog = eventLogs.get(i);
+        writer.write(
+            Util.formatInvariant(
+                "%s\t%d\t%s\t%s\n",
+                entry.getKey(),
+                eventLog.eventTimeMs,
+                presentationTimeToString(eventLog.presentationTimeUs),
+                Strings.nullToEmpty(eventLog.extra)));
+      }
     }
   }
 
-  public static synchronized void recordMuxerTrackEnded(@C.TrackType int trackType) {
-    if (trackType == C.TRACK_TYPE_VIDEO) {
-      MUXER_TRACK_END_TIMES_MS.add(SystemClock.DEFAULT.elapsedRealtime());
+  private static String presentationTimeToString(long presentationTimeUs) {
+    if (presentationTimeUs == C.TIME_UNSET) {
+      return "UNSET";
+    } else if (presentationTimeUs == C.TIME_END_OF_SOURCE) {
+      return "EOS";
+    } else {
+      return String.valueOf(presentationTimeUs);
     }
   }
 
-  public static synchronized String generateTrace() {
-    return "Video input format: "
-        + latestVideoInputFormat
-        + ", Decoded: "
-        + numberOfDecodedFrames
-        + ", Rendered to VFP: "
-        + numberOfFramesRenderedToVideoFrameProcessorInput
-        + ", Rendered to GlSP: "
-        + numberOfFramesDequeuedFromVideoProcessorInput
-        + ", Rendered to encoder: "
-        + numberOfFramesRenderedToVideoFrameProcessorOutput
-        + ", Encoded: "
-        + numberOfEncodedFrames
-        + ", Muxed: "
-        + numberOfMuxedFrames
-        + ", Decoder receive EOS: "
-        + generateString(DECODER_RECEIVE_EOS_TIMES_MS)
-        + ", Decoder signal EOS: "
-        + generateString(DECODER_SIGNAL_EOS_TIMES_MS)
-        + ", VFP receive EOS: "
-        + generateString(VIDEO_FRAME_PROCESSOR_RECEIVE_DECODER_EOS_TIMES_MS)
-        + ", VFP ExtTexMgr signal EndOfCurrentInputStream: "
-        + generateString(EXTERNAL_TEXTURE_MANAGER_SIGNAL_EOCIS_TIMES_MS)
-        + ", VFP BitmapTexMgr signal EndOfCurrentInputStream: "
-        + generateString(BITMAP_TEXTURE_MANAGER_SIGNAL_EOCIS_TIMES_MS)
-        + ", VFP TexIdTexMhr signal EndOfCurrentInputStream: "
-        + generateString(TEX_ID_TEXTURE_MANAGER_SIGNAL_EOCIS_TIMES_MS)
-        + ", VFP signal EOS: "
-        + generateString(VIDEO_FRAME_PROCESSOR_SIGNAL_EOS_TIMES_MS)
-        + ", Encoder receive EOS: "
-        + generateString(ENCODER_RECEIVE_EOS_TIMES_MS)
-        + Util.formatInvariant(
-            ", Muxer last %d video canWriteSample: ", MUXER_CAN_WRITE_SAMPLE_RECORD_COUNT)
-        + generateString(MUXER_CAN_WRITE_VIDEO_SAMPLE)
-        + ", Muxer stopped: "
-        + generateString(MUXER_TRACK_END_TIMES_MS);
+  private static final class EventLog {
+    public final long presentationTimeUs;
+    public final long eventTimeMs;
+    @Nullable public final String extra;
+
+    private EventLog(long presentationTimeUs, long eventTimeMs, @Nullable String extra) {
+      this.presentationTimeUs = presentationTimeUs;
+      this.eventTimeMs = eventTimeMs;
+      this.extra = extra;
+    }
   }
 
-  private static <T> String generateString(Queue<T> queue) {
-    return queue.isEmpty() ? "NO" : Util.formatInvariant("[%s]", Joiner.on(',').join(queue));
+  private static final class EventLogger {
+    private final List<EventLog> firstLogs;
+    private final Queue<EventLog> lastLogs;
+    private int totalCount;
+
+    public EventLogger() {
+      firstLogs = new ArrayList<>();
+      lastLogs = new ArrayDeque<>();
+      totalCount = 0;
+    }
+
+    public void addLog(EventLog log) {
+      if (firstLogs.size() < MAX_FIRST_LAST_LOGS) {
+        firstLogs.add(log);
+      } else {
+        lastLogs.add(log);
+        if (lastLogs.size() > MAX_FIRST_LAST_LOGS) {
+          lastLogs.remove();
+        }
+      }
+      totalCount++;
+    }
+
+    public int getTotalCount() {
+      return totalCount;
+    }
+
+    public ImmutableList<EventLog> getLogs() {
+      return new ImmutableList.Builder<EventLog>().addAll(firstLogs).addAll(lastLogs).build();
+    }
   }
 }

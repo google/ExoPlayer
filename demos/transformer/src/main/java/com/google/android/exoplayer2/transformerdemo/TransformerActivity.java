@@ -58,6 +58,7 @@ import com.google.android.exoplayer2.audio.SilenceSkippingAudioProcessor;
 import com.google.android.exoplayer2.audio.SonicAudioProcessor;
 import com.google.android.exoplayer2.effect.BitmapOverlay;
 import com.google.android.exoplayer2.effect.Contrast;
+import com.google.android.exoplayer2.effect.DebugTraceUtil;
 import com.google.android.exoplayer2.effect.DrawableOverlay;
 import com.google.android.exoplayer2.effect.GlEffect;
 import com.google.android.exoplayer2.effect.GlShaderProgram;
@@ -96,7 +97,9 @@ import com.google.common.base.Stopwatch;
 import com.google.common.base.Ticker;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.ListenableFuture;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
@@ -683,6 +686,14 @@ public final class TransformerActivity extends AppCompatActivity {
     outputVideoTextView.setVisibility(View.VISIBLE);
     debugTextView.setVisibility(View.VISIBLE);
     displayInputButton.setVisibility(View.VISIBLE);
+    Log.d(TAG, DebugTraceUtil.generateTraceSummary());
+    File file = new File(getExternalFilesDir(null), "trace.tsv");
+    try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+      DebugTraceUtil.dumpTsv(writer);
+      Log.d(TAG, file.getAbsolutePath());
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
     playMediaItems(MediaItem.fromUri(inputUri), MediaItem.fromUri("file://" + filePath));
     Log.d(TAG, "Output file path: file://" + filePath);
   }

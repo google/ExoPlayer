@@ -220,7 +220,8 @@ import org.checkerframework.dataflow.qual.Pure;
         hasMuxedTimestampZero = true;
       }
     }
-    DebugTraceUtil.recordEncodedFrame();
+    DebugTraceUtil.logEvent(
+        DebugTraceUtil.EVENT_ENCODER_ENCODED_FRAME, bufferInfo.presentationTimeUs);
     encoderOutputBuffer.timeUs = bufferInfo.presentationTimeUs;
     encoderOutputBuffer.setFlags(bufferInfo.flags);
     return encoderOutputBuffer;

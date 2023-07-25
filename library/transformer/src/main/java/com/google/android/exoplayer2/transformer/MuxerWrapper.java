@@ -229,7 +229,17 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     checkArgument(
         trackInfo != null, "Could not write sample because there is no track of type " + trackType);
     boolean canWriteSample = canWriteSample(trackType, presentationTimeUs);
-    DebugTraceUtil.recordMuxerCanAddSample(trackType, canWriteSample);
+    if (trackType == C.TRACK_TYPE_VIDEO) {
+      DebugTraceUtil.logEvent(
+          DebugTraceUtil.EVENT_MUXER_CAN_WRITE_SAMPLE_VIDEO,
+          presentationTimeUs,
+          String.valueOf(canWriteSample));
+    } else if (trackType == C.TRACK_TYPE_AUDIO) {
+      DebugTraceUtil.logEvent(
+          DebugTraceUtil.EVENT_MUXER_CAN_WRITE_SAMPLE_AUDIO,
+          presentationTimeUs,
+          String.valueOf(canWriteSample));
+    }
     if (!canWriteSample) {
       return false;
     }
@@ -242,7 +252,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     resetAbortTimer();
     muxer.writeSampleData(
         trackInfo.index, data, presentationTimeUs, isKeyFrame ? C.BUFFER_FLAG_KEY_FRAME : 0);
-    DebugTraceUtil.recordMuxerInput(trackType);
+    if (trackType == C.TRACK_TYPE_VIDEO) {
+      DebugTraceUtil.logEvent(DebugTraceUtil.EVENT_MUXER_INPUT_VIDEO, presentationTimeUs);
+    } else if (trackType == C.TRACK_TYPE_AUDIO) {
+      DebugTraceUtil.logEvent(DebugTraceUtil.EVENT_MUXER_INPUT_AUDIO, presentationTimeUs);
+    }
     previousTrackType = trackType;
     return true;
   }
@@ -264,7 +278,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     listener.onTrackEnded(
         trackType, trackInfo.format, trackInfo.getAverageBitrate(), trackInfo.sampleCount);
 
-    DebugTraceUtil.recordMuxerTrackEnded(trackType);
+    if (trackType == C.TRACK_TYPE_VIDEO) {
+      DebugTraceUtil.logEvent(DebugTraceUtil.EVENT_MUXER_TRACK_ENDED_VIDEO, trackInfo.timeUs);
+    } else if (trackType == C.TRACK_TYPE_AUDIO) {
+      DebugTraceUtil.logEvent(DebugTraceUtil.EVENT_MUXER_TRACK_ENDED_AUDIO, trackInfo.timeUs);
+    }
 
     trackTypeToInfo.delete(trackType);
     if (trackTypeToInfo.size() == 0) {
@@ -342,7 +360,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
                           Util.formatInvariant(
                               MUXER_TIMEOUT_ERROR_FORMAT_STRING,
                               maxDelayBetweenSamplesMs,
-                              DebugTraceUtil.generateTrace())),
+                              DebugTraceUtil.generateTraceSummary())),
                       ExportException.ERROR_CODE_MUXING_TIMEOUT));
             },
             maxDelayBetweenSamplesMs,

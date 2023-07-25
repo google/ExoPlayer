@@ -72,7 +72,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   protected void onInputFormatRead(Format inputFormat) {
-    DebugTraceUtil.recordLatestVideoInputFormat(inputFormat);
+    DebugTraceUtil.logEvent(
+        DebugTraceUtil.EVENT_VIDEO_INPUT_FORMAT, C.TIME_UNSET, inputFormat.toString());
     if (flattenForSlowMotion) {
       sefVideoSlowMotionFlattener = new SefSlowMotionFlattener(inputFormat);
     }
@@ -130,7 +131,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   @RequiresNonNull({"sampleConsumer", "decoder"})
   protected boolean feedConsumerFromDecoder() throws ExportException {
     if (decoder.isEnded()) {
-      DebugTraceUtil.recordDecoderSignalEos();
+      DebugTraceUtil.logEvent(DebugTraceUtil.EVENT_DECODER_SIGNAL_EOS, C.TIME_END_OF_SOURCE);
       sampleConsumer.signalEndOfVideoInput();
       isEnded = true;
       return false;
@@ -157,7 +158,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
 
     decoder.releaseOutputBuffer(presentationTimeUs);
-    DebugTraceUtil.recordDecodedFrame();
+    DebugTraceUtil.logEvent(DebugTraceUtil.EVENT_DECODER_DECODED_FRAME, presentationTimeUs);
     return true;
   }
 

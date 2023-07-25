@@ -224,7 +224,7 @@ public final class DefaultCodec implements Codec {
       inputStreamEnded = true;
       flags = MediaCodec.BUFFER_FLAG_END_OF_STREAM;
       if (isVideo && isDecoder) {
-        DebugTraceUtil.recordDecoderReceiveEos();
+        DebugTraceUtil.logEvent(DebugTraceUtil.EVENT_DECODER_RECEIVE_EOS, C.TIME_END_OF_SOURCE);
       }
     }
     try {
@@ -239,7 +239,7 @@ public final class DefaultCodec implements Codec {
 
   @Override
   public void signalEndOfInputStream() throws ExportException {
-    DebugTraceUtil.recordEncoderReceiveEos();
+    DebugTraceUtil.logEvent(DebugTraceUtil.EVENT_ENCODER_RECEIVE_EOS, C.TIME_END_OF_SOURCE);
     try {
       mediaCodec.signalEndOfInputStream();
     } catch (RuntimeException e) {
