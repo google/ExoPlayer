@@ -30,6 +30,9 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.audio.AudioProcessor;
+import com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat;
+import com.google.android.exoplayer2.audio.ChannelMixingAudioProcessor;
+import com.google.android.exoplayer2.audio.SonicAudioProcessor;
 import com.google.android.exoplayer2.effect.DebugTraceUtil;
 import com.google.android.exoplayer2.effect.DefaultVideoFrameProcessor;
 import com.google.android.exoplayer2.effect.Presentation;
@@ -752,21 +755,32 @@ public final class Transformer {
    * EditedMediaItemSequence}, while the audio format will be determined by the {@code
    * AudioMediaItem} in the second {@code EditedMediaItemSequence}.
    *
-   * <p>This method is under implementation. Only the {@linkplain Composition compositions} meeting
-   * the below conditions are supported:
+   * <p>This method is under development. A {@link Composition} must meet the following conditions:
    *
    * <ul>
-   *   <li>There must be no overlapping track corresponding to the same track type in the output.
-   *       More precisely, the composition must either contain a single {@linkplain
-   *       EditedMediaItemSequence sequence}, or contain one audio-only sequence and one
-   *       video/image-only sequence.
-   *   <li>A sequence cannot contain both HDR and SDR video input.
-   *   <li>A sequence cannot have gaps in its video or image samples. In other words, if a sequence
-   *       contains video or image data, it must contain this type of data in the entire sequence.
+   *   <li>The composition must have at most one {@linkplain EditedMediaItemSequence sequence} with
+   *       video/image data. There are no restrictions on the number of audio sequences.
    *   <li>The {@linkplain Composition#effects composition effects} must contain no {@linkplain
    *       Effects#audioProcessors audio effects}.
    *   <li>The composition effects must either contain no {@linkplain Effects#videoEffects video
    *       effects}, or exactly one {@link Presentation}.
+   * </ul>
+   *
+   * <p>{@linkplain EditedMediaItemSequence Sequences} within the {@link Composition} must meet the
+   * following conditions:
+   *
+   * <ul>
+   *   <li>A sequence cannot contain both HDR and SDR video input.
+   *   <li>If an {@link EditedMediaItem} in a sequence contains data of a given {@linkplain
+   *       C.TrackType track}, so must all items in that sequence.
+   *       <ul>
+   *         <li>For audio, this condition can be removed by setting an experimental {@link
+   *             Composition.Builder#experimentalSetForceAudioTrack(boolean) flag}.
+   *       </ul>
+   *   <li>All sequences containing audio data must output audio with the same {@linkplain
+   *       AudioFormat properties}. This can be done by adding {@linkplain EditedMediaItem#effects
+   *       item specific effects}, such as {@link SonicAudioProcessor} and {@link
+   *       ChannelMixingAudioProcessor}.
    * </ul>
    *
    * <p>The export state is notified through the {@linkplain Builder#addListener(Listener)
