@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.transformer;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat;
 import com.google.android.exoplayer2.audio.AudioProcessor.UnhandledAudioFormatException;
 import java.nio.ByteBuffer;
@@ -58,7 +59,7 @@ import java.nio.ByteBuffer;
 public interface AudioMixer {
   /** Creates an unconfigured instance. */
   public static AudioMixer create() {
-    return new AudioMixerImpl();
+    return new AudioMixerImpl(/* outputSilenceWithNoSources= */ true);
   }
 
   /**
@@ -71,7 +72,7 @@ public interface AudioMixer {
    * queued before {@link #getOutput()} is called.
    *
    * @param outputAudioFormat The audio format of buffers returned from {@link #getOutput()}.
-   * @param bufferSizeMs The mixing buffer size in milliseconds.
+   * @param bufferSizeMs The optional mixing buffer size in milliseconds, or {@link C#LENGTH_UNSET}.
    * @param startTimeUs The start time of the mixer output in microseconds.
    * @throws UnhandledAudioFormatException If the output audio format is not supported.
    */

@@ -532,7 +532,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           return null;
         }
 
-        GraphInput sampleExporterInput = sampleExporter.getInput();
+        GraphInput sampleExporterInput =
+            sampleExporter.getInput(editedMediaItems.get(0), assetLoaderOutputFormat);
         OnMediaItemChangedListener onMediaItemChangedListener =
             (editedMediaItem, durationUs, trackFormat, isLast) -> {
               onMediaItemChanged(trackType, durationUs, isLast);
@@ -570,15 +571,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       checkState(assetLoaderInputTracker.getSampleExporter(trackType) == null);
       Format firstAssetLoaderInputFormat =
           assetLoaderInputTracker.getAssetLoaderInputFormat(sequenceIndex, trackType);
-      EditedMediaItem firstEditedMediaItem = editedMediaItems.get(0);
       if (MimeTypes.isAudio(assetLoaderOutputFormat.sampleMimeType)) {
         assetLoaderInputTracker.registerSampleExporter(
             C.TRACK_TYPE_AUDIO,
             new AudioSampleExporter(
                 firstAssetLoaderInputFormat,
-                /* firstExporterInputFormat= */ assetLoaderOutputFormat,
+                /* firstInputFormat= */ assetLoaderOutputFormat,
                 transformationRequest,
-                firstEditedMediaItem,
+                editedMediaItems.get(0),
                 encoderFactory,
                 muxerWrapper,
                 fallbackListener));

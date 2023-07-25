@@ -325,16 +325,16 @@ sample:
   presentationTimeUs = 464399
 sample:
   trackIndex = 1
-  dataHashCode = 1742602241
-  size = 4096
+  dataHashCode = 1728208641
+  size = 2184
   isKeyFrame = true
   presentationTimeUs = 487619
 sample:
   trackIndex = 1
-  dataHashCode = 1742602241
-  size = 4096
+  dataHashCode = 620404993
+  size = 6008
   isKeyFrame = true
-  presentationTimeUs = 510839
+  presentationTimeUs = 500000
 sample:
   trackIndex = 1
   dataHashCode = 1742602241
@@ -403,16 +403,10 @@ sample:
   presentationTimeUs = 766258
 sample:
   trackIndex = 1
-  dataHashCode = 1742602241
-  size = 4096
+  dataHashCode = -809762815
+  size = 8192
   isKeyFrame = true
   presentationTimeUs = 789478
-sample:
-  trackIndex = 1
-  dataHashCode = 1742602241
-  size = 4096
-  isKeyFrame = true
-  presentationTimeUs = 812698
 sample:
   trackIndex = 1
   dataHashCode = 1742602241
@@ -457,14 +451,14 @@ sample:
   presentationTimeUs = 975238
 sample:
   trackIndex = 1
-  dataHashCode = 1742602241
-  size = 4096
+  dataHashCode = 1097317889
+  size = 272
   isKeyFrame = true
   presentationTimeUs = 998458
 sample:
   trackIndex = 1
-  dataHashCode = -587391743
-  size = 408
+  dataHashCode = -873373951
+  size = 4232
   isKeyFrame = true
-  presentationTimeUs = 1021678
+  presentationTimeUs = 1000000
 released = true

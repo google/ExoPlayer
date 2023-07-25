@@ -17,7 +17,6 @@
 package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.decoder.DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED;
-import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.Math.min;
@@ -25,7 +24,6 @@ import static java.lang.Math.min;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.Util;
@@ -51,25 +49,25 @@ import org.checkerframework.dataflow.qual.Pure;
   private final DecoderInputBuffer encoderOutputBuffer;
   private final AudioGraph audioGraph;
 
+  private final AudioGraphInput firstInput;
+  private final Format firstInputFormat;
+
+  private boolean returnedFirstInput;
   private long encoderTotalInputBytes;
 
   public AudioSampleExporter(
-      Format firstAssetLoaderInputFormat,
-      Format firstExporterInputFormat,
+      Format firstAssetLoaderTrackFormat,
+      Format firstInputFormat,
       TransformationRequest transformationRequest,
       EditedMediaItem firstEditedMediaItem,
       Codec.EncoderFactory encoderFactory,
       MuxerWrapper muxerWrapper,
       FallbackListener fallbackListener)
       throws ExportException {
-    super(firstAssetLoaderInputFormat, muxerWrapper);
-    checkArgument(firstExporterInputFormat.pcmEncoding != Format.NO_VALUE);
-
-    try {
-      audioGraph = new AudioGraph(firstExporterInputFormat, firstEditedMediaItem);
-    } catch (AudioProcessor.UnhandledAudioFormatException e) {
-      throw ExportException.createForAudioProcessing(e, "AudioGraph initialization");
-    }
+    super(firstAssetLoaderTrackFormat, muxerWrapper);
+    audioGraph = new AudioGraph();
+    this.firstInputFormat = firstInputFormat;
+    firstInput = audioGraph.registerInput(firstEditedMediaItem, firstInputFormat);
     encoderInputAudioFormat = audioGraph.getOutputAudioFormat();
     checkState(!encoderInputAudioFormat.equals(AudioFormat.NOT_SET));
 
@@ -78,7 +76,7 @@ import org.checkerframework.dataflow.qual.Pure;
             .setSampleMimeType(
                 transformationRequest.audioMimeType != null
                     ? transformationRequest.audioMimeType
-                    : checkNotNull(firstAssetLoaderInputFormat.sampleMimeType))
+                    : checkNotNull(firstAssetLoaderTrackFormat.sampleMimeType))
             .setSampleRate(encoderInputAudioFormat.sampleRate)
             .setChannelCount(encoderInputAudioFormat.channelCount)
             .setPcmEncoding(encoderInputAudioFormat.encoding)
@@ -105,8 +103,14 @@ import org.checkerframework.dataflow.qual.Pure;
   }
 
   @Override
-  public GraphInput getInput() {
-    return audioGraph;
+  public AudioGraphInput getInput(EditedMediaItem item, Format format) throws ExportException {
+    if (!returnedFirstInput) {
+      // First input initialized in constructor because output AudioFormat is needed.
+      returnedFirstInput = true;
+      checkState(format.equals(this.firstInputFormat));
+      return firstInput;
+    }
+    return audioGraph.registerInput(item, format);
   }
 
   @Override
@@ -118,7 +122,6 @@ import org.checkerframework.dataflow.qual.Pure;
   @Override
   protected boolean processDataUpToMuxer() throws ExportException {
 
-    // Returns same buffer until consumed. getOutput internally progresses underlying input data.
     ByteBuffer audioGraphBuffer = audioGraph.getOutput();
 
     if (!encoder.maybeDequeueInputBuffer(encoderInputBuffer)) {

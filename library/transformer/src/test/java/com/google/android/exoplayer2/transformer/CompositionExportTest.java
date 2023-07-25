@@ -17,15 +17,23 @@ package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.transformer.TestUtil.ASSET_URI_PREFIX;
 import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_ONLY;
+import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_RAW;
+import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_RAW_VIDEO;
 import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_VIDEO;
+import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_VIDEO_INCREASING_TIMESTAMPS_15S;
 import static com.google.android.exoplayer2.transformer.TestUtil.FILE_VIDEO_ONLY;
+import static com.google.android.exoplayer2.transformer.TestUtil.createEncodersAndDecoders;
 import static com.google.android.exoplayer2.transformer.TestUtil.createTransformerBuilder;
+import static com.google.android.exoplayer2.transformer.TestUtil.getDumpFileName;
+import static com.google.android.exoplayer2.transformer.TestUtil.removeEncodersAndDecoders;
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.transformer.TestUtil.TestMuxerFactory.TestMuxerHolder;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
@@ -43,19 +51,22 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public class CompositionExportTest {
 
+  private Context context;
   private String outputPath;
   private TestMuxerHolder testMuxerHolder;
 
   @Before
   public void setUp() throws Exception {
-    Context context = ApplicationProvider.getApplicationContext();
+    context = ApplicationProvider.getApplicationContext();
     outputPath = Util.createTempFile(context, "TransformerTest").getPath();
-    testMuxerHolder = new TestUtil.TestMuxerFactory.TestMuxerHolder();
+    testMuxerHolder = new TestMuxerHolder();
+    createEncodersAndDecoders();
   }
 
   @After
   public void tearDown() throws Exception {
     Files.delete(Paths.get(outputPath));
+    removeEncodersAndDecoders();
   }
 
   @Test
@@ -149,5 +160,119 @@ public class CompositionExportTest {
     assertThat(exportResult.videoFrameCount).isEqualTo(93);
     assertThat(exportResult.durationMs).isEqualTo(3108);
     assertThat(exportResult.fileSizeBytes).isEqualTo(337308);
+  }
+
+  @Test
+  public void start_loopingRawAudio_producesExpectedResult() throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+    EditedMediaItemSequence audioSequence =
+        new EditedMediaItemSequence(
+            ImmutableList.of(
+                new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW))
+                    .build()),
+            /* isLooping= */ true);
+
+    EditedMediaItem videoEditedMediaItem =
+        new EditedMediaItem.Builder(
+                MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO_INCREASING_TIMESTAMPS_15S))
+            .setRemoveAudio(true)
+            .build();
+    EditedMediaItemSequence videoSequence =
+        new EditedMediaItemSequence(ImmutableList.of(videoEditedMediaItem, videoEditedMediaItem));
+    Composition composition =
+        new Composition.Builder(ImmutableList.of(audioSequence, videoSequence))
+            .setTransmuxVideo(true)
+            .build();
+
+    transformer.start(composition, outputPath);
+    ExportResult exportResult = TransformerTestRunner.runLooper(transformer);
+
+    assertThat(exportResult.durationMs).isEqualTo(31_053);
+    // FILE_AUDIO_RAW duration is 1000ms. Input 32 times to cover the 31_053ms duration.
+    assertThat(exportResult.processedInputs).hasSize(34);
+    assertThat(exportResult.channelCount).isEqualTo(1);
+    assertThat(exportResult.fileSizeBytes).isEqualTo(5292662);
+  }
+
+  @Test
+  public void start_compositionOfConcurrentAudio_isCorrect() throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+
+    EditedMediaItem rawAudioItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW)).build();
+    EditedMediaItemSequence firstSequence =
+        new EditedMediaItemSequence(ImmutableList.of(rawAudioItem));
+
+    EditedMediaItemSequence secondSequence =
+        new EditedMediaItemSequence(ImmutableList.of(rawAudioItem));
+
+    transformer.start(
+        new Composition.Builder(ImmutableList.of(firstSequence, secondSequence)).build(),
+        outputPath);
+    ExportResult exportResult = TransformerTestRunner.runLooper(transformer);
+
+    assertThat(exportResult.processedInputs).hasSize(2);
+    DumpFileAsserts.assertOutput(
+        context,
+        checkNotNull(testMuxerHolder.testMuxer),
+        getDumpFileName(FILE_AUDIO_RAW + ".concurrent"));
+  }
+
+  @Test
+  public void start_audioVideoCompositionWithExtraAudio_isCorrect() throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+    EditedMediaItem audioVideoItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_VIDEO))
+            .build();
+    EditedMediaItemSequence audioVideoSeq =
+        new EditedMediaItemSequence(ImmutableList.of(audioVideoItem));
+
+    EditedMediaItem audioItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_VIDEO))
+            .setRemoveVideo(true)
+            .build();
+    EditedMediaItemSequence audioSeq = new EditedMediaItemSequence(ImmutableList.of(audioItem));
+
+    transformer.start(
+        new Composition.Builder(ImmutableList.of(audioVideoSeq, audioSeq))
+            .setTransmuxVideo(true)
+            .build(),
+        outputPath);
+    ExportResult exportResult = TransformerTestRunner.runLooper(transformer);
+
+    assertThat(exportResult.processedInputs).hasSize(2);
+    assertThat(exportResult.durationMs).isEqualTo(1984);
+  }
+
+  @Test
+  public void start_audioVideoCompositionWithLoopingAudio_isCorrect() throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+    EditedMediaItem audioVideoItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_VIDEO))
+            .build();
+    EditedMediaItemSequence audioVideoSeq =
+        new EditedMediaItemSequence(
+            ImmutableList.of(audioVideoItem, audioVideoItem, audioVideoItem));
+
+    EditedMediaItem audioItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_VIDEO))
+            .setRemoveVideo(true)
+            .build();
+    EditedMediaItemSequence audioSeq =
+        new EditedMediaItemSequence(ImmutableList.of(audioItem), /* isLooping= */ true);
+
+    transformer.start(
+        new Composition.Builder(ImmutableList.of(audioVideoSeq, audioSeq))
+            .setTransmuxVideo(true)
+            .build(),
+        outputPath);
+    ExportResult exportResult = TransformerTestRunner.runLooper(transformer);
+
+    assertThat(exportResult.processedInputs).hasSize(7);
+    assertThat(exportResult.durationMs).isEqualTo(5984);
   }
 }
