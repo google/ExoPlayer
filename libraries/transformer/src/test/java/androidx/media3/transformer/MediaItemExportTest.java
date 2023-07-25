@@ -354,6 +354,34 @@ public final class MediaItemExportTest {
   }
 
   @Test
+  public void start_forceAudioTrackAndRemoveAudioWithEffects_generatesSilentAudio()
+      throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+    SonicAudioProcessor sonicAudioProcessor = new SonicAudioProcessor();
+    sonicAudioProcessor.setOutputSampleRateHz(48000);
+    EditedMediaItem editedMediaItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO))
+            .setRemoveAudio(true)
+            .setEffects(new Effects(ImmutableList.of(sonicAudioProcessor), ImmutableList.of()))
+            .build();
+    EditedMediaItemSequence sequence =
+        new EditedMediaItemSequence(ImmutableList.of(editedMediaItem));
+    Composition composition =
+        new Composition.Builder(ImmutableList.of(sequence))
+            .experimentalSetForceAudioTrack(true)
+            .build();
+
+    transformer.start(composition, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    DumpFileAsserts.assertOutput(
+        context,
+        checkNotNull(testMuxerHolder.testMuxer),
+        getDumpFileName(FILE_AUDIO_VIDEO + ".silentaudio_48000hz"));
+  }
+
+  @Test
   public void start_forceAudioTrackAndRemoveVideo_isIgnored() throws Exception {
     Transformer transformer =
         createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
