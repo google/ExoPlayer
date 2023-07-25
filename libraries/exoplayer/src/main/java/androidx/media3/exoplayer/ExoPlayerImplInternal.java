@@ -1830,7 +1830,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
           }
         }
       }
-      enableRenderers(rendererWasEnabledFlags);
+      enableRenderers(rendererWasEnabledFlags, /* startPositionUs= */ rendererPositionUs);
     } else {
       // Release and re-prepare/buffer periods after the one whose selection changed.
       queue.removeAfter(periodHolder);
@@ -2558,10 +2558,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   private void enableRenderers() throws ExoPlaybackException {
-    enableRenderers(/* rendererWasEnabledFlags= */ new boolean[renderers.length]);
+    enableRenderers(
+        /* rendererWasEnabledFlags= */ new boolean[renderers.length],
+        queue.getReadingPeriod().getStartPositionRendererTime());
   }
 
-  private void enableRenderers(boolean[] rendererWasEnabledFlags) throws ExoPlaybackException {
+  private void enableRenderers(boolean[] rendererWasEnabledFlags, long startPositionUs)
+      throws ExoPlaybackException {
     MediaPeriodHolder readingMediaPeriod = queue.getReadingPeriod();
     TrackSelectorResult trackSelectorResult = readingMediaPeriod.getTrackSelectorResult();
     // Reset all disabled renderers before enabling any new ones. This makes sure resources released
@@ -2574,13 +2577,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
     // Enable the renderers.
     for (int i = 0; i < renderers.length; i++) {
       if (trackSelectorResult.isRendererEnabled(i)) {
-        enableRenderer(i, rendererWasEnabledFlags[i]);
+        enableRenderer(i, rendererWasEnabledFlags[i], startPositionUs);
       }
     }
     readingMediaPeriod.allRenderersInCorrectState = true;
   }
 
-  private void enableRenderer(int rendererIndex, boolean wasRendererEnabled)
+  private void enableRenderer(int rendererIndex, boolean wasRendererEnabled, long startPositionUs)
       throws ExoPlaybackException {
     Renderer renderer = renderers[rendererIndex];
     if (isRendererEnabled(renderer)) {
@@ -2607,7 +2610,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         rendererPositionUs,
         joining,
         mayRenderStartOfStream,
-        periodHolder.getStartPositionRendererTime(),
+        startPositionUs,
         periodHolder.getRendererOffset());
     renderer.handleMessage(
         Renderer.MSG_SET_WAKEUP_LISTENER,

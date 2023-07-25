@@ -13843,6 +13843,55 @@ public final class ExoPlayerTest {
     verify(listener, times(2)).onPlaybackStateChanged(Player.STATE_BUFFERING);
   }
 
+  @Test
+  public void newlyEnabledRendererMidPlayback_receivesCurrentPlaybackPositionAsStartTime()
+      throws Exception {
+    AtomicLong startPositionInRendererUs = new AtomicLong();
+    AtomicLong rendererOffsetUs = new AtomicLong();
+    FakeRenderer newlyEnabledRenderer =
+        new FakeRenderer(C.TRACK_TYPE_AUDIO) {
+          @Override
+          protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs)
+              throws ExoPlaybackException {
+            super.onStreamChanged(formats, startPositionUs, offsetUs);
+            startPositionInRendererUs.set(startPositionUs);
+            rendererOffsetUs.set(offsetUs);
+          }
+        };
+    Timeline timeline = new FakeTimeline();
+    ExoPlayer player =
+        new TestExoPlayerBuilder(context)
+            .setRenderers(new FakeRenderer(C.TRACK_TYPE_VIDEO), newlyEnabledRenderer)
+            .build();
+    player.setTrackSelectionParameters(
+        player
+            .getTrackSelectionParameters()
+            .buildUpon()
+            .setTrackTypeDisabled(C.TRACK_TYPE_AUDIO, /* disabled= */ true)
+            .build());
+    player.setMediaSource(
+        new FakeMediaSource(
+            timeline, ExoPlayerTestRunner.VIDEO_FORMAT, ExoPlayerTestRunner.AUDIO_FORMAT));
+    player.prepare();
+
+    playUntilPosition(player, /* mediaItemIndex= */ 0, /* positionMs= */ 1_250);
+    player.setTrackSelectionParameters(
+        player
+            .getTrackSelectionParameters()
+            .buildUpon()
+            .setTrackTypeDisabled(C.TRACK_TYPE_AUDIO, /* disabled= */ false)
+            .build());
+    player.play();
+    runUntilPlaybackState(player, STATE_ENDED);
+    player.release();
+
+    long expectedStartPositionInRendererUs =
+        1_250_000
+            + rendererOffsetUs.get()
+            + timeline.getWindow(/* windowIndex= */ 0, new Window()).positionInFirstPeriodUs;
+    assertThat(startPositionInRendererUs.get()).isEqualTo(expectedStartPositionInRendererUs);
+  }
+
   // Internal methods.
 
   private void addWatchAsSystemFeature() {
