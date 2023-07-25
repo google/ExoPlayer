@@ -177,7 +177,33 @@ public final class SequenceExportTest {
   }
 
   @Test
-  public void start_concatenateSilenceAndAudioWithTransmuxVideo_completesSuccessfully()
+  public void concatenateAudioAndSilence_withTransmuxVideo_completesSuccessfully()
+      throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_VIDEO);
+    EditedMediaItem audioVideoMediaItem = new EditedMediaItem.Builder(mediaItem).build();
+    EditedMediaItem videoOnlyMediaItem =
+        new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).build();
+    EditedMediaItemSequence sequence =
+        new EditedMediaItemSequence(ImmutableList.of(audioVideoMediaItem, videoOnlyMediaItem));
+    Composition composition =
+        new Composition.Builder(ImmutableList.of(sequence))
+            .experimentalSetForceAudioTrack(true)
+            .setTransmuxVideo(true)
+            .build();
+
+    transformer.start(composition, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    DumpFileAsserts.assertOutput(
+        context,
+        checkNotNull(testMuxerHolder.testMuxer),
+        getDumpFileName(FILE_AUDIO_RAW_VIDEO + ".audio_then_silence"));
+  }
+
+  @Test
+  public void concatenateSilenceAndAudio_withTransmuxVideo_completesSuccessfully()
       throws Exception {
     Transformer transformer =
         createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
@@ -203,20 +229,28 @@ public final class SequenceExportTest {
   }
 
   @Test
-  public void start_concatenateSilenceAndAudioWithEffectsAndTransmuxVideo_completesSuccessfully()
+  public void concatenateAudioAndSilence_withEffectsAndTransmuxVideo_completesSuccessfully()
       throws Exception {
     Transformer transformer =
         createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_VIDEO);
-    SonicAudioProcessor sonicAudioProcessor = createPitchChangingAudioProcessor(/* pitch= */ 2f);
-    Effects effects =
-        new Effects(ImmutableList.of(sonicAudioProcessor), /* videoEffects= */ ImmutableList.of());
-    EditedMediaItem noAudioEditedMediaItem =
-        new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).setEffects(effects).build();
     EditedMediaItem audioEditedMediaItem =
-        new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
+        new EditedMediaItem.Builder(mediaItem)
+            .setEffects(
+                new Effects(
+                    ImmutableList.of(createPitchChangingAudioProcessor(/* pitch= */ 2f)),
+                    /* videoEffects= */ ImmutableList.of()))
+            .build();
+    EditedMediaItem noAudioEditedMediaItem =
+        new EditedMediaItem.Builder(mediaItem)
+            .setRemoveAudio(true)
+            .setEffects(
+                new Effects(
+                    ImmutableList.of(createPitchChangingAudioProcessor(/* pitch= */ 2f)),
+                    /* videoEffects= */ ImmutableList.of()))
+            .build();
     EditedMediaItemSequence sequence =
-        new EditedMediaItemSequence(ImmutableList.of(noAudioEditedMediaItem, audioEditedMediaItem));
+        new EditedMediaItemSequence(ImmutableList.of(audioEditedMediaItem, noAudioEditedMediaItem));
     Composition composition =
         new Composition.Builder(ImmutableList.of(sequence))
             .experimentalSetForceAudioTrack(true)
@@ -229,7 +263,188 @@ public final class SequenceExportTest {
     DumpFileAsserts.assertOutput(
         context,
         checkNotNull(testMuxerHolder.testMuxer),
+        getDumpFileName(FILE_AUDIO_RAW_VIDEO + ".audio_then_silence_with_effects"));
+  }
+
+  @Test
+  public void concatenateSilenceAndAudio_withEffectsAndTransmuxVideo_completesSuccessfully()
+      throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_VIDEO);
+    EditedMediaItem noAudioEditedMediaItem =
+        new EditedMediaItem.Builder(mediaItem)
+            .setRemoveAudio(true)
+            .setEffects(
+                new Effects(
+                    ImmutableList.of(createPitchChangingAudioProcessor(/* pitch= */ 2f)),
+                    /* videoEffects= */ ImmutableList.of()))
+            .build();
+    EditedMediaItem audioEditedMediaItem =
+        new EditedMediaItem.Builder(mediaItem)
+            .setEffects(
+                new Effects(
+                    ImmutableList.of(createPitchChangingAudioProcessor(/* pitch= */ 2f)),
+                    /* videoEffects= */ ImmutableList.of()))
+            .build();
+    Composition composition =
+        new Composition.Builder(
+                ImmutableList.of(
+                    new EditedMediaItemSequence(
+                        ImmutableList.of(noAudioEditedMediaItem, audioEditedMediaItem))))
+            .experimentalSetForceAudioTrack(true)
+            .setTransmuxVideo(true)
+            .build();
+
+    transformer.start(composition, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    DumpFileAsserts.assertOutput(
+        context,
+        checkNotNull(testMuxerHolder.testMuxer),
         getDumpFileName(FILE_AUDIO_RAW_VIDEO + ".silence_then_audio_with_effects"));
+  }
+
+  @Test
+  public void concatenateSilenceAndSilence_withTransmuxVideo_completesSuccessfully()
+      throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_VIDEO);
+    EditedMediaItem videoOnlyMediaItem =
+        new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).build();
+    EditedMediaItemSequence sequence =
+        new EditedMediaItemSequence(ImmutableList.of(videoOnlyMediaItem, videoOnlyMediaItem));
+    Composition composition =
+        new Composition.Builder(ImmutableList.of(sequence))
+            .experimentalSetForceAudioTrack(true)
+            .setTransmuxVideo(true)
+            .build();
+
+    transformer.start(composition, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    DumpFileAsserts.assertOutput(
+        context,
+        checkNotNull(testMuxerHolder.testMuxer),
+        getDumpFileName(FILE_AUDIO_RAW_VIDEO + ".silence_then_silence"));
+  }
+
+  @Test
+  public void concatenateEditedSilenceAndSilence_withTransmuxVideo_completesSuccessfully()
+      throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_VIDEO);
+    EditedMediaItem silenceWithEffectsItem =
+        new EditedMediaItem.Builder(mediaItem)
+            .setRemoveAudio(true)
+            .setEffects(
+                new Effects(
+                    ImmutableList.of(createPitchChangingAudioProcessor(/* pitch= */ 2f)),
+                    /* videoEffects= */ ImmutableList.of()))
+            .build();
+    EditedMediaItem silenceItem =
+        new EditedMediaItem.Builder(mediaItem)
+            .setRemoveAudio(true)
+            .setEffects(
+                new Effects(
+                    ImmutableList.of(createPitchChangingAudioProcessor(/* pitch= */ 2f)),
+                    /* videoEffects= */ ImmutableList.of()))
+            .build();
+    EditedMediaItemSequence sequence =
+        new EditedMediaItemSequence(ImmutableList.of(silenceWithEffectsItem, silenceItem));
+    Composition composition =
+        new Composition.Builder(ImmutableList.of(sequence))
+            .experimentalSetForceAudioTrack(true)
+            .setTransmuxVideo(true)
+            .build();
+
+    transformer.start(composition, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    DumpFileAsserts.assertOutput(
+        context,
+        checkNotNull(testMuxerHolder.testMuxer),
+        getDumpFileName(FILE_AUDIO_RAW_VIDEO + ".silence-effects_then_silence"));
+  }
+
+  @Test
+  public void concatenateSilenceAndEditedSilence_withTransmuxVideo_completesSuccessfully()
+      throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_VIDEO);
+    EditedMediaItem silenceWithEffectsItem =
+        new EditedMediaItem.Builder(mediaItem)
+            .setRemoveAudio(true)
+            .setEffects(
+                new Effects(
+                    ImmutableList.of(createPitchChangingAudioProcessor(/* pitch= */ 2f)),
+                    /* videoEffects= */ ImmutableList.of()))
+            .build();
+    EditedMediaItem silenceItem =
+        new EditedMediaItem.Builder(mediaItem)
+            .setRemoveAudio(true)
+            .setEffects(
+                new Effects(
+                    ImmutableList.of(createPitchChangingAudioProcessor(/* pitch= */ 2f)),
+                    /* videoEffects= */ ImmutableList.of()))
+            .build();
+    EditedMediaItemSequence sequence =
+        new EditedMediaItemSequence(ImmutableList.of(silenceItem, silenceWithEffectsItem));
+    Composition composition =
+        new Composition.Builder(ImmutableList.of(sequence))
+            .experimentalSetForceAudioTrack(true)
+            .setTransmuxVideo(true)
+            .build();
+
+    transformer.start(composition, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    DumpFileAsserts.assertOutput(
+        context,
+        checkNotNull(testMuxerHolder.testMuxer),
+        getDumpFileName(FILE_AUDIO_RAW_VIDEO + ".silence_then_silence-effects"));
+  }
+
+  @Test
+  public void concatenateSilenceAndSilence_withEffectsAndTransmuxVideo_completesSuccessfully()
+      throws Exception {
+    Transformer transformer =
+        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_VIDEO);
+    EditedMediaItem firstItem =
+        new EditedMediaItem.Builder(mediaItem)
+            .setRemoveAudio(true)
+            .setEffects(
+                new Effects(
+                    ImmutableList.of(createPitchChangingAudioProcessor(/* pitch= */ 2f)),
+                    /* videoEffects= */ ImmutableList.of()))
+            .build();
+    EditedMediaItem secondItem =
+        new EditedMediaItem.Builder(mediaItem)
+            .setRemoveAudio(true)
+            .setEffects(
+                new Effects(
+                    ImmutableList.of(createPitchChangingAudioProcessor(/* pitch= */ 2f)),
+                    /* videoEffects= */ ImmutableList.of()))
+            .build();
+    EditedMediaItemSequence sequence =
+        new EditedMediaItemSequence(ImmutableList.of(firstItem, secondItem));
+    Composition composition =
+        new Composition.Builder(ImmutableList.of(sequence))
+            .experimentalSetForceAudioTrack(true)
+            .setTransmuxVideo(true)
+            .build();
+
+    transformer.start(composition, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    DumpFileAsserts.assertOutput(
+        context,
+        checkNotNull(testMuxerHolder.testMuxer),
+        getDumpFileName(FILE_AUDIO_RAW_VIDEO + ".silence_then_silence_with_effects"));
   }
 
   @Test
