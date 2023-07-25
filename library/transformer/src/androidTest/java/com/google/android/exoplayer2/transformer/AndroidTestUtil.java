@@ -15,13 +15,13 @@
  */
 package com.google.android.exoplayer2.transformer;
 
-import static com.google.android.exoplayer2.transformer.DefaultDecoderFactory.deviceNeedsDisableDecoding8kWorkaround;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_AV1;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_DOLBY_VISION;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_H264;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_H265;
+import static com.google.android.exoplayer2.util.Util.SDK_INT;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -855,7 +855,18 @@ public final class AndroidTestUtil {
           mediaFormat, MediaFormat.KEY_PROFILE, codecProfileAndLevel.first);
     }
     return EncoderUtil.findCodecForFormat(mediaFormat, /* isDecoder= */ true) != null
-        && !deviceNeedsDisableDecoding8kWorkaround(format);
+        && !deviceNeedsDisable8kWorkaround(format);
+  }
+
+  private static boolean deviceNeedsDisable8kWorkaround(Format format) {
+    // Fixed on API 31+. See http://b/278234847#comment40 for more information.
+    // Duplicate of DefaultDecoderFactory#deviceNeedsDisable8kWorkaround.
+    return SDK_INT < 31
+        && format.width >= 7680
+        && format.height >= 4320
+        && format.sampleMimeType != null
+        && format.sampleMimeType.equals(MimeTypes.VIDEO_H265)
+        && (Util.MODEL.equals("SM-F711U1") || Util.MODEL.equals("SM-F926U1"));
   }
 
   private static boolean canEncode(Format format) {
