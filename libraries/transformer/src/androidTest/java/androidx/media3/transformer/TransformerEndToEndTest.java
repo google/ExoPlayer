@@ -16,6 +16,7 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.transformer.AndroidTestUtil.JPG_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP3_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
@@ -69,6 +70,81 @@ public class TransformerEndToEndTest {
 
   private final Context context = ApplicationProvider.getApplicationContext();
   private volatile @MonotonicNonNull TextureAssetLoader textureAssetLoader;
+
+  @Test
+  public void compositionEditing_withThreeSequences_completes() throws Exception {
+    String testId = "compositionEditing_withThreeSequences_completes";
+    Transformer transformer = new Transformer.Builder(context).build();
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_FORMAT,
+        /* outputFormat= */ MP4_ASSET_FORMAT)) {
+      return;
+    }
+    EditedMediaItem audioVideoItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(MP4_ASSET_URI_STRING))
+            .setEffects(
+                new Effects(
+                    ImmutableList.of(createSonic(/* pitch= */ 2f)),
+                    ImmutableList.of(RgbFilter.createInvertedFilter())))
+            .build();
+    EditedMediaItem imageItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(JPG_ASSET_URI_STRING))
+            .setDurationUs(1_500_000)
+            .setFrameRate(30)
+            .build();
+
+    EditedMediaItemSequence audioVideoSequence =
+        new EditedMediaItemSequence(ImmutableList.of(audioVideoItem, imageItem, audioVideoItem));
+
+    EditedMediaItem.Builder audioBuilder =
+        new EditedMediaItem.Builder(MediaItem.fromUri(MP4_ASSET_URI_STRING)).setRemoveVideo(true);
+
+    EditedMediaItemSequence audioSequence =
+        new EditedMediaItemSequence(
+            ImmutableList.of(
+                audioBuilder
+                    .setEffects(
+                        new Effects(
+                            ImmutableList.of(createSonic(/* pitch= */ 1.3f)),
+                            /* videoEffects= */ ImmutableList.of()))
+                    .build(),
+                audioBuilder
+                    .setEffects(
+                        new Effects(
+                            ImmutableList.of(createSonic(/* pitch= */ 0.85f)),
+                            /* videoEffects= */ ImmutableList.of()))
+                    .build()));
+
+    EditedMediaItemSequence audioLoopingSequence =
+        new EditedMediaItemSequence(
+            ImmutableList.of(
+                audioBuilder
+                    .setEffects(
+                        new Effects(
+                            ImmutableList.of(createSonic(/* pitch= */ 0.4f)),
+                            /* videoEffects= */ ImmutableList.of()))
+                    .build()),
+            /* isLooping= */ true);
+
+    Composition composition =
+        new Composition.Builder(
+                ImmutableList.of(audioVideoSequence, audioSequence, audioLoopingSequence))
+            .build();
+
+    ExportTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, composition);
+
+    // MP4_ASSET duration is ~1s.
+    // Image asset duration is ~1.5s.
+    // audioVideoSequence duration: ~3.5s (3 inputs).
+    // audioSequence duration: ~2s (2 inputs).
+    // audioLoopingSequence: Matches max other sequence (~3.5s) -> 4 inputs of ~1s audio item.
+    assertThat(result.exportResult.processedInputs).hasSize(9);
+  }
 
   @Test
   public void videoEditing_withImageInput_completesWithCorrectFrameCountAndDuration()
@@ -403,7 +479,7 @@ public class TransformerEndToEndTest {
         /* outputFormat= */ MP4_ASSET_FORMAT)) {
       return;
     }
-    ImmutableList<AudioProcessor> audioProcessors = ImmutableList.of(new SonicAudioProcessor());
+    ImmutableList<AudioProcessor> audioProcessors = ImmutableList.of(createSonic(1.2f));
     ImmutableList<Effect> videoEffects = ImmutableList.of(RgbFilter.createGrayscaleFilter());
     MediaItem mediaItem = MediaItem.fromUri(Uri.parse(MP4_ASSET_URI_STRING));
     EditedMediaItem editedMediaItem =
@@ -612,5 +688,11 @@ public class TransformerEndToEndTest {
     public boolean videoNeedsEncoding() {
       return true;
     }
+  }
+
+  private static AudioProcessor createSonic(float pitch) {
+    SonicAudioProcessor sonic = new SonicAudioProcessor();
+    sonic.setPitch(pitch);
+    return sonic;
   }
 }

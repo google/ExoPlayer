@@ -18,17 +18,28 @@ package androidx.media3.transformer;
 import static androidx.media3.test.utils.TestUtil.createByteBuffer;
 import static androidx.media3.test.utils.TestUtil.createFloatArray;
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assume.assumeFalse;
+import static org.junit.Assume.assumeTrue;
 
 import androidx.media3.common.C;
 import androidx.media3.common.audio.AudioProcessor.AudioFormat;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.ParameterizedRobolectricTestRunner;
+import org.robolectric.ParameterizedRobolectricTestRunner.Parameter;
+import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
 
 /** Unit tests for {@link AudioMixerImpl}. */
-@RunWith(AndroidJUnit4.class)
+@RunWith(ParameterizedRobolectricTestRunner.class)
 public final class AudioMixerImplTest {
+
+  @Parameters(name = "{0}")
+  public static ImmutableList<Boolean> parameters() {
+    return ImmutableList.of(false, true);
+  }
 
   private static final int SAMPLE_RATE = 1000; // 1 ms = 1 frame.
   private static final AudioFormat AUDIO_FORMAT_STEREO_PCM_FLOAT =
@@ -36,15 +47,58 @@ public final class AudioMixerImplTest {
   private static final AudioFormat AUDIO_FORMAT_STEREO_PCM_16BIT =
       new AudioFormat(SAMPLE_RATE, /* channelCount= */ 2, C.ENCODING_PCM_16BIT);
 
-  private final AudioMixer mixer = new AudioMixerImpl();
+  @Parameter public boolean outputSilenceWithNoSources;
+
+  private AudioMixer mixer;
+
+  @Before
+  public void setup() {
+    mixer = new AudioMixerImpl(outputSilenceWithNoSources);
+  }
 
   @Test
-  public void output_withNoSource_isSilence() throws Exception {
+  public void output_withNoSource_whenOutputSilenceWithNoSources_isSilence() throws Exception {
+    assumeTrue(outputSilenceWithNoSources);
     mixer.configure(AUDIO_FORMAT_STEREO_PCM_FLOAT, /* bufferSizeMs= */ 3, /* startTimeUs= */ 0);
 
     assertThat(createFloatArray(mixer.getOutput())).isEqualTo(new float[6]);
     // Repeated calls produce more silence.
     assertThat(createFloatArray(mixer.getOutput())).isEqualTo(new float[6]);
+  }
+
+  @Test
+  public void output_withOneEndedSource_whenOutputSilenceWithNoSources_isInputThenSilence()
+      throws Exception {
+    assumeTrue(outputSilenceWithNoSources);
+    mixer.configure(AUDIO_FORMAT_STEREO_PCM_FLOAT, /* bufferSizeMs= */ 3, /* startTimeUs= */ 0);
+
+    int sourceId = mixer.addSource(AUDIO_FORMAT_STEREO_PCM_FLOAT, /* startTimeUs= */ 0);
+    mixer.queueInput(sourceId, createByteBuffer(new float[] {0.1f, -0.1f}));
+    mixer.removeSource(sourceId);
+
+    assertThat(createFloatArray(mixer.getOutput()))
+        .isEqualTo(new float[] {0.1f, -0.1f, 0f, 0f, 0f, 0f});
+  }
+
+  @Test
+  public void output_withNoSource_whenNotOutputSilenceWithNoSources_isEmpty() throws Exception {
+    assumeFalse(outputSilenceWithNoSources);
+    mixer.configure(AUDIO_FORMAT_STEREO_PCM_FLOAT, /* bufferSizeMs= */ 3, /* startTimeUs= */ 0);
+
+    assertThat(createFloatArray(mixer.getOutput())).isEqualTo(new float[0]);
+  }
+
+  @Test
+  public void output_withOneEndedSource_whenNotOutputSilenceWithNoSources_isInput()
+      throws Exception {
+    assumeFalse(outputSilenceWithNoSources);
+    mixer.configure(AUDIO_FORMAT_STEREO_PCM_FLOAT, /* bufferSizeMs= */ 3, /* startTimeUs= */ 0);
+
+    int sourceId = mixer.addSource(AUDIO_FORMAT_STEREO_PCM_FLOAT, /* startTimeUs= */ 0);
+    mixer.queueInput(sourceId, createByteBuffer(new float[] {0.1f, -0.1f}));
+    mixer.removeSource(sourceId);
+
+    assertThat(createFloatArray(mixer.getOutput())).isEqualTo(new float[] {0.1f, -0.1f});
   }
 
   @Test
@@ -217,18 +271,6 @@ public final class AudioMixerImplTest {
 
     assertThat(createFloatArray(mixer.getOutput()))
         .isEqualTo(new float[] {0.125f, 0.25f, 0.125f, 0.25f, 0.125f, 0.25f});
-  }
-
-  @Test
-  public void output_withOneEndedSource_isInputThenSilence() throws Exception {
-    mixer.configure(AUDIO_FORMAT_STEREO_PCM_FLOAT, /* bufferSizeMs= */ 3, /* startTimeUs= */ 0);
-
-    int sourceId = mixer.addSource(AUDIO_FORMAT_STEREO_PCM_FLOAT, /* startTimeUs= */ 0);
-    mixer.queueInput(sourceId, createByteBuffer(new float[] {0.1f, -0.1f}));
-    mixer.removeSource(sourceId);
-
-    assertThat(createFloatArray(mixer.getOutput()))
-        .isEqualTo(new float[] {0.1f, -0.1f, 0f, 0f, 0f, 0f});
   }
 
   @Test

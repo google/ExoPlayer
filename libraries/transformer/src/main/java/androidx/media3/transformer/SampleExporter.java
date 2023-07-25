@@ -61,8 +61,13 @@ import java.util.List;
    * from the thread used to call the other {@link GraphInput} methods. All subsequent {@link
    * GraphInput} method calls must be made from the thread on which {@link
    * GraphInput#onMediaItemChanged} is called.
+   *
+   * @param editedMediaItem The initial {@link EditedMediaItem} of the input.
+   * @param format The initial {@link Format} of the input.
+   * @throws ExportException If an error occurs getting the input.
    */
-  public abstract GraphInput getInput();
+  public abstract GraphInput getInput(EditedMediaItem editedMediaItem, Format format)
+      throws ExportException;
 
   /**
    * Processes the input data and returns whether it may be possible to process more data by calling

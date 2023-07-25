@@ -18,363 +18,112 @@ package androidx.media3.transformer;
 
 import static androidx.media3.common.audio.AudioProcessor.EMPTY_BUFFER;
 import static androidx.media3.common.util.Assertions.checkArgument;
-import static androidx.media3.common.util.Assertions.checkNotNull;
-import static androidx.media3.common.util.Assertions.checkState;
-import static androidx.media3.common.util.Assertions.checkStateNotNull;
-import static androidx.media3.decoder.DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DIRECT;
 
-import androidx.annotation.Nullable;
+import android.util.SparseArray;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
-import androidx.media3.common.MimeTypes;
-import androidx.media3.common.audio.AudioProcessingPipeline;
-import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.audio.AudioProcessor.AudioFormat;
 import androidx.media3.common.audio.AudioProcessor.UnhandledAudioFormatException;
-import androidx.media3.common.audio.ChannelMixingAudioProcessor;
-import androidx.media3.common.audio.ChannelMixingMatrix;
-import androidx.media3.common.audio.SonicAudioProcessor;
-import androidx.media3.common.audio.SpeedChangingAudioProcessor;
-import androidx.media3.common.util.NullableType;
-import androidx.media3.decoder.DecoderInputBuffer;
-import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.atomic.AtomicReference;
 
 /** Processes raw audio samples. */
-/* package */ final class AudioGraph implements GraphInput {
-  private static final int MAX_INPUT_BUFFER_COUNT = 10;
-  private final AudioFormat outputAudioFormat;
-  private final SilentAudioGenerator silentAudioGenerator;
-  private final Queue<DecoderInputBuffer> availableInputBuffers;
-  private final Queue<DecoderInputBuffer> pendingInputBuffers;
-  private final AtomicReference<@NullableType MediaItemChange> pendingMediaItemChange;
+/* package */ final class AudioGraph {
+  private final AudioMixerImpl mixer;
+  private final SparseArray<AudioGraphInput> inputs;
 
-  @Nullable private DecoderInputBuffer currentInputBufferBeingOutput;
-  private AudioProcessingPipeline audioProcessingPipeline;
-  private boolean processedFirstMediaItemChange;
-  private boolean receivedEndOfStreamFromInput;
-  private boolean queueEndOfStreamAfterSilence;
+  private int finishedInputs;
+  private ByteBuffer currentOutput;
 
-  // TODO(b/260618558): Move silent audio generation upstream of this component.
-  public AudioGraph(Format firstInputFormat, EditedMediaItem firstEditedMediaItem)
-      throws UnhandledAudioFormatException {
-    checkArgument(firstInputFormat.pcmEncoding != Format.NO_VALUE);
-    availableInputBuffers = new ConcurrentLinkedDeque<>();
-    ByteBuffer emptyBuffer = ByteBuffer.allocateDirect(0).order(ByteOrder.nativeOrder());
-    for (int i = 0; i < MAX_INPUT_BUFFER_COUNT; i++) {
-      DecoderInputBuffer inputBuffer = new DecoderInputBuffer(BUFFER_REPLACEMENT_MODE_DIRECT);
-      inputBuffer.data = emptyBuffer;
-      availableInputBuffers.add(inputBuffer);
-    }
-    pendingInputBuffers = new ConcurrentLinkedDeque<>();
-    pendingMediaItemChange = new AtomicReference<>();
-    AudioFormat inputAudioFormat = new AudioFormat(firstInputFormat);
-    silentAudioGenerator = new SilentAudioGenerator(inputAudioFormat);
-    audioProcessingPipeline =
-        configureProcessing(
-            /* editedMediaItem= */ firstEditedMediaItem,
-            /* trackFormat= */ firstInputFormat,
-            /* inputAudioFormat= */ inputAudioFormat,
-            /* requiredOutputAudioFormat= */ AudioFormat.NOT_SET);
-    // APP configuration not active until flush called. getOutputAudioFormat based on active config.
-    audioProcessingPipeline.flush();
-    outputAudioFormat = audioProcessingPipeline.getOutputAudioFormat();
+  /** Creates an instance. */
+  public AudioGraph() {
+    mixer = new AudioMixerImpl(/* outputSilenceWithNoSources= */ false);
+    inputs = new SparseArray<>();
+    currentOutput = EMPTY_BUFFER;
   }
 
-  public AudioFormat getOutputAudioFormat() {
-    return outputAudioFormat;
+  /** Returns a new {@link AudioGraphInput} instance. */
+  public AudioGraphInput registerInput(EditedMediaItem item, Format format) throws ExportException {
+    checkArgument(format.pcmEncoding != Format.NO_VALUE);
+    try {
+      AudioGraphInput audioGraphInput = new AudioGraphInput(item, format);
+
+      if (inputs.size() == 0) {
+        mixer.configure(
+            audioGraphInput.getOutputAudioFormat(),
+            /* bufferSizeMs= */ C.LENGTH_UNSET,
+            /* startTimeUs= */ 0);
+      }
+
+      int sourceId = mixer.addSource(audioGraphInput.getOutputAudioFormat(), /* startTimeUs= */ 0);
+      inputs.append(sourceId, audioGraphInput);
+      return audioGraphInput;
+    } catch (UnhandledAudioFormatException e) {
+      throw ExportException.createForAudioProcessing(e, "existingInputs=" + inputs.size());
+    }
   }
 
   /**
-   * Returns a {@link ByteBuffer} of output.
+   * Returns the {@link AudioFormat} of the {@linkplain #getOutput() output}.
    *
-   * @throws ExportException If the configuration of underlying components fails as a result of
-   *     upstream changes.
+   * <p>{@link AudioFormat#NOT_SET} is returned if no inputs have been {@linkplain #registerInput
+   * registered}.
+   */
+  public AudioFormat getOutputAudioFormat() {
+    return mixer.getOutputAudioFormat();
+  }
+
+  /**
+   * Returns a {@link ByteBuffer} containing output data between the position and limit.
+   *
+   * <p>The same buffer is returned until it has been fully consumed ({@code position == limit}).
    */
   public ByteBuffer getOutput() throws ExportException {
-    ByteBuffer outputBuffer = getOutputInternal();
-
-    if (outputBuffer.hasRemaining()) {
-      return outputBuffer;
+    if (!mixer.isEnded()) {
+      feedMixer();
     }
-
-    if (!hasDataToOutput() && pendingMediaItemChange.get() != null) {
-      try {
-        configureForPendingMediaItemChange();
-      } catch (AudioProcessor.UnhandledAudioFormatException e) {
-        throw ExportException.createForAudioProcessing(e, "AudioGraph reconfiguration");
-      }
+    if (currentOutput.hasRemaining()) {
+      return currentOutput;
     }
-
-    return EMPTY_BUFFER;
+    currentOutput = mixer.getOutput();
+    return currentOutput;
   }
 
-  @Override
-  public void onMediaItemChanged(
-      EditedMediaItem editedMediaItem,
-      long durationUs,
-      @Nullable Format trackFormat,
-      boolean isLast) {
-    if (trackFormat == null) {
-      checkState(
-          durationUs != C.TIME_UNSET,
-          "Could not generate silent audio because duration is unknown.");
-    } else {
-      checkState(MimeTypes.isAudio(trackFormat.sampleMimeType));
-      checkState(trackFormat.pcmEncoding != Format.NO_VALUE);
-    }
-    pendingMediaItemChange.set(
-        new MediaItemChange(editedMediaItem, durationUs, trackFormat, isLast));
-  }
-
-  @Override
-  @Nullable
-  public DecoderInputBuffer getInputBuffer() {
-    if (silentAudioGenerator.hasRemaining() || pendingMediaItemChange.get() != null) {
-      return null;
-    }
-    return availableInputBuffers.peek();
-  }
-
-  @Override
-  public boolean queueInputBuffer() {
-    checkState(pendingMediaItemChange.get() == null);
-    DecoderInputBuffer inputBuffer = availableInputBuffers.remove();
-    pendingInputBuffers.add(inputBuffer);
-    return true;
-  }
-
+  /** Releases underlying resources, including clearing the inputs. */
   public void release() {
-    audioProcessingPipeline.reset();
+    for (int i = 0; i < inputs.size(); i++) {
+      inputs.valueAt(i).release();
+    }
+    inputs.clear();
+    mixer.reset();
   }
 
   /** Returns whether the input has ended and all queued data has been output. */
   public boolean isEnded() {
-    if (hasDataToOutput()) {
-      return false;
-    }
-    if (pendingMediaItemChange.get() != null) {
-      return false;
-    }
-    return receivedEndOfStreamFromInput || queueEndOfStreamAfterSilence;
+    return !currentOutput.hasRemaining() && finishedInputs >= inputs.size() && mixer.isEnded();
   }
 
-  private ByteBuffer getOutputInternal() {
-    if (!processedFirstMediaItemChange) {
-      return EMPTY_BUFFER;
+  private void feedMixer() throws ExportException {
+    for (int i = 0; i < inputs.size(); i++) {
+      feedMixerFromInput(inputs.keyAt(i), inputs.valueAt(i));
     }
-
-    if (!audioProcessingPipeline.isOperational()) {
-      return feedOutputFromInput();
-    }
-
-    // Ensure APP progresses as much as possible.
-    while (feedProcessingPipelineFromInput()) {}
-    return audioProcessingPipeline.getOutput();
   }
 
-  private boolean feedProcessingPipelineFromInput() {
-    if (silentAudioGenerator.hasRemaining()) {
-      ByteBuffer inputData = silentAudioGenerator.getBuffer();
-      audioProcessingPipeline.queueInput(inputData);
-      if (inputData.hasRemaining()) {
-        return false;
-      }
-      if (!silentAudioGenerator.hasRemaining()) {
-        audioProcessingPipeline.queueEndOfStream();
-        return false;
-      }
-      return true;
+  private void feedMixerFromInput(int sourceId, AudioGraphInput input) throws ExportException {
+    if (!mixer.hasSource(sourceId)) {
+      return;
     }
 
-    @Nullable DecoderInputBuffer pendingInputBuffer = pendingInputBuffers.peek();
-    if (pendingInputBuffer == null) {
-      if (pendingMediaItemChange.get() != null) {
-        audioProcessingPipeline.queueEndOfStream();
-      }
-      return false;
+    if (input.isEnded()) {
+      mixer.removeSource(sourceId);
+      finishedInputs++;
+      return;
     }
 
-    if (pendingInputBuffer.isEndOfStream()) {
-      audioProcessingPipeline.queueEndOfStream();
-      receivedEndOfStreamFromInput = true;
-      clearAndAddToAvailableBuffers(pendingInputBuffers.remove());
-      return false;
-    }
-
-    ByteBuffer inputData = checkNotNull(pendingInputBuffer.data);
-    audioProcessingPipeline.queueInput(inputData);
-    if (inputData.hasRemaining()) {
-      return false;
-    }
-    clearAndAddToAvailableBuffers(pendingInputBuffers.remove());
-    return true;
-  }
-
-  private ByteBuffer feedOutputFromInput() {
-    if (silentAudioGenerator.hasRemaining()) {
-      return silentAudioGenerator.getBuffer();
-    }
-
-    // When output is fed directly from input, the output ByteBuffer is linked to a specific
-    // DecoderInputBuffer. Therefore it must be consumed by the downstream component before it can
-    // be used for fresh input.
-    @Nullable DecoderInputBuffer previousOutputBuffer = currentInputBufferBeingOutput;
-    if (previousOutputBuffer != null) {
-      ByteBuffer data = checkStateNotNull(previousOutputBuffer.data);
-      if (data.hasRemaining()) {
-        // Currently output data has not been consumed, return it.
-        return data;
-      }
-      clearAndAddToAvailableBuffers(previousOutputBuffer);
-      currentInputBufferBeingOutput = null;
-    }
-
-    @Nullable DecoderInputBuffer currentInputBuffer = pendingInputBuffers.poll();
-    if (currentInputBuffer == null) {
-      return EMPTY_BUFFER;
-    }
-    @Nullable ByteBuffer currentInputBufferData = currentInputBuffer.data;
-    receivedEndOfStreamFromInput = currentInputBuffer.isEndOfStream();
-
-    // If there is no input data, make buffer available, ensuring underlying data reference is not
-    // kept. Data associated with EOS buffer is ignored.
-    if (currentInputBufferData == null
-        || !currentInputBufferData.hasRemaining()
-        || receivedEndOfStreamFromInput) {
-      clearAndAddToAvailableBuffers(currentInputBuffer);
-      return EMPTY_BUFFER;
-    }
-
-    currentInputBufferBeingOutput = currentInputBuffer;
-    return currentInputBufferData;
-  }
-
-  private boolean hasDataToOutput() {
-    if (!processedFirstMediaItemChange) {
-      return false;
-    }
-
-    if (currentInputBufferBeingOutput != null
-        && currentInputBufferBeingOutput.data != null
-        && currentInputBufferBeingOutput.data.hasRemaining()) {
-      return true;
-    }
-    if (silentAudioGenerator.hasRemaining()) {
-      return true;
-    }
-    if (!pendingInputBuffers.isEmpty()) {
-      return true;
-    }
-    if (audioProcessingPipeline.isOperational() && !audioProcessingPipeline.isEnded()) {
-      return true;
-    }
-    return false;
-  }
-
-  private void clearAndAddToAvailableBuffers(DecoderInputBuffer inputBuffer) {
-    inputBuffer.clear();
-    inputBuffer.timeUs = 0;
-    availableInputBuffers.add(inputBuffer);
-  }
-
-  /**
-   * Configures the graph based on the pending {@linkplain #onMediaItemChanged media item change}.
-   *
-   * <p>Before configuration, all {@linkplain #hasDataToOutput() pending data} must be consumed
-   * through {@link #getOutput()}.
-   */
-  private void configureForPendingMediaItemChange() throws UnhandledAudioFormatException {
-    MediaItemChange pendingChange = checkStateNotNull(pendingMediaItemChange.get());
-
-    AudioFormat pendingAudioFormat;
-    if (pendingChange.format != null) {
-      pendingAudioFormat = new AudioFormat(pendingChange.format);
-    } else { // Generating silence
-      pendingAudioFormat = silentAudioGenerator.audioFormat;
-      silentAudioGenerator.addSilence(pendingChange.durationUs);
-      if (pendingChange.isLast) {
-        queueEndOfStreamAfterSilence = true;
-      }
-    }
-
-    if (processedFirstMediaItemChange) {
-      // APP is configured in constructor for first media item.
-      audioProcessingPipeline =
-          configureProcessing(
-              /* editedMediaItem= */ pendingChange.editedMediaItem,
-              /* trackFormat= */ pendingChange.format,
-              /* inputAudioFormat= */ pendingAudioFormat,
-              /* requiredOutputAudioFormat= */ outputAudioFormat);
-    }
-    audioProcessingPipeline.flush();
-    pendingMediaItemChange.set(null);
-    receivedEndOfStreamFromInput = false;
-    processedFirstMediaItemChange = true;
-  }
-
-  private static AudioProcessingPipeline configureProcessing(
-      EditedMediaItem editedMediaItem,
-      @Nullable Format trackFormat,
-      AudioFormat inputAudioFormat,
-      AudioFormat requiredOutputAudioFormat)
-      throws UnhandledAudioFormatException {
-    ImmutableList.Builder<AudioProcessor> audioProcessors = new ImmutableList.Builder<>();
-    if (editedMediaItem.flattenForSlowMotion
-        && trackFormat != null
-        && trackFormat.metadata != null) {
-      audioProcessors.add(
-          new SpeedChangingAudioProcessor(new SegmentSpeedProvider(trackFormat.metadata)));
-    }
-    audioProcessors.addAll(editedMediaItem.effects.audioProcessors);
-    // Ensure the output from APP matches what the encoder is configured to receive.
-    if (!requiredOutputAudioFormat.equals(AudioFormat.NOT_SET)) {
-      SonicAudioProcessor sampleRateChanger = new SonicAudioProcessor();
-      sampleRateChanger.setOutputSampleRateHz(requiredOutputAudioFormat.sampleRate);
-      audioProcessors.add(sampleRateChanger);
-
-      // TODO(b/262706549): Handle channel mixing with AudioMixer.
-      if (requiredOutputAudioFormat.channelCount <= 2) {
-        // ChannelMixingMatrix.create only has defaults for mono/stereo input/output.
-        ChannelMixingAudioProcessor channelCountChanger = new ChannelMixingAudioProcessor();
-        channelCountChanger.putChannelMixingMatrix(
-            ChannelMixingMatrix.create(
-                /* inputChannelCount= */ 1, requiredOutputAudioFormat.channelCount));
-        channelCountChanger.putChannelMixingMatrix(
-            ChannelMixingMatrix.create(
-                /* inputChannelCount= */ 2, requiredOutputAudioFormat.channelCount));
-        audioProcessors.add(channelCountChanger);
-      }
-    }
-
-    AudioProcessingPipeline audioProcessingPipeline =
-        new AudioProcessingPipeline(audioProcessors.build());
-    AudioFormat outputAudioFormat = audioProcessingPipeline.configure(inputAudioFormat);
-    if (!requiredOutputAudioFormat.equals(AudioFormat.NOT_SET)
-        && !outputAudioFormat.equals(requiredOutputAudioFormat)) {
-      throw new UnhandledAudioFormatException(
-          "Audio format can not be modified to match existing downstream format", inputAudioFormat);
-    }
-
-    return audioProcessingPipeline;
-  }
-
-  private static final class MediaItemChange {
-    public final EditedMediaItem editedMediaItem;
-    public final long durationUs;
-    @Nullable public final Format format;
-    public final boolean isLast;
-
-    public MediaItemChange(
-        EditedMediaItem editedMediaItem, long durationUs, @Nullable Format format, boolean isLast) {
-      this.editedMediaItem = editedMediaItem;
-      this.durationUs = durationUs;
-      this.format = format;
-      this.isLast = isLast;
+    try {
+      mixer.queueInput(sourceId, input.getOutput());
+    } catch (UnhandledAudioFormatException e) {
+      throw ExportException.createForAudioProcessing(
+          e, "AudioGraphInput (sourceId=" + sourceId + ") reconfiguration");
     }
   }
 }

@@ -15,9 +15,11 @@
  */
 package androidx.media3.transformer;
 
+import static androidx.media3.common.audio.AudioProcessor.EMPTY_BUFFER;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
+import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 import android.util.SparseArray;
@@ -33,8 +35,8 @@ import java.nio.ByteOrder;
 /** An {@link AudioMixer} that incrementally mixes source audio into a fixed size mixing buffer. */
 /* package */ final class AudioMixerImpl implements AudioMixer {
 
-  private static final ByteBuffer EMPTY_BUFFER =
-      ByteBuffer.allocateDirect(0).order(ByteOrder.nativeOrder());
+  // TODO(b/290002438, b/276734854): Improve buffer management & determine best default size.
+  private static final int DEFAULT_BUFFER_SIZE_MS = 500;
 
   private final SparseArray<SourceInfo> sources;
   private int nextSourceId;
@@ -52,7 +54,19 @@ import java.nio.ByteOrder;
   /** Position (in frames) of the mixer end point, relative to the mixer start. */
   private long endPosition;
 
-  public AudioMixerImpl() {
+  /**
+   * Largest position (in frames) of {@link #removeSource(int) removed} sources, relative to the
+   * mixer start.
+   */
+  private long maxPositionOfRemovedSources;
+
+  /**
+   * Creates an instance.
+   *
+   * @param outputSilenceWithNoSources Whether {@link #getOutput()} should output buffers of silence
+   *     when there are no {@link #addSource sources}.
+   */
+  public AudioMixerImpl(boolean outputSilenceWithNoSources) {
     sources = new SparseArray<>();
     outputAudioFormat = AudioFormat.NOT_SET;
     bufferSizeFrames = C.LENGTH_UNSET;
@@ -60,6 +74,13 @@ import java.nio.ByteOrder;
     mixerStartTimeUs = C.TIME_UNSET;
     inputLimit = C.LENGTH_UNSET;
     endPosition = Long.MAX_VALUE;
+    if (outputSilenceWithNoSources) {
+      maxPositionOfRemovedSources = Long.MAX_VALUE;
+    }
+  }
+
+  public AudioFormat getOutputAudioFormat() {
+    return outputAudioFormat;
   }
 
   @Override
@@ -68,6 +89,11 @@ import java.nio.ByteOrder;
     checkState(
         this.outputAudioFormat.equals(AudioFormat.NOT_SET), "Audio mixer already configured.");
 
+    if (bufferSizeMs == C.LENGTH_UNSET) {
+      bufferSizeMs = DEFAULT_BUFFER_SIZE_MS;
+    }
+    checkArgument(bufferSizeMs > 0);
+
     if (!AudioMixingUtil.canMix(outputAudioFormat)) {
       throw new UnhandledAudioFormatException(
           "Can not mix to this AudioFormat.", outputAudioFormat);
@@ -75,7 +101,6 @@ import java.nio.ByteOrder;
     this.outputAudioFormat = outputAudioFormat;
     bufferSizeFrames = bufferSizeMs * outputAudioFormat.sampleRate / 1000;
     mixerStartTimeUs = startTimeUs;
-
     mixingBuffers =
         new MixingBuffer[] {allocateMixingBuffer(0), allocateMixingBuffer(bufferSizeFrames)};
     updateInputFrameLimit();
@@ -106,7 +131,8 @@ import java.nio.ByteOrder;
       throws UnhandledAudioFormatException {
     checkStateIsConfigured();
     if (!supportsSourceAudioFormat(sourceFormat)) {
-      throw new UnhandledAudioFormatException(sourceFormat);
+      throw new UnhandledAudioFormatException(
+          "Can not add source. MixerFormat=" + outputAudioFormat, sourceFormat);
     }
 
     long startFrameOffset =
@@ -125,6 +151,11 @@ import java.nio.ByteOrder;
     return sourceId;
   }
 
+  public boolean hasSource(int sourceId) {
+    checkStateIsConfigured();
+    return sources.get(sourceId) != null;
+  }
+
   @Override
   public void setSourceVolume(int sourceId, float volume) {
     checkStateIsConfigured();
@@ -137,12 +168,17 @@ import java.nio.ByteOrder;
   @Override
   public void removeSource(int sourceId) {
     checkStateIsConfigured();
+    maxPositionOfRemovedSources =
+        max(maxPositionOfRemovedSources, getSourceById(sourceId).position);
     sources.delete(sourceId);
   }
 
   @Override
   public void queueInput(int sourceId, ByteBuffer sourceBuffer) {
     checkStateIsConfigured();
+    if (!sourceBuffer.hasRemaining()) {
+      return;
+    }
 
     SourceInfo source = getSourceById(sourceId);
     if (source.position >= inputLimit) {
@@ -188,8 +224,12 @@ import java.nio.ByteOrder;
   @Override
   public ByteBuffer getOutput() {
     checkStateIsConfigured();
+    if (isEnded()) {
+      return EMPTY_BUFFER;
+    }
 
-    long minSourcePosition = endPosition;
+    long minSourcePosition = sources.size() == 0 ? maxPositionOfRemovedSources : endPosition;
+
     for (int i = 0; i < sources.size(); i++) {
       minSourcePosition = min(minSourcePosition, sources.valueAt(i).position);
     }
@@ -221,7 +261,8 @@ import java.nio.ByteOrder;
   @Override
   public boolean isEnded() {
     checkStateIsConfigured();
-    return outputPosition >= endPosition;
+    return outputPosition >= endPosition
+        || (outputPosition >= maxPositionOfRemovedSources && sources.size() == 0);
   }
 
   @Override

@@ -15,6 +15,7 @@
  */
 package androidx.media3.transformer;
 
+import androidx.media3.common.C;
 import androidx.media3.common.audio.AudioProcessor.AudioFormat;
 import androidx.media3.common.audio.AudioProcessor.UnhandledAudioFormatException;
 import androidx.media3.common.util.UnstableApi;
@@ -54,7 +55,7 @@ import java.nio.ByteBuffer;
 public interface AudioMixer {
   /** Creates an unconfigured instance. */
   public static AudioMixer create() {
-    return new AudioMixerImpl();
+    return new AudioMixerImpl(/* outputSilenceWithNoSources= */ true);
   }
 
   /**
@@ -67,7 +68,7 @@ public interface AudioMixer {
    * queued before {@link #getOutput()} is called.
    *
    * @param outputAudioFormat The audio format of buffers returned from {@link #getOutput()}.
-   * @param bufferSizeMs The mixing buffer size in milliseconds.
+   * @param bufferSizeMs The optional mixing buffer size in milliseconds, or {@link C#LENGTH_UNSET}.
    * @param startTimeUs The start time of the mixer output in microseconds.
    * @throws UnhandledAudioFormatException If the output audio format is not supported.
    */
