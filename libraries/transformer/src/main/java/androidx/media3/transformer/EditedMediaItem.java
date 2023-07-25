@@ -158,6 +158,8 @@ public final class EditedMediaItem {
     /**
      * Sets the {@link Effects} to apply to the {@link MediaItem}.
      *
+     * <p>Callers should not interact with underlying {@link Effects#audioProcessors}.
+     *
      * <p>The default value is {@link Effects#EMPTY}.
      *
      * @param effects The {@link Effects} to apply.
