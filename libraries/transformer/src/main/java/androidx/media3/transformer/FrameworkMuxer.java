@@ -44,11 +44,11 @@ import java.nio.ByteBuffer;
   private static final ImmutableList<String> SUPPORTED_VIDEO_SAMPLE_MIME_TYPES =
       Util.SDK_INT >= 24
           ? ImmutableList.of(
-              MimeTypes.VIDEO_H263,
+              MimeTypes.VIDEO_H265,
               MimeTypes.VIDEO_H264,
-              MimeTypes.VIDEO_MP4V,
-              MimeTypes.VIDEO_H265)
-          : ImmutableList.of(MimeTypes.VIDEO_H263, MimeTypes.VIDEO_H264, MimeTypes.VIDEO_MP4V);
+              MimeTypes.VIDEO_H263,
+              MimeTypes.VIDEO_MP4V)
+          : ImmutableList.of(MimeTypes.VIDEO_H264, MimeTypes.VIDEO_H263, MimeTypes.VIDEO_MP4V);
 
   private static final ImmutableList<String> SUPPORTED_AUDIO_SAMPLE_MIME_TYPES =
       ImmutableList.of(MimeTypes.AUDIO_AAC, MimeTypes.AUDIO_AMR_NB, MimeTypes.AUDIO_AMR_WB);
