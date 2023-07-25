@@ -1224,21 +1224,19 @@ import java.util.List;
         ExtractorUtil.checkContainerInput(mimeType == null, /* message= */ null);
         mimeType = MimeTypes.VIDEO_AV1;
         parent.setPosition(childStartPosition + Atom.HEADER_SIZE);
-        if (childAtomSize > Atom.HEADER_SIZE) {
-          parent.skipBytes(1); ;  // marker(1), version(7)
-          int byte2 = parent.readUnsignedByte();
-          int seqProfile = byte2 >> 5;
-          int byte3 = parent.readUnsignedByte();
-          boolean highBitdepth = ((byte3 >> 6) & 0b1) != 0;
+        parent.skipBytes(1); ;  // marker(1), version(7)
+        int byte2 = parent.readUnsignedByte();
+        int seqProfile = byte2 >> 5;
+        int byte3 = parent.readUnsignedByte();
+        boolean highBitdepth = ((byte3 >> 6) & 0b1) != 0;
+        // From https://aomediacodec.github.io/av1-spec/av1-spec.pdf#page=44
+        if (seqProfile == 2 && highBitdepth) {
           boolean twelveBit = ((byte3 >> 5) & 0b1) != 0;
-          // From https://aomediacodec.github.io/av1-spec/av1-spec.pdf#page=44
-          if (seqProfile == 2 && highBitdepth) {
-            bitdepthLuma = twelveBit ? 12 : 10;
-          } else if (seqProfile <= 2) {
-            bitdepthLuma = highBitdepth ? 10 : 8;
-          }
-          bitdepthChroma = bitdepthLuma;
+          bitdepthLuma = twelveBit ? 12 : 10;
+        } else if (seqProfile <= 2) {
+          bitdepthLuma = highBitdepth ? 10 : 8;
         }
+        bitdepthChroma = bitdepthLuma;
       } else if (childAtomType == Atom.TYPE_clli) {
         if (hdrStaticInfo == null) {
           hdrStaticInfo = allocateHdrStaticInfo();
