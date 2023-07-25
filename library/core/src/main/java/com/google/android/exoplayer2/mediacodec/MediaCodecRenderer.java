@@ -1311,11 +1311,6 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       return true;
     }
 
-    if (hasReadStreamToEnd() || buffer.isLastSample()) {
-      // Notify output queue of the last buffer's timestamp.
-      lastBufferInStreamPresentationTimeUs = largestQueuedPresentationTimeUs;
-    }
-
     if (result == C.RESULT_NOTHING_READ) {
       return false;
     }
@@ -1403,6 +1398,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
       waitingForFirstSampleInFormat = false;
     }
     largestQueuedPresentationTimeUs = max(largestQueuedPresentationTimeUs, presentationTimeUs);
+    if (hasReadStreamToEnd() || buffer.isLastSample()) {
+      // Notify output queue of the last buffer's timestamp.
+      lastBufferInStreamPresentationTimeUs = largestQueuedPresentationTimeUs;
+    }
     buffer.flip();
     if (buffer.hasSupplementalData()) {
       handleInputBufferSupplementalData(buffer);
@@ -1921,11 +1920,12 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           && outputBufferInfo.presentationTimeUs == 0
           && (outputBufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0
           && largestQueuedPresentationTimeUs != C.TIME_UNSET) {
-        outputBufferInfo.presentationTimeUs = largestQueuedPresentationTimeUs;
+        outputBufferInfo.presentationTimeUs = lastBufferInStreamPresentationTimeUs;
       }
       isDecodeOnlyOutputBuffer = outputBufferInfo.presentationTimeUs < getLastResetPositionUs();
       isLastOutputBuffer =
-          lastBufferInStreamPresentationTimeUs == outputBufferInfo.presentationTimeUs;
+          lastBufferInStreamPresentationTimeUs != C.TIME_UNSET
+              && lastBufferInStreamPresentationTimeUs <= outputBufferInfo.presentationTimeUs;
       updateOutputFormatForTime(outputBufferInfo.presentationTimeUs);
     }
 
