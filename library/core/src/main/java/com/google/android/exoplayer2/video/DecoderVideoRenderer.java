@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCA
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_REUSE_NOT_IMPLEMENTED;
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_NO;
 import static com.google.android.exoplayer2.source.SampleStream.FLAG_REQUIRE_FORMAT;
+import static com.google.android.exoplayer2.util.Util.msToUs;
 import static java.lang.Math.max;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
@@ -51,7 +52,6 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.TimedValueQueue;
 import com.google.android.exoplayer2.util.TraceUtil;
-import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener.EventDispatcher;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -302,7 +302,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
   protected void onStarted() {
     droppedFrames = 0;
     droppedFrameAccumulationStartTimeMs = SystemClock.elapsedRealtime();
-    lastRenderTimeUs = SystemClock.elapsedRealtime() * 1000;
+    lastRenderTimeUs = msToUs(SystemClock.elapsedRealtime());
   }
 
   @Override
@@ -575,7 +575,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
       frameMetadataListener.onVideoFrameAboutToBeRendered(
           presentationTimeUs, System.nanoTime(), outputFormat, /* mediaFormat= */ null);
     }
-    lastRenderTimeUs = Util.msToUs(SystemClock.elapsedRealtime() * 1000);
+    lastRenderTimeUs = msToUs(SystemClock.elapsedRealtime());
     int bufferMode = outputBuffer.mode;
     boolean renderSurface = bufferMode == C.VIDEO_OUTPUT_MODE_SURFACE_YUV && outputSurface != null;
     boolean renderYuv = bufferMode == C.VIDEO_OUTPUT_MODE_YUV && outputBufferRenderer != null;
@@ -849,7 +849,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
       outputFormat = format;
     }
 
-    long elapsedRealtimeNowUs = SystemClock.elapsedRealtime() * 1000;
+    long elapsedRealtimeNowUs = msToUs(SystemClock.elapsedRealtime());
     long elapsedSinceLastRenderUs = elapsedRealtimeNowUs - lastRenderTimeUs;
     boolean isStarted = getState() == STATE_STARTED;
     boolean shouldRenderFirstFrame =
