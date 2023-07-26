@@ -54,6 +54,7 @@ import static androidx.media3.test.session.common.MediaBrowserConstants.SEARCH_R
 import static androidx.media3.test.session.common.MediaBrowserConstants.SEARCH_RESULT_COUNT;
 import static androidx.media3.test.session.common.TestUtils.LONG_TIMEOUT_MS;
 import static androidx.media3.test.session.common.TestUtils.NO_RESPONSE_TIMEOUT_MS;
+import static androidx.media3.test.session.common.TestUtils.SERVICE_CONNECTION_TIMEOUT_MS;
 import static androidx.media3.test.session.common.TestUtils.TIMEOUT_MS;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -208,6 +209,29 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
           }
         });
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+  }
+
+  @Test
+  public void getItem_commandGetItemNotAvailable_reportsNull() throws Exception {
+    Bundle rootHints = new Bundle();
+    rootHints.putInt(
+        MockMediaLibraryService.CONNECTION_HINTS_KEY_REMOVE_COMMAND_CODE,
+        SessionCommand.COMMAND_CODE_LIBRARY_GET_ITEM);
+    connectAndWait(rootHints);
+    CountDownLatch latch = new CountDownLatch(1);
+    List<MediaItem> capturedMediaItems = new ArrayList<>();
+    browserCompat.getItem(
+        MEDIA_ID_GET_BROWSABLE_ITEM,
+        new ItemCallback() {
+          @Override
+          public void onItemLoaded(MediaItem item) {
+            capturedMediaItems.add(item);
+            latch.countDown();
+          }
+        });
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(capturedMediaItems).containsExactly((Object) null);
   }
 
   @Test
@@ -416,6 +440,34 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   }
 
   @Test
+  public void getChildren_commandGetChildrenNotAvailable_reportsError() throws Exception {
+    Bundle rootHints = new Bundle();
+    rootHints.putInt(
+        MockMediaLibraryService.CONNECTION_HINTS_KEY_REMOVE_COMMAND_CODE,
+        SessionCommand.COMMAND_CODE_LIBRARY_GET_CHILDREN);
+    handler.postAndSync(
+        () -> {
+          browserCompat =
+              new MediaBrowserCompat(context, getServiceComponent(), connectionCallback, rootHints);
+        });
+    browserCompat.connect();
+    assertThat(connectionCallback.connectedLatch.await(SERVICE_CONNECTION_TIMEOUT_MS, MILLISECONDS))
+        .isTrue();
+    CountDownLatch errorLatch = new CountDownLatch(1);
+
+    browserCompat.subscribe(
+        PARENT_ID,
+        new MediaBrowserCompat.SubscriptionCallback() {
+          @Override
+          public void onError(String parentId) {
+            errorLatch.countDown();
+          }
+        });
+
+    assertThat(errorLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+  }
+
+  @Test
   public void search() throws Exception {
     String testQuery = SEARCH_QUERY;
     int page = 4;
@@ -508,6 +560,35 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
             latch.countDown();
           }
         });
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+  }
+
+  @Test
+  public void search_commandSearchNotAvailable_reportsError() throws Exception {
+    String testQuery = SEARCH_QUERY;
+    int page = 4;
+    int pageSize = 10;
+    Bundle testExtras = new Bundle();
+    testExtras.putString(testQuery, testQuery);
+    testExtras.putInt(MediaBrowserCompat.EXTRA_PAGE, page);
+    testExtras.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, pageSize);
+    Bundle rootHints = new Bundle();
+    rootHints.putInt(
+        MockMediaLibraryService.CONNECTION_HINTS_KEY_REMOVE_COMMAND_CODE,
+        SessionCommand.COMMAND_CODE_LIBRARY_SEARCH);
+    connectAndWait(rootHints);
+    CountDownLatch latch = new CountDownLatch(1);
+
+    browserCompat.search(
+        testQuery,
+        testExtras,
+        new SearchCallback() {
+          @Override
+          public void onError(String query, Bundle extras) {
+            latch.countDown();
+          }
+        });
+
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
   }
 
@@ -607,8 +688,9 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   @Test
   public void rootBrowserHints_searchNotSupported_reportsSearchNotSupported() throws Exception {
     Bundle connectionHints = new Bundle();
-    connectionHints.putBoolean(
-        MockMediaLibraryService.CONNECTION_HINTS_KEY_REMOVE_COMMAND_CODE_LIBRARY_SEARCH, true);
+    connectionHints.putInt(
+        MockMediaLibraryService.CONNECTION_HINTS_KEY_REMOVE_COMMAND_CODE,
+        SessionCommand.COMMAND_CODE_LIBRARY_SEARCH);
     connectAndWait(connectionHints);
 
     boolean isSearchSupported =

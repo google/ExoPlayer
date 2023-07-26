@@ -111,6 +111,10 @@
         do this in `MediaSession.Callback.onConnect` by using an
         `AcceptedResultBuilder` to make sure the custom layout is available to
         the controller when connection completes.
+    *   Fix cases where `MediaLibraryServiceLegacyStub` sent an error to a
+        `Result` that didn't support this which produced an
+        `UnsuportedOperationException`
+        ([#78](https://github.com/androidx/media/issues/78)).
 *   UI:
     *   Add a `Player.Listener` implementation for Wear OS devices that handles
         playback suppression due to

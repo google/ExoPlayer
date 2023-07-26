@@ -197,12 +197,12 @@ import java.util.concurrent.atomic.AtomicReference;
       @Nullable Bundle options) {
     @Nullable ControllerInfo controller = getCurrentController();
     if (controller == null) {
-      result.sendError(/* extras= */ null);
+      result.sendResult(/* result= */ null);
       return;
     }
     if (TextUtils.isEmpty(parentId)) {
       Log.w(TAG, "onLoadChildren(): Ignoring empty parentId from " + controller);
-      result.sendError(/* extras= */ null);
+      result.sendResult(/* result= */ null);
       return;
     }
     result.detach();
@@ -212,7 +212,7 @@ import java.util.concurrent.atomic.AtomicReference;
           if (!getConnectedControllersManager()
               .isSessionCommandAvailable(
                   controller, SessionCommand.COMMAND_CODE_LIBRARY_GET_CHILDREN)) {
-            result.sendError(/* extras= */ null);
+            result.sendResult(/* result= */ null);
             return;
           }
           if (options != null) {
@@ -260,12 +260,12 @@ import java.util.concurrent.atomic.AtomicReference;
   public void onLoadItem(String itemId, Result<MediaBrowserCompat.MediaItem> result) {
     @Nullable ControllerInfo controller = getCurrentController();
     if (controller == null) {
-      result.sendError(/* extras= */ null);
+      result.sendResult(/* result= */ null);
       return;
     }
     if (TextUtils.isEmpty(itemId)) {
       Log.w(TAG, "Ignoring empty itemId from " + controller);
-      result.sendError(/* extras= */ null);
+      result.sendResult(/* result= */ null);
       return;
     }
     result.detach();
@@ -275,7 +275,7 @@ import java.util.concurrent.atomic.AtomicReference;
           if (!getConnectedControllersManager()
               .isSessionCommandAvailable(
                   controller, SessionCommand.COMMAND_CODE_LIBRARY_GET_ITEM)) {
-            result.sendError(/* extras= */ null);
+            result.sendResult(/* result= */ null);
             return;
           }
           ListenableFuture<LibraryResult<MediaItem>> future =
@@ -291,12 +291,12 @@ import java.util.concurrent.atomic.AtomicReference;
       String query, @Nullable Bundle extras, Result<List<MediaBrowserCompat.MediaItem>> result) {
     @Nullable ControllerInfo controller = getCurrentController();
     if (controller == null) {
-      result.sendError(/* extras= */ null);
+      result.sendResult(/* result= */ null);
       return;
     }
     if (TextUtils.isEmpty(query)) {
       Log.w(TAG, "Ignoring empty query from " + controller);
-      result.sendError(/* extras= */ null);
+      result.sendResult(/* result= */ null);
       return;
     }
     if (!(controller.getControllerCb() instanceof BrowserLegacyCb)) {
@@ -308,7 +308,7 @@ import java.util.concurrent.atomic.AtomicReference;
         () -> {
           if (!getConnectedControllersManager()
               .isSessionCommandAvailable(controller, SessionCommand.COMMAND_CODE_LIBRARY_SEARCH)) {
-            result.sendError(/* extras= */ null);
+            result.sendResult(/* result= */ null);
             return;
           }
           BrowserLegacyCb cb = (BrowserLegacyCb) checkStateNotNull(controller.getControllerCb());
@@ -389,7 +389,7 @@ import java.util.concurrent.atomic.AtomicReference;
             result.sendResult(mediaItem);
           } catch (CancellationException | ExecutionException | InterruptedException e) {
             Log.w(TAG, "Library operation failed", e);
-            result.sendError(/* extras= */ null);
+            result.sendResult(/* result= */ null);
           }
         },
         MoreExecutors.directExecutor());
@@ -408,7 +408,7 @@ import java.util.concurrent.atomic.AtomicReference;
                     : MediaUtils.truncateListBySize(mediaItems, TRANSACTION_SIZE_LIMIT_IN_BYTES));
           } catch (CancellationException | ExecutionException | InterruptedException e) {
             Log.w(TAG, "Library operation failed", e);
-            result.sendError(/* extras= */ null);
+            result.sendResult(/* result= */ null);
           }
         },
         MoreExecutors.directExecutor());

@@ -89,12 +89,12 @@ public class MockMediaLibraryService extends MediaLibraryService {
       "CONNECTION_HINTS_CUSTOM_LIBRARY_ROOT";
 
   /**
-   * Key used in connection hints to instruct the mock service to remove {@link
-   * SessionCommand#COMMAND_CODE_LIBRARY_SEARCH} from the available commands in {@link
+   * Key used in connection hints to instruct the mock service to remove a {@link SessionCommand}
+   * identified by its command code from the available commands in {@link
    * MediaSession.Callback#onConnect(MediaSession, ControllerInfo)}.
    */
-  public static final String CONNECTION_HINTS_KEY_REMOVE_COMMAND_CODE_LIBRARY_SEARCH =
-      "CONNECTION_HINTS_KEY_REMOVE_SEARCH_SESSION_COMMAND";
+  public static final String CONNECTION_HINTS_KEY_REMOVE_COMMAND_CODE =
+      "CONNECTION_HINTS_KEY_REMOVE_COMMAND_CODE";
 
   private static final String TEST_IMAGE_PATH = "media/png/non-motion-photo-shortened.png";
 
@@ -198,11 +198,11 @@ public class MockMediaLibraryService extends MediaLibraryService {
       SessionCommands.Builder builder = connectionResult.availableSessionCommands.buildUpon();
       builder.add(new SessionCommand(CUSTOM_ACTION, /* extras= */ Bundle.EMPTY));
       builder.add(new SessionCommand(CUSTOM_ACTION_ASSERT_PARAMS, /* extras= */ Bundle.EMPTY));
-      if (controller
-          .getConnectionHints()
-          .getBoolean(
-              CONNECTION_HINTS_KEY_REMOVE_COMMAND_CODE_LIBRARY_SEARCH, /* defaultValue= */ false)) {
-        builder.remove(SessionCommand.COMMAND_CODE_LIBRARY_SEARCH);
+      Bundle connectionHints = controller.getConnectionHints();
+      int commandCodeToRemove =
+          connectionHints.getInt(CONNECTION_HINTS_KEY_REMOVE_COMMAND_CODE, /* defaultValue= */ -1);
+      if (commandCodeToRemove != -1) {
+        builder.remove(commandCodeToRemove);
       }
       return MediaSession.ConnectionResult.accept(
           /* availableSessionCommands= */ builder.build(),
