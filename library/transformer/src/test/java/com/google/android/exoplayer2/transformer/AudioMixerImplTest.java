@@ -32,11 +32,25 @@ import org.robolectric.ParameterizedRobolectricTestRunner;
 import org.robolectric.ParameterizedRobolectricTestRunner.Parameter;
 import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
 
-/** Unit tests for {@link AudioMixerImpl}. */
+/**
+ * Unit tests for {@link AudioMixerImpl}.
+ *
+ * <p>The duration of a given buffer can be calculated with the {@link AudioFormat}:
+ *
+ * <ul>
+ *   <li>{@link #SAMPLE_RATE} of 1000Hz means a frame is 1000us long (100Hz would mean frames are
+ *       10_000us each).
+ *   <li>Channel count of stereo means there are two values for each frame.
+ * </ul>
+ *
+ * For example, a buffer containing 4 float values (of {@link #AUDIO_FORMAT_STEREO_PCM_FLOAT}) would
+ * be 2000us of data (4 values = 2 frames).
+ */
+// TODO(b/290002720): Expand and generalize parameterized test cases.
 @RunWith(ParameterizedRobolectricTestRunner.class)
 public final class AudioMixerImplTest {
 
-  @Parameters(name = "{0}")
+  @Parameters(name = "outputSilenceWithNoSources={0}")
   public static ImmutableList<Boolean> parameters() {
     return ImmutableList.of(false, true);
   }
@@ -287,6 +301,88 @@ public final class AudioMixerImplTest {
     assertThat(mixer.isEnded()).isFalse();
 
     assertThat(createFloatArray(mixer.getOutput())).isEqualTo(new float[] {0.1f, -0.1f});
+    assertThat(mixer.isEnded()).isTrue();
+  }
+
+  @Test
+  public void output_withOneSource_queueSetEnd_outputsToEndTime() throws Exception {
+    mixer.configure(AUDIO_FORMAT_STEREO_PCM_FLOAT, /* bufferSizeMs= */ 4, /* startTimeUs= */ 0);
+
+    int sourceId = mixer.addSource(AUDIO_FORMAT_STEREO_PCM_FLOAT, /* startTimeUs= */ 0);
+    ByteBuffer sourceBuffer =
+        createByteBuffer(new float[] {0.1f, -0.1f, 0.2f, -0.2f, 0.3f, -0.3f, 0.4f, -0.4f});
+
+    mixer.queueInput(sourceId, sourceBuffer);
+    mixer.setEndTimeUs(3000);
+
+    // All input consumed because queued before end time set.
+    assertThat(sourceBuffer.hasRemaining()).isFalse();
+    // Last frame not in output due to end time.
+    assertThat(createFloatArray(mixer.getOutput()))
+        .isEqualTo(new float[] {0.1f, -0.1f, 0.2f, -0.2f, 0.3f, -0.3f});
+    assertThat(mixer.isEnded()).isTrue();
+  }
+
+  @Test
+  public void output_withOneSource_queueSetEndRemove_outputsToEndTime() throws Exception {
+    mixer.configure(AUDIO_FORMAT_STEREO_PCM_FLOAT, /* bufferSizeMs= */ 4, /* startTimeUs= */ 0);
+    int sourceId = mixer.addSource(AUDIO_FORMAT_STEREO_PCM_FLOAT, /* startTimeUs= */ 0);
+    ByteBuffer sourceBuffer =
+        createByteBuffer(new float[] {-0.5f, -0.5f, 0.25f, 0.25f, -0.25f, -0.25f, 0.25f, 0.25f});
+
+    mixer.queueInput(sourceId, sourceBuffer);
+    mixer.setEndTimeUs(3000);
+    mixer.removeSource(sourceId);
+
+    // All input consumed because queued before end time set.
+    assertThat(sourceBuffer.hasRemaining()).isFalse();
+    // Last frame not in output due to end time.
+    assertThat(createFloatArray(mixer.getOutput()))
+        .usingTolerance(1f / Short.MAX_VALUE)
+        .containsExactly(new float[] {-0.5f, -0.5f, 0.25f, 0.25f, -0.25f, -0.25f})
+        .inOrder();
+    assertThat(mixer.isEnded()).isTrue();
+  }
+
+  @Test
+  public void output_withOneSource_queueRemoveSetEnd_outputsToEndTime() throws Exception {
+    mixer.configure(AUDIO_FORMAT_STEREO_PCM_FLOAT, /* bufferSizeMs= */ 4, /* startTimeUs= */ 0);
+    int sourceId = mixer.addSource(AUDIO_FORMAT_STEREO_PCM_FLOAT, /* startTimeUs= */ 0);
+    ByteBuffer sourceBuffer =
+        createByteBuffer(new float[] {-0.5f, -0.5f, 0.25f, 0.25f, -0.25f, -0.25f, 0.25f, 0.25f});
+
+    mixer.queueInput(sourceId, sourceBuffer);
+    mixer.removeSource(sourceId);
+    mixer.setEndTimeUs(3000);
+
+    // All input consumed because queued before end time set.
+    assertThat(sourceBuffer.hasRemaining()).isFalse();
+    // Last frame not in output due to end time.
+    assertThat(createFloatArray(mixer.getOutput()))
+        .usingTolerance(1f / Short.MAX_VALUE)
+        .containsExactly(new float[] {-0.5f, -0.5f, 0.25f, 0.25f, -0.25f, -0.25f})
+        .inOrder();
+    assertThat(mixer.isEnded()).isTrue();
+  }
+
+  @Test
+  public void output_withOneSource_setEndQueueRemove_outputsToEndTime() throws Exception {
+    mixer.configure(AUDIO_FORMAT_STEREO_PCM_FLOAT, /* bufferSizeMs= */ 4, /* startTimeUs= */ 0);
+    int sourceId = mixer.addSource(AUDIO_FORMAT_STEREO_PCM_FLOAT, /* startTimeUs= */ 0);
+    ByteBuffer sourceBuffer =
+        createByteBuffer(new float[] {-0.5f, -0.5f, 0.25f, 0.25f, -0.25f, -0.25f, 0.25f, 0.25f});
+
+    mixer.setEndTimeUs(3000);
+    mixer.queueInput(sourceId, sourceBuffer);
+    mixer.removeSource(sourceId);
+
+    // Last frame of input not consumed because end time set before queue.
+    assertThat(sourceBuffer.remaining()).isEqualTo(AUDIO_FORMAT_STEREO_PCM_FLOAT.bytesPerFrame);
+    // All queued input (3 frames) in output.
+    assertThat(createFloatArray(mixer.getOutput()))
+        .usingTolerance(1f / Short.MAX_VALUE)
+        .containsExactly(new float[] {-0.5f, -0.5f, 0.25f, 0.25f, -0.25f, -0.25f})
+        .inOrder();
     assertThat(mixer.isEnded()).isTrue();
   }
 
