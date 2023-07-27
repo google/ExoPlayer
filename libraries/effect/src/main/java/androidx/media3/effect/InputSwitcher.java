@@ -20,6 +20,7 @@ package androidx.media3.effect;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
+import static androidx.media3.common.util.Util.containsKey;
 
 import android.content.Context;
 import android.util.SparseArray;
@@ -147,7 +148,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   public void switchToInput(@VideoFrameProcessor.InputType int newInputType) {
     checkStateNotNull(downstreamShaderProgram);
-    checkState(inputs.indexOfKey(newInputType) >= 0, "Input type not registered: " + newInputType);
+    checkState(containsKey(inputs, newInputType), "Input type not registered: " + newInputType);
 
     for (int i = 0; i < inputs.size(); i++) {
       @VideoFrameProcessor.InputType int inputType = inputs.keyAt(i);

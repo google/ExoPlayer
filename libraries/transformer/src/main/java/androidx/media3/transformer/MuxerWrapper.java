@@ -19,6 +19,7 @@ package androidx.media3.transformer;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
+import static androidx.media3.common.util.Util.containsKey;
 import static java.lang.Math.max;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
@@ -174,9 +175,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         trackType == C.TRACK_TYPE_AUDIO || trackType == C.TRACK_TYPE_VIDEO,
         "Unsupported track format: " + sampleMimeType);
 
-    // SparseArray.get() returns null by default if the value is not found.
     checkState(
-        trackTypeToInfo.get(trackType) == null, "There is already a track of type " + trackType);
+        !containsKey(trackTypeToInfo, trackType), "There is already a track of type " + trackType);
 
     ensureMuxerInitialized();
 
@@ -218,10 +218,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   public boolean writeSample(
       @C.TrackType int trackType, ByteBuffer data, boolean isKeyFrame, long presentationTimeUs)
       throws Muxer.MuxerException {
-    @Nullable TrackInfo trackInfo = trackTypeToInfo.get(trackType);
-    // SparseArray.get() returns null by default if the value is not found.
-    checkArgument(
-        trackInfo != null, "Could not write sample because there is no track of type " + trackType);
+    checkArgument(containsKey(trackTypeToInfo, trackType));
+    TrackInfo trackInfo = trackTypeToInfo.get(trackType);
     boolean canWriteSample = canWriteSample(trackType, presentationTimeUs);
     if (trackType == C.TRACK_TYPE_VIDEO) {
       DebugTraceUtil.logEvent(
@@ -262,12 +260,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @param trackType The {@link C.TrackType}.
    */
   public void endTrack(@C.TrackType int trackType) {
-    @Nullable TrackInfo trackInfo = trackTypeToInfo.get(trackType);
-    if (trackInfo == null) {
-      // SparseArray.get() returns null by default if the value is not found.
+    if (!containsKey(trackTypeToInfo, trackType)) {
       return;
     }
 
+    TrackInfo trackInfo = trackTypeToInfo.get(trackType);
     maxEndedTrackTimeUs = max(maxEndedTrackTimeUs, trackInfo.timeUs);
     listener.onTrackEnded(
         trackType, trackInfo.format, trackInfo.getAverageBitrate(), trackInfo.sampleCount);

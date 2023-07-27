@@ -18,7 +18,7 @@ package androidx.media3.transformer;
 import static androidx.media3.common.audio.AudioProcessor.EMPTY_BUFFER;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkState;
-import static androidx.media3.common.util.Assertions.checkStateNotNull;
+import static androidx.media3.common.util.Util.containsKey;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -153,7 +153,7 @@ import java.nio.ByteOrder;
 
   public boolean hasSource(int sourceId) {
     checkStateIsConfigured();
-    return sources.get(sourceId) != null;
+    return containsKey(sources, sourceId);
   }
 
   @Override
@@ -295,7 +295,8 @@ import java.nio.ByteOrder;
   }
 
   private SourceInfo getSourceById(int sourceId) {
-    return checkStateNotNull(sources.get(sourceId), "Source not found.");
+    checkState(containsKey(sources, sourceId), "Source not found.");
+    return sources.get(sourceId);
   }
 
   /** A buffer holding partially-mixed audio within an interval. */

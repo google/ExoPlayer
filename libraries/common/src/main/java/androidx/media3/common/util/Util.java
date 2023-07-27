@@ -69,6 +69,7 @@ import android.security.NetworkSecurityPolicy;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.util.SparseArray;
 import android.util.SparseLongArray;
 import android.view.Display;
 import android.view.SurfaceView;
@@ -514,6 +515,16 @@ public final class Util {
       }
     }
     return false;
+  }
+
+  /**
+   * Tests whether a {@link SparseArray} contains a given {@code key}.
+   *
+   * <p>This implements {@code SparseArray#contains} for lower API versions.
+   */
+  @UnstableApi
+  public static <T> boolean containsKey(SparseArray<T> sparseArray, int key) {
+    return sparseArray.indexOfKey(key) >= 0;
   }
 
   /**
