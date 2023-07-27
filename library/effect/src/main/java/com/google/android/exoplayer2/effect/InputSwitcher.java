@@ -20,6 +20,7 @@ package com.google.android.exoplayer2.effect;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
+import static com.google.android.exoplayer2.util.Util.containsKey;
 
 import android.content.Context;
 import android.util.SparseArray;
@@ -153,7 +154,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   public void switchToInput(@VideoFrameProcessor.InputType int newInputType) {
     checkStateNotNull(downstreamShaderProgram);
-    checkState(inputs.indexOfKey(newInputType) >= 0, "Input type not registered: " + newInputType);
+    checkState(containsKey(inputs, newInputType), "Input type not registered: " + newInputType);
 
     for (int i = 0; i < inputs.size(); i++) {
       @VideoFrameProcessor.InputType int inputType = inputs.keyAt(i);

@@ -28,6 +28,7 @@ import static com.google.android.exoplayer2.transformer.TransformerUtil.contains
 import static com.google.android.exoplayer2.transformer.TransformerUtil.getProcessedTrackType;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static com.google.android.exoplayer2.util.Util.containsKey;
 import static java.lang.Math.max;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
@@ -793,7 +794,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     public Format getAssetLoaderInputFormat(int sequenceIndex, @C.TrackType int trackType) {
       SparseArray<Format> trackTypeToFirstAssetLoaderInputFormat =
           sequencesMetadata.get(sequenceIndex).trackTypeToFirstAssetLoaderInputFormat;
-      checkState(contains(trackTypeToFirstAssetLoaderInputFormat, trackType));
+      checkState(containsKey(trackTypeToFirstAssetLoaderInputFormat, trackType));
       return trackTypeToFirstAssetLoaderInputFormat.get(trackType);
     }
 
@@ -834,7 +835,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       @C.TrackType int trackType = getProcessedTrackType(assetLoaderInputFormat.sampleMimeType);
       SparseArray<Format> trackTypeToFirstAssetLoaderInputFormat =
           sequencesMetadata.get(sequenceIndex).trackTypeToFirstAssetLoaderInputFormat;
-      checkState(!contains(trackTypeToFirstAssetLoaderInputFormat, trackType));
+      checkState(!containsKey(trackTypeToFirstAssetLoaderInputFormat, trackType));
       trackTypeToFirstAssetLoaderInputFormat.put(trackType, assetLoaderInputFormat);
     }
 
@@ -842,7 +843,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
      * Returns the index of the primary sequence for a given {@link C.TrackType trackType}.
      *
      * <p>A primary sequence for a {@link C.TrackType trackType} is defined as the lowest indexed
-     * sequence that contains a track of the given {@code trackType}.
+     * sequence that containsKey a track of the given {@code trackType}.
      */
     public int getIndexForPrimarySequence(@C.TrackType int trackType) {
       checkState(
@@ -851,7 +852,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       for (int i = 0; i < sequencesMetadata.size(); i++) {
         SparseArray<Format> trackTypeToFirstAssetLoaderInputFormat =
             sequencesMetadata.get(i).trackTypeToFirstAssetLoaderInputFormat;
-        if (contains(trackTypeToFirstAssetLoaderInputFormat, trackType)) {
+        if (containsKey(trackTypeToFirstAssetLoaderInputFormat, trackType)) {
           return i;
         }
       }
@@ -882,7 +883,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
      */
     public void registerGraphInput(@C.TrackType int trackType) {
       int numberOfGraphInputForTrackType = 1;
-      if (contains(trackTypeToNumberOfRegisteredGraphInput, trackType)) {
+      if (containsKey(trackTypeToNumberOfRegisteredGraphInput, trackType)) {
         numberOfGraphInputForTrackType += trackTypeToNumberOfRegisteredGraphInput.get(trackType);
       }
       trackTypeToNumberOfRegisteredGraphInput.put(trackType, numberOfGraphInputForTrackType);
@@ -895,7 +896,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     public boolean hasAssociatedAllTracksWithGraphInput(@C.TrackType int trackType) {
       int numberOfTracksForTrackType = 0;
       for (int i = 0; i < sequencesMetadata.size(); i++) {
-        if (contains(sequencesMetadata.get(i).trackTypeToFirstAssetLoaderInputFormat, trackType)) {
+        if (containsKey(
+            sequencesMetadata.get(i).trackTypeToFirstAssetLoaderInputFormat, trackType)) {
           numberOfTracksForTrackType++;
         }
       }
@@ -909,10 +911,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       for (int i = 0; i < sequencesMetadata.size(); i++) {
         SparseArray<Format> trackTypeToFirstAssetLoaderInputFormat =
             sequencesMetadata.get(i).trackTypeToFirstAssetLoaderInputFormat;
-        if (contains(trackTypeToFirstAssetLoaderInputFormat, C.TRACK_TYPE_AUDIO)) {
+        if (containsKey(trackTypeToFirstAssetLoaderInputFormat, C.TRACK_TYPE_AUDIO)) {
           outputHasAudio = true;
         }
-        if (contains(trackTypeToFirstAssetLoaderInputFormat, C.TRACK_TYPE_VIDEO)) {
+        if (containsKey(trackTypeToFirstAssetLoaderInputFormat, C.TRACK_TYPE_VIDEO)) {
           outputHasVideo = true;
         }
       }
@@ -922,14 +924,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     /** Registers a {@link SampleExporter} for the given {@link C.TrackType trackType}. */
     public void registerSampleExporter(int trackType, SampleExporter sampleExporter) {
       checkState(
-          !contains(trackTypeToSampleExporter, trackType),
+          !containsKey(trackTypeToSampleExporter, trackType),
           "Exactly one SampleExporter can be added for each track type.");
       trackTypeToSampleExporter.put(trackType, sampleExporter);
     }
 
     /** Sets whether a track should be transcoded. */
     public void setShouldTranscode(@C.TrackType int trackType, boolean shouldTranscode) {
-      if (contains(trackTypeToShouldTranscode, trackType)) {
+      if (containsKey(trackTypeToShouldTranscode, trackType)) {
         checkState(shouldTranscode == trackTypeToShouldTranscode.get(trackType));
         return;
       }
@@ -938,7 +940,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     /** Returns whether a track should be transcoded. */
     public boolean shouldTranscode(@C.TrackType int trackType) {
-      checkState(contains(trackTypeToShouldTranscode, trackType));
+      checkState(containsKey(trackTypeToShouldTranscode, trackType));
       return trackTypeToShouldTranscode.get(trackType);
     }
 
@@ -962,11 +964,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         trackTypeToFirstAssetLoaderInputFormat = new SparseArray<>();
         requiredTrackCount = C.LENGTH_UNSET;
       }
-    }
-
-    /** Implements {@code SparseArray#contains} for lower API versions. */
-    private static <T> boolean contains(SparseArray<T> sparseArray, int key) {
-      return sparseArray.get(key) != null;
     }
   }
 }

@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.transformer;
 import static com.google.android.exoplayer2.audio.AudioProcessor.EMPTY_BUFFER;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
-import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
+import static com.google.android.exoplayer2.util.Util.containsKey;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -161,7 +161,7 @@ import java.nio.ByteOrder;
 
   public boolean hasSource(int sourceId) {
     checkStateIsConfigured();
-    return sources.get(sourceId) != null;
+    return containsKey(sources, sourceId);
   }
 
   @Override
@@ -303,7 +303,8 @@ import java.nio.ByteOrder;
   }
 
   private SourceInfo getSourceById(int sourceId) {
-    return checkStateNotNull(sources.get(sourceId), "Source not found.");
+    checkState(containsKey(sources, sourceId), "Source not found.");
+    return sources.get(sourceId);
   }
 
   /** A buffer holding partially-mixed audio within an interval. */
