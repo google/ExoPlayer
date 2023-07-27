@@ -1358,27 +1358,22 @@ import java.util.List;
             .setCodecs(codecs)
             .setWidth(width)
             .setHeight(height)
-            .setLumaBitdepth(bitdepthLuma)
-            .setChromaBitdepth(bitdepthChroma)
             .setPixelWidthHeightRatio(pixelWidthHeightRatio)
             .setRotationDegrees(rotationDegrees)
             .setProjectionData(projectionData)
             .setStereoMode(stereoMode)
             .setInitializationData(initializationData)
-            .setDrmInitData(drmInitData);
-    if (colorSpace != Format.NO_VALUE
-        || colorRange != Format.NO_VALUE
-        || colorTransfer != Format.NO_VALUE
-        || hdrStaticInfo != null) {
-      // Note that if either mdcv or clli are missing, we leave the corresponding HDR static
-      // metadata bytes with value zero. See [Internal ref: b/194535665].
-      formatBuilder.setColorInfo(
-          new ColorInfo(
-              colorSpace,
-              colorRange,
-              colorTransfer,
-              hdrStaticInfo != null ? hdrStaticInfo.array() : null));
-    }
+            .setDrmInitData(drmInitData)
+            // Note that if either mdcv or clli are missing, we leave the corresponding HDR static
+            // metadata bytes with value zero. See [Internal ref: b/194535665].
+            .setColorInfo(
+              new ColorInfo(
+                  colorSpace,
+                  colorRange,
+                  colorTransfer,
+                  hdrStaticInfo != null ? hdrStaticInfo.array() : null,
+                  bitdepthLuma,
+                  bitdepthChroma));
 
     if (esdsData != null) {
       formatBuilder

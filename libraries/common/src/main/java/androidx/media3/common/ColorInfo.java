@@ -43,12 +43,16 @@ public final class ColorInfo implements Bundleable {
     private @C.ColorRange int colorRange;
     private @C.ColorTransfer int colorTransfer;
     @Nullable private byte[] hdrStaticInfo;
+    private int lumaBitdepth;
+    private int chromaBitdepth;
 
     /** Creates a new instance with default values. */
     public Builder() {
       colorSpace = Format.NO_VALUE;
       colorRange = Format.NO_VALUE;
       colorTransfer = Format.NO_VALUE;
+      lumaBitdepth = Format.NO_VALUE;
+      chromaBitdepth = Format.NO_VALUE;
     }
 
     /** Creates a new instance to build upon the provided {@link ColorInfo}. */
@@ -57,6 +61,8 @@ public final class ColorInfo implements Bundleable {
       this.colorRange = colorInfo.colorRange;
       this.colorTransfer = colorInfo.colorTransfer;
       this.hdrStaticInfo = colorInfo.hdrStaticInfo;
+      this.lumaBitdepth = colorInfo.lumaBitdepth;
+      this.chromaBitdepth = colorInfo.chromaBitdepth;
     }
 
     /**
@@ -116,19 +122,43 @@ public final class ColorInfo implements Bundleable {
       return this;
     }
 
+    /**
+     * Sets the luma bit depth.
+     *
+     * @param lumaBitdepth The lumaBitdepth.  The default value is {@link Format#NO_VALUE}.
+     * @return The builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder setLumaBitdepth(int lumaBitdepth) {
+      this.lumaBitdepth = lumaBitdepth;
+      return this;
+    }
+
+    /**
+     * Sets chroma bit depth.
+     *
+     * @param chromaBitdepth The chromaBitdepth. The default value is {@link Format#NO_VALUE}.
+     * @return The builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder setChromaBitdepth(int chromaBitdepth) {
+      this.chromaBitdepth = chromaBitdepth;
+      return this;
+    }
+
     /** Builds a new {@link ColorInfo} instance. */
     public ColorInfo build() {
-      return new ColorInfo(colorSpace, colorRange, colorTransfer, hdrStaticInfo);
+      return new ColorInfo(colorSpace, colorRange, colorTransfer, hdrStaticInfo, lumaBitdepth, chromaBitdepth);
     }
   }
 
   /** Color info representing SDR BT.709 limited range, which is a common SDR video color format. */
   public static final ColorInfo SDR_BT709_LIMITED =
-      new ColorInfo(
-          C.COLOR_SPACE_BT709,
-          C.COLOR_RANGE_LIMITED,
-          C.COLOR_TRANSFER_SDR,
-          /* hdrStaticInfo= */ null);
+      new ColorInfo.Builder()
+          .setColorSpace(C.COLOR_SPACE_BT709)
+          .setColorRange(C.COLOR_RANGE_LIMITED)
+          .setColorTransfer(C.COLOR_TRANSFER_SDR)
+          .build();
 
   /**
    * Color info representing SDR sRGB in accordance with {@link
@@ -213,6 +243,11 @@ public final class ColorInfo implements Bundleable {
   /** HdrStaticInfo as defined in CTA-861.3, or null if none specified. */
   @Nullable public final byte[] hdrStaticInfo;
 
+  /** The bit depth of the luma samples of the video. */
+  public final int lumaBitdepth;
+  /** The bit depth of the chroma samples of the video. It may differ from the luma bit depth. */
+  public final int chromaBitdepth;
+
   // Lazily initialized hashcode.
   private int hashCode;
 
@@ -223,6 +258,8 @@ public final class ColorInfo implements Bundleable {
    * @param colorRange The color range of the video.
    * @param colorTransfer The color transfer characteristics of the video.
    * @param hdrStaticInfo HdrStaticInfo as defined in CTA-861.3, or null if none specified.
+   * @param lumaBitdepth The bit depth of the luma samples of the video.
+   * @param chromaBitdepth The bit depth of the chroma samples of the video.
    * @deprecated Use {@link Builder}.
    */
   @Deprecated
@@ -230,11 +267,15 @@ public final class ColorInfo implements Bundleable {
       @C.ColorSpace int colorSpace,
       @C.ColorRange int colorRange,
       @C.ColorTransfer int colorTransfer,
-      @Nullable byte[] hdrStaticInfo) {
+      @Nullable byte[] hdrStaticInfo,
+      int lumaBitdepth,
+      int chromaBitdepth) {
     this.colorSpace = colorSpace;
     this.colorRange = colorRange;
     this.colorTransfer = colorTransfer;
     this.hdrStaticInfo = hdrStaticInfo;
+    this.lumaBitdepth = lumaBitdepth;
+    this.chromaBitdepth = chromaBitdepth;
   }
 
   /** Returns a {@link Builder} initialized with the values of this instance. */
@@ -245,7 +286,8 @@ public final class ColorInfo implements Bundleable {
   /**
    * Returns whether this instance is valid.
    *
-   * <p>This instance is valid if no members are {@link Format#NO_VALUE}.
+   * <p>This instance is valid if no color members are {@link Format#NO_VALUE},
+   *  while bit depths may be unset.
    */
   public boolean isValid() {
     return colorSpace != Format.NO_VALUE
@@ -258,7 +300,7 @@ public final class ColorInfo implements Bundleable {
    *
    * @see Format#toLogString(Format)
    */
-  public String toLogString() {
+  public String toColorString() {
     if (!isValid()) {
       return "NA";
     }
@@ -268,6 +310,20 @@ public final class ColorInfo implements Bundleable {
         colorSpaceToString(colorSpace),
         colorRangeToString(colorRange),
         colorTransferToString(colorTransfer));
+  }
+
+  /**
+   * Returns whether this instance has valid bitdepths.
+   *
+   * <p>This instance has valid bitdepths if none of them is {@link Format#NO_VALUE}.
+   */
+  public boolean isBppValid() {
+    return lumaBitdepth != Format.NO_VALUE
+        && chromaBitdepth != Format.NO_VALUE;
+  }
+
+  public String toBppString() {
+    return isBppValid() ? lumaBitdepth + "," + chromaBitdepth : "NA";
   }
 
   @Override
@@ -282,12 +338,18 @@ public final class ColorInfo implements Bundleable {
     return colorSpace == other.colorSpace
         && colorRange == other.colorRange
         && colorTransfer == other.colorTransfer
-        && Arrays.equals(hdrStaticInfo, other.hdrStaticInfo);
+        && Arrays.equals(hdrStaticInfo, other.hdrStaticInfo)
+        && lumaBitdepth == other.lumaBitdepth
+        && chromaBitdepth == other.chromaBitdepth;
   }
 
   @Override
   public String toString() {
     return "ColorInfo("
+        + lumaBitdepth
+        + ", "
+        + chromaBitdepth
+        + ", "
         + colorSpaceToString(colorSpace)
         + ", "
         + colorRangeToString(colorRange)
@@ -358,6 +420,8 @@ public final class ColorInfo implements Bundleable {
       result = 31 * result + colorRange;
       result = 31 * result + colorTransfer;
       result = 31 * result + Arrays.hashCode(hdrStaticInfo);
+      result = 31 * result + lumaBitdepth;
+      result = 31 * result + chromaBitdepth;
       hashCode = result;
     }
     return hashCode;
@@ -369,6 +433,8 @@ public final class ColorInfo implements Bundleable {
   private static final String FIELD_COLOR_RANGE = Util.intToStringMaxRadix(1);
   private static final String FIELD_COLOR_TRANSFER = Util.intToStringMaxRadix(2);
   private static final String FIELD_HDR_STATIC_INFO = Util.intToStringMaxRadix(3);
+  private static final String FIELD_LUMA_BITDEPTH = Util.intToStringMaxRadix(4);
+  private static final String FIELD_CHROMA_BITDEPTH = Util.intToStringMaxRadix(5);
 
   @Override
   public Bundle toBundle() {
@@ -377,6 +443,8 @@ public final class ColorInfo implements Bundleable {
     bundle.putInt(FIELD_COLOR_RANGE, colorRange);
     bundle.putInt(FIELD_COLOR_TRANSFER, colorTransfer);
     bundle.putByteArray(FIELD_HDR_STATIC_INFO, hdrStaticInfo);
+    bundle.putInt(FIELD_LUMA_BITDEPTH, lumaBitdepth);
+    bundle.putInt(FIELD_CHROMA_BITDEPTH, chromaBitdepth);
     return bundle;
   }
 
@@ -386,5 +454,7 @@ public final class ColorInfo implements Bundleable {
               bundle.getInt(FIELD_COLOR_SPACE, Format.NO_VALUE),
               bundle.getInt(FIELD_COLOR_RANGE, Format.NO_VALUE),
               bundle.getInt(FIELD_COLOR_TRANSFER, Format.NO_VALUE),
-              bundle.getByteArray(FIELD_HDR_STATIC_INFO));
+              bundle.getByteArray(FIELD_HDR_STATIC_INFO),
+              bundle.getInt(FIELD_LUMA_BITDEPTH, Format.NO_VALUE),
+              bundle.getInt(FIELD_CHROMA_BITDEPTH, Format.NO_VALUE));
 }

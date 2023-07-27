@@ -32,6 +32,7 @@ import android.util.Pair;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.C;
+import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.ParserException;
@@ -421,10 +422,14 @@ import com.google.common.collect.ImmutableMap;
     formatBuilder.setPixelWidthHeightRatio(spsData.pixelWidthHeightRatio);
     formatBuilder.setHeight(spsData.height);
     formatBuilder.setWidth(spsData.width);
-    int bitdepthLuma = spsData.bitDepthLumaMinus8 + 8;
-    formatBuilder.setLumaBitdepth(bitdepthLuma);
-    int bitdepthChroma = spsData.bitDepthChromaMinus8 + 8;
-    formatBuilder.setChromaBitdepth(bitdepthChroma);
+    formatBuilder.setColorInfo(
+        new ColorInfo(
+            spsData.colorSpace,
+            spsData.colorRange,
+            spsData.colorTransfer,
+            null,
+            spsData.bitDepthLumaMinus8 + 8,
+            spsData.bitDepthChromaMinus8 + 8));
 
     @Nullable String profileLevel = fmtpAttributes.get(PARAMETER_PROFILE_LEVEL_ID);
     if (profileLevel != null) {
@@ -468,10 +473,14 @@ import com.google.common.collect.ImmutableMap;
             spsNalDataWithStartCode, NAL_START_CODE.length, spsNalDataWithStartCode.length);
     formatBuilder.setPixelWidthHeightRatio(spsData.pixelWidthHeightRatio);
     formatBuilder.setHeight(spsData.height).setWidth(spsData.width);
-    int bitdepthLuma = spsData.bitDepthLumaMinus8 + 8;
-    formatBuilder.setLumaBitdepth(bitdepthLuma);
-    int bitdepthChroma = spsData.bitDepthChromaMinus8 + 8;
-    formatBuilder.setChromaBitdepth(bitdepthChroma);
+    formatBuilder.setColorInfo(
+        new ColorInfo(
+            spsData.colorSpace,
+            spsData.colorRange,
+            spsData.colorTransfer,
+            null,
+            spsData.bitDepthLumaMinus8 + 8,
+            spsData.bitDepthChromaMinus8 + 8));
 
     formatBuilder.setCodecs(
         CodecSpecificDataUtil.buildHevcCodecString(

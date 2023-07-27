@@ -139,7 +139,6 @@ public class DebugTextViewHelper {
         + format.width
         + "x"
         + format.height
-        + getBitdepthInfoString(format.lumaBitdepth)
         + getColorInfoString(format.colorInfo)
         + getPixelAspectRatioString(format.pixelWidthHeightRatio)
         + getDecoderCountersBufferCountString(decoderCounters)
@@ -189,12 +188,9 @@ public class DebugTextViewHelper {
         + counters.droppedToKeyframeCount;
   }
 
-  private static String getBitdepthInfoString(int lumaBitdepth) {
-    return lumaBitdepth != Format.NO_VALUE ? " b:" + lumaBitdepth : "";
-  }
-
   private static String getColorInfoString(@Nullable ColorInfo colorInfo) {
-    return colorInfo != null && colorInfo.isValid() ? " colr:" + colorInfo.toLogString() : "";
+    return colorInfo != null ? (colorInfo.isBppValid() ? " b:" + colorInfo.toBppString() : "")
+        + (colorInfo.isValid() ? " colr:" + colorInfo.toColorString() : "") : "";
   }
 
   private static String getPixelAspectRatioString(float pixelAspectRatio) {

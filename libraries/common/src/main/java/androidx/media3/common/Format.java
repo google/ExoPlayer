@@ -96,8 +96,6 @@ import java.util.UUID;
  *   <li>{@link #projectionData}
  *   <li>{@link #stereoMode}
  *   <li>{@link #colorInfo}
- *   <li>{@link #lumaBitdepth}
- *   <li>{@link #chromaBitdepth}
  * </ul>
  *
  * <h2 id="audio-formats">Fields relevant to audio formats</h2>
@@ -169,8 +167,6 @@ public final class Format implements Bundleable {
     @Nullable private byte[] projectionData;
     private @C.StereoMode int stereoMode;
     @Nullable private ColorInfo colorInfo;
-    private int lumaBitdepth;
-    private int chromaBitdepth;
 
     // Audio specific.
 
@@ -207,8 +203,6 @@ public final class Format implements Bundleable {
       frameRate = NO_VALUE;
       pixelWidthHeightRatio = 1.0f;
       stereoMode = NO_VALUE;
-      lumaBitdepth = 8;
-      chromaBitdepth = 8;
       // Audio specific.
       channelCount = NO_VALUE;
       sampleRate = NO_VALUE;
@@ -255,8 +249,6 @@ public final class Format implements Bundleable {
       this.projectionData = format.projectionData;
       this.stereoMode = format.stereoMode;
       this.colorInfo = format.colorInfo;
-      this.lumaBitdepth = format.lumaBitdepth;
-      this.chromaBitdepth = format.chromaBitdepth;
       // Audio specific.
       this.channelCount = format.channelCount;
       this.sampleRate = format.sampleRate;
@@ -565,30 +557,6 @@ public final class Format implements Bundleable {
     @CanIgnoreReturnValue
     public Builder setColorInfo(@Nullable ColorInfo colorInfo) {
       this.colorInfo = colorInfo;
-      return this;
-    }
-
-    /**
-     * Sets {@link Format#lumaBitdepth}. The default value is 8.
-     *
-     * @param lumaBitdepth The {@link Format#lumaBitdepth}.
-     * @return The builder.
-     */
-    @CanIgnoreReturnValue
-    public Builder setLumaBitdepth(int lumaBitdepth) {
-      this.lumaBitdepth = lumaBitdepth;
-      return this;
-    }
-
-    /**
-     * Sets {@link Format#chromaBitdepth}. The default value is 8.
-     *
-     * @param chromaBitdepth The {@link Format#chromaBitdepth}.
-     * @return The builder.
-     */
-    @CanIgnoreReturnValue
-    public Builder setChromaBitdepth(int chromaBitdepth) {
-      this.chromaBitdepth = chromaBitdepth;
       return this;
     }
 
@@ -904,10 +872,6 @@ public final class Format implements Bundleable {
 
   /** The color metadata associated with the video, or null if not applicable. */
   @UnstableApi @Nullable public final ColorInfo colorInfo;
-  /** The bit depth of the luma samples of the video. */
-  public final int lumaBitdepth;
-  /** The bit depth of the chroma samples of the video. It might differ from the luma bit depth. */
-  public final int chromaBitdepth;
 
   // Audio specific.
 
@@ -995,8 +959,6 @@ public final class Format implements Bundleable {
     projectionData = builder.projectionData;
     stereoMode = builder.stereoMode;
     colorInfo = builder.colorInfo;
-    lumaBitdepth = builder.lumaBitdepth;
-    chromaBitdepth = builder.chromaBitdepth;
     // Audio specific.
     channelCount = builder.channelCount;
     sampleRate = builder.sampleRate;
@@ -1130,10 +1092,6 @@ public final class Format implements Bundleable {
         + ", "
         + frameRate
         + ", "
-        + lumaBitdepth
-        + ", "
-        + chromaBitdepth
-        + ", "
         + colorInfo
         + "]"
         + ", ["
@@ -1174,8 +1132,6 @@ public final class Format implements Bundleable {
       // [Omitted] projectionData.
       result = 31 * result + stereoMode;
       // [Omitted] colorInfo.
-      result = 31 * result + lumaBitdepth;
-      result = 31 * result + chromaBitdepth;
       // Audio specific.
       result = 31 * result + channelCount;
       result = 31 * result + sampleRate;
@@ -1217,8 +1173,6 @@ public final class Format implements Bundleable {
         && height == other.height
         && rotationDegrees == other.rotationDegrees
         && stereoMode == other.stereoMode
-        && lumaBitdepth == other.lumaBitdepth
-        && chromaBitdepth == other.chromaBitdepth
         && channelCount == other.channelCount
         && sampleRate == other.sampleRate
         && pcmEncoding == other.pcmEncoding
@@ -1305,11 +1259,8 @@ public final class Format implements Bundleable {
     if (format.width != NO_VALUE && format.height != NO_VALUE) {
       builder.append(", res=").append(format.width).append("x").append(format.height);
     }
-    if (format.lumaBitdepth != NO_VALUE && format.chromaBitdepth != NO_VALUE) {
-      builder.append(", bitdepth=[").append(format.lumaBitdepth).append(",").append(format.chromaBitdepth).append(']');
-    }
     if (format.colorInfo != null && format.colorInfo.isValid()) {
-      builder.append(", color=").append(format.colorInfo.toLogString());
+      builder.append(", color=").append(format.colorInfo.toColorString());
     }
     if (format.frameRate != NO_VALUE) {
       builder.append(", fps=").append(format.frameRate);
@@ -1422,17 +1373,15 @@ public final class Format implements Bundleable {
   private static final String FIELD_PROJECTION_DATA = Util.intToStringMaxRadix(20);
   private static final String FIELD_STEREO_MODE = Util.intToStringMaxRadix(21);
   private static final String FIELD_COLOR_INFO = Util.intToStringMaxRadix(22);
-  private static final String FIELD_LUMA_BITDEPTH = Util.intToStringMaxRadix(23);
-  private static final String FIELD_CHROMA_BITDEPTH = Util.intToStringMaxRadix(24);
-  private static final String FIELD_CHANNEL_COUNT = Util.intToStringMaxRadix(25);
-  private static final String FIELD_SAMPLE_RATE = Util.intToStringMaxRadix(26);
-  private static final String FIELD_PCM_ENCODING = Util.intToStringMaxRadix(27);
-  private static final String FIELD_ENCODER_DELAY = Util.intToStringMaxRadix(28);
-  private static final String FIELD_ENCODER_PADDING = Util.intToStringMaxRadix(29);
-  private static final String FIELD_ACCESSIBILITY_CHANNEL = Util.intToStringMaxRadix(30);
-  private static final String FIELD_CRYPTO_TYPE = Util.intToStringMaxRadix(31);
-  private static final String FIELD_TILE_COUNT_HORIZONTAL = Util.intToStringMaxRadix(32);
-  private static final String FIELD_TILE_COUNT_VERTICAL = Util.intToStringMaxRadix(33);
+  private static final String FIELD_CHANNEL_COUNT = Util.intToStringMaxRadix(23);
+  private static final String FIELD_SAMPLE_RATE = Util.intToStringMaxRadix(24);
+  private static final String FIELD_PCM_ENCODING = Util.intToStringMaxRadix(25);
+  private static final String FIELD_ENCODER_DELAY = Util.intToStringMaxRadix(26);
+  private static final String FIELD_ENCODER_PADDING = Util.intToStringMaxRadix(27);
+  private static final String FIELD_ACCESSIBILITY_CHANNEL = Util.intToStringMaxRadix(28);
+  private static final String FIELD_CRYPTO_TYPE = Util.intToStringMaxRadix(29);
+  private static final String FIELD_TILE_COUNT_HORIZONTAL = Util.intToStringMaxRadix(30);
+  private static final String FIELD_TILE_COUNT_VERTICAL = Util.intToStringMaxRadix(31);
 
   @UnstableApi
   @Override
@@ -1482,8 +1431,6 @@ public final class Format implements Bundleable {
     if (colorInfo != null) {
       bundle.putBundle(FIELD_COLOR_INFO, colorInfo.toBundle());
     }
-    bundle.putInt(FIELD_LUMA_BITDEPTH, lumaBitdepth);
-    bundle.putInt(FIELD_CHROMA_BITDEPTH, chromaBitdepth);
     // Audio specific.
     bundle.putInt(FIELD_CHANNEL_COUNT, channelCount);
     bundle.putInt(FIELD_SAMPLE_RATE, sampleRate);
@@ -1549,8 +1496,6 @@ public final class Format implements Bundleable {
     if (colorInfoBundle != null) {
       builder.setColorInfo(ColorInfo.CREATOR.fromBundle(colorInfoBundle));
     }
-    builder.setLumaBitdepth(bundle.getInt(FIELD_LUMA_BITDEPTH, DEFAULT.lumaBitdepth));
-    builder.setChromaBitdepth(bundle.getInt(FIELD_CHROMA_BITDEPTH, DEFAULT.chromaBitdepth));
     // Audio specific.
     builder
         .setChannelCount(bundle.getInt(FIELD_CHANNEL_COUNT, DEFAULT.channelCount))
