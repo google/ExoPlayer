@@ -228,7 +228,10 @@ import java.nio.ByteOrder;
       return EMPTY_BUFFER;
     }
 
-    long minSourcePosition = sources.size() == 0 ? maxPositionOfRemovedSources : endPosition;
+    long minSourcePosition = endPosition;
+    if (sources.size() == 0) {
+      minSourcePosition = min(minSourcePosition, maxPositionOfRemovedSources);
+    }
 
     for (int i = 0; i < sources.size(); i++) {
       minSourcePosition = min(minSourcePosition, sources.valueAt(i).position);
