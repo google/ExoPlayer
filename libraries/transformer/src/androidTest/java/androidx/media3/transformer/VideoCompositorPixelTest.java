@@ -46,12 +46,13 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.junit.After;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -73,6 +74,7 @@ public final class VideoCompositorPixelTest {
   }
 
   @Parameterized.Parameter public boolean useSharedExecutor;
+  @Rule public TestName testName = new TestName();
 
   private @MonotonicNonNull VideoCompositorTestRunner videoCompositorTestRunner;
 
@@ -85,29 +87,8 @@ public final class VideoCompositorPixelTest {
 
   @Test
   public void compositeTwoInputs_withOneFrameFromEach_matchesExpectedBitmap() throws Exception {
-    String testId =
-        "compositeTwoInputs_withOneFrameFromEach_matchesExpectedBitmap[useSharedExecutor="
-            + useSharedExecutor
-            + "]";
-    AtomicReference<Bitmap> compositedOutputBitmap = new AtomicReference<>();
-    videoCompositorTestRunner =
-        new VideoCompositorTestRunner(
-            testId,
-            (outputTexture, presentationTimeUs, releaseOutputTextureCallback, syncObject) -> {
-              try {
-                if (!useSharedExecutor) {
-                  GlUtil.awaitSyncObject(syncObject);
-                }
-                compositedOutputBitmap.set(
-                    BitmapPixelTestUtil.createArgb8888BitmapFromFocusedGlFramebuffer(
-                        outputTexture.width, outputTexture.height));
-              } catch (GlUtil.GlException e) {
-                throw VideoFrameProcessingException.from(e);
-              } finally {
-                releaseOutputTextureCallback.release(presentationTimeUs);
-              }
-            },
-            useSharedExecutor);
+    String testId = testName.getMethodName();
+    videoCompositorTestRunner = new VideoCompositorTestRunner(testId, useSharedExecutor);
 
     videoCompositorTestRunner.queueBitmapsToBothInputs(/* count= */ 1);
 
@@ -121,98 +102,43 @@ public final class VideoCompositorPixelTest {
         videoCompositorTestRunner.inputBitmapReader2.getBitmap(),
         /* actualBitmapLabel= */ "actualCompositorInputBitmap2",
         ROTATE180_PNG_ASSET_PATH);
-    saveAndAssertBitmapMatchesExpected(
-        testId,
-        compositedOutputBitmap.get(),
-        /* actualBitmapLabel= */ "compositorOutputBitmap",
+    videoCompositorTestRunner.saveAndAssertFirstCompositedBitmapMatchesExpected(
         GRAYSCALE_AND_ROTATE180_COMPOSITE_PNG_ASSET_PATH);
   }
 
   @Test
   public void compositeTwoInputs_withFiveFramesFromEach_matchesExpectedTimestamps()
       throws Exception {
-    String testId =
-        "compositeTwoInputs_withFiveFramesFromEach_matchesExpectedTimestamps[useSharedExecutor="
-            + useSharedExecutor
-            + "]";
-    List<Long> compositorTimestamps = new CopyOnWriteArrayList<>();
-
-    AtomicReference<Bitmap> compositedFirstOutputBitmap = new AtomicReference<>();
-    videoCompositorTestRunner =
-        new VideoCompositorTestRunner(
-            testId,
-            (outputTexture, presentationTimeUs, releaseOutputTextureCallback, syncObject) -> {
-              try {
-                if (!useSharedExecutor) {
-                  GlUtil.awaitSyncObject(syncObject);
-                }
-                if (compositedFirstOutputBitmap.get() == null) {
-                  compositedFirstOutputBitmap.set(
-                      BitmapPixelTestUtil.createArgb8888BitmapFromFocusedGlFramebuffer(
-                          outputTexture.width, outputTexture.height));
-                }
-                compositorTimestamps.add(presentationTimeUs);
-              } catch (GlUtil.GlException e) {
-                throw VideoFrameProcessingException.from(e);
-              } finally {
-                releaseOutputTextureCallback.release(presentationTimeUs);
-              }
-            },
-            useSharedExecutor);
+    String testId = testName.getMethodName();
+    videoCompositorTestRunner = new VideoCompositorTestRunner(testId, useSharedExecutor);
 
     videoCompositorTestRunner.queueBitmapsToBothInputs(/* count= */ 5);
 
     ImmutableList<Long> expectedTimestamps =
         ImmutableList.of(
-            0L,
-            1L * C.MICROS_PER_SECOND,
-            2L * C.MICROS_PER_SECOND,
-            3L * C.MICROS_PER_SECOND,
-            4L * C.MICROS_PER_SECOND);
+            0 * C.MICROS_PER_SECOND,
+            1 * C.MICROS_PER_SECOND,
+            2 * C.MICROS_PER_SECOND,
+            3 * C.MICROS_PER_SECOND,
+            4 * C.MICROS_PER_SECOND);
     assertThat(videoCompositorTestRunner.inputBitmapReader1.getOutputTimestamps())
         .containsExactlyElementsIn(expectedTimestamps)
         .inOrder();
     assertThat(videoCompositorTestRunner.inputBitmapReader2.getOutputTimestamps())
         .containsExactlyElementsIn(expectedTimestamps)
         .inOrder();
-    assertThat(compositorTimestamps).containsExactlyElementsIn(expectedTimestamps).inOrder();
-    saveAndAssertBitmapMatchesExpected(
-        testId,
-        compositedFirstOutputBitmap.get(),
-        /* actualBitmapLabel= */ "compositorOutputBitmap",
+    assertThat(videoCompositorTestRunner.compositedTimestamps)
+        .containsExactlyElementsIn(expectedTimestamps)
+        .inOrder();
+    videoCompositorTestRunner.saveAndAssertFirstCompositedBitmapMatchesExpected(
         GRAYSCALE_AND_ROTATE180_COMPOSITE_PNG_ASSET_PATH);
   }
 
   @Test
   public void compositeTwoInputs_withTenFramesFromEach_matchesExpectedFrameCount()
       throws Exception {
-    String testId =
-        "compositeTwoInputs_withTenFramesFromEach_matchesExpectedFrameCount[useSharedExecutor="
-            + useSharedExecutor
-            + "]";
-    AtomicInteger compositedFrameCount = new AtomicInteger();
-    AtomicReference<Bitmap> compositedFirstOutputBitmap = new AtomicReference<>();
-    videoCompositorTestRunner =
-        new VideoCompositorTestRunner(
-            testId,
-            (outputTexture, presentationTimeUs, releaseOutputTextureCallback, syncObject) -> {
-              try {
-                if (!useSharedExecutor) {
-                  GlUtil.awaitSyncObject(syncObject);
-                }
-                if (compositedFirstOutputBitmap.get() == null) {
-                  compositedFirstOutputBitmap.set(
-                      BitmapPixelTestUtil.createArgb8888BitmapFromFocusedGlFramebuffer(
-                          outputTexture.width, outputTexture.height));
-                }
-                compositedFrameCount.incrementAndGet();
-              } catch (GlUtil.GlException e) {
-                throw VideoFrameProcessingException.from(e);
-              } finally {
-                releaseOutputTextureCallback.release(presentationTimeUs);
-              }
-            },
-            useSharedExecutor);
+    String testId = testName.getMethodName();
+    videoCompositorTestRunner = new VideoCompositorTestRunner(testId, useSharedExecutor);
     int numberOfFramesToQueue = 10;
 
     videoCompositorTestRunner.queueBitmapsToBothInputs(numberOfFramesToQueue);
@@ -221,11 +147,8 @@ public final class VideoCompositorPixelTest {
         .hasSize(numberOfFramesToQueue);
     assertThat(videoCompositorTestRunner.inputBitmapReader2.getOutputTimestamps())
         .hasSize(numberOfFramesToQueue);
-    assertThat(compositedFrameCount.get()).isEqualTo(numberOfFramesToQueue);
-    saveAndAssertBitmapMatchesExpected(
-        testId,
-        compositedFirstOutputBitmap.get(),
-        /* actualBitmapLabel= */ "compositorOutputBitmap",
+    assertThat(videoCompositorTestRunner.compositedTimestamps).hasSize(numberOfFramesToQueue);
+    videoCompositorTestRunner.saveAndAssertFirstCompositedBitmapMatchesExpected(
         GRAYSCALE_AND_ROTATE180_COMPOSITE_PNG_ASSET_PATH);
   }
 
@@ -242,18 +165,19 @@ public final class VideoCompositorPixelTest {
 
     public final TextureBitmapReader inputBitmapReader1;
     public final TextureBitmapReader inputBitmapReader2;
+    public final List<Long> compositedTimestamps;
     private final VideoFrameProcessorTestRunner inputVideoFrameProcessorTestRunner1;
     private final VideoFrameProcessorTestRunner inputVideoFrameProcessorTestRunner2;
     private final VideoCompositor videoCompositor;
     private final @Nullable ExecutorService sharedExecutorService;
     private final AtomicReference<VideoFrameProcessingException> compositionException;
+    private final AtomicReference<Bitmap> compositedFirstOutputBitmap;
     private final CountDownLatch compositorEnded;
+    private final String testId;
 
-    public VideoCompositorTestRunner(
-        String testId,
-        DefaultVideoFrameProcessor.TextureOutputListener compositorTextureOutputListener,
-        boolean useSharedExecutor)
+    public VideoCompositorTestRunner(String testId, boolean useSharedExecutor)
         throws GlUtil.GlException, VideoFrameProcessingException {
+      this.testId = testId;
       sharedExecutorService =
           useSharedExecutor ? Util.newSingleThreadExecutor("Effect:Shared:GlThread") : null;
       EGLContext sharedEglContext = AndroidTestUtil.createOpenGlObjects();
@@ -262,6 +186,8 @@ public final class VideoCompositorPixelTest {
               /* sharedEglContext= */ useSharedExecutor ? null : sharedEglContext);
 
       compositionException = new AtomicReference<>();
+      compositedFirstOutputBitmap = new AtomicReference<>();
+      compositedTimestamps = new CopyOnWriteArrayList<>();
       compositorEnded = new CountDownLatch(1);
       videoCompositor =
           new VideoCompositor(
@@ -280,7 +206,22 @@ public final class VideoCompositorPixelTest {
                   compositorEnded.countDown();
                 }
               },
-              compositorTextureOutputListener,
+              /* textureOutputListener= */ (GlTextureInfo outputTexture,
+                  long presentationTimeUs,
+                  DefaultVideoFrameProcessor.ReleaseOutputTextureCallback
+                      releaseOutputTextureCallback,
+                  long syncObject) -> {
+                if (!useSharedExecutor) {
+                  GlUtil.awaitSyncObject(syncObject);
+                }
+                if (compositedFirstOutputBitmap.get() == null) {
+                  compositedFirstOutputBitmap.set(
+                      BitmapPixelTestUtil.createArgb8888BitmapFromFocusedGlFramebuffer(
+                          outputTexture.width, outputTexture.height));
+                }
+                compositedTimestamps.add(presentationTimeUs);
+                releaseOutputTextureCallback.release(presentationTimeUs);
+              },
               /* textureOutputCapacity= */ 1);
       inputBitmapReader1 = new TextureBitmapReader();
       inputVideoFrameProcessorTestRunner1 =
@@ -338,6 +279,15 @@ public final class VideoCompositorPixelTest {
       assertThat(endCompositingException).isNull();
     }
 
+    public void saveAndAssertFirstCompositedBitmapMatchesExpected(String expectedBitmapPath)
+        throws IOException {
+      saveAndAssertBitmapMatchesExpected(
+          testId,
+          compositedFirstOutputBitmap.get(),
+          /* actualBitmapLabel= */ "compositedFirstOutputBitmap",
+          expectedBitmapPath);
+    }
+
     public void release() {
       inputVideoFrameProcessorTestRunner1.release();
       inputVideoFrameProcessorTestRunner2.release();
@@ -390,7 +340,7 @@ public final class VideoCompositorPixelTest {
     }
   }
 
-  private void saveAndAssertBitmapMatchesExpected(
+  private static void saveAndAssertBitmapMatchesExpected(
       String testId, Bitmap actualBitmap, String actualBitmapLabel, String expectedBitmapAssetPath)
       throws IOException {
     maybeSaveTestBitmap(testId, actualBitmapLabel, actualBitmap, /* path= */ null);
