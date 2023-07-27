@@ -162,7 +162,6 @@ public final class RtspMediaSource extends BaseMediaSource {
     /** Does nothing. {@link RtspMediaSource} does not support error handling policies. */
     @Override
     public Factory setLoadErrorHandlingPolicy(LoadErrorHandlingPolicy loadErrorHandlingPolicy) {
-      // TODO(internal b/172331505): Implement support.
       return this;
     }
 
