@@ -173,8 +173,8 @@ public interface VideoFrameProcessor {
   /**
    * Provides an input texture ID to the {@code VideoFrameProcessor}.
    *
-   * <p>It must be called after the {@link #setOnInputFrameProcessedListener
-   * onInputFrameProcessedListener} and the {@link #setInputFrameInfo frameInfo} have been set.
+   * <p>It must be only called after {@link #setOnInputFrameProcessedListener} and {@link
+   * #registerInputStream} have been called.
    *
    * <p>Can be called on any thread.
    *
@@ -196,6 +196,10 @@ public interface VideoFrameProcessor {
    * Returns the input {@link Surface}, where {@link VideoFrameProcessor} consumes input frames
    * from.
    *
+   * <p>The frames arriving on the {@link Surface} will not be consumed by the {@code
+   * VideoFrameProcessor} until {@link #registerInputStream} is called with {@link
+   * #INPUT_TYPE_SURFACE}.
+   *
    * <p>Can be called on any thread.
    *
    * @throws UnsupportedOperationException If the {@code VideoFrameProcessor} does not accept
@@ -207,27 +211,11 @@ public interface VideoFrameProcessor {
    * Informs the {@code VideoFrameProcessor} that a new input stream will be queued with the list of
    * {@link Effect Effects} to apply to the new input stream.
    *
-   * <p>Call {@link #setInputFrameInfo} before this method if the {@link FrameInfo} of the new input
-   * stream differs from that of the current input stream.
-   *
    * @param inputType The {@link InputType} of the new input stream.
    * @param effects The list of {@link Effect effects} to apply to the new input stream.
+   * @param frameInfo The {@link FrameInfo} of the new input stream.
    */
-  // TODO(b/286032822): Merge this and setInputFrameInfo.
-  void registerInputStream(@InputType int inputType, List<Effect> effects);
-
-  /**
-   * Sets information about the input frames.
-   *
-   * <p>The new input information is applied from the next frame {@linkplain #registerInputFrame()
-   * registered} or {@linkplain #queueInputTexture} queued} onwards.
-   *
-   * <p>Pixels are expanded using the {@link FrameInfo#pixelWidthHeightRatio} so that the output
-   * frames' pixels have a ratio of 1.
-   *
-   * <p>Can be called on any thread.
-   */
-  void setInputFrameInfo(FrameInfo inputFrameInfo);
+  void registerInputStream(@InputType int inputType, List<Effect> effects, FrameInfo frameInfo);
 
   /**
    * Informs the {@code VideoFrameProcessor} that a frame will be queued to its {@linkplain
@@ -240,7 +228,7 @@ public interface VideoFrameProcessor {
    * @throws UnsupportedOperationException If the {@code VideoFrameProcessor} does not accept
    *     {@linkplain #INPUT_TYPE_SURFACE surface input}.
    * @throws IllegalStateException If called after {@link #signalEndOfInput()} or before {@link
-   *     #setInputFrameInfo(FrameInfo)}.
+   *     #registerInputStream}.
    */
   void registerInputFrame();
 

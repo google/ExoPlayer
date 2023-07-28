@@ -21,9 +21,14 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.android.exoplayer2.util.Util.containsKey;
+import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_BITMAP;
+import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_SURFACE;
+import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_TEXTURE_ID;
 
 import android.content.Context;
 import android.util.SparseArray;
+import android.view.Surface;
+import com.google.android.exoplayer2.util.FrameInfo;
 import com.google.android.exoplayer2.util.GlObjectsProvider;
 import com.google.android.exoplayer2.util.GlTextureInfo;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
@@ -90,7 +95,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     TextureManager textureManager;
     // TODO(b/274109008): Refactor DefaultShaderProgram to create a class just for sampling.
     switch (inputType) {
-      case VideoFrameProcessor.INPUT_TYPE_SURFACE:
+      case INPUT_TYPE_SURFACE:
         samplingShaderProgram =
             DefaultShaderProgram.createWithExternalSampler(
                 context,
@@ -104,7 +109,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 glObjectsProvider, samplingShaderProgram, videoFrameProcessingTaskExecutor);
         inputs.put(inputType, new Input(textureManager, samplingShaderProgram));
         break;
-      case VideoFrameProcessor.INPUT_TYPE_BITMAP:
+      case INPUT_TYPE_BITMAP:
         samplingShaderProgram =
             DefaultShaderProgram.createWithInternalSampler(
                 context,
@@ -119,7 +124,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 glObjectsProvider, samplingShaderProgram, videoFrameProcessingTaskExecutor);
         inputs.put(inputType, new Input(textureManager, samplingShaderProgram));
         break;
-      case VideoFrameProcessor.INPUT_TYPE_TEXTURE_ID:
+      case INPUT_TYPE_TEXTURE_ID:
         samplingShaderProgram =
             DefaultShaderProgram.createWithInternalSampler(
                 context,
@@ -151,8 +156,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * registered}.
    *
    * @param newInputType The new {@link VideoFrameProcessor.InputType} to switch to.
+   * @param inputFrameInfo The {@link FrameInfo} associated with the new input.
    */
-  public void switchToInput(@VideoFrameProcessor.InputType int newInputType) {
+  public void switchToInput(
+      @VideoFrameProcessor.InputType int newInputType, FrameInfo inputFrameInfo) {
     checkStateNotNull(downstreamShaderProgram);
     checkState(containsKey(inputs, newInputType), "Input type not registered: " + newInputType);
 
@@ -173,6 +180,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         input.setActive(false);
       }
     }
+    checkNotNull(activeTextureManager).setInputFrameInfo(inputFrameInfo);
   }
 
   /**
@@ -190,6 +198,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   public void signalEndOfCurrentInputStream() {
     checkNotNull(activeTextureManager).signalEndOfCurrentInputStream();
+  }
+
+  /**
+   * Returns the input {@link Surface}.
+   *
+   * @return The input {@link Surface}, regardless if the current input is {@linkplain
+   *     #switchToInput set} to {@link VideoFrameProcessor#INPUT_TYPE_SURFACE}.
+   * @throws IllegalStateException If {@link VideoFrameProcessor#INPUT_TYPE_SURFACE} is not
+   *     {@linkplain #registerInput registered}.
+   */
+  public Surface getInputSurface() {
+    checkState(containsKey(inputs, INPUT_TYPE_SURFACE));
+    return inputs.get(INPUT_TYPE_SURFACE).textureManager.getInputSurface();
   }
 
   /** Releases the resources. */

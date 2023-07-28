@@ -19,7 +19,6 @@ import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.MAXIMUM
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.maybeSaveTestBitmap;
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.readBitmap;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
-import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_BITMAP;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.Bitmap;
@@ -27,8 +26,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.effect.DefaultVideoFrameProcessor;
 import com.google.android.exoplayer2.testutil.BitmapPixelTestUtil;
+import com.google.android.exoplayer2.testutil.TextureBitmapReader;
 import com.google.android.exoplayer2.testutil.VideoFrameProcessorTestRunner;
-import com.google.android.exoplayer2.transformer.TextureBitmapReader;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.android.exoplayer2.video.ColorInfo;
 import java.util.Set;
@@ -142,16 +141,15 @@ public class DefaultVideoFrameProcessorMultipleTextureOutputPixelTest {
                 (outputTexture,
                     presentationTimeUs,
                     releaseOutputTextureCallback,
-                    unusedSyncObject) ->
-                    checkNotNull(textureBitmapReader)
-                        .readBitmapAndReleaseTexture(
-                            outputTexture, presentationTimeUs, releaseOutputTextureCallback),
+                    unusedSyncObject) -> {
+                  checkNotNull(textureBitmapReader).readBitmap(outputTexture, presentationTimeUs);
+                  releaseOutputTextureCallback.release(presentationTimeUs);
+                },
                 /* textureOutputCapacity= */ 1)
             .build();
     return new VideoFrameProcessorTestRunner.Builder()
         .setTestId(testId)
         .setVideoFrameProcessorFactory(defaultVideoFrameProcessorFactory)
-        .setInputType(INPUT_TYPE_BITMAP)
         .setInputColorInfo(ColorInfo.SRGB_BT709_FULL)
         .setBitmapReader(textureBitmapReader);
   }

@@ -20,7 +20,6 @@ import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.getBitm
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.readBitmap;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
-import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_BITMAP;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
@@ -158,7 +157,6 @@ public final class DefaultVideoFrameProcessorPixelTest {
     String testId = "noEffects_withImageInput_matchesGoldenFile";
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
-            .setInputType(INPUT_TYPE_BITMAP)
             .setInputColorInfo(ColorInfo.SRGB_BT709_FULL)
             .build();
     Bitmap originalBitmap = readBitmap(IMAGE_PNG_ASSET_PATH);
@@ -180,7 +178,6 @@ public final class DefaultVideoFrameProcessorPixelTest {
     String testId = "wrappedCrop_withImageInput_matchesGoldenFile";
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
-            .setInputType(INPUT_TYPE_BITMAP)
             .setInputColorInfo(ColorInfo.SRGB_BT709_FULL)
             .setEffects(
                 new GlEffectWrapper(
@@ -214,7 +211,6 @@ public final class DefaultVideoFrameProcessorPixelTest {
                 new DefaultVideoFrameProcessor.Factory.Builder()
                     .setEnableColorTransfers(false)
                     .build())
-            .setInputType(INPUT_TYPE_BITMAP)
             .setInputColorInfo(ColorInfo.SRGB_BT709_FULL)
             .setEffects(NO_OP_EFFECT)
             .build();

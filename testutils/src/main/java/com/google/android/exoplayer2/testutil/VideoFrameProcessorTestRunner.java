@@ -20,7 +20,9 @@ import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.createA
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.maybeSaveTestBitmap;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
+import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_BITMAP;
 import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_SURFACE;
+import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_TEXTURE_ID;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
@@ -41,7 +43,6 @@ import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.SurfaceInfo;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
-import com.google.android.exoplayer2.util.VideoFrameProcessor.InputType;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -69,13 +70,11 @@ public final class VideoFrameProcessorTestRunner {
     private float pixelWidthHeightRatio;
     private @MonotonicNonNull ColorInfo inputColorInfo;
     private @MonotonicNonNull ColorInfo outputColorInfo;
-    private @InputType int inputType;
     private OnOutputFrameAvailableForRenderingListener onOutputFrameAvailableListener;
 
     /** Creates a new instance with default values. */
     public Builder() {
       pixelWidthHeightRatio = DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO;
-      inputType = INPUT_TYPE_SURFACE;
       onOutputFrameAvailableListener = unused -> {};
     }
 
@@ -193,18 +192,6 @@ public final class VideoFrameProcessorTestRunner {
     }
 
     /**
-     * Sets whether input comes from an external texture. See {@link
-     * VideoFrameProcessor.Factory#create}.
-     *
-     * <p>The default value is {@link VideoFrameProcessor#INPUT_TYPE_SURFACE}.
-     */
-    @CanIgnoreReturnValue
-    public Builder setInputType(@InputType int inputType) {
-      this.inputType = inputType;
-      return this;
-    }
-
-    /**
      * Sets the method to be called in {@link
      * VideoFrameProcessor.Listener#onOutputFrameAvailableForRendering}.
      *
@@ -231,7 +218,6 @@ public final class VideoFrameProcessorTestRunner {
           pixelWidthHeightRatio,
           inputColorInfo == null ? ColorInfo.SDR_BT709_LIMITED : inputColorInfo,
           outputColorInfo == null ? ColorInfo.SDR_BT709_LIMITED : outputColorInfo,
-          inputType,
           onOutputFrameAvailableListener);
     }
   }
@@ -249,6 +235,7 @@ public final class VideoFrameProcessorTestRunner {
   private final @MonotonicNonNull CountDownLatch videoFrameProcessingEndedLatch;
   private final AtomicReference<VideoFrameProcessingException> videoFrameProcessingException;
   private final VideoFrameProcessor videoFrameProcessor;
+  private final ImmutableList<Effect> effects;
 
   private @MonotonicNonNull BitmapReader bitmapReader;
 
@@ -262,7 +249,6 @@ public final class VideoFrameProcessorTestRunner {
       float pixelWidthHeightRatio,
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
-      @InputType int inputType,
       OnOutputFrameAvailableForRenderingListener onOutputFrameAvailableForRenderingListener)
       throws VideoFrameProcessingException {
     this.testId = testId;
@@ -312,7 +298,7 @@ public final class VideoFrameProcessorTestRunner {
                 checkNotNull(videoFrameProcessingEndedLatch).countDown();
               }
             });
-    videoFrameProcessor.registerInputStream(inputType, effects);
+    this.effects = effects;
   }
 
   public void processFirstFrameAndEnd() throws Exception {
@@ -321,7 +307,9 @@ public final class VideoFrameProcessorTestRunner {
         new DecodeOneFrameUtil.Listener() {
           @Override
           public void onContainerExtracted(MediaFormat mediaFormat) {
-            videoFrameProcessor.setInputFrameInfo(
+            videoFrameProcessor.registerInputStream(
+                INPUT_TYPE_SURFACE,
+                effects,
                 new FrameInfo.Builder(
                         mediaFormat.getInteger(MediaFormat.KEY_WIDTH),
                         mediaFormat.getInteger(MediaFormat.KEY_HEIGHT))
@@ -341,7 +329,9 @@ public final class VideoFrameProcessorTestRunner {
 
   public void queueInputBitmap(
       Bitmap inputBitmap, long durationUs, long offsetToAddUs, float frameRate) {
-    videoFrameProcessor.setInputFrameInfo(
+    videoFrameProcessor.registerInputStream(
+        INPUT_TYPE_BITMAP,
+        effects,
         new FrameInfo.Builder(inputBitmap.getWidth(), inputBitmap.getHeight())
             .setPixelWidthHeightRatio(pixelWidthHeightRatio)
             .setOffsetToAddUs(offsetToAddUs)
@@ -350,7 +340,9 @@ public final class VideoFrameProcessorTestRunner {
   }
 
   public void queueInputTexture(GlTextureInfo inputTexture, long pts) {
-    videoFrameProcessor.setInputFrameInfo(
+    videoFrameProcessor.registerInputStream(
+        INPUT_TYPE_TEXTURE_ID,
+        effects,
         new FrameInfo.Builder(inputTexture.width, inputTexture.height)
             .setPixelWidthHeightRatio(pixelWidthHeightRatio)
             .build());

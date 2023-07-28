@@ -94,7 +94,9 @@ import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 
     copyTextureToPreviousFrame(glObjectsProvider, inputTexture, presentationTimeUs);
     getInputListener().onInputFrameProcessed(inputTexture);
-    getInputListener().onReadyToAcceptInputFrame();
+    if (outputTexturePool.freeTextureCount() > 0) {
+      getInputListener().onReadyToAcceptInputFrame();
+    }
   }
 
   @Override

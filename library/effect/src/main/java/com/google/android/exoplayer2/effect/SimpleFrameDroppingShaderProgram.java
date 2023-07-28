@@ -63,13 +63,13 @@ import com.google.android.exoplayer2.util.VideoFrameProcessingException;
   @Override
   public void queueInputFrame(
       GlObjectsProvider glObjectsProvider, GlTextureInfo inputTexture, long presentationTimeUs) {
-    framesReceived++;
     if (framesReceived % n == 0) {
       super.queueInputFrame(glObjectsProvider, inputTexture, presentationTimeUs);
     } else {
       getInputListener().onInputFrameProcessed(inputTexture);
       getInputListener().onReadyToAcceptInputFrame();
     }
+    framesReceived++;
   }
 
   @Override
