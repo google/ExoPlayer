@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.jpeg;
 
+import static com.google.android.exoplayer2.extractor.ImageExtractorUtil.IMAGE_TRACK_ID;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
@@ -79,12 +80,6 @@ public final class JpegExtractor implements Extractor {
   private static final int MARKER_APP0 = 0xFFE0; // Application data 0 marker
   private static final int MARKER_APP1 = 0xFFE1; // Application data 1 marker
   private static final String HEADER_XMP_APP1 = "http://ns.adobe.com/xap/1.0/";
-
-  /**
-   * The identifier to use for the image track. Chosen to avoid colliding with track IDs used by
-   * {@link Mp4Extractor} for motion photos.
-   */
-  private static final int IMAGE_TRACK_ID = 1024;
 
   private final ParsableByteArray scratch;
 
@@ -284,6 +279,7 @@ public final class JpegExtractor implements Extractor {
   private void outputImageTrack(Metadata.Entry... metadataEntries) {
     TrackOutput imageTrackOutput =
         checkNotNull(extractorOutput).track(IMAGE_TRACK_ID, C.TRACK_TYPE_IMAGE);
+    // TODO(b/289989902): Set the rotationDegrees in format so images can be decoded correctly.
     imageTrackOutput.format(
         new Format.Builder()
             .setContainerMimeType(MimeTypes.IMAGE_JPEG)
