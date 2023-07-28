@@ -211,6 +211,7 @@ public final class MimeTypes {
    */
   public static boolean isText(@Nullable String mimeType) {
     return BASE_TYPE_TEXT.equals(getTopLevelType(mimeType))
+        || APPLICATION_MEDIA3_CUES.equals(mimeType)
         || APPLICATION_CEA608.equals(mimeType)
         || APPLICATION_CEA708.equals(mimeType)
         || APPLICATION_MP4CEA608.equals(mimeType)
