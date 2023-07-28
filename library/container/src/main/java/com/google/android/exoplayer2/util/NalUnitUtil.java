@@ -621,8 +621,8 @@ public final class NalUnitUtil {
     }
     skipShortTermReferencePictureSets(data);
     if (data.readBit()) { // long_term_ref_pics_present_flag
-      // num_long_term_ref_pics_sps
-      for (int i = 0; i < data.readUnsignedExpGolombCodedInt(); i++) {
+      int numLongTermRefPicsSps = data.readUnsignedExpGolombCodedInt();
+      for (int i = 0; i < numLongTermRefPicsSps; i++) {
         int ltRefPicPocLsbSpsLength = log2MaxPicOrderCntLsbMinus4 + 4;
         // lt_ref_pic_poc_lsb_sps[i], used_by_curr_pic_lt_sps_flag[i]
         data.skipBits(ltRefPicPocLsbSpsLength + 1);
@@ -944,12 +944,14 @@ public final class NalUnitUtil {
         numPositivePics = bitArray.readUnsignedExpGolombCodedInt();
         deltaPocS0 = new int[numNegativePics];
         for (int i = 0; i < numNegativePics; i++) {
-          deltaPocS0[i] = bitArray.readUnsignedExpGolombCodedInt() + 1;
+          deltaPocS0[i] =
+              (i > 0 ? deltaPocS0[i - 1] : 0) - (bitArray.readUnsignedExpGolombCodedInt() + 1);
           bitArray.skipBit(); // used_by_curr_pic_s0_flag[i]
         }
         deltaPocS1 = new int[numPositivePics];
         for (int i = 0; i < numPositivePics; i++) {
-          deltaPocS1[i] = bitArray.readUnsignedExpGolombCodedInt() + 1;
+          deltaPocS1[i] =
+              (i > 0 ? deltaPocS1[i - 1] : 0) + (bitArray.readUnsignedExpGolombCodedInt() + 1);
           bitArray.skipBit(); // used_by_curr_pic_s1_flag[i]
         }
       }
