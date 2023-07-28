@@ -159,6 +159,7 @@ import java.nio.ByteOrder;
     return sourceId;
   }
 
+  @Override
   public boolean hasSource(int sourceId) {
     checkStateIsConfigured();
     return containsKey(sources, sourceId);

@@ -111,6 +111,11 @@ public interface AudioMixer {
   int addSource(AudioFormat sourceFormat, long startTimeUs) throws UnhandledAudioFormatException;
 
   /**
+   * Returns whether there is an {@link #addSource added source} with the given {@code sourceId}.
+   */
+  boolean hasSource(int sourceId);
+
+  /**
    * Sets the volume applied to future samples queued from the given source.
    *
    * @param sourceId Source identifier from {@link #addSource}.
