@@ -40,6 +40,8 @@
         object duration (d) and measured throughput (mtp).
     *   Rename `MimeTypes.TEXT_EXOPLAYER_CUES` to
         `MimeTypes.APPLICATION_MEDIA3_CUES`.
+    *   Add `PngExtractor` that sends and reads a whole png file into the the
+        `TrackOutput` as one sample.
 *   Transformer:
     *   Parse EXIF rotation data for image inputs.
     *   Remove `TransformationRequest.HdrMode` annotation type and its
