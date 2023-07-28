@@ -391,6 +391,22 @@ public class MediaItemTest {
   }
 
   @Test
+  public void builderSetImageDurationMs_isTimeUnsetTByDefault() {
+    MediaItem mediaItem = new MediaItem.Builder().setUri(URI_STRING).build();
+
+    assertThat(mediaItem.localConfiguration.imageDurationMs).isEqualTo(C.TIME_UNSET);
+  }
+
+  @Test
+  public void builderSetImageDurationMs_setsImageDurationMs() {
+    long duration = 1;
+    MediaItem mediaItem =
+        new MediaItem.Builder().setUri(URI_STRING).setImageDurationMs(duration).build();
+
+    assertThat(mediaItem.localConfiguration.imageDurationMs).isEqualTo(duration);
+  }
+
+  @Test
   @SuppressWarnings("deprecation") // Testing deprecated field
   public void builderSetClippingConfiguration() {
     MediaItem mediaItem =
