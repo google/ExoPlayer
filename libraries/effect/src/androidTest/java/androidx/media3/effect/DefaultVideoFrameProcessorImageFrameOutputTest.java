@@ -15,7 +15,6 @@
  */
 package androidx.media3.effect;
 
-import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_BITMAP;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.readBitmap;
 import static com.google.common.truth.Truth.assertThat;
@@ -195,7 +194,6 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
     return new VideoFrameProcessorTestRunner.Builder()
         .setTestId(testId)
         .setVideoFrameProcessorFactory(new DefaultVideoFrameProcessor.Factory.Builder().build())
-        .setInputType(INPUT_TYPE_BITMAP)
         .setInputColorInfo(ColorInfo.SRGB_BT709_FULL)
         .setOnOutputFrameAvailableForRenderingListener(
             unused -> checkNotNull(framesProduced).incrementAndGet());

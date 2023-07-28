@@ -350,8 +350,8 @@ public final class DefaultVideoFrameProcessorVideoFrameRenderingTest {
     checkNotNull(defaultVideoFrameProcessor)
         .registerInputStream(
             INPUT_TYPE_SURFACE,
-            /* effects= */ ImmutableList.of((GlEffect) (context, useHdr) -> blankFrameProducer));
-    defaultVideoFrameProcessor.setInputFrameInfo(new FrameInfo.Builder(WIDTH, HEIGHT).build());
+            /* effects= */ ImmutableList.of((GlEffect) (context, useHdr) -> blankFrameProducer),
+            new FrameInfo.Builder(WIDTH, HEIGHT).build());
     blankFrameProducer.produceBlankFramesAndQueueEndOfStream(inputPresentationTimesUs);
     defaultVideoFrameProcessor.signalEndOfInput();
     videoFrameProcessingEndedCountDownLatch.await();

@@ -88,7 +88,9 @@ import androidx.media3.common.util.Size;
 
     copyTextureToPreviousFrame(glObjectsProvider, inputTexture, presentationTimeUs);
     getInputListener().onInputFrameProcessed(inputTexture);
-    getInputListener().onReadyToAcceptInputFrame();
+    if (outputTexturePool.freeTextureCount() > 0) {
+      getInputListener().onReadyToAcceptInputFrame();
+    }
   }
 
   @Override

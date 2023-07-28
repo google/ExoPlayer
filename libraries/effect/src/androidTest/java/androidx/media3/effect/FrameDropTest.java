@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,18 +15,38 @@
  */
 package androidx.media3.effect;
 
-import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_BITMAP;
+import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_SURFACE;
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.test.utils.BitmapPixelTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
+import static androidx.media3.test.utils.BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceArgb8888;
+import static androidx.media3.test.utils.BitmapPixelTestUtil.maybeSaveTestBitmap;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.readBitmap;
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.media3.common.C;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.AbsoluteSizeSpan;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.TypefaceSpan;
+import androidx.annotation.Nullable;
 import androidx.media3.common.ColorInfo;
-import androidx.media3.test.utils.VideoFrameProcessorTestRunner;
+import androidx.media3.common.DebugViewProvider;
+import androidx.media3.common.FrameInfo;
+import androidx.media3.common.VideoFrameProcessingException;
+import androidx.media3.common.VideoFrameProcessor;
+import androidx.media3.common.util.NullableType;
+import androidx.media3.common.util.Util;
+import androidx.media3.test.utils.TextureBitmapReader;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import com.google.common.util.concurrent.MoreExecutors;
+import java.io.IOException;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
@@ -38,108 +58,184 @@ import org.junit.runner.RunWith;
 /** Tests for {@link FrameDropEffect}. */
 @RunWith(AndroidJUnit4.class)
 public class FrameDropTest {
-  private static final String ORIGINAL_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/original.png";
+  private static final String ASSET_PATH = "media/bitmap/FrameDropTest";
+  private static final int BLANK_FRAME_WIDTH = 100;
+  private static final int BLANK_FRAME_HEIGHT = 50;
 
-  private static final String SCALE_WIDE_PNG_ASSET_PATH =
-      "media/bitmap/sample_mp4_first_frame/electrical_colors/scale_wide.png";
+  private @MonotonicNonNull TextureBitmapReader textureBitmapReader;
+  private @MonotonicNonNull DefaultVideoFrameProcessor defaultVideoFrameProcessor;
 
-  private @MonotonicNonNull VideoFrameProcessorTestRunner videoFrameProcessorTestRunner;
-
-  private @MonotonicNonNull Queue<Long> actualPresentationTimesUs;
-
-  @EnsuresNonNull("actualPresentationTimesUs")
+  @EnsuresNonNull("textureBitmapReader")
   @Before
   public void setUp() {
-    actualPresentationTimesUs = new ConcurrentLinkedQueue<>();
+    textureBitmapReader = new TextureBitmapReader();
   }
 
   @After
-  public void release() {
-    checkNotNull(videoFrameProcessorTestRunner).release();
+  public void tearDown() {
+    checkNotNull(defaultVideoFrameProcessor).release();
   }
 
-  @RequiresNonNull("actualPresentationTimesUs")
+  @RequiresNonNull("textureBitmapReader")
   @Test
   public void frameDrop_withDefaultStrategy_outputsFramesAtTheCorrectPresentationTimesUs()
       throws Exception {
     String testId = "frameDrop_withDefaultStrategy_outputsFramesAtTheCorrectPresentationTimesUs";
-    videoFrameProcessorTestRunner =
-        getDefaultFrameProcessorTestRunnerBuilder(
-                testId, FrameDropEffect.createDefaultFrameDropEffect(/* targetFrameRate= */ 30))
-            .setOnOutputFrameAvailableForRenderingListener(actualPresentationTimesUs::add)
-            .build();
+    ImmutableList<Long> frameTimesUs =
+        ImmutableList.of(0L, 16_000L, 32_000L, 48_000L, 58_000L, 71_000L, 86_000L);
 
-    ImmutableList<Integer> timestampsMs = ImmutableList.of(0, 16, 32, 48, 58, 71, 86);
-    for (int timestampMs : timestampsMs) {
-      videoFrameProcessorTestRunner.queueInputBitmap(
-          readBitmap(ORIGINAL_PNG_ASSET_PATH),
-          /* durationUs= */ C.MICROS_PER_SECOND,
-          /* offsetToAddUs= */ timestampMs * 1000L,
-          /* frameRate= */ 1);
-    }
-    videoFrameProcessorTestRunner.endFrameProcessing();
+    ImmutableList<Long> actualPresentationTimesUs =
+        processFramesToEndOfStream(
+            frameTimesUs, FrameDropEffect.createDefaultFrameDropEffect(/* targetFrameRate= */ 30));
 
     assertThat(actualPresentationTimesUs).containsExactly(0L, 32_000L, 71_000L).inOrder();
+    getAndAssertOutputBitmaps(textureBitmapReader, actualPresentationTimesUs, testId);
   }
 
-  @RequiresNonNull("actualPresentationTimesUs")
+  @RequiresNonNull("textureBitmapReader")
   @Test
   public void frameDrop_withSimpleStrategy_outputsFramesAtTheCorrectPresentationTimesUs()
       throws Exception {
     String testId = "frameDrop_withSimpleStrategy_outputsFramesAtTheCorrectPresentationTimesUs";
-    videoFrameProcessorTestRunner =
-        getDefaultFrameProcessorTestRunnerBuilder(
-                testId,
-                FrameDropEffect.createSimpleFrameDropEffect(
-                    /* expectedFrameRate= */ 6, /* targetFrameRate= */ 2))
-            .build();
+    ImmutableList<Long> frameTimesUs =
+        ImmutableList.of(0L, 250_000L, 500_000L, 750_000L, 1_000_000L, 1_500_000L);
 
-    videoFrameProcessorTestRunner.queueInputBitmap(
-        readBitmap(ORIGINAL_PNG_ASSET_PATH),
-        /* durationUs= */ C.MICROS_PER_SECOND,
-        /* offsetToAddUs= */ 0L,
-        /* frameRate= */ 4);
-    videoFrameProcessorTestRunner.queueInputBitmap(
-        readBitmap(SCALE_WIDE_PNG_ASSET_PATH),
-        /* durationUs= */ C.MICROS_PER_SECOND,
-        /* offsetToAddUs= */ C.MICROS_PER_SECOND,
-        /* frameRate= */ 2);
-    videoFrameProcessorTestRunner.endFrameProcessing();
+    ImmutableList<Long> actualPresentationTimesUs =
+        processFramesToEndOfStream(
+            frameTimesUs,
+            FrameDropEffect.createSimpleFrameDropEffect(
+                /* expectedFrameRate= */ 6, /* targetFrameRate= */ 2));
 
-    assertThat(actualPresentationTimesUs).containsExactly(500_000L, 1_500_000L).inOrder();
+    assertThat(actualPresentationTimesUs).containsExactly(0L, 750_000L).inOrder();
+    getAndAssertOutputBitmaps(textureBitmapReader, actualPresentationTimesUs, testId);
   }
 
-  @RequiresNonNull("actualPresentationTimesUs")
+  @RequiresNonNull("textureBitmapReader")
   @Test
   public void frameDrop_withSimpleStrategy_outputsAllFrames() throws Exception {
-    String testId = "frameDrop_withSimpleStrategy_outputsCorrectNumberOfFrames";
-    videoFrameProcessorTestRunner =
-        getDefaultFrameProcessorTestRunnerBuilder(
-                testId,
-                FrameDropEffect.createSimpleFrameDropEffect(
-                    /* expectedFrameRate= */ 3, /* targetFrameRate= */ 3))
-            .build();
+    String testId = "frameDrop_withSimpleStrategy_outputsAllFrames";
+    ImmutableList<Long> frameTimesUs = ImmutableList.of(0L, 333_333L, 666_667L);
 
-    videoFrameProcessorTestRunner.queueInputBitmap(
-        readBitmap(ORIGINAL_PNG_ASSET_PATH),
-        /* durationUs= */ C.MICROS_PER_SECOND,
-        /* offsetToAddUs= */ 0L,
-        /* frameRate= */ 3);
-    videoFrameProcessorTestRunner.endFrameProcessing();
+    ImmutableList<Long> actualPresentationTimesUs =
+        processFramesToEndOfStream(
+            frameTimesUs,
+            FrameDropEffect.createSimpleFrameDropEffect(
+                /* expectedFrameRate= */ 3, /* targetFrameRate= */ 3));
 
     assertThat(actualPresentationTimesUs).containsExactly(0L, 333_333L, 666_667L).inOrder();
+    getAndAssertOutputBitmaps(textureBitmapReader, actualPresentationTimesUs, testId);
   }
 
-  @RequiresNonNull("actualPresentationTimesUs")
-  private VideoFrameProcessorTestRunner.Builder getDefaultFrameProcessorTestRunnerBuilder(
-      String testId, FrameDropEffect frameDropEffect) {
-    return new VideoFrameProcessorTestRunner.Builder()
-        .setTestId(testId)
-        .setVideoFrameProcessorFactory(new DefaultVideoFrameProcessor.Factory.Builder().build())
-        .setInputType(INPUT_TYPE_BITMAP)
-        .setInputColorInfo(ColorInfo.SRGB_BT709_FULL)
-        .setEffects(frameDropEffect)
-        .setOnOutputFrameAvailableForRenderingListener(actualPresentationTimesUs::add);
+  private static void getAndAssertOutputBitmaps(
+      TextureBitmapReader textureBitmapReader, List<Long> presentationTimesUs, String testId)
+      throws IOException {
+    for (int i = 0; i < presentationTimesUs.size(); i++) {
+      long presentationTimeUs = presentationTimesUs.get(i);
+      Bitmap actualBitmap = textureBitmapReader.getBitmap(presentationTimeUs);
+      Bitmap expectedBitmap =
+          readBitmap(Util.formatInvariant("%s/pts_%d.png", ASSET_PATH, presentationTimeUs));
+      maybeSaveTestBitmap(
+          testId, String.valueOf(presentationTimeUs), actualBitmap, /* path= */ null);
+      float averagePixelAbsoluteDifference =
+          getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
+      assertThat(averagePixelAbsoluteDifference)
+          .isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+    }
+  }
+
+  @EnsuresNonNull("defaultVideoFrameProcessor")
+  private ImmutableList<Long> processFramesToEndOfStream(
+      List<Long> inputPresentationTimesUs, FrameDropEffect frameDropEffect) throws Exception {
+    AtomicReference<@NullableType VideoFrameProcessingException>
+        videoFrameProcessingExceptionReference = new AtomicReference<>();
+    BlankFrameProducer blankFrameProducer =
+        new BlankFrameProducer(BLANK_FRAME_WIDTH, BLANK_FRAME_HEIGHT);
+    CountDownLatch videoFrameProcessingEndedCountDownLatch = new CountDownLatch(1);
+    ImmutableList.Builder<Long> actualPresentationTimesUs = new ImmutableList.Builder<>();
+
+    defaultVideoFrameProcessor =
+        checkNotNull(
+            new DefaultVideoFrameProcessor.Factory.Builder()
+                .setTextureOutput(
+                    (outputTexture, presentationTimeUs, releaseOutputTextureCallback, token) -> {
+                      checkNotNull(textureBitmapReader)
+                          .readBitmap(outputTexture, presentationTimeUs);
+                      releaseOutputTextureCallback.release(presentationTimeUs);
+                    },
+                    /* textureOutputCapacity= */ 1)
+                .build()
+                .create(
+                    getApplicationContext(),
+                    DebugViewProvider.NONE,
+                    /* inputColorInfo= */ ColorInfo.SDR_BT709_LIMITED,
+                    /* outputColorInfo= */ ColorInfo.SDR_BT709_LIMITED,
+                    /* renderFramesAutomatically= */ true,
+                    MoreExecutors.directExecutor(),
+                    new VideoFrameProcessor.Listener() {
+                      @Override
+                      public void onOutputSizeChanged(int width, int height) {}
+
+                      @Override
+                      public void onOutputFrameAvailableForRendering(long presentationTimeUs) {
+                        actualPresentationTimesUs.add(presentationTimeUs);
+                      }
+
+                      @Override
+                      public void onError(VideoFrameProcessingException exception) {
+                        videoFrameProcessingExceptionReference.set(exception);
+                        videoFrameProcessingEndedCountDownLatch.countDown();
+                      }
+
+                      @Override
+                      public void onEnded() {
+                        videoFrameProcessingEndedCountDownLatch.countDown();
+                      }
+                    }));
+
+    defaultVideoFrameProcessor.getTaskExecutor().submit(blankFrameProducer::configureGlObjects);
+    // A frame needs to be registered despite not queuing any external input to ensure
+    // that the video frame processor knows about the stream offset.
+    checkNotNull(defaultVideoFrameProcessor)
+        .registerInputStream(
+            INPUT_TYPE_SURFACE,
+            /* effects= */ ImmutableList.of(
+                (GlEffect) (context, useHdr) -> blankFrameProducer,
+                // Use an overlay effect to generate bitmaps with timestamps on it.
+                new OverlayEffect(
+                    ImmutableList.of(
+                        new TextOverlay() {
+                          @Override
+                          public SpannableString getText(long presentationTimeUs) {
+                            SpannableString text =
+                                new SpannableString(String.valueOf(presentationTimeUs));
+                            text.setSpan(
+                                new ForegroundColorSpan(Color.BLACK),
+                                /* start= */ 0,
+                                text.length(),
+                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            text.setSpan(
+                                new AbsoluteSizeSpan(/* size= */ 24),
+                                /* start= */ 0,
+                                text.length(),
+                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            text.setSpan(
+                                new TypefaceSpan(/* family= */ "sans-serif"),
+                                /* start= */ 0,
+                                text.length(),
+                                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            return text;
+                          }
+                        })),
+                frameDropEffect),
+            new FrameInfo.Builder(BLANK_FRAME_WIDTH, BLANK_FRAME_HEIGHT).build());
+    blankFrameProducer.produceBlankFrames(inputPresentationTimesUs);
+    defaultVideoFrameProcessor.signalEndOfInput();
+    videoFrameProcessingEndedCountDownLatch.await();
+    @Nullable
+    Exception videoFrameProcessingException = videoFrameProcessingExceptionReference.get();
+    if (videoFrameProcessingException != null) {
+      throw videoFrameProcessingException;
+    }
+    return actualPresentationTimesUs.build();
   }
 }

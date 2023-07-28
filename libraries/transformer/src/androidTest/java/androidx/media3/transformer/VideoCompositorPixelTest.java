@@ -15,7 +15,6 @@
  */
 package androidx.media3.transformer;
 
-import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_BITMAP;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.maybeSaveTestBitmap;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.readBitmap;
@@ -39,6 +38,7 @@ import androidx.media3.effect.RgbFilter;
 import androidx.media3.effect.ScaleAndRotateTransformation;
 import androidx.media3.effect.VideoCompositor;
 import androidx.media3.test.utils.BitmapPixelTestUtil;
+import androidx.media3.test.utils.TextureBitmapReader;
 import androidx.media3.test.utils.VideoFrameProcessorTestRunner;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
@@ -334,7 +334,6 @@ public final class VideoCompositorPixelTest {
       return new VideoFrameProcessorTestRunner.Builder()
           .setTestId(testId)
           .setVideoFrameProcessorFactory(defaultVideoFrameProcessorFactoryBuilder.build())
-          .setInputType(INPUT_TYPE_BITMAP)
           .setInputColorInfo(ColorInfo.SRGB_BT709_FULL)
           .setBitmapReader(textureBitmapReader);
     }

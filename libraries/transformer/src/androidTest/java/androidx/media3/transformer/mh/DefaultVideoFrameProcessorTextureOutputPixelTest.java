@@ -38,17 +38,16 @@ import androidx.media3.common.Format;
 import androidx.media3.common.GlObjectsProvider;
 import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.VideoFrameProcessingException;
-import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.effect.BitmapOverlay;
 import androidx.media3.effect.DefaultGlObjectsProvider;
 import androidx.media3.effect.DefaultVideoFrameProcessor;
 import androidx.media3.effect.OverlayEffect;
 import androidx.media3.test.utils.BitmapPixelTestUtil;
+import androidx.media3.test.utils.TextureBitmapReader;
 import androidx.media3.test.utils.VideoFrameProcessorTestRunner;
 import androidx.media3.transformer.AndroidTestUtil;
 import androidx.media3.transformer.EncoderUtil;
-import androidx.media3.transformer.TextureBitmapReader;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
@@ -537,9 +536,10 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
                 (outputTexture,
                     presentationTimeUs1,
                     releaseOutputTextureCallback1,
-                    unusedSyncObject) ->
-                    bitmapReader.readBitmapAndReleaseTexture(
-                        outputTexture, presentationTimeUs1, releaseOutputTextureCallback1),
+                    unusedSyncObject) -> {
+                  bitmapReader.readBitmap(outputTexture, presentationTimeUs1);
+                  releaseOutputTextureCallback1.release(presentationTimeUs1);
+                },
                 /* textureOutputCapacity= */ 1)
             .setGlObjectsProvider(contextSharingGlObjectsProvider)
             .build();
@@ -550,7 +550,6 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
             .setInputColorInfo(colorInfo)
             .setOutputColorInfo(colorInfo)
             .setBitmapReader(bitmapReader)
-            .setInputType(VideoFrameProcessor.INPUT_TYPE_TEXTURE_ID)
             .setEffects(effects)
             .build();
     GlUtil.awaitSyncObject(syncObject);
@@ -573,9 +572,10 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
                 (outputTexture,
                     presentationTimeUs,
                     releaseOutputTextureCallback,
-                    unusedSyncObject) ->
-                    textureBitmapReader.readBitmapAndReleaseTexture(
-                        outputTexture, presentationTimeUs, releaseOutputTextureCallback),
+                    unusedSyncObject) -> {
+                  textureBitmapReader.readBitmap(outputTexture, presentationTimeUs);
+                  releaseOutputTextureCallback.release(presentationTimeUs);
+                },
                 /* textureOutputCapacity= */ 1)
             .build();
     return new VideoFrameProcessorTestRunner.Builder()

@@ -418,7 +418,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   public void queueInputBitmap(Bitmap inputBitmap, long durationUs, float frameRate) {
     checkState(
         hasRefreshedNextInputFrameInfo,
-        "setInputFrameInfo must be called before queueing another bitmap");
+        "registerInputStream must be called before queueing another bitmap");
     inputSwitcher
         .activeTextureManager()
         .queueInputBitmap(
@@ -442,15 +442,19 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
   @Override
   public Surface getInputSurface() {
-    return inputSwitcher.activeTextureManager().getInputSurface();
+    return inputSwitcher.getInputSurface();
   }
 
   @Override
-  public void registerInputStream(@InputType int inputType, List<Effect> effects) {
+  public void registerInputStream(
+      @InputType int inputType, List<Effect> effects, FrameInfo frameInfo) {
+    nextInputFrameInfo = adjustForPixelWidthHeightRatio(frameInfo);
+    hasRefreshedNextInputFrameInfo = true;
     synchronized (lock) {
       if (!processingInput) {
         videoFrameProcessingTaskExecutor.submitAndBlock(() -> configureEffects(effects));
-        inputSwitcher.switchToInput(inputType);
+        inputSwitcher.switchToInput(inputType, nextInputFrameInfo);
+        inputSwitcher.activeTextureManager().setInputFrameInfo(nextInputFrameInfo);
         processingInput = true;
         return;
       }
@@ -477,21 +481,14 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       // a new frame from the new input stream prematurely.
       videoFrameProcessingTaskExecutor.submitAndBlock(() -> configureEffects(effects));
     }
-    inputSwitcher.switchToInput(inputType);
-  }
-
-  @Override
-  public void setInputFrameInfo(FrameInfo inputFrameInfo) {
-    nextInputFrameInfo = adjustForPixelWidthHeightRatio(inputFrameInfo);
-    inputSwitcher.activeTextureManager().setInputFrameInfo(nextInputFrameInfo);
-    hasRefreshedNextInputFrameInfo = true;
+    inputSwitcher.switchToInput(inputType, nextInputFrameInfo);
   }
 
   @Override
   public void registerInputFrame() {
     checkState(!inputStreamEnded);
     checkStateNotNull(
-        nextInputFrameInfo, "setInputFrameInfo must be called before registering input frames");
+        nextInputFrameInfo, "registerInputStream must be called before registering input frames");
 
     inputSwitcher.activeTextureManager().registerInputFrame(nextInputFrameInfo);
     hasRefreshedNextInputFrameInfo = false;

@@ -15,7 +15,6 @@
  */
 package androidx.media3.effect;
 
-import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_BITMAP;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
@@ -158,7 +157,6 @@ public final class DefaultVideoFrameProcessorPixelTest {
     String testId = "noEffects_withImageInput_matchesGoldenFile";
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
-            .setInputType(INPUT_TYPE_BITMAP)
             .setInputColorInfo(ColorInfo.SRGB_BT709_FULL)
             .build();
     Bitmap originalBitmap = readBitmap(IMAGE_PNG_ASSET_PATH);
@@ -180,7 +178,6 @@ public final class DefaultVideoFrameProcessorPixelTest {
     String testId = "wrappedCrop_withImageInput_matchesGoldenFile";
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
-            .setInputType(INPUT_TYPE_BITMAP)
             .setInputColorInfo(ColorInfo.SRGB_BT709_FULL)
             .setEffects(
                 new GlEffectWrapper(
@@ -214,7 +211,6 @@ public final class DefaultVideoFrameProcessorPixelTest {
                 new DefaultVideoFrameProcessor.Factory.Builder()
                     .setEnableColorTransfers(false)
                     .build())
-            .setInputType(INPUT_TYPE_BITMAP)
             .setInputColorInfo(ColorInfo.SRGB_BT709_FULL)
             .setEffects(NO_OP_EFFECT)
             .build();

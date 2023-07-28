@@ -2142,8 +2142,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
                   }
                 });
 
-        videoFrameProcessor.registerInputStream(
-            VideoFrameProcessor.INPUT_TYPE_SURFACE, videoEffects);
         this.initialStreamOffsetUs = initialStreamOffsetUs;
       } catch (Exception e) {
         throw renderer.createRendererException(
@@ -2226,7 +2224,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
      */
     public void setInputFormat(Format inputFormat) {
       checkNotNull(videoFrameProcessor)
-          .setInputFrameInfo(
+          .registerInputStream(
+              VideoFrameProcessor.INPUT_TYPE_SURFACE,
+              checkNotNull(videoEffects),
               new FrameInfo.Builder(inputFormat.width, inputFormat.height)
                   .setPixelWidthHeightRatio(inputFormat.pixelWidthHeightRatio)
                   .build());

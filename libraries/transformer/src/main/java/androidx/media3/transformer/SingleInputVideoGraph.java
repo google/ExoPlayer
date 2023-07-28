@@ -158,8 +158,7 @@ import java.util.concurrent.atomic.AtomicLong;
       Size decodedSize = getDecodedSize(trackFormat);
       videoFrameProcessor.registerInputStream(
           getInputType(checkNotNull(trackFormat.sampleMimeType)),
-          createEffectListWithPresentation(editedMediaItem.effects.videoEffects, presentation));
-      videoFrameProcessor.setInputFrameInfo(
+          createEffectListWithPresentation(editedMediaItem.effects.videoEffects, presentation),
           new FrameInfo.Builder(decodedSize.getWidth(), decodedSize.getHeight())
               .setPixelWidthHeightRatio(trackFormat.pixelWidthHeightRatio)
               .setOffsetToAddUs(mediaItemOffsetUs.get())

@@ -13,32 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.media3.transformer;
+
+package androidx.media3.test.utils;
 
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import android.graphics.Bitmap;
 import android.view.Surface;
+import androidx.annotation.Nullable;
 import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.GlUtil;
+import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
-import androidx.media3.effect.DefaultVideoFrameProcessor;
-import androidx.media3.test.utils.BitmapPixelTestUtil;
-import androidx.media3.test.utils.VideoFrameProcessorTestRunner;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * {@inheritDoc}
  *
  * <p>Reads from an OpenGL texture. Only for use on physical devices.
  */
+@UnstableApi
 public final class TextureBitmapReader implements VideoFrameProcessorTestRunner.BitmapReader {
+
   // TODO(b/239172735): This outputs an incorrect black output image on emulators.
   private final Map<Long, Bitmap> outputTimestampsToBitmaps;
   private boolean useHighPrecisionColorComponents;
@@ -60,6 +61,10 @@ public final class TextureBitmapReader implements VideoFrameProcessorTestRunner.
     return checkStateNotNull(outputBitmap);
   }
 
+  /**
+   * @return The output {@link Bitmap} at a given {@code presentationTimeUs}.
+   * @throws IllegalStateException If no such bitmap is produced.
+   */
   public Bitmap getBitmap(long presentationTimeUs) {
     return checkStateNotNull(outputTimestampsToBitmaps.get(presentationTimeUs));
   }
@@ -69,6 +74,11 @@ public final class TextureBitmapReader implements VideoFrameProcessorTestRunner.
     return outputTimestampsToBitmaps.keySet();
   }
 
+  /**
+   * Reads the given {@code outputTexture}.
+   *
+   * <p>The read result can be fetched by calling one of me {@link #getBitmap} methods.
+   */
   public void readBitmap(GlTextureInfo outputTexture, long presentationTimeUs)
       throws VideoFrameProcessingException {
     try {
@@ -81,15 +91,6 @@ public final class TextureBitmapReader implements VideoFrameProcessorTestRunner.
     } catch (GlUtil.GlException e) {
       throw new VideoFrameProcessingException(e);
     }
-  }
-
-  public void readBitmapAndReleaseTexture(
-      GlTextureInfo outputTexture,
-      long presentationTimeUs,
-      DefaultVideoFrameProcessor.ReleaseOutputTextureCallback releaseOutputTextureCallback)
-      throws VideoFrameProcessingException {
-    readBitmap(outputTexture, presentationTimeUs);
-    releaseOutputTextureCallback.release(presentationTimeUs);
   }
 
   private static Bitmap createBitmapFromCurrentGlFrameBuffer(

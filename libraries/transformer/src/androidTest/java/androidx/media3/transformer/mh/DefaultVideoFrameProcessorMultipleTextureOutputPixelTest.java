@@ -15,7 +15,6 @@
  */
 package androidx.media3.transformer.mh;
 
-import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_BITMAP;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.maybeSaveTestBitmap;
@@ -28,8 +27,8 @@ import androidx.media3.common.ColorInfo;
 import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.effect.DefaultVideoFrameProcessor;
 import androidx.media3.test.utils.BitmapPixelTestUtil;
+import androidx.media3.test.utils.TextureBitmapReader;
 import androidx.media3.test.utils.VideoFrameProcessorTestRunner;
-import androidx.media3.transformer.TextureBitmapReader;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.util.Set;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -142,16 +141,15 @@ public class DefaultVideoFrameProcessorMultipleTextureOutputPixelTest {
                 (outputTexture,
                     presentationTimeUs,
                     releaseOutputTextureCallback,
-                    unusedSyncObject) ->
-                    checkNotNull(textureBitmapReader)
-                        .readBitmapAndReleaseTexture(
-                            outputTexture, presentationTimeUs, releaseOutputTextureCallback),
+                    unusedSyncObject) -> {
+                  checkNotNull(textureBitmapReader).readBitmap(outputTexture, presentationTimeUs);
+                  releaseOutputTextureCallback.release(presentationTimeUs);
+                },
                 /* textureOutputCapacity= */ 1)
             .build();
     return new VideoFrameProcessorTestRunner.Builder()
         .setTestId(testId)
         .setVideoFrameProcessorFactory(defaultVideoFrameProcessorFactory)
-        .setInputType(INPUT_TYPE_BITMAP)
         .setInputColorInfo(ColorInfo.SRGB_BT709_FULL)
         .setBitmapReader(textureBitmapReader);
   }
