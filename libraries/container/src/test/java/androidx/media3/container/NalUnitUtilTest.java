@@ -202,11 +202,40 @@ public final class NalUnitUtilTest {
     assertThat(spsData.colorTransfer).isEqualTo(6);
   }
 
+  /** Regression test for [Internal: b/292170736]. */
+  @Test
+  public void parseH265SpsNalUnitPayload_withShortTermRefPicSets() {
+    byte[] spsNalUnitPayload =
+        new byte[] {
+          1, 2, 96, 0, 0, 3, 0, 0, 3, 0, 0, 3, 0, 0, 3, 0, -106, -96, 2, 28, -128, 30, 4, -39, 111,
+          -110, 76, -114, -65, -7, -13, 101, 33, -51, 66, 68, 2, 65, 0, 0, 3, 0, 1, 0, 0, 3, 0, 29,
+          8
+        };
+
+    NalUnitUtil.H265SpsData spsData =
+        NalUnitUtil.parseH265SpsNalUnitPayload(spsNalUnitPayload, 0, spsNalUnitPayload.length);
+
+    assertThat(spsData.constraintBytes).isEqualTo(new int[] {0, 0, 0, 0, 0, 0});
+    assertThat(spsData.generalLevelIdc).isEqualTo(150);
+    assertThat(spsData.generalProfileCompatibilityFlags).isEqualTo(6);
+    assertThat(spsData.generalProfileIdc).isEqualTo(2);
+    assertThat(spsData.generalProfileSpace).isEqualTo(0);
+    assertThat(spsData.generalTierFlag).isFalse();
+    assertThat(spsData.width).isEqualTo(1080);
+    assertThat(spsData.height).isEqualTo(1920);
+    assertThat(spsData.pixelWidthHeightRatio).isEqualTo(1);
+    assertThat(spsData.seqParameterSetId).isEqualTo(0);
+    assertThat(spsData.chromaFormatIdc).isEqualTo(1);
+    assertThat(spsData.bitDepthLumaMinus8).isEqualTo(2);
+    assertThat(spsData.bitDepthChromaMinus8).isEqualTo(2);
+    assertThat(spsData.colorSpace).isEqualTo(6);
+    assertThat(spsData.colorRange).isEqualTo(2);
+    assertThat(spsData.colorTransfer).isEqualTo(6);
+  }
+
   private static byte[] buildTestData() {
     byte[] data = new byte[20];
-    for (int i = 0; i < data.length; i++) {
-      data[i] = (byte) 0xFF;
-    }
+    Arrays.fill(data, (byte) 0xFF);
     // Insert an incomplete NAL unit start code.
     data[TEST_PARTIAL_NAL_POSITION] = 0;
     data[TEST_PARTIAL_NAL_POSITION + 1] = 0;

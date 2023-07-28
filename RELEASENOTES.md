@@ -92,6 +92,7 @@
 *   Video:
     *   Allow `MediaCodecVideoRenderer` to use a custom
         `VideoFrameProcessor.Factory`.
+    *   H.265/HEVC: Fix parsing SPS short and long term reference picture info.
 *   Text:
     *   CEA-608: Change cue truncation logic to only consider visible text.
         Previously indent and tab offset were included when limiting the cue
