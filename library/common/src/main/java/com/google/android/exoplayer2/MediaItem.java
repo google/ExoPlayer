@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 
@@ -85,6 +86,7 @@ public final class MediaItem implements Bundleable {
     private ImmutableList<SubtitleConfiguration> subtitleConfigurations;
     @Nullable private AdsConfiguration adsConfiguration;
     @Nullable private Object tag;
+    private long imageDurationMs;
     @Nullable private MediaMetadata mediaMetadata;
     // TODO: Change this to LiveConfiguration once all the deprecated individual setters
     // are removed.
@@ -100,6 +102,7 @@ public final class MediaItem implements Bundleable {
       subtitleConfigurations = ImmutableList.of();
       liveConfiguration = new LiveConfiguration.Builder();
       requestMetadata = RequestMetadata.EMPTY;
+      imageDurationMs = C.TIME_UNSET;
     }
 
     private Builder(MediaItem mediaItem) {
@@ -122,6 +125,7 @@ public final class MediaItem implements Bundleable {
                 ? localConfiguration.drmConfiguration.buildUpon()
                 : new DrmConfiguration.Builder();
         adsConfiguration = localConfiguration.adsConfiguration;
+        imageDurationMs = localConfiguration.imageDurationMs;
       }
     }
 
@@ -537,6 +541,21 @@ public final class MediaItem implements Bundleable {
       return this;
     }
 
+    /**
+     * Sets the image duration in video output, in milliseconds.
+     *
+     * <p>Must be set if {@linkplain #setUri the uri} is set and resolves to an image. Ignored
+     * otherwise.
+     *
+     * <p>Default value is {@link C#TIME_UNSET}.
+     */
+    @CanIgnoreReturnValue
+    public Builder setImageDurationMs(long imageDurationMs) {
+      checkArgument(imageDurationMs > 0 || imageDurationMs == C.TIME_UNSET);
+      this.imageDurationMs = imageDurationMs;
+      return this;
+    }
+
     /** Sets the media metadata. */
     @CanIgnoreReturnValue
     public Builder setMediaMetadata(MediaMetadata mediaMetadata) {
@@ -567,7 +586,8 @@ public final class MediaItem implements Bundleable {
                 streamKeys,
                 customCacheKey,
                 subtitleConfigurations,
-                tag);
+                tag,
+                imageDurationMs);
       }
       return new MediaItem(
           mediaId != null ? mediaId : DEFAULT_MEDIA_ID,
@@ -581,7 +601,6 @@ public final class MediaItem implements Bundleable {
 
   /** DRM configuration for a media item. */
   public static final class DrmConfiguration implements Bundleable {
-
     /** Builder for {@link DrmConfiguration}. */
     public static final class Builder {
 
@@ -1103,6 +1122,9 @@ public final class MediaItem implements Bundleable {
      */
     @Nullable public final Object tag;
 
+    /** Duration for image assets in milliseconds. */
+    public final long imageDurationMs;
+
     @SuppressWarnings("deprecation") // Setting deprecated subtitles field.
     private LocalConfiguration(
         Uri uri,
@@ -1112,7 +1134,8 @@ public final class MediaItem implements Bundleable {
         List<StreamKey> streamKeys,
         @Nullable String customCacheKey,
         ImmutableList<SubtitleConfiguration> subtitleConfigurations,
-        @Nullable Object tag) {
+        @Nullable Object tag,
+        long imageDurationMs) {
       this.uri = uri;
       this.mimeType = mimeType;
       this.drmConfiguration = drmConfiguration;
@@ -1126,6 +1149,7 @@ public final class MediaItem implements Bundleable {
       }
       this.subtitles = subtitles.build();
       this.tag = tag;
+      this.imageDurationMs = imageDurationMs;
     }
 
     @Override
@@ -1145,7 +1169,8 @@ public final class MediaItem implements Bundleable {
           && streamKeys.equals(other.streamKeys)
           && Util.areEqual(customCacheKey, other.customCacheKey)
           && subtitleConfigurations.equals(other.subtitleConfigurations)
-          && Util.areEqual(tag, other.tag);
+          && Util.areEqual(tag, other.tag)
+          && Util.areEqual(imageDurationMs, other.imageDurationMs);
     }
 
     @Override
@@ -1158,6 +1183,7 @@ public final class MediaItem implements Bundleable {
       result = 31 * result + (customCacheKey == null ? 0 : customCacheKey.hashCode());
       result = 31 * result + subtitleConfigurations.hashCode();
       result = 31 * result + (tag == null ? 0 : tag.hashCode());
+      result = (int) (31L * result + imageDurationMs);
       return result;
     }
 
@@ -1170,6 +1196,7 @@ public final class MediaItem implements Bundleable {
     private static final String FIELD_STREAM_KEYS = Util.intToStringMaxRadix(4);
     private static final String FIELD_CUSTOM_CACHE_KEY = Util.intToStringMaxRadix(5);
     private static final String FIELD_SUBTITLE_CONFIGURATION = Util.intToStringMaxRadix(6);
+    private static final String FIELD_IMAGE_DURATION_MS = Util.intToStringMaxRadix(7);
 
     /**
      * {@inheritDoc}
@@ -1201,6 +1228,9 @@ public final class MediaItem implements Bundleable {
         bundle.putParcelableArrayList(
             FIELD_SUBTITLE_CONFIGURATION, BundleableUtil.toBundleArrayList(subtitleConfigurations));
       }
+      if (imageDurationMs != C.TIME_UNSET) {
+        bundle.putLong(FIELD_IMAGE_DURATION_MS, imageDurationMs);
+      }
       return bundle;
     }
 
@@ -1225,6 +1255,7 @@ public final class MediaItem implements Bundleable {
           subtitleBundles == null
               ? ImmutableList.of()
               : BundleableUtil.fromBundleList(SubtitleConfiguration.CREATOR, subtitleBundles);
+      long imageDurationMs = bundle.getLong(FIELD_IMAGE_DURATION_MS, C.TIME_UNSET);
 
       return new LocalConfiguration(
           checkNotNull(bundle.getParcelable(FIELD_URI)),
@@ -1234,7 +1265,8 @@ public final class MediaItem implements Bundleable {
           streamKeys,
           bundle.getString(FIELD_CUSTOM_CACHE_KEY),
           subtitleConfiguration,
-          /* tag= */ null);
+          /* tag= */ null,
+          imageDurationMs);
     }
   }
 
