@@ -20,7 +20,6 @@ import static android.Manifest.permission.READ_MEDIA_VIDEO;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
-import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.android.exoplayer2.util.Util.SDK_INT;
 
 import android.app.Activity;
@@ -440,7 +439,12 @@ public final class TransformerActivity extends AppCompatActivity {
 
   private ImmutableList<Effect> createVideoEffectsFromBundle(Bundle bundle) {
     boolean[] selectedEffects =
-        checkStateNotNull(bundle.getBooleanArray(ConfigurationActivity.VIDEO_EFFECTS_SELECTIONS));
+        bundle.getBooleanArray(ConfigurationActivity.VIDEO_EFFECTS_SELECTIONS);
+
+    if (selectedEffects == null) {
+      return ImmutableList.of();
+    }
+
     ImmutableList.Builder<Effect> effects = new ImmutableList.Builder<>();
     if (selectedEffects[ConfigurationActivity.DIZZY_CROP_INDEX]) {
       effects.add(MatrixTransformationFactory.createDizzyCropEffect());
