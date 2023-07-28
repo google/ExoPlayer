@@ -19,7 +19,6 @@ import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.READ_MEDIA_VIDEO;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
-import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.common.util.Util.SDK_INT;
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
 
@@ -432,7 +431,12 @@ public final class TransformerActivity extends AppCompatActivity {
 
   private ImmutableList<Effect> createVideoEffectsFromBundle(Bundle bundle) {
     boolean[] selectedEffects =
-        checkStateNotNull(bundle.getBooleanArray(ConfigurationActivity.VIDEO_EFFECTS_SELECTIONS));
+        bundle.getBooleanArray(ConfigurationActivity.VIDEO_EFFECTS_SELECTIONS);
+
+    if (selectedEffects == null) {
+      return ImmutableList.of();
+    }
+
     ImmutableList.Builder<Effect> effects = new ImmutableList.Builder<>();
     if (selectedEffects[ConfigurationActivity.DIZZY_CROP_INDEX]) {
       effects.add(MatrixTransformationFactory.createDizzyCropEffect());
