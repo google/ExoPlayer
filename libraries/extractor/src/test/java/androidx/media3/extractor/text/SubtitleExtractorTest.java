@@ -21,7 +21,6 @@ import static org.junit.Assert.assertThrows;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Util;
-import androidx.media3.exoplayer.text.DelegatingSubtitleDecoder;
 import androidx.media3.extractor.Extractor;
 import androidx.media3.extractor.text.webvtt.WebvttParser;
 import androidx.media3.test.utils.FakeExtractorInput;
@@ -65,9 +64,7 @@ public class SubtitleExtractorTest {
             .build();
     SubtitleExtractor extractor =
         new SubtitleExtractor(
-            new DelegatingSubtitleDecoder(
-                "DelegatingSubtitleDecoderWithWebvttParser", new WebvttParser()),
-            new Format.Builder().setSampleMimeType(MimeTypes.TEXT_VTT).build());
+            new WebvttParser(), new Format.Builder().setSampleMimeType(MimeTypes.TEXT_VTT).build());
     extractor.init(output);
 
     while (extractor.read(input, null) != Extractor.RESULT_END_OF_INPUT) {}
@@ -109,9 +106,7 @@ public class SubtitleExtractorTest {
             .build();
     SubtitleExtractor extractor =
         new SubtitleExtractor(
-            new DelegatingSubtitleDecoder(
-                "DelegatingSubtitleDecoderWithWebvttParser", new WebvttParser()),
-            new Format.Builder().setSampleMimeType(MimeTypes.TEXT_VTT).build());
+            new WebvttParser(), new Format.Builder().setSampleMimeType(MimeTypes.TEXT_VTT).build());
     extractor.init(output);
     FakeTrackOutput trackOutput = output.trackOutputs.get(0);
 
@@ -152,9 +147,7 @@ public class SubtitleExtractorTest {
             .build();
     SubtitleExtractor extractor =
         new SubtitleExtractor(
-            new DelegatingSubtitleDecoder(
-                "DelegatingSubtitleDecoderWithWebvttParser", new WebvttParser()),
-            new Format.Builder().setSampleMimeType(MimeTypes.TEXT_VTT).build());
+            new WebvttParser(), new Format.Builder().setSampleMimeType(MimeTypes.TEXT_VTT).build());
     extractor.init(output);
     FakeTrackOutput trackOutput = output.trackOutputs.get(0);
 
@@ -189,10 +182,7 @@ public class SubtitleExtractorTest {
   public void read_withoutInit_fails() {
     FakeExtractorInput input = new FakeExtractorInput.Builder().setData(new byte[0]).build();
     SubtitleExtractor extractor =
-        new SubtitleExtractor(
-            new DelegatingSubtitleDecoder(
-                "DelegatingSubtitleDecoderWithWebvttParser", new WebvttParser()),
-            new Format.Builder().build());
+        new SubtitleExtractor(new WebvttParser(), new Format.Builder().build());
 
     assertThrows(IllegalStateException.class, () -> extractor.read(input, null));
   }
@@ -201,10 +191,7 @@ public class SubtitleExtractorTest {
   public void read_afterRelease_fails() {
     FakeExtractorInput input = new FakeExtractorInput.Builder().setData(new byte[0]).build();
     SubtitleExtractor extractor =
-        new SubtitleExtractor(
-            new DelegatingSubtitleDecoder(
-                "DelegatingSubtitleDecoderWithWebvttParser", new WebvttParser()),
-            new Format.Builder().build());
+        new SubtitleExtractor(new WebvttParser(), new Format.Builder().build());
     FakeExtractorOutput output = new FakeExtractorOutput();
 
     extractor.init(output);
@@ -216,10 +203,7 @@ public class SubtitleExtractorTest {
   @Test
   public void seek_withoutInit_fails() {
     SubtitleExtractor extractor =
-        new SubtitleExtractor(
-            new DelegatingSubtitleDecoder(
-                "DelegatingSubtitleDecoderWithWebvttParser", new WebvttParser()),
-            new Format.Builder().build());
+        new SubtitleExtractor(new WebvttParser(), new Format.Builder().build());
 
     assertThrows(IllegalStateException.class, () -> extractor.seek(0, 0));
   }
@@ -227,10 +211,7 @@ public class SubtitleExtractorTest {
   @Test
   public void seek_afterRelease_fails() {
     SubtitleExtractor extractor =
-        new SubtitleExtractor(
-            new DelegatingSubtitleDecoder(
-                "DelegatingSubtitleDecoderWithWebvttParser", new WebvttParser()),
-            new Format.Builder().build());
+        new SubtitleExtractor(new WebvttParser(), new Format.Builder().build());
     FakeExtractorOutput output = new FakeExtractorOutput();
 
     extractor.init(output);
@@ -242,10 +223,7 @@ public class SubtitleExtractorTest {
   @Test
   public void released_calledTwice() {
     SubtitleExtractor extractor =
-        new SubtitleExtractor(
-            new DelegatingSubtitleDecoder(
-                "DelegatingSubtitleDecoderWithWebvttParser", new WebvttParser()),
-            new Format.Builder().build());
+        new SubtitleExtractor(new WebvttParser(), new Format.Builder().build());
     FakeExtractorOutput output = new FakeExtractorOutput();
 
     extractor.init(output);
