@@ -36,7 +36,7 @@ import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
-import com.google.android.exoplayer2.text.SubtitleDecoderFactory;
+import com.google.android.exoplayer2.text.DefaultSubtitleParserFactory;
 import com.google.android.exoplayer2.text.SubtitleExtractor;
 import com.google.android.exoplayer2.ui.AdViewProvider;
 import com.google.android.exoplayer2.upstream.CmcdConfiguration;
@@ -471,12 +471,12 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
                   .setLabel(subtitleConfigurations.get(i).label)
                   .setId(subtitleConfigurations.get(i).id)
                   .build();
+          DefaultSubtitleParserFactory subtitleParserFactory = new DefaultSubtitleParserFactory();
           ExtractorsFactory extractorsFactory =
               () ->
                   new Extractor[] {
-                    SubtitleDecoderFactory.DEFAULT.supportsFormat(format)
-                        ? new SubtitleExtractor(
-                            SubtitleDecoderFactory.DEFAULT.createDecoder(format), format)
+                    subtitleParserFactory.supportsFormat(format)
+                        ? new SubtitleExtractor(subtitleParserFactory.create(format), format)
                         : new UnknownSubtitlesExtractor(format)
                   };
           ProgressiveMediaSource.Factory progressiveMediaSourceFactory =
