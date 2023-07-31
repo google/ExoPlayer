@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor;
 import com.google.android.exoplayer2.extractor.mp4.FragmentedMp4Extractor;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
 import com.google.android.exoplayer2.extractor.ogg.OggExtractor;
+import com.google.android.exoplayer2.extractor.png.PngExtractor;
 import com.google.android.exoplayer2.extractor.ts.Ac3Extractor;
 import com.google.android.exoplayer2.extractor.ts.Ac4Extractor;
 import com.google.android.exoplayer2.extractor.ts.AdtsExtractor;
@@ -84,6 +85,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *             the FLAC extension or the FFmpeg extension.
  *       </ul>
  *   <li>JPEG ({@link JpegExtractor})
+ *   <li>PNG ({@link PngExtractor})
  *   <li>MIDI, if available, the MIDI extension's {@code
  *       com.google.android.exoplayer2.decoder.midi.MidiExtractor} is used.
  * </ul>
@@ -120,6 +122,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
         FileTypes.AVI,
         FileTypes.MIDI,
         FileTypes.JPEG,
+        FileTypes.PNG,
       };
 
   private static final ExtensionLoader FLAC_EXTENSION_LOADER =
@@ -509,6 +512,9 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
         break;
       case FileTypes.AVI:
         extractors.add(new AviExtractor());
+        break;
+      case FileTypes.PNG:
+        extractors.add(new PngExtractor());
         break;
       case FileTypes.WEBVTT:
       case FileTypes.UNKNOWN:
