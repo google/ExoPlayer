@@ -159,7 +159,6 @@ import com.google.common.collect.ImmutableList;
 
           // Scale the image.
           Pair<Float, Float> scale = overlay.getOverlaySettings(presentationTimeUs).scale;
-          Matrix.setIdentityM(scaleMatrix, MATRIX_OFFSET);
           Matrix.scaleM(
               scaleMatrix,
               MATRIX_OFFSET,
@@ -173,7 +172,6 @@ import com.google.common.collect.ImmutableList;
           // Translate the overlay within its frame.
           Pair<Float, Float> overlayAnchor =
               overlay.getOverlaySettings(presentationTimeUs).overlayAnchor;
-          Matrix.setIdentityM(overlayAnchorMatrix, MATRIX_OFFSET);
           Matrix.translateM(
               overlayAnchorMatrix,
               MATRIX_OFFSET,
@@ -183,7 +181,6 @@ import com.google.common.collect.ImmutableList;
           Matrix.invertM(overlayAnchorMatrixInv, MATRIX_OFFSET, overlayAnchorMatrix, MATRIX_OFFSET);
 
           // Rotate the image.
-          Matrix.setIdentityM(rotateMatrix, MATRIX_OFFSET);
           Matrix.rotateM(
               rotateMatrix,
               MATRIX_OFFSET,
