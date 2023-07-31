@@ -26,6 +26,7 @@ import android.graphics.Bitmap;
 import android.opengl.EGLContext;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.effect.DefaultGlObjectsProvider;
+import com.google.android.exoplayer2.effect.DefaultVideoCompositor;
 import com.google.android.exoplayer2.effect.DefaultVideoFrameProcessor;
 import com.google.android.exoplayer2.effect.RgbFilter;
 import com.google.android.exoplayer2.effect.ScaleAndRotateTransformation;
@@ -56,9 +57,9 @@ import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-/** Pixel test for {@link VideoCompositor} compositing 2 input frames into 1 output frame. */
+/** Pixel test for {@link DefaultVideoCompositor} compositing 2 input frames into 1 output frame. */
 @RunWith(Parameterized.class)
-public final class VideoCompositorPixelTest {
+public final class DefaultVideoCompositorPixelTest {
 
   private static final String ORIGINAL_PNG_ASSET_PATH = "media/bitmap/input_images/media3test.png";
   private static final String GRAYSCALE_PNG_ASSET_PATH =
@@ -76,33 +77,33 @@ public final class VideoCompositorPixelTest {
   @Parameterized.Parameter public boolean useSharedExecutor;
   @Rule public TestName testName = new TestName();
 
-  private @MonotonicNonNull VideoCompositorTestRunner videoCompositorTestRunner;
+  private @MonotonicNonNull VideoCompositorTestRunner compositorTestRunner;
 
   @After
   public void tearDown() {
-    if (videoCompositorTestRunner != null) {
-      videoCompositorTestRunner.release();
+    if (compositorTestRunner != null) {
+      compositorTestRunner.release();
     }
   }
 
   @Test
   public void compositeTwoInputs_withOneFrameFromEach_matchesExpectedBitmap() throws Exception {
     String testId = testName.getMethodName();
-    videoCompositorTestRunner = new VideoCompositorTestRunner(testId, useSharedExecutor);
+    compositorTestRunner = new VideoCompositorTestRunner(testId, useSharedExecutor);
 
-    videoCompositorTestRunner.queueBitmapsToBothInputs(/* count= */ 1);
+    compositorTestRunner.queueBitmapsToBothInputs(/* count= */ 1);
 
     saveAndAssertBitmapMatchesExpected(
         testId,
-        videoCompositorTestRunner.inputBitmapReader1.getBitmap(),
+        compositorTestRunner.inputBitmapReader1.getBitmap(),
         /* actualBitmapLabel= */ "actualCompositorInputBitmap1",
         GRAYSCALE_PNG_ASSET_PATH);
     saveAndAssertBitmapMatchesExpected(
         testId,
-        videoCompositorTestRunner.inputBitmapReader2.getBitmap(),
+        compositorTestRunner.inputBitmapReader2.getBitmap(),
         /* actualBitmapLabel= */ "actualCompositorInputBitmap2",
         ROTATE180_PNG_ASSET_PATH);
-    videoCompositorTestRunner.saveAndAssertFirstCompositedBitmapMatchesExpected(
+    compositorTestRunner.saveAndAssertFirstCompositedBitmapMatchesExpected(
         GRAYSCALE_AND_ROTATE180_COMPOSITE_PNG_ASSET_PATH);
   }
 
@@ -110,9 +111,9 @@ public final class VideoCompositorPixelTest {
   public void compositeTwoInputs_withFiveFramesFromEach_matchesExpectedTimestamps()
       throws Exception {
     String testId = testName.getMethodName();
-    videoCompositorTestRunner = new VideoCompositorTestRunner(testId, useSharedExecutor);
+    compositorTestRunner = new VideoCompositorTestRunner(testId, useSharedExecutor);
 
-    videoCompositorTestRunner.queueBitmapsToBothInputs(/* count= */ 5);
+    compositorTestRunner.queueBitmapsToBothInputs(/* count= */ 5);
 
     ImmutableList<Long> expectedTimestamps =
         ImmutableList.of(
@@ -121,16 +122,16 @@ public final class VideoCompositorPixelTest {
             2 * C.MICROS_PER_SECOND,
             3 * C.MICROS_PER_SECOND,
             4 * C.MICROS_PER_SECOND);
-    assertThat(videoCompositorTestRunner.inputBitmapReader1.getOutputTimestamps())
+    assertThat(compositorTestRunner.inputBitmapReader1.getOutputTimestamps())
         .containsExactlyElementsIn(expectedTimestamps)
         .inOrder();
-    assertThat(videoCompositorTestRunner.inputBitmapReader2.getOutputTimestamps())
+    assertThat(compositorTestRunner.inputBitmapReader2.getOutputTimestamps())
         .containsExactlyElementsIn(expectedTimestamps)
         .inOrder();
-    assertThat(videoCompositorTestRunner.compositedTimestamps)
+    assertThat(compositorTestRunner.compositedTimestamps)
         .containsExactlyElementsIn(expectedTimestamps)
         .inOrder();
-    videoCompositorTestRunner.saveAndAssertFirstCompositedBitmapMatchesExpected(
+    compositorTestRunner.saveAndAssertFirstCompositedBitmapMatchesExpected(
         GRAYSCALE_AND_ROTATE180_COMPOSITE_PNG_ASSET_PATH);
   }
 
@@ -138,22 +139,22 @@ public final class VideoCompositorPixelTest {
   public void compositeTwoInputs_withTenFramesFromEach_matchesExpectedFrameCount()
       throws Exception {
     String testId = testName.getMethodName();
-    videoCompositorTestRunner = new VideoCompositorTestRunner(testId, useSharedExecutor);
+    compositorTestRunner = new VideoCompositorTestRunner(testId, useSharedExecutor);
     int numberOfFramesToQueue = 10;
 
-    videoCompositorTestRunner.queueBitmapsToBothInputs(numberOfFramesToQueue);
+    compositorTestRunner.queueBitmapsToBothInputs(numberOfFramesToQueue);
 
-    assertThat(videoCompositorTestRunner.inputBitmapReader1.getOutputTimestamps())
+    assertThat(compositorTestRunner.inputBitmapReader1.getOutputTimestamps())
         .hasSize(numberOfFramesToQueue);
-    assertThat(videoCompositorTestRunner.inputBitmapReader2.getOutputTimestamps())
+    assertThat(compositorTestRunner.inputBitmapReader2.getOutputTimestamps())
         .hasSize(numberOfFramesToQueue);
-    assertThat(videoCompositorTestRunner.compositedTimestamps).hasSize(numberOfFramesToQueue);
-    videoCompositorTestRunner.saveAndAssertFirstCompositedBitmapMatchesExpected(
+    assertThat(compositorTestRunner.compositedTimestamps).hasSize(numberOfFramesToQueue);
+    compositorTestRunner.saveAndAssertFirstCompositedBitmapMatchesExpected(
         GRAYSCALE_AND_ROTATE180_COMPOSITE_PNG_ASSET_PATH);
   }
 
   /**
-   * A test runner for {@link VideoCompositor tests} tests.
+   * A test runner for {@link DefaultVideoCompositor} tests.
    *
    * <p>Composites input bitmaps from two input sources.
    */
@@ -190,7 +191,7 @@ public final class VideoCompositorPixelTest {
       compositedTimestamps = new CopyOnWriteArrayList<>();
       compositorEnded = new CountDownLatch(1);
       videoCompositor =
-          new VideoCompositor(
+          new DefaultVideoCompositor(
               getApplicationContext(),
               glObjectsProvider,
               sharedExecutorService,

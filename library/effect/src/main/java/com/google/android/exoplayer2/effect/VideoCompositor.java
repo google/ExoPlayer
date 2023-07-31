@@ -15,39 +15,14 @@
  */
 package com.google.android.exoplayer2.effect;
 
-import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
-import static com.google.android.exoplayer2.util.Assertions.checkState;
-
-import android.content.Context;
-import android.opengl.EGLContext;
-import android.opengl.EGLDisplay;
-import android.opengl.EGLSurface;
-import android.opengl.GLES20;
-import androidx.annotation.GuardedBy;
-import androidx.annotation.IntRange;
-import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.util.GlObjectsProvider;
-import com.google.android.exoplayer2.util.GlProgram;
 import com.google.android.exoplayer2.util.GlTextureInfo;
-import com.google.android.exoplayer2.util.GlUtil;
-import com.google.android.exoplayer2.util.Log;
-import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
-import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.ExecutorService;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * A basic VideoCompositor that takes in frames from exactly 2 input sources and combines it to one
- * output.
+ * Interface for a video compositor that combines frames from mutliple input sources to produce
+ * output frames.
  *
- * <p>The first {@linkplain #registerInputSource registered source} will be the primary stream,
- * which is used to determine the output frames' timestamps and dimensions.
+ * <p>Input and output are provided via OpenGL textures.
  *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
  *     contains the same ExoPlayer code). See <a
@@ -55,15 +30,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-public final class VideoCompositor {
-  // TODO: b/262694346 -  Flesh out this implementation by doing the following:
-  //  * Handle mismatched timestamps
-  //  * Before allowing customization of this class, add an interface, and rename this class to
-  //    DefaultCompositor.
-  //  * Use a lock to synchronize inputFrameInfos more narrowly, to reduce blocking.
+public interface VideoCompositor {
 
   /** Listener for errors. */
-  public interface Listener {
+  interface Listener {
     /**
      * Called when an exception occurs during asynchronous frame compositing.
      *
@@ -75,75 +45,11 @@ public final class VideoCompositor {
     void onEnded();
   }
 
-  private static final String THREAD_NAME = "Effect:VideoCompositor:GlThread";
-  private static final String TAG = "VideoCompositor";
-  private static final String VERTEX_SHADER_PATH = "shaders/vertex_shader_transformation_es2.glsl";
-  private static final String FRAGMENT_SHADER_PATH = "shaders/fragment_shader_compositor_es2.glsl";
-  private static final int PRIMARY_INPUT_ID = 0;
-
-  private final Context context;
-  private final Listener listener;
-  private final DefaultVideoFrameProcessor.TextureOutputListener textureOutputListener;
-  private final GlObjectsProvider glObjectsProvider;
-  private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
-
-  @GuardedBy("this")
-  private final List<InputSource> inputSources;
-
-  private boolean allInputsEnded; // Whether all inputSources have signaled end of input.
-
-  private final TexturePool outputTexturePool;
-  private final Queue<Long> outputTextureTimestamps; // Synchronized with outputTexturePool.
-  private final Queue<Long> syncObjects; // Synchronized with outputTexturePool.
-  // Only used on the GL Thread.
-  private @MonotonicNonNull EGLContext eglContext;
-  private @MonotonicNonNull EGLDisplay eglDisplay;
-  private @MonotonicNonNull GlProgram glProgram;
-  private @MonotonicNonNull EGLSurface placeholderEglSurface;
-
-  /**
-   * Creates an instance.
-   *
-   * <p>If a non-null {@code executorService} is set, the {@link ExecutorService} must be
-   * {@linkplain ExecutorService#shutdown shut down} by the caller.
-   */
-  public VideoCompositor(
-      Context context,
-      GlObjectsProvider glObjectsProvider,
-      @Nullable ExecutorService executorService,
-      Listener listener,
-      DefaultVideoFrameProcessor.TextureOutputListener textureOutputListener,
-      @IntRange(from = 1) int textureOutputCapacity) {
-    this.context = context;
-    this.listener = listener;
-    this.textureOutputListener = textureOutputListener;
-    this.glObjectsProvider = glObjectsProvider;
-
-    inputSources = new ArrayList<>();
-    outputTexturePool =
-        new TexturePool(/* useHighPrecisionColorComponents= */ false, textureOutputCapacity);
-    outputTextureTimestamps = new ArrayDeque<>(textureOutputCapacity);
-    syncObjects = new ArrayDeque<>(textureOutputCapacity);
-
-    boolean ownsExecutor = executorService == null;
-    ExecutorService instanceExecutorService =
-        ownsExecutor ? Util.newSingleThreadExecutor(THREAD_NAME) : checkNotNull(executorService);
-    videoFrameProcessingTaskExecutor =
-        new VideoFrameProcessingTaskExecutor(
-            instanceExecutorService,
-            /* shouldShutdownExecutorService= */ ownsExecutor,
-            listener::onError);
-    videoFrameProcessingTaskExecutor.submit(this::setupGlObjects);
-  }
-
   /**
    * Registers a new input source, and returns a unique {@code inputId} corresponding to this
    * source, to be used in {@link #queueInputTexture}.
    */
-  public synchronized int registerInputSource() {
-    inputSources.add(new InputSource());
-    return inputSources.size() - 1;
-  }
+  int registerInputSource();
 
   /**
    * Signals that no more frames will come from the upstream {@link
@@ -152,18 +58,7 @@ public final class VideoCompositor {
    * <p>Each input source must have a unique {@code inputId} returned from {@link
    * #registerInputSource}.
    */
-  public synchronized void signalEndOfInputSource(int inputId) {
-    inputSources.get(inputId).isInputEnded = true;
-    for (int i = 0; i < inputSources.size(); i++) {
-      if (!inputSources.get(i).isInputEnded) {
-        return;
-      }
-    }
-    allInputsEnded = true;
-    if (inputSources.get(PRIMARY_INPUT_ID).frameInfos.isEmpty()) {
-      listener.onEnded();
-    }
-  }
+  void signalEndOfInputSource(int inputId);
 
   /**
    * Queues an input texture to be composited, for example from an upstream {@link
@@ -172,202 +67,12 @@ public final class VideoCompositor {
    * <p>Each input source must have a unique {@code inputId} returned from {@link
    * #registerInputSource}.
    */
-  public synchronized void queueInputTexture(
+  void queueInputTexture(
       int inputId,
       GlTextureInfo inputTexture,
       long presentationTimeUs,
-      DefaultVideoFrameProcessor.ReleaseOutputTextureCallback releaseTextureCallback)
-      throws VideoFrameProcessingException {
-    checkState(!inputSources.get(inputId).isInputEnded);
-    InputFrameInfo inputFrameInfo =
-        new InputFrameInfo(inputTexture, presentationTimeUs, releaseTextureCallback);
-    inputSources.get(inputId).frameInfos.add(inputFrameInfo);
-    videoFrameProcessingTaskExecutor.submit(this::maybeComposite);
-  }
+      DefaultVideoFrameProcessor.ReleaseOutputTextureCallback releaseTextureCallback);
 
-  public void release() {
-    try {
-      videoFrameProcessingTaskExecutor.release(/* releaseTask= */ this::releaseGlObjects);
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      throw new IllegalStateException(e);
-    }
-  }
-
-  // Below methods must be called on the GL thread.
-  private void setupGlObjects() throws GlUtil.GlException {
-    eglDisplay = GlUtil.getDefaultEglDisplay();
-    eglContext =
-        glObjectsProvider.createEglContext(
-            eglDisplay, /* openGlVersion= */ 2, GlUtil.EGL_CONFIG_ATTRIBUTES_RGBA_8888);
-    placeholderEglSurface =
-        glObjectsProvider.createFocusedPlaceholderEglSurface(eglContext, eglDisplay);
-  }
-
-  private synchronized void maybeComposite()
-      throws VideoFrameProcessingException, GlUtil.GlException {
-    if (!isReadyToComposite()) {
-      return;
-    }
-
-    List<InputFrameInfo> framesToComposite = new ArrayList<>();
-    for (int inputId = 0; inputId < inputSources.size(); inputId++) {
-      framesToComposite.add(inputSources.get(inputId).frameInfos.remove());
-    }
-
-    ensureGlProgramConfigured();
-
-    // TODO: b/262694346 -
-    //  * Support an arbitrary number of inputs.
-    //  * Allow different frame dimensions.
-    InputFrameInfo inputFrame1 = framesToComposite.get(0);
-    InputFrameInfo inputFrame2 = framesToComposite.get(1);
-    checkState(inputFrame1.texture.width == inputFrame2.texture.width);
-    checkState(inputFrame1.texture.height == inputFrame2.texture.height);
-    outputTexturePool.ensureConfigured(
-        glObjectsProvider, inputFrame1.texture.width, inputFrame1.texture.height);
-    GlTextureInfo outputTexture = outputTexturePool.useTexture();
-    long outputPresentationTimestampUs = framesToComposite.get(PRIMARY_INPUT_ID).presentationTimeUs;
-    outputTextureTimestamps.add(outputPresentationTimestampUs);
-
-    drawFrame(inputFrame1.texture, inputFrame2.texture, outputTexture);
-    long syncObject = GlUtil.createGlSyncFence();
-    syncObjects.add(syncObject);
-    textureOutputListener.onTextureRendered(
-        outputTexture,
-        /* presentationTimeUs= */ framesToComposite.get(0).presentationTimeUs,
-        this::releaseOutputFrame,
-        syncObject);
-    for (int i = 0; i < framesToComposite.size(); i++) {
-      InputFrameInfo inputFrameInfo = framesToComposite.get(i);
-      inputFrameInfo.releaseCallback.release(inputFrameInfo.presentationTimeUs);
-    }
-    if (allInputsEnded && inputSources.get(PRIMARY_INPUT_ID).frameInfos.isEmpty()) {
-      listener.onEnded();
-    }
-  }
-
-  private synchronized boolean isReadyToComposite() {
-    if (outputTexturePool.freeTextureCount() == 0) {
-      return false;
-    }
-    long compositeTimestampUs = C.TIME_UNSET;
-    for (int inputId = 0; inputId < inputSources.size(); inputId++) {
-      Queue<InputFrameInfo> inputFrameInfos = inputSources.get(inputId).frameInfos;
-      if (inputFrameInfos.isEmpty()) {
-        return false;
-      }
-
-      long inputTimestampUs = checkNotNull(inputFrameInfos.peek()).presentationTimeUs;
-      if (inputId == PRIMARY_INPUT_ID) {
-        compositeTimestampUs = inputTimestampUs;
-      }
-      // TODO: b/262694346 - Allow for different frame-rates to be composited, by potentially
-      //  dropping some frames in non-primary streams.
-      if (inputTimestampUs != compositeTimestampUs) {
-        throw new IllegalStateException("Non-matched timestamps not yet supported.");
-      }
-    }
-    return true;
-  }
-
-  private void releaseOutputFrame(long presentationTimeUs) {
-    videoFrameProcessingTaskExecutor.submit(() -> releaseOutputFrameInternal(presentationTimeUs));
-  }
-
-  private synchronized void releaseOutputFrameInternal(long presentationTimeUs)
-      throws VideoFrameProcessingException, GlUtil.GlException {
-    while (outputTexturePool.freeTextureCount() < outputTexturePool.capacity()
-        && checkNotNull(outputTextureTimestamps.peek()) <= presentationTimeUs) {
-      outputTexturePool.freeTexture();
-      outputTextureTimestamps.remove();
-      GlUtil.deleteSyncObject(syncObjects.remove());
-    }
-    maybeComposite();
-  }
-
-  private void ensureGlProgramConfigured()
-      throws VideoFrameProcessingException, GlUtil.GlException {
-    if (glProgram != null) {
-      return;
-    }
-    try {
-      glProgram = new GlProgram(context, VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
-      glProgram.setBufferAttribute(
-          "aFramePosition",
-          GlUtil.getNormalizedCoordinateBounds(),
-          GlUtil.HOMOGENEOUS_COORDINATE_VECTOR_SIZE);
-    } catch (IOException e) {
-      throw new VideoFrameProcessingException(e);
-    }
-  }
-
-  private void drawFrame(
-      GlTextureInfo inputTexture1, GlTextureInfo inputTexture2, GlTextureInfo outputTexture)
-      throws GlUtil.GlException {
-    GlUtil.focusFramebufferUsingCurrentContext(
-        outputTexture.fboId, outputTexture.width, outputTexture.height);
-    GlUtil.clearFocusedBuffers();
-
-    GlProgram glProgram = checkNotNull(this.glProgram);
-    glProgram.use();
-    glProgram.setSamplerTexIdUniform("uTexSampler1", inputTexture1.texId, /* texUnitIndex= */ 0);
-    glProgram.setSamplerTexIdUniform("uTexSampler2", inputTexture2.texId, /* texUnitIndex= */ 1);
-
-    glProgram.setFloatsUniform("uTexTransformationMatrix", GlUtil.create4x4IdentityMatrix());
-    glProgram.setFloatsUniform("uTransformationMatrix", GlUtil.create4x4IdentityMatrix());
-    glProgram.setBufferAttribute(
-        "aFramePosition",
-        GlUtil.getNormalizedCoordinateBounds(),
-        GlUtil.HOMOGENEOUS_COORDINATE_VECTOR_SIZE);
-    glProgram.bindAttributesAndUniforms();
-    // The four-vertex triangle strip forms a quad.
-    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
-    GlUtil.checkGlError();
-  }
-
-  private void releaseGlObjects() {
-    try {
-      checkState(allInputsEnded);
-      outputTexturePool.deleteAllTextures();
-      GlUtil.destroyEglSurface(eglDisplay, placeholderEglSurface);
-      if (glProgram != null) {
-        glProgram.delete();
-      }
-    } catch (GlUtil.GlException e) {
-      Log.e(TAG, "Error releasing GL resources", e);
-    } finally {
-      try {
-        GlUtil.destroyEglContext(eglDisplay, eglContext);
-      } catch (GlUtil.GlException e) {
-        Log.e(TAG, "Error releasing GL context", e);
-      }
-    }
-  }
-
-  /** Holds information on an input source. */
-  private static final class InputSource {
-    public final Queue<InputFrameInfo> frameInfos;
-    public boolean isInputEnded;
-
-    public InputSource() {
-      frameInfos = new ArrayDeque<>();
-    }
-  }
-
-  /** Holds information on a frame and how to release it. */
-  private static final class InputFrameInfo {
-    public final GlTextureInfo texture;
-    public final long presentationTimeUs;
-    public final DefaultVideoFrameProcessor.ReleaseOutputTextureCallback releaseCallback;
-
-    public InputFrameInfo(
-        GlTextureInfo texture,
-        long presentationTimeUs,
-        DefaultVideoFrameProcessor.ReleaseOutputTextureCallback releaseCallback) {
-      this.texture = texture;
-      this.presentationTimeUs = presentationTimeUs;
-      this.releaseCallback = releaseCallback;
-    }
-  }
+  /** Releases all resources. */
+  void release();
 }
