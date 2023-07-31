@@ -15,11 +15,13 @@
  */
 package com.google.android.exoplayer2.transformer;
 
+import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.testutil.DumpableFormat;
 import com.google.android.exoplayer2.testutil.Dumper;
+import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,13 +36,43 @@ import java.util.Map;
  */
 public final class TestMuxer implements Muxer, Dumper.Dumpable {
 
+  public static final class Holder {
+    @Nullable public TestMuxer muxer;
+  }
+
+  public static final class Factory implements Muxer.Factory {
+
+    private final Holder muxerHolder;
+    private final Muxer.Factory defaultMuxerFactory;
+
+    public Factory(Holder muxerHolder) {
+      this(muxerHolder, /* maxDelayBetweenSamplesMs= */ C.TIME_UNSET);
+    }
+
+    public Factory(Holder muxerHolder, long maxDelayBetweenSamplesMs) {
+      this.muxerHolder = muxerHolder;
+      defaultMuxerFactory = new DefaultMuxer.Factory(maxDelayBetweenSamplesMs);
+    }
+
+    @Override
+    public Muxer create(String path) throws Muxer.MuxerException {
+      muxerHolder.muxer = new TestMuxer(defaultMuxerFactory.create(path));
+      return muxerHolder.muxer;
+    }
+
+    @Override
+    public ImmutableList<String> getSupportedSampleMimeTypes(@C.TrackType int trackType) {
+      return defaultMuxerFactory.getSupportedSampleMimeTypes(trackType);
+    }
+  }
+
   private final Muxer muxer;
   private final Map<Integer, List<DumpableSample>> trackIndexToSampleDumpables;
   private final List<Dumper.Dumpable> dumpables;
 
   /** Creates a new test muxer. */
-  public TestMuxer(String path, Muxer.Factory muxerFactory) throws MuxerException {
-    muxer = muxerFactory.create(path);
+  private TestMuxer(Muxer muxer) {
+    this.muxer = muxer;
     dumpables = new ArrayList<>();
     trackIndexToSampleDumpables = new HashMap<>();
   }

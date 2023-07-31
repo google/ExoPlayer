@@ -36,7 +36,6 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.audio.SonicAudioProcessor;
 import com.google.android.exoplayer2.effect.RgbFilter;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
-import com.google.android.exoplayer2.transformer.TestUtil.TestMuxerFactory.TestMuxerHolder;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
@@ -63,13 +62,13 @@ public final class SequenceExportTest {
 
   private Context context;
   private String outputPath;
-  private TestMuxerHolder testMuxerHolder;
+  private TestMuxer.Holder muxerHolder;
 
   @Before
   public void setUp() throws Exception {
     context = ApplicationProvider.getApplicationContext();
     outputPath = Util.createTempFile(context, "TransformerTest").getPath();
-    testMuxerHolder = new TestMuxerHolder();
+    muxerHolder = new TestMuxer.Holder();
     createEncodersAndDecoders();
   }
 
@@ -82,7 +81,7 @@ public final class SequenceExportTest {
   @Test
   public void start_concatenateSameMediaItemWithTransmux_completesSuccessfully() throws Exception {
     Transformer transformer =
-        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+        createTransformerBuilder(muxerHolder, /* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
     EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(mediaItem).build();
     EditedMediaItemSequence editedMediaItemSequence =
@@ -98,7 +97,7 @@ public final class SequenceExportTest {
 
     DumpFileAsserts.assertOutput(
         context,
-        checkNotNull(testMuxerHolder.testMuxer),
+        checkNotNull(muxerHolder.muxer),
         getDumpFileName(FILE_AUDIO_VIDEO + ".concatenated_transmux"));
   }
 
@@ -106,7 +105,7 @@ public final class SequenceExportTest {
   public void start_concatenateSameMediaItemWithEffectsAndTransmux_ignoresEffects()
       throws Exception {
     Transformer transformer =
-        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+        createTransformerBuilder(muxerHolder, /* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
     SonicAudioProcessor sonicAudioProcessor = createPitchChangingAudioProcessor(/* pitch= */ 2f);
     Effect videoEffect = RgbFilter.createGrayscaleFilter();
@@ -127,7 +126,7 @@ public final class SequenceExportTest {
 
     DumpFileAsserts.assertOutput(
         context,
-        checkNotNull(testMuxerHolder.testMuxer),
+        checkNotNull(muxerHolder.muxer),
         getDumpFileName(FILE_AUDIO_VIDEO + ".concatenated_transmux"));
   }
 
@@ -135,7 +134,7 @@ public final class SequenceExportTest {
   public void start_concatenateClippedMediaItemsWithTransmux_completesSuccessfully()
       throws Exception {
     Transformer transformer =
-        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+        createTransformerBuilder(muxerHolder, /* enableFallback= */ false).build();
     MediaItem.ClippingConfiguration clippingConfiguration1 =
         new MediaItem.ClippingConfiguration.Builder()
             .setStartPositionMs(0) // Corresponds to key frame.
@@ -171,7 +170,7 @@ public final class SequenceExportTest {
 
     DumpFileAsserts.assertOutput(
         context,
-        checkNotNull(testMuxerHolder.testMuxer),
+        checkNotNull(muxerHolder.muxer),
         getDumpFileName(
             FILE_AUDIO_VIDEO_INCREASING_TIMESTAMPS_15S + ".clipped_concatenated_transmux"));
   }
@@ -180,7 +179,7 @@ public final class SequenceExportTest {
   public void concatenateAudioAndSilence_withTransmuxVideo_completesSuccessfully()
       throws Exception {
     Transformer transformer =
-        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+        createTransformerBuilder(muxerHolder, /* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_VIDEO);
     EditedMediaItem audioVideoMediaItem = new EditedMediaItem.Builder(mediaItem).build();
     EditedMediaItem videoOnlyMediaItem =
@@ -198,7 +197,7 @@ public final class SequenceExportTest {
 
     DumpFileAsserts.assertOutput(
         context,
-        checkNotNull(testMuxerHolder.testMuxer),
+        checkNotNull(muxerHolder.muxer),
         getDumpFileName(FILE_AUDIO_RAW_VIDEO + ".audio_then_silence"));
   }
 
@@ -206,7 +205,7 @@ public final class SequenceExportTest {
   public void concatenateSilenceAndAudio_withTransmuxVideo_completesSuccessfully()
       throws Exception {
     Transformer transformer =
-        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+        createTransformerBuilder(muxerHolder, /* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_VIDEO);
     EditedMediaItem videoOnlyMediaItem =
         new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).build();
@@ -224,7 +223,7 @@ public final class SequenceExportTest {
 
     DumpFileAsserts.assertOutput(
         context,
-        checkNotNull(testMuxerHolder.testMuxer),
+        checkNotNull(muxerHolder.muxer),
         getDumpFileName(FILE_AUDIO_RAW_VIDEO + ".silence_then_audio"));
   }
 
@@ -232,7 +231,7 @@ public final class SequenceExportTest {
   public void concatenateAudioAndSilence_withEffectsAndTransmuxVideo_completesSuccessfully()
       throws Exception {
     Transformer transformer =
-        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+        createTransformerBuilder(muxerHolder, /* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_VIDEO);
     EditedMediaItem audioEditedMediaItem =
         new EditedMediaItem.Builder(mediaItem)
@@ -262,7 +261,7 @@ public final class SequenceExportTest {
 
     DumpFileAsserts.assertOutput(
         context,
-        checkNotNull(testMuxerHolder.testMuxer),
+        checkNotNull(muxerHolder.muxer),
         getDumpFileName(FILE_AUDIO_RAW_VIDEO + ".audio_then_silence_with_effects"));
   }
 
@@ -270,7 +269,7 @@ public final class SequenceExportTest {
   public void concatenateSilenceAndAudio_withEffectsAndTransmuxVideo_completesSuccessfully()
       throws Exception {
     Transformer transformer =
-        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+        createTransformerBuilder(muxerHolder, /* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_VIDEO);
     EditedMediaItem noAudioEditedMediaItem =
         new EditedMediaItem.Builder(mediaItem)
@@ -301,7 +300,7 @@ public final class SequenceExportTest {
 
     DumpFileAsserts.assertOutput(
         context,
-        checkNotNull(testMuxerHolder.testMuxer),
+        checkNotNull(muxerHolder.muxer),
         getDumpFileName(FILE_AUDIO_RAW_VIDEO + ".silence_then_audio_with_effects"));
   }
 
@@ -309,7 +308,7 @@ public final class SequenceExportTest {
   public void concatenateSilenceAndSilence_withTransmuxVideo_completesSuccessfully()
       throws Exception {
     Transformer transformer =
-        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+        createTransformerBuilder(muxerHolder, /* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_VIDEO);
     EditedMediaItem videoOnlyMediaItem =
         new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).build();
@@ -326,7 +325,7 @@ public final class SequenceExportTest {
 
     DumpFileAsserts.assertOutput(
         context,
-        checkNotNull(testMuxerHolder.testMuxer),
+        checkNotNull(muxerHolder.muxer),
         getDumpFileName(FILE_AUDIO_RAW_VIDEO + ".silence_then_silence"));
   }
 
@@ -334,7 +333,7 @@ public final class SequenceExportTest {
   public void concatenateEditedSilenceAndSilence_withTransmuxVideo_completesSuccessfully()
       throws Exception {
     Transformer transformer =
-        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+        createTransformerBuilder(muxerHolder, /* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_VIDEO);
     EditedMediaItem silenceWithEffectsItem =
         new EditedMediaItem.Builder(mediaItem)
@@ -365,7 +364,7 @@ public final class SequenceExportTest {
 
     DumpFileAsserts.assertOutput(
         context,
-        checkNotNull(testMuxerHolder.testMuxer),
+        checkNotNull(muxerHolder.muxer),
         getDumpFileName(FILE_AUDIO_RAW_VIDEO + ".silence-effects_then_silence"));
   }
 
@@ -373,7 +372,7 @@ public final class SequenceExportTest {
   public void concatenateSilenceAndEditedSilence_withTransmuxVideo_completesSuccessfully()
       throws Exception {
     Transformer transformer =
-        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+        createTransformerBuilder(muxerHolder, /* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_VIDEO);
     EditedMediaItem silenceWithEffectsItem =
         new EditedMediaItem.Builder(mediaItem)
@@ -404,7 +403,7 @@ public final class SequenceExportTest {
 
     DumpFileAsserts.assertOutput(
         context,
-        checkNotNull(testMuxerHolder.testMuxer),
+        checkNotNull(muxerHolder.muxer),
         getDumpFileName(FILE_AUDIO_RAW_VIDEO + ".silence_then_silence-effects"));
   }
 
@@ -412,7 +411,7 @@ public final class SequenceExportTest {
   public void concatenateSilenceAndSilence_withEffectsAndTransmuxVideo_completesSuccessfully()
       throws Exception {
     Transformer transformer =
-        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+        createTransformerBuilder(muxerHolder, /* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_VIDEO);
     EditedMediaItem firstItem =
         new EditedMediaItem.Builder(mediaItem)
@@ -443,14 +442,14 @@ public final class SequenceExportTest {
 
     DumpFileAsserts.assertOutput(
         context,
-        checkNotNull(testMuxerHolder.testMuxer),
+        checkNotNull(muxerHolder.muxer),
         getDumpFileName(FILE_AUDIO_RAW_VIDEO + ".silence_then_silence_with_effects"));
   }
 
   @Test
   public void concatenateTwoAudioItems_withSameFormat_completesSuccessfully() throws Exception {
     Transformer transformer =
-        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+        createTransformerBuilder(muxerHolder, /* enableFallback= */ false).build();
     MediaItem audioOnlyMediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW);
     EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(audioOnlyMediaItem).build();
     EditedMediaItemSequence editedMediaItemSequence =
@@ -463,7 +462,7 @@ public final class SequenceExportTest {
 
     DumpFileAsserts.assertOutput(
         context,
-        checkNotNull(testMuxerHolder.testMuxer),
+        checkNotNull(muxerHolder.muxer),
         getDumpFileName(FILE_AUDIO_RAW + ".concatenated"));
   }
 
@@ -471,7 +470,7 @@ public final class SequenceExportTest {
   public void concatenateTwoAudioItems_withSameFormatAndSameEffects_completesSuccessfully()
       throws Exception {
     Transformer transformer =
-        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+        createTransformerBuilder(muxerHolder, /* enableFallback= */ false).build();
     MediaItem audioOnlyMediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW);
     SonicAudioProcessor sonicAudioProcessor = createPitchChangingAudioProcessor(/* pitch= */ 2f);
     Effects effects =
@@ -488,7 +487,7 @@ public final class SequenceExportTest {
 
     DumpFileAsserts.assertOutput(
         context,
-        checkNotNull(testMuxerHolder.testMuxer),
+        checkNotNull(muxerHolder.muxer),
         getDumpFileName(FILE_AUDIO_RAW + ".concatenated_high_pitch"));
   }
 
@@ -496,7 +495,7 @@ public final class SequenceExportTest {
   public void concatenateTwoAudioItems_withSameFormatAndDiffEffects_completesSuccessfully()
       throws Exception {
     Transformer transformer =
-        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+        createTransformerBuilder(muxerHolder, /* enableFallback= */ false).build();
     MediaItem audioOnlyMediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW);
     Effects highPitchEffects =
         new Effects(
@@ -525,14 +524,14 @@ public final class SequenceExportTest {
 
     DumpFileAsserts.assertOutput(
         context,
-        checkNotNull(testMuxerHolder.testMuxer),
+        checkNotNull(muxerHolder.muxer),
         getDumpFileName(FILE_AUDIO_RAW + ".high_pitch_then_low_pitch"));
   }
 
   @Test
   public void concatenateTwoAudioItems_withDiffFormat_completesSuccessfully() throws Exception {
     Transformer transformer =
-        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+        createTransformerBuilder(muxerHolder, /* enableFallback= */ false).build();
     MediaItem stereo48000Audio =
         MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_STEREO_48000KHZ);
     MediaItem mono44100Audio = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW);
@@ -549,7 +548,7 @@ public final class SequenceExportTest {
 
     DumpFileAsserts.assertOutput(
         context,
-        checkNotNull(testMuxerHolder.testMuxer),
+        checkNotNull(muxerHolder.muxer),
         getDumpFileName(FILE_AUDIO_RAW_STEREO_48000KHZ + "_then_sample.wav"));
   }
 
@@ -557,7 +556,7 @@ public final class SequenceExportTest {
   public void concatenateTwoAudioItems_withDiffFormatAndSameEffects_completesSuccessfully()
       throws Exception {
     Transformer transformer =
-        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+        createTransformerBuilder(muxerHolder, /* enableFallback= */ false).build();
 
     Effects highPitch =
         new Effects(
@@ -584,7 +583,7 @@ public final class SequenceExportTest {
 
     DumpFileAsserts.assertOutput(
         context,
-        checkNotNull(testMuxerHolder.testMuxer),
+        checkNotNull(muxerHolder.muxer),
         getDumpFileName(FILE_AUDIO_RAW_STEREO_48000KHZ + "-high_pitch_then_sample.wav-high_pitch"));
   }
 
@@ -592,7 +591,7 @@ public final class SequenceExportTest {
   public void concatenateTwoAudioItems_withDiffFormatAndDiffEffects_completesSuccessfully()
       throws Exception {
     Transformer transformer =
-        createTransformerBuilder(testMuxerHolder, /* enableFallback= */ false).build();
+        createTransformerBuilder(muxerHolder, /* enableFallback= */ false).build();
 
     EditedMediaItem stereo48000AudioHighPitch =
         new EditedMediaItem.Builder(
@@ -620,7 +619,7 @@ public final class SequenceExportTest {
 
     DumpFileAsserts.assertOutput(
         context,
-        checkNotNull(testMuxerHolder.testMuxer),
+        checkNotNull(muxerHolder.muxer),
         getDumpFileName(FILE_AUDIO_RAW_STEREO_48000KHZ + "-high_pitch_then_sample.wav-low_pitch"));
   }
 }
