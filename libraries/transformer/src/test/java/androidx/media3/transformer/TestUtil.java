@@ -43,36 +43,6 @@ import org.robolectric.shadows.ShadowMediaCodecList;
 @UnstableApi
 public final class TestUtil {
 
-  public static final class TestMuxerFactory implements Muxer.Factory {
-
-    public static final class TestMuxerHolder {
-      @Nullable public TestMuxer testMuxer;
-    }
-
-    private final TestMuxerHolder testMuxerHolder;
-    private final Muxer.Factory defaultMuxerFactory;
-
-    public TestMuxerFactory(TestMuxerHolder testMuxerHolder) {
-      this(testMuxerHolder, /* maxDelayBetweenSamplesMs= */ C.TIME_UNSET);
-    }
-
-    public TestMuxerFactory(TestMuxerHolder testMuxerHolder, long maxDelayBetweenSamplesMs) {
-      this.testMuxerHolder = testMuxerHolder;
-      defaultMuxerFactory = new DefaultMuxer.Factory(maxDelayBetweenSamplesMs);
-    }
-
-    @Override
-    public Muxer create(String path) throws Muxer.MuxerException {
-      testMuxerHolder.testMuxer = new TestMuxer(path, defaultMuxerFactory);
-      return testMuxerHolder.testMuxer;
-    }
-
-    @Override
-    public ImmutableList<String> getSupportedSampleMimeTypes(@C.TrackType int trackType) {
-      return defaultMuxerFactory.getSupportedSampleMimeTypes(trackType);
-    }
-  }
-
   public static final class FakeAssetLoader implements AssetLoader {
 
     public static final class Factory implements AssetLoader.Factory {
@@ -234,11 +204,11 @@ public final class TestUtil {
   }
 
   public static Transformer.Builder createTransformerBuilder(
-      TestMuxerFactory.TestMuxerHolder testMuxerHolder, boolean enableFallback) {
+      TestMuxer.Holder testMuxerHolder, boolean enableFallback) {
     Context context = ApplicationProvider.getApplicationContext();
     return new Transformer.Builder(context)
         .setClock(new FakeClock(/* isAutoAdvancing= */ true))
-        .setMuxerFactory(new TestMuxerFactory(testMuxerHolder))
+        .setMuxerFactory(new TestMuxer.Factory(testMuxerHolder))
         .setEncoderFactory(
             new DefaultEncoderFactory.Builder(context).setEnableFallback(enableFallback).build());
   }

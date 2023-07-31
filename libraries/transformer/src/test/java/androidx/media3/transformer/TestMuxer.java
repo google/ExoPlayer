@@ -15,11 +15,13 @@
  */
 package androidx.media3.transformer;
 
+import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.Metadata;
 import androidx.media3.test.utils.DumpableFormat;
 import androidx.media3.test.utils.Dumper;
+import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,13 +36,43 @@ import java.util.Map;
  */
 public final class TestMuxer implements Muxer, Dumper.Dumpable {
 
+  public static final class Holder {
+    @Nullable public TestMuxer muxer;
+  }
+
+  public static final class Factory implements Muxer.Factory {
+
+    private final Holder muxerHolder;
+    private final Muxer.Factory defaultMuxerFactory;
+
+    public Factory(Holder muxerHolder) {
+      this(muxerHolder, /* maxDelayBetweenSamplesMs= */ C.TIME_UNSET);
+    }
+
+    public Factory(Holder muxerHolder, long maxDelayBetweenSamplesMs) {
+      this.muxerHolder = muxerHolder;
+      defaultMuxerFactory = new DefaultMuxer.Factory(maxDelayBetweenSamplesMs);
+    }
+
+    @Override
+    public Muxer create(String path) throws Muxer.MuxerException {
+      muxerHolder.muxer = new TestMuxer(defaultMuxerFactory.create(path));
+      return muxerHolder.muxer;
+    }
+
+    @Override
+    public ImmutableList<String> getSupportedSampleMimeTypes(@C.TrackType int trackType) {
+      return defaultMuxerFactory.getSupportedSampleMimeTypes(trackType);
+    }
+  }
+
   private final Muxer muxer;
   private final Map<Integer, List<DumpableSample>> trackIndexToSampleDumpables;
   private final List<Dumper.Dumpable> dumpables;
 
   /** Creates a new test muxer. */
-  public TestMuxer(String path, Muxer.Factory muxerFactory) throws MuxerException {
-    muxer = muxerFactory.create(path);
+  private TestMuxer(Muxer muxer) {
+    this.muxer = muxer;
     dumpables = new ArrayList<>();
     trackIndexToSampleDumpables = new HashMap<>();
   }
