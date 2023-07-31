@@ -479,8 +479,13 @@ import java.util.Locale;
     String fourcc = "mp4a";
 
     checkArgument(!format.initializationData.isEmpty(), "csd-0 not found in the format.");
-    ByteBuffer csd0 = ByteBuffer.wrap(format.initializationData.get(0));
-    ByteBuffer contents = ByteBuffer.allocate(csd0.limit() + Mp4Utils.MAX_FIXED_LEAF_BOX_SIZE);
+
+    byte[] csd0 = format.initializationData.get(0);
+    checkArgument(csd0.length > 0, "csd-0 is empty.");
+
+    ByteBuffer csd0ByteBuffer = ByteBuffer.wrap(csd0);
+    ByteBuffer contents =
+        ByteBuffer.allocate(csd0ByteBuffer.limit() + Mp4Utils.MAX_FIXED_LEAF_BOX_SIZE);
 
     contents.putInt(0x00); // reserved
     contents.putShort((short) 0x0); // reserved
@@ -497,7 +502,7 @@ import java.util.Locale;
     int sampleRate = format.sampleRate;
     contents.putInt(sampleRate << 16);
 
-    contents.put(audioEsdsBox(format));
+    contents.put(audioEsdsBox(csd0ByteBuffer, format.peakBitrate, format.averageBitrate));
 
     contents.flip();
     return BoxUtils.wrapIntoBox(fourcc, contents);
@@ -843,15 +848,22 @@ import java.util.Locale;
     checkArgument(
         format.initializationData.size() >= 2, "csd-0 and/or csd-1 not found in the format.");
 
-    ByteBuffer csd0 = ByteBuffer.wrap(format.initializationData.get(0));
-    ByteBuffer csd1 = ByteBuffer.wrap(format.initializationData.get(1));
+    byte[] csd0 = format.initializationData.get(0);
+    checkArgument(csd0.length > 0, "csd-0 is empty.");
+
+    byte[] csd1 = format.initializationData.get(1);
+    checkArgument(csd1.length > 0, "csd-1 is empty.");
+
+    ByteBuffer csd0ByteBuffer = ByteBuffer.wrap(csd0);
+    ByteBuffer csd1ByteBuffer = ByteBuffer.wrap(csd1);
 
     ByteBuffer contents =
-        ByteBuffer.allocate(csd0.limit() + csd1.limit() + Mp4Utils.MAX_FIXED_LEAF_BOX_SIZE);
+        ByteBuffer.allocate(
+            csd0ByteBuffer.limit() + csd1ByteBuffer.limit() + Mp4Utils.MAX_FIXED_LEAF_BOX_SIZE);
 
     contents.put((byte) 0x01); // configurationVersion
 
-    ImmutableList<ByteBuffer> csd0NalUnits = AnnexBUtils.findNalUnits(csd0);
+    ImmutableList<ByteBuffer> csd0NalUnits = AnnexBUtils.findNalUnits(csd0ByteBuffer);
     checkArgument(csd0NalUnits.size() == 1, "SPS data not found in csd0.");
 
     ByteBuffer sps = csd0NalUnits.get(0);
@@ -871,7 +883,7 @@ import java.util.Locale;
     contents.put(sps); // sequenceParameterSetNALUnit
     sps.rewind();
 
-    ImmutableList<ByteBuffer> csd1NalUnits = AnnexBUtils.findNalUnits(csd1);
+    ImmutableList<ByteBuffer> csd1NalUnits = AnnexBUtils.findNalUnits(csd1ByteBuffer);
     checkState(csd1NalUnits.size() == 1, "PPS data not found in csd1.");
 
     contents.put((byte) 0x01); // numOfPictureParameterSets
@@ -889,11 +901,17 @@ import java.util.Locale;
   private static ByteBuffer hvcCBox(Format format) {
     // For H.265, all three codec-specific NALUs (VPS, SPS, PPS) are packed into csd-0.
     checkArgument(!format.initializationData.isEmpty(), "csd-0 not found in the format.");
-    ByteBuffer csd0 = ByteBuffer.wrap(format.initializationData.get(0));
 
-    ByteBuffer contents = ByteBuffer.allocate(csd0.limit() + Mp4Utils.MAX_FIXED_LEAF_BOX_SIZE);
+    byte[] csd0 = format.initializationData.get(0);
+    checkArgument(csd0.length > 0, "csd-0 is empty.");
 
-    ImmutableList<ByteBuffer> nalusWithEmulationPrevention = AnnexBUtils.findNalUnits(csd0);
+    ByteBuffer csd0ByteBuffer = ByteBuffer.wrap(csd0);
+
+    ByteBuffer contents =
+        ByteBuffer.allocate(csd0ByteBuffer.limit() + Mp4Utils.MAX_FIXED_LEAF_BOX_SIZE);
+
+    ImmutableList<ByteBuffer> nalusWithEmulationPrevention =
+        AnnexBUtils.findNalUnits(csd0ByteBuffer);
 
     // Remove emulation prevention bytes to parse the actual csd-0 data.
     // For storing the csd-0 data into MP4 file, use original NALUs with emulation prevention bytes.
@@ -977,8 +995,11 @@ import java.util.Locale;
   private static ByteBuffer av1CBox(Format format) {
     // For AV1, the entire codec-specific box is packed into csd-0.
     checkArgument(!format.initializationData.isEmpty(), "csd-0 is not found in the format");
-    ByteBuffer csd0 = ByteBuffer.wrap(format.initializationData.get(0));
-    return BoxUtils.wrapIntoBox("av1C", csd0.duplicate());
+
+    byte[] csd0 = format.initializationData.get(0);
+    checkArgument(csd0.length > 0, "csd-0 is empty.");
+
+    return BoxUtils.wrapIntoBox("av1C", ByteBuffer.wrap(csd0));
   }
 
   /** Returns the pasp box. */
@@ -1062,10 +1083,9 @@ import java.util.Locale;
   }
 
   /** Returns the esds box. */
-  private static ByteBuffer audioEsdsBox(Format format) {
-    checkArgument(!format.initializationData.isEmpty(), "csd-0 is not found in the format.");
-    ByteBuffer csd0 = ByteBuffer.wrap(format.initializationData.get(0));
-    int csd0Size = csd0.limit();
+  private static ByteBuffer audioEsdsBox(
+      ByteBuffer csd0ByteBuffer, int peakBitrate, int averageBitrate) {
+    int csd0Size = csd0ByteBuffer.limit();
 
     ByteBuffer contents = ByteBuffer.allocate(csd0Size + Mp4Utils.MAX_FIXED_LEAF_BOX_SIZE);
     contents.putInt(0x0); // version and flags.
@@ -1091,13 +1111,13 @@ import java.util.Locale;
     contents.putShort((short) 0x03);
     contents.put((byte) 0x00); // 24-bit buffer size (0x300)
 
-    contents.putInt(format.peakBitrate != Format.NO_VALUE ? format.peakBitrate : 0);
-    contents.putInt(format.averageBitrate != Format.NO_VALUE ? format.bitrate : 0);
+    contents.putInt(peakBitrate != Format.NO_VALUE ? peakBitrate : 0);
+    contents.putInt(averageBitrate != Format.NO_VALUE ? averageBitrate : 0);
 
     contents.put((byte) 0x05); // DecoderSpecificInfoTag
     contents.put((byte) csd0Size);
-    contents.put(csd0);
-    csd0.rewind();
+    contents.put(csd0ByteBuffer);
+    csd0ByteBuffer.rewind();
 
     contents.put((byte) 0x06); // SLConfigDescriptorTag
     contents.put((byte) 0x01);
