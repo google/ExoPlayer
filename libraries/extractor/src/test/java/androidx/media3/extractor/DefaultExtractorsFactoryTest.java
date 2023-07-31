@@ -30,6 +30,7 @@ import androidx.media3.extractor.mp3.Mp3Extractor;
 import androidx.media3.extractor.mp4.FragmentedMp4Extractor;
 import androidx.media3.extractor.mp4.Mp4Extractor;
 import androidx.media3.extractor.ogg.OggExtractor;
+import androidx.media3.extractor.png.PngExtractor;
 import androidx.media3.extractor.text.SubtitleTranscodingExtractor;
 import androidx.media3.extractor.ts.Ac3Extractor;
 import androidx.media3.extractor.ts.Ac4Extractor;
@@ -74,7 +75,8 @@ public final class DefaultExtractorsFactoryTest {
             Ac4Extractor.class,
             Mp3Extractor.class,
             AviExtractor.class,
-            JpegExtractor.class)
+            JpegExtractor.class,
+            PngExtractor.class)
         .inOrder();
   }
 
@@ -117,7 +119,8 @@ public final class DefaultExtractorsFactoryTest {
             Ac3Extractor.class,
             Ac4Extractor.class,
             AviExtractor.class,
-            JpegExtractor.class)
+            JpegExtractor.class,
+            PngExtractor.class)
         .inOrder();
   }
 

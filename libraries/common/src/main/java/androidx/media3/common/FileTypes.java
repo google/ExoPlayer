@@ -35,16 +35,34 @@ import java.util.Map;
 public final class FileTypes {
 
   /**
-   * File types. One of {@link #UNKNOWN}, {@link #AC3}, {@link #AC4}, {@link #ADTS}, {@link #AMR},
-   * {@link #FLAC}, {@link #FLV}, {@link #MATROSKA}, {@link #MP3}, {@link #MP4}, {@link #OGG},
-   * {@link #PS}, {@link #TS}, {@link #WAV}, {@link #WEBVTT}, {@link #JPEG} and {@link #MIDI}.
+   * File types. One of the following:
+   *
+   * <ul>
+   *   <li>{@link #UNKNOWN}
+   *   <li>{@link #AC3}
+   *   <li>{@link #AC4}
+   *   <li>{@link #ADTS}
+   *   <li>{@link #AMR}
+   *   <li>{@link #FLAC}
+   *   <li>{@link #MATROSKA}
+   *   <li>{@link #MP3}
+   *   <li>{@link #MP4}
+   *   <li>{@link #OGG}
+   *   <li>{@link #PS}
+   *   <li>{@link #TS}
+   *   <li>{@link #WEBVTT}
+   *   <li>{@link #JPEG}
+   *   <li>{@link #MIDI}
+   *   <li>{@link #AVI}
+   *   <li>{@link #PNG}
+   * </ul>
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @Target(TYPE_USE)
   @IntDef({
     UNKNOWN, AC3, AC4, ADTS, AMR, FLAC, FLV, MATROSKA, MP3, MP4, OGG, PS, TS, WAV, WEBVTT, JPEG,
-    MIDI, AVI
+    MIDI, AVI, PNG
   })
   public @interface Type {}
 
@@ -102,6 +120,9 @@ public final class FileTypes {
   /** File type for the AVI format. */
   public static final int AVI = 16;
 
+  /** File type for the PNG format. */
+  public static final int PNG = 17;
+
   @VisibleForTesting /* package */ static final String HEADER_CONTENT_TYPE = "Content-Type";
 
   private static final String EXTENSION_AC3 = ".ac3";
@@ -137,6 +158,7 @@ public final class FileTypes {
   private static final String EXTENSION_JPG = ".jpg";
   private static final String EXTENSION_JPEG = ".jpeg";
   private static final String EXTENSION_AVI = ".avi";
+  private static final String EXTENSION_PNG = ".png";
 
   private FileTypes() {}
 
@@ -202,6 +224,8 @@ public final class FileTypes {
         return FileTypes.JPEG;
       case MimeTypes.VIDEO_AVI:
         return FileTypes.AVI;
+      case MimeTypes.IMAGE_PNG:
+        return FileTypes.PNG;
       default:
         return FileTypes.UNKNOWN;
     }
@@ -269,6 +293,8 @@ public final class FileTypes {
       return FileTypes.JPEG;
     } else if (filename.endsWith(EXTENSION_AVI)) {
       return FileTypes.AVI;
+    } else if (filename.endsWith(EXTENSION_PNG)) {
+      return FileTypes.PNG;
     } else {
       return FileTypes.UNKNOWN;
     }
