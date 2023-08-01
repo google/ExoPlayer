@@ -1490,8 +1490,9 @@ public final class C {
    * State of the first frame in a video renderer.
    *
    * <p>One of {@link #FIRST_FRAME_NOT_RENDERED_ONLY_ALLOWED_IF_STARTED}, {@link
-   * #FIRST_FRAME_NOT_RENDERED} or {@link #FIRST_FRAME_RENDERED}. The stages are ordered and
-   * comparable, i.e., a value implies that all stages with higher values are not reached yet.
+   * #FIRST_FRAME_NOT_RENDERED}, {@link #FIRST_FRAME_NOT_RENDERED_AFTER_STREAM_CHANGE} or {@link
+   * #FIRST_FRAME_RENDERED}. The stages are ordered and comparable, i.e., a value implies that all
+   * stages with higher values are not reached yet.
    */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
@@ -1499,6 +1500,7 @@ public final class C {
   @IntDef({
     FIRST_FRAME_NOT_RENDERED_ONLY_ALLOWED_IF_STARTED,
     FIRST_FRAME_NOT_RENDERED,
+    FIRST_FRAME_NOT_RENDERED_AFTER_STREAM_CHANGE,
     FIRST_FRAME_RENDERED
   })
   public @interface FirstFrameState {}
@@ -1512,8 +1514,11 @@ public final class C {
   /** The first frame was not rendered after the last reset, output surface or stream change. */
   public static final int FIRST_FRAME_NOT_RENDERED = 1;
 
+  /** The first frame was not rendered after the last stream change. */
+  public static final int FIRST_FRAME_NOT_RENDERED_AFTER_STREAM_CHANGE = 2;
+
   /** The first frame was rendered. */
-  public static final int FIRST_FRAME_RENDERED = 2;
+  public static final int FIRST_FRAME_RENDERED = 3;
 
   /**
    * @deprecated Use {@link Util#usToMs(long)}.

@@ -1343,18 +1343,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       // No force rendering during joining.
       return false;
     }
-    if (positionUs < getOutputStreamOffsetUs()) {
-      // No force rendering if we haven't reached the stream start position.
-      // TODO: b/160461756 - This is a bug because it compares against the offset and not the start
-      // position and also should only be applied when transitioning streams, not after every reset.
-      return false;
-    }
     boolean isStarted = getState() == STATE_STARTED;
     switch (firstFrameState) {
       case C.FIRST_FRAME_NOT_RENDERED_ONLY_ALLOWED_IF_STARTED:
         return isStarted;
       case C.FIRST_FRAME_NOT_RENDERED:
         return true;
+      case C.FIRST_FRAME_NOT_RENDERED_AFTER_STREAM_CHANGE:
+        return positionUs >= getOutputStreamStartPositionUs();
       case C.FIRST_FRAME_RENDERED:
         long elapsedSinceLastRenderUs = msToUs(getClock().elapsedRealtime()) - lastRenderRealtimeUs;
         return isStarted && shouldForceRenderOutputBuffer(earlyUs, elapsedSinceLastRenderUs);
@@ -1433,7 +1429,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @Override
   protected void onProcessedStreamChange() {
     super.onProcessedStreamChange();
-    lowerFirstFrameState(C.FIRST_FRAME_NOT_RENDERED);
+    lowerFirstFrameState(C.FIRST_FRAME_NOT_RENDERED_AFTER_STREAM_CHANGE);
   }
 
   /**

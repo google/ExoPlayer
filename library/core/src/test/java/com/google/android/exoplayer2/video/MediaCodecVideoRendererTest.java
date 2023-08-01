@@ -509,6 +509,38 @@ public class MediaCodecVideoRendererTest {
   }
 
   @Test
+  public void enable_withPrerollSamplesLessThanStartPosition_rendersFirstFrame() throws Exception {
+    FakeSampleStream fakeSampleStream =
+        new FakeSampleStream(
+            new DefaultAllocator(/* trimOnReset= */ true, /* individualAllocationSize= */ 1024),
+            /* mediaSourceEventDispatcher= */ null,
+            DrmSessionManager.DRM_UNSUPPORTED,
+            new DrmSessionEventListener.EventDispatcher(),
+            /* initialFormat= */ VIDEO_H264,
+            ImmutableList.of(
+                oneByteSample(/* timeUs= */ -500, C.BUFFER_FLAG_KEY_FRAME),
+                oneByteSample(/* timeUs= */ 500),
+                oneByteSample(/* timeUs= */ 1500)));
+    fakeSampleStream.writeData(/* startPositionUs= */ -500);
+
+    mediaCodecVideoRenderer.enable(
+        RendererConfiguration.DEFAULT,
+        new Format[] {VIDEO_H264},
+        fakeSampleStream,
+        /* positionUs= */ 2000,
+        /* joining= */ false,
+        /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 2000,
+        /* offsetUs= */ 1000);
+    for (int i = 0; i < 10; i++) {
+      mediaCodecVideoRenderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
+    }
+    shadowOf(testMainLooper).idle();
+
+    verify(eventListener).onRenderedFirstFrame(eq(surface), /* renderTimeMs= */ anyLong());
+  }
+
+  @Test
   public void replaceStream_rendersFirstFrameOnlyAfterStartPosition() throws Exception {
     ShadowLooper shadowLooper = shadowOf(testMainLooper);
     FakeSampleStream fakeSampleStream1 =
@@ -544,7 +576,8 @@ public class MediaCodecVideoRendererTest {
     mediaCodecVideoRenderer.start();
 
     boolean replacedStream = false;
-    for (int i = 0; i <= 10; i++) {
+    // Render to just before the specified start position.
+    for (int i = 0; i < 10; i++) {
       mediaCodecVideoRenderer.render(
           /* positionUs= */ i * 10, SystemClock.elapsedRealtime() * 1000);
       if (!replacedStream && mediaCodecVideoRenderer.hasReadStreamToEnd()) {
@@ -552,12 +585,19 @@ public class MediaCodecVideoRendererTest {
             new Format[] {VIDEO_H264},
             fakeSampleStream2,
             /* startPositionUs= */ 100,
-            /* offsetUs= */ 100);
+            /* offsetUs= */ 50);
         replacedStream = true;
       }
     }
 
-    // Expect only the first frame of the first stream to have been rendered.
+    // Assert that only one first frame was rendered so far.
+    shadowLooper.idle();
+    verify(eventListener).onRenderedFirstFrame(eq(surface), /* renderTimeMs= */ anyLong());
+
+    // Render at start position.
+    mediaCodecVideoRenderer.render(/* positionUs= */ 100, SystemClock.elapsedRealtime() * 1000);
+
+    // Assert the new first frame was rendered.
     shadowLooper.idle();
     verify(eventListener, times(2))
         .onRenderedFirstFrame(eq(surface), /* renderTimeMs= */ anyLong());
@@ -616,6 +656,48 @@ public class MediaCodecVideoRendererTest {
     // Render to streamOffsetUs and verify the new first frame gets rendered.
     mediaCodecVideoRenderer.render(/* positionUs= */ 100, SystemClock.elapsedRealtime() * 1000);
 
+    shadowLooper.idle();
+    verify(eventListener, times(2))
+        .onRenderedFirstFrame(eq(surface), /* renderTimeMs= */ anyLong());
+  }
+
+  @Test
+  public void resetPosition_toBeforeOriginalStartPosition_rendersFirstFrame() throws Exception {
+    ShadowLooper shadowLooper = shadowOf(testMainLooper);
+    FakeSampleStream fakeSampleStream =
+        new FakeSampleStream(
+            new DefaultAllocator(/* trimOnReset= */ true, /* individualAllocationSize= */ 1024),
+            /* mediaSourceEventDispatcher= */ null,
+            DrmSessionManager.DRM_UNSUPPORTED,
+            new DrmSessionEventListener.EventDispatcher(),
+            /* initialFormat= */ VIDEO_H264,
+            ImmutableList.of(oneByteSample(/* timeUs= */ 1000, C.BUFFER_FLAG_KEY_FRAME)));
+    fakeSampleStream.writeData(/* startPositionUs= */ 0);
+    mediaCodecVideoRenderer.enable(
+        RendererConfiguration.DEFAULT,
+        new Format[] {VIDEO_H264},
+        fakeSampleStream,
+        /* positionUs= */ 1000,
+        /* joining= */ false,
+        /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 1000,
+        /* offsetUs= */ 0);
+    mediaCodecVideoRenderer.start();
+    // Render at the original start position.
+    for (int i = 0; i < 10; i++) {
+      mediaCodecVideoRenderer.render(/* positionUs= */ 1000, SystemClock.elapsedRealtime() * 1000);
+    }
+
+    // Reset the position to before the original start position and render at this position.
+    mediaCodecVideoRenderer.resetPosition(500);
+    fakeSampleStream.append(
+        ImmutableList.of(oneByteSample(/* timeUs= */ 500, C.BUFFER_FLAG_KEY_FRAME)));
+    fakeSampleStream.writeData(/* startPositionUs= */ 500);
+    for (int i = 0; i < 10; i++) {
+      mediaCodecVideoRenderer.render(/* positionUs= */ 500, SystemClock.elapsedRealtime() * 1000);
+    }
+
+    // Assert that we rendered the first frame after the reset.
     shadowLooper.idle();
     verify(eventListener, times(2))
         .onRenderedFirstFrame(eq(surface), /* renderTimeMs= */ anyLong());
