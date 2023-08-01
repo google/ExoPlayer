@@ -21,6 +21,7 @@ import static androidx.media3.exoplayer.DecoderReuseEvaluation.DISCARD_REASON_RE
 import static androidx.media3.exoplayer.DecoderReuseEvaluation.REUSE_RESULT_NO;
 import static androidx.media3.exoplayer.source.SampleStream.FLAG_REQUIRE_FORMAT;
 import static java.lang.Math.max;
+import static java.lang.Math.min;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.os.Handler;
@@ -136,9 +137,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
   private @ReinitializationState int decoderReinitializationState;
   private boolean decoderReceivedBuffers;
 
-  private boolean renderedFirstFrameAfterReset;
-  private boolean mayRenderFirstFrameAfterEnableIfNotStarted;
-  private boolean renderedFirstFrameAfterEnable;
+  private @C.FirstFrameState int firstFrameState;
   private long initialPositionUs;
   private long joiningDeadlineMs;
   private boolean waitingForFirstSampleInFormat;
@@ -181,6 +180,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     decoderReinitializationState = REINITIALIZATION_STATE_NONE;
     outputMode = C.VIDEO_OUTPUT_MODE_NONE;
+    firstFrameState = C.FIRST_FRAME_NOT_RENDERED_ONLY_ALLOWED_IF_STARTED;
   }
 
   // BaseRenderer implementation.
@@ -238,7 +238,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
   public boolean isReady() {
     if (inputFormat != null
         && (isSourceReady() || outputBuffer != null)
-        && (renderedFirstFrameAfterReset || !hasOutput())) {
+        && (firstFrameState == C.FIRST_FRAME_RENDERED || !hasOutput())) {
       // Ready. If we were joining then we've now joined, so clear the joining deadline.
       joiningDeadlineMs = C.TIME_UNSET;
       return true;
@@ -276,20 +276,24 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
       throws ExoPlaybackException {
     decoderCounters = new DecoderCounters();
     eventDispatcher.enabled(decoderCounters);
-    mayRenderFirstFrameAfterEnableIfNotStarted = mayRenderStartOfStream;
-    renderedFirstFrameAfterEnable = false;
+    firstFrameState =
+        mayRenderStartOfStream
+            ? C.FIRST_FRAME_NOT_RENDERED
+            : C.FIRST_FRAME_NOT_RENDERED_ONLY_ALLOWED_IF_STARTED;
   }
 
   @Override
   public void enableMayRenderStartOfStream() {
-    mayRenderFirstFrameAfterEnableIfNotStarted = true;
+    if (firstFrameState == C.FIRST_FRAME_NOT_RENDERED_ONLY_ALLOWED_IF_STARTED) {
+      firstFrameState = C.FIRST_FRAME_NOT_RENDERED;
+    }
   }
 
   @Override
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
     inputStreamEnded = false;
     outputStreamEnded = false;
-    clearRenderedFirstFrame();
+    lowerFirstFrameState(C.FIRST_FRAME_NOT_RENDERED);
     initialPositionUs = C.TIME_UNSET;
     consecutiveDroppedFrameCount = 0;
     if (decoder != null) {
@@ -320,7 +324,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
   protected void onDisabled() {
     inputFormat = null;
     clearReportedVideoSize();
-    clearRenderedFirstFrame();
+    lowerFirstFrameState(C.FIRST_FRAME_NOT_RENDERED_ONLY_ALLOWED_IF_STARTED);
     try {
       setSourceDrmSession(null);
       releaseDecoder();
@@ -854,20 +858,12 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
       outputFormat = format;
     }
 
-    long elapsedRealtimeNowUs = msToUs(SystemClock.elapsedRealtime());
-    long elapsedSinceLastRenderUs = elapsedRealtimeNowUs - lastRenderTimeUs;
-    boolean isStarted = getState() == STATE_STARTED;
-    boolean shouldRenderFirstFrame =
-        !renderedFirstFrameAfterEnable
-            ? (isStarted || mayRenderFirstFrameAfterEnableIfNotStarted)
-            : !renderedFirstFrameAfterReset;
-    // TODO: We shouldn't force render while we are joining an ongoing playback.
-    if (shouldRenderFirstFrame
-        || (isStarted && shouldForceRenderOutputBuffer(earlyUs, elapsedSinceLastRenderUs))) {
+    if (shouldForceRender(earlyUs)) {
       renderOutputBuffer(outputBuffer, presentationTimeUs, outputFormat);
       return true;
     }
 
+    boolean isStarted = getState() == STATE_STARTED;
     if (!isStarted || positionUs == initialPositionUs) {
       return false;
     }
@@ -889,6 +885,23 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
     return false;
   }
 
+  /** Returns whether a buffer or a processed frame should be force rendered. */
+  private boolean shouldForceRender(long earlyUs) {
+    // TODO: We shouldn't force render while we are joining an ongoing playback.
+    boolean isStarted = getState() == STATE_STARTED;
+    switch (firstFrameState) {
+      case C.FIRST_FRAME_NOT_RENDERED_ONLY_ALLOWED_IF_STARTED:
+        return isStarted;
+      case C.FIRST_FRAME_NOT_RENDERED:
+        return true;
+      case C.FIRST_FRAME_RENDERED:
+        long elapsedSinceLastRenderUs = msToUs(SystemClock.elapsedRealtime()) - lastRenderTimeUs;
+        return isStarted && shouldForceRenderOutputBuffer(earlyUs, elapsedSinceLastRenderUs);
+      default:
+        throw new IllegalStateException();
+    }
+  }
+
   private boolean hasOutput() {
     return outputMode != C.VIDEO_OUTPUT_MODE_NONE;
   }
@@ -897,7 +910,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
     // If we know the video size, report it again immediately.
     maybeRenotifyVideoSizeChanged();
     // We haven't rendered to the new output yet.
-    clearRenderedFirstFrame();
+    lowerFirstFrameState(C.FIRST_FRAME_NOT_RENDERED);
     if (getState() == STATE_STARTED) {
       setJoiningDeadlineMs();
     }
@@ -905,7 +918,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
 
   private void onOutputRemoved() {
     clearReportedVideoSize();
-    clearRenderedFirstFrame();
+    lowerFirstFrameState(C.FIRST_FRAME_NOT_RENDERED);
   }
 
   private void onOutputReset() {
@@ -922,20 +935,19 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
             : C.TIME_UNSET;
   }
 
-  private void clearRenderedFirstFrame() {
-    renderedFirstFrameAfterReset = false;
+  private void lowerFirstFrameState(@C.FirstFrameState int firstFrameState) {
+    this.firstFrameState = min(this.firstFrameState, firstFrameState);
   }
 
   private void maybeNotifyRenderedFirstFrame() {
-    renderedFirstFrameAfterEnable = true;
-    if (!renderedFirstFrameAfterReset) {
-      renderedFirstFrameAfterReset = true;
+    if (firstFrameState != C.FIRST_FRAME_RENDERED) {
+      firstFrameState = C.FIRST_FRAME_RENDERED;
       eventDispatcher.renderedFirstFrame(output);
     }
   }
 
   private void maybeRenotifyRenderedFirstFrame() {
-    if (renderedFirstFrameAfterReset) {
+    if (firstFrameState == C.FIRST_FRAME_RENDERED) {
       eventDispatcher.renderedFirstFrame(output);
     }
   }
