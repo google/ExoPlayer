@@ -2102,6 +2102,11 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     return outputStreamInfo.streamOffsetUs;
   }
 
+  /** Returns the start position of the current output stream in microseconds. */
+  protected final long getOutputStreamStartPositionUs() {
+    return outputStreamInfo.startPositionUs;
+  }
+
   private void setOutputStreamInfo(OutputStreamInfo outputStreamInfo) {
     this.outputStreamInfo = outputStreamInfo;
     if (outputStreamInfo.streamOffsetUs != C.TIME_UNSET) {

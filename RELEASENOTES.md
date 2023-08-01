@@ -95,6 +95,9 @@
     *   Allow `MediaCodecVideoRenderer` to use a custom
         `VideoFrameProcessor.Factory`.
     *   H.265/HEVC: Fix parsing SPS short and long term reference picture info.
+    *   Fix bug where the first frame couldn't be rendered if the audio stream
+        starts with negative timestamps
+        ([#291](https://github.com/androidx/media/issues/291)).
 *   Text:
     *   CEA-608: Change cue truncation logic to only consider visible text.
         Previously indent and tab offset were included when limiting the cue
