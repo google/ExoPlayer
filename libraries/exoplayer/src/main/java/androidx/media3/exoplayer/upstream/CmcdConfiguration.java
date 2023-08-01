@@ -285,7 +285,7 @@ public final class CmcdConfiguration {
   }
 
   /**
-   * Returns whether logging object duration is allowed based on the {@linkplain RequestConfig
+   * Returns whether logging measured throughput is allowed based on the {@linkplain RequestConfig
    * request configuration}.
    */
   public boolean isMeasuredThroughputLoggingAllowed() {

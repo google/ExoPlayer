@@ -444,8 +444,8 @@ public final class CmcdLog {
     public static final class Builder {
       @Nullable private String contentId;
       @Nullable private String sessionId;
-      @Nullable private String streamingFormat;
-      @Nullable private String streamType;
+      @Nullable private @StreamingFormat String streamingFormat;
+      @Nullable private @StreamType String streamType;
       @Nullable private String customData;
 
       /**
@@ -530,13 +530,13 @@ public final class CmcdLog {
      * (HLS), s = Smooth Streaming and o = other. If the streaming format being requested is
      * unknown, then this key MUST NOT be used.
      */
-    @Nullable public final String streamingFormat;
+    @Nullable public final @StreamingFormat String streamingFormat;
 
     /**
      * Type of stream. v = all segments are available – e.g., VOD and l = segments become available
      * over time – e.g., LIVE.
      */
-    @Nullable public final String streamType;
+    @Nullable public final @StreamType String streamType;
 
     /**
      * Custom data where the values of the keys are expected to be invariant over the life of the
