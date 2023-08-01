@@ -36,10 +36,14 @@ import androidx.media3.common.util.Size;
 import androidx.media3.test.utils.BitmapPixelTestUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.io.IOException;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
 /**
@@ -52,6 +56,8 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public final class CropPixelTest {
+  @Rule public final TestName testName = new TestName();
+
   private static final String ORIGINAL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/original.png";
   private static final String CROP_SMALLER_PNG_ASSET_PATH =
@@ -61,6 +67,7 @@ public final class CropPixelTest {
 
   private final Context context = getApplicationContext();
 
+  private @MonotonicNonNull String testId;
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull EGLContext eglContext;
   private @MonotonicNonNull SingleFrameGlShaderProgram cropShaderProgram;
@@ -81,6 +88,12 @@ public final class CropPixelTest {
     inputTexId = createGlTextureFromBitmap(inputBitmap);
   }
 
+  @Before
+  @EnsuresNonNull("testId")
+  public void setUpTestId() {
+    testId = testName.getMethodName();
+  }
+
   @After
   public void release() throws GlUtil.GlException, VideoFrameProcessingException {
     if (cropShaderProgram != null) {
@@ -92,8 +105,8 @@ public final class CropPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_noEdits_matchesGoldenFile() throws Exception {
-    String testId = "drawFrame_noEdits";
     cropShaderProgram =
         new Crop(/* left= */ -1, /* right= */ 1, /* bottom= */ -1, /* top= */ 1)
             .toGlShaderProgram(context, /* useHdr= */ false);
@@ -113,8 +126,8 @@ public final class CropPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_cropSmaller_matchesGoldenFile() throws Exception {
-    String testId = "drawFrame_cropSmaller";
     cropShaderProgram =
         new Crop(/* left= */ -0.9f, /* right= */ 0.1f, /* bottom= */ -1f, /* top= */ 0.5f)
             .toGlShaderProgram(context, /* useHdr= */ false);
@@ -134,8 +147,8 @@ public final class CropPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_cropLarger_matchesGoldenFile() throws Exception {
-    String testId = "drawFrame_cropLarger";
     cropShaderProgram =
         new Crop(/* left= */ -2f, /* right= */ 2f, /* bottom= */ -1f, /* top= */ 2f)
             .toGlShaderProgram(context, /* useHdr= */ false);

@@ -31,12 +31,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
 /** Tests for frame queuing and output in {@link DefaultVideoFrameProcessor} given image input. */
 @RunWith(AndroidJUnit4.class)
 public class DefaultVideoFrameProcessorImageFrameOutputTest {
+  @Rule public final TestName testName = new TestName();
+
   private static final String ORIGINAL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/original.png";
   private static final String SCALE_WIDE_PNG_ASSET_PATH =
@@ -44,13 +48,15 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
   private static final String BITMAP_OVERLAY_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/overlay_bitmap_FrameProcessor.png";
 
+  private @MonotonicNonNull String testId;
   private @MonotonicNonNull VideoFrameProcessorTestRunner videoFrameProcessorTestRunner;
   private @MonotonicNonNull AtomicInteger framesProduced;
 
-  @EnsuresNonNull("framesProduced")
   @Before
+  @EnsuresNonNull({"framesProduced", "testId"})
   public void setUp() {
     framesProduced = new AtomicInteger();
+    testId = testName.getMethodName();
   }
 
   @After
@@ -58,10 +64,9 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
     checkNotNull(videoFrameProcessorTestRunner).release();
   }
 
-  @RequiresNonNull("framesProduced")
   @Test
+  @RequiresNonNull({"framesProduced", "testId"})
   public void imageInput_queueThreeBitmaps_outputsCorrectNumberOfFrames() throws Exception {
-    String testId = "imageInput_queueThreeBitmaps_outputsCorrectNumberOfFrames";
     videoFrameProcessorTestRunner = getDefaultFrameProcessorTestRunnerBuilder(testId).build();
 
     videoFrameProcessorTestRunner.queueInputBitmap(
@@ -85,10 +90,9 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
     assertThat(actualFrameCount).isEqualTo(/* expected= */ 20);
   }
 
-  @RequiresNonNull("framesProduced")
   @Test
+  @RequiresNonNull({"framesProduced", "testId"})
   public void imageInput_queueTwentyBitmaps_outputsCorrectNumberOfFrames() throws Exception {
-    String testId = "imageInput_queueTwentyBitmaps_outputsCorrectNumberOfFrames";
     videoFrameProcessorTestRunner = getDefaultFrameProcessorTestRunnerBuilder(testId).build();
 
     for (int i = 0; i < 20; i++) {
@@ -104,8 +108,8 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
     assertThat(actualFrameCount).isEqualTo(/* expected= */ 20);
   }
 
-  @RequiresNonNull("framesProduced")
   @Test
+  @RequiresNonNull({"framesProduced", "testId"})
   public void imageInput_queueOneWithStartOffset_outputsFramesAtTheCorrectPresentationTimesUs()
       throws Exception {
     String testId =
@@ -128,11 +132,10 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
         .inOrder();
   }
 
-  @RequiresNonNull("framesProduced")
   @Test
+  @RequiresNonNull({"framesProduced", "testId"})
   public void imageInput_queueWithStartOffsets_outputsFramesAtTheCorrectPresentationTimesUs()
       throws Exception {
-    String testId = "imageInput_queueWithStartOffsets_outputsFramesAtTheCorrectPresentationTimesUs";
     Queue<Long> actualPresentationTimesUs = new ConcurrentLinkedQueue<>();
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
@@ -161,8 +164,8 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
         .inOrder();
   }
 
-  @RequiresNonNull("framesProduced")
   @Test
+  @RequiresNonNull({"framesProduced", "testId"})
   public void
       imageInput_queueEndAndQueueAgain_outputsFirstSetOfFramesOnlyAtTheCorrectPresentationTimesUs()
           throws Exception {

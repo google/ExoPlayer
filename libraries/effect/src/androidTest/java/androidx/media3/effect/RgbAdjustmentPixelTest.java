@@ -40,10 +40,14 @@ import androidx.media3.test.utils.BitmapPixelTestUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
 /**
@@ -56,6 +60,8 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public final class RgbAdjustmentPixelTest {
+  @Rule public final TestName testName = new TestName();
+
   private static final String ORIGINAL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/linear_colors/original.png";
   private static final String ONLY_RED_CHANNEL_PNG_ASSET_PATH =
@@ -67,6 +73,7 @@ public final class RgbAdjustmentPixelTest {
 
   private final Context context = getApplicationContext();
 
+  private @MonotonicNonNull String testId;
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull EGLContext eglContext;
   private @MonotonicNonNull SingleFrameGlShaderProgram defaultShaderProgram;
@@ -98,6 +105,12 @@ public final class RgbAdjustmentPixelTest {
         inputHeight);
   }
 
+  @Before
+  @EnsuresNonNull("testId")
+  public void setUpTestId() {
+    testId = testName.getMethodName();
+  }
+
   @After
   public void release() throws GlUtil.GlException, VideoFrameProcessingException {
     if (defaultShaderProgram != null) {
@@ -107,8 +120,8 @@ public final class RgbAdjustmentPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_identityMatrix_leavesFrameUnchanged() throws Exception {
-    String testId = "drawFrame_identityMatrix";
     RgbMatrix identityMatrix = new RgbAdjustment.Builder().build();
     defaultShaderProgram = identityMatrix.toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = defaultShaderProgram.configure(inputWidth, inputHeight);
@@ -125,8 +138,8 @@ public final class RgbAdjustmentPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_removeColors_producesBlackFrame() throws Exception {
-    String testId = "drawFrame_removeColors";
     RgbMatrix removeColorMatrix =
         new RgbAdjustment.Builder().setRedScale(0).setGreenScale(0).setBlueScale(0).build();
     defaultShaderProgram = removeColorMatrix.toGlShaderProgram(context, /* useHdr= */ false);
@@ -146,8 +159,8 @@ public final class RgbAdjustmentPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_redOnlyFilter_removeBlueAndGreenValues() throws Exception {
-    String testId = "drawFrame_redOnlyFilter";
     RgbMatrix redOnlyMatrix = new RgbAdjustment.Builder().setBlueScale(0).setGreenScale(0).build();
     defaultShaderProgram = redOnlyMatrix.toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = defaultShaderProgram.configure(inputWidth, inputHeight);
@@ -164,8 +177,8 @@ public final class RgbAdjustmentPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_increaseRedChannel_producesBrighterAndRedderFrame() throws Exception {
-    String testId = "drawFrame_increaseRedChannel";
     RgbMatrix increaseRedMatrix = new RgbAdjustment.Builder().setRedScale(5).build();
     defaultShaderProgram = increaseRedMatrix.toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = defaultShaderProgram.configure(inputWidth, inputHeight);
@@ -182,8 +195,8 @@ public final class RgbAdjustmentPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_increaseBrightness_increasesAllValues() throws Exception {
-    String testId = "drawFrame_increaseBrightness";
     RgbMatrix increaseBrightnessMatrix =
         new RgbAdjustment.Builder().setRedScale(5).setGreenScale(5).setBlueScale(5).build();
     defaultShaderProgram = increaseBrightnessMatrix.toGlShaderProgram(context, /* useHdr= */ false);
@@ -201,8 +214,8 @@ public final class RgbAdjustmentPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_removeRedGreenAndBlueValuesInAChain_producesBlackImage() throws Exception {
-    String testId = "drawFrame_removeRedGreenBlueValuesInAChain";
     RgbMatrix noRed = new RgbAdjustment.Builder().setRedScale(0).build();
     RgbMatrix noGreen = new RgbAdjustment.Builder().setGreenScale(0).build();
     RgbMatrix noBlue = new RgbAdjustment.Builder().setBlueScale(0).build();
@@ -228,8 +241,8 @@ public final class RgbAdjustmentPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_removeBlueAndGreenValuesInAChain_producesOnlyRedImage() throws Exception {
-    String testId = "drawFrame_removeBlueAndGreenValuesInAChain";
     RgbMatrix noGreen = new RgbAdjustment.Builder().setGreenScale(0).build();
     RgbMatrix noBlue = new RgbAdjustment.Builder().setBlueScale(0).build();
     defaultShaderProgram =
@@ -252,8 +265,8 @@ public final class RgbAdjustmentPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_increasesAndDecreasesRed_producesNoChange() throws Exception {
-    String testId = "drawFrame_increaseAndDecreaseRed";
     float redScale = 4;
     RgbMatrix scaleRedMatrix = new RgbAdjustment.Builder().setRedScale(redScale).build();
     RgbMatrix scaleRedByInverseMatrix =

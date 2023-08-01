@@ -38,10 +38,14 @@ import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Size;
 import androidx.media3.test.utils.BitmapPixelTestUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
 /**
@@ -54,6 +58,8 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public class ContrastPixelTest {
+  @Rule public final TestName testName = new TestName();
+
   private static final String ORIGINAL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/linear_colors/original.png";
   private static final String INCREASE_CONTRAST_PNG_ASSET_PATH =
@@ -68,6 +74,7 @@ public class ContrastPixelTest {
 
   private final Context context = getApplicationContext();
 
+  private @MonotonicNonNull String testId;
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull EGLContext eglContext;
   private @MonotonicNonNull EGLSurface placeholderEglSurface;
@@ -88,6 +95,12 @@ public class ContrastPixelTest {
     inputTexId = createGlTextureFromBitmap(inputBitmap);
   }
 
+  @Before
+  @EnsuresNonNull("testId")
+  public void setUpTestId() {
+    testId = testName.getMethodName();
+  }
+
   @After
   public void release() throws GlUtil.GlException, VideoFrameProcessingException {
     if (contrastShaderProgram != null) {
@@ -97,8 +110,8 @@ public class ContrastPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_noContrastChange_leavesFrameUnchanged() throws Exception {
-    String testId = "drawFrame_noContrastChange";
     contrastShaderProgram =
         new Contrast(/* contrast= */ 0.0f).toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = contrastShaderProgram.configure(inputWidth, inputHeight);
@@ -116,8 +129,8 @@ public class ContrastPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_minimumContrast_producesAllGrayFrame() throws Exception {
-    String testId = "drawFrame_minimumContrast";
     contrastShaderProgram =
         new Contrast(/* contrast= */ -1.0f).toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = contrastShaderProgram.configure(inputWidth, inputHeight);
@@ -140,9 +153,9 @@ public class ContrastPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_decreaseContrast_decreasesPixelsGreaterEqual128IncreasesBelow()
       throws Exception {
-    String testId = "drawFrame_decreaseContrast";
     contrastShaderProgram =
         new Contrast(/* contrast= */ -0.75f).toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = contrastShaderProgram.configure(inputWidth, inputHeight);
@@ -160,9 +173,9 @@ public class ContrastPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_increaseContrast_increasesPixelsGreaterEqual128DecreasesBelow()
       throws Exception {
-    String testId = "drawFrame_increaseContrast";
     contrastShaderProgram =
         new Contrast(/* contrast= */ 0.75f).toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = contrastShaderProgram.configure(inputWidth, inputHeight);
@@ -180,8 +193,8 @@ public class ContrastPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_maximumContrast_pixelEither0or255() throws Exception {
-    String testId = "drawFrame_maximumContrast";
     contrastShaderProgram =
         new Contrast(/* contrast= */ 1.0f).toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = contrastShaderProgram.configure(inputWidth, inputHeight);

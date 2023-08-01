@@ -308,6 +308,7 @@ public class BitmapPixelTestUtil {
    */
   public static float getBitmapAveragePixelAbsoluteDifferenceArgb8888(
       Bitmap expected, Bitmap actual, @Nullable String testId) {
+    Log.e("TEST", "testId = " + testId);
     return getBitmapAveragePixelAbsoluteDifferenceArgb8888(
         expected, actual, testId, /* differencesBitmapPath= */ null);
   }

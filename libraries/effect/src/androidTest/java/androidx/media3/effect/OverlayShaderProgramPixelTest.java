@@ -42,10 +42,14 @@ import androidx.media3.test.utils.BitmapPixelTestUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
 /**
@@ -58,6 +62,8 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public class OverlayShaderProgramPixelTest {
+  @Rule public final TestName testName = new TestName();
+
   private static final String OVERLAY_PNG_ASSET_PATH = "media/bitmap/input_images/media3test.png";
   private static final String ORIGINAL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/original.png";
@@ -87,6 +93,7 @@ public class OverlayShaderProgramPixelTest {
 
   private final Context context = getApplicationContext();
 
+  private @MonotonicNonNull String testId;
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull EGLContext eglContext;
   private @MonotonicNonNull SingleFrameGlShaderProgram overlayShaderProgram;
@@ -107,6 +114,12 @@ public class OverlayShaderProgramPixelTest {
     inputTexId = createGlTextureFromBitmap(inputBitmap);
   }
 
+  @Before
+  @EnsuresNonNull("testId")
+  public void setUpTestId() {
+    testId = testName.getMethodName();
+  }
+
   @After
   public void release() throws GlUtil.GlException, VideoFrameProcessingException {
     if (overlayShaderProgram != null) {
@@ -116,8 +129,8 @@ public class OverlayShaderProgramPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_noOverlay_leavesFrameUnchanged() throws Exception {
-    String testId = "drawFrame_noOverlay";
     overlayShaderProgram =
         new OverlayEffect(/* textureOverlays= */ ImmutableList.of())
             .toGlShaderProgram(context, /* useHdr= */ false);
@@ -136,8 +149,8 @@ public class OverlayShaderProgramPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_bitmapOverlay_blendsBitmapIntoFrame() throws Exception {
-    String testId = "drawFrame_bitmapOverlay";
     Bitmap overlayBitmap = readBitmap(OVERLAY_PNG_ASSET_PATH);
     BitmapOverlay bitmapOverlay = BitmapOverlay.createStaticBitmapOverlay(overlayBitmap);
     overlayShaderProgram =
@@ -158,9 +171,9 @@ public class OverlayShaderProgramPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_anchoredAndTranslatedBitmapOverlay_blendsBitmapIntoTopLeftOfFrame()
       throws Exception {
-    String testId = "drawFrame_anchoredAndTranslatedBitmapOverlay";
     Bitmap overlayBitmap = readBitmap(OVERLAY_PNG_ASSET_PATH);
     OverlaySettings overlaySettings =
         new OverlaySettings.Builder()
@@ -187,9 +200,9 @@ public class OverlayShaderProgramPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_overlayAnchoredOnlyBitmapOverlay_anchorsOverlayFromTopLeftCornerOfFrame()
       throws Exception {
-    String testId = "drawFrame_anchoredAndTranslatedBitmapOverlay";
     Bitmap overlayBitmap = readBitmap(OVERLAY_PNG_ASSET_PATH);
     OverlaySettings overlaySettings =
         new OverlaySettings.Builder().setOverlayAnchor(/* x= */ 1f, /* y= */ -1f).build();
@@ -213,8 +226,8 @@ public class OverlayShaderProgramPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_rotatedBitmapOverlay_blendsBitmapRotated90degrees() throws Exception {
-    String testId = "drawFrame_rotatedBitmapOverlay";
     Bitmap overlayBitmap = readBitmap(OVERLAY_PNG_ASSET_PATH);
     OverlaySettings overlaySettings = new OverlaySettings.Builder().setRotationDegrees(90f).build();
     BitmapOverlay staticBitmapOverlay =
@@ -237,8 +250,8 @@ public class OverlayShaderProgramPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_translucentBitmapOverlay_blendsBitmapIntoFrame() throws Exception {
-    String testId = "drawFrame_translucentBitmapOverlay";
     Bitmap bitmap = readBitmap(OVERLAY_PNG_ASSET_PATH);
     OverlaySettings overlaySettings = new OverlaySettings.Builder().setAlpha(0.5f).build();
     BitmapOverlay translucentBitmapOverlay =
@@ -261,8 +274,8 @@ public class OverlayShaderProgramPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_transparentTextOverlay_blendsBitmapIntoFrame() throws Exception {
-    String testId = "drawFrame_transparentTextOverlay";
     SpannableString overlayText = new SpannableString(/* source= */ "Text styling");
     OverlaySettings overlaySettings = new OverlaySettings.Builder().setAlpha(0f).build();
     overlayText.setSpan(
@@ -290,8 +303,8 @@ public class OverlayShaderProgramPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_textOverlay_blendsTextIntoFrame() throws Exception {
-    String testId = "drawFrame_textOverlay";
     SpannableString overlayText = new SpannableString(/* source= */ "Text styling");
     overlayText.setSpan(
         new ForegroundColorSpan(Color.GRAY),
@@ -317,8 +330,8 @@ public class OverlayShaderProgramPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_textOverlayWithRelativeScaleSpan_blendsTextIntoFrame() throws Exception {
-    String testId = "drawFrame_textOverlayWithRelativeScaleSpan";
     SpannableString overlayText = new SpannableString(/* source= */ "helllllloooo!!!");
     overlayText.setSpan(
         new RelativeSizeSpan(2f),
@@ -344,9 +357,9 @@ public class OverlayShaderProgramPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_anchoredTextOverlay_blendsTextIntoTheTopRightQuadrantOfFrame()
       throws Exception {
-    String testId = "drawFrame_anchoredTextOverlay";
     SpannableString overlayText = new SpannableString(/* source= */ "Text styling");
     overlayText.setSpan(
         new ForegroundColorSpan(Color.GRAY),
@@ -375,8 +388,8 @@ public class OverlayShaderProgramPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_multipleOverlays_blendsBothIntoFrame() throws Exception {
-    String testId = "drawFrame_multipleOverlays";
     SpannableString overlayText = new SpannableString(/* source= */ "Overlay 1");
     overlayText.setSpan(
         new ForegroundColorSpan(Color.GRAY),
@@ -407,8 +420,8 @@ public class OverlayShaderProgramPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_overlappingOverlays_blendsOnFifoOrder() throws Exception {
-    String testId = "drawFrame_overlappingOverlays";
     SpannableString overlayText = new SpannableString(/* source= */ "Overlapping text");
     overlayText.setSpan(
         new ForegroundColorSpan(Color.WHITE),
@@ -441,8 +454,8 @@ public class OverlayShaderProgramPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_scaledBitmapOverlay_letterboxStretchesOverlay() throws Exception {
-    String testId = "drawFrame_scaledBitmapOverlay";
     Bitmap overlayBitmap = readBitmap(OVERLAY_PNG_ASSET_PATH);
     overlayShaderProgram =
         new OverlayEffect(ImmutableList.of(new LetterBoxStretchedBitmapOverlay(overlayBitmap)))

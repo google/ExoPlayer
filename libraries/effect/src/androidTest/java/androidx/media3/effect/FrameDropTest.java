@@ -52,23 +52,29 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
 /** Tests for {@link FrameDropEffect}. */
 @RunWith(AndroidJUnit4.class)
 public class FrameDropTest {
+  @Rule public final TestName testName = new TestName();
+
   private static final String ASSET_PATH = "media/bitmap/FrameDropTest";
   private static final int BLANK_FRAME_WIDTH = 100;
   private static final int BLANK_FRAME_HEIGHT = 50;
 
+  private @MonotonicNonNull String testId;
   private @MonotonicNonNull TextureBitmapReader textureBitmapReader;
   private @MonotonicNonNull DefaultVideoFrameProcessor defaultVideoFrameProcessor;
 
-  @EnsuresNonNull("textureBitmapReader")
+  @EnsuresNonNull({"textureBitmapReader", "testId"})
   @Before
   public void setUp() {
     textureBitmapReader = new TextureBitmapReader();
+    testId = testName.getMethodName();
   }
 
   @After
@@ -76,11 +82,10 @@ public class FrameDropTest {
     checkNotNull(defaultVideoFrameProcessor).release();
   }
 
-  @RequiresNonNull("textureBitmapReader")
   @Test
+  @RequiresNonNull({"textureBitmapReader", "testId"})
   public void frameDrop_withDefaultStrategy_outputsFramesAtTheCorrectPresentationTimesUs()
       throws Exception {
-    String testId = "frameDrop_withDefaultStrategy_outputsFramesAtTheCorrectPresentationTimesUs";
     ImmutableList<Long> frameTimesUs =
         ImmutableList.of(0L, 16_000L, 32_000L, 48_000L, 58_000L, 71_000L, 86_000L);
 
@@ -92,11 +97,10 @@ public class FrameDropTest {
     getAndAssertOutputBitmaps(textureBitmapReader, actualPresentationTimesUs, testId);
   }
 
-  @RequiresNonNull("textureBitmapReader")
   @Test
+  @RequiresNonNull({"textureBitmapReader", "testId"})
   public void frameDrop_withSimpleStrategy_outputsFramesAtTheCorrectPresentationTimesUs()
       throws Exception {
-    String testId = "frameDrop_withSimpleStrategy_outputsFramesAtTheCorrectPresentationTimesUs";
     ImmutableList<Long> frameTimesUs =
         ImmutableList.of(0L, 250_000L, 500_000L, 750_000L, 1_000_000L, 1_500_000L);
 
@@ -110,10 +114,9 @@ public class FrameDropTest {
     getAndAssertOutputBitmaps(textureBitmapReader, actualPresentationTimesUs, testId);
   }
 
-  @RequiresNonNull("textureBitmapReader")
   @Test
+  @RequiresNonNull({"textureBitmapReader", "testId"})
   public void frameDrop_withSimpleStrategy_outputsAllFrames() throws Exception {
-    String testId = "frameDrop_withSimpleStrategy_outputsAllFrames";
     ImmutableList<Long> frameTimesUs = ImmutableList.of(0L, 333_333L, 666_667L);
 
     ImmutableList<Long> actualPresentationTimesUs =
