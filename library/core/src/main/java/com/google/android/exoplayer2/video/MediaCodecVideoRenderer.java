@@ -168,9 +168,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @Nullable private PlaceholderSurface placeholderSurface;
   private boolean haveReportedFirstFrameRenderedForCurrentSurface;
   private @C.VideoScalingMode int scalingMode;
-  private boolean renderedFirstFrameAfterReset;
-  private boolean mayRenderFirstFrameAfterEnableIfNotStarted;
-  private boolean renderedFirstFrameAfterEnable;
+  private @C.FirstFrameState int firstFrameState;
   private long initialPositionUs;
   private long joiningDeadlineMs;
   private long droppedFrameAccumulationStartTimeMs;
@@ -414,6 +412,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     scalingMode = C.VIDEO_SCALING_MODE_DEFAULT;
     decodedVideoSize = VideoSize.UNKNOWN;
     tunnelingAudioSessionId = C.AUDIO_SESSION_ID_UNSET;
+    firstFrameState = C.FIRST_FRAME_NOT_RENDERED_ONLY_ALLOWED_IF_STARTED;
     clearReportedVideoSize();
   }
 
@@ -603,13 +602,17 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       releaseCodec();
     }
     eventDispatcher.enabled(decoderCounters);
-    mayRenderFirstFrameAfterEnableIfNotStarted = mayRenderStartOfStream;
-    renderedFirstFrameAfterEnable = false;
+    firstFrameState =
+        mayRenderStartOfStream
+            ? C.FIRST_FRAME_NOT_RENDERED
+            : C.FIRST_FRAME_NOT_RENDERED_ONLY_ALLOWED_IF_STARTED;
   }
 
   @Override
   public void enableMayRenderStartOfStream() {
-    mayRenderFirstFrameAfterEnableIfNotStarted = true;
+    if (firstFrameState == C.FIRST_FRAME_NOT_RENDERED_ONLY_ALLOWED_IF_STARTED) {
+      firstFrameState = C.FIRST_FRAME_NOT_RENDERED;
+    }
   }
 
   @Override
@@ -618,7 +621,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
     if (videoFrameProcessorManager.isEnabled()) {
       videoFrameProcessorManager.flush();
     }
-    clearRenderedFirstFrame();
+    lowerFirstFrameState(C.FIRST_FRAME_NOT_RENDERED);
     frameReleaseHelper.onPositionReset();
     lastBufferPresentationTimeUs = C.TIME_UNSET;
     initialPositionUs = C.TIME_UNSET;
@@ -643,7 +646,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   public boolean isReady() {
     if (super.isReady()
         && (!videoFrameProcessorManager.isEnabled() || videoFrameProcessorManager.isReady())
-        && (renderedFirstFrameAfterReset
+        && (firstFrameState == C.FIRST_FRAME_RENDERED
             || (placeholderSurface != null && displaySurface == placeholderSurface)
             || getCodec() == null
             || tunneling)) {
@@ -687,7 +690,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @Override
   protected void onDisabled() {
     clearReportedVideoSize();
-    clearRenderedFirstFrame();
+    lowerFirstFrameState(C.FIRST_FRAME_NOT_RENDERED_ONLY_ALLOWED_IF_STARTED);
     haveReportedFirstFrameRenderedForCurrentSurface = false;
     tunnelingOnFrameRenderedListener = null;
     try {
@@ -803,7 +806,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
         // If we know the video size, report it again immediately.
         maybeRenotifyVideoSizeChanged();
         // We haven't rendered to the new display surface yet.
-        clearRenderedFirstFrame();
+        lowerFirstFrameState(C.FIRST_FRAME_NOT_RENDERED);
         if (state == STATE_STARTED) {
           // Set joining deadline to report MediaCodecVideoRenderer is ready.
           setJoiningDeadlineMs();
@@ -816,7 +819,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
       } else {
         // The display surface has been removed.
         clearReportedVideoSize();
-        clearRenderedFirstFrame();
+        lowerFirstFrameState(C.FIRST_FRAME_NOT_RENDERED);
         if (videoFrameProcessorManager.isEnabled()) {
           videoFrameProcessorManager.clearOutputSurfaceInfo();
         }
@@ -1336,17 +1339,28 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   /** Returns whether a buffer or a processed frame should be force rendered. */
   private boolean shouldForceRender(long positionUs, long earlyUs) {
+    if (joiningDeadlineMs != C.TIME_UNSET) {
+      // No force rendering during joining.
+      return false;
+    }
+    if (positionUs < getOutputStreamOffsetUs()) {
+      // No force rendering if we haven't reached the stream start position.
+      // TODO: b/160461756 - This is a bug because it compares against the offset and not the start
+      // position and also should only be applied when transitioning streams, not after every reset.
+      return false;
+    }
     boolean isStarted = getState() == STATE_STARTED;
-    boolean shouldRenderFirstFrame =
-        !renderedFirstFrameAfterEnable
-            ? (isStarted || mayRenderFirstFrameAfterEnableIfNotStarted)
-            : !renderedFirstFrameAfterReset;
-    long elapsedSinceLastRenderUs = msToUs(getClock().elapsedRealtime()) - lastRenderRealtimeUs;
-    // Don't force output until we joined and the position reached the current stream.
-    return joiningDeadlineMs == C.TIME_UNSET
-        && positionUs >= getOutputStreamOffsetUs()
-        && (shouldRenderFirstFrame
-            || (isStarted && shouldForceRenderOutputBuffer(earlyUs, elapsedSinceLastRenderUs)));
+    switch (firstFrameState) {
+      case C.FIRST_FRAME_NOT_RENDERED_ONLY_ALLOWED_IF_STARTED:
+        return isStarted;
+      case C.FIRST_FRAME_NOT_RENDERED:
+        return true;
+      case C.FIRST_FRAME_RENDERED:
+        long elapsedSinceLastRenderUs = msToUs(getClock().elapsedRealtime()) - lastRenderRealtimeUs;
+        return isStarted && shouldForceRenderOutputBuffer(earlyUs, elapsedSinceLastRenderUs);
+      default:
+        throw new IllegalStateException();
+    }
   }
 
   /**
@@ -1419,7 +1433,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   @Override
   protected void onProcessedStreamChange() {
     super.onProcessedStreamChange();
-    clearRenderedFirstFrame();
+    lowerFirstFrameState(C.FIRST_FRAME_NOT_RENDERED);
   }
 
   /**
@@ -1703,8 +1717,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
             : C.TIME_UNSET;
   }
 
-  private void clearRenderedFirstFrame() {
-    renderedFirstFrameAfterReset = false;
+  private void lowerFirstFrameState(@C.FirstFrameState int firstFrameState) {
+    this.firstFrameState = min(this.firstFrameState, firstFrameState);
     // The first frame notification is triggered by renderOutputBuffer or renderOutputBufferV21 for
     // non-tunneled playback, onQueueInputBuffer for tunneled playback prior to API level 23, and
     // OnFrameRenderedListenerV23.onFrameRenderedListener for tunneled playback on API level 23 and
@@ -1719,9 +1733,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
   }
 
   /* package */ void maybeNotifyRenderedFirstFrame() {
-    renderedFirstFrameAfterEnable = true;
-    if (!renderedFirstFrameAfterReset) {
-      renderedFirstFrameAfterReset = true;
+    if (firstFrameState != C.FIRST_FRAME_RENDERED) {
+      firstFrameState = C.FIRST_FRAME_RENDERED;
       eventDispatcher.renderedFirstFrame(displaySurface);
       haveReportedFirstFrameRenderedForCurrentSurface = true;
     }

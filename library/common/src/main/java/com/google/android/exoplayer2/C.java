@@ -1487,6 +1487,35 @@ public final class C {
   public static final int FORMAT_UNSUPPORTED_TYPE = 0b000;
 
   /**
+   * State of the first frame in a video renderer.
+   *
+   * <p>One of {@link #FIRST_FRAME_NOT_RENDERED_ONLY_ALLOWED_IF_STARTED}, {@link
+   * #FIRST_FRAME_NOT_RENDERED} or {@link #FIRST_FRAME_RENDERED}. The stages are ordered and
+   * comparable, i.e., a value implies that all stages with higher values are not reached yet.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
+  @IntDef({
+    FIRST_FRAME_NOT_RENDERED_ONLY_ALLOWED_IF_STARTED,
+    FIRST_FRAME_NOT_RENDERED,
+    FIRST_FRAME_RENDERED
+  })
+  public @interface FirstFrameState {}
+
+  /**
+   * The first frame was not rendered yet, and is only allowed to be rendered if the renderer is
+   * started.
+   */
+  public static final int FIRST_FRAME_NOT_RENDERED_ONLY_ALLOWED_IF_STARTED = 0;
+
+  /** The first frame was not rendered after the last reset, output surface or stream change. */
+  public static final int FIRST_FRAME_NOT_RENDERED = 1;
+
+  /** The first frame was rendered. */
+  public static final int FIRST_FRAME_RENDERED = 2;
+
+  /**
    * @deprecated Use {@link Util#usToMs(long)}.
    */
   @InlineMe(
