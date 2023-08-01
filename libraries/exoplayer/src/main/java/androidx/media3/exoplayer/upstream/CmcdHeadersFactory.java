@@ -35,15 +35,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Represents the data for CMCD (Common Media Client Data) in adaptive streaming formats DASH, HLS,
- * and SmoothStreaming.
+ * This class serves as a factory for generating Common Media Client Data (CMCD) HTTP request
+ * headers in adaptive streaming formats, DASH, HLS, and SmoothStreaming.
  *
- * <p>It holds various attributes related to the playback of media content according to the
- * specifications outlined in the CMCD standard document <a
+ * <p>It encapsulates the necessary attributes and information relevant to media content playback,
+ * following the guidelines specified in the CMCD standard document <a
  * href="https://cdn.cta.tech/cta/media/media/resources/standards/pdfs/cta-5004-final.pdf">CTA-5004</a>.
  */
 @UnstableApi
-public final class CmcdLog {
+public final class CmcdHeadersFactory {
 
   /** Indicates the streaming format used for media content. */
   @Retention(RetentionPolicy.SOURCE)
@@ -74,34 +74,62 @@ public final class CmcdLog {
   /** Represents the Live Streaming stream type. */
   public static final String STREAM_TYPE_LIVE = "l";
 
+  private final CmcdConfiguration cmcdConfiguration;
+  private final ExoTrackSelection trackSelection;
+  private final long bufferedDurationUs;
+  private final @StreamingFormat String streamingFormat;
+  private final boolean isLive;
+  private long chunkDurationUs;
+
   /**
-   * Creates a new instance.
+   * Creates an instance.
    *
    * @param cmcdConfiguration The {@link CmcdConfiguration} for this chunk source.
    * @param trackSelection The {@linkplain ExoTrackSelection track selection}.
    * @param bufferedDurationUs The duration of media currently buffered from the current playback
    *     position, in microseconds.
-   * @param chunkDurationUs The duration of current media chunk being requested, in microseconds. If
-   *     the duration is not known, it can be set to {@link C#TIME_UNSET}.
    * @param streamingFormat The streaming format of the media content. Must be one of the allowed
    *     streaming formats specified by the {@link StreamingFormat} annotation.
    * @param isLive {@code true} if the media content is being streamed live, {@code false}
    *     otherwise.
+   * @throws IllegalArgumentException If {@code bufferedDurationUs} is negative.
    */
-  public static CmcdLog createInstance(
+  public CmcdHeadersFactory(
       CmcdConfiguration cmcdConfiguration,
       ExoTrackSelection trackSelection,
       long bufferedDurationUs,
-      long chunkDurationUs,
       @StreamingFormat String streamingFormat,
       boolean isLive) {
+    checkArgument(bufferedDurationUs >= 0);
+    this.cmcdConfiguration = cmcdConfiguration;
+    this.trackSelection = trackSelection;
+    this.bufferedDurationUs = bufferedDurationUs;
+    this.streamingFormat = streamingFormat;
+    this.isLive = isLive;
+    this.chunkDurationUs = C.TIME_UNSET;
+  }
+
+  /**
+   * Sets the duration of current media chunk being requested, in microseconds. The default value is
+   * {@link C#TIME_UNSET}.
+   *
+   * @throws IllegalArgumentException If {@code chunkDurationUs} is negative.
+   */
+  @CanIgnoreReturnValue
+  public CmcdHeadersFactory setChunkDurationUs(long chunkDurationUs) {
+    checkArgument(chunkDurationUs >= 0);
+    this.chunkDurationUs = chunkDurationUs;
+    return this;
+  }
+
+  /** Creates and returns a new {@link ImmutableMap} containing the CMCD HTTP request headers. */
+  public ImmutableMap<@CmcdConfiguration.HeaderKey String, String> createHttpRequestHeaders() {
     ImmutableMap<@CmcdConfiguration.HeaderKey String, String> customData =
         cmcdConfiguration.requestConfig.getCustomData();
-    int bitrateKbps = trackSelection.getSelectedFormat().bitrate / 1000;
+    int bitrateKbps = Util.ceilDivide(trackSelection.getSelectedFormat().bitrate, 1000);
 
-    CmcdLog.CmcdObject.Builder cmcdObject =
-        new CmcdLog.CmcdObject.Builder()
-            .setCustomData(customData.get(CmcdConfiguration.KEY_CMCD_OBJECT));
+    CmcdObject.Builder cmcdObject =
+        new CmcdObject.Builder().setCustomData(customData.get(CmcdConfiguration.KEY_CMCD_OBJECT));
     if (cmcdConfiguration.isBitrateLoggingAllowed()) {
       cmcdObject.setBitrateKbps(bitrateKbps);
     }
@@ -111,26 +139,25 @@ public final class CmcdLog {
       for (int i = 0; i < trackGroup.length; i++) {
         topBitrate = max(topBitrate, trackGroup.getFormat(i).bitrate);
       }
-      cmcdObject.setTopBitrateKbps(topBitrate / 1000);
+      cmcdObject.setTopBitrateKbps(Util.ceilDivide(topBitrate, 1000));
     }
     if (cmcdConfiguration.isObjectDurationLoggingAllowed() && chunkDurationUs != C.TIME_UNSET) {
       cmcdObject.setObjectDurationMs(chunkDurationUs / 1000);
     }
 
-    CmcdLog.CmcdRequest.Builder cmcdRequest =
-        new CmcdLog.CmcdRequest.Builder()
-            .setCustomData(customData.get(CmcdConfiguration.KEY_CMCD_REQUEST));
+    CmcdRequest.Builder cmcdRequest =
+        new CmcdRequest.Builder().setCustomData(customData.get(CmcdConfiguration.KEY_CMCD_REQUEST));
     if (cmcdConfiguration.isBufferLengthLoggingAllowed()) {
       cmcdRequest.setBufferLengthMs(bufferedDurationUs / 1000);
     }
     if (cmcdConfiguration.isMeasuredThroughputLoggingAllowed()
         && trackSelection.getLatestBitrateEstimate() != Long.MIN_VALUE) {
-      cmcdRequest.setMeasuredThroughputInKbps(trackSelection.getLatestBitrateEstimate() / 1000);
+      cmcdRequest.setMeasuredThroughputInKbps(
+          Util.ceilDivide(trackSelection.getLatestBitrateEstimate(), 1000));
     }
 
-    CmcdLog.CmcdSession.Builder cmcdSession =
-        new CmcdLog.CmcdSession.Builder()
-            .setCustomData(customData.get(CmcdConfiguration.KEY_CMCD_SESSION));
+    CmcdSession.Builder cmcdSession =
+        new CmcdSession.Builder().setCustomData(customData.get(CmcdConfiguration.KEY_CMCD_SESSION));
     if (cmcdConfiguration.isContentIdLoggingAllowed()) {
       cmcdSession.setContentId(cmcdConfiguration.contentId);
     }
@@ -144,40 +171,18 @@ public final class CmcdLog {
       cmcdSession.setStreamType(isLive ? STREAM_TYPE_LIVE : STREAM_TYPE_VOD);
     }
 
-    CmcdLog.CmcdStatus.Builder cmcdStatus =
-        new CmcdLog.CmcdStatus.Builder()
-            .setCustomData(customData.get(CmcdConfiguration.KEY_CMCD_STATUS));
+    CmcdStatus.Builder cmcdStatus =
+        new CmcdStatus.Builder().setCustomData(customData.get(CmcdConfiguration.KEY_CMCD_STATUS));
     if (cmcdConfiguration.isMaximumRequestThroughputLoggingAllowed()) {
       cmcdStatus.setMaximumRequestedThroughputKbps(
           cmcdConfiguration.requestConfig.getRequestedMaximumThroughputKbps(bitrateKbps));
     }
 
-    return new CmcdLog(
-        cmcdObject.build(), cmcdRequest.build(), cmcdSession.build(), cmcdStatus.build());
-  }
-
-  private final CmcdObject cmcdObject;
-  private final CmcdRequest cmcdRequest;
-  private final CmcdSession cmcdSession;
-  private final CmcdStatus cmcdStatus;
-
-  private CmcdLog(
-      CmcdObject cmcdObject,
-      CmcdRequest cmcdRequest,
-      CmcdSession cmcdSession,
-      CmcdStatus cmcdStatus) {
-    this.cmcdObject = cmcdObject;
-    this.cmcdRequest = cmcdRequest;
-    this.cmcdSession = cmcdSession;
-    this.cmcdStatus = cmcdStatus;
-  }
-
-  public ImmutableMap<@CmcdConfiguration.HeaderKey String, String> getHttpRequestHeaders() {
     ImmutableMap.Builder<String, String> httpRequestHeaders = ImmutableMap.builder();
-    this.cmcdObject.populateHttpRequestHeaders(httpRequestHeaders);
-    this.cmcdRequest.populateHttpRequestHeaders(httpRequestHeaders);
-    this.cmcdSession.populateHttpRequestHeaders(httpRequestHeaders);
-    this.cmcdStatus.populateHttpRequestHeaders(httpRequestHeaders);
+    cmcdObject.build().populateHttpRequestHeaders(httpRequestHeaders);
+    cmcdRequest.build().populateHttpRequestHeaders(httpRequestHeaders);
+    cmcdSession.build().populateHttpRequestHeaders(httpRequestHeaders);
+    cmcdStatus.build().populateHttpRequestHeaders(httpRequestHeaders);
     return httpRequestHeaders.buildOrThrow();
   }
 
@@ -492,7 +497,7 @@ public final class CmcdLog {
 
       /** Sets the {@link CmcdSession#customData}. The default value is {@code null}. */
       @CanIgnoreReturnValue
-      public CmcdSession.Builder setCustomData(@Nullable String customData) {
+      public Builder setCustomData(@Nullable String customData) {
         this.customData = customData;
         return this;
       }
@@ -635,7 +640,7 @@ public final class CmcdLog {
 
       /** Sets the {@link CmcdStatus#customData}. The default value is {@code null}. */
       @CanIgnoreReturnValue
-      public CmcdStatus.Builder setCustomData(@Nullable String customData) {
+      public Builder setCustomData(@Nullable String customData) {
         this.customData = customData;
         return this;
       }

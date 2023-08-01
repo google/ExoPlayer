@@ -34,7 +34,7 @@ import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.hls.playlist.HlsMediaPlaylist;
 import androidx.media3.exoplayer.source.chunk.MediaChunk;
 import androidx.media3.exoplayer.upstream.CmcdConfiguration;
-import androidx.media3.exoplayer.upstream.CmcdLog;
+import androidx.media3.exoplayer.upstream.CmcdHeadersFactory;
 import androidx.media3.extractor.DefaultExtractorInput;
 import androidx.media3.extractor.ExtractorInput;
 import androidx.media3.extractor.metadata.id3.Id3Decoder;
@@ -82,6 +82,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @param initSegmentKey The initialization segment decryption key, if fully encrypted. Null
    *     otherwise.
    * @param shouldSpliceIn Whether samples for this chunk should be spliced into existing samples.
+   * @param cmcdHeadersFactory The {@link CmcdHeadersFactory} for generating CMCD request headers.
    */
   public static HlsMediaChunk createInstance(
       HlsExtractorFactory extractorFactory,
@@ -102,11 +103,15 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       @Nullable byte[] initSegmentKey,
       boolean shouldSpliceIn,
       PlayerId playerId,
-      @Nullable CmcdLog cmcdLog) {
+      @Nullable CmcdHeadersFactory cmcdHeadersFactory) {
     // Media segment.
     HlsMediaPlaylist.SegmentBase mediaSegment = segmentBaseHolder.segmentBase;
     ImmutableMap<@CmcdConfiguration.HeaderKey String, String> httpRequestHeaders =
-        cmcdLog == null ? ImmutableMap.of() : cmcdLog.getHttpRequestHeaders();
+        cmcdHeadersFactory == null
+            ? ImmutableMap.of()
+            : cmcdHeadersFactory
+                .setChunkDurationUs(mediaSegment.durationUs)
+                .createHttpRequestHeaders();
     DataSpec dataSpec =
         new DataSpec.Builder()
             .setUri(UriUtil.resolveToUri(mediaPlaylist.baseUri, mediaSegment.url))

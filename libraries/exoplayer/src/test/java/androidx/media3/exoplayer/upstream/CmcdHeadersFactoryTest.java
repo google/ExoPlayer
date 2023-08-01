@@ -28,9 +28,9 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Tests for {@link CmcdLog}. */
+/** Tests for {@link CmcdHeadersFactory}. */
 @RunWith(AndroidJUnit4.class)
-public class CmcdLogTest {
+public class CmcdHeadersFactoryTest {
 
   @Test
   public void createInstance_populatesCmcdHeaders() {
@@ -62,17 +62,16 @@ public class CmcdLogTest {
     when(trackSelection.getTrackGroup())
         .thenReturn(new TrackGroup(format, new Format.Builder().setPeakBitrate(1_000_000).build()));
     when(trackSelection.getLatestBitrateEstimate()).thenReturn(500_000L);
-    CmcdLog cmcdLog =
-        CmcdLog.createInstance(
-            cmcdConfiguration,
-            trackSelection,
-            /* bufferedDurationUs= */ 1_760_000,
-            /* chunkDurationUs= */ 3_000_000,
-            CmcdLog.STREAMING_FORMAT_DASH,
-            true);
 
     ImmutableMap<@CmcdConfiguration.HeaderKey String, String> requestHeaders =
-        cmcdLog.getHttpRequestHeaders();
+        new CmcdHeadersFactory(
+                cmcdConfiguration,
+                trackSelection,
+                /* bufferedDurationUs= */ 1_760_000,
+                /* streamingFormat= */ CmcdHeadersFactory.STREAMING_FORMAT_DASH,
+                /* isLive= */ true)
+            .setChunkDurationUs(3_000_000)
+            .createHttpRequestHeaders();
 
     assertThat(requestHeaders)
         .containsExactly(
