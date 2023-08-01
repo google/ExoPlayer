@@ -37,10 +37,14 @@ import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import java.io.IOException;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
 /**
@@ -53,6 +57,8 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public final class PresentationPixelTest {
+  @Rule public final TestName testName = new TestName();
+
   private static final String ORIGINAL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/original.png";
   private static final String ASPECT_RATIO_SCALE_TO_FIT_NARROW_PNG_ASSET_PATH =
@@ -70,6 +76,7 @@ public final class PresentationPixelTest {
 
   private final Context context = getApplicationContext();
 
+  private @MonotonicNonNull String testId;
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull EGLContext eglContext;
   private @MonotonicNonNull SingleFrameGlShaderProgram presentationShaderProgram;
@@ -90,6 +97,12 @@ public final class PresentationPixelTest {
     inputTexId = createGlTextureFromBitmap(inputBitmap);
   }
 
+  @Before
+  @EnsuresNonNull("testId")
+  public void setUpTestId() {
+    testId = testName.getMethodName();
+  }
+
   @After
   public void release() throws GlUtil.GlException, VideoFrameProcessingException {
     if (presentationShaderProgram != null) {
@@ -101,8 +114,8 @@ public final class PresentationPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_noEdits_matchesGoldenFile() throws Exception {
-    String testId = "drawFrame_noEdits";
     presentationShaderProgram =
         Presentation.createForHeight(C.LENGTH_UNSET)
             .toGlShaderProgram(context, /* useHdr= */ false);
@@ -122,8 +135,8 @@ public final class PresentationPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_changeAspectRatio_scaleToFit_narrow_matchesGoldenFile() throws Exception {
-    String testId = "drawFrame_changeAspectRatio_scaleToFit_narrow";
     presentationShaderProgram =
         Presentation.createForAspectRatio(/* aspectRatio= */ 1f, Presentation.LAYOUT_SCALE_TO_FIT)
             .toGlShaderProgram(context, /* useHdr= */ false);
@@ -143,8 +156,8 @@ public final class PresentationPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_changeAspectRatio_scaleToFit_wide_matchesGoldenFile() throws Exception {
-    String testId = "drawFrame_changeAspectRatio_scaleToFit_wide";
     presentationShaderProgram =
         Presentation.createForAspectRatio(/* aspectRatio= */ 2f, Presentation.LAYOUT_SCALE_TO_FIT)
             .toGlShaderProgram(context, /* useHdr= */ false);
@@ -164,9 +177,9 @@ public final class PresentationPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_changeAspectRatio_scaleToFitWithCrop_narrow_matchesGoldenFile()
       throws Exception {
-    String testId = "drawFrame_changeAspectRatio_scaleToFitWithCrop_narrow";
     presentationShaderProgram =
         Presentation.createForAspectRatio(
                 /* aspectRatio= */ 1f, Presentation.LAYOUT_SCALE_TO_FIT_WITH_CROP)
@@ -187,9 +200,9 @@ public final class PresentationPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_changeAspectRatio_scaleToFitWithCrop_wide_matchesGoldenFile()
       throws Exception {
-    String testId = "drawFrame_changeAspectRatio_scaleToFitWithCrop_wide";
     presentationShaderProgram =
         Presentation.createForAspectRatio(
                 /* aspectRatio= */ 2f, Presentation.LAYOUT_SCALE_TO_FIT_WITH_CROP)
@@ -210,8 +223,8 @@ public final class PresentationPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_changeAspectRatio_stretchToFit_narrow_matchesGoldenFile() throws Exception {
-    String testId = "drawFrame_changeAspectRatio_stretchToFit_narrow";
     presentationShaderProgram =
         Presentation.createForAspectRatio(/* aspectRatio= */ 1f, Presentation.LAYOUT_STRETCH_TO_FIT)
             .toGlShaderProgram(context, /* useHdr= */ false);
@@ -231,8 +244,8 @@ public final class PresentationPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_changeAspectRatio_stretchToFit_wide_matchesGoldenFile() throws Exception {
-    String testId = "drawFrame_changeAspectRatio_stretchToFit_wide";
     presentationShaderProgram =
         Presentation.createForAspectRatio(/* aspectRatio= */ 2f, Presentation.LAYOUT_STRETCH_TO_FIT)
             .toGlShaderProgram(context, /* useHdr= */ false);

@@ -37,10 +37,14 @@ import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import java.io.IOException;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
 /**
@@ -53,6 +57,8 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public final class RgbFilterPixelTest {
+  @Rule public final TestName testName = new TestName();
+
   private static final String ORIGINAL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/linear_colors/original.png";
   private static final String GRAYSCALE_PNG_ASSET_PATH =
@@ -62,6 +68,7 @@ public final class RgbFilterPixelTest {
 
   private final Context context = getApplicationContext();
 
+  private @MonotonicNonNull String testId;
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull EGLContext eglContext;
   private @MonotonicNonNull SingleFrameGlShaderProgram defaultShaderProgram;
@@ -93,6 +100,12 @@ public final class RgbFilterPixelTest {
         inputHeight);
   }
 
+  @Before
+  @EnsuresNonNull("testId")
+  public void setUpTestId() {
+    testId = testName.getMethodName();
+  }
+
   @After
   public void release() throws GlUtil.GlException, VideoFrameProcessingException {
     if (defaultShaderProgram != null) {
@@ -102,8 +115,8 @@ public final class RgbFilterPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_grayscale_producesGrayscaleImage() throws Exception {
-    String testId = "drawFrame_grayscale";
     RgbMatrix grayscaleMatrix = RgbFilter.createGrayscaleFilter();
     defaultShaderProgram = grayscaleMatrix.toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = defaultShaderProgram.configure(inputWidth, inputHeight);
@@ -120,8 +133,8 @@ public final class RgbFilterPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_inverted_producesInvertedFrame() throws Exception {
-    String testId = "drawFrame_inverted";
     RgbMatrix invertedMatrix = RgbFilter.createInvertedFilter();
     defaultShaderProgram = invertedMatrix.toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = defaultShaderProgram.configure(inputWidth, inputHeight);

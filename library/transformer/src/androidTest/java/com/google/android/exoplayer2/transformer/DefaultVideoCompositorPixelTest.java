@@ -48,9 +48,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -60,6 +63,13 @@ import org.junit.runners.Parameterized;
 /** Pixel test for {@link DefaultVideoCompositor} compositing 2 input frames into 1 output frame. */
 @RunWith(Parameterized.class)
 public final class DefaultVideoCompositorPixelTest {
+  @Parameterized.Parameters(name = "useSharedExecutor={0}")
+  public static ImmutableList<Boolean> useSharedExecutor() {
+    return ImmutableList.of(true, false);
+  }
+
+  @Parameterized.Parameter public boolean useSharedExecutor;
+  @Rule public final TestName testName = new TestName();
 
   private static final String ORIGINAL_PNG_ASSET_PATH = "media/bitmap/input_images/media3test.png";
   private static final String GRAYSCALE_PNG_ASSET_PATH =
@@ -69,15 +79,14 @@ public final class DefaultVideoCompositorPixelTest {
   private static final String GRAYSCALE_AND_ROTATE180_COMPOSITE_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/grayscaleAndRotate180Composite.png";
 
-  @Parameterized.Parameters(name = "useSharedExecutor={0}")
-  public static ImmutableList<Boolean> useSharedExecutor() {
-    return ImmutableList.of(true, false);
-  }
-
-  @Parameterized.Parameter public boolean useSharedExecutor;
-  @Rule public TestName testName = new TestName();
-
+  private @MonotonicNonNull String testId;
   private @MonotonicNonNull VideoCompositorTestRunner compositorTestRunner;
+
+  @Before
+  @EnsuresNonNull("testId")
+  public void setUpTestId() {
+    testId = testName.getMethodName();
+  }
 
   @After
   public void tearDown() {
@@ -87,8 +96,8 @@ public final class DefaultVideoCompositorPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void compositeTwoInputs_withOneFrameFromEach_matchesExpectedBitmap() throws Exception {
-    String testId = testName.getMethodName();
     compositorTestRunner = new VideoCompositorTestRunner(testId, useSharedExecutor);
 
     compositorTestRunner.queueBitmapsToBothInputs(/* count= */ 1);
@@ -108,9 +117,9 @@ public final class DefaultVideoCompositorPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void compositeTwoInputs_withFiveFramesFromEach_matchesExpectedTimestamps()
       throws Exception {
-    String testId = testName.getMethodName();
     compositorTestRunner = new VideoCompositorTestRunner(testId, useSharedExecutor);
 
     compositorTestRunner.queueBitmapsToBothInputs(/* count= */ 5);
@@ -136,9 +145,9 @@ public final class DefaultVideoCompositorPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void compositeTwoInputs_withTenFramesFromEach_matchesExpectedFrameCount()
       throws Exception {
-    String testId = testName.getMethodName();
     compositorTestRunner = new VideoCompositorTestRunner(testId, useSharedExecutor);
     int numberOfFramesToQueue = 10;
 

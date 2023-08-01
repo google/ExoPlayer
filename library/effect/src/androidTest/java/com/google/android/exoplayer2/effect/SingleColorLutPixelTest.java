@@ -37,10 +37,14 @@ import com.google.android.exoplayer2.testutil.BitmapPixelTestUtil;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
 /**
@@ -53,6 +57,8 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public class SingleColorLutPixelTest {
+  @Rule public final TestName testName = new TestName();
+
   private static final String ORIGINAL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/linear_colors/original.png";
   private static final String LUT_MAP_WHITE_TO_GREEN_ASSET_PATH =
@@ -67,6 +73,7 @@ public class SingleColorLutPixelTest {
 
   private final Context context = getApplicationContext();
 
+  private @MonotonicNonNull String testId;
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull EGLContext eglContext;
   private @MonotonicNonNull EGLSurface placeholderEglSurface;
@@ -87,6 +94,12 @@ public class SingleColorLutPixelTest {
     inputTexId = createGlTextureFromBitmap(inputBitmap);
   }
 
+  @Before
+  @EnsuresNonNull("testId")
+  public void setUpTestId() {
+    testId = testName.getMethodName();
+  }
+
   @After
   public void release() throws GlUtil.GlException, VideoFrameProcessingException {
     if (colorLutShaderProgram != null) {
@@ -96,8 +109,8 @@ public class SingleColorLutPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_identityCubeLutSize2_leavesFrameUnchanged() throws Exception {
-    String testId = "drawFrame_identityLutCubeSize2";
     int[][][] cubeIdentityLut = createIdentityLutCube(/* length= */ 2);
     colorLutShaderProgram =
         SingleColorLut.createFromCube(cubeIdentityLut)
@@ -117,8 +130,8 @@ public class SingleColorLutPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_identityCubeLutSize64_leavesFrameUnchanged() throws Exception {
-    String testId = "drawFrame_identityLutCubeSize64";
     int[][][] cubeIdentityLut = createIdentityLutCube(/* length= */ 64);
     colorLutShaderProgram =
         SingleColorLut.createFromCube(cubeIdentityLut)
@@ -138,8 +151,8 @@ public class SingleColorLutPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_identityBitmapLutSize2_leavesFrameUnchanged() throws Exception {
-    String testId = "drawFrame_identityBitmapLutSize2";
     Bitmap bitmapLut = createIdentityLutBitmap(/* length= */ 2);
     colorLutShaderProgram =
         SingleColorLut.createFromBitmap(bitmapLut).toGlShaderProgram(context, /* useHdr= */ false);
@@ -158,8 +171,8 @@ public class SingleColorLutPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_identityBitmapLutSize64_leavesFrameUnchanged() throws Exception {
-    String testId = "drawFrame_identityBitmapLutSize64";
     Bitmap bitmapLut = createIdentityLutBitmap(/* length= */ 64);
     colorLutShaderProgram =
         SingleColorLut.createFromBitmap(bitmapLut).toGlShaderProgram(context, /* useHdr= */ false);
@@ -178,8 +191,8 @@ public class SingleColorLutPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_identityLutFromHaldImage_leavesFrameUnchanged() throws Exception {
-    String testId = "drawFrame_identityLutFromHaldImage";
     Bitmap bitmapLut = readBitmap(VERTICAL_HALD_IDENTITY_LUT);
     colorLutShaderProgram =
         SingleColorLut.createFromBitmap(bitmapLut).toGlShaderProgram(context, /* useHdr= */ false);
@@ -198,8 +211,8 @@ public class SingleColorLutPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_mapWhiteToGreen_producesGreenHighlights() throws Exception {
-    String testId = "drawFrame_mapWhiteToGreen";
     int length = 3;
     int[][][] mapWhiteToGreen = createIdentityLutCube(length);
     mapWhiteToGreen[length - 1][length - 1][length - 1] = Color.GREEN;
@@ -221,8 +234,8 @@ public class SingleColorLutPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_applyInvertedLut_producesInvertedFrame() throws Exception {
-    String testId = "drawFrame_applyInvertedLut";
     Bitmap invertedLutBitmap = readBitmap(VERTICAL_HALD_INVERTED_LUT);
     colorLutShaderProgram =
         SingleColorLut.createFromBitmap(invertedLutBitmap)
@@ -242,8 +255,8 @@ public class SingleColorLutPixelTest {
   }
 
   @Test
+  @RequiresNonNull("testId")
   public void drawFrame_applyGrayscaleLut_producesGrayscaleFrame() throws Exception {
-    String testId = "drawFrame_applyGrayscaleLut";
     Bitmap grayscaleLutBitmap = readBitmap(VERTICAL_HALD_GRAYSCALE_LUT);
     colorLutShaderProgram =
         SingleColorLut.createFromBitmap(grayscaleLutBitmap)
