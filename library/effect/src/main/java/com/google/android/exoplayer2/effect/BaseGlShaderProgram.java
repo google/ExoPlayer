@@ -118,6 +118,14 @@ public abstract class BaseGlShaderProgram implements GlShaderProgram {
     this.errorListener = errorListener;
   }
 
+  /**
+   * Returns {@code true} if the texture buffer should be cleared before calling {@link #drawFrame}
+   * or {@code false} if it should retain the content of the last drawn frame.
+   */
+  public boolean shouldClearTextureBuffer() {
+    return true;
+  }
+
   @Override
   public void queueInputFrame(
       GlObjectsProvider glObjectsProvider, GlTextureInfo inputTexture, long presentationTimeUs) {
@@ -132,7 +140,9 @@ public abstract class BaseGlShaderProgram implements GlShaderProgram {
       // Copy frame to fbo.
       GlUtil.focusFramebufferUsingCurrentContext(
           outputTexture.fboId, outputTexture.width, outputTexture.height);
-      GlUtil.clearFocusedBuffers();
+      if (shouldClearTextureBuffer()) {
+        GlUtil.clearFocusedBuffers();
+      }
       drawFrame(inputTexture.texId, presentationTimeUs);
       inputListener.onInputFrameProcessed(inputTexture);
       outputListener.onOutputFrameAvailable(outputTexture, presentationTimeUs);
