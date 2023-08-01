@@ -42,7 +42,7 @@ import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistTracker;
 import com.google.android.exoplayer2.trackselection.BaseTrackSelection;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.upstream.CmcdConfiguration;
-import com.google.android.exoplayer2.upstream.CmcdLog;
+import com.google.android.exoplayer2.upstream.CmcdHeadersFactory;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.TransferListener;
@@ -487,36 +487,30 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     seenExpectedPlaylistError = false;
     expectedPlaylistUrl = null;
 
-    long chunkDurationUs = C.TIME_UNSET;
-    if (selectedTrackIndex < mediaChunkIterators.length
-        && mediaChunkIterators[selectedTrackIndex].next()) {
-      chunkDurationUs =
-          mediaChunkIterators[selectedTrackIndex].getChunkEndTimeUs()
-              - mediaChunkIterators[selectedTrackIndex].getChunkStartTimeUs();
-    }
     @Nullable
-    CmcdLog cmcdLog =
+    CmcdHeadersFactory cmcdHeadersFactory =
         cmcdConfiguration == null
             ? null
-            : CmcdLog.createInstance(
+            : new CmcdHeadersFactory(
                 cmcdConfiguration,
                 trackSelection,
                 bufferedDurationUs,
-                chunkDurationUs,
-                CmcdLog.STREAMING_FORMAT_HLS,
-                !playlist.hasEndTag);
+                /* streamingFormat= */ CmcdHeadersFactory.STREAMING_FORMAT_HLS,
+                /* isLive= */ !playlist.hasEndTag);
 
     // Check if the media segment or its initialization segment are fully encrypted.
     @Nullable
     Uri initSegmentKeyUri =
         getFullEncryptionKeyUri(playlist, segmentBaseHolder.segmentBase.initializationSegment);
-    out.chunk = maybeCreateEncryptionChunkFor(initSegmentKeyUri, selectedTrackIndex, cmcdLog);
+    out.chunk =
+        maybeCreateEncryptionChunkFor(initSegmentKeyUri, selectedTrackIndex, cmcdHeadersFactory);
     if (out.chunk != null) {
       return;
     }
     @Nullable
     Uri mediaSegmentKeyUri = getFullEncryptionKeyUri(playlist, segmentBaseHolder.segmentBase);
-    out.chunk = maybeCreateEncryptionChunkFor(mediaSegmentKeyUri, selectedTrackIndex, cmcdLog);
+    out.chunk =
+        maybeCreateEncryptionChunkFor(mediaSegmentKeyUri, selectedTrackIndex, cmcdHeadersFactory);
     if (out.chunk != null) {
       return;
     }
@@ -552,7 +546,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             /* initSegmentKey= */ keyCache.get(initSegmentKeyUri),
             shouldSpliceIn,
             playerId,
-            cmcdLog);
+            cmcdHeadersFactory);
   }
 
   @Nullable
@@ -860,7 +854,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Nullable
   private Chunk maybeCreateEncryptionChunkFor(
-      @Nullable Uri keyUri, int selectedTrackIndex, @Nullable CmcdLog cmcdLog) {
+      @Nullable Uri keyUri,
+      int selectedTrackIndex,
+      @Nullable CmcdHeadersFactory cmcdHeadersFactory) {
     if (keyUri == null) {
       return null;
     }
@@ -874,7 +870,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return null;
     }
     ImmutableMap<@CmcdConfiguration.HeaderKey String, String> httpRequestHeaders =
-        cmcdLog == null ? ImmutableMap.of() : cmcdLog.getHttpRequestHeaders();
+        cmcdHeadersFactory == null
+            ? ImmutableMap.of()
+            : cmcdHeadersFactory.createHttpRequestHeaders();
     DataSpec dataSpec =
         new DataSpec.Builder()
             .setUri(keyUri)
