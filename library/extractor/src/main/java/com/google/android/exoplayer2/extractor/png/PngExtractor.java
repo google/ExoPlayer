@@ -26,7 +26,7 @@ import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
-import com.google.android.exoplayer2.extractor.SeekMap;
+import com.google.android.exoplayer2.extractor.SingleSampleSeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -48,7 +48,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 // TODO: b/289989902 - Move methods of this class into ImageExtractorUtil once there are multiple
 //   image extractors.
 @Deprecated
-public class PngExtractor implements Extractor {
+public final class PngExtractor implements Extractor {
 
   /** Parser states. */
   @Documented
@@ -116,7 +116,7 @@ public class PngExtractor implements Extractor {
     TrackOutput imageTrackOutput = extractorOutput.track(IMAGE_TRACK_ID, C.TRACK_TYPE_IMAGE);
     imageTrackOutput.format(new Format.Builder().setContainerMimeType(MimeTypes.IMAGE_PNG).build());
     extractorOutput.endTracks();
-    extractorOutput.seekMap(new SeekMap.Unseekable(/* durationUs= */ C.TIME_UNSET));
+    extractorOutput.seekMap(new SingleSampleSeekMap(/* durationUs= */ C.TIME_UNSET));
     state = STATE_READING_IMAGE;
   }
 
