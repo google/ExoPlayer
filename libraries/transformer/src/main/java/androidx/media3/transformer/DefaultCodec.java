@@ -209,20 +209,30 @@ public final class DefaultCodec implements Codec {
 
     int offset = 0;
     int size = 0;
+    int flags = 0;
     if (inputBuffer.data != null && inputBuffer.data.hasRemaining()) {
       offset = inputBuffer.data.position();
       size = inputBuffer.data.remaining();
     }
-    int flags = 0;
+    long timestampUs = inputBuffer.timeUs;
+
     if (inputBuffer.isEndOfStream()) {
       inputStreamEnded = true;
       flags = MediaCodec.BUFFER_FLAG_END_OF_STREAM;
-      if (isVideo && isDecoder) {
-        DebugTraceUtil.logEvent(DebugTraceUtil.EVENT_DECODER_RECEIVE_EOS, C.TIME_END_OF_SOURCE);
+
+      if (isDecoder) {
+        if (isVideo) {
+          DebugTraceUtil.logEvent(DebugTraceUtil.EVENT_DECODER_RECEIVE_EOS, C.TIME_END_OF_SOURCE);
+        }
+        // EOS buffer on the decoder input should never carry data.
+        checkState(inputBuffer.data == null || !inputBuffer.data.hasRemaining());
+        offset = 0;
+        size = 0;
+        timestampUs = 0;
       }
     }
     try {
-      mediaCodec.queueInputBuffer(inputBufferIndex, offset, size, inputBuffer.timeUs, flags);
+      mediaCodec.queueInputBuffer(inputBufferIndex, offset, size, timestampUs, flags);
     } catch (RuntimeException e) {
       Log.d(TAG, "MediaCodec error", e);
       throw createExportException(e);
