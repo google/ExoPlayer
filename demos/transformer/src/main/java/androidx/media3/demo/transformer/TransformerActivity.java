@@ -414,14 +414,29 @@ public final class TransformerActivity extends AppCompatActivity {
       processors.add(silenceSkippingAudioProcessor);
     }
 
-    if (selectedAudioEffects[ConfigurationActivity.CHANNEL_MIXING_INDEX]) {
+    boolean mixToMono = selectedAudioEffects[ConfigurationActivity.CHANNEL_MIXING_INDEX];
+    boolean scaleVolumeToHalf = selectedAudioEffects[ConfigurationActivity.VOLUME_SCALING_INDEX];
+    if (mixToMono || scaleVolumeToHalf) {
       ChannelMixingAudioProcessor mixingAudioProcessor = new ChannelMixingAudioProcessor();
       for (int inputChannelCount = 1; inputChannelCount <= 6; inputChannelCount++) {
-        float[] mixingCoefficients = new float[inputChannelCount];
-        Arrays.fill(mixingCoefficients, 1f / inputChannelCount);
+        ChannelMixingMatrix matrix;
+        if (mixToMono) {
+          float[] mixingCoefficients = new float[inputChannelCount];
+          // Each channel is equally weighted in the mix to mono.
+          Arrays.fill(mixingCoefficients, 1f / inputChannelCount);
+          matrix =
+              new ChannelMixingMatrix(
+                  inputChannelCount, /* outputChannelCount= */ 1, mixingCoefficients);
+        } else {
+          // Identity matrix.
+          matrix =
+              ChannelMixingMatrix.create(
+                  inputChannelCount, /* outputChannelCount= */ inputChannelCount);
+        }
+
+        // Apply the volume adjustment.
         mixingAudioProcessor.putChannelMixingMatrix(
-            new ChannelMixingMatrix(
-                inputChannelCount, /* outputChannelCount= */ 1, mixingCoefficients));
+            scaleVolumeToHalf ? matrix.scaleBy(0.5f) : matrix);
       }
       processors.add(mixingAudioProcessor);
     }
