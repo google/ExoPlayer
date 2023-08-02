@@ -29,7 +29,7 @@ import androidx.media3.extractor.Extractor;
 import androidx.media3.extractor.ExtractorInput;
 import androidx.media3.extractor.ExtractorOutput;
 import androidx.media3.extractor.PositionHolder;
-import androidx.media3.extractor.SeekMap;
+import androidx.media3.extractor.SingleSampleSeekMap;
 import androidx.media3.extractor.TrackOutput;
 import java.io.IOException;
 import java.lang.annotation.Documented;
@@ -42,7 +42,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 @UnstableApi
 // TODO: b/289989902 - Move methods of this class into ImageExtractorUtil once there are multiple
 //   image extractors.
-public class PngExtractor implements Extractor {
+public final class PngExtractor implements Extractor {
 
   /** Parser states. */
   @Documented
@@ -110,7 +110,7 @@ public class PngExtractor implements Extractor {
     TrackOutput imageTrackOutput = extractorOutput.track(IMAGE_TRACK_ID, C.TRACK_TYPE_IMAGE);
     imageTrackOutput.format(new Format.Builder().setContainerMimeType(MimeTypes.IMAGE_PNG).build());
     extractorOutput.endTracks();
-    extractorOutput.seekMap(new SeekMap.Unseekable(/* durationUs= */ C.TIME_UNSET));
+    extractorOutput.seekMap(new SingleSampleSeekMap(/* durationUs= */ C.TIME_UNSET));
     state = STATE_READING_IMAGE;
   }
 
