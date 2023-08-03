@@ -2176,6 +2176,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
       // be disabled and re-enabled when they start playing the next period.
       setAllRendererStreamsFinal(
           /* streamEndPositionUs= */ readingPeriodHolder.getStartPositionRendererTime());
+      if (!readingPeriodHolder.isFullyBuffered()) {
+        // The discontinuity caused the period to not be fully buffered. Continue loading from this
+        // period again and discard all other periods we already started loading.
+        queue.removeAfter(readingPeriodHolder);
+        handleLoadingMediaPeriodChanged(/* loadingTrackSelectionChanged= */ false);
+        maybeContinueLoading();
+      }
       return;
     }
     for (int i = 0; i < renderers.length; i++) {
