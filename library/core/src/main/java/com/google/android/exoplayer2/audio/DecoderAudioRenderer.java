@@ -159,7 +159,6 @@ public abstract class DecoderAudioRenderer<
   private boolean audioTrackNeedsConfigure;
 
   private long currentPositionUs;
-  private boolean allowFirstBufferPositionDiscontinuity;
   private boolean allowPositionDiscontinuity;
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
@@ -529,7 +528,6 @@ public abstract class DecoderAudioRenderer<
         }
         inputBuffer.flip();
         inputBuffer.format = inputFormat;
-        onQueueInputBuffer(inputBuffer);
         decoder.queueInputBuffer(inputBuffer);
         decoderReceivedBuffers = true;
         decoderCounters.queuedInputBufferCount++;
@@ -612,7 +610,6 @@ public abstract class DecoderAudioRenderer<
     }
 
     currentPositionUs = positionUs;
-    allowFirstBufferPositionDiscontinuity = true;
     allowPositionDiscontinuity = true;
     inputStreamEnded = false;
     outputStreamEnded = false;
@@ -811,18 +808,6 @@ public abstract class DecoderAudioRenderer<
       }
     }
     eventDispatcher.inputFormatChanged(inputFormat, evaluation);
-  }
-
-  protected void onQueueInputBuffer(DecoderInputBuffer buffer) {
-    if (allowFirstBufferPositionDiscontinuity && !buffer.isDecodeOnly()) {
-      // TODO: Remove this hack once we have a proper fix for [Internal: b/71876314].
-      // Allow the position to jump if the first presentable input buffer has a timestamp that
-      // differs significantly from what was expected.
-      if (Math.abs(buffer.timeUs - currentPositionUs) > 500000) {
-        currentPositionUs = buffer.timeUs;
-      }
-      allowFirstBufferPositionDiscontinuity = false;
-    }
   }
 
   private void updateCurrentPosition() {
