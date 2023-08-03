@@ -83,7 +83,7 @@ public final class MergingPlaylistPlaybackTest {
       ShadowMediaCodecConfig.forAllSupportedMimeTypes();
 
   @Test
-  public void test() throws Exception {
+  public void transitionBetweenDifferentMergeConfigurations() throws Exception {
     Context applicationContext = ApplicationProvider.getApplicationContext();
     CapturingRenderersFactory capturingRenderersFactory =
         new CapturingRenderersFactory(applicationContext);
@@ -116,6 +116,40 @@ public final class MergingPlaylistPlaybackTest {
             + secondItemVideoClipped
             + "_"
             + secondItemAudioClipped
+            + ".dump");
+  }
+
+  @Test
+  public void multipleRepetitionsOfSameMergeConfiguration() throws Exception {
+    Context applicationContext = ApplicationProvider.getApplicationContext();
+    CapturingRenderersFactory capturingRenderersFactory =
+        new CapturingRenderersFactory(applicationContext);
+    ExoPlayer player =
+        new ExoPlayer.Builder(applicationContext, capturingRenderersFactory)
+            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
+            .build();
+    Surface surface = new Surface(new SurfaceTexture(/* texName= */ 1));
+    player.setVideoSurface(surface);
+    PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
+
+    for (int i = 0; i < 5; i++) {
+      player.addMediaSource(createMergingMediaSource(firstItemVideoClipped, firstItemAudioClipped));
+    }
+    player.prepare();
+    player.play();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
+    player.release();
+    surface.release();
+
+    DumpFileAsserts.assertOutput(
+        applicationContext,
+        playbackOutput,
+        "playbackdumps/merging/repeat_"
+            + (videoIsPrimaryMergedSource ? "video" : "audio")
+            + "_"
+            + firstItemVideoClipped
+            + "_"
+            + firstItemAudioClipped
             + ".dump");
   }
 
