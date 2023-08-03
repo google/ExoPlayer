@@ -226,7 +226,7 @@ public final class DefaultVideoCompositor implements VideoCompositor {
       return;
     }
 
-    // Release frames until the secondary stream has 0-2 frames with time <=
+    // Release frames until the secondary stream has 0-2 frames with presentationTimeUs before or at
     // nextTimestampToComposite.
     @Nullable InputFrameInfo nextPrimaryFrame = primaryInputSource.frameInfos.peek();
     long nextTimestampToComposite =
