@@ -2168,7 +2168,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
                 outputSurfaceSize.getHeight()));
       }
 
-      setInputFormat(inputFormat);
       return true;
     }
 
