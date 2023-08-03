@@ -17,6 +17,8 @@ package androidx.media3.effect;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
+import static java.lang.Math.abs;
+import static java.lang.Math.max;
 
 import android.content.Context;
 import android.opengl.EGLContext;
@@ -35,9 +37,12 @@ import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ExecutorService;
@@ -53,10 +58,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 @UnstableApi
 public final class DefaultVideoCompositor implements VideoCompositor {
   // TODO: b/262694346 -  Flesh out this implementation by doing the following:
-  //  * Handle mismatched timestamps
   //  * Use a lock to synchronize inputFrameInfos more narrowly, to reduce blocking.
   //  * If the primary stream ends, consider setting the secondary stream as the new primary stream,
   //    so that secondary stream frames aren't dropped.
+  //  * Consider adding info about the timestamps for each input frame used to composite an output
+  //    frame, to aid debugging and testing.
 
   private static final String THREAD_NAME = "Effect:DefaultVideoCompositor:GlThread";
   private static final String TAG = "DefaultVideoCompositor";
@@ -73,6 +79,7 @@ public final class DefaultVideoCompositor implements VideoCompositor {
   @GuardedBy("this")
   private final List<InputSource> inputSources;
 
+  @GuardedBy("this")
   private boolean allInputsEnded; // Whether all inputSources have signaled end of input.
 
   private final TexturePool outputTexturePool;
@@ -120,6 +127,13 @@ public final class DefaultVideoCompositor implements VideoCompositor {
     videoFrameProcessingTaskExecutor.submit(this::setupGlObjects);
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The input source must be able to have at least two {@linkplain #queueInputTexture queued
+   * textures} before one texture is {@linkplain
+   * DefaultVideoFrameProcessor.ReleaseOutputTextureCallback released}.
+   */
   @Override
   public synchronized int registerInputSource() {
     inputSources.add(new InputSource());
@@ -129,14 +143,28 @@ public final class DefaultVideoCompositor implements VideoCompositor {
   @Override
   public synchronized void signalEndOfInputSource(int inputId) {
     inputSources.get(inputId).isInputEnded = true;
+    boolean allInputsEnded = true;
     for (int i = 0; i < inputSources.size(); i++) {
       if (!inputSources.get(i).isInputEnded) {
+        allInputsEnded = false;
+        break;
+      }
+    }
+
+    this.allInputsEnded = allInputsEnded;
+    if (inputSources.get(PRIMARY_INPUT_ID).frameInfos.isEmpty()) {
+      if (inputId == PRIMARY_INPUT_ID) {
+        releaseExcessFramesInAllSecondaryStreams();
+      }
+      if (allInputsEnded) {
+        listener.onEnded();
         return;
       }
     }
-    allInputsEnded = true;
-    if (inputSources.get(PRIMARY_INPUT_ID).frameInfos.isEmpty()) {
-      listener.onEnded();
+    if (inputId != PRIMARY_INPUT_ID && inputSources.get(inputId).frameInfos.size() == 1) {
+      // When a secondary stream ends input, composite if there was only one pending frame in the
+      // stream.
+      videoFrameProcessingTaskExecutor.submit(this::maybeComposite);
     }
   }
 
@@ -146,10 +174,19 @@ public final class DefaultVideoCompositor implements VideoCompositor {
       GlTextureInfo inputTexture,
       long presentationTimeUs,
       DefaultVideoFrameProcessor.ReleaseOutputTextureCallback releaseTextureCallback) {
-    checkState(!inputSources.get(inputId).isInputEnded);
+    InputSource inputSource = inputSources.get(inputId);
+    checkState(!inputSource.isInputEnded);
+
     InputFrameInfo inputFrameInfo =
         new InputFrameInfo(inputTexture, presentationTimeUs, releaseTextureCallback);
-    inputSources.get(inputId).frameInfos.add(inputFrameInfo);
+    inputSource.frameInfos.add(inputFrameInfo);
+
+    if (inputId == PRIMARY_INPUT_ID) {
+      releaseExcessFramesInAllSecondaryStreams();
+    } else {
+      releaseExcessFramesInSecondaryStream(inputSource);
+    }
+
     videoFrameProcessingTaskExecutor.submit(this::maybeComposite);
   }
 
@@ -160,6 +197,56 @@ public final class DefaultVideoCompositor implements VideoCompositor {
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       throw new IllegalStateException(e);
+    }
+  }
+
+  private synchronized void releaseExcessFramesInAllSecondaryStreams() {
+    for (int i = 0; i < inputSources.size(); i++) {
+      if (i == PRIMARY_INPUT_ID) {
+        continue;
+      }
+      releaseExcessFramesInSecondaryStream(inputSources.get(i));
+    }
+  }
+
+  /**
+   * Release unneeded frames from the {@link InputSource} secondary stream.
+   *
+   * <p>After this method returns, there should be exactly zero or one frames left with a timestamp
+   * less than the primary stream's next timestamp that were present when the method execution
+   * began.
+   */
+  private synchronized void releaseExcessFramesInSecondaryStream(InputSource secondaryInputSource) {
+    InputSource primaryInputSource = inputSources.get(PRIMARY_INPUT_ID);
+    // If the primary stream output is ended, all secondary frames can be released.
+    if (primaryInputSource.frameInfos.isEmpty() && primaryInputSource.isInputEnded) {
+      releaseFrames(
+          secondaryInputSource,
+          /* numberOfFramesToRelease= */ secondaryInputSource.frameInfos.size());
+      return;
+    }
+
+    // Release frames until the secondary stream has 0-2 frames with time <=
+    // nextTimestampToComposite.
+    @Nullable InputFrameInfo nextPrimaryFrame = primaryInputSource.frameInfos.peek();
+    long nextTimestampToComposite =
+        nextPrimaryFrame != null ? nextPrimaryFrame.presentationTimeUs : C.TIME_UNSET;
+
+    int numberOfSecondaryFramesBeforeOrAtNextTargetTimestamp =
+        Iterables.size(
+            Iterables.filter(
+                secondaryInputSource.frameInfos,
+                frame -> frame.presentationTimeUs <= nextTimestampToComposite));
+    releaseFrames(
+        secondaryInputSource,
+        /* numberOfFramesToRelease= */ max(
+            numberOfSecondaryFramesBeforeOrAtNextTargetTimestamp - 1, 0));
+  }
+
+  private synchronized void releaseFrames(InputSource inputSource, int numberOfFramesToRelease) {
+    for (int i = 0; i < numberOfFramesToRelease; i++) {
+      InputFrameInfo frameInfoToRelease = inputSource.frameInfos.remove();
+      frameInfoToRelease.releaseCallback.release(frameInfoToRelease.presentationTimeUs);
     }
   }
 
@@ -175,13 +262,9 @@ public final class DefaultVideoCompositor implements VideoCompositor {
 
   private synchronized void maybeComposite()
       throws VideoFrameProcessingException, GlUtil.GlException {
-    if (!isReadyToComposite()) {
+    ImmutableList<InputFrameInfo> framesToComposite = getFramesToComposite();
+    if (framesToComposite.isEmpty()) {
       return;
-    }
-
-    List<InputFrameInfo> framesToComposite = new ArrayList<>();
-    for (int inputId = 0; inputId < inputSources.size(); inputId++) {
-      framesToComposite.add(inputSources.get(inputId).frameInfos.remove());
     }
 
     ensureGlProgramConfigured();
@@ -204,40 +287,81 @@ public final class DefaultVideoCompositor implements VideoCompositor {
     syncObjects.add(syncObject);
     textureOutputListener.onTextureRendered(
         outputTexture,
-        /* presentationTimeUs= */ framesToComposite.get(0).presentationTimeUs,
+        /* presentationTimeUs= */ outputPresentationTimestampUs,
         this::releaseOutputFrame,
         syncObject);
-    for (int i = 0; i < framesToComposite.size(); i++) {
-      InputFrameInfo inputFrameInfo = framesToComposite.get(i);
-      inputFrameInfo.releaseCallback.release(inputFrameInfo.presentationTimeUs);
-    }
+
+    InputSource primaryInputSource = inputSources.get(PRIMARY_INPUT_ID);
+    releaseFrames(primaryInputSource, /* numberOfFramesToRelease= */ 1);
+    releaseExcessFramesInAllSecondaryStreams();
+
     if (allInputsEnded && inputSources.get(PRIMARY_INPUT_ID).frameInfos.isEmpty()) {
       listener.onEnded();
     }
   }
 
-  private synchronized boolean isReadyToComposite() {
+  /**
+   * Checks whether {@code inputSources} is able to composite, and if so, returns a list of {@link
+   * InputFrameInfo}s that should be composited next.
+   *
+   * <p>The first input frame info in the list is from the the primary source. An empty list is
+   * returned if {@code inputSources} cannot composite now.
+   */
+  private synchronized ImmutableList<InputFrameInfo> getFramesToComposite() {
     if (outputTexturePool.freeTextureCount() == 0) {
-      return false;
+      return ImmutableList.of();
     }
-    long compositeTimestampUs = C.TIME_UNSET;
     for (int inputId = 0; inputId < inputSources.size(); inputId++) {
-      Queue<InputFrameInfo> inputFrameInfos = inputSources.get(inputId).frameInfos;
-      if (inputFrameInfos.isEmpty()) {
-        return false;
+      if (inputSources.get(inputId).frameInfos.isEmpty()) {
+        return ImmutableList.of();
+      }
+    }
+    ImmutableList.Builder<InputFrameInfo> framesToComposite = new ImmutableList.Builder<>();
+    InputFrameInfo primaryFrameToComposite =
+        inputSources.get(PRIMARY_INPUT_ID).frameInfos.element();
+    framesToComposite.add(primaryFrameToComposite);
+
+    for (int inputId = 0; inputId < inputSources.size(); inputId++) {
+      if (inputId == PRIMARY_INPUT_ID) {
+        continue;
+      }
+      // Select the secondary streams' frame that would be composited next. The frame selected is
+      // the closest-timestamp frame from the primary stream's frame, if all secondary streams have:
+      //   1. One or more frames, and the secondary stream has ended, or
+      //   2. Two or more frames, and at least one frame has timestamp greater than the target
+      //      timestamp.
+      // The smaller timestamp is taken if two timestamps have the same distance from the primary.
+      InputSource secondaryInputSource = inputSources.get(inputId);
+      if (secondaryInputSource.frameInfos.size() == 1 && !secondaryInputSource.isInputEnded) {
+        return ImmutableList.of();
       }
 
-      long inputTimestampUs = checkNotNull(inputFrameInfos.peek()).presentationTimeUs;
-      if (inputId == PRIMARY_INPUT_ID) {
-        compositeTimestampUs = inputTimestampUs;
-      }
-      // TODO: b/262694346 - Allow for different frame-rates to be composited, by potentially
-      //  dropping some frames in non-primary streams.
-      if (inputTimestampUs != compositeTimestampUs) {
-        throw new IllegalStateException("Non-matched timestamps not yet supported.");
+      long minTimeDiffFromPrimaryUs = Long.MAX_VALUE;
+      @Nullable InputFrameInfo secondaryFrameToComposite = null;
+      Iterator<InputFrameInfo> frameInfosIterator = secondaryInputSource.frameInfos.iterator();
+      while (frameInfosIterator.hasNext()) {
+        InputFrameInfo candidateFrame = frameInfosIterator.next();
+        long candidateTimestampUs = candidateFrame.presentationTimeUs;
+        long candidateAbsDistance =
+            abs(candidateTimestampUs - primaryFrameToComposite.presentationTimeUs);
+
+        if (candidateAbsDistance < minTimeDiffFromPrimaryUs) {
+          minTimeDiffFromPrimaryUs = candidateAbsDistance;
+          secondaryFrameToComposite = candidateFrame;
+        }
+
+        if (candidateTimestampUs > primaryFrameToComposite.presentationTimeUs
+            || (!frameInfosIterator.hasNext() && secondaryInputSource.isInputEnded)) {
+          framesToComposite.add(checkNotNull(secondaryFrameToComposite));
+          break;
+        }
       }
     }
-    return true;
+    ImmutableList<InputFrameInfo> framesToCompositeList = framesToComposite.build();
+    if (framesToCompositeList.size() != inputSources.size()) {
+      return ImmutableList.of();
+    }
+    return framesToCompositeList;
   }
 
   private void releaseOutputFrame(long presentationTimeUs) {
@@ -295,7 +419,7 @@ public final class DefaultVideoCompositor implements VideoCompositor {
     GlUtil.checkGlError();
   }
 
-  private void releaseGlObjects() {
+  private synchronized void releaseGlObjects() {
     try {
       checkState(allInputsEnded);
       outputTexturePool.deleteAllTextures();
@@ -316,7 +440,10 @@ public final class DefaultVideoCompositor implements VideoCompositor {
 
   /** Holds information on an input source. */
   private static final class InputSource {
+    // A queue of {link InputFrameInfo}s, inserted in order from lower to higher {@code
+    // presentationTimeUs} values.
     public final Queue<InputFrameInfo> frameInfos;
+
     public boolean isInputEnded;
 
     public InputSource() {
