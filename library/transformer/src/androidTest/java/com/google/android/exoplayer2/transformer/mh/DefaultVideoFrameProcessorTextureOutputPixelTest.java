@@ -554,12 +554,7 @@ public final class DefaultVideoFrameProcessorTextureOutputPixelTest {
             .build();
     GlUtil.awaitSyncObject(syncObject);
     videoFrameProcessorTestRunner.queueInputTexture(texture, presentationTimeUs);
-    try {
-      videoFrameProcessorTestRunner.endFrameProcessing(VIDEO_FRAME_PROCESSING_WAIT_MS / 2);
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      throw new VideoFrameProcessingException(e);
-    }
+    videoFrameProcessorTestRunner.endFrameProcessing(VIDEO_FRAME_PROCESSING_WAIT_MS / 2);
     releaseOutputTextureCallback.release(presentationTimeUs);
   }
 

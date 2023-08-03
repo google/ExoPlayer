@@ -71,11 +71,13 @@ public final class VideoFrameProcessorTestRunner {
     private @MonotonicNonNull ColorInfo inputColorInfo;
     private @MonotonicNonNull ColorInfo outputColorInfo;
     private OnOutputFrameAvailableForRenderingListener onOutputFrameAvailableListener;
+    private OnVideoFrameProcessingEndedListener onEndedListener;
 
     /** Creates a new instance with default values. */
     public Builder() {
       pixelWidthHeightRatio = DEFAULT_PIXEL_WIDTH_HEIGHT_RATIO;
       onOutputFrameAvailableListener = unused -> {};
+      onEndedListener = () -> {};
     }
 
     /**
@@ -204,6 +206,17 @@ public final class VideoFrameProcessorTestRunner {
       return this;
     }
 
+    /**
+     * Sets the method to be called in {@link VideoFrameProcessor.Listener#onEnded}.
+     *
+     * <p>The default value is a no-op.
+     */
+    @CanIgnoreReturnValue
+    public Builder setOnEndedListener(OnVideoFrameProcessingEndedListener onEndedListener) {
+      this.onEndedListener = onEndedListener;
+      return this;
+    }
+
     public VideoFrameProcessorTestRunner build() throws VideoFrameProcessingException {
       checkStateNotNull(testId, "testId must be set.");
       checkStateNotNull(videoFrameProcessorFactory, "videoFrameProcessorFactory must be set.");
@@ -218,7 +231,8 @@ public final class VideoFrameProcessorTestRunner {
           pixelWidthHeightRatio,
           inputColorInfo == null ? ColorInfo.SDR_BT709_LIMITED : inputColorInfo,
           outputColorInfo == null ? ColorInfo.SDR_BT709_LIMITED : outputColorInfo,
-          onOutputFrameAvailableListener);
+          onOutputFrameAvailableListener,
+          onEndedListener);
     }
   }
 
@@ -249,7 +263,8 @@ public final class VideoFrameProcessorTestRunner {
       float pixelWidthHeightRatio,
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
-      OnOutputFrameAvailableForRenderingListener onOutputFrameAvailableForRenderingListener)
+      OnOutputFrameAvailableForRenderingListener onOutputFrameAvailableForRenderingListener,
+      OnVideoFrameProcessingEndedListener onEndedListener)
       throws VideoFrameProcessingException {
     this.testId = testId;
     this.bitmapReader = bitmapReader;
@@ -296,6 +311,7 @@ public final class VideoFrameProcessorTestRunner {
               @Override
               public void onEnded() {
                 checkNotNull(videoFrameProcessingEndedLatch).countDown();
+                onEndedListener.onEnded();
               }
             });
     this.effects = effects;
@@ -359,14 +375,32 @@ public final class VideoFrameProcessorTestRunner {
   }
 
   /** {@link #endFrameProcessing(long)} with {@link #VIDEO_FRAME_PROCESSING_WAIT_MS} applied. */
-  public void endFrameProcessing() throws InterruptedException {
+  public void endFrameProcessing() {
     endFrameProcessing(VIDEO_FRAME_PROCESSING_WAIT_MS);
   }
 
-  /** Have the {@link VideoFrameProcessor} finish processing. */
-  public void endFrameProcessing(long videoFrameProcessingWaitTimeMs) throws InterruptedException {
-    videoFrameProcessor.signalEndOfInput();
+  /**
+   * Ends {@link VideoFrameProcessor} frame processing.
+   *
+   * <p>Waits for frame processing to end, for {@code videoFrameProcessingWaitTimeMs}.
+   */
+  public void endFrameProcessing(long videoFrameProcessingWaitTimeMs) {
+    signalEndOfInput();
+    awaitFrameProcessingEnd(videoFrameProcessingWaitTimeMs);
+  }
 
+  /**
+   * Calls {@link VideoFrameProcessor#signalEndOfInput}.
+   *
+   * <p>Calling this and {@link #awaitFrameProcessingEnd} is an alternative to {@link
+   * #endFrameProcessing}.
+   */
+  public void signalEndOfInput() {
+    videoFrameProcessor.signalEndOfInput();
+  }
+
+  /** After {@link #signalEndOfInput}, is called, wait for this instance to end. */
+  public void awaitFrameProcessingEnd(long videoFrameProcessingWaitTimeMs) {
     @Nullable Exception endFrameProcessingException = null;
     try {
       if (!checkNotNull(videoFrameProcessingEndedLatch)
@@ -375,6 +409,7 @@ public final class VideoFrameProcessorTestRunner {
             new IllegalStateException("Video frame processing timed out.");
       }
     } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
       endFrameProcessingException = e;
     }
     assertThat(videoFrameProcessingException.get()).isNull();
@@ -400,6 +435,10 @@ public final class VideoFrameProcessorTestRunner {
 
   public interface OnOutputFrameAvailableForRenderingListener {
     void onFrameAvailableForRendering(long presentationTimeUs);
+  }
+
+  public interface OnVideoFrameProcessingEndedListener {
+    void onEnded();
   }
 
   /** Reads a {@link Bitmap} from {@link VideoFrameProcessor} output. */
