@@ -45,7 +45,6 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.MediaFormatUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
-import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.exoplayer.DecoderReuseEvaluation;
 import androidx.media3.exoplayer.DecoderReuseEvaluation.DecoderDiscardReasons;
 import androidx.media3.exoplayer.ExoPlaybackException;
@@ -112,7 +111,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Nullable private Format decryptOnlyCodecFormat;
 
   private long currentPositionUs;
-  private boolean allowFirstBufferPositionDiscontinuity;
   private boolean allowPositionDiscontinuity;
   private boolean audioSinkNeedsReset;
 
@@ -624,7 +622,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     }
 
     currentPositionUs = positionUs;
-    allowFirstBufferPositionDiscontinuity = true;
     allowPositionDiscontinuity = true;
   }
 
@@ -699,28 +696,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   public PlaybackParameters getPlaybackParameters() {
     return audioSink.getPlaybackParameters();
-  }
-
-  @Override
-  protected void onQueueInputBuffer(DecoderInputBuffer buffer) {
-    if (allowFirstBufferPositionDiscontinuity && !buffer.isDecodeOnly()) {
-      // TODO: Remove this hack once we have a proper fix for [Internal: b/71876314].
-      // Allow the position to jump if the first presentable input buffer has a timestamp that
-      // differs significantly from what was expected.
-      if (Math.abs(buffer.timeUs - currentPositionUs) > 500000) {
-        currentPositionUs = buffer.timeUs;
-      }
-      allowFirstBufferPositionDiscontinuity = false;
-    }
-  }
-
-  @CallSuper
-  @Override
-  protected void onProcessedOutputBuffer(long presentationTimeUs) {
-    super.onProcessedOutputBuffer(presentationTimeUs);
-    // An output buffer has been successfully processed. If this value is not set to false then
-    // onQueueInputBuffer on transition from offload to codec-based playback may occur early.
-    allowFirstBufferPositionDiscontinuity = false;
   }
 
   @Override
