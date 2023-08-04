@@ -142,7 +142,7 @@ import java.util.concurrent.atomic.AtomicReference;
   @Override
   @Nullable
   public DecoderInputBuffer getInputBuffer() {
-    if (silentAudioGenerator.hasRemaining() || pendingMediaItemChange.get() != null) {
+    if (pendingMediaItemChange.get() != null) {
       return null;
     }
     return availableInputBuffers.peek();
