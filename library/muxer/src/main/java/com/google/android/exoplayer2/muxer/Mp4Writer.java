@@ -372,6 +372,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
 
     public void writeSampleData(ByteBuffer byteBuffer, BufferInfo bufferInfo) throws IOException {
+      // TODO: b/279931840 - Confirm whether muxer should throw when writing empty samples.
+      // Skip empty samples.
+      if (bufferInfo.size == 0 || byteBuffer.remaining() == 0) {
+        return;
+      }
+
       if ((bufferInfo.flags & MediaCodec.BUFFER_FLAG_KEY_FRAME) > 0) {
         hadKeyframe = true;
       }
@@ -380,16 +386,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
         return;
       }
 
-      if (bufferInfo.size == 0) {
-        return;
-      }
-
-      // Skip empty samples.
-      // TODO: b/279931840 - Confirm whether muxer should throw when writing empty samples.
-      if (byteBuffer.remaining() > 0) {
-        pendingSamples.addLast(Pair.create(bufferInfo, byteBuffer));
-        doInterleave();
-      }
+      pendingSamples.addLast(Pair.create(bufferInfo, byteBuffer));
+      doInterleave();
     }
 
     @Override
