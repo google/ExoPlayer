@@ -90,6 +90,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -919,6 +920,7 @@ public final class MediaItemExportTest {
   }
 
   @Test
+  @Ignore("TODO: b/294389961 - Add valid assertion for whether exporter expects decoded/encoded.")
   public void start_withAssetLoaderAlwaysDecoding_exporterExpectsDecoded() throws Exception {
     AtomicReference<SampleConsumer> sampleConsumerRef = new AtomicReference<>();
     Transformer transformer =
@@ -931,6 +933,7 @@ public final class MediaItemExportTest {
     transformer.start(mediaItem, outputPath);
     runLooperUntil(transformer.getApplicationLooper(), () -> sampleConsumerRef.get() != null);
 
+    // Can never be false.
     assertThat(sampleConsumerRef.get()).isNotInstanceOf(EncodedSampleExporter.class);
   }
 
