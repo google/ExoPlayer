@@ -69,7 +69,7 @@ import java.util.concurrent.atomic.AtomicInteger;
    * <p>This map never contains more than 2 entries, as the only track types allowed are audio and
    * video.
    */
-  private final Map<Integer, SampleConsumer> sampleConsumersByTrackType;
+  private final Map<Integer, SampleConsumerWrapper> sampleConsumersByTrackType;
 
   /**
    * A mapping from track types to {@link OnMediaItemChangedListener} instances.
@@ -241,9 +241,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
   @Nullable
   @Override
-  public SampleConsumer onOutputFormat(Format format) throws ExportException {
+  public SampleConsumerWrapper onOutputFormat(Format format) throws ExportException {
     @C.TrackType int trackType = getProcessedTrackType(format.sampleMimeType);
-    SampleConsumer sampleConsumer;
+    SampleConsumerWrapper sampleConsumer;
     if (isCurrentAssetFirstAsset) {
       @Nullable
       SampleConsumer wrappedSampleConsumer = sequenceAssetLoaderListener.onOutputFormat(format);
@@ -281,7 +281,8 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
     onMediaItemChanged(trackType, format);
     if (nonEndedTracks.get() == 1 && sampleConsumersByTrackType.size() == 2) {
-      for (Map.Entry<Integer, SampleConsumer> entry : sampleConsumersByTrackType.entrySet()) {
+      for (Map.Entry<Integer, SampleConsumerWrapper> entry :
+          sampleConsumersByTrackType.entrySet()) {
         int outputTrackType = entry.getKey();
         if (trackType != outputTrackType) {
           onMediaItemChanged(outputTrackType, /* format= */ null);
