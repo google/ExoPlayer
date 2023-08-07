@@ -1306,6 +1306,10 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     }
 
     if (result == C.RESULT_NOTHING_READ) {
+      if (hasReadStreamToEnd()) {
+        // Notify output queue of the last buffer's timestamp.
+        lastBufferInStreamPresentationTimeUs = largestQueuedPresentationTimeUs;
+      }
       return false;
     }
     if (result == C.RESULT_FORMAT_READ) {
@@ -1321,6 +1325,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
 
     // We've read a buffer.
     if (buffer.isEndOfStream()) {
+      lastBufferInStreamPresentationTimeUs = largestQueuedPresentationTimeUs;
       if (codecReconfigurationState == RECONFIGURATION_STATE_QUEUE_PENDING) {
         // We received a new format immediately before the end of the stream. We need to clear
         // the corresponding reconfiguration data from the current buffer, but re-write it into
