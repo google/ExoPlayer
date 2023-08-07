@@ -27,6 +27,7 @@ import static com.google.android.exoplayer2.util.Util.parseXsDateTime;
 import static com.google.android.exoplayer2.util.Util.parseXsDuration;
 import static com.google.android.exoplayer2.util.Util.unescapeFileName;
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -830,6 +831,21 @@ public class UtilTest {
   @Test
   public void sparseLongArrayMaxValue_emptyArray_throws() {
     assertThrows(NoSuchElementException.class, () -> maxValue(new SparseLongArray()));
+  }
+
+  @Test
+  public void sampleCountToDuration_thenDurationToSampleCount_returnsOriginalValue() {
+    // Use co-prime increments, to maximise 'discord' between sampleCount and sampleRate.
+    for (long originalSampleCount = 0; originalSampleCount < 100_000; originalSampleCount += 97) {
+      for (int sampleRate = 89; sampleRate < 1_000_000; sampleRate += 89) {
+        long calculatedSampleCount =
+            Util.durationUsToSampleCount(
+                Util.sampleCountToDurationUs(originalSampleCount, sampleRate), sampleRate);
+        assertWithMessage("sampleCount=%s, sampleRate=%s", originalSampleCount, sampleRate)
+            .that(calculatedSampleCount)
+            .isEqualTo(originalSampleCount);
+      }
+    }
   }
 
   @Test

@@ -2079,11 +2079,11 @@ public final class DefaultAudioSink implements AudioSink {
     }
 
     public long inputFramesToDurationUs(long frameCount) {
-      return (frameCount * C.MICROS_PER_SECOND) / inputFormat.sampleRate;
+      return Util.sampleCountToDurationUs(frameCount, inputFormat.sampleRate);
     }
 
     public long framesToDurationUs(long frameCount) {
-      return (frameCount * C.MICROS_PER_SECOND) / outputSampleRate;
+      return Util.sampleCountToDurationUs(frameCount, outputSampleRate);
     }
 
     public AudioTrack buildAudioTrack(
