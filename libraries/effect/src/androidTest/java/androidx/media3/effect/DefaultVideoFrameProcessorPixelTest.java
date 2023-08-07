@@ -62,7 +62,7 @@ public final class DefaultVideoFrameProcessorPixelTest {
   private static final String ORIGINAL_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/original.png";
   private static final String OVERLAY_PNG_ASSET_PATH = "media/bitmap/input_images/media3test.png";
-  private static final String IMAGE_PNG_ASSET_PATH = "media/bitmap/input_images/london.jpg";
+  private static final String IMAGE_JPG_ASSET_PATH = "media/bitmap/input_images/london.jpg";
   private static final String IMAGE_TO_VIDEO_PNG_ASSET_PATH =
       "media/bitmap/sample_mp4_first_frame/electrical_colors/london_image_to_video.png";
   private static final String IMAGE_TO_CROPPED_VIDEO_PNG_ASSET_PATH =
@@ -173,7 +173,7 @@ public final class DefaultVideoFrameProcessorPixelTest {
         getDefaultFrameProcessorTestRunnerBuilder(testId)
             .setInputColorInfo(ColorInfo.SRGB_BT709_FULL)
             .build();
-    Bitmap originalBitmap = readBitmap(IMAGE_PNG_ASSET_PATH);
+    Bitmap originalBitmap = readBitmap(IMAGE_JPG_ASSET_PATH);
     Bitmap expectedBitmap = readBitmap(IMAGE_TO_VIDEO_PNG_ASSET_PATH);
 
     videoFrameProcessorTestRunner.queueInputBitmap(
@@ -201,7 +201,7 @@ public final class DefaultVideoFrameProcessorPixelTest {
                         /* bottom= */ -0.5f,
                         /* top= */ 0.5f)))
             .build();
-    Bitmap originalBitmap = readBitmap(IMAGE_PNG_ASSET_PATH);
+    Bitmap originalBitmap = readBitmap(IMAGE_JPG_ASSET_PATH);
     Bitmap expectedBitmap = readBitmap(IMAGE_TO_CROPPED_VIDEO_PNG_ASSET_PATH);
 
     videoFrameProcessorTestRunner.queueInputBitmap(
@@ -228,7 +228,7 @@ public final class DefaultVideoFrameProcessorPixelTest {
             .setInputColorInfo(ColorInfo.SRGB_BT709_FULL)
             .setEffects(NO_OP_EFFECT)
             .build();
-    Bitmap originalBitmap = readBitmap(IMAGE_PNG_ASSET_PATH);
+    Bitmap originalBitmap = readBitmap(IMAGE_JPG_ASSET_PATH);
 
     videoFrameProcessorTestRunner.queueInputBitmap(
         originalBitmap, C.MICROS_PER_SECOND, /* offsetToAddUs= */ 0L, /* frameRate= */ 1);

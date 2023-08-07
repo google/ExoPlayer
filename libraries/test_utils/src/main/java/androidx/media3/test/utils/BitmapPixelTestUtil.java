@@ -337,7 +337,7 @@ public class BitmapPixelTestUtil {
   public static void maybeSaveTestBitmap(
       String testId, String bitmapLabel, Bitmap bitmap, @Nullable String path) {
     String fileName = testId + (bitmapLabel.isEmpty() ? "" : "_" + bitmapLabel) + ".png";
-    File file = null;
+    File file;
 
     if (path != null) {
       File folder = new File(path);
