@@ -39,6 +39,7 @@ import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
+import com.google.common.base.Ascii;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -55,21 +56,6 @@ import java.util.Arrays;
 public class BitmapPixelTestUtil {
 
   private static final String TAG = "BitmapPixelTestUtil";
-
-  /**
-   * Maximum allowed average pixel difference between bitmaps generated using emulators.
-   *
-   * <p>This value is for for 8-bit primaries in pixel difference-based tests.
-   *
-   * <p>The value is chosen so that differences in decoder behavior across emulator versions don't
-   * affect whether the test passes, but substantial distortions introduced by changes in tested
-   * components will cause the test to fail.
-   *
-   * <p>When the difference is close to the threshold, manually inspect expected/actual bitmaps to
-   * confirm failure, as it's possible this is caused by a difference in the codec or graphics
-   * implementation as opposed to an issue in the tested component.
-   */
-  public static final float MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE = 1f;
 
   /**
    * Maximum allowed average pixel difference between bitmaps generated using devices.
@@ -90,6 +76,28 @@ public class BitmapPixelTestUtil {
   // TODO: b/279154364 - Stop allowing 15f threshold after bug is fixed.
   public static final float MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE =
       !Util.MODEL.equals("H8266") && !Util.MODEL.equals("H8416") ? 5f : 15f;
+
+  /**
+   * Maximum allowed average pixel difference between bitmaps generated.
+   *
+   * <p>This value is for for 8-bit primaries in pixel difference-based tests.
+   *
+   * <p>The value is chosen so that differences in decoder behavior across emulator versions don't
+   * affect whether the test passes, but substantial distortions introduced by changes in tested
+   * components will cause the test to fail.
+   *
+   * <p>When the difference is close to the threshold, manually inspect expected/actual bitmaps to
+   * confirm failure, as it's possible this is caused by a difference in the codec or graphics
+   * implementation as opposed to an issue in the tested component.
+   *
+   * <p>The value is the same as {@link #MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE}
+   * if running on physical devices.
+   */
+  public static final float MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE =
+      Ascii.toLowerCase(Util.DEVICE).contains("emulator")
+              || Ascii.toLowerCase(Util.DEVICE).contains("generic")
+          ? MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE
+          : 1f;
 
   /**
    * Maximum allowed average pixel difference between bitmaps with 16-bit primaries generated using
