@@ -64,6 +64,9 @@
     *   Add support for 24/32-bit big endian PCM in MP4 and Matroska, and parse
         PCM encoding for `lpcm` in MP4.
     *   Add support for extracting Vorbis audio in MP4.
+    *   Fix a bug where `Player.getState()` never transitioned to `STATE_ENDED`
+        when playing very short files
+        ([#538](https://github.com/androidx/media/issues/538)).
 *   Audio Offload:
     *   Add `AudioSink.getFormatOffloadSupport(Format)` that retrieves level of
         offload support the sink can provide for the format through a
