@@ -591,7 +591,8 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
         } else if (surfaceView instanceof SurfaceView) {
           player.setVideoSurfaceView((SurfaceView) surfaceView);
         }
-        if (player.getCurrentTracks().isTypeSupported(C.TRACK_TYPE_VIDEO)) {
+        if (!player.isCommandAvailable(COMMAND_GET_TRACKS)
+            || player.getCurrentTracks().isTypeSupported(C.TRACK_TYPE_VIDEO)) {
           // If the player already is or was playing a video, onVideoSizeChanged isn't called.
           updateAspectRatio();
         }
