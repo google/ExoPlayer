@@ -2264,8 +2264,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer {
      */
     public void onCodecInitialized(String codecName) {
       videoFrameProcessorMaxPendingFrameCount =
-          Util.getMaxPendingFramesCountForMediaCodecDecoders(
-              renderer.context, codecName, /* requestedHdrToneMapping= */ false);
+          Util.getMaxPendingFramesCountForMediaCodecDecoders(renderer.context);
     }
 
     /**

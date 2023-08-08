@@ -3012,19 +3012,22 @@ public final class Util {
     }
   }
 
+  @UnstableApi
+  public static boolean isFrameDropAllowedOnSurfaceInput(Context context) {
+    // Prior to API 29, decoders may drop frames to keep their output surface from growing out of
+    // bounds. From API 29, if the app targets API 29 or later, the {@link
+    // MediaFormat#KEY_ALLOW_FRAME_DROP} key prevents frame dropping even when the surface is
+    // full.
+    return Util.SDK_INT < 29 || context.getApplicationInfo().targetSdkVersion < 29;
+  }
+
   /**
    * Returns the number of maximum pending output frames that are allowed on a {@link MediaCodec}
    * decoder.
    */
   @UnstableApi
-  public static int getMaxPendingFramesCountForMediaCodecDecoders(
-      Context context, String codecName, boolean requestedHdrToneMapping) {
-    if (SDK_INT < 29
-        || context.getApplicationContext().getApplicationInfo().targetSdkVersion < 29) {
-      // Prior to API 29, decoders may drop frames to keep their output surface from growing out of
-      // bounds. From API 29, if the app targets API 29 or later, the {@link
-      // MediaFormat#KEY_ALLOW_FRAME_DROP} key prevents frame dropping even when the surface is
-      // full.
+  public static int getMaxPendingFramesCountForMediaCodecDecoders(Context context) {
+    if (isFrameDropAllowedOnSurfaceInput(context)) {
       // Frame dropping is never desired, so a workaround is needed for older API levels.
       // Allow a maximum of one frame to be pending at a time to prevent frame dropping.
       // TODO(b/226330223): Investigate increasing this limit.
