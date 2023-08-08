@@ -668,7 +668,9 @@ public class DefaultDashChunkSource implements DashChunkSource {
     ImmutableMap<@CmcdConfiguration.HeaderKey String, String> httpRequestHeaders =
         cmcdHeadersFactory == null
             ? ImmutableMap.of()
-            : cmcdHeadersFactory.createHttpRequestHeaders();
+            : cmcdHeadersFactory
+                .setObjectType(CmcdHeadersFactory.OBJECT_TYPE_INIT_SEGMENT)
+                .createHttpRequestHeaders();
     DataSpec dataSpec =
         DashUtil.buildDataSpec(
             representation,
@@ -712,6 +714,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
               ? ImmutableMap.of()
               : cmcdHeadersFactory
                   .setChunkDurationUs(endTimeUs - startTimeUs)
+                  .setObjectType(CmcdHeadersFactory.getObjectType(trackSelection))
                   .createHttpRequestHeaders();
       DataSpec dataSpec =
           DashUtil.buildDataSpec(
@@ -761,6 +764,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
               ? ImmutableMap.of()
               : cmcdHeadersFactory
                   .setChunkDurationUs(endTimeUs - startTimeUs)
+                  .setObjectType(CmcdHeadersFactory.getObjectType(trackSelection))
                   .createHttpRequestHeaders();
       DataSpec dataSpec =
           DashUtil.buildDataSpec(

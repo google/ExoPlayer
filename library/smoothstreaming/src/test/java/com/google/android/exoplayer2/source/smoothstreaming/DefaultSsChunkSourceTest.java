@@ -64,7 +64,7 @@ public class DefaultSsChunkSourceTest {
     assertThat(output.chunk.dataSpec.httpRequestHeaders)
         .containsExactly(
             "CMCD-Object",
-            "br=308,tb=1536,d=1968",
+            "br=308,tb=1536,d=1968,ot=v",
             "CMCD-Request",
             "bl=0,mtp=1000",
             "CMCD-Session",
@@ -109,7 +109,7 @@ public class DefaultSsChunkSourceTest {
     assertThat(output.chunk.dataSpec.httpRequestHeaders)
         .containsExactly(
             "CMCD-Object",
-            "br=308,tb=1536,d=1968",
+            "br=308,tb=1536,d=1968,ot=v",
             "CMCD-Request",
             "bl=0,mtp=1000",
             "CMCD-Session",
@@ -155,7 +155,7 @@ public class DefaultSsChunkSourceTest {
     assertThat(output.chunk.dataSpec.httpRequestHeaders)
         .containsExactly(
             "CMCD-Object",
-            "br=308,tb=1536,d=1968,key1=value1",
+            "br=308,tb=1536,d=1968,ot=v,key1=value1",
             "CMCD-Request",
             "bl=0,mtp=1000,key2=\"stringValue\"",
             "CMCD-Session",
