@@ -141,8 +141,19 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
               ? getEncryptionIvArray(Assertions.checkNotNull(initSegment.encryptionIV))
               : null;
       Uri initSegmentUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, initSegment.url);
+      ImmutableMap<@CmcdConfiguration.HeaderKey String, String> initHttpRequestHeaders =
+          cmcdHeadersFactory == null
+              ? ImmutableMap.of()
+              : cmcdHeadersFactory
+                  .setObjectType(CmcdHeadersFactory.OBJECT_TYPE_INIT_SEGMENT)
+                  .createHttpRequestHeaders();
       initDataSpec =
-          new DataSpec(initSegmentUri, initSegment.byteRangeOffset, initSegment.byteRangeLength);
+          new DataSpec.Builder()
+              .setUri(initSegmentUri)
+              .setPosition(initSegment.byteRangeOffset)
+              .setLength(initSegment.byteRangeLength)
+              .setHttpRequestHeaders(initHttpRequestHeaders)
+              .build();
       initDataSource = buildDataSource(dataSource, initSegmentKey, initSegmentIv);
     }
 

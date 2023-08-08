@@ -314,7 +314,7 @@ public class DefaultDashChunkSourceTest {
     assertThat(output.chunk.dataSpec.httpRequestHeaders)
         .containsExactly(
             "CMCD-Object",
-            "br=700,tb=1300,d=4000",
+            "br=700,tb=1300,d=4000,ot=v",
             "CMCD-Request",
             "bl=0,mtp=1000",
             "CMCD-Session",
@@ -359,7 +359,7 @@ public class DefaultDashChunkSourceTest {
     assertThat(output.chunk.dataSpec.httpRequestHeaders)
         .containsExactly(
             "CMCD-Object",
-            "br=700,tb=1300,d=4000",
+            "br=700,tb=1300,d=4000,ot=v",
             "CMCD-Request",
             "bl=0,mtp=1000",
             "CMCD-Session",
@@ -405,7 +405,7 @@ public class DefaultDashChunkSourceTest {
     assertThat(output.chunk.dataSpec.httpRequestHeaders)
         .containsExactly(
             "CMCD-Object",
-            "br=700,tb=1300,d=4000,key1=value1",
+            "br=700,tb=1300,d=4000,ot=v,key1=value1",
             "CMCD-Request",
             "bl=0,mtp=1000,key2=\"stringValue\"",
             "CMCD-Session",

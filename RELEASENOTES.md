@@ -37,7 +37,8 @@
         (([#33](https://github.com/androidx/media/issues/33)),([#9978](https://github.com/google/ExoPlayer/issues/9978))).
     *   Add additional fields to Common Media Client Data (CMCD) logging:
         streaming format (sf), stream type (st), version (v), top birate (tb),
-        object duration (d) and measured throughput (mtp).
+        object duration (d), measured throughput (mtp) and object type(ot)
+        ([#8699](https://github.com/google/ExoPlayer/issues/8699)).
     *   Rename `MimeTypes.TEXT_EXOPLAYER_CUES` to
         `MimeTypes.APPLICATION_MEDIA3_CUES`.
     *   Add `PngExtractor` that sends and reads a whole png file into the the

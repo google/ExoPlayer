@@ -27,6 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
+import androidx.media3.common.MimeTypes;
 import androidx.media3.common.TrackGroup;
 import androidx.media3.common.util.TimestampAdjuster;
 import androidx.media3.common.util.UriUtil;
@@ -486,25 +487,31 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         cmcdConfiguration == null
             ? null
             : new CmcdHeadersFactory(
-                cmcdConfiguration,
-                trackSelection,
-                bufferedDurationUs,
-                /* streamingFormat= */ CmcdHeadersFactory.STREAMING_FORMAT_HLS,
-                /* isLive= */ !playlist.hasEndTag);
+                    cmcdConfiguration,
+                    trackSelection,
+                    bufferedDurationUs,
+                    /* streamingFormat= */ CmcdHeadersFactory.STREAMING_FORMAT_HLS,
+                    /* isLive= */ !playlist.hasEndTag)
+                .setObjectType(
+                    getIsMuxedAudioAndVideo()
+                        ? CmcdHeadersFactory.OBJECT_TYPE_MUXED_AUDIO_AND_VIDEO
+                        : CmcdHeadersFactory.getObjectType(trackSelection));
 
     // Check if the media segment or its initialization segment are fully encrypted.
     @Nullable
     Uri initSegmentKeyUri =
         getFullEncryptionKeyUri(playlist, segmentBaseHolder.segmentBase.initializationSegment);
     out.chunk =
-        maybeCreateEncryptionChunkFor(initSegmentKeyUri, selectedTrackIndex, cmcdHeadersFactory);
+        maybeCreateEncryptionChunkFor(
+            initSegmentKeyUri, selectedTrackIndex, /* isInitSegment= */ true, cmcdHeadersFactory);
     if (out.chunk != null) {
       return;
     }
     @Nullable
     Uri mediaSegmentKeyUri = getFullEncryptionKeyUri(playlist, segmentBaseHolder.segmentBase);
     out.chunk =
-        maybeCreateEncryptionChunkFor(mediaSegmentKeyUri, selectedTrackIndex, cmcdHeadersFactory);
+        maybeCreateEncryptionChunkFor(
+            mediaSegmentKeyUri, selectedTrackIndex, /* isInitSegment= */ false, cmcdHeadersFactory);
     if (out.chunk != null) {
       return;
     }
@@ -541,6 +548,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             shouldSpliceIn,
             playerId,
             cmcdHeadersFactory);
+  }
+
+  private boolean getIsMuxedAudioAndVideo() {
+    Format format = trackGroup.getFormat(trackSelection.getSelectedIndex());
+    String audioMimeType = MimeTypes.getAudioMediaMimeType(format.codecs);
+    String videoMimeType = MimeTypes.getVideoMediaMimeType(format.codecs);
+    return audioMimeType != null && videoMimeType != null;
   }
 
   @Nullable
@@ -850,6 +864,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private Chunk maybeCreateEncryptionChunkFor(
       @Nullable Uri keyUri,
       int selectedTrackIndex,
+      boolean isInitSegment,
       @Nullable CmcdHeadersFactory cmcdHeadersFactory) {
     if (keyUri == null) {
       return null;
@@ -863,10 +878,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       keyCache.put(keyUri, encryptionKey);
       return null;
     }
+
     ImmutableMap<@CmcdConfiguration.HeaderKey String, String> httpRequestHeaders =
-        cmcdHeadersFactory == null
-            ? ImmutableMap.of()
-            : cmcdHeadersFactory.createHttpRequestHeaders();
+        ImmutableMap.of();
+    if (cmcdHeadersFactory != null) {
+      if (isInitSegment) {
+        cmcdHeadersFactory.setObjectType(CmcdHeadersFactory.OBJECT_TYPE_INIT_SEGMENT);
+      }
+      httpRequestHeaders = cmcdHeadersFactory.createHttpRequestHeaders();
+    }
     DataSpec dataSpec =
         new DataSpec.Builder()
             .setUri(keyUri)

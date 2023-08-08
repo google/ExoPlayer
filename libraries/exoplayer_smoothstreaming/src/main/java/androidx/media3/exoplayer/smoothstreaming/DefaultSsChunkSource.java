@@ -290,7 +290,8 @@ public class DefaultSsChunkSource implements SsChunkSource {
                     bufferedDurationUs,
                     /* streamingFormat= */ CmcdHeadersFactory.STREAMING_FORMAT_SS,
                     /* isLive= */ manifest.isLive)
-                .setChunkDurationUs(chunkEndTimeUs - chunkStartTimeUs);
+                .setChunkDurationUs(chunkEndTimeUs - chunkStartTimeUs)
+                .setObjectType(CmcdHeadersFactory.getObjectType(trackSelection));
 
     out.chunk =
         newMediaChunk(
