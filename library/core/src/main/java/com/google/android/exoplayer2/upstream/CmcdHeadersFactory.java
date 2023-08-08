@@ -23,8 +23,10 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringDef;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.C.TrackType;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableMap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
@@ -49,6 +51,33 @@ import java.lang.annotation.Target;
 @Deprecated
 public final class CmcdHeadersFactory {
 
+  /**
+   * Retrieves the object type value from the given {@link ExoTrackSelection}.
+   *
+   * @param trackSelection The {@link ExoTrackSelection} from which to retrieve the object type.
+   * @return The object type value as a String if {@link TrackType} can be mapped to one of the
+   *     object types specified by {@link ObjectType} annotation, or {@code null}.
+   * @throws IllegalArgumentException if the provided {@link ExoTrackSelection} is {@code null}.
+   */
+  @Nullable
+  public static @ObjectType String getObjectType(ExoTrackSelection trackSelection) {
+    checkArgument(trackSelection != null);
+    @C.TrackType
+    int trackType = MimeTypes.getTrackType(trackSelection.getSelectedFormat().sampleMimeType);
+    if (trackType == C.TRACK_TYPE_UNKNOWN) {
+      trackType = MimeTypes.getTrackType(trackSelection.getSelectedFormat().containerMimeType);
+    }
+
+    if (trackType == C.TRACK_TYPE_AUDIO) {
+      return OBJECT_TYPE_AUDIO_ONLY;
+    } else if (trackType == C.TRACK_TYPE_VIDEO) {
+      return OBJECT_TYPE_VIDEO_ONLY;
+    } else {
+      // Track type cannot be mapped to a known object type.
+      return null;
+    }
+  }
+
   /** Indicates the streaming format used for media content. */
   @Retention(RetentionPolicy.SOURCE)
   @StringDef({STREAMING_FORMAT_DASH, STREAMING_FORMAT_HLS, STREAMING_FORMAT_SS})
@@ -62,6 +91,18 @@ public final class CmcdHeadersFactory {
   @Documented
   @Target(TYPE_USE)
   public @interface StreamType {}
+
+  /** Indicates the media type of current object being requested. */
+  @Retention(RetentionPolicy.SOURCE)
+  @StringDef({
+    OBJECT_TYPE_INIT_SEGMENT,
+    OBJECT_TYPE_AUDIO_ONLY,
+    OBJECT_TYPE_VIDEO_ONLY,
+    OBJECT_TYPE_MUXED_AUDIO_AND_VIDEO
+  })
+  @Documented
+  @Target(TYPE_USE)
+  public @interface ObjectType {}
 
   /** Represents the Dynamic Adaptive Streaming over HTTP (DASH) format. */
   public static final String STREAMING_FORMAT_DASH = "d";
@@ -78,12 +119,25 @@ public final class CmcdHeadersFactory {
   /** Represents the Live Streaming stream type. */
   public static final String STREAM_TYPE_LIVE = "l";
 
+  /** Represents the object type for an initialization segment in a media container. */
+  public static final String OBJECT_TYPE_INIT_SEGMENT = "i";
+
+  /** Represents the object type for audio-only content in a media container. */
+  public static final String OBJECT_TYPE_AUDIO_ONLY = "a";
+
+  /** Represents the object type for video-only content in a media container. */
+  public static final String OBJECT_TYPE_VIDEO_ONLY = "v";
+
+  /** Represents the object type for muxed audio and video content in a media container. */
+  public static final String OBJECT_TYPE_MUXED_AUDIO_AND_VIDEO = "av";
+
   private final CmcdConfiguration cmcdConfiguration;
   private final ExoTrackSelection trackSelection;
   private final long bufferedDurationUs;
   private final @StreamingFormat String streamingFormat;
   private final boolean isLive;
   private long chunkDurationUs;
+  private @Nullable @ObjectType String objectType;
 
   /**
    * Creates an instance.
@@ -126,6 +180,18 @@ public final class CmcdHeadersFactory {
     return this;
   }
 
+  /**
+   * Sets the object type of the current object being requested. Must be one of the allowed object
+   * types specified by the {@link ObjectType} annotation.
+   *
+   * <p>Default is {@code null}.
+   */
+  @CanIgnoreReturnValue
+  public CmcdHeadersFactory setObjectType(@Nullable @ObjectType String objectType) {
+    this.objectType = objectType;
+    return this;
+  }
+
   /** Creates and returns a new {@link ImmutableMap} containing the CMCD HTTP request headers. */
   public ImmutableMap<@CmcdConfiguration.HeaderKey String, String> createHttpRequestHeaders() {
     ImmutableMap<@CmcdConfiguration.HeaderKey String, String> customData =
@@ -134,24 +200,30 @@ public final class CmcdHeadersFactory {
 
     CmcdObject.Builder cmcdObject =
         new CmcdObject.Builder().setCustomData(customData.get(CmcdConfiguration.KEY_CMCD_OBJECT));
-    if (cmcdConfiguration.isBitrateLoggingAllowed()) {
-      cmcdObject.setBitrateKbps(bitrateKbps);
-    }
-    if (cmcdConfiguration.isTopBitrateLoggingAllowed()) {
-      TrackGroup trackGroup = trackSelection.getTrackGroup();
-      int topBitrate = trackSelection.getSelectedFormat().bitrate;
-      for (int i = 0; i < trackGroup.length; i++) {
-        topBitrate = max(topBitrate, trackGroup.getFormat(i).bitrate);
+    if (!getIsInitSegment()) {
+      if (cmcdConfiguration.isBitrateLoggingAllowed()) {
+        cmcdObject.setBitrateKbps(bitrateKbps);
       }
-      cmcdObject.setTopBitrateKbps(Util.ceilDivide(topBitrate, 1000));
+      if (cmcdConfiguration.isTopBitrateLoggingAllowed()) {
+        TrackGroup trackGroup = trackSelection.getTrackGroup();
+        int topBitrate = trackSelection.getSelectedFormat().bitrate;
+        for (int i = 0; i < trackGroup.length; i++) {
+          topBitrate = max(topBitrate, trackGroup.getFormat(i).bitrate);
+        }
+        cmcdObject.setTopBitrateKbps(Util.ceilDivide(topBitrate, 1000));
+      }
+      if (cmcdConfiguration.isObjectDurationLoggingAllowed() && chunkDurationUs != C.TIME_UNSET) {
+        cmcdObject.setObjectDurationMs(chunkDurationUs / 1000);
+      }
     }
-    if (cmcdConfiguration.isObjectDurationLoggingAllowed() && chunkDurationUs != C.TIME_UNSET) {
-      cmcdObject.setObjectDurationMs(chunkDurationUs / 1000);
+
+    if (cmcdConfiguration.isObjectTypeLoggingAllowed()) {
+      cmcdObject.setObjectType(objectType);
     }
 
     CmcdRequest.Builder cmcdRequest =
         new CmcdRequest.Builder().setCustomData(customData.get(CmcdConfiguration.KEY_CMCD_REQUEST));
-    if (cmcdConfiguration.isBufferLengthLoggingAllowed()) {
+    if (!getIsInitSegment() && cmcdConfiguration.isBufferLengthLoggingAllowed()) {
       cmcdRequest.setBufferLengthMs(bufferedDurationUs / 1000);
     }
     if (cmcdConfiguration.isMeasuredThroughputLoggingAllowed()
@@ -190,6 +262,10 @@ public final class CmcdHeadersFactory {
     return httpRequestHeaders.buildOrThrow();
   }
 
+  private boolean getIsInitSegment() {
+    return objectType != null && objectType.equals(OBJECT_TYPE_INIT_SEGMENT);
+  }
+
   /** Keys whose values vary with the object being requested. Contains CMCD fields: {@code br}. */
   private static final class CmcdObject {
 
@@ -198,6 +274,7 @@ public final class CmcdHeadersFactory {
       private int bitrateKbps;
       private int topBitrateKbps;
       private long objectDurationMs;
+      @Nullable private @ObjectType String objectType;
       @Nullable private String customData;
 
       /** Creates a new instance with default values. */
@@ -232,6 +309,13 @@ public final class CmcdHeadersFactory {
       public Builder setObjectDurationMs(long objectDurationMs) {
         checkArgument(objectDurationMs >= 0);
         this.objectDurationMs = objectDurationMs;
+        return this;
+      }
+
+      /** Sets the {@link CmcdObject#objectType}. The default value is {@code null}. */
+      @CanIgnoreReturnValue
+      public Builder setObjectType(@Nullable @ObjectType String objectType) {
+        this.objectType = objectType;
         return this;
       }
 
@@ -272,6 +356,14 @@ public final class CmcdHeadersFactory {
     public final long objectDurationMs;
 
     /**
+     * The media type of the current object being requested , or {@code null} if unset. Must be one
+     * of the allowed object types specified by the {@link ObjectType} annotation.
+     *
+     * <p>If the object type being requested is unknown, then this key MUST NOT be used.
+     */
+    @Nullable public final @ObjectType String objectType;
+
+    /**
      * Custom data where the values of the keys vary with the object being requested, or {@code
      * null} if unset.
      *
@@ -284,6 +376,7 @@ public final class CmcdHeadersFactory {
       this.bitrateKbps = builder.bitrateKbps;
       this.topBitrateKbps = builder.topBitrateKbps;
       this.objectDurationMs = builder.objectDurationMs;
+      this.objectType = builder.objectType;
       this.customData = builder.customData;
     }
 
@@ -308,6 +401,10 @@ public final class CmcdHeadersFactory {
         headerValue.append(
             Util.formatInvariant(
                 "%s=%d,", CmcdConfiguration.KEY_OBJECT_DURATION, objectDurationMs));
+      }
+      if (!TextUtils.isEmpty(objectType)) {
+        headerValue.append(
+            Util.formatInvariant("%s=%s,", CmcdConfiguration.KEY_OBJECT_TYPE, objectType));
       }
       if (!TextUtils.isEmpty(customData)) {
         headerValue.append(Util.formatInvariant("%s,", customData));
@@ -379,6 +476,10 @@ public final class CmcdHeadersFactory {
     /**
      * The buffer length in milliseconds associated with the media object being requested, or {@link
      * C#TIME_UNSET} if unset.
+     *
+     * <p>This key SHOULD only be sent with an {@link CmcdObject#objectType} of {@link
+     * #OBJECT_TYPE_AUDIO_ONLY}, {@link #OBJECT_TYPE_VIDEO_ONLY} or {@link
+     * #OBJECT_TYPE_MUXED_AUDIO_AND_VIDEO}.
      *
      * <p>This value MUST be rounded to the nearest 100 ms.
      */
@@ -531,15 +632,16 @@ public final class CmcdHeadersFactory {
      */
     @Nullable public final String sessionId;
     /**
-     * The streaming format that defines the current request. d = MPEG DASH, h = HTTP Live Streaming
-     * (HLS), s = Smooth Streaming and o = other. If the streaming format being requested is
-     * unknown, then this key MUST NOT be used.
+     * The streaming format that defines the current request , or {@code null} if unset. Must be one
+     * of the allowed streaming formats specified by the {@link StreamingFormat} annotation.
+     *
+     * <p>If the streaming format being requested is unknown, then this key MUST NOT be used.
      */
     @Nullable public final @StreamingFormat String streamingFormat;
 
     /**
-     * Type of stream. v = all segments are available – e.g., VOD and l = segments become available
-     * over time – e.g., LIVE.
+     * Type of stream, or {@code null} if unset. Must be one of the allowed stream types specified
+     * by the {@link StreamType} annotation.
      */
     @Nullable public final @StreamType String streamType;
 
