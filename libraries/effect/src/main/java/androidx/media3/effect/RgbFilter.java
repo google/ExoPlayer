@@ -25,7 +25,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Provides common color filters. */
 @UnstableApi
-public class RgbFilter implements RgbMatrix {
+public final class RgbFilter implements RgbMatrix {
   private static final int COLOR_FILTER_GRAYSCALE_INDEX = 1;
   private static final int COLOR_FILTER_INVERTED_INDEX = 2;
 

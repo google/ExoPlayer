@@ -26,7 +26,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 /** Adjusts the HSL (Hue, Saturation, and Lightness) of a frame. */
 @UnstableApi
-public class HslAdjustment implements GlEffect {
+public final class HslAdjustment implements GlEffect {
 
   /** A builder for {@code HslAdjustment} instances. */
   public static final class Builder {

@@ -28,7 +28,7 @@ import androidx.media3.common.util.UnstableApi;
  * other timestamps.
  */
 @UnstableApi
-public class TimestampWrapper implements GlEffect {
+public final class TimestampWrapper implements GlEffect {
 
   public final GlEffect glEffect;
   public final long startTimeUs;

@@ -31,7 +31,7 @@ import androidx.media3.common.util.Util;
 
 /** Transforms the colors of a frame by applying the same color lookup table to each frame. */
 @UnstableApi
-public class SingleColorLut implements ColorLut {
+public final class SingleColorLut implements ColorLut {
   private final Bitmap lut;
   private int lutTextureId;
 
