@@ -195,6 +195,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     downstreamShaderProgramCapacity--;
     shaderProgram.queueInputFrame(
         glObjectsProvider, checkNotNull(currentGlTextureInfo), round(currentPresentationTimeUs));
+    DebugTraceUtil.logEvent(
+        DebugTraceUtil.EVENT_VFP_QUEUE_BITMAP,
+        (long) currentPresentationTimeUs,
+        /* extra= */ currentBitmapInfo.frameInfo.width + "x" + currentBitmapInfo.frameInfo.height);
     currentPresentationTimeUs += currentBitmapInfo.frameDurationUs;
 
     if (framesToQueueForCurrentBitmap == 0) {

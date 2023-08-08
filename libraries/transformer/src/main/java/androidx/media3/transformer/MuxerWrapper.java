@@ -245,9 +245,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     muxer.writeSampleData(
         trackInfo.index, data, presentationTimeUs, isKeyFrame ? C.BUFFER_FLAG_KEY_FRAME : 0);
     if (trackType == C.TRACK_TYPE_VIDEO) {
-      DebugTraceUtil.logEvent(DebugTraceUtil.EVENT_MUXER_INPUT_VIDEO, presentationTimeUs);
+      DebugTraceUtil.logEvent(DebugTraceUtil.EVENT_MUXER_WRITE_SAMPLE_VIDEO, presentationTimeUs);
     } else if (trackType == C.TRACK_TYPE_AUDIO) {
-      DebugTraceUtil.logEvent(DebugTraceUtil.EVENT_MUXER_INPUT_AUDIO, presentationTimeUs);
+      DebugTraceUtil.logEvent(DebugTraceUtil.EVENT_MUXER_WRITE_SAMPLE_AUDIO, presentationTimeUs);
     }
     previousTrackType = trackType;
     return true;

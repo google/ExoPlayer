@@ -91,6 +91,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                   frameInfo.width,
                   frameInfo.height);
           frameConsumptionManager.queueInputFrame(inputTexture, presentationTimeUs);
+          DebugTraceUtil.logEvent(
+              DebugTraceUtil.EVENT_VFP_QUEUE_TEXTURE,
+              presentationTimeUs,
+              /* extra= */ frameInfo.width + "x" + frameInfo.height);
         });
   }
 
