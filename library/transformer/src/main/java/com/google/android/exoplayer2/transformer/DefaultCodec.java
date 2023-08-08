@@ -160,9 +160,7 @@ public final class DefaultCodec implements Codec {
     }
     this.mediaCodec = mediaCodec;
     this.inputSurface = inputSurface;
-    maxPendingFrameCount =
-        Util.getMaxPendingFramesCountForMediaCodecDecoders(
-            context, mediaCodecName, requestedHdrToneMapping);
+    maxPendingFrameCount = Util.getMaxPendingFramesCountForMediaCodecDecoders(context);
   }
 
   @Override
