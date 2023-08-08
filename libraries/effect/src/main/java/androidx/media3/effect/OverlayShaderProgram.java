@@ -299,6 +299,9 @@ import com.google.common.collect.ImmutableList;
     } catch (GlUtil.GlException e) {
       throw new VideoFrameProcessingException(e);
     }
+    for (int i = 0; i < overlays.size(); i++) {
+      overlays.get(i).release();
+    }
   }
 
   private static String createVertexShader(int numOverlays) {
