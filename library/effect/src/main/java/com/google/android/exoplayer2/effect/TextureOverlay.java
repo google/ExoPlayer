@@ -66,4 +66,11 @@ public abstract class TextureOverlay {
   public OverlaySettings getOverlaySettings(long presentationTimeUs) {
     return new OverlaySettings.Builder().build();
   }
+
+  /**
+   * Releases all resources.
+   *
+   * @throws VideoFrameProcessingException If an error occurs while releasing resources.
+   */
+  public void release() throws VideoFrameProcessingException {}
 }
