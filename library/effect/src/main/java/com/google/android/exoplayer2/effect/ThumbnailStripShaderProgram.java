@@ -92,4 +92,14 @@ import java.io.IOException;
       throw new VideoFrameProcessingException(e, presentationTimeUs);
     }
   }
+
+  @Override
+  public void release() throws VideoFrameProcessingException {
+    super.release();
+    try {
+      glProgram.delete();
+    } catch (GlUtil.GlException e) {
+      throw new VideoFrameProcessingException(e);
+    }
+  }
 }

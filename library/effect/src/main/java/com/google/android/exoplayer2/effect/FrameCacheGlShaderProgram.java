@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.effect;
 
 import android.content.Context;
 import android.opengl.GLES20;
+import androidx.annotation.CallSuper;
 import com.google.android.exoplayer2.util.GlProgram;
 import com.google.android.exoplayer2.util.GlTextureInfo;
 import com.google.android.exoplayer2.util.GlUtil;
@@ -86,6 +87,17 @@ import java.io.IOException;
           /* count= */ GlUtil.HOMOGENEOUS_COORDINATE_VECTOR_SIZE);
     } catch (GlUtil.GlException e) {
       throw VideoFrameProcessingException.from(e);
+    }
+  }
+
+  @Override
+  @CallSuper
+  public void release() throws VideoFrameProcessingException {
+    super.release();
+    try {
+      copyProgram.delete();
+    } catch (GlUtil.GlException e) {
+      throw new VideoFrameProcessingException(e);
     }
   }
 }
