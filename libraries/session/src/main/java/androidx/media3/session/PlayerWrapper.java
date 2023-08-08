@@ -1031,9 +1031,11 @@ import java.util.List;
     }
     Commands availableCommands = getAvailableCommands();
     int volumeControlType = VolumeProviderCompat.VOLUME_CONTROL_FIXED;
-    if (availableCommands.contains(COMMAND_ADJUST_DEVICE_VOLUME)) {
+    if (availableCommands.containsAny(
+        COMMAND_ADJUST_DEVICE_VOLUME, COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS)) {
       volumeControlType = VolumeProviderCompat.VOLUME_CONTROL_RELATIVE;
-      if (availableCommands.contains(COMMAND_SET_DEVICE_VOLUME)) {
+      if (availableCommands.containsAny(
+          COMMAND_SET_DEVICE_VOLUME, COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS)) {
         volumeControlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
       }
     }

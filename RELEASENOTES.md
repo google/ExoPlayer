@@ -125,6 +125,12 @@
         `Result` that didn't support this which produced an
         `UnsuportedOperationException`
         ([#78](https://github.com/androidx/media/issues/78)).
+    *   Fix the way `PlayerWrapper` creates a `VolumeProviderCompat` by
+        determining `volumeControlType` through both legacy commands
+        (`COMMAND_ADJUST_DEVICE_VOLUME` and `COMMAND_SET_DEVICE_VOLUME`) and new
+        commands (`COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS` and
+        `COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS`)
+        ([#554](https://github.com/androidx/media/issues/554)).
 *   UI:
     *   Add a `Player.Listener` implementation for Wear OS devices that handles
         playback suppression due to
