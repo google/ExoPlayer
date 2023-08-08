@@ -32,7 +32,7 @@ import java.util.Arrays;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-public class Brightness implements RgbMatrix {
+public final class Brightness implements RgbMatrix {
 
   private final float[] rgbMatrix;
 

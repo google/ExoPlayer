@@ -29,7 +29,7 @@ import androidx.annotation.FloatRange;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-public class Contrast implements RgbMatrix {
+public final class Contrast implements RgbMatrix {
 
   /** Adjusts the contrast of video frames in the interval [-1, 1]. */
   private final float contrast;

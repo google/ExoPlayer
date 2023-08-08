@@ -32,7 +32,7 @@ import com.google.android.exoplayer2.util.VideoFrameProcessingException;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-public class TimestampWrapper implements GlEffect {
+public final class TimestampWrapper implements GlEffect {
 
   public final GlEffect glEffect;
   public final long startTimeUs;

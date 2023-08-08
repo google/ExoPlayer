@@ -32,7 +32,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-public class HslAdjustment implements GlEffect {
+public final class HslAdjustment implements GlEffect {
 
   /** A builder for {@code HslAdjustment} instances. */
   public static final class Builder {

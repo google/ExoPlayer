@@ -29,7 +29,7 @@ import com.google.android.exoplayer2.util.VideoFrameProcessingException;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-public class FrameDropEffect implements GlEffect {
+public final class FrameDropEffect implements GlEffect {
 
   private final float inputFrameRate;
   private final float targetFrameRate;

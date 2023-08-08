@@ -37,7 +37,7 @@ import com.google.android.exoplayer2.util.VideoFrameProcessingException;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-public class SingleColorLut implements ColorLut {
+public final class SingleColorLut implements ColorLut {
   private final Bitmap lut;
   private int lutTextureId;
 
