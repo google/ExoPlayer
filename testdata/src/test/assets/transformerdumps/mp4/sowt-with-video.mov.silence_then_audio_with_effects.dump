@@ -1704,16 +1704,10 @@ sample:
   presentationTimeUs = 1942902
 sample:
   trackIndex = 1
-  dataHashCode = -1759454975
-  size = 440
+  dataHashCode = 359941761
+  size = 5644
   isKeyFrame = true
   presentationTimeUs = 1967845
-sample:
-  trackIndex = 1
-  dataHashCode = -1409159807
-  size = 5204
-  isKeyFrame = true
-  presentationTimeUs = 1970340
 sample:
   trackIndex = 1
   dataHashCode = -752508258
