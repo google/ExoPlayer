@@ -16,6 +16,11 @@
 package com.google.android.exoplayer2.effect;
 
 import static androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE;
+import static com.google.android.exoplayer2.effect.DebugTraceUtil.EVENT_VFP_FINISH_PROCESSING_INPUT_STREAM;
+import static com.google.android.exoplayer2.effect.DebugTraceUtil.EVENT_VFP_RECEIVE_END_OF_INPUT;
+import static com.google.android.exoplayer2.effect.DebugTraceUtil.EVENT_VFP_REGISTER_NEW_INPUT_STREAM;
+import static com.google.android.exoplayer2.effect.DebugTraceUtil.EVENT_VFP_SIGNAL_ENDED;
+import static com.google.android.exoplayer2.effect.DebugTraceUtil.logEvent;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
@@ -387,10 +392,11 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
           }
           if (inputEndedAfterThisInputStream) {
             listenerExecutor.execute(listener::onEnded);
-            DebugTraceUtil.logEvent(DebugTraceUtil.EVENT_VFP_SIGNAL_EOS, C.TIME_END_OF_SOURCE);
+            logEvent(EVENT_VFP_SIGNAL_ENDED, C.TIME_END_OF_SOURCE);
           }
         });
     this.intermediateGlShaderPrograms = new ArrayList<>();
+    logEvent(EVENT_VFP_FINISH_PROCESSING_INPUT_STREAM, C.TIME_END_OF_SOURCE);
   }
 
   /** Returns the task executor that runs video frame processing tasks. */
@@ -452,6 +458,12 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   @Override
   public void registerInputStream(
       @InputType int inputType, List<Effect> effects, FrameInfo frameInfo) {
+    logEvent(
+        EVENT_VFP_REGISTER_NEW_INPUT_STREAM,
+        /* presentationTimeUs= */ frameInfo.offsetToAddUs,
+        /* extra= */ Util.formatInvariant(
+            "InputType %s - %dx%d",
+            getInputTypeString(inputType), frameInfo.width, frameInfo.height));
     nextInputFrameInfo = adjustForPixelWidthHeightRatio(frameInfo);
     hasRefreshedNextInputFrameInfo = true;
     synchronized (lock) {
@@ -531,7 +543,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
   @Override
   public void signalEndOfInput() {
-    DebugTraceUtil.logEvent(DebugTraceUtil.EVENT_VFP_RECEIVE_DECODER_EOS, C.TIME_END_OF_SOURCE);
+    logEvent(EVENT_VFP_RECEIVE_END_OF_INPUT, C.TIME_END_OF_SOURCE);
     checkState(!inputStreamEnded);
     inputStreamEnded = true;
     inputSwitcher.signalEndOfCurrentInputStream();
@@ -772,6 +784,19 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       producingGlShaderProgram.setErrorListener(
           videoFrameProcessorListenerExecutor, videoFrameProcessorListener::onError);
       consumingGlShaderProgram.setInputListener(chainingGlShaderProgramListener);
+    }
+  }
+
+  private static String getInputTypeString(@InputType int inputType) {
+    switch (inputType) {
+      case INPUT_TYPE_SURFACE:
+        return "Surface";
+      case INPUT_TYPE_BITMAP:
+        return "Bitmap";
+      case INPUT_TYPE_TEXTURE_ID:
+        return "Texture ID";
+      default:
+        throw new IllegalArgumentException(String.valueOf(inputType));
     }
   }
 

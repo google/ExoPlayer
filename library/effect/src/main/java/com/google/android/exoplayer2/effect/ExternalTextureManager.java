@@ -129,7 +129,8 @@ import java.util.concurrent.atomic.AtomicInteger;
         unused ->
             videoFrameProcessingTaskExecutor.submit(
                 () -> {
-                  DebugTraceUtil.logEvent(DebugTraceUtil.EVENT_VFP_RENDERED_TO_INPUT, C.TIME_UNSET);
+                  DebugTraceUtil.logEvent(
+                      DebugTraceUtil.EVENT_VFP_SURFACE_TEXTURE_INPUT, C.TIME_UNSET);
                   if (numberOfFramesToDropOnBecomingAvailable > 0) {
                     numberOfFramesToDropOnBecomingAvailable--;
                     surfaceTexture.updateTexImage();
@@ -180,7 +181,7 @@ import java.util.concurrent.atomic.AtomicInteger;
             currentInputStreamEnded = false;
             externalShaderProgram.signalEndOfCurrentInputStream();
             DebugTraceUtil.logEvent(
-                DebugTraceUtil.EVENT_EXTERNAL_INPUT_MANAGER_SIGNAL_EOS, C.TIME_END_OF_SOURCE);
+                DebugTraceUtil.EVENT_EXTERNAL_TEXTURE_MANAGER_SIGNAL_EOS, C.TIME_END_OF_SOURCE);
             cancelForceSignalEndOfStreamTimer();
           } else {
             maybeQueueFrameToExternalShaderProgram();
@@ -229,7 +230,7 @@ import java.util.concurrent.atomic.AtomicInteger;
           if (pendingFrames.isEmpty() && currentFrame == null) {
             externalShaderProgram.signalEndOfCurrentInputStream();
             DebugTraceUtil.logEvent(
-                DebugTraceUtil.EVENT_EXTERNAL_INPUT_MANAGER_SIGNAL_EOS, C.TIME_END_OF_SOURCE);
+                DebugTraceUtil.EVENT_EXTERNAL_TEXTURE_MANAGER_SIGNAL_EOS, C.TIME_END_OF_SOURCE);
             cancelForceSignalEndOfStreamTimer();
           } else {
             currentInputStreamEnded = true;
@@ -337,7 +338,7 @@ import java.util.concurrent.atomic.AtomicInteger;
             currentFrame.height),
         presentationTimeUs);
     checkStateNotNull(pendingFrames.remove());
-    DebugTraceUtil.logEvent(DebugTraceUtil.EVENT_VFP_FRAME_DEQUEUED, presentationTimeUs);
+    DebugTraceUtil.logEvent(DebugTraceUtil.EVENT_VFP_QUEUE_FRAME, presentationTimeUs);
     // If the queued frame is the last frame, end of stream will be signaled onInputFrameProcessed.
   }
 }

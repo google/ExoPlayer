@@ -54,23 +54,27 @@ public final class DebugTraceUtil {
   @Retention(RetentionPolicy.SOURCE)
   @StringDef({
     EVENT_VIDEO_INPUT_FORMAT,
-    EVENT_MUXER_INPUT_AUDIO,
-    EVENT_MUXER_INPUT_VIDEO,
     EVENT_DECODER_DECODED_FRAME,
-    EVENT_VFP_RENDERED_TO_INPUT,
-    EVENT_VFP_FRAME_DEQUEUED,
-    EVENT_VFP_RENDERED_TO_OUTPUT,
-    EVENT_MUXER_CAN_WRITE_SAMPLE_VIDEO,
-    EVENT_MUXER_CAN_WRITE_SAMPLE_AUDIO,
+    EVENT_VFP_REGISTER_NEW_INPUT_STREAM,
+    EVENT_VFP_SURFACE_TEXTURE_INPUT,
+    EVENT_VFP_QUEUE_FRAME,
+    EVENT_VFP_QUEUE_BITMAP,
+    EVENT_VFP_QUEUE_TEXTURE,
+    EVENT_VFP_RENDERED_TO_OUTPUT_SURFACE,
+    EVENT_VFP_FINISH_PROCESSING_INPUT_STREAM,
     EVENT_ENCODER_ENCODED_FRAME,
+    EVENT_MUXER_CAN_WRITE_SAMPLE_VIDEO,
+    EVENT_MUXER_WRITE_SAMPLE_VIDEO,
+    EVENT_MUXER_CAN_WRITE_SAMPLE_AUDIO,
+    EVENT_MUXER_WRITE_SAMPLE_AUDIO,
     EVENT_DECODER_RECEIVE_EOS,
-    EVENT_VFP_RECEIVE_DECODER_EOS,
-    EVENT_EXTERNAL_INPUT_MANAGER_SIGNAL_EOS,
+    EVENT_DECODER_SIGNAL_EOS,
+    EVENT_VFP_RECEIVE_END_OF_INPUT,
+    EVENT_EXTERNAL_TEXTURE_MANAGER_SIGNAL_EOS,
     EVENT_BITMAP_TEXTURE_MANAGER_SIGNAL_EOS,
     EVENT_TEX_ID_TEXTURE_MANAGER_SIGNAL_EOS,
-    EVENT_VFP_SIGNAL_EOS,
+    EVENT_VFP_SIGNAL_ENDED,
     EVENT_ENCODER_RECEIVE_EOS,
-    EVENT_DECODER_SIGNAL_EOS,
     EVENT_MUXER_TRACK_ENDED_AUDIO,
     EVENT_MUXER_TRACK_ENDED_VIDEO
   })
@@ -80,24 +84,28 @@ public final class DebugTraceUtil {
 
   public static final String EVENT_VIDEO_INPUT_FORMAT = "VideoInputFormat";
   public static final String EVENT_DECODER_DECODED_FRAME = "Decoder-DecodedFrame";
-  public static final String EVENT_VFP_RENDERED_TO_INPUT = "VFP-RenderedToInput";
-  public static final String EVENT_VFP_FRAME_DEQUEUED = "VFP-FrameDequeued";
-  public static final String EVENT_VFP_RENDERED_TO_OUTPUT = "VFP-RenderedToOutput";
+  public static final String EVENT_VFP_REGISTER_NEW_INPUT_STREAM = "VFP-RegisterNewInputStream";
+  public static final String EVENT_VFP_SURFACE_TEXTURE_INPUT = "VFP-SurfaceTextureInput";
+  public static final String EVENT_VFP_QUEUE_FRAME = "VFP-QueueFrame";
+  public static final String EVENT_VFP_QUEUE_BITMAP = "VFP-QueueBitmap";
+  public static final String EVENT_VFP_QUEUE_TEXTURE = "VFP-QueueTexture";
+  public static final String EVENT_VFP_RENDERED_TO_OUTPUT_SURFACE = "VFP-RenderedToOutputSurface";
+  public static final String EVENT_VFP_FINISH_PROCESSING_INPUT_STREAM = "VFP-FinishOneInputStream";
   public static final String EVENT_ENCODER_ENCODED_FRAME = "Encoder-EncodedFrame";
   public static final String EVENT_MUXER_CAN_WRITE_SAMPLE_VIDEO = "Muxer-CanWriteSample_Video";
-  public static final String EVENT_MUXER_INPUT_VIDEO = "Muxer-Input_Video";
+  public static final String EVENT_MUXER_WRITE_SAMPLE_VIDEO = "Muxer-WriteSample_Video";
   public static final String EVENT_MUXER_CAN_WRITE_SAMPLE_AUDIO = "Muxer-CanWriteSample_Audio";
-  public static final String EVENT_MUXER_INPUT_AUDIO = "Muxer-Input_Audio";
+  public static final String EVENT_MUXER_WRITE_SAMPLE_AUDIO = "Muxer-WriteSample_Audio";
   public static final String EVENT_DECODER_RECEIVE_EOS = "Decoder-ReceiveEOS";
   public static final String EVENT_DECODER_SIGNAL_EOS = "Decoder-SignalEOS";
-  public static final String EVENT_VFP_RECEIVE_DECODER_EOS = "VFP-ReceiveDecoderEOS";
-  public static final String EVENT_EXTERNAL_INPUT_MANAGER_SIGNAL_EOS =
-      "ExternalInputManager-SignalEOS";
+  public static final String EVENT_VFP_RECEIVE_END_OF_INPUT = "VFP-ReceiveEndOfAllInput";
+  public static final String EVENT_EXTERNAL_TEXTURE_MANAGER_SIGNAL_EOS =
+      "ExternalTextureManager-SignalEOS";
   public static final String EVENT_BITMAP_TEXTURE_MANAGER_SIGNAL_EOS =
       "BitmapTextureManager-SignalEOS";
   public static final String EVENT_TEX_ID_TEXTURE_MANAGER_SIGNAL_EOS =
       "TexIdTextureManager-SignalEOS";
-  public static final String EVENT_VFP_SIGNAL_EOS = "VFP-SignalEOS";
+  public static final String EVENT_VFP_SIGNAL_ENDED = "VFP-SignalEnded";
   public static final String EVENT_ENCODER_RECEIVE_EOS = "Encoder-ReceiveEOS";
   public static final String EVENT_MUXER_TRACK_ENDED_AUDIO = "Muxer-TrackEnded_Audio";
   public static final String EVENT_MUXER_TRACK_ENDED_VIDEO = "Muxer-TrackEnded_Video";
@@ -107,21 +115,25 @@ public final class DebugTraceUtil {
       ImmutableList.of(
           EVENT_VIDEO_INPUT_FORMAT,
           EVENT_DECODER_DECODED_FRAME,
-          EVENT_VFP_RENDERED_TO_INPUT,
-          EVENT_VFP_FRAME_DEQUEUED,
-          EVENT_VFP_RENDERED_TO_OUTPUT,
+          EVENT_VFP_REGISTER_NEW_INPUT_STREAM,
+          EVENT_VFP_SURFACE_TEXTURE_INPUT,
+          EVENT_VFP_QUEUE_FRAME,
+          EVENT_VFP_QUEUE_BITMAP,
+          EVENT_VFP_QUEUE_TEXTURE,
+          EVENT_VFP_RENDERED_TO_OUTPUT_SURFACE,
+          EVENT_VFP_FINISH_PROCESSING_INPUT_STREAM,
           EVENT_ENCODER_ENCODED_FRAME,
           EVENT_MUXER_CAN_WRITE_SAMPLE_VIDEO,
-          EVENT_MUXER_INPUT_VIDEO,
+          EVENT_MUXER_WRITE_SAMPLE_VIDEO,
           EVENT_MUXER_CAN_WRITE_SAMPLE_AUDIO,
-          EVENT_MUXER_INPUT_AUDIO,
+          EVENT_MUXER_WRITE_SAMPLE_AUDIO,
           EVENT_DECODER_RECEIVE_EOS,
           EVENT_DECODER_SIGNAL_EOS,
-          EVENT_VFP_RECEIVE_DECODER_EOS,
-          EVENT_EXTERNAL_INPUT_MANAGER_SIGNAL_EOS,
+          EVENT_VFP_RECEIVE_END_OF_INPUT,
+          EVENT_EXTERNAL_TEXTURE_MANAGER_SIGNAL_EOS,
           EVENT_BITMAP_TEXTURE_MANAGER_SIGNAL_EOS,
           EVENT_TEX_ID_TEXTURE_MANAGER_SIGNAL_EOS,
-          EVENT_VFP_SIGNAL_EOS,
+          EVENT_VFP_SIGNAL_ENDED,
           EVENT_ENCODER_RECEIVE_EOS,
           EVENT_MUXER_TRACK_ENDED_AUDIO,
           EVENT_MUXER_TRACK_ENDED_VIDEO);
@@ -166,7 +178,7 @@ public final class DebugTraceUtil {
    */
   public static synchronized void logEvent(
       @DebugTraceEvent String eventName, long presentationTimeUs) {
-    logEvent(eventName, presentationTimeUs, null);
+    logEvent(eventName, presentationTimeUs, /* extra= */ null);
   }
 
   /**

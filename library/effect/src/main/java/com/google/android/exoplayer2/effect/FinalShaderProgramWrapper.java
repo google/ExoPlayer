@@ -381,7 +381,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             ? System.nanoTime()
             : renderTimeNs);
     EGL14.eglSwapBuffers(eglDisplay, outputEglSurface);
-    DebugTraceUtil.logEvent(DebugTraceUtil.EVENT_VFP_RENDERED_TO_OUTPUT, presentationTimeUs);
+    DebugTraceUtil.logEvent(
+        DebugTraceUtil.EVENT_VFP_RENDERED_TO_OUTPUT_SURFACE, presentationTimeUs);
   }
 
   private void renderFrameToOutputTexture(GlTextureInfo inputTexture, long presentationTimeUs)
