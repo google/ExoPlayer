@@ -2570,6 +2570,16 @@ public final class Util {
   }
 
   /**
+   * Returns a read-only view of the given {@link ByteBuffer}.
+   *
+   * <p>This behaves the same as {@link ByteBuffer#asReadOnlyBuffer} whilst preserving the {@link
+   * ByteOrder} of the original buffer.
+   */
+  public static ByteBuffer createReadOnlyByteBuffer(ByteBuffer byteBuffer) {
+    return byteBuffer.asReadOnlyBuffer().order(byteBuffer.order());
+  }
+
+  /**
    * Returns the upper-case ISO 3166-1 alpha-2 country code of the current registered operator's MCC
    * (Mobile Country Code), or the country code of the default Locale if not available.
    *

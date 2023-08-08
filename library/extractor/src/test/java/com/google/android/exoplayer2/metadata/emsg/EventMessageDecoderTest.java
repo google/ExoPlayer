@@ -22,6 +22,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 import com.google.common.primitives.Bytes;
 import java.nio.ByteBuffer;
 import org.junit.Test;
@@ -66,7 +67,7 @@ public final class EventMessageDecoderTest {
   public void decodeEventMessage_failsIfBufferHasNoArray() {
     EventMessageDecoder decoder = new EventMessageDecoder();
     MetadataInputBuffer buffer = createMetadataInputBuffer(createByteArray(1, 2, 3));
-    buffer.data = buffer.data.asReadOnlyBuffer();
+    buffer.data = Util.createReadOnlyByteBuffer(buffer.data);
 
     assertThrows(IllegalArgumentException.class, () -> decoder.decode(buffer));
   }

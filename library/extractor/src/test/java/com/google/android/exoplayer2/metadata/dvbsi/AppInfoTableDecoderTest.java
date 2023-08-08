@@ -25,6 +25,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
 import com.google.android.exoplayer2.testutil.TestUtil;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -84,7 +85,7 @@ public final class AppInfoTableDecoderTest {
   public void decode_failsIfBufferHasNoArray() {
     AppInfoTableDecoder decoder = new AppInfoTableDecoder();
     MetadataInputBuffer buffer = createMetadataInputBuffer(createByteArray(1, 2, 3));
-    buffer.data = buffer.data.asReadOnlyBuffer();
+    buffer.data = Util.createReadOnlyByteBuffer(buffer.data);
 
     assertThrows(IllegalArgumentException.class, () -> decoder.decode(buffer));
   }

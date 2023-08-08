@@ -25,6 +25,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
 import com.google.android.exoplayer2.util.TimestampAdjuster;
+import com.google.android.exoplayer2.util.Util;
 import java.nio.ByteBuffer;
 import java.util.List;
 import org.junit.Before;
@@ -217,7 +218,7 @@ public final class SpliceInfoDecoderTest {
   @Test
   public void decodeFailsIfBufferHasNoArray() {
     MetadataInputBuffer buffer = createMetadataInputBuffer(createByteArray(1, 2, 3));
-    buffer.data = buffer.data.asReadOnlyBuffer();
+    buffer.data = Util.createReadOnlyByteBuffer(buffer.data);
 
     assertThrows(IllegalArgumentException.class, () -> decoder.decode(buffer));
   }

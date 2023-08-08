@@ -1030,6 +1030,26 @@ public class UtilTest {
   }
 
   @Test
+  public void createReadOnlyByteBuffer_fromLittleEndian_preservesByteOrder() {
+    byte[] bytes = {1, 2, 3, 4};
+    ByteBuffer byteBuffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
+    ByteBuffer readOnlyByteBuffer = Util.createReadOnlyByteBuffer(byteBuffer);
+
+    assertThat(readOnlyByteBuffer.order()).isEqualTo(ByteOrder.LITTLE_ENDIAN);
+    assertThat(byteBuffer.getInt()).isEqualTo(readOnlyByteBuffer.getInt());
+  }
+
+  @Test
+  public void createReadOnlyByteBuffer_fromBigEndian_preservesByteOrder() {
+    byte[] bytes = {1, 2, 3, 4};
+    ByteBuffer byteBuffer = ByteBuffer.wrap(bytes).order(ByteOrder.BIG_ENDIAN);
+    ByteBuffer readOnlyByteBuffer = Util.createReadOnlyByteBuffer(byteBuffer);
+
+    assertThat(readOnlyByteBuffer.order()).isEqualTo(ByteOrder.BIG_ENDIAN);
+    assertThat(byteBuffer.getInt()).isEqualTo(readOnlyByteBuffer.getInt());
+  }
+
+  @Test
   public void inflate_withDeflatedData_success() {
     byte[] testData = buildTestData(/*arbitrary test data size*/ 256 * 1024);
     byte[] compressedData = new byte[testData.length * 2];

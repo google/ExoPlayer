@@ -22,6 +22,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataInputBuffer;
 import com.google.android.exoplayer2.util.Assertions;
+import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Charsets;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -474,7 +475,7 @@ public final class Id3DecoderTest {
   public void decodeFailsIfBufferHasNoArray() {
     Id3Decoder decoder = new Id3Decoder();
     MetadataInputBuffer buffer = createMetadataInputBuffer(createByteArray(1, 2, 3));
-    buffer.data = buffer.data.asReadOnlyBuffer();
+    buffer.data = Util.createReadOnlyByteBuffer(buffer.data);
 
     assertThrows(IllegalArgumentException.class, () -> decoder.decode(buffer));
   }
