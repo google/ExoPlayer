@@ -704,7 +704,9 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
 
   @MainThread
   private void invalidateServerSideAdInsertionAdPlaybackState() {
-    if (!adPlaybackState.equals(AdPlaybackState.NONE) && contentTimeline != null) {
+    if (!adPlaybackState.equals(AdPlaybackState.NONE)
+        && contentTimeline != null
+        && serverSideAdInsertionMediaSource != null) {
       Timeline contentTimeline = checkNotNull(this.contentTimeline);
       ImmutableMap<Object, AdPlaybackState> splitAdPlaybackStates;
       if (Objects.equals(streamRequest.getFormat(), StreamFormat.DASH)) {
