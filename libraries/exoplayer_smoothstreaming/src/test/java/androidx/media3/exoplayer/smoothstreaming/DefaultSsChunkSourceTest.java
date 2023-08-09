@@ -23,6 +23,7 @@ import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.TrackGroup;
 import androidx.media3.common.util.Assertions;
+import androidx.media3.exoplayer.LoadingInfo;
 import androidx.media3.exoplayer.smoothstreaming.manifest.SsManifest;
 import androidx.media3.exoplayer.smoothstreaming.manifest.SsManifestParser;
 import androidx.media3.exoplayer.source.chunk.ChunkHolder;
@@ -56,7 +57,7 @@ public class DefaultSsChunkSourceTest {
     ChunkHolder output = new ChunkHolder();
 
     chunkSource.getNextChunk(
-        /* playbackPositionUs= */ 0,
+        new LoadingInfo.Builder().setPlaybackPositionUs(0).build(),
         /* loadPositionUs= */ 0,
         /* queue= */ ImmutableList.of(),
         output);
@@ -101,7 +102,7 @@ public class DefaultSsChunkSourceTest {
     ChunkHolder output = new ChunkHolder();
 
     chunkSource.getNextChunk(
-        /* playbackPositionUs= */ 0,
+        new LoadingInfo.Builder().setPlaybackPositionUs(0).build(),
         /* loadPositionUs= */ 0,
         /* queue= */ ImmutableList.of(),
         output);
@@ -147,7 +148,7 @@ public class DefaultSsChunkSourceTest {
     ChunkHolder output = new ChunkHolder();
 
     chunkSource.getNextChunk(
-        /* playbackPositionUs= */ 0,
+        new LoadingInfo.Builder().setPlaybackPositionUs(0).build(),
         /* loadPositionUs= */ 0,
         /* queue= */ ImmutableList.of(),
         output);

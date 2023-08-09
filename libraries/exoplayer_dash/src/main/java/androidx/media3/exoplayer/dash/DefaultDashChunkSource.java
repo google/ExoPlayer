@@ -30,6 +30,7 @@ import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DataSpec;
 import androidx.media3.datasource.HttpDataSource.InvalidResponseCodeException;
 import androidx.media3.datasource.TransferListener;
+import androidx.media3.exoplayer.LoadingInfo;
 import androidx.media3.exoplayer.SeekParameters;
 import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.dash.PlayerEmsgHandler.PlayerTrackEmsgHandler;
@@ -315,7 +316,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
   @Override
   public void getNextChunk(
-      long playbackPositionUs,
+      LoadingInfo loadingInfo,
       long loadPositionUs,
       List<? extends MediaChunk> queue,
       ChunkHolder out) {
@@ -323,6 +324,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
       return;
     }
 
+    long playbackPositionUs = loadingInfo.playbackPositionUs;
     long bufferedDurationUs = loadPositionUs - playbackPositionUs;
     long presentationPositionUs =
         Util.msToUs(manifest.availabilityStartTimeMs)

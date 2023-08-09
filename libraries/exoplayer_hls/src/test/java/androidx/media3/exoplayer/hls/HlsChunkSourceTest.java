@@ -26,6 +26,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.exoplayer.LoadingInfo;
 import androidx.media3.exoplayer.SeekParameters;
 import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.hls.playlist.HlsMediaPlaylist;
@@ -201,7 +202,7 @@ public class HlsChunkSourceTest {
     HlsChunkSource.HlsChunkHolder output = new HlsChunkSource.HlsChunkHolder();
 
     testChunkSource.getNextChunk(
-        /* playbackPositionUs= */ 0,
+        new LoadingInfo.Builder().setPlaybackPositionUs(0).build(),
         /* loadPositionUs= */ 0,
         /* queue= */ ImmutableList.of(),
         /* allowEndOfStream= */ true,
@@ -247,7 +248,7 @@ public class HlsChunkSourceTest {
     HlsChunkSource.HlsChunkHolder output = new HlsChunkSource.HlsChunkHolder();
 
     testChunkSource.getNextChunk(
-        /* playbackPositionUs= */ 0,
+        new LoadingInfo.Builder().setPlaybackPositionUs(0).build(),
         /* loadPositionUs= */ 0,
         /* queue= */ ImmutableList.of(),
         /* allowEndOfStream= */ true,
@@ -294,7 +295,7 @@ public class HlsChunkSourceTest {
     HlsChunkSource.HlsChunkHolder output = new HlsChunkSource.HlsChunkHolder();
 
     testChunkSource.getNextChunk(
-        /* playbackPositionUs= */ 0,
+        new LoadingInfo.Builder().setPlaybackPositionUs(0).build(),
         /* loadPositionUs= */ 0,
         /* queue= */ ImmutableList.of(),
         /* allowEndOfStream= */ true,

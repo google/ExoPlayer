@@ -577,8 +577,7 @@ public class ChunkSampleStream<T extends ChunkSource>
       chunkQueue = readOnlyMediaChunks;
       loadPositionUs = getLastMediaChunk().endTimeUs;
     }
-    chunkSource.getNextChunk(
-        loadingInfo.playbackPositionUs, loadPositionUs, chunkQueue, nextChunkHolder);
+    chunkSource.getNextChunk(loadingInfo, loadPositionUs, chunkQueue, nextChunkHolder);
     boolean endOfStream = nextChunkHolder.endOfStream;
     @Nullable Chunk loadable = nextChunkHolder.chunk;
     nextChunkHolder.clear();

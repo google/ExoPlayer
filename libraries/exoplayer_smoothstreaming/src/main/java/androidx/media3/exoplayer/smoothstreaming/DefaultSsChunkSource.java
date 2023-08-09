@@ -26,6 +26,7 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DataSpec;
 import androidx.media3.datasource.TransferListener;
+import androidx.media3.exoplayer.LoadingInfo;
 import androidx.media3.exoplayer.SeekParameters;
 import androidx.media3.exoplayer.smoothstreaming.manifest.SsManifest;
 import androidx.media3.exoplayer.smoothstreaming.manifest.SsManifest.StreamElement;
@@ -224,7 +225,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
 
   @Override
   public final void getNextChunk(
-      long playbackPositionUs,
+      LoadingInfo loadingInfo,
       long loadPositionUs,
       List<? extends MediaChunk> queue,
       ChunkHolder out) {
@@ -258,6 +259,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
       return;
     }
 
+    long playbackPositionUs = loadingInfo.playbackPositionUs;
     long bufferedDurationUs = loadPositionUs - playbackPositionUs;
     long timeToLiveEdgeUs = resolveTimeToLiveEdgeUs(playbackPositionUs);
 

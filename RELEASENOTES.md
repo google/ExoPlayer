@@ -49,6 +49,9 @@
         `LoadingInfo` contains additional parameters, including `playbackSpeed`
         and `lastRebufferRealtimeMs` in addition to the existing
         `playbackPositionUs`.
+    *   Enhance `ChunkSource.getNextChunk(long, long, List, ChunkHolder)` method
+        in the `ChunkSource` interface to `ChunkSource.getNextChunk(LoadingInfo,
+        long, List, ChunkHolder)`.
 *   Transformer:
     *   Parse EXIF rotation data for image inputs.
     *   Remove `TransformationRequest.HdrMode` annotation type and its

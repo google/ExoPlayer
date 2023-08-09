@@ -16,6 +16,7 @@
 package androidx.media3.exoplayer.source.chunk;
 
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.exoplayer.LoadingInfo;
 import androidx.media3.exoplayer.SeekParameters;
 import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy;
 import java.io.IOException;
@@ -76,10 +77,7 @@ public interface ChunkSource {
    * been reached then {@link ChunkHolder#endOfStream} is set. If a chunk is not available but the
    * end of the stream has not been reached, the {@link ChunkHolder} is not modified.
    *
-   * @param playbackPositionUs The current playback position in microseconds. If playback of the
-   *     period to which this chunk source belongs has not yet started, the value will be the
-   *     starting position in the period minus the duration of any media in previous periods still
-   *     to be played.
+   * @param loadingInfo The {@link LoadingInfo} when loading request is made.
    * @param loadPositionUs The current load position in microseconds. If {@code queue} is empty,
    *     this is the starting position from which chunks should be provided. Else it's equal to
    *     {@link MediaChunk#endTimeUs} of the last chunk in the {@code queue}.
@@ -87,7 +85,7 @@ public interface ChunkSource {
    * @param out A holder to populate.
    */
   void getNextChunk(
-      long playbackPositionUs,
+      LoadingInfo loadingInfo,
       long loadPositionUs,
       List<? extends MediaChunk> queue,
       ChunkHolder out);
@@ -111,8 +109,8 @@ public interface ChunkSource {
    *     handling the load error.
    * @return Whether the load should be canceled so that a replacement chunk can be loaded instead.
    *     Must be {@code false} if {@code cancelable} is {@code false}. If {@code true}, {@link
-   *     #getNextChunk(long, long, List, ChunkHolder)} will be called to obtain the replacement
-   *     chunk.
+   *     #getNextChunk(LoadingInfo, long, List, ChunkHolder)} will be called to obtain the
+   *     replacement chunk.
    */
   boolean onChunkLoadError(
       Chunk chunk,
