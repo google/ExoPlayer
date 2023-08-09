@@ -114,7 +114,12 @@ public final class PngExtractor implements Extractor {
   private void outputImageTrackAndSeekMap() {
     ExtractorOutput extractorOutput = checkNotNull(this.extractorOutput);
     TrackOutput imageTrackOutput = extractorOutput.track(IMAGE_TRACK_ID, C.TRACK_TYPE_IMAGE);
-    imageTrackOutput.format(new Format.Builder().setContainerMimeType(MimeTypes.IMAGE_PNG).build());
+    imageTrackOutput.format(
+        new Format.Builder()
+            .setContainerMimeType(MimeTypes.IMAGE_PNG)
+            .setTileCountHorizontal(1)
+            .setTileCountVertical(1)
+            .build());
     extractorOutput.endTracks();
     extractorOutput.seekMap(new SingleSampleSeekMap(/* durationUs= */ C.TIME_UNSET));
     state = STATE_READING_IMAGE;
