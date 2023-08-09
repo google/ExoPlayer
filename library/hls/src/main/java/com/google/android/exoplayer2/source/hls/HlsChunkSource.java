@@ -27,6 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.LoadingInfo;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
@@ -372,10 +373,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * but the end of the stream has not been reached, {@link HlsChunkHolder#playlistUrl} is set to
    * contain the {@link Uri} that refers to the playlist that needs refreshing.
    *
-   * @param playbackPositionUs The current playback position relative to the period start in
-   *     microseconds. If playback of the period to which this chunk source belongs has not yet
-   *     started, the value will be the starting position in the period minus the duration of any
-   *     media in previous periods still to be played.
+   * @param loadingInfo The {@link LoadingInfo} when loading request is made.
    * @param loadPositionUs The current load position relative to the period start in microseconds.
    * @param queue The queue of buffered {@link HlsMediaChunk}s.
    * @param allowEndOfStream Whether {@link HlsChunkHolder#endOfStream} is allowed to be set for
@@ -384,13 +382,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    * @param out A holder to populate.
    */
   public void getNextChunk(
-      long playbackPositionUs,
+      LoadingInfo loadingInfo,
       long loadPositionUs,
       List<HlsMediaChunk> queue,
       boolean allowEndOfStream,
       HlsChunkHolder out) {
     @Nullable HlsMediaChunk previous = queue.isEmpty() ? null : Iterables.getLast(queue);
     int oldTrackIndex = previous == null ? C.INDEX_UNSET : trackGroup.indexOf(previous.trackFormat);
+    long playbackPositionUs = loadingInfo.playbackPositionUs;
     long bufferedDurationUs = loadPositionUs - playbackPositionUs;
     long timeToLiveEdgeUs = resolveTimeToLiveEdgeUs(playbackPositionUs);
     if (previous != null && !independentSegments) {

@@ -24,6 +24,7 @@ import androidx.annotation.CheckResult;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.LoadingInfo;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.extractor.ChunkIndex;
@@ -321,7 +322,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
   @Override
   public void getNextChunk(
-      long playbackPositionUs,
+      LoadingInfo loadingInfo,
       long loadPositionUs,
       List<? extends MediaChunk> queue,
       ChunkHolder out) {
@@ -329,6 +330,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
       return;
     }
 
+    long playbackPositionUs = loadingInfo.playbackPositionUs;
     long bufferedDurationUs = loadPositionUs - playbackPositionUs;
     long presentationPositionUs =
         Util.msToUs(manifest.availabilityStartTimeMs)

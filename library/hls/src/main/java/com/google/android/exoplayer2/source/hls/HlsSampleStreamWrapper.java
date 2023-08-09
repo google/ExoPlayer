@@ -767,7 +767,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
     nextChunkHolder.clear();
     chunkSource.getNextChunk(
-        loadingInfo.playbackPositionUs,
+        loadingInfo,
         loadPositionUs,
         chunkQueue,
         /* allowEndOfStream= */ prepared || !chunkQueue.isEmpty(),

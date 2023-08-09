@@ -26,6 +26,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.LoadingInfo;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.source.LoadEventInfo;
@@ -107,7 +108,9 @@ public class DefaultDashChunkSourceTest {
     ChunkHolder output = new ChunkHolder();
 
     chunkSource.getNextChunk(
-        /* playbackPositionUs= */ nowInPeriodUs - 5 * C.MICROS_PER_SECOND,
+        new LoadingInfo.Builder()
+            .setPlaybackPositionUs(nowInPeriodUs - 5 * C.MICROS_PER_SECOND)
+            .build(),
         /* loadPositionUs= */ nowInPeriodUs - 5 * C.MICROS_PER_SECOND,
         /* queue= */ ImmutableList.of(),
         output);
@@ -115,7 +118,7 @@ public class DefaultDashChunkSourceTest {
         .isEqualTo(0);
 
     chunkSource.getNextChunk(
-        /* playbackPositionUs= */ nowInPeriodUs,
+        new LoadingInfo.Builder().setPlaybackPositionUs(nowInPeriodUs).build(),
         /* loadPositionUs= */ nowInPeriodUs,
         /* queue= */ ImmutableList.of(),
         output);
@@ -155,7 +158,7 @@ public class DefaultDashChunkSourceTest {
 
     ChunkHolder output = new ChunkHolder();
     chunkSource.getNextChunk(
-        /* playbackPositionUs= */ 0,
+        new LoadingInfo.Builder().setPlaybackPositionUs(0).build(),
         /* loadPositionUs= */ 0,
         /* queue= */ ImmutableList.of(),
         output);
@@ -183,7 +186,7 @@ public class DefaultDashChunkSourceTest {
     boolean requestReplacementChunk = true;
     while (requestReplacementChunk) {
       chunkSource.getNextChunk(
-          /* playbackPositionUs= */ 0,
+          new LoadingInfo.Builder().setPlaybackPositionUs(0).build(),
           /* loadPositionUs= */ 0,
           /* queue= */ ImmutableList.of(),
           output);
@@ -213,7 +216,7 @@ public class DefaultDashChunkSourceTest {
             output.chunk.dataSpec, /* httpResponseCode= */ 404, /* errorCount= */ 1),
         loadErrorHandlingPolicy);
     chunkSource.getNextChunk(
-        /* playbackPositionUs= */ 0,
+        new LoadingInfo.Builder().setPlaybackPositionUs(0).build(),
         /* loadPositionUs= */ 0,
         /* queue= */ ImmutableList.of(),
         output);
@@ -241,7 +244,7 @@ public class DefaultDashChunkSourceTest {
     boolean requestReplacementChunk = true;
     while (requestReplacementChunk) {
       chunkSource.getNextChunk(
-          /* playbackPositionUs= */ 0,
+          new LoadingInfo.Builder().setPlaybackPositionUs(0).build(),
           /* loadPositionUs= */ 0,
           /* queue= */ ImmutableList.of(),
           output);
@@ -280,7 +283,7 @@ public class DefaultDashChunkSourceTest {
         createDashChunkSource(/* numberOfTracks= */ 2, /* cmcdConfiguration= */ null);
     ChunkHolder output = new ChunkHolder();
     chunkSource.getNextChunk(
-        /* playbackPositionUs= */ 0,
+        new LoadingInfo.Builder().setPlaybackPositionUs(0).build(),
         /* loadPositionUs= */ 0,
         /* queue= */ ImmutableList.of(),
         output);
@@ -307,7 +310,7 @@ public class DefaultDashChunkSourceTest {
     ChunkHolder output = new ChunkHolder();
 
     chunkSource.getNextChunk(
-        /* playbackPositionUs= */ 0,
+        new LoadingInfo.Builder().setPlaybackPositionUs(0).build(),
         /* loadPositionUs= */ 0,
         /* queue= */ ImmutableList.of(),
         output);
@@ -352,7 +355,7 @@ public class DefaultDashChunkSourceTest {
     ChunkHolder output = new ChunkHolder();
 
     chunkSource.getNextChunk(
-        /* playbackPositionUs= */ 0,
+        new LoadingInfo.Builder().setPlaybackPositionUs(0).build(),
         /* loadPositionUs= */ 0,
         /* queue= */ ImmutableList.of(),
         output);
@@ -398,7 +401,7 @@ public class DefaultDashChunkSourceTest {
     ChunkHolder output = new ChunkHolder();
 
     chunkSource.getNextChunk(
-        /* playbackPositionUs= */ 0,
+        new LoadingInfo.Builder().setPlaybackPositionUs(0).build(),
         /* loadPositionUs= */ 0,
         /* queue= */ ImmutableList.of(),
         output);
@@ -447,7 +450,7 @@ public class DefaultDashChunkSourceTest {
     ChunkHolder output = new ChunkHolder();
     // Populate with last available media chunk
     chunkSource.getNextChunk(
-        /* playbackPositionUs= */ 0,
+        new LoadingInfo.Builder().setPlaybackPositionUs(0).build(),
         /* loadPositionUs= */ 0,
         /* queue= */ ImmutableList.of(),
         output);
@@ -456,7 +459,7 @@ public class DefaultDashChunkSourceTest {
 
     // Request another chunk
     chunkSource.getNextChunk(
-        /* playbackPositionUs= */ 0,
+        new LoadingInfo.Builder().setPlaybackPositionUs(0).build(),
         /* loadPositionUs= */ 4_000_000,
         /* queue= */ ImmutableList.of((MediaChunk) previousChunk),
         output);
@@ -496,7 +499,7 @@ public class DefaultDashChunkSourceTest {
     ChunkHolder output = new ChunkHolder();
     // Populate with last media chunk
     chunkSource.getNextChunk(
-        /* playbackPositionUs= */ 0,
+        new LoadingInfo.Builder().setPlaybackPositionUs(0).build(),
         /* loadPositionUs= */ 4_000_000,
         /* queue= */ ImmutableList.of(),
         output);
@@ -505,7 +508,7 @@ public class DefaultDashChunkSourceTest {
 
     // Request next chunk
     chunkSource.getNextChunk(
-        /* playbackPositionUs= */ 0,
+        new LoadingInfo.Builder().setPlaybackPositionUs(0).build(),
         /* loadPositionUs= */ 8_000_000,
         /* queue= */ ImmutableList.of((MediaChunk) previousChunk),
         output);
