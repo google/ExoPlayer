@@ -20,6 +20,7 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.LoadingInfo;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.drm.DrmInitData;
@@ -397,7 +398,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsPlaylistTracker.Pla
   }
 
   @Override
-  public boolean continueLoading(long positionUs) {
+  public boolean continueLoading(LoadingInfo loadingInfo) {
     if (trackGroups == null) {
       // Preparation is still going on.
       for (HlsSampleStreamWrapper wrapper : sampleStreamWrappers) {
@@ -405,7 +406,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsPlaylistTracker.Pla
       }
       return false;
     } else {
-      return compositeSequenceableLoader.continueLoading(positionUs);
+      return compositeSequenceableLoader.continueLoading(loadingInfo);
     }
   }
 

@@ -24,6 +24,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.LoadingInfo;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
@@ -87,7 +88,7 @@ public final class MergingMediaPeriodTest {
         streams,
         /* streamResetFlags= */ new boolean[] {false, false, false, false},
         /* positionUs= */ 0);
-    mergingMediaPeriod.continueLoading(/* positionUs= */ 0);
+    mergingMediaPeriod.continueLoading(new LoadingInfo.Builder().setPlaybackPositionUs(0).build());
 
     assertThat(streams[0]).isNull();
     assertThat(streams[3]).isNull();
@@ -132,7 +133,7 @@ public final class MergingMediaPeriodTest {
         streams,
         /* streamResetFlags= */ new boolean[] {false, false},
         /* positionUs= */ 0);
-    mergingMediaPeriod.continueLoading(/* positionUs= */ 0);
+    mergingMediaPeriod.continueLoading(new LoadingInfo.Builder().setPlaybackPositionUs(0).build());
     FormatHolder formatHolder = new FormatHolder();
     DecoderInputBuffer inputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL);
@@ -218,7 +219,7 @@ public final class MergingMediaPeriodTest {
         streams,
         /* streamResetFlags= */ new boolean[2],
         /* positionUs= */ 0);
-    mergingMediaPeriod.continueLoading(/* positionUs= */ 0);
+    mergingMediaPeriod.continueLoading(new LoadingInfo.Builder().setPlaybackPositionUs(0).build());
 
     FormatHolder formatHolder = new FormatHolder();
     DecoderInputBuffer inputBuffer =
@@ -265,7 +266,8 @@ public final class MergingMediaPeriodTest {
 
           @Override
           public void onContinueLoadingRequested(MediaPeriod source) {
-            mergingMediaPeriod.continueLoading(/* positionUs= */ 0);
+            mergingMediaPeriod.continueLoading(
+                new LoadingInfo.Builder().setPlaybackPositionUs(0).build());
           }
         },
         /* positionUs= */ 0);

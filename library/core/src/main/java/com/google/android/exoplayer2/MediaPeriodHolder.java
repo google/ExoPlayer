@@ -227,11 +227,21 @@ import com.google.android.exoplayer2.util.NullableType;
    * this is the loading media period.
    *
    * @param rendererPositionUs The load position in renderer time, in microseconds.
+   * @param playbackSpeed The playback speed indicating the current rate of playback.
+   * @param lastRebufferRealtimeMs The time at which the last rebuffering occurred, in milliseconds
+   *     since boot including time spent in sleep. The time base used is the same as that measured
+   *     by {@link android.os.SystemClock#elapsedRealtime}.
    */
-  public void continueLoading(long rendererPositionUs) {
+  public void continueLoading(
+      long rendererPositionUs, float playbackSpeed, long lastRebufferRealtimeMs) {
     Assertions.checkState(isLoadingMediaPeriod());
     long loadingPeriodPositionUs = toPeriodTime(rendererPositionUs);
-    mediaPeriod.continueLoading(loadingPeriodPositionUs);
+    mediaPeriod.continueLoading(
+        new LoadingInfo.Builder()
+            .setPlaybackPositionUs(loadingPeriodPositionUs)
+            .setPlaybackSpeed(playbackSpeed)
+            .setLastRebufferRealtimeMs(lastRebufferRealtimeMs)
+            .build());
   }
 
   /**

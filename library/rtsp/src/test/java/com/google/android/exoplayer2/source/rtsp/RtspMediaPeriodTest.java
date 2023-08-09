@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.net.Uri;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.LoadingInfo;
 import com.google.android.exoplayer2.robolectric.RobolectricUtil;
 import com.google.android.exoplayer2.source.MediaPeriod;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
@@ -97,7 +98,7 @@ public final class RtspMediaPeriodTest {
 
           @Override
           public void onContinueLoadingRequested(MediaPeriod source) {
-            source.continueLoading(/* positionUs= */ 0);
+            source.continueLoading(new LoadingInfo.Builder().setPlaybackPositionUs(0).build());
           }
         },
         /* positionUs= */ 0);
@@ -182,7 +183,7 @@ public final class RtspMediaPeriodTest {
 
           @Override
           public void onContinueLoadingRequested(MediaPeriod source) {
-            source.continueLoading(/* positionUs= */ 0);
+            source.continueLoading(new LoadingInfo.Builder().setPlaybackPositionUs(0).build());
           }
         },
         /* positionUs= */ 0);

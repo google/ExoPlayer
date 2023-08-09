@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.LoadingInfo;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.drm.DrmSession;
@@ -565,7 +566,7 @@ public class ChunkSampleStream<T extends ChunkSource>
   // SequenceableLoader implementation
 
   @Override
-  public boolean continueLoading(long positionUs) {
+  public boolean continueLoading(LoadingInfo loadingInfo) {
     if (loadingFinished || loader.isLoading() || loader.hasFatalError()) {
       return false;
     }
@@ -580,7 +581,8 @@ public class ChunkSampleStream<T extends ChunkSource>
       chunkQueue = readOnlyMediaChunks;
       loadPositionUs = getLastMediaChunk().endTimeUs;
     }
-    chunkSource.getNextChunk(positionUs, loadPositionUs, chunkQueue, nextChunkHolder);
+    chunkSource.getNextChunk(
+        loadingInfo.playbackPositionUs, loadPositionUs, chunkQueue, nextChunkHolder);
     boolean endOfStream = nextChunkHolder.endOfStream;
     @Nullable Chunk loadable = nextChunkHolder.chunk;
     nextChunkHolder.clear();

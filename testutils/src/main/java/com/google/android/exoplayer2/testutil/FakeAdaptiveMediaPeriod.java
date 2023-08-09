@@ -21,6 +21,7 @@ import android.net.Uri;
 import android.os.SystemClock;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.LoadingInfo;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
@@ -234,8 +235,8 @@ public class FakeAdaptiveMediaPeriod
   }
 
   @Override
-  public boolean continueLoading(long positionUs) {
-    sequenceableLoader.continueLoading(positionUs);
+  public boolean continueLoading(LoadingInfo loadingInfo) {
+    sequenceableLoader.continueLoading(loadingInfo);
     return true;
   }
 

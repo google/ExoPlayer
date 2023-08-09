@@ -217,6 +217,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private boolean pauseAtEndOfWindow;
   private boolean pendingPauseAtEndOfPeriod;
   private boolean isRebuffering;
+  private long lastRebufferRealtimeMs;
   private boolean shouldContinueLoading;
   private @Player.RepeatMode int repeatMode;
   private boolean shuffleModeEnabled;
@@ -266,6 +267,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     this.clock = clock;
 
     playbackMaybeBecameStuckAtMs = C.TIME_UNSET;
+    lastRebufferRealtimeMs = C.TIME_UNSET;
     backBufferDurationUs = loadControl.getBackBufferDurationUs();
     retainBackBufferFromKeyframe = loadControl.retainBackBufferFromKeyframe();
 
@@ -851,7 +853,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     playbackInfoUpdate.incrementPendingOperationAcks(operationAck ? 1 : 0);
     playbackInfoUpdate.setPlayWhenReadyChangeReason(reason);
     playbackInfo = playbackInfo.copyWithPlayWhenReady(playWhenReady, playbackSuppressionReason);
-    isRebuffering = false;
+    updateRebufferingState(/* isRebuffering= */ false, /* resetLastRebufferRealtimeMs= */ false);
     notifyTrackSelectionPlayWhenReadyChanged(playWhenReady);
     if (!shouldPlayWhenReady()) {
       stopRenderers();
@@ -930,7 +932,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
   }
 
   private void startRenderers() throws ExoPlaybackException {
-    isRebuffering = false;
+    updateRebufferingState(/* isRebuffering= */ false, /* resetLastRebufferRealtimeMs= */ false);
     mediaClock.start();
     for (Renderer renderer : renderers) {
       if (isRendererEnabled(renderer)) {
@@ -1119,7 +1121,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
       }
     } else if (playbackInfo.playbackState == Player.STATE_READY
         && !(enabledRendererCount == 0 ? isTimelineReady() : renderersAllowPlayback)) {
-      isRebuffering = shouldPlayWhenReady();
+      updateRebufferingState(
+          /* isRebuffering= */ shouldPlayWhenReady(), /* resetLastRebufferRealtimeMs= */ false);
       setState(Player.STATE_BUFFERING);
       if (isRebuffering) {
         notifyTrackSelectionRebuffer();
@@ -1333,7 +1336,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       boolean forceBufferingState)
       throws ExoPlaybackException {
     stopRenderers();
-    isRebuffering = false;
+    updateRebufferingState(/* isRebuffering= */ false, /* resetLastRebufferRealtimeMs= */ true);
     if (forceBufferingState || playbackInfo.playbackState == Player.STATE_READY) {
       setState(Player.STATE_BUFFERING);
     }
@@ -1474,7 +1477,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
       boolean resetError) {
     handler.removeMessages(MSG_DO_SOME_WORK);
     pendingRecoverableRendererError = null;
-    isRebuffering = false;
+    updateRebufferingState(/* isRebuffering= */ false, /* resetLastRebufferRealtimeMs= */ true);
     mediaClock.stop();
     rendererPositionUs = MediaPeriodQueue.INITIAL_RENDERER_POSITION_OFFSET_US;
     for (Renderer renderer : renderers) {
@@ -2435,7 +2438,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private void maybeContinueLoading() {
     shouldContinueLoading = shouldContinueLoading();
     if (shouldContinueLoading) {
-      queue.getLoadingPeriod().continueLoading(rendererPositionUs);
+      queue
+          .getLoadingPeriod()
+          .continueLoading(
+              rendererPositionUs, mediaClock.getPlaybackParameters().speed, lastRebufferRealtimeMs);
     }
     updateIsLoading();
   }
@@ -2904,6 +2910,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
     MediaPeriodId periodId = playbackInfo.periodId;
     Timeline timeline = playbackInfo.timeline;
     return timeline.isEmpty() || timeline.getPeriodByUid(periodId.periodUid, period).isPlaceholder;
+  }
+
+  /**
+   * Updates the {@link #isRebuffering} state and the timestamp of the last rebuffering event.
+   *
+   * @param isRebuffering A boolean indicating whether the media playback is currently rebuffering.
+   * @param resetLastRebufferRealtimeMs A boolean indicating whether {@link #lastRebufferRealtimeMs}
+   *     should be reset.<br>
+   *     If set to {@code true}, the method resets the {@link #lastRebufferRealtimeMs} to {@link
+   *     C#TIME_UNSET}.<br>
+   *     If set to {@code false}, the method updates the {@link #lastRebufferRealtimeMs} with the
+   *     current value of {@link Clock#elapsedRealtime()}.
+   */
+  private void updateRebufferingState(boolean isRebuffering, boolean resetLastRebufferRealtimeMs) {
+    this.isRebuffering = isRebuffering;
+    this.lastRebufferRealtimeMs =
+        resetLastRebufferRealtimeMs ? C.TIME_UNSET : clock.elapsedRealtime();
   }
 
   /**

@@ -24,6 +24,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.LoadingInfo;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
@@ -324,8 +325,8 @@ import java.util.regex.Pattern;
   }
 
   @Override
-  public boolean continueLoading(long positionUs) {
-    return compositeSequenceableLoader.continueLoading(positionUs);
+  public boolean continueLoading(LoadingInfo loadingInfo) {
+    return compositeSequenceableLoader.continueLoading(loadingInfo);
   }
 
   @Override

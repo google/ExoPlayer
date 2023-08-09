@@ -47,6 +47,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.LoadingInfo;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
@@ -804,7 +805,8 @@ public final class ServerSideAdInsertionMediaSourceTest {
 
           @Override
           public void onContinueLoadingRequested(MediaPeriod source) {
-            serverSideAdInsertionMediaPeriod.continueLoading(/* positionUs= */ 0);
+            serverSideAdInsertionMediaPeriod.continueLoading(
+                new LoadingInfo.Builder().setPlaybackPositionUs(0).build());
           }
         },
         /* positionUs= */ 0);

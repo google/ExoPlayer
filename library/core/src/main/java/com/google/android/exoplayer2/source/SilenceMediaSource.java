@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.LoadingInfo;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.Timeline;
@@ -262,7 +263,7 @@ public final class SilenceMediaSource extends BaseMediaSource {
     }
 
     @Override
-    public boolean continueLoading(long positionUs) {
+    public boolean continueLoading(LoadingInfo loadingInfo) {
       return false;
     }
 

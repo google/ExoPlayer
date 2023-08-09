@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source.smoothstreaming;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.LoadingInfo;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
@@ -193,8 +194,8 @@ import java.util.List;
   }
 
   @Override
-  public boolean continueLoading(long positionUs) {
-    return compositeSequenceableLoader.continueLoading(positionUs);
+  public boolean continueLoading(LoadingInfo loadingInfo) {
+    return compositeSequenceableLoader.continueLoading(loadingInfo);
   }
 
   @Override

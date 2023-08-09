@@ -47,6 +47,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.LoadingInfo;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.RendererCapabilities.Capabilities;
@@ -351,7 +352,8 @@ public class MediaCodecVideoRendererTest {
 
           @Override
           public void onContinueLoadingRequested(MediaPeriod source) {
-            clippingMediaPeriod.continueLoading(/* positionUs= */ 0);
+            clippingMediaPeriod.continueLoading(
+                new LoadingInfo.Builder().setPlaybackPositionUs(0).build());
           }
         },
         /* positionUs= */ 100);
@@ -455,7 +457,8 @@ public class MediaCodecVideoRendererTest {
 
           @Override
           public void onContinueLoadingRequested(MediaPeriod source) {
-            clippingMediaPeriod.continueLoading(/* positionUs= */ 0);
+            clippingMediaPeriod.continueLoading(
+                new LoadingInfo.Builder().setPlaybackPositionUs(0).build());
           }
         },
         /* positionUs= */ 100);

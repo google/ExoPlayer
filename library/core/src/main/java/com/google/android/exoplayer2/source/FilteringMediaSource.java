@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.LoadingInfo;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
@@ -158,8 +159,8 @@ public class FilteringMediaSource extends WrappingMediaSource {
     }
 
     @Override
-    public boolean continueLoading(long positionUs) {
-      return mediaPeriod.continueLoading(positionUs);
+    public boolean continueLoading(LoadingInfo loadingInfo) {
+      return mediaPeriod.continueLoading(loadingInfo);
     }
 
     @Override

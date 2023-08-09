@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.source;
 
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.LoadingInfo;
 
 // TODO: Clarify the requirements for implementing this interface [Internal ref: b/36250203].
 /**
@@ -33,8 +34,8 @@ public interface SequenceableLoader {
   interface Callback<T extends SequenceableLoader> {
 
     /**
-     * Called by the loader to indicate that it wishes for its {@link #continueLoading(long)} method
-     * to be called when it can continue to load data. Called on the playback thread.
+     * Called by the loader to indicate that it wishes for its {@link #continueLoading(LoadingInfo)}
+     * method to be called when it can continue to load data. Called on the playback thread.
      */
     void onContinueLoadingRequested(T source);
   }
@@ -53,13 +54,11 @@ public interface SequenceableLoader {
   /**
    * Attempts to continue loading.
    *
-   * @param positionUs The current playback position in microseconds. If playback of the period to
-   *     which this loader belongs has not yet started, the value will be the starting position in
-   *     the period minus the duration of any media in previous periods still to be played.
+   * @param loadingInfo The {@link LoadingInfo} when attempting to continue loading.
    * @return True if progress was made, meaning that {@link #getNextLoadPositionUs()} will return a
    *     different value than prior to the call. False otherwise.
    */
-  boolean continueLoading(long positionUs);
+  boolean continueLoading(LoadingInfo loadingInfo);
 
   /** Returns whether the loader is currently loading. */
   boolean isLoading();

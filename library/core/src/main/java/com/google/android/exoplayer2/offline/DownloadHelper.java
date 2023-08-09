@@ -26,6 +26,7 @@ import android.util.SparseIntArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.LoadingInfo;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
@@ -899,7 +900,7 @@ public final class DownloadHelper {
         case MESSAGE_CONTINUE_LOADING:
           MediaPeriod mediaPeriod = (MediaPeriod) msg.obj;
           if (pendingMediaPeriods.contains(mediaPeriod)) {
-            mediaPeriod.continueLoading(/* positionUs= */ 0);
+            mediaPeriod.continueLoading(new LoadingInfo.Builder().setPlaybackPositionUs(0).build());
           }
           return true;
         case MESSAGE_RELEASE:

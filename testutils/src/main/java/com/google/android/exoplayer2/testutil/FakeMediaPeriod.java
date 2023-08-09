@@ -27,6 +27,7 @@ import android.os.SystemClock;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.LoadingInfo;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
@@ -359,9 +360,9 @@ public class FakeMediaPeriod implements MediaPeriod {
   }
 
   @Override
-  public boolean continueLoading(long positionUs) {
+  public boolean continueLoading(LoadingInfo loadingInfo) {
     for (FakeSampleStream sampleStream : sampleStreams) {
-      sampleStream.writeData(positionUs);
+      sampleStream.writeData(loadingInfo.playbackPositionUs);
     }
     return true;
   }

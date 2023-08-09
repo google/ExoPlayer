@@ -22,6 +22,7 @@ import android.net.Uri;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.LoadingInfo;
 import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
@@ -87,7 +88,7 @@ public final class ProgressiveMediaPeriodTest {
 
           @Override
           public void onContinueLoadingRequested(MediaPeriod source) {
-            source.continueLoading(/* positionUs= */ 0);
+            source.continueLoading(new LoadingInfo.Builder().setPlaybackPositionUs(0).build());
           }
         },
         /* positionUs= */ 0);

@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
+import com.google.android.exoplayer2.LoadingInfo;
 import com.google.android.exoplayer2.SeekParameters;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.offline.StreamKey;
@@ -199,16 +200,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public boolean continueLoading(long positionUs) {
+  public boolean continueLoading(LoadingInfo loadingInfo) {
     if (!childrenPendingPreparation.isEmpty()) {
       // Preparation is still going on.
       int childrenPendingPreparationSize = childrenPendingPreparation.size();
       for (int i = 0; i < childrenPendingPreparationSize; i++) {
-        childrenPendingPreparation.get(i).continueLoading(positionUs);
+        childrenPendingPreparation.get(i).continueLoading(loadingInfo);
       }
       return false;
     } else {
-      return compositeSequenceableLoader.continueLoading(positionUs);
+      return compositeSequenceableLoader.continueLoading(loadingInfo);
     }
   }
 
@@ -413,8 +414,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     @Override
-    public boolean continueLoading(long positionUs) {
-      return mediaPeriod.continueLoading(positionUs - timeOffsetUs);
+    public boolean continueLoading(LoadingInfo loadingInfo) {
+      return mediaPeriod.continueLoading(
+          loadingInfo
+              .buildUpon()
+              .setPlaybackPositionUs(loadingInfo.playbackPositionUs - timeOffsetUs)
+              .build());
     }
 
     @Override
