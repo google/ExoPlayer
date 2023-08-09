@@ -16,17 +16,16 @@
 
 package androidx.media3.test.utils;
 
-import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.UnstableApi;
-import androidx.media3.common.util.Util;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -40,7 +39,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 @UnstableApi
 public final class TextureBitmapReader implements VideoFrameProcessorTestRunner.BitmapReader {
 
-  // TODO(b/239172735): This outputs an incorrect black output image on emulators.
   private final Map<Long, Bitmap> outputTimestampsToBitmaps;
   private boolean useHighPrecisionColorComponents;
   private @MonotonicNonNull Bitmap outputBitmap;
@@ -98,7 +96,9 @@ public final class TextureBitmapReader implements VideoFrameProcessorTestRunner.
     if (!useHighPrecisionColorComponents) {
       return BitmapPixelTestUtil.createArgb8888BitmapFromFocusedGlFramebuffer(width, height);
     }
-    checkState(Util.SDK_INT > 26, "useHighPrecisionColorComponents only supported on API 26+");
+    if (Build.VERSION.SDK_INT < 26) {
+      throw new IllegalStateException("useHighPrecisionColorComponents only supported on API 26+");
+    }
     return BitmapPixelTestUtil.createFp16BitmapFromFocusedGlFramebuffer(width, height);
   }
 }
