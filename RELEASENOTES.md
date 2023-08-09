@@ -118,6 +118,7 @@
 *   Effect:
 *   Muxers:
 *   IMA extension:
+    *   Bump IMA SDK version to 3.30.3.
 *   Session:
     *   Add custom layout to the state of the controller and provide a getter to
         access it. When the custom layout changes,

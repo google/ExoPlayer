@@ -28,7 +28,7 @@ android {
 }
 
 dependencies {
-    api 'com.google.ads.interactivemedia.v3:interactivemedia:3.29.0'
+    api 'com.google.ads.interactivemedia.v3:interactivemedia:3.30.3'
     implementation project(modulePrefix + 'lib-exoplayer')
     implementation 'androidx.annotation:annotation:' + androidxAnnotationVersion
     compileOnly 'com.google.errorprone:error_prone_annotations:' + errorProneVersion
