@@ -82,9 +82,9 @@ public class BitmapPixelTestUtil {
    *
    * <p>This value is for for 8-bit primaries in pixel difference-based tests.
    *
-   * <p>The value is chosen so that differences in decoder behavior across emulator versions don't
-   * affect whether the test passes, but substantial distortions introduced by changes in tested
-   * components will cause the test to fail.
+   * <p>The value is chosen so that differences in decoder behavior across devices don't affect
+   * whether the test passes, but substantial distortions introduced by changes in tested components
+   * will cause the test to fail.
    *
    * <p>When the difference is close to the threshold, manually inspect expected/actual bitmaps to
    * confirm failure, as it's possible this is caused by a difference in the codec or graphics
@@ -96,8 +96,8 @@ public class BitmapPixelTestUtil {
   public static final float MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE =
       Ascii.toLowerCase(Util.DEVICE).contains("emulator")
               || Ascii.toLowerCase(Util.DEVICE).contains("generic")
-          ? MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE
-          : 1f;
+          ? 1f
+          : MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE;
 
   /**
    * Maximum allowed average pixel difference between bitmaps with 16-bit primaries generated using
