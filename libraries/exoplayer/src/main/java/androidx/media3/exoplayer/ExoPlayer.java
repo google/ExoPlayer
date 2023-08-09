@@ -1604,6 +1604,7 @@ public interface ExoPlayer extends Player {
    * <ul>
    *   <li>This feature works only with the default {@link MediaCodecVideoRenderer} and not custom
    *       or extension {@linkplain Renderer video renderers}.
+   *   <li>This feature does not work with {@linkplain Effect effects} updating the timestamps.
    *   <li>This feature does not work with DRM-protected contents.
    *   <li>This method should be called before calling {@link #prepare}.
    * </ul>
