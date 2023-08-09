@@ -22,6 +22,7 @@ import androidx.media3.common.TrackGroup;
 import androidx.media3.common.util.NullableType;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.exoplayer.LoadingInfo;
 import androidx.media3.exoplayer.SeekParameters;
 import androidx.media3.exoplayer.source.MediaSource.MediaSourceCaller;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
@@ -231,14 +232,12 @@ public interface MediaPeriod extends SequenceableLoader {
    * called when the period is permitted to continue loading data. A period may do this both during
    * and after preparation.
    *
-   * @param positionUs The current playback position in microseconds. If playback of this period has
-   *     not yet started, the value will be the starting position in this period minus the duration
-   *     of any media in previous periods still to be played.
+   * @param loadingInfo The {@link LoadingInfo} when attempting to continue loading.
    * @return True if progress was made, meaning that {@link #getNextLoadPositionUs()} will return a
    *     different value than prior to the call. False otherwise.
    */
   @Override
-  boolean continueLoading(long positionUs);
+  boolean continueLoading(LoadingInfo loadingInfo);
 
   /** Returns whether the media period is currently loading. */
   @Override

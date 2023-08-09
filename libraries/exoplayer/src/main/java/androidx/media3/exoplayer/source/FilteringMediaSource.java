@@ -23,6 +23,7 @@ import androidx.media3.common.StreamKey;
 import androidx.media3.common.TrackGroup;
 import androidx.media3.common.util.NullableType;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.exoplayer.LoadingInfo;
 import androidx.media3.exoplayer.SeekParameters;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
 import androidx.media3.exoplayer.upstream.Allocator;
@@ -155,8 +156,8 @@ public class FilteringMediaSource extends WrappingMediaSource {
     }
 
     @Override
-    public boolean continueLoading(long positionUs) {
-      return mediaPeriod.continueLoading(positionUs);
+    public boolean continueLoading(LoadingInfo loadingInfo) {
+      return mediaPeriod.continueLoading(loadingInfo);
     }
 
     @Override

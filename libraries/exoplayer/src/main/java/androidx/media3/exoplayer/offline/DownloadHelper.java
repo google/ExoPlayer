@@ -39,6 +39,7 @@ import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.TransferListener;
 import androidx.media3.exoplayer.ExoPlaybackException;
+import androidx.media3.exoplayer.LoadingInfo;
 import androidx.media3.exoplayer.Renderer;
 import androidx.media3.exoplayer.RendererCapabilities;
 import androidx.media3.exoplayer.RenderersFactory;
@@ -896,7 +897,7 @@ public final class DownloadHelper {
         case MESSAGE_CONTINUE_LOADING:
           MediaPeriod mediaPeriod = (MediaPeriod) msg.obj;
           if (pendingMediaPeriods.contains(mediaPeriod)) {
-            mediaPeriod.continueLoading(/* positionUs= */ 0);
+            mediaPeriod.continueLoading(new LoadingInfo.Builder().setPlaybackPositionUs(0).build());
           }
           return true;
         case MESSAGE_RELEASE:

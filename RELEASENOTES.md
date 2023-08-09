@@ -43,6 +43,12 @@
         `MimeTypes.APPLICATION_MEDIA3_CUES`.
     *   Add `PngExtractor` that sends and reads a whole png file into the the
         `TrackOutput` as one sample.
+    *   Enhance `SequenceableLoader.continueLoading(long)` method in the
+        `SequenceableLoader` interface to
+        `SequenceableLoader.continueLoading(LoadingInfo loadingInfo)`.
+        `LoadingInfo` contains additional parameters, including `playbackSpeed`
+        and `lastRebufferRealtimeMs` in addition to the existing
+        `playbackPositionUs`.
 *   Transformer:
     *   Parse EXIF rotation data for image inputs.
     *   Remove `TransformationRequest.HdrMode` annotation type and its

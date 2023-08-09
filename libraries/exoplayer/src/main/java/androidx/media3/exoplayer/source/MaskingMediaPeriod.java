@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.util.NullableType;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.exoplayer.LoadingInfo;
 import androidx.media3.exoplayer.SeekParameters;
 import androidx.media3.exoplayer.source.MediaSource.MediaPeriodId;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
@@ -224,8 +225,8 @@ public final class MaskingMediaPeriod implements MediaPeriod, MediaPeriod.Callba
   }
 
   @Override
-  public boolean continueLoading(long positionUs) {
-    return mediaPeriod != null && mediaPeriod.continueLoading(positionUs);
+  public boolean continueLoading(LoadingInfo loadingInfo) {
+    return mediaPeriod != null && mediaPeriod.continueLoading(loadingInfo);
   }
 
   @Override

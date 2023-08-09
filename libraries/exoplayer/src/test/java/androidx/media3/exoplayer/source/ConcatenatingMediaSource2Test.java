@@ -41,6 +41,7 @@ import androidx.media3.common.Timeline;
 import androidx.media3.common.util.Util;
 import androidx.media3.datasource.TransferListener;
 import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.exoplayer.LoadingInfo;
 import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.util.EventLogger;
 import androidx.media3.test.utils.FakeMediaSource;
@@ -736,7 +737,7 @@ public final class ConcatenatingMediaSource2Test {
 
           @Override
           public void onContinueLoadingRequested(MediaPeriod source) {
-            mediaPeriod.continueLoading(/* positionUs= */ 0);
+            mediaPeriod.continueLoading(new LoadingInfo.Builder().setPlaybackPositionUs(0).build());
           }
         },
         /* positionUs= */ 0);

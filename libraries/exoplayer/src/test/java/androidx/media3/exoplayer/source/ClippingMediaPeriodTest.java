@@ -25,6 +25,7 @@ import androidx.media3.common.Format;
 import androidx.media3.common.TrackGroup;
 import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.exoplayer.FormatHolder;
+import androidx.media3.exoplayer.LoadingInfo;
 import androidx.media3.exoplayer.drm.DrmSessionEventListener;
 import androidx.media3.exoplayer.drm.DrmSessionManager;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
@@ -116,7 +117,8 @@ public class ClippingMediaPeriodTest {
 
           @Override
           public void onContinueLoadingRequested(MediaPeriod source) {
-            clippingMediaPeriod.continueLoading(/* positionUs= */ 0);
+            clippingMediaPeriod.continueLoading(
+                new LoadingInfo.Builder().setPlaybackPositionUs(0).build());
           }
         },
         /* positionUs= */ 0);

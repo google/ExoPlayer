@@ -41,6 +41,7 @@ import androidx.media3.common.util.Util;
 import androidx.media3.datasource.HttpDataSource;
 import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.exoplayer.FormatHolder;
+import androidx.media3.exoplayer.LoadingInfo;
 import androidx.media3.exoplayer.SeekParameters;
 import androidx.media3.exoplayer.drm.DrmSession;
 import androidx.media3.exoplayer.drm.DrmSessionEventListener;
@@ -109,8 +110,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     void onPrepared();
 
     /**
-     * Called to schedule a {@link #continueLoading(long)} call when the playlist referred by the
-     * given url changes.
+     * Called to schedule a {@link #continueLoading(LoadingInfo)} call when the playlist referred by
+     * the given url changes.
      */
     void onPlaylistRefreshRequired(Uri playlistUrl);
   }
@@ -258,7 +259,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   public void continuePreparing() {
     if (!prepared) {
-      continueLoading(lastSeekPositionUs);
+      continueLoading(new LoadingInfo.Builder().setPlaybackPositionUs(lastSeekPositionUs).build());
     }
   }
 
@@ -737,7 +738,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   }
 
   @Override
-  public boolean continueLoading(long positionUs) {
+  public boolean continueLoading(LoadingInfo loadingInfo) {
     if (loadingFinished || loader.isLoading() || loader.hasFatalError()) {
       return false;
     }
@@ -760,7 +761,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     }
     nextChunkHolder.clear();
     chunkSource.getNextChunk(
-        positionUs,
+        loadingInfo.playbackPositionUs,
         loadPositionUs,
         chunkQueue,
         /* allowEndOfStream= */ prepared || !chunkQueue.isEmpty(),
@@ -862,7 +863,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         loadable.startTimeUs,
         loadable.endTimeUs);
     if (!prepared) {
-      continueLoading(lastSeekPositionUs);
+      continueLoading(new LoadingInfo.Builder().setPlaybackPositionUs(lastSeekPositionUs).build());
     } else {
       callback.onContinueLoadingRequested(this);
     }
@@ -991,7 +992,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     if (exclusionSucceeded) {
       if (!prepared) {
-        continueLoading(lastSeekPositionUs);
+        continueLoading(
+            new LoadingInfo.Builder().setPlaybackPositionUs(lastSeekPositionUs).build());
       } else {
         callback.onContinueLoadingRequested(this);
       }

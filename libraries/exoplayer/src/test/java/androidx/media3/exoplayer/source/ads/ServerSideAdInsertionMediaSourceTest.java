@@ -54,6 +54,7 @@ import androidx.media3.datasource.TransferListener;
 import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.FormatHolder;
+import androidx.media3.exoplayer.LoadingInfo;
 import androidx.media3.exoplayer.analytics.AnalyticsListener;
 import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.drm.DrmSessionEventListener;
@@ -805,7 +806,8 @@ public final class ServerSideAdInsertionMediaSourceTest {
 
           @Override
           public void onContinueLoadingRequested(MediaPeriod source) {
-            serverSideAdInsertionMediaPeriod.continueLoading(/* positionUs= */ 0);
+            serverSideAdInsertionMediaPeriod.continueLoading(
+                new LoadingInfo.Builder().setPlaybackPositionUs(0).build());
           }
         },
         /* positionUs= */ 0);

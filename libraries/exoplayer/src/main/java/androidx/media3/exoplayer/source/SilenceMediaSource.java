@@ -34,6 +34,7 @@ import androidx.media3.common.util.Util;
 import androidx.media3.datasource.TransferListener;
 import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.exoplayer.FormatHolder;
+import androidx.media3.exoplayer.LoadingInfo;
 import androidx.media3.exoplayer.SeekParameters;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
 import androidx.media3.exoplayer.upstream.Allocator;
@@ -257,7 +258,7 @@ public final class SilenceMediaSource extends BaseMediaSource {
     }
 
     @Override
-    public boolean continueLoading(long positionUs) {
+    public boolean continueLoading(LoadingInfo loadingInfo) {
       return false;
     }
 

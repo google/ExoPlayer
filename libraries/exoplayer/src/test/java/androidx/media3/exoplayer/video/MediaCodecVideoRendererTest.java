@@ -51,6 +51,7 @@ import androidx.media3.common.VideoSize;
 import androidx.media3.common.util.Clock;
 import androidx.media3.decoder.CryptoInfo;
 import androidx.media3.exoplayer.DecoderCounters;
+import androidx.media3.exoplayer.LoadingInfo;
 import androidx.media3.exoplayer.Renderer;
 import androidx.media3.exoplayer.RendererCapabilities;
 import androidx.media3.exoplayer.RendererCapabilities.Capabilities;
@@ -352,7 +353,8 @@ public class MediaCodecVideoRendererTest {
 
           @Override
           public void onContinueLoadingRequested(MediaPeriod source) {
-            clippingMediaPeriod.continueLoading(/* positionUs= */ 0);
+            clippingMediaPeriod.continueLoading(
+                new LoadingInfo.Builder().setPlaybackPositionUs(0).build());
           }
         },
         /* positionUs= */ 100);
@@ -456,7 +458,8 @@ public class MediaCodecVideoRendererTest {
 
           @Override
           public void onContinueLoadingRequested(MediaPeriod source) {
-            clippingMediaPeriod.continueLoading(/* positionUs= */ 0);
+            clippingMediaPeriod.continueLoading(
+                new LoadingInfo.Builder().setPlaybackPositionUs(0).build());
           }
         },
         /* positionUs= */ 100);

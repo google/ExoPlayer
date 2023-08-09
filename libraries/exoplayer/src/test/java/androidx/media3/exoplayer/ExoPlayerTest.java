@@ -8679,7 +8679,7 @@ public final class ExoPlayerTest {
               }
 
               @Override
-              public boolean continueLoading(long positionUs) {
+              public boolean continueLoading(LoadingInfo loadingInfo) {
                 allocations.add(allocator.allocate());
                 callback.onContinueLoadingRequested(this);
                 return true;
@@ -8744,8 +8744,8 @@ public final class ExoPlayerTest {
               private final Loader loader = new Loader("ExoPlayerTest");
 
               @Override
-              public boolean continueLoading(long positionUs) {
-                super.continueLoading(positionUs);
+              public boolean continueLoading(LoadingInfo loadingInfo) {
+                super.continueLoading(loadingInfo);
                 if (!loader.isLoading()) {
                   loader.startLoading(
                       loadable, new FakeLoaderCallback(), /* defaultMinRetryCount= */ 1);

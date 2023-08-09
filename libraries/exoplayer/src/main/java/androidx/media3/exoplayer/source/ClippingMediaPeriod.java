@@ -25,6 +25,7 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.exoplayer.FormatHolder;
+import androidx.media3.exoplayer.LoadingInfo;
 import androidx.media3.exoplayer.SeekParameters;
 import androidx.media3.exoplayer.source.ClippingMediaSource.IllegalClippingException;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
@@ -222,8 +223,8 @@ public final class ClippingMediaPeriod implements MediaPeriod, MediaPeriod.Callb
   }
 
   @Override
-  public boolean continueLoading(long positionUs) {
-    return mediaPeriod.continueLoading(positionUs);
+  public boolean continueLoading(LoadingInfo loadingInfo) {
+    return mediaPeriod.continueLoading(loadingInfo);
   }
 
   @Override

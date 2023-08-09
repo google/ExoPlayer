@@ -31,6 +31,7 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.TransferListener;
+import androidx.media3.exoplayer.LoadingInfo;
 import androidx.media3.exoplayer.SeekParameters;
 import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.drm.DrmSession;
@@ -391,7 +392,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsPlaylistTracker.Pla
   }
 
   @Override
-  public boolean continueLoading(long positionUs) {
+  public boolean continueLoading(LoadingInfo loadingInfo) {
     if (trackGroups == null) {
       // Preparation is still going on.
       for (HlsSampleStreamWrapper wrapper : sampleStreamWrappers) {
@@ -399,7 +400,7 @@ public final class HlsMediaPeriod implements MediaPeriod, HlsPlaylistTracker.Pla
       }
       return false;
     } else {
-      return compositeSequenceableLoader.continueLoading(positionUs);
+      return compositeSequenceableLoader.continueLoading(loadingInfo);
     }
   }
 
