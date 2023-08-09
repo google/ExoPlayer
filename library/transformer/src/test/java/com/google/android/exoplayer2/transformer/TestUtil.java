@@ -202,11 +202,11 @@ public final class TestUtil {
   }
 
   public static Transformer.Builder createTransformerBuilder(
-      TestMuxer.Holder testMuxerHolder, boolean enableFallback) {
+      TestMuxer.Factory muxerFactory, boolean enableFallback) {
     Context context = ApplicationProvider.getApplicationContext();
     return new Transformer.Builder(context)
         .setClock(new FakeClock(/* isAutoAdvancing= */ true))
-        .setMuxerFactory(new TestMuxer.Factory(testMuxerHolder))
+        .setMuxerFactory(muxerFactory)
         .setEncoderFactory(
             new DefaultEncoderFactory.Builder(context).setEnableFallback(enableFallback).build());
   }

@@ -15,12 +15,15 @@
  */
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.testutil.DumpableFormat;
 import com.google.android.exoplayer2.testutil.Dumper;
+import com.google.android.exoplayer2.testutil.Dumper.Dumpable;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -30,49 +33,52 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * An implementation of {@link Muxer} that supports dumping information about all interactions (for
- * testing purposes) and delegates the actual muxing operations to another {@link Muxer} created
- * using the factory provided.
+ * A {@link Dumpable} {@link Muxer} implementation that supports dumping information about all
+ * interactions (for testing purposes) and forwards method calls to the underlying {@link Muxer}.
  */
-public final class TestMuxer implements Muxer, Dumper.Dumpable {
+public final class TestMuxer implements Muxer, Dumpable {
 
-  public static final class Holder {
-    @Nullable public TestMuxer muxer;
-  }
-
+  /**
+   * A {@link Muxer.Factory} for {@link TestMuxer} that captures and provides access to the
+   * {@linkplain #create created} muxer.
+   */
   public static final class Factory implements Muxer.Factory {
+    private final Muxer.Factory wrappedFactory;
 
-    private final Holder muxerHolder;
-    private final Muxer.Factory defaultMuxerFactory;
+    @Nullable private TestMuxer muxer;
 
-    public Factory(Holder muxerHolder) {
-      this(muxerHolder, /* maxDelayBetweenSamplesMs= */ C.TIME_UNSET);
+    public Factory() {
+      this(/* maxDelayBetweenSamplesMs= */ C.TIME_UNSET);
     }
 
-    public Factory(Holder muxerHolder, long maxDelayBetweenSamplesMs) {
-      this.muxerHolder = muxerHolder;
-      defaultMuxerFactory = new DefaultMuxer.Factory(maxDelayBetweenSamplesMs);
+    public Factory(long maxDelayBetweenSamplesMs) {
+      this.wrappedFactory = new DefaultMuxer.Factory(maxDelayBetweenSamplesMs);
+    }
+
+    /** Returns the most recently {@linkplain #create created} {@code TestMuxer}. */
+    public TestMuxer getCreatedMuxer() {
+      return checkNotNull(muxer);
     }
 
     @Override
     public Muxer create(String path) throws Muxer.MuxerException {
-      muxerHolder.muxer = new TestMuxer(defaultMuxerFactory.create(path));
-      return muxerHolder.muxer;
+      muxer = new TestMuxer(wrappedFactory.create(path));
+      return muxer;
     }
 
     @Override
     public ImmutableList<String> getSupportedSampleMimeTypes(@C.TrackType int trackType) {
-      return defaultMuxerFactory.getSupportedSampleMimeTypes(trackType);
+      return wrappedFactory.getSupportedSampleMimeTypes(trackType);
     }
   }
 
-  private final Muxer muxer;
+  private final Muxer wrappedMuxer;
   private final Map<Integer, List<DumpableSample>> trackIndexToSampleDumpables;
-  private final List<Dumper.Dumpable> dumpables;
+  private final List<Dumpable> dumpables;
 
   /** Creates a new test muxer. */
-  private TestMuxer(Muxer muxer) {
-    this.muxer = muxer;
+  private TestMuxer(Muxer wrappedMuxer) {
+    this.wrappedMuxer = wrappedMuxer;
     dumpables = new ArrayList<>();
     trackIndexToSampleDumpables = new HashMap<>();
   }
@@ -81,7 +87,7 @@ public final class TestMuxer implements Muxer, Dumper.Dumpable {
 
   @Override
   public int addTrack(Format format) throws MuxerException {
-    int trackIndex = muxer.addTrack(format);
+    int trackIndex = wrappedMuxer.addTrack(format);
     dumpables.add(new DumpableFormat(format, trackIndex));
     trackIndexToSampleDumpables.put(trackIndex, new ArrayList<>());
     return trackIndex;
@@ -99,13 +105,13 @@ public final class TestMuxer implements Muxer, Dumper.Dumpable {
                 data,
                 (flags & C.BUFFER_FLAG_KEY_FRAME) == C.BUFFER_FLAG_KEY_FRAME,
                 presentationTimeUs));
-    muxer.writeSampleData(trackIndex, data, presentationTimeUs, flags);
+    wrappedMuxer.writeSampleData(trackIndex, data, presentationTimeUs, flags);
   }
 
   @Override
   public void addMetadata(Metadata metadata) {
     dumpables.add(dumper -> dumper.add("container metadata", metadata));
-    muxer.addMetadata(metadata);
+    wrappedMuxer.addMetadata(metadata);
   }
 
   @Override
@@ -114,24 +120,24 @@ public final class TestMuxer implements Muxer, Dumper.Dumpable {
       dumpables.addAll(value);
     }
     dumpables.add(dumper -> dumper.add("released", true));
-    muxer.release(forCancellation);
+    wrappedMuxer.release(forCancellation);
   }
 
   @Override
   public long getMaxDelayBetweenSamplesMs() {
-    return muxer.getMaxDelayBetweenSamplesMs();
+    return wrappedMuxer.getMaxDelayBetweenSamplesMs();
   }
 
   // Dumper.Dumpable implementation.
 
   @Override
   public void dump(Dumper dumper) {
-    for (Dumper.Dumpable dumpable : dumpables) {
+    for (Dumpable dumpable : dumpables) {
       dumpable.dump(dumper);
     }
   }
 
-  private static final class DumpableSample implements Dumper.Dumpable {
+  private static final class DumpableSample implements Dumpable {
 
     private final int trackIndex;
     private final long presentationTimeUs;

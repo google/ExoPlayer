@@ -26,7 +26,6 @@ import static com.google.android.exoplayer2.transformer.TestUtil.createEncodersA
 import static com.google.android.exoplayer2.transformer.TestUtil.createTransformerBuilder;
 import static com.google.android.exoplayer2.transformer.TestUtil.getDumpFileName;
 import static com.google.android.exoplayer2.transformer.TestUtil.removeEncodersAndDecoders;
-import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
@@ -52,13 +51,13 @@ public class CompositionExportTest {
 
   private Context context;
   private String outputPath;
-  private TestMuxer.Holder muxerHolder;
+  private TestMuxer.Factory muxerFactory;
 
   @Before
   public void setUp() throws Exception {
     context = ApplicationProvider.getApplicationContext();
     outputPath = Util.createTempFile(context, "TransformerTest").getPath();
-    muxerHolder = new TestMuxer.Holder();
+    muxerFactory = new TestMuxer.Factory();
     createEncodersAndDecoders();
   }
 
@@ -72,7 +71,7 @@ public class CompositionExportTest {
   public void start_audioVideoTransmuxedFromDifferentSequences_producesExpectedResult()
       throws Exception {
     Transformer transformer =
-        createTransformerBuilder(muxerHolder, /* enableFallback= */ false).build();
+        createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
     transformer.start(mediaItem, outputPath);
     ExportResult expectedExportResult = TransformerTestRunner.runLooper(transformer);
@@ -104,7 +103,7 @@ public class CompositionExportTest {
   @Test
   public void start_loopingTransmuxedAudio_producesExpectedResult() throws Exception {
     Transformer transformer =
-        createTransformerBuilder(muxerHolder, /* enableFallback= */ false).build();
+        createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
     EditedMediaItem audioEditedMediaItem =
         new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_ONLY)).build();
     EditedMediaItemSequence audioSequence =
@@ -134,7 +133,7 @@ public class CompositionExportTest {
   @Test
   public void start_loopingTransmuxedVideo_producesExpectedResult() throws Exception {
     Transformer transformer =
-        createTransformerBuilder(muxerHolder, /* enableFallback= */ false).build();
+        createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
     EditedMediaItem audioEditedMediaItem =
         new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_ONLY)).build();
     EditedMediaItemSequence audioSequence =
@@ -164,7 +163,7 @@ public class CompositionExportTest {
   @Test
   public void start_loopingRawAudio_producesExpectedResult() throws Exception {
     Transformer transformer =
-        createTransformerBuilder(muxerHolder, /* enableFallback= */ false).build();
+        createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
     EditedMediaItemSequence audioSequence =
         new EditedMediaItemSequence(
             ImmutableList.of(
@@ -197,7 +196,7 @@ public class CompositionExportTest {
   @Test
   public void start_compositionOfConcurrentAudio_isCorrect() throws Exception {
     Transformer transformer =
-        createTransformerBuilder(muxerHolder, /* enableFallback= */ false).build();
+        createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
 
     EditedMediaItem rawAudioItem =
         new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW)).build();
@@ -214,13 +213,13 @@ public class CompositionExportTest {
 
     assertThat(exportResult.processedInputs).hasSize(2);
     DumpFileAsserts.assertOutput(
-        context, checkNotNull(muxerHolder.muxer), getDumpFileName(FILE_AUDIO_RAW + ".concurrent"));
+        context, muxerFactory.getCreatedMuxer(), getDumpFileName(FILE_AUDIO_RAW + ".concurrent"));
   }
 
   @Test
   public void start_audioVideoCompositionWithExtraAudio_isCorrect() throws Exception {
     Transformer transformer =
-        createTransformerBuilder(muxerHolder, /* enableFallback= */ false).build();
+        createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
     EditedMediaItem audioVideoItem =
         new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_VIDEO))
             .build();
@@ -247,7 +246,7 @@ public class CompositionExportTest {
   @Test
   public void start_audioVideoCompositionWithLoopingAudio_isCorrect() throws Exception {
     Transformer transformer =
-        createTransformerBuilder(muxerHolder, /* enableFallback= */ false).build();
+        createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
     EditedMediaItem audioVideoItem =
         new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_VIDEO))
             .build();
