@@ -61,6 +61,7 @@ import org.checkerframework.dataflow.qual.Pure;
   private static final String TAG = "VideoSampleExporter";
   private final SingleInputVideoGraph singleInputVideoGraph;
   private final EncoderWrapper encoderWrapper;
+  private final DecoderInputBuffer encoderOutputBuffer;
 
   /**
    * The timestamp of the last buffer processed before {@linkplain
@@ -103,6 +104,9 @@ import org.checkerframework.dataflow.qual.Pure;
             muxerWrapper.getSupportedSampleMimeTypes(C.TRACK_TYPE_VIDEO),
             transformationRequest,
             fallbackListener);
+
+    encoderOutputBuffer =
+        new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
 
     boolean isMediaCodecToneMapping =
         encoderWrapper.getHdrModeAfterFallback() == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC
@@ -193,8 +197,6 @@ import org.checkerframework.dataflow.qual.Pure;
   @Override
   @Nullable
   protected DecoderInputBuffer getMuxerInputBuffer() throws ExportException {
-    DecoderInputBuffer encoderOutputBuffer =
-        new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
     encoderOutputBuffer.data = encoderWrapper.getOutputBuffer();
     if (encoderOutputBuffer.data == null) {
       return null;
