@@ -381,6 +381,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     this.finalShaderProgramWrapper = finalShaderProgramWrapper;
     finalShaderProgramWrapper.setOnInputStreamProcessedListener(
         () -> {
+          logEvent(EVENT_VFP_FINISH_PROCESSING_INPUT_STREAM, C.TIME_END_OF_SOURCE);
           boolean inputEndedAfterThisInputStream;
           synchronized (lock) {
             processingInput = false;
@@ -396,7 +397,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
           }
         });
     this.intermediateGlShaderPrograms = new ArrayList<>();
-    logEvent(EVENT_VFP_FINISH_PROCESSING_INPUT_STREAM, C.TIME_END_OF_SOURCE);
   }
 
   /** Returns the task executor that runs video frame processing tasks. */
