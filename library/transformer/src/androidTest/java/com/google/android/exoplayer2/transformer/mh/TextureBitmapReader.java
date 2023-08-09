@@ -15,17 +15,16 @@
  */
 package com.google.android.exoplayer2.transformer.mh;
 
-import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.view.Surface;
 import com.google.android.exoplayer2.effect.DefaultVideoFrameProcessor;
 import com.google.android.exoplayer2.testutil.BitmapPixelTestUtil;
 import com.google.android.exoplayer2.testutil.VideoFrameProcessorTestRunner;
 import com.google.android.exoplayer2.util.GlTextureInfo;
 import com.google.android.exoplayer2.util.GlUtil;
-import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import java.util.Map;
 import java.util.Set;
@@ -39,7 +38,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * <p>Reads from an OpenGL texture. Only for use on physical devices.
  */
 public final class TextureBitmapReader implements VideoFrameProcessorTestRunner.BitmapReader {
-  // TODO(b/239172735): This outputs an incorrect black output image on emulators.
   private final Map<Long, Bitmap> outputTimestampsToBitmaps;
   private boolean useHighPrecisionColorComponents;
   private @MonotonicNonNull Bitmap outputBitmap;
@@ -91,7 +89,9 @@ public final class TextureBitmapReader implements VideoFrameProcessorTestRunner.
     if (!useHighPrecisionColorComponents) {
       return BitmapPixelTestUtil.createArgb8888BitmapFromCurrentGlFramebuffer(width, height);
     }
-    checkState(Util.SDK_INT > 26, "useHighPrecisionColorComponents only supported on API 26+");
+    if (Build.VERSION.SDK_INT < 26) {
+      throw new IllegalStateException("useHighPrecisionColorComponents only supported on API 26+");
+    }
     return BitmapPixelTestUtil.createFp16BitmapFromCurrentGlFramebuffer(width, height);
   }
 }
