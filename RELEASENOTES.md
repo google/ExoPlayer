@@ -52,6 +52,9 @@
     *   Enhance `ChunkSource.getNextChunk(long, long, List, ChunkHolder)` method
         in the `ChunkSource` interface to `ChunkSource.getNextChunk(LoadingInfo,
         long, List, ChunkHolder)`.
+    *   Add additional fields to Common Media Client Data (CMCD) logging: buffer
+        starvation (`bs`), deadline (`dl`), playback rate (`pr`) and startup
+        (`su`) ([#8699](https://github.com/google/ExoPlayer/issues/8699)).
 *   Transformer:
     *   Parse EXIF rotation data for image inputs.
     *   Remove `TransformationRequest.HdrMode` annotation type and its

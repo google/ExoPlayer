@@ -120,4 +120,17 @@ public final class LoadingInfo {
   public LoadingInfo.Builder buildUpon() {
     return new LoadingInfo.Builder(this);
   }
+
+  /**
+   * Checks if rebuffering has occurred since {@code realtimeMs}.
+   *
+   * @param realtimeMs The time to compare against, as measured by {@link
+   *     SystemClock#elapsedRealtime()}.
+   * @return Whether rebuffering has occurred since the provided timestamp.
+   */
+  public boolean rebufferedSince(long realtimeMs) {
+    return lastRebufferRealtimeMs != C.TIME_UNSET
+        && realtimeMs != C.TIME_UNSET
+        && lastRebufferRealtimeMs >= realtimeMs;
+  }
 }

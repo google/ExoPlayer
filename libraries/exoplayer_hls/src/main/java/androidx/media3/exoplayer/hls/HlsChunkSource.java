@@ -154,6 +154,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private boolean seenExpectedPlaylistError;
 
   /**
+   * The time at which the last {@link #getNextChunk(LoadingInfo, long, List, boolean,
+   * HlsChunkHolder)} method was called, as measured by {@link SystemClock#elapsedRealtime}.
+   */
+  private long lastChunkRequestRealtimeMs;
+
+  /**
    * @param extractorFactory An {@link HlsExtractorFactory} from which to obtain the extractors for
    *     media chunks.
    * @param playlistTracker The {@link HlsPlaylistTracker} from which to obtain media playlists.
@@ -194,6 +200,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.muxedCaptionFormats = muxedCaptionFormats;
     this.playerId = playerId;
     this.cmcdConfiguration = cmcdConfiguration;
+    this.lastChunkRequestRealtimeMs = C.TIME_UNSET;
     keyCache = new FullSegmentEncryptionKeyCache(KEY_CACHE_SIZE);
     scratchSpace = Util.EMPTY_BYTE_ARRAY;
     liveEdgeInPeriodTimeUs = C.TIME_UNSET;
@@ -489,12 +496,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                     cmcdConfiguration,
                     trackSelection,
                     bufferedDurationUs,
+                    /* playbackRate= */ loadingInfo.playbackSpeed,
                     /* streamingFormat= */ CmcdHeadersFactory.STREAMING_FORMAT_HLS,
-                    /* isLive= */ !playlist.hasEndTag)
+                    /* isLive= */ !playlist.hasEndTag,
+                    /* didRebuffer= */ loadingInfo.rebufferedSince(lastChunkRequestRealtimeMs),
+                    /* isBufferEmpty= */ queue.isEmpty())
                 .setObjectType(
                     getIsMuxedAudioAndVideo()
                         ? CmcdHeadersFactory.OBJECT_TYPE_MUXED_AUDIO_AND_VIDEO
                         : CmcdHeadersFactory.getObjectType(trackSelection));
+    lastChunkRequestRealtimeMs = SystemClock.elapsedRealtime();
 
     // Check if the media segment or its initialization segment are fully encrypted.
     @Nullable

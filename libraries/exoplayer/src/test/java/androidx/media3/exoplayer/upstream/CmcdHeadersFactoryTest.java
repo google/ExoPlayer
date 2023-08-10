@@ -68,8 +68,11 @@ public class CmcdHeadersFactoryTest {
                 cmcdConfiguration,
                 trackSelection,
                 /* bufferedDurationUs= */ 1_760_000,
+                /* playbackRate= */ 2.0f,
                 /* streamingFormat= */ CmcdHeadersFactory.STREAMING_FORMAT_DASH,
-                /* isLive= */ true)
+                /* isLive= */ true,
+                /* didRebuffer= */ true,
+                /* isBufferEmpty= */ false)
             .setChunkDurationUs(3_000_000)
             .createHttpRequestHeaders();
 
@@ -78,10 +81,10 @@ public class CmcdHeadersFactoryTest {
             "CMCD-Object",
             "br=840,tb=1000,d=3000,key1=value1",
             "CMCD-Request",
-            "bl=1800,mtp=500,key2=\"stringValue\"",
+            "bl=1800,mtp=500,dl=900,su,key2=\"stringValue\"",
             "CMCD-Session",
-            "cid=\"mediaId\",sid=\"sessionId\",sf=d,st=l",
+            "cid=\"mediaId\",sid=\"sessionId\",sf=d,st=l,pr=2.00",
             "CMCD-Status",
-            "rtp=1700");
+            "rtp=1700,bs");
   }
 }
