@@ -410,7 +410,9 @@ public class DefaultDashChunkSource implements DashChunkSource {
     }
 
     long periodDurationUs = representationHolder.periodDurationUs;
-    boolean periodEnded = periodDurationUs != C.TIME_UNSET;
+    boolean isLastPeriodInDynamicManifest =
+        manifest.dynamic && periodIndex == manifest.getPeriodCount() - 1;
+    boolean periodEnded = !isLastPeriodInDynamicManifest || periodDurationUs != C.TIME_UNSET;
 
     if (representationHolder.getSegmentCount() == 0) {
       // The index doesn't define any segments.
@@ -420,6 +422,16 @@ public class DefaultDashChunkSource implements DashChunkSource {
 
     long firstAvailableSegmentNum = representationHolder.getFirstAvailableSegmentNum(nowUnixTimeUs);
     long lastAvailableSegmentNum = representationHolder.getLastAvailableSegmentNum(nowUnixTimeUs);
+    if (isLastPeriodInDynamicManifest) {
+      long lastAvailableSegmentEndTimeUs =
+          representationHolder.getSegmentEndTimeUs(lastAvailableSegmentNum);
+      long lastSegmentDurationUs =
+          lastAvailableSegmentEndTimeUs
+              - representationHolder.getSegmentStartTimeUs(lastAvailableSegmentNum);
+      // Account for some inaccuracy in the overall period duration value by assuming that the
+      // period is finished once no further full sample fits into the overall duration.
+      periodEnded &= (lastAvailableSegmentEndTimeUs + lastSegmentDurationUs >= periodDurationUs);
+    }
     long segmentNum =
         getSegmentNum(
             representationHolder,
