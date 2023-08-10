@@ -111,15 +111,21 @@ public final class MimeTypesTest {
     assertThat(MimeTypes.isText(MimeTypes.VIDEO_H264)).isFalse();
     assertThat(MimeTypes.isText(MimeTypes.AUDIO_MP4)).isFalse();
     assertThat(MimeTypes.isText(MimeTypes.AUDIO_AAC)).isFalse();
+    assertThat(MimeTypes.isText(MimeTypes.IMAGE_JPEG)).isFalse();
     assertThat(MimeTypes.isText("application/custom")).isFalse();
   }
 
   @Test
   public void isImage_returnsCorrectResult() {
     assertThat(MimeTypes.isImage(MimeTypes.IMAGE_JPEG)).isTrue();
+    assertThat(MimeTypes.isImage(MimeTypes.IMAGE_PNG)).isTrue();
+    assertThat(MimeTypes.isImage(MimeTypes.IMAGE_HEIF)).isTrue();
+    assertThat(MimeTypes.isImage(MimeTypes.IMAGE_BMP)).isTrue();
+    assertThat(MimeTypes.isImage(MimeTypes.IMAGE_WEBP)).isTrue();
     assertThat(MimeTypes.isImage("image/custom")).isTrue();
 
     assertThat(MimeTypes.isImage(MimeTypes.VIDEO_MP4)).isFalse();
+    assertThat(MimeTypes.isImage(MimeTypes.AUDIO_AAC)).isFalse();
     assertThat(MimeTypes.isImage("application/custom")).isFalse();
   }
 
@@ -259,15 +265,6 @@ public final class MimeTypesTest {
     assert_getObjectTypeFromMp4aRFC6381CodecString_for_returns("mp4a.D0.9", 0xd0, 9);
   }
 
-  private static void assert_getObjectTypeFromMp4aRFC6381CodecString_for_returns(
-      String codec, int expectedObjectTypeIndicator, int expectedAudioObjectTypeIndicator) {
-    @Nullable
-    MimeTypes.Mp4aObjectType objectType = MimeTypes.getObjectTypeFromMp4aRFC6381CodecString(codec);
-    assertThat(objectType).isNotNull();
-    assertThat(objectType.objectTypeIndication).isEqualTo(expectedObjectTypeIndicator);
-    assertThat(objectType.audioObjectTypeIndication).isEqualTo(expectedAudioObjectTypeIndicator);
-  }
-
   @Test
   public void allSamplesAreSyncSamples_forAac_usesCodec() {
     assertThat(MimeTypes.allSamplesAreSyncSamples(MimeTypes.AUDIO_AAC, "mp4a.40." + AACObjectHE))
@@ -279,5 +276,14 @@ public final class MimeTypesTest {
     assertThat(MimeTypes.allSamplesAreSyncSamples(MimeTypes.AUDIO_AAC, "invalid")).isFalse();
     assertThat(MimeTypes.allSamplesAreSyncSamples(MimeTypes.AUDIO_AAC, /* codec= */ null))
         .isFalse();
+  }
+
+  private static void assert_getObjectTypeFromMp4aRFC6381CodecString_for_returns(
+      String codec, int expectedObjectTypeIndicator, int expectedAudioObjectTypeIndicator) {
+    @Nullable
+    MimeTypes.Mp4aObjectType objectType = MimeTypes.getObjectTypeFromMp4aRFC6381CodecString(codec);
+    assertThat(objectType).isNotNull();
+    assertThat(objectType.objectTypeIndication).isEqualTo(expectedObjectTypeIndicator);
+    assertThat(objectType.audioObjectTypeIndication).isEqualTo(expectedAudioObjectTypeIndicator);
   }
 }
