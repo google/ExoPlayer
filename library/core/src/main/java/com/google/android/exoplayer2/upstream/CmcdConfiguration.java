@@ -73,7 +73,11 @@ public final class CmcdConfiguration {
     KEY_TOP_BITRATE,
     KEY_OBJECT_DURATION,
     KEY_MEASURED_THROUGHPUT,
-    KEY_OBJECT_TYPE
+    KEY_OBJECT_TYPE,
+    KEY_BUFFER_STARVATION,
+    KEY_DEADLINE,
+    KEY_PLAYBACK_RATE,
+    KEY_STARTUP
   })
   @Documented
   @Target(TYPE_USE)
@@ -98,6 +102,10 @@ public final class CmcdConfiguration {
   public static final String KEY_OBJECT_DURATION = "d";
   public static final String KEY_MEASURED_THROUGHPUT = "mtp";
   public static final String KEY_OBJECT_TYPE = "ot";
+  public static final String KEY_BUFFER_STARVATION = "bs";
+  public static final String KEY_DEADLINE = "dl";
+  public static final String KEY_PLAYBACK_RATE = "pr";
+  public static final String KEY_STARTUP = "su";
 
   /**
    * Factory for {@link CmcdConfiguration} instances.
@@ -306,5 +314,37 @@ public final class CmcdConfiguration {
    */
   public boolean isObjectTypeLoggingAllowed() {
     return requestConfig.isKeyAllowed(KEY_OBJECT_TYPE);
+  }
+
+  /**
+   * Returns whether logging buffer starvation is allowed based on the {@linkplain RequestConfig
+   * request configuration}.
+   */
+  public boolean isBufferStarvationLoggingAllowed() {
+    return requestConfig.isKeyAllowed(KEY_BUFFER_STARVATION);
+  }
+
+  /**
+   * Returns whether logging deadline is allowed based on the {@linkplain RequestConfig request
+   * configuration}.
+   */
+  public boolean isDeadlineLoggingAllowed() {
+    return requestConfig.isKeyAllowed(KEY_DEADLINE);
+  }
+
+  /**
+   * Returns whether logging playback rate is allowed based on the {@linkplain RequestConfig request
+   * configuration}.
+   */
+  public boolean isPlaybackRateLoggingAllowed() {
+    return requestConfig.isKeyAllowed(KEY_PLAYBACK_RATE);
+  }
+
+  /**
+   * Returns whether logging startup is allowed based on the {@linkplain RequestConfig request
+   * configuration}.
+   */
+  public boolean isStartupLoggingAllowed() {
+    return requestConfig.isKeyAllowed(KEY_STARTUP);
   }
 }

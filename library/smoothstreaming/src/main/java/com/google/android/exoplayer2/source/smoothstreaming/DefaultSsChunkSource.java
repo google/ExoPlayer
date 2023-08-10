@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source.smoothstreaming;
 import static com.google.android.exoplayer2.trackselection.TrackSelectionUtil.createFallbackOptions;
 
 import android.net.Uri;
+import android.os.SystemClock;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -105,6 +106,12 @@ public class DefaultSsChunkSource implements SsChunkSource {
   @Nullable private IOException fatalError;
 
   /**
+   * The time at which the last {@link #getNextChunk(LoadingInfo, long, List, ChunkHolder)} method
+   * was called, as measured by {@link SystemClock#elapsedRealtime}.
+   */
+  private long lastChunkRequestRealtimeMs;
+
+  /**
    * @param manifestLoaderErrorThrower Throws errors affecting loading of manifests.
    * @param manifest The initial manifest.
    * @param streamElementIndex The index of the stream element in the manifest.
@@ -125,6 +132,7 @@ public class DefaultSsChunkSource implements SsChunkSource {
     this.trackSelection = trackSelection;
     this.dataSource = dataSource;
     this.cmcdConfiguration = cmcdConfiguration;
+    this.lastChunkRequestRealtimeMs = C.TIME_UNSET;
 
     StreamElement streamElement = manifest.streamElements[streamElementIndex];
     chunkExtractors = new ChunkExtractor[trackSelection.length()];
@@ -296,10 +304,14 @@ public class DefaultSsChunkSource implements SsChunkSource {
                     cmcdConfiguration,
                     trackSelection,
                     bufferedDurationUs,
+                    /* playbackRate= */ loadingInfo.playbackSpeed,
                     /* streamingFormat= */ CmcdHeadersFactory.STREAMING_FORMAT_SS,
-                    /* isLive= */ manifest.isLive)
+                    /* isLive= */ manifest.isLive,
+                    /* didRebuffer= */ loadingInfo.rebufferedSince(lastChunkRequestRealtimeMs),
+                    /* isBufferEmpty= */ queue.isEmpty())
                 .setChunkDurationUs(chunkEndTimeUs - chunkStartTimeUs)
                 .setObjectType(CmcdHeadersFactory.getObjectType(trackSelection));
+    lastChunkRequestRealtimeMs = SystemClock.elapsedRealtime();
 
     out.chunk =
         newMediaChunk(

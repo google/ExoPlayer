@@ -169,6 +169,12 @@ public class DefaultDashChunkSource implements DashChunkSource {
   private boolean missingLastSegment;
 
   /**
+   * The time at which the last {@link #getNextChunk(LoadingInfo, long, List, ChunkHolder)} method
+   * was called, as measured by {@link SystemClock#elapsedRealtime}.
+   */
+  private long lastChunkRequestRealtimeMs;
+
+  /**
    * @param chunkExtractorFactory Creates {@link ChunkExtractor} instances to use for extracting
    *     chunks.
    * @param manifestLoaderErrorThrower Throws errors affecting loading of manifests.
@@ -221,6 +227,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
     this.maxSegmentsPerLoad = maxSegmentsPerLoad;
     this.playerTrackEmsgHandler = playerTrackEmsgHandler;
     this.cmcdConfiguration = cmcdConfiguration;
+    this.lastChunkRequestRealtimeMs = C.TIME_UNSET;
 
     long periodDurationUs = manifest.getPeriodDurationUs(periodIndex);
 
@@ -377,7 +384,6 @@ public class DefaultDashChunkSource implements DashChunkSource {
     long availableLiveDurationUs = getAvailableLiveDurationUs(nowUnixTimeUs, playbackPositionUs);
     trackSelection.updateSelectedTrack(
         playbackPositionUs, bufferedDurationUs, availableLiveDurationUs, queue, chunkIterators);
-
     int selectedTrackIndex = trackSelection.getSelectedIndex();
 
     @Nullable
@@ -388,8 +394,13 @@ public class DefaultDashChunkSource implements DashChunkSource {
                 cmcdConfiguration,
                 trackSelection,
                 bufferedDurationUs,
+                /* playbackRate= */ loadingInfo.playbackSpeed,
                 /* streamingFormat= */ CmcdHeadersFactory.STREAMING_FORMAT_DASH,
-                /* isLive= */ manifest.dynamic);
+                /* isLive= */ manifest.dynamic,
+                /* didRebuffer= */ loadingInfo.rebufferedSince(lastChunkRequestRealtimeMs),
+                /* isBufferEmpty= */ queue.isEmpty());
+    lastChunkRequestRealtimeMs = SystemClock.elapsedRealtime();
+
     RepresentationHolder representationHolder = updateSelectedBaseUrl(selectedTrackIndex);
     if (representationHolder.chunkExtractor != null) {
       Representation selectedRepresentation = representationHolder.representation;

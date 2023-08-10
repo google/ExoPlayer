@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.source.smoothstreaming;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
+import android.os.SystemClock;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -26,6 +27,7 @@ import com.google.android.exoplayer2.LoadingInfo;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.ChunkHolder;
+import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifest;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestParser;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
@@ -38,8 +40,10 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
+import java.time.Duration;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.shadows.ShadowSystemClock;
 
 /** Unit test for {@link DefaultSsChunkSource}. */
 @RunWith(AndroidJUnit4.class)
@@ -57,7 +61,7 @@ public class DefaultSsChunkSourceTest {
     ChunkHolder output = new ChunkHolder();
 
     chunkSource.getNextChunk(
-        new LoadingInfo.Builder().setPlaybackPositionUs(0).build(),
+        new LoadingInfo.Builder().setPlaybackPositionUs(0).setPlaybackSpeed(1.0f).build(),
         /* loadPositionUs= */ 0,
         /* queue= */ ImmutableList.of(),
         output);
@@ -67,9 +71,63 @@ public class DefaultSsChunkSourceTest {
             "CMCD-Object",
             "br=308,tb=1536,d=1968,ot=v",
             "CMCD-Request",
-            "bl=0,mtp=1000",
+            "bl=0,mtp=1000,dl=0,su",
             "CMCD-Session",
             "cid=\"mediaId\",sid=\"" + cmcdConfiguration.sessionId + "\",sf=s,st=v");
+
+    chunkSource.getNextChunk(
+        new LoadingInfo.Builder().setPlaybackPositionUs(3_000_000).setPlaybackSpeed(2.0f).build(),
+        /* loadPositionUs= */ 4_000_000,
+        /* queue= */ ImmutableList.of((MediaChunk) output.chunk),
+        output);
+
+    assertThat(output.chunk.dataSpec.httpRequestHeaders)
+        .containsExactly(
+            "CMCD-Object",
+            "br=308,tb=1536,d=898,ot=v",
+            "CMCD-Request",
+            "bl=1000,mtp=1000,dl=500",
+            "CMCD-Session",
+            "cid=\"mediaId\",sid=\"" + cmcdConfiguration.sessionId + "\",sf=s,st=v,pr=2.00");
+  }
+
+  @Test
+  public void getNextChunk_chunkSourceWithDefaultCmcdConfiguration_setsCorrectBufferStarvationKey()
+      throws Exception {
+    CmcdConfiguration.Factory cmcdConfigurationFactory = CmcdConfiguration.Factory.DEFAULT;
+    MediaItem mediaItem = new MediaItem.Builder().setMediaId("mediaId").build();
+    CmcdConfiguration cmcdConfiguration =
+        cmcdConfigurationFactory.createCmcdConfiguration(mediaItem);
+    SsChunkSource chunkSource = createSsChunkSource(/* numberOfTracks= */ 2, cmcdConfiguration);
+    ChunkHolder output = new ChunkHolder();
+    LoadingInfo loadingInfo =
+        new LoadingInfo.Builder().setPlaybackPositionUs(0).setPlaybackSpeed(1.0f).build();
+
+    chunkSource.getNextChunk(
+        loadingInfo, /* loadPositionUs= */ 0, /* queue= */ ImmutableList.of(), output);
+
+    assertThat(output.chunk.dataSpec.httpRequestHeaders).doesNotContainKey("CMCD-Status");
+
+    loadingInfo =
+        loadingInfo
+            .buildUpon()
+            .setPlaybackPositionUs(2_000_000)
+            .setLastRebufferRealtimeMs(SystemClock.elapsedRealtime())
+            .build();
+    ShadowSystemClock.advanceBy(Duration.ofMillis(100));
+
+    chunkSource.getNextChunk(
+        loadingInfo, /* loadPositionUs= */ 4_000_000, /* queue= */ ImmutableList.of(), output);
+
+    assertThat(output.chunk.dataSpec.httpRequestHeaders).containsEntry("CMCD-Status", "bs");
+
+    loadingInfo = loadingInfo.buildUpon().setPlaybackPositionUs(6_000_000).build();
+    ShadowSystemClock.advanceBy(Duration.ofMillis(100));
+
+    chunkSource.getNextChunk(
+        loadingInfo, /* loadPositionUs= */ 8_000_000, /* queue= */ ImmutableList.of(), output);
+
+    assertThat(output.chunk.dataSpec.httpRequestHeaders).doesNotContainKey("CMCD-Status");
   }
 
   @Test
@@ -102,7 +160,7 @@ public class DefaultSsChunkSourceTest {
     ChunkHolder output = new ChunkHolder();
 
     chunkSource.getNextChunk(
-        new LoadingInfo.Builder().setPlaybackPositionUs(0).build(),
+        new LoadingInfo.Builder().setPlaybackPositionUs(0).setPlaybackSpeed(1.0f).build(),
         /* loadPositionUs= */ 0,
         /* queue= */ ImmutableList.of(),
         output);
@@ -112,7 +170,7 @@ public class DefaultSsChunkSourceTest {
             "CMCD-Object",
             "br=308,tb=1536,d=1968,ot=v",
             "CMCD-Request",
-            "bl=0,mtp=1000",
+            "bl=0,mtp=1000,dl=0,su",
             "CMCD-Session",
             "cid=\"mediaIdcontentIdSuffix\",sf=s,st=v",
             "CMCD-Status",
@@ -148,7 +206,7 @@ public class DefaultSsChunkSourceTest {
     ChunkHolder output = new ChunkHolder();
 
     chunkSource.getNextChunk(
-        new LoadingInfo.Builder().setPlaybackPositionUs(0).build(),
+        new LoadingInfo.Builder().setPlaybackPositionUs(0).setPlaybackSpeed(1.0f).build(),
         /* loadPositionUs= */ 0,
         /* queue= */ ImmutableList.of(),
         output);
@@ -158,7 +216,7 @@ public class DefaultSsChunkSourceTest {
             "CMCD-Object",
             "br=308,tb=1536,d=1968,ot=v,key1=value1",
             "CMCD-Request",
-            "bl=0,mtp=1000,key2=\"stringValue\"",
+            "bl=0,mtp=1000,dl=0,su,key2=\"stringValue\"",
             "CMCD-Session",
             "cid=\"mediaId\",sid=\"" + cmcdConfiguration.sessionId + "\",sf=s,st=v,key3=1",
             "CMCD-Status",

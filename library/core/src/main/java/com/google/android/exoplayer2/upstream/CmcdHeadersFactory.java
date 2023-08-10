@@ -134,8 +134,11 @@ public final class CmcdHeadersFactory {
   private final CmcdConfiguration cmcdConfiguration;
   private final ExoTrackSelection trackSelection;
   private final long bufferedDurationUs;
+  private final float playbackRate;
   private final @StreamingFormat String streamingFormat;
   private final boolean isLive;
+  private final boolean didRebuffer;
+  private final boolean isBufferEmpty;
   private long chunkDurationUs;
   private @Nullable @ObjectType String objectType;
 
@@ -146,9 +149,14 @@ public final class CmcdHeadersFactory {
    * @param trackSelection The {@linkplain ExoTrackSelection track selection}.
    * @param bufferedDurationUs The duration of media currently buffered from the current playback
    *     position, in microseconds.
+   * @param playbackRate The playback rate indicating the current speed of playback.
    * @param streamingFormat The streaming format of the media content. Must be one of the allowed
    *     streaming formats specified by the {@link StreamingFormat} annotation.
    * @param isLive {@code true} if the media content is being streamed live, {@code false}
+   *     otherwise.
+   * @param didRebuffer {@code true} if a rebuffering event happened between the previous request
+   *     and this one, {@code false} otherwise.
+   * @param isBufferEmpty {@code true} if the queue of buffered chunks is empty, {@code false}
    *     otherwise.
    * @throws IllegalArgumentException If {@code bufferedDurationUs} is negative.
    */
@@ -156,14 +164,21 @@ public final class CmcdHeadersFactory {
       CmcdConfiguration cmcdConfiguration,
       ExoTrackSelection trackSelection,
       long bufferedDurationUs,
+      float playbackRate,
       @StreamingFormat String streamingFormat,
-      boolean isLive) {
+      boolean isLive,
+      boolean didRebuffer,
+      boolean isBufferEmpty) {
     checkArgument(bufferedDurationUs >= 0);
+    checkArgument(playbackRate > 0);
     this.cmcdConfiguration = cmcdConfiguration;
     this.trackSelection = trackSelection;
     this.bufferedDurationUs = bufferedDurationUs;
+    this.playbackRate = playbackRate;
     this.streamingFormat = streamingFormat;
     this.isLive = isLive;
+    this.didRebuffer = didRebuffer;
+    this.isBufferEmpty = isBufferEmpty;
     this.chunkDurationUs = C.TIME_UNSET;
   }
 
@@ -231,6 +246,12 @@ public final class CmcdHeadersFactory {
       cmcdRequest.setMeasuredThroughputInKbps(
           Util.ceilDivide(trackSelection.getLatestBitrateEstimate(), 1000));
     }
+    if (cmcdConfiguration.isDeadlineLoggingAllowed()) {
+      cmcdRequest.setDeadlineMs(bufferedDurationUs / (long) (playbackRate * 1000));
+    }
+    if (cmcdConfiguration.isStartupLoggingAllowed()) {
+      cmcdRequest.setStartup(didRebuffer || isBufferEmpty);
+    }
 
     CmcdSession.Builder cmcdSession =
         new CmcdSession.Builder().setCustomData(customData.get(CmcdConfiguration.KEY_CMCD_SESSION));
@@ -246,12 +267,18 @@ public final class CmcdHeadersFactory {
     if (cmcdConfiguration.isStreamTypeLoggingAllowed()) {
       cmcdSession.setStreamType(isLive ? STREAM_TYPE_LIVE : STREAM_TYPE_VOD);
     }
+    if (cmcdConfiguration.isPlaybackRateLoggingAllowed()) {
+      cmcdSession.setPlaybackRate(playbackRate);
+    }
 
     CmcdStatus.Builder cmcdStatus =
         new CmcdStatus.Builder().setCustomData(customData.get(CmcdConfiguration.KEY_CMCD_STATUS));
     if (cmcdConfiguration.isMaximumRequestThroughputLoggingAllowed()) {
       cmcdStatus.setMaximumRequestedThroughputKbps(
           cmcdConfiguration.requestConfig.getRequestedMaximumThroughputKbps(bitrateKbps));
+    }
+    if (cmcdConfiguration.isBufferStarvationLoggingAllowed()) {
+      cmcdStatus.setBufferStarvation(didRebuffer);
     }
 
     ImmutableMap.Builder<String, String> httpRequestHeaders = ImmutableMap.builder();
@@ -266,7 +293,10 @@ public final class CmcdHeadersFactory {
     return objectType != null && objectType.equals(OBJECT_TYPE_INIT_SEGMENT);
   }
 
-  /** Keys whose values vary with the object being requested. Contains CMCD fields: {@code br}. */
+  /**
+   * Keys whose values vary with the object being requested. Contains CMCD fields: {@code br},
+   * {@code tb}, {@code d} and {@code ot}.
+   */
   private static final class CmcdObject {
 
     /** Builder for {@link CmcdObject} instances. */
@@ -420,19 +450,25 @@ public final class CmcdHeadersFactory {
     }
   }
 
-  /** Keys whose values vary with each request. Contains CMCD fields: {@code bl}. */
+  /**
+   * Keys whose values vary with each request. Contains CMCD fields: {@code bl}, {@code mtp}, {@code
+   * dl} and {@code su}.
+   */
   private static final class CmcdRequest {
 
     /** Builder for {@link CmcdRequest} instances. */
     public static final class Builder {
       private long bufferLengthMs;
       private long measuredThroughputInKbps;
+      private long deadlineMs;
+      private boolean startup;
       @Nullable private String customData;
 
       /** Creates a new instance with default values. */
       public Builder() {
         this.bufferLengthMs = C.TIME_UNSET;
         this.measuredThroughputInKbps = Long.MIN_VALUE;
+        this.deadlineMs = C.TIME_UNSET;
       }
 
       /**
@@ -459,6 +495,27 @@ public final class CmcdHeadersFactory {
         checkArgument(measuredThroughputInKbps >= 0);
         this.measuredThroughputInKbps = ((measuredThroughputInKbps + 50) / 100) * 100;
 
+        return this;
+      }
+
+      /**
+       * Sets the {@link CmcdRequest#deadlineMs}. Rounded to nearest 100 ms. The default value is
+       * {@link C#TIME_UNSET}.
+       *
+       * @throws IllegalArgumentException If {@code deadlineMs} is not equal to {@link C#TIME_UNSET}
+       *     and is negative.
+       */
+      @CanIgnoreReturnValue
+      public Builder setDeadlineMs(long deadlineMs) {
+        checkArgument(deadlineMs >= 0 || deadlineMs == C.TIME_UNSET);
+        this.deadlineMs = ((deadlineMs + 50) / 100) * 100;
+        return this;
+      }
+
+      /** Sets the {@link CmcdRequest#startup}. The default value is {@code false}. */
+      @CanIgnoreReturnValue
+      public Builder setStartup(boolean startup) {
+        this.startup = startup;
         return this;
       }
 
@@ -500,6 +557,23 @@ public final class CmcdHeadersFactory {
     public final long measuredThroughputInKbps;
 
     /**
+     * Deadline in milliseconds from the request time until the first sample of this Segment/Object
+     * needs to be available in order to not create a buffer underrun or any other playback
+     * problems, or {@link C#TIME_UNSET} if unset.
+     *
+     * <p>This value MUST be rounded to the nearest 100 ms. For a playback rate of 1, this may be
+     * equivalent to the player’s remaining buffer length.
+     */
+    public final long deadlineMs;
+
+    /**
+     * A boolean indicating whether the chunk is needed urgently due to startup, seeking or recovery
+     * after a buffer-empty event, or {@code false} if unknown. The media SHOULD not be rendering
+     * when this request is made.
+     */
+    public final boolean startup;
+
+    /**
      * Custom data where the values of the keys vary with each request, or {@code null} if unset.
      *
      * <p>The String consists of key-value pairs separated by commas.<br>
@@ -510,6 +584,8 @@ public final class CmcdHeadersFactory {
     private CmcdRequest(Builder builder) {
       this.bufferLengthMs = builder.bufferLengthMs;
       this.measuredThroughputInKbps = builder.measuredThroughputInKbps;
+      this.deadlineMs = builder.deadlineMs;
+      this.startup = builder.startup;
       this.customData = builder.customData;
     }
 
@@ -531,6 +607,16 @@ public final class CmcdHeadersFactory {
             Util.formatInvariant(
                 "%s=%d,", CmcdConfiguration.KEY_MEASURED_THROUGHPUT, measuredThroughputInKbps));
       }
+      if (deadlineMs != C.TIME_UNSET) {
+        headerValue
+            .append(CmcdConfiguration.KEY_DEADLINE)
+            .append("=")
+            .append(deadlineMs)
+            .append(",");
+      }
+      if (startup) {
+        headerValue.append(CmcdConfiguration.KEY_STARTUP).append(",");
+      }
       if (!TextUtils.isEmpty(customData)) {
         headerValue.append(Util.formatInvariant("%s,", customData));
       }
@@ -546,7 +632,7 @@ public final class CmcdHeadersFactory {
 
   /**
    * Keys whose values are expected to be invariant over the life of the session. Contains CMCD
-   * fields: {@code cid} and {@code sid}.
+   * fields: {@code cid}, {@code sid}, {@code sf}, {@code st}, {@code pr} and {@code v}.
    */
   private static final class CmcdSession {
 
@@ -556,6 +642,7 @@ public final class CmcdHeadersFactory {
       @Nullable private String sessionId;
       @Nullable private @StreamingFormat String streamingFormat;
       @Nullable private @StreamType String streamType;
+      private float playbackRate;
       @Nullable private String customData;
 
       /**
@@ -600,6 +687,13 @@ public final class CmcdHeadersFactory {
         return this;
       }
 
+      /** Sets the {@link CmcdSession#playbackRate}. The default value is {@link C#RATE_UNSET}. */
+      @CanIgnoreReturnValue
+      public Builder setPlaybackRate(float playbackRate) {
+        this.playbackRate = playbackRate;
+        return this;
+      }
+
       /** Sets the {@link CmcdSession#customData}. The default value is {@code null}. */
       @CanIgnoreReturnValue
       public Builder setCustomData(@Nullable String customData) {
@@ -636,10 +730,9 @@ public final class CmcdHeadersFactory {
     @Nullable public final String sessionId;
 
     /**
-     * The streaming format that defines the current request , or {@code null} if unset. Must be one
-     * of the allowed streaming formats specified by the {@link StreamingFormat} annotation.
-     *
-     * <p>If the streaming format being requested is unknown, then this key MUST NOT be used.
+     * The streaming format that defines the current request, or{@code null} if unset. Must be one
+     * of the allowed stream formats specified by the {@link StreamingFormat} annotation. If the
+     * streaming format being requested is unknown, then this key MUST NOT be used.
      */
     @Nullable public final @StreamingFormat String streamingFormat;
 
@@ -648,6 +741,11 @@ public final class CmcdHeadersFactory {
      * by the {@link StreamType} annotation.
      */
     @Nullable public final @StreamType String streamType;
+
+    /**
+     * The playback rate indicating the current rate of playback, or {@link C#RATE_UNSET} if unset.
+     */
+    public final float playbackRate;
 
     /**
      * Custom data where the values of the keys are expected to be invariant over the life of the
@@ -663,6 +761,7 @@ public final class CmcdHeadersFactory {
       this.sessionId = builder.sessionId;
       this.streamingFormat = builder.streamingFormat;
       this.streamType = builder.streamType;
+      this.playbackRate = builder.playbackRate;
       this.customData = builder.customData;
     }
 
@@ -692,6 +791,10 @@ public final class CmcdHeadersFactory {
         headerValue.append(
             Util.formatInvariant("%s=%s,", CmcdConfiguration.KEY_STREAM_TYPE, streamType));
       }
+      if (playbackRate != C.RATE_UNSET && playbackRate != 1.0f) {
+        headerValue.append(
+            Util.formatInvariant("%s=%.2f,", CmcdConfiguration.KEY_PLAYBACK_RATE, playbackRate));
+      }
       if (VERSION != 1) {
         headerValue.append(Util.formatInvariant("%s=%d,", CmcdConfiguration.KEY_VERSION, VERSION));
       }
@@ -709,13 +812,15 @@ public final class CmcdHeadersFactory {
   }
 
   /**
-   * Keys whose values do not vary with every request or object. Contains CMCD fields: {@code rtp}.
+   * Keys whose values do not vary with every request or object. Contains CMCD fields: {@code rtp}
+   * and {@code bs}.
    */
   private static final class CmcdStatus {
 
     /** Builder for {@link CmcdStatus} instances. */
     public static final class Builder {
       private int maximumRequestedThroughputKbps;
+      private boolean bufferStarvation;
       @Nullable private String customData;
 
       /** Creates a new instance with default values. */
@@ -744,6 +849,13 @@ public final class CmcdHeadersFactory {
         return this;
       }
 
+      /** Sets the {@link CmcdStatus#bufferStarvation}. The default value is {@code false}. */
+      @CanIgnoreReturnValue
+      public Builder setBufferStarvation(boolean bufferStarvation) {
+        this.bufferStarvation = bufferStarvation;
+        return this;
+      }
+
       /** Sets the {@link CmcdStatus#customData}. The default value is {@code null}. */
       @CanIgnoreReturnValue
       public Builder setCustomData(@Nullable String customData) {
@@ -764,6 +876,13 @@ public final class CmcdHeadersFactory {
     public final int maximumRequestedThroughputKbps;
 
     /**
+     * A boolean indicating whether the buffer was starved at some point between the prior request
+     * and this chunk request, resulting in the player being in a rebuffering state and the video or
+     * audio playback being stalled, or {@code false} if unknown.
+     */
+    public final boolean bufferStarvation;
+
+    /**
      * Custom data where the values of the keys do not vary with every request or object, or {@code
      * null} if unset.
      *
@@ -774,6 +893,7 @@ public final class CmcdHeadersFactory {
 
     private CmcdStatus(Builder builder) {
       this.maximumRequestedThroughputKbps = builder.maximumRequestedThroughputKbps;
+      this.bufferStarvation = builder.bufferStarvation;
       this.customData = builder.customData;
     }
 
@@ -791,6 +911,9 @@ public final class CmcdHeadersFactory {
             Util.formatInvariant(
                 "%s=%d,",
                 CmcdConfiguration.KEY_MAXIMUM_REQUESTED_BITRATE, maximumRequestedThroughputKbps));
+      }
+      if (bufferStarvation) {
+        headerValue.append(CmcdConfiguration.KEY_BUFFER_STARVATION).append(",");
       }
       if (!TextUtils.isEmpty(customData)) {
         headerValue.append(Util.formatInvariant("%s,", customData));
