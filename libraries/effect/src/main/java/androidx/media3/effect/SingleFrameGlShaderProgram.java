@@ -26,8 +26,11 @@ import androidx.media3.common.util.UnstableApi;
  * GlShaderProgram} directly.
  *
  * <p>All methods in this class must be called on the thread that owns the OpenGL context.
+ *
+ * @deprecated Use {@link BaseGlShaderProgram} instead.
  */
 @UnstableApi
+@Deprecated
 public abstract class SingleFrameGlShaderProgram extends BaseGlShaderProgram {
 
   // TODO(b/275384398): Remove this class as it only wraps the BaseGlShaderProgram.

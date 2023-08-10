@@ -92,7 +92,7 @@ public final class RgbFilter implements RgbMatrix {
   }
 
   @Override
-  public SingleFrameGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
+  public BaseGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
       throws VideoFrameProcessingException {
     checkForConsistentHdrSetting(useHdr);
     return RgbMatrix.super.toGlShaderProgram(context, useHdr);

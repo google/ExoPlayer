@@ -29,7 +29,7 @@ import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
 
 /** Applies zero or more {@link TextureOverlay}s onto each frame. */
-/* package */ final class OverlayShaderProgram extends SingleFrameGlShaderProgram {
+/* package */ final class OverlayShaderProgram extends BaseGlShaderProgram {
 
   private static final int MATRIX_OFFSET = 0;
 
@@ -61,7 +61,7 @@ import com.google.common.collect.ImmutableList;
   public OverlayShaderProgram(
       Context context, boolean useHdr, ImmutableList<TextureOverlay> overlays)
       throws VideoFrameProcessingException {
-    super(/* useHighPrecisionColorComponents= */ useHdr);
+    super(/* useHighPrecisionColorComponents= */ useHdr, /* texturePoolCapacity= */ 1);
     checkArgument(!useHdr, "OverlayShaderProgram does not support HDR colors yet.");
     // The maximum number of samplers allowed in a single GL program is 16.
     // We use one for every overlay and one for the video.

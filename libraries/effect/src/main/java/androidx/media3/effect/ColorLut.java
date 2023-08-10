@@ -41,7 +41,7 @@ public interface ColorLut extends GlEffect {
   void release() throws GlUtil.GlException;
 
   @Override
-  default SingleFrameGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
+  default GlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
       throws VideoFrameProcessingException {
     return new ColorLutShaderProgram(context, /* colorLut= */ this, useHdr);
   }

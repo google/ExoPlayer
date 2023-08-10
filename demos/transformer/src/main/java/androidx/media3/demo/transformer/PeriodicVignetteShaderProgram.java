@@ -23,14 +23,15 @@ import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Size;
-import androidx.media3.effect.SingleFrameGlShaderProgram;
+import androidx.media3.effect.BaseGlShaderProgram;
+import androidx.media3.effect.GlShaderProgram;
 import java.io.IOException;
 
 /**
- * A {@link SingleFrameGlShaderProgram} that periodically dims the frames such that pixels are
- * darker the further they are away from the frame center.
+ * A {@link GlShaderProgram} that periodically dims the frames such that pixels are darker the
+ * further they are away from the frame center.
  */
-/* package */ final class PeriodicVignetteShaderProgram extends SingleFrameGlShaderProgram {
+/* package */ final class PeriodicVignetteShaderProgram extends BaseGlShaderProgram {
 
   private static final String VERTEX_SHADER_PATH = "vertex_shader_copy_es2.glsl";
   private static final String FRAGMENT_SHADER_PATH = "fragment_shader_vignette_es2.glsl";
@@ -70,7 +71,7 @@ import java.io.IOException;
       float maxInnerRadius,
       float outerRadius)
       throws VideoFrameProcessingException {
-    super(/* useHighPrecisionColorComponents= */ useHdr);
+    super(/* useHighPrecisionColorComponents= */ useHdr, /* texturePoolCapacity= */ 1);
     checkArgument(minInnerRadius <= maxInnerRadius);
     checkArgument(maxInnerRadius <= outerRadius);
     this.minInnerRadius = minInnerRadius;

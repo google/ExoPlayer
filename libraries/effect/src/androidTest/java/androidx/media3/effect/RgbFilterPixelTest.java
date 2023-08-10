@@ -71,7 +71,7 @@ public final class RgbFilterPixelTest {
   private @MonotonicNonNull String testId;
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull EGLContext eglContext;
-  private @MonotonicNonNull SingleFrameGlShaderProgram defaultShaderProgram;
+  private @MonotonicNonNull BaseGlShaderProgram defaultShaderProgram;
   private @MonotonicNonNull EGLSurface placeholderEglSurface;
   private int inputTexId;
   private int inputWidth;

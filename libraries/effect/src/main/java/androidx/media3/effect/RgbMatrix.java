@@ -40,7 +40,7 @@ public interface RgbMatrix extends GlEffect {
   float[] getMatrix(long presentationTimeUs, boolean useHdr);
 
   @Override
-  default SingleFrameGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
+  default BaseGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
       throws VideoFrameProcessingException {
     return DefaultShaderProgram.create(
         context,

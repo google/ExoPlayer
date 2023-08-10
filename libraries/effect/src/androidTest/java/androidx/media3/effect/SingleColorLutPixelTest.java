@@ -77,7 +77,7 @@ public class SingleColorLutPixelTest {
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull EGLContext eglContext;
   private @MonotonicNonNull EGLSurface placeholderEglSurface;
-  private @MonotonicNonNull SingleFrameGlShaderProgram colorLutShaderProgram;
+  private @MonotonicNonNull BaseGlShaderProgram colorLutShaderProgram;
   private int inputTexId;
   private int inputWidth;
   private int inputHeight;

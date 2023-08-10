@@ -116,7 +116,7 @@ public final class HslAdjustment implements GlEffect {
   }
 
   @Override
-  public SingleFrameGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
+  public BaseGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
       throws VideoFrameProcessingException {
     return new HslShaderProgram(context, /* hslAdjustment= */ this, useHdr);
   }

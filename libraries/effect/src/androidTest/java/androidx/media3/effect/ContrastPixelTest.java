@@ -78,7 +78,7 @@ public class ContrastPixelTest {
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull EGLContext eglContext;
   private @MonotonicNonNull EGLSurface placeholderEglSurface;
-  private @MonotonicNonNull SingleFrameGlShaderProgram contrastShaderProgram;
+  private @MonotonicNonNull BaseGlShaderProgram contrastShaderProgram;
   private int inputTexId;
   private int inputWidth;
   private int inputHeight;

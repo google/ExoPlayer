@@ -27,7 +27,7 @@ import androidx.media3.common.util.Size;
 import java.io.IOException;
 
 /** Applies a {@link ColorLut} to each frame in the fragment shader. */
-/* package */ final class ColorLutShaderProgram extends SingleFrameGlShaderProgram {
+/* package */ final class ColorLutShaderProgram extends BaseGlShaderProgram {
   private static final String VERTEX_SHADER_PATH = "shaders/vertex_shader_transformation_es2.glsl";
   private static final String FRAGMENT_SHADER_PATH = "shaders/fragment_shader_lut_es2.glsl";
 
@@ -45,7 +45,7 @@ import java.io.IOException;
    */
   public ColorLutShaderProgram(Context context, ColorLut colorLut, boolean useHdr)
       throws VideoFrameProcessingException {
-    super(/* useHighPrecisionColorComponents= */ useHdr);
+    super(/* useHighPrecisionColorComponents= */ useHdr, /* texturePoolCapacity= */ 1);
     // TODO(b/246315245): Add HDR support.
     checkArgument(!useHdr, "ColorLutShaderProgram does not support HDR colors.");
     this.colorLut = colorLut;

@@ -28,7 +28,7 @@ import java.io.IOException;
  * Draws the target input frame at a given horizontal position of the output texture to generate an
  * horizontal tiling effect.
  */
-/* package */ final class ThumbnailStripShaderProgram extends SingleFrameGlShaderProgram {
+/* package */ final class ThumbnailStripShaderProgram extends BaseGlShaderProgram {
   private static final String VERTEX_SHADER_PATH = "shaders/vertex_shader_thumbnail_strip_es2.glsl";
   private static final String FRAGMENT_SHADER_PATH = "shaders/fragment_shader_copy_es2.glsl";
 
@@ -38,7 +38,7 @@ import java.io.IOException;
   public ThumbnailStripShaderProgram(
       Context context, boolean useHdr, ThumbnailStripEffect thumbnailStripEffect)
       throws VideoFrameProcessingException {
-    super(useHdr);
+    super(useHdr, /* texturePoolCapacity= */ 1);
     this.thumbnailStripEffect = thumbnailStripEffect;
 
     try {

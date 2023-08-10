@@ -53,7 +53,7 @@ public interface GlMatrixTransformation extends GlEffect {
   float[] getGlMatrixArray(long presentationTimeUs);
 
   @Override
-  default SingleFrameGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
+  default BaseGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
       throws VideoFrameProcessingException {
     return DefaultShaderProgram.create(
         context,
