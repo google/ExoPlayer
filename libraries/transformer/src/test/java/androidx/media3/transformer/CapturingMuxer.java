@@ -36,16 +36,16 @@ import java.util.Map;
  * A {@link Dumpable} {@link Muxer} implementation that supports dumping information about all
  * interactions (for testing purposes) and forwards method calls to the underlying {@link Muxer}.
  */
-public final class TestMuxer implements Muxer, Dumpable {
+public final class CapturingMuxer implements Muxer, Dumpable {
 
   /**
-   * A {@link Muxer.Factory} for {@link TestMuxer} that captures and provides access to the
+   * A {@link Muxer.Factory} for {@link CapturingMuxer} that captures and provides access to the
    * {@linkplain #create created} muxer.
    */
   public static final class Factory implements Muxer.Factory {
     private final Muxer.Factory wrappedFactory;
 
-    @Nullable private TestMuxer muxer;
+    @Nullable private CapturingMuxer muxer;
 
     public Factory() {
       this(/* maxDelayBetweenSamplesMs= */ C.TIME_UNSET);
@@ -56,13 +56,13 @@ public final class TestMuxer implements Muxer, Dumpable {
     }
 
     /** Returns the most recently {@linkplain #create created} {@code TestMuxer}. */
-    public TestMuxer getCreatedMuxer() {
+    public CapturingMuxer getCreatedMuxer() {
       return checkNotNull(muxer);
     }
 
     @Override
     public Muxer create(String path) throws Muxer.MuxerException {
-      muxer = new TestMuxer(wrappedFactory.create(path));
+      muxer = new CapturingMuxer(wrappedFactory.create(path));
       return muxer;
     }
 
@@ -77,7 +77,7 @@ public final class TestMuxer implements Muxer, Dumpable {
   private final List<Dumpable> dumpables;
 
   /** Creates a new test muxer. */
-  private TestMuxer(Muxer wrappedMuxer) {
+  private CapturingMuxer(Muxer wrappedMuxer) {
     this.wrappedMuxer = wrappedMuxer;
     dumpables = new ArrayList<>();
     trackIndexToSampleDumpables = new HashMap<>();
