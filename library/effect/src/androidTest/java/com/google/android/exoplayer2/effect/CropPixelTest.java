@@ -70,7 +70,7 @@ public final class CropPixelTest {
   private @MonotonicNonNull String testId;
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull EGLContext eglContext;
-  private @MonotonicNonNull SingleFrameGlShaderProgram cropShaderProgram;
+  private @MonotonicNonNull BaseGlShaderProgram cropShaderProgram;
   private @MonotonicNonNull EGLSurface placeholderEglSurface;
   private int inputTexId;
   private int inputWidth;

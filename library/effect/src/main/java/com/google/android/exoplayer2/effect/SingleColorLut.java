@@ -155,7 +155,7 @@ public final class SingleColorLut implements ColorLut {
   }
 
   @Override
-  public SingleFrameGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
+  public BaseGlShaderProgram toGlShaderProgram(Context context, boolean useHdr)
       throws VideoFrameProcessingException {
     checkState(!useHdr, "HDR is currently not supported.");
 

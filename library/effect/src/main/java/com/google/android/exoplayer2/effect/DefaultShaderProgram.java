@@ -58,7 +58,7 @@ import java.util.List;
  */
 @SuppressWarnings("FunctionalInterfaceClash") // b/228192298
 @Deprecated
-/* package */ final class DefaultShaderProgram extends SingleFrameGlShaderProgram
+/* package */ final class DefaultShaderProgram extends BaseGlShaderProgram
     implements ExternalShaderProgram {
 
   private static final String VERTEX_SHADER_TRANSFORMATION_PATH =
@@ -391,7 +391,7 @@ import java.util.List;
       checkArgument(
           outputColorTransfer == C.COLOR_TRANSFER_SDR
               || outputColorTransfer == C.COLOR_TRANSFER_LINEAR);
-      // The SDR shader automatically applies an COLOR_TRANSFER_SDR EOTF.
+      // The SDR shader automatically applies a COLOR_TRANSFER_SDR EOTF.
       glProgram.setIntUniform("uOutputColorTransfer", outputColorTransfer);
     }
 
@@ -421,7 +421,7 @@ import java.util.List;
       ImmutableList<RgbMatrix> rgbMatrices,
       int outputColorTransfer,
       boolean useHdr) {
-    super(/* useHighPrecisionColorComponents= */ useHdr);
+    super(/* useHighPrecisionColorComponents= */ useHdr, /* texturePoolCapacity= */ 1);
     this.glProgram = glProgram;
     this.outputColorTransfer = outputColorTransfer;
     this.matrixTransformations = matrixTransformations;

@@ -35,7 +35,7 @@ import java.io.IOException;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-/* package */ final class HslShaderProgram extends SingleFrameGlShaderProgram {
+/* package */ final class HslShaderProgram extends BaseGlShaderProgram {
   private static final String VERTEX_SHADER_PATH = "shaders/vertex_shader_transformation_es2.glsl";
   private static final String FRAGMENT_SHADER_PATH = "shaders/fragment_shader_hsl_es2.glsl";
 
@@ -52,7 +52,7 @@ import java.io.IOException;
    */
   public HslShaderProgram(Context context, HslAdjustment hslAdjustment, boolean useHdr)
       throws VideoFrameProcessingException {
-    super(/* useHighPrecisionColorComponents= */ useHdr);
+    super(/* useHighPrecisionColorComponents= */ useHdr, /* texturePoolCapacity= */ 1);
     // TODO(b/241241680): Check if HDR <-> HSL works the same or not.
     checkArgument(!useHdr, "HDR is not yet supported.");
 

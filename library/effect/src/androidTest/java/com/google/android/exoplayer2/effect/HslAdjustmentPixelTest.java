@@ -75,7 +75,7 @@ public final class HslAdjustmentPixelTest {
 
   private @MonotonicNonNull EGLDisplay eglDisplay;
   private @MonotonicNonNull EGLContext eglContext;
-  private @MonotonicNonNull SingleFrameGlShaderProgram hslProcessor;
+  private @MonotonicNonNull BaseGlShaderProgram hslProcessor;
   private @MonotonicNonNull EGLSurface placeholderEglSurface;
   private int inputTexId;
   private int inputWidth;

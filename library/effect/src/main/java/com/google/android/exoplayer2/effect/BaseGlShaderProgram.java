@@ -34,8 +34,7 @@ import java.util.concurrent.Executor;
  * into an output frame, with changes to pixels specific to the implementation.
  *
  * <p>{@code BaseShaderProgram} implementations can produce any number of output frames per input
- * frame with the same presentation timestamp. {@link SingleFrameGlShaderProgram} can be used to
- * implement a {@link GlShaderProgram} that produces exactly one output frame per input frame.
+ * frame with the same presentation timestamp.
  *
  * <p>All methods in this class must be called on the thread that owns the OpenGL context.
  *

@@ -19,7 +19,8 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 
 import android.content.Context;
 import android.opengl.GLES20;
-import com.google.android.exoplayer2.effect.SingleFrameGlShaderProgram;
+import com.google.android.exoplayer2.effect.BaseGlShaderProgram;
+import com.google.android.exoplayer2.effect.GlShaderProgram;
 import com.google.android.exoplayer2.util.GlProgram;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Size;
@@ -27,8 +28,8 @@ import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import java.io.IOException;
 
 /**
- * A {@link SingleFrameGlShaderProgram} that periodically dims the frames such that pixels are
- * darker the further they are away from the frame center.
+ * A {@link GlShaderProgram} that periodically dims the frames such that pixels are darker the
+ * further they are away from the frame center.
  *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
  *     contains the same ExoPlayer code). See <a
@@ -36,7 +37,7 @@ import java.io.IOException;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-/* package */ final class PeriodicVignetteShaderProgram extends SingleFrameGlShaderProgram {
+/* package */ final class PeriodicVignetteShaderProgram extends BaseGlShaderProgram {
 
   private static final String VERTEX_SHADER_PATH = "vertex_shader_copy_es2.glsl";
   private static final String FRAGMENT_SHADER_PATH = "fragment_shader_vignette_es2.glsl";
@@ -76,7 +77,7 @@ import java.io.IOException;
       float maxInnerRadius,
       float outerRadius)
       throws VideoFrameProcessingException {
-    super(/* useHighPrecisionColorComponents= */ useHdr);
+    super(/* useHighPrecisionColorComponents= */ useHdr, /* texturePoolCapacity= */ 1);
     checkArgument(minInnerRadius <= maxInnerRadius);
     checkArgument(maxInnerRadius <= outerRadius);
     this.minInnerRadius = minInnerRadius;

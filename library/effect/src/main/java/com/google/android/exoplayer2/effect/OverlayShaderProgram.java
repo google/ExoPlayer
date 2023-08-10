@@ -37,7 +37,7 @@ import com.google.common.collect.ImmutableList;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-/* package */ final class OverlayShaderProgram extends SingleFrameGlShaderProgram {
+/* package */ final class OverlayShaderProgram extends BaseGlShaderProgram {
 
   private static final int MATRIX_OFFSET = 0;
 
@@ -69,7 +69,7 @@ import com.google.common.collect.ImmutableList;
   public OverlayShaderProgram(
       Context context, boolean useHdr, ImmutableList<TextureOverlay> overlays)
       throws VideoFrameProcessingException {
-    super(/* useHighPrecisionColorComponents= */ useHdr);
+    super(/* useHighPrecisionColorComponents= */ useHdr, /* texturePoolCapacity= */ 1);
     checkArgument(!useHdr, "OverlayShaderProgram does not support HDR colors yet.");
     // The maximum number of samplers allowed in a single GL program is 16.
     // We use one for every overlay and one for the video.
