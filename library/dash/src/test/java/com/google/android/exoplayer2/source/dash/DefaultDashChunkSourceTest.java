@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.chunk.BundledChunkExtractor;
 import com.google.android.exoplayer2.source.chunk.Chunk;
 import com.google.android.exoplayer2.source.chunk.ChunkHolder;
+import com.google.android.exoplayer2.source.chunk.MediaChunk;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifestParser;
 import com.google.android.exoplayer2.testutil.FakeDataSource;
@@ -412,6 +413,104 @@ public class DefaultDashChunkSourceTest {
             "cid=\"mediaId\",sid=\"" + cmcdConfiguration.sessionId + "\",sf=d,st=v,key3=1",
             "CMCD-Status",
             "key4=5.0");
+  }
+
+  @Test
+  public void
+      getNextChunk_afterLastAvailableButBeforeEndOfLiveManifestWithKnownDuration_doesNotReturnEndOfStream()
+          throws Exception {
+    DashManifest manifest =
+        new DashManifestParser()
+            .parse(
+                Uri.parse("https://example.com/test.mpd"),
+                TestUtil.getInputStream(
+                    ApplicationProvider.getApplicationContext(),
+                    "media/mpd/sample_mpd_live_known_duration_not_ended"));
+    DefaultDashChunkSource chunkSource =
+        new DefaultDashChunkSource(
+            BundledChunkExtractor.FACTORY,
+            new LoaderErrorThrower.Placeholder(),
+            manifest,
+            new BaseUrlExclusionList(),
+            /* periodIndex= */ 0,
+            /* adaptationSetIndices= */ new int[] {0},
+            new FixedTrackSelection(new TrackGroup(new Format.Builder().build()), /* track= */ 0),
+            C.TRACK_TYPE_VIDEO,
+            new FakeDataSource(),
+            /* elapsedRealtimeOffsetMs= */ 0,
+            /* maxSegmentsPerLoad= */ 1,
+            /* enableEventMessageTrack= */ false,
+            /* closedCaptionFormats= */ ImmutableList.of(),
+            /* playerTrackEmsgHandler= */ null,
+            PlayerId.UNSET,
+            /* cmcdConfiguration= */ null);
+    ChunkHolder output = new ChunkHolder();
+    // Populate with last available media chunk
+    chunkSource.getNextChunk(
+        /* playbackPositionUs= */ 0,
+        /* loadPositionUs= */ 0,
+        /* queue= */ ImmutableList.of(),
+        output);
+    Chunk previousChunk = output.chunk;
+    output.clear();
+
+    // Request another chunk
+    chunkSource.getNextChunk(
+        /* playbackPositionUs= */ 0,
+        /* loadPositionUs= */ 4_000_000,
+        /* queue= */ ImmutableList.of((MediaChunk) previousChunk),
+        output);
+
+    assertThat(output.endOfStream).isFalse();
+    assertThat(output.chunk).isNull();
+  }
+
+  @Test
+  public void getNextChunk_atEndOfLiveManifestWithKnownDuration_returnsEndOfStream()
+      throws Exception {
+    DashManifest manifest =
+        new DashManifestParser()
+            .parse(
+                Uri.parse("https://example.com/test.mpd"),
+                TestUtil.getInputStream(
+                    ApplicationProvider.getApplicationContext(),
+                    "media/mpd/sample_mpd_live_known_duration_ended"));
+    DefaultDashChunkSource chunkSource =
+        new DefaultDashChunkSource(
+            BundledChunkExtractor.FACTORY,
+            new LoaderErrorThrower.Placeholder(),
+            manifest,
+            new BaseUrlExclusionList(),
+            /* periodIndex= */ 0,
+            /* adaptationSetIndices= */ new int[] {0},
+            new FixedTrackSelection(new TrackGroup(new Format.Builder().build()), /* track= */ 0),
+            C.TRACK_TYPE_VIDEO,
+            new FakeDataSource(),
+            /* elapsedRealtimeOffsetMs= */ 0,
+            /* maxSegmentsPerLoad= */ 1,
+            /* enableEventMessageTrack= */ false,
+            /* closedCaptionFormats= */ ImmutableList.of(),
+            /* playerTrackEmsgHandler= */ null,
+            PlayerId.UNSET,
+            /* cmcdConfiguration= */ null);
+    ChunkHolder output = new ChunkHolder();
+    // Populate with last media chunk
+    chunkSource.getNextChunk(
+        /* playbackPositionUs= */ 0,
+        /* loadPositionUs= */ 4_000_000,
+        /* queue= */ ImmutableList.of(),
+        output);
+    Chunk previousChunk = output.chunk;
+    output.clear();
+
+    // Request next chunk
+    chunkSource.getNextChunk(
+        /* playbackPositionUs= */ 0,
+        /* loadPositionUs= */ 8_000_000,
+        /* queue= */ ImmutableList.of((MediaChunk) previousChunk),
+        output);
+
+    assertThat(output.endOfStream).isTrue();
   }
 
   private DashChunkSource createDashChunkSource(
