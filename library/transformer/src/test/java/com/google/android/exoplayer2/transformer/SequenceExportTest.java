@@ -61,13 +61,13 @@ public final class SequenceExportTest {
 
   private Context context;
   private String outputPath;
-  private TestMuxer.Factory muxerFactory;
+  private CapturingMuxer.Factory muxerFactory;
 
   @Before
   public void setUp() throws Exception {
     context = ApplicationProvider.getApplicationContext();
     outputPath = Util.createTempFile(context, "TransformerTest").getPath();
-    muxerFactory = new TestMuxer.Factory();
+    muxerFactory = new CapturingMuxer.Factory();
     createEncodersAndDecoders();
   }
 

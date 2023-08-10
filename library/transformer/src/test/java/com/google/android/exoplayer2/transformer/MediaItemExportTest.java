@@ -103,7 +103,7 @@ public final class MediaItemExportTest {
 
   private Context context;
   private String outputPath;
-  private TestMuxer.Factory muxerFactory;
+  private CapturingMuxer.Factory muxerFactory;
   private ProgressHolder progressHolder;
   private ArgumentCaptor<Composition> compositionArgumentCaptor;
 
@@ -111,7 +111,7 @@ public final class MediaItemExportTest {
   public void setUp() throws Exception {
     context = ApplicationProvider.getApplicationContext();
     outputPath = Util.createTempFile(context, "TransformerTest").getPath();
-    muxerFactory = new TestMuxer.Factory();
+    muxerFactory = new CapturingMuxer.Factory();
     progressHolder = new ProgressHolder();
     compositionArgumentCaptor = ArgumentCaptor.forClass(Composition.class);
     createEncodersAndDecoders();
@@ -807,7 +807,8 @@ public final class MediaItemExportTest {
             /* forceInterpretHdrAsSdr= */ false,
             new FakeClock(/* isAutoAdvancing= */ true),
             mediaSourceFactory);
-    TestMuxer.Factory muxerFactory = new TestMuxer.Factory(/* maxDelayBetweenSamplesMs= */ 1);
+    CapturingMuxer.Factory muxerFactory =
+        new CapturingMuxer.Factory(/* maxDelayBetweenSamplesMs= */ 1);
     Transformer transformer =
         createTransformerBuilder(muxerFactory, /* enableFallback= */ false)
             .setAssetLoaderFactory(assetLoaderFactory)
@@ -823,8 +824,8 @@ public final class MediaItemExportTest {
 
   @Test
   public void start_withUnsetMaxDelayBetweenSamples_completesSuccessfully() throws Exception {
-    TestMuxer.Factory muxerFactory =
-        new TestMuxer.Factory(/* maxDelayBetweenSamplesMs= */ C.TIME_UNSET);
+    CapturingMuxer.Factory muxerFactory =
+        new CapturingMuxer.Factory(/* maxDelayBetweenSamplesMs= */ C.TIME_UNSET);
     Transformer transformer =
         createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
