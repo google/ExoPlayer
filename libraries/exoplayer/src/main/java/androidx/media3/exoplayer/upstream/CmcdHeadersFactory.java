@@ -223,8 +223,8 @@ public final class CmcdHeadersFactory {
         }
         cmcdObject.setTopBitrateKbps(Util.ceilDivide(topBitrate, 1000));
       }
-      if (cmcdConfiguration.isObjectDurationLoggingAllowed() && chunkDurationUs != C.TIME_UNSET) {
-        cmcdObject.setObjectDurationMs(chunkDurationUs / 1000);
+      if (cmcdConfiguration.isObjectDurationLoggingAllowed()) {
+        cmcdObject.setObjectDurationMs(Util.usToMs(chunkDurationUs));
       }
     }
 
@@ -235,7 +235,7 @@ public final class CmcdHeadersFactory {
     CmcdRequest.Builder cmcdRequest =
         new CmcdRequest.Builder().setCustomData(customData.get(CmcdConfiguration.KEY_CMCD_REQUEST));
     if (!getIsInitSegment() && cmcdConfiguration.isBufferLengthLoggingAllowed()) {
-      cmcdRequest.setBufferLengthMs(bufferedDurationUs / 1000);
+      cmcdRequest.setBufferLengthMs(Util.usToMs(bufferedDurationUs));
     }
     if (cmcdConfiguration.isMeasuredThroughputLoggingAllowed()
         && trackSelection.getLatestBitrateEstimate() != Long.MIN_VALUE) {
@@ -243,7 +243,7 @@ public final class CmcdHeadersFactory {
           Util.ceilDivide(trackSelection.getLatestBitrateEstimate(), 1000));
     }
     if (cmcdConfiguration.isDeadlineLoggingAllowed()) {
-      cmcdRequest.setDeadlineMs(bufferedDurationUs / (long) (playbackRate * 1000));
+      cmcdRequest.setDeadlineMs(Util.usToMs((long) (bufferedDurationUs / playbackRate)));
     }
     if (cmcdConfiguration.isStartupLoggingAllowed()) {
       cmcdRequest.setStartup(didRebuffer || isBufferEmpty);
