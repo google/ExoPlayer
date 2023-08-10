@@ -26,7 +26,10 @@ import com.google.android.exoplayer2.LoadingInfo;
 import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.extractor.Extractor;
+import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.mp4.Mp4Extractor;
+import com.google.android.exoplayer2.extractor.png.PngExtractor;
 import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.upstream.AssetDataSource;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
@@ -44,18 +47,27 @@ public final class ProgressiveMediaPeriodTest {
   public void prepareUsingBundledExtractors_updatesSourceInfoBeforeOnPreparedCallback()
       throws TimeoutException {
     testExtractorsUpdatesSourceInfoBeforeOnPreparedCallback(
-        new BundledExtractorsAdapter(Mp4Extractor.FACTORY));
+        new BundledExtractorsAdapter(Mp4Extractor.FACTORY), C.TIME_UNSET);
+  }
+
+  @Test
+  public void
+      prepareUsingBundledExtractor_withImageExtractor_updatesSourceInfoBeforeOnPreparedCallback()
+          throws TimeoutException {
+    ExtractorsFactory pngExtractorFactory = () -> new Extractor[] {new PngExtractor()};
+    testExtractorsUpdatesSourceInfoBeforeOnPreparedCallback(
+        new BundledExtractorsAdapter(pngExtractorFactory), 5 * C.MICROS_PER_SECOND);
   }
 
   @Test
   public void prepareUsingMediaParser_updatesSourceInfoBeforeOnPreparedCallback()
       throws TimeoutException {
     testExtractorsUpdatesSourceInfoBeforeOnPreparedCallback(
-        new MediaParserExtractorAdapter(PlayerId.UNSET));
+        new MediaParserExtractorAdapter(PlayerId.UNSET), C.TIME_UNSET);
   }
 
   private static void testExtractorsUpdatesSourceInfoBeforeOnPreparedCallback(
-      ProgressiveMediaExtractor extractor) throws TimeoutException {
+      ProgressiveMediaExtractor extractor, long imageDurationUs) throws TimeoutException {
     AtomicBoolean sourceInfoRefreshCalled = new AtomicBoolean(false);
     ProgressiveMediaPeriod.Listener sourceInfoRefreshListener =
         (durationUs, isSeekable, isLive) -> sourceInfoRefreshCalled.set(true);
@@ -74,7 +86,8 @@ public final class ProgressiveMediaPeriodTest {
             sourceInfoRefreshListener,
             new DefaultAllocator(/* trimOnReset= */ true, C.DEFAULT_BUFFER_SEGMENT_SIZE),
             /* customCacheKey= */ null,
-            ProgressiveMediaSource.DEFAULT_LOADING_CHECK_INTERVAL_BYTES);
+            ProgressiveMediaSource.DEFAULT_LOADING_CHECK_INTERVAL_BYTES,
+            imageDurationUs);
 
     AtomicBoolean prepareCallbackCalled = new AtomicBoolean(false);
     AtomicBoolean sourceInfoRefreshCalledBeforeOnPrepared = new AtomicBoolean(false);

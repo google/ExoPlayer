@@ -237,7 +237,6 @@ public final class ProgressiveMediaSource extends BaseMediaSource
   private final DrmSessionManager drmSessionManager;
   private final LoadErrorHandlingPolicy loadableLoadErrorHandlingPolicy;
   private final int continueLoadingCheckIntervalBytes;
-
   private boolean timelineIsPlaceholder;
   private long timelineDurationUs;
   private boolean timelineIsSeekable;
@@ -275,6 +274,7 @@ public final class ProgressiveMediaSource extends BaseMediaSource
     @Nullable MediaItem.LocalConfiguration newConfiguration = mediaItem.localConfiguration;
     return newConfiguration != null
         && newConfiguration.uri.equals(existingConfiguration.uri)
+        && newConfiguration.imageDurationMs == existingConfiguration.imageDurationMs
         && Util.areEqual(newConfiguration.customCacheKey, existingConfiguration.customCacheKey);
   }
 
@@ -315,7 +315,8 @@ public final class ProgressiveMediaSource extends BaseMediaSource
         this,
         allocator,
         localConfiguration.customCacheKey,
-        continueLoadingCheckIntervalBytes);
+        continueLoadingCheckIntervalBytes,
+        Util.msToUs(localConfiguration.imageDurationMs));
   }
 
   @Override

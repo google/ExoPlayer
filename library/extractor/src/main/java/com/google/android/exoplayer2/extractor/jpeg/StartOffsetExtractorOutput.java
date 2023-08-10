@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.extractor.jpeg;
 
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
+import com.google.android.exoplayer2.extractor.ForwardingSeekMap;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.SeekPoint;
 import com.google.android.exoplayer2.extractor.TrackOutput;
@@ -58,17 +59,7 @@ public final class StartOffsetExtractorOutput implements ExtractorOutput {
   @Override
   public void seekMap(SeekMap seekMap) {
     extractorOutput.seekMap(
-        new SeekMap() {
-          @Override
-          public boolean isSeekable() {
-            return seekMap.isSeekable();
-          }
-
-          @Override
-          public long getDurationUs() {
-            return seekMap.getDurationUs();
-          }
-
+        new ForwardingSeekMap(seekMap) {
           @Override
           public SeekPoints getSeekPoints(long timeUs) {
             SeekPoints seekPoints = seekMap.getSeekPoints(timeUs);
