@@ -51,11 +51,16 @@ public final class UrlTemplate {
    * @throws IllegalArgumentException If the template string is malformed.
    */
   public static UrlTemplate compile(String template) {
-    // These arrays are sizes assuming each of the four possible identifiers will be present at
-    // most once in the template, which seems like a reasonable assumption.
-    String[] urlPieces = new String[5];
-    int[] identifiers = new int[4];
-    String[] identifierFormatTags = new String[4];
+    // We can have more than once each identifier in the template so we need
+    // to count the total number of identifiers present in the template
+    int identifiersCount = 0;
+    String[] identifiersNames = { REPRESENTATION, NUMBER, BANDWIDTH, TIME };
+    for(String identifierName : identifiersNames){
+      identifiersCount += template.split("\\$" + identifierName + "\\$").length - 1;
+    }
+    String[] urlPieces = new String[identifiersCount+1];
+    int[] identifiers = new int[identifiersCount];
+    String[] identifierFormatTags = new String[identifiersCount];
     int identifierCount = parseTemplate(template, urlPieces, identifiers, identifierFormatTags);
     return new UrlTemplate(urlPieces, identifiers, identifierFormatTags, identifierCount);
   }
