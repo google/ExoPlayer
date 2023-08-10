@@ -17,6 +17,7 @@ package androidx.media3.extractor.jpeg;
 
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.extractor.ExtractorOutput;
+import androidx.media3.extractor.ForwardingSeekMap;
 import androidx.media3.extractor.SeekMap;
 import androidx.media3.extractor.SeekPoint;
 import androidx.media3.extractor.TrackOutput;
@@ -54,17 +55,7 @@ public final class StartOffsetExtractorOutput implements ExtractorOutput {
   @Override
   public void seekMap(SeekMap seekMap) {
     extractorOutput.seekMap(
-        new SeekMap() {
-          @Override
-          public boolean isSeekable() {
-            return seekMap.isSeekable();
-          }
-
-          @Override
-          public long getDurationUs() {
-            return seekMap.getDurationUs();
-          }
-
+        new ForwardingSeekMap(seekMap) {
           @Override
           public SeekPoints getSeekPoints(long timeUs) {
             SeekPoints seekPoints = seekMap.getSeekPoints(timeUs);
