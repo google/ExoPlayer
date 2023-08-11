@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.effect;
 
+import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.Math.round;
@@ -152,7 +153,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     this.useHdr = useHdr;
+    // TODO(b/262693274): move frame duplication logic out of the texture manager. Note this will
+    //   involve removing the BitmapFrameSequenceInfo queue and using the FrameConsumptionManager
+    //   instead. It will also remove the framesToAdd variable
     int framesToAdd = round(frameRate * (durationUs / (float) C.MICROS_PER_SECOND));
+    // framestoAdd > 0 otherwise the VFP will hang.
+    checkArgument(framesToAdd > 0);
     double frameDurationUs = C.MICROS_PER_SECOND / frameRate;
     pendingBitmaps.add(
         new BitmapFrameSequenceInfo(bitmap, frameInfo, frameDurationUs, framesToAdd));

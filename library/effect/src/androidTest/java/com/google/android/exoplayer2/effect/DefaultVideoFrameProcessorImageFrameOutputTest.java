@@ -19,10 +19,13 @@ import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.readBit
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertThat;
 
+import android.graphics.Bitmap;
+import android.util.Pair;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.VideoFrameProcessorTestRunner;
 import com.google.android.exoplayer2.video.ColorInfo;
+import com.google.common.collect.ImmutableList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -112,8 +115,6 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
   @RequiresNonNull({"framesProduced", "testId"})
   public void imageInput_queueOneWithStartOffset_outputsFramesAtTheCorrectPresentationTimesUs()
       throws Exception {
-    String testId =
-        "imageInput_queueOneWithStartOffset_outputsFramesAtTheCorrectPresentationTimesUs";
     Queue<Long> actualPresentationTimesUs = new ConcurrentLinkedQueue<>();
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
@@ -169,8 +170,6 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
   public void
       imageInput_queueEndAndQueueAgain_outputsFirstSetOfFramesOnlyAtTheCorrectPresentationTimesUs()
           throws Exception {
-    String testId =
-        "imageInput_queueEndAndQueueAgain_outputsFirstSetOfFramesOnlyAtTheCorrectPresentationTimesUs";
     Queue<Long> actualPresentationTimesUs = new ConcurrentLinkedQueue<>();
     videoFrameProcessorTestRunner =
         getDefaultFrameProcessorTestRunnerBuilder(testId)
@@ -190,6 +189,31 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
         /* frameRate= */ 3);
 
     assertThat(actualPresentationTimesUs).containsExactly(0L, C.MICROS_PER_SECOND / 2).inOrder();
+  }
+
+  @Test
+  @RequiresNonNull({"framesProduced", "testId"})
+  public void queueBitmapsWithTimestamps_outputsFramesAtTheCorrectPresentationTimesUs()
+      throws Exception {
+    Queue<Long> actualPresentationTimesUs = new ConcurrentLinkedQueue<>();
+    videoFrameProcessorTestRunner =
+        getDefaultFrameProcessorTestRunnerBuilder(testId)
+            .setOnOutputFrameAvailableForRenderingListener(actualPresentationTimesUs::add)
+            .build();
+    Bitmap bitmap1 = readBitmap(ORIGINAL_PNG_ASSET_PATH);
+    Bitmap bitmap2 = readBitmap(BITMAP_OVERLAY_PNG_ASSET_PATH);
+    Long offset1 = 0L;
+    Long offset2 = C.MICROS_PER_SECOND;
+    Long offset3 = 2 * C.MICROS_PER_SECOND;
+
+    videoFrameProcessorTestRunner.queueInputBitmaps(
+        bitmap1.getWidth(),
+        bitmap1.getHeight(),
+        Pair.create(bitmap1, ImmutableList.of(offset1).iterator()),
+        Pair.create(bitmap2, ImmutableList.of(offset2, offset3).iterator()));
+    videoFrameProcessorTestRunner.endFrameProcessing();
+
+    assertThat(actualPresentationTimesUs).containsExactly(offset1, offset2, offset3).inOrder();
   }
 
   private VideoFrameProcessorTestRunner.Builder getDefaultFrameProcessorTestRunnerBuilder(

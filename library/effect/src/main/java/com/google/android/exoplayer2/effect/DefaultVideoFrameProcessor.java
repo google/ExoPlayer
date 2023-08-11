@@ -57,6 +57,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -438,6 +439,26 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             frameRate,
             /* useHdr= */ false);
     hasRefreshedNextInputFrameInfo = false;
+  }
+
+  @Override
+  public void queueInputBitmap(Bitmap inputBitmap, Iterator<Long> inStreamOffsetsUs) {
+    FrameInfo frameInfo = checkNotNull(this.nextInputFrameInfo);
+    // TODO(b/262693274): move frame duplication logic out of the texture manager so
+    //   textureManager.queueInputBitmap() frame rate and duration parameters be removed.
+    while (inStreamOffsetsUs.hasNext()) {
+      long inStreamOffsetUs = inStreamOffsetsUs.next();
+      inputSwitcher
+          .activeTextureManager()
+          .queueInputBitmap(
+              inputBitmap,
+              /* durationUs= */ C.MICROS_PER_SECOND,
+              new FrameInfo.Builder(frameInfo)
+                  .setOffsetToAddUs(frameInfo.offsetToAddUs + inStreamOffsetUs)
+                  .build(),
+              /* frameRate= */ 1,
+              /* useHdr= */ false);
+    }
   }
 
   @Override

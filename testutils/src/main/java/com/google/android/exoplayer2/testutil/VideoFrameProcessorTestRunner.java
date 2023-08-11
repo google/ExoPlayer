@@ -32,6 +32,7 @@ import android.graphics.PixelFormat;
 import android.media.Image;
 import android.media.ImageReader;
 import android.media.MediaFormat;
+import android.util.Pair;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -47,6 +48,7 @@ import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
@@ -353,6 +355,18 @@ public final class VideoFrameProcessorTestRunner {
             .setOffsetToAddUs(offsetToAddUs)
             .build());
     videoFrameProcessor.queueInputBitmap(inputBitmap, durationUs, frameRate);
+  }
+
+  public void queueInputBitmaps(int width, int height, Pair<Bitmap, Iterator<Long>>... frames) {
+    videoFrameProcessor.registerInputStream(
+        INPUT_TYPE_BITMAP,
+        effects,
+        new FrameInfo.Builder(width, height)
+            .setPixelWidthHeightRatio(pixelWidthHeightRatio)
+            .build());
+    for (Pair<Bitmap, Iterator<Long>> frame : frames) {
+      videoFrameProcessor.queueInputBitmap(frame.first, frame.second);
+    }
   }
 
   public void queueInputTexture(GlTextureInfo inputTexture, long pts) {
