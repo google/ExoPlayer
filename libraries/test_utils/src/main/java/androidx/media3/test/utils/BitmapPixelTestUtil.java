@@ -430,7 +430,8 @@ public class BitmapPixelTestUtil {
             bitmap.getWidth(), bitmap.getHeight(), /* useHighPrecisionColorComponents= */ false);
     // Put the flipped bitmap in the OpenGL texture as the bitmap's positive y-axis points down
     // while OpenGL's positive y-axis points up.
-    GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, flipBitmapVertically(bitmap), 0);
+    GLUtils.texImage2D(
+        GLES20.GL_TEXTURE_2D, /* level= */ 0, flipBitmapVertically(bitmap), /* border= */ 0);
     GlUtil.checkGlError();
     return texId;
   }
