@@ -1442,7 +1442,7 @@ public final class C {
   public static final int ROLE_FLAG_TRICK_PLAY = 1 << 14;
 
   /**
-   * Level of renderer support for a format. One of {@link #FORMAT_HANDLED}, {@link
+   * Level of support for a format. One of {@link #FORMAT_HANDLED}, {@link
    * #FORMAT_EXCEEDS_CAPABILITIES}, {@link #FORMAT_UNSUPPORTED_DRM}, {@link
    * #FORMAT_UNSUPPORTED_SUBTYPE} or {@link #FORMAT_UNSUPPORTED_TYPE}.
    */
@@ -1461,48 +1461,49 @@ public final class C {
   })
   public @interface FormatSupport {}
 
-  // TODO(b/172315872) Renderer was a link. Link to equivalent concept or remove @code.
-  /** The {@code Renderer} is capable of rendering the format. */
+  /** The format is supported. */
   @UnstableApi public static final int FORMAT_HANDLED = 0b100;
 
   /**
-   * The {@code Renderer} is capable of rendering formats with the same MIME type, but the
-   * properties of the format exceed the renderer's capabilities. There is a chance the renderer
-   * will be able to play the format in practice because some renderers report their capabilities
-   * conservatively, but the expected outcome is that playback will fail.
+   * Formats with the same MIME type are supported, but the properties of this format exceed the
+   * declared capabilities. There is a chance playback with this format is still possible in
+   * practice because some components report their capabilities conservatively, but the expected
+   * outcome is that playback will fail.
    *
-   * <p>Example: The {@code Renderer} is capable of rendering H264 and the format's MIME type is
-   * {@code MimeTypes#VIDEO_H264}, but the format's resolution exceeds the maximum limit supported
-   * by the underlying H264 decoder.
+   * <p>Example: A player is capable of rendering H264 and the format's MIME type is {@code
+   * MimeTypes#VIDEO_H264}, but the format's resolution exceeds the maximum limit supported by the
+   * underlying H264 decoder.
    */
   @UnstableApi public static final int FORMAT_EXCEEDS_CAPABILITIES = 0b011;
 
   /**
-   * The {@code Renderer} is capable of rendering formats with the same MIME type, but is not
-   * capable of rendering the format because the format's drm protection is not supported.
+   * Formats with the same MIME type are supported, but this format's DRM protection is not
+   * supported.
    *
-   * <p>Example: The {@code Renderer} is capable of rendering H264 and the format's MIME type is
-   * {@link MimeTypes#VIDEO_H264}, but the format indicates PlayReady drm protection whereas the
-   * renderer only supports Widevine.
+   * <p>Example: The player is capable of rendering H264 and the format's MIME type is {@link
+   * MimeTypes#VIDEO_H264}, but the format indicates PlayReady DRM protection whereas the renderer
+   * only supports Widevine.
    */
   @UnstableApi public static final int FORMAT_UNSUPPORTED_DRM = 0b010;
 
   /**
-   * The {@code Renderer} is a general purpose renderer for formats of the same top-level type, but
-   * is not capable of rendering the format or any other format with the same MIME type because the
-   * sub-type is not supported.
+   * Formats with the same top-level type are generally supported, but not this format or any other
+   * format with the same MIME type because the sub-type is not supported.
    *
-   * <p>Example: The {@code Renderer} is a general purpose audio renderer and the format's MIME type
-   * matches audio/[subtype], but there does not exist a suitable decoder for [subtype].
+   * <p>Example: The player supports audio and the format's MIME type matches audio/[subtype], but
+   * there does not exist a suitable decoder for [subtype].
    */
   @UnstableApi public static final int FORMAT_UNSUPPORTED_SUBTYPE = 0b001;
 
   /**
-   * The {@code Renderer} is not capable of rendering the format, either because it does not support
-   * the format's top-level type, or because it's a specialized renderer for a different MIME type.
+   * The format is unsupported, because no formats with the same top-level type are supported or
+   * there is only specialized support for different MIME types of the same top-level type.
    *
-   * <p>Example: The {@code Renderer} is a general purpose video renderer, but the format has an
-   * audio MIME type.
+   * <p>Example 1: The player is a general purpose audio player, but the format has a video MIME
+   * type.
+   *
+   * <p>Example 2: The player only has specialized support for AV1 and no general purpose video
+   * support, but the format's MIME type is {@link MimeTypes#VIDEO_H264}.
    */
   @UnstableApi public static final int FORMAT_UNSUPPORTED_TYPE = 0b000;
 
