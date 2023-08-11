@@ -1009,9 +1009,14 @@ public class SampleQueue implements TrackOutput {
    */
   private int findSampleAfter(
       int relativeStartIndex, int length, long timeUs, boolean allowTimeBeyondBuffer) {
-    for (int i = relativeStartIndex; i < length; i++) {
-      if (timesUs[i] >= timeUs) {
-        return i - relativeStartIndex;
+    int searchIndex = relativeStartIndex;
+    for (int i = 0; i < length; i++) {
+      if (timesUs[searchIndex] >= timeUs) {
+        return i;
+      }
+      searchIndex++;
+      if (searchIndex == capacity) {
+        searchIndex = 0;
       }
     }
     return allowTimeBeyondBuffer ? length : -1;
