@@ -49,6 +49,7 @@ import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
+import com.google.android.exoplayer2.util.Util;
 import com.google.common.primitives.Bytes;
 import java.io.IOException;
 import java.util.Arrays;
@@ -158,6 +159,8 @@ public final class SampleQueueTest {
 
   private static final TrackOutput.CryptoData CRYPTO_DATA =
       new TrackOutput.CryptoData(C.CRYPTO_MODE_AES_CTR, new byte[16], 0, 0);
+
+  private static final int CLOSE_TO_CAPACITY_SIZE = SampleQueue.SAMPLE_CAPACITY_INCREMENT - 1;
 
   private Allocator allocator;
   private MockDrmSessionManager mockDrmSessionManager;
@@ -737,37 +740,40 @@ public final class SampleQueueTest {
 
   @Test
   public void seekToBeforeBuffer_notAllSamplesAreSyncSamples() {
+    writeAndDiscardPlaceholderSamples(CLOSE_TO_CAPACITY_SIZE);
     writeTestData();
 
     boolean success =
         sampleQueue.seekTo(SAMPLE_TIMESTAMPS[0] - 1, /* allowTimeBeyondBuffer= */ false);
 
     assertThat(success).isFalse();
-    assertThat(sampleQueue.getReadIndex()).isEqualTo(0);
+    assertThat(sampleQueue.getReadIndex()).isEqualTo(CLOSE_TO_CAPACITY_SIZE);
     assertReadTestData();
     assertNoSamplesToRead(FORMAT_2);
   }
 
   @Test
   public void seekToStartOfBuffer_notAllSamplesAreSyncSamples() {
+    writeAndDiscardPlaceholderSamples(CLOSE_TO_CAPACITY_SIZE);
     writeTestData();
 
     boolean success = sampleQueue.seekTo(SAMPLE_TIMESTAMPS[0], /* allowTimeBeyondBuffer= */ false);
 
     assertThat(success).isTrue();
-    assertThat(sampleQueue.getReadIndex()).isEqualTo(0);
+    assertThat(sampleQueue.getReadIndex()).isEqualTo(CLOSE_TO_CAPACITY_SIZE);
     assertReadTestData();
     assertNoSamplesToRead(FORMAT_2);
   }
 
   @Test
   public void seekToEndOfBuffer_notAllSamplesAreSyncSamples() {
+    writeAndDiscardPlaceholderSamples(CLOSE_TO_CAPACITY_SIZE);
     writeTestData();
 
     boolean success = sampleQueue.seekTo(LAST_SAMPLE_TIMESTAMP, /* allowTimeBeyondBuffer= */ false);
 
     assertThat(success).isTrue();
-    assertThat(sampleQueue.getReadIndex()).isEqualTo(4);
+    assertThat(sampleQueue.getReadIndex()).isEqualTo(CLOSE_TO_CAPACITY_SIZE + 4);
     assertReadTestData(
         /* startFormat= */ null,
         DATA_SECOND_KEYFRAME_INDEX,
@@ -779,26 +785,28 @@ public final class SampleQueueTest {
 
   @Test
   public void seekToAfterBuffer_notAllSamplesAreSyncSamples() {
+    writeAndDiscardPlaceholderSamples(CLOSE_TO_CAPACITY_SIZE);
     writeTestData();
 
     boolean success =
         sampleQueue.seekTo(LAST_SAMPLE_TIMESTAMP + 1, /* allowTimeBeyondBuffer= */ false);
 
     assertThat(success).isFalse();
-    assertThat(sampleQueue.getReadIndex()).isEqualTo(0);
+    assertThat(sampleQueue.getReadIndex()).isEqualTo(CLOSE_TO_CAPACITY_SIZE);
     assertReadTestData();
     assertNoSamplesToRead(FORMAT_2);
   }
 
   @Test
   public void seekToAfterBufferAllowed_notAllSamplesAreSyncSamples() {
+    writeAndDiscardPlaceholderSamples(CLOSE_TO_CAPACITY_SIZE);
     writeTestData();
 
     boolean success =
         sampleQueue.seekTo(LAST_SAMPLE_TIMESTAMP + 1, /* allowTimeBeyondBuffer= */ true);
 
     assertThat(success).isTrue();
-    assertThat(sampleQueue.getReadIndex()).isEqualTo(4);
+    assertThat(sampleQueue.getReadIndex()).isEqualTo(CLOSE_TO_CAPACITY_SIZE + 4);
     assertReadTestData(
         /* startFormat= */ null,
         DATA_SECOND_KEYFRAME_INDEX,
@@ -810,12 +818,13 @@ public final class SampleQueueTest {
 
   @Test
   public void seekToEndAndBackToStart_notAllSamplesAreSyncSamples() {
+    writeAndDiscardPlaceholderSamples(CLOSE_TO_CAPACITY_SIZE);
     writeTestData();
 
     boolean success = sampleQueue.seekTo(LAST_SAMPLE_TIMESTAMP, /* allowTimeBeyondBuffer= */ false);
 
     assertThat(success).isTrue();
-    assertThat(sampleQueue.getReadIndex()).isEqualTo(4);
+    assertThat(sampleQueue.getReadIndex()).isEqualTo(CLOSE_TO_CAPACITY_SIZE + 4);
     assertReadTestData(
         /* startFormat= */ null,
         DATA_SECOND_KEYFRAME_INDEX,
@@ -828,44 +837,48 @@ public final class SampleQueueTest {
     success = sampleQueue.seekTo(SAMPLE_TIMESTAMPS[0], /* allowTimeBeyondBuffer= */ false);
 
     assertThat(success).isTrue();
-    assertThat(sampleQueue.getReadIndex()).isEqualTo(0);
+    assertThat(sampleQueue.getReadIndex()).isEqualTo(CLOSE_TO_CAPACITY_SIZE);
     assertReadTestData();
     assertNoSamplesToRead(FORMAT_2);
   }
 
   @Test
   public void seekToBeforeBuffer_allSamplesAreSyncSamples() {
+    writeAndDiscardPlaceholderSamples(CLOSE_TO_CAPACITY_SIZE);
     writeSyncSamplesOnlyTestData();
 
     boolean success =
         sampleQueue.seekTo(SAMPLE_TIMESTAMPS[0] - 1, /* allowTimeBeyondBuffer= */ false);
 
     assertThat(success).isFalse();
-    assertThat(sampleQueue.getReadIndex()).isEqualTo(0);
+    assertThat(sampleQueue.getReadIndex()).isEqualTo(CLOSE_TO_CAPACITY_SIZE);
     assertReadSyncSampleOnlyTestData();
     assertNoSamplesToRead(FORMAT_SYNC_SAMPLE_ONLY_2);
   }
 
   @Test
   public void seekToStartOfBuffer_allSamplesAreSyncSamples() {
+    writeAndDiscardPlaceholderSamples(CLOSE_TO_CAPACITY_SIZE);
     writeSyncSamplesOnlyTestData();
 
     boolean success = sampleQueue.seekTo(SAMPLE_TIMESTAMPS[0], /* allowTimeBeyondBuffer= */ false);
 
     assertThat(success).isTrue();
-    assertThat(sampleQueue.getReadIndex()).isEqualTo(0);
+    assertThat(sampleQueue.getReadIndex()).isEqualTo(CLOSE_TO_CAPACITY_SIZE);
     assertReadSyncSampleOnlyTestData();
     assertNoSamplesToRead(FORMAT_SYNC_SAMPLE_ONLY_2);
   }
 
   @Test
   public void seekToEndOfBuffer_allSamplesAreSyncSamples() {
+    writeAndDiscardPlaceholderSamples(CLOSE_TO_CAPACITY_SIZE);
     writeSyncSamplesOnlyTestData();
 
     boolean success = sampleQueue.seekTo(LAST_SAMPLE_TIMESTAMP, /* allowTimeBeyondBuffer= */ false);
 
     assertThat(success).isTrue();
-    assertThat(sampleQueue.getReadIndex()).isEqualTo(SAMPLE_TIMESTAMPS.length - 1);
+    assertThat(sampleQueue.getReadIndex())
+        .isEqualTo(CLOSE_TO_CAPACITY_SIZE + SAMPLE_TIMESTAMPS.length - 1);
     assertReadSyncSampleOnlyTestData(
         /* firstSampleIndex= */ SAMPLE_TIMESTAMPS.length - 1, /* sampleCount= */ 1);
     assertNoSamplesToRead(FORMAT_SYNC_SAMPLE_ONLY_2);
@@ -873,38 +886,43 @@ public final class SampleQueueTest {
 
   @Test
   public void seekToAfterBuffer_allSamplesAreSyncSamples() {
+    writeAndDiscardPlaceholderSamples(CLOSE_TO_CAPACITY_SIZE);
     writeSyncSamplesOnlyTestData();
 
     boolean success =
         sampleQueue.seekTo(LAST_SAMPLE_TIMESTAMP + 1, /* allowTimeBeyondBuffer= */ false);
 
     assertThat(success).isFalse();
-    assertThat(sampleQueue.getReadIndex()).isEqualTo(0);
+    assertThat(sampleQueue.getReadIndex()).isEqualTo(CLOSE_TO_CAPACITY_SIZE);
     assertReadSyncSampleOnlyTestData();
     assertNoSamplesToRead(FORMAT_SYNC_SAMPLE_ONLY_2);
   }
 
   @Test
   public void seekToAfterBufferAllowed_allSamplesAreSyncSamples() {
+    writeAndDiscardPlaceholderSamples(CLOSE_TO_CAPACITY_SIZE);
     writeSyncSamplesOnlyTestData();
 
     boolean success =
         sampleQueue.seekTo(LAST_SAMPLE_TIMESTAMP + 1, /* allowTimeBeyondBuffer= */ true);
 
     assertThat(success).isTrue();
-    assertThat(sampleQueue.getReadIndex()).isEqualTo(SAMPLE_TIMESTAMPS.length);
+    assertThat(sampleQueue.getReadIndex())
+        .isEqualTo(CLOSE_TO_CAPACITY_SIZE + SAMPLE_TIMESTAMPS.length);
     assertReadFormat(/* formatRequired= */ false, FORMAT_SYNC_SAMPLE_ONLY_2);
     assertNoSamplesToRead(FORMAT_SYNC_SAMPLE_ONLY_2);
   }
 
   @Test
   public void seekToEndAndBackToStart_allSamplesAreSyncSamples() {
+    writeAndDiscardPlaceholderSamples(CLOSE_TO_CAPACITY_SIZE);
     writeSyncSamplesOnlyTestData();
 
     boolean success = sampleQueue.seekTo(LAST_SAMPLE_TIMESTAMP, /* allowTimeBeyondBuffer= */ false);
 
     assertThat(success).isTrue();
-    assertThat(sampleQueue.getReadIndex()).isEqualTo(SAMPLE_TIMESTAMPS.length - 1);
+    assertThat(sampleQueue.getReadIndex())
+        .isEqualTo(CLOSE_TO_CAPACITY_SIZE + SAMPLE_TIMESTAMPS.length - 1);
     assertReadSyncSampleOnlyTestData(
         /* firstSampleIndex= */ SAMPLE_TIMESTAMPS.length - 1, /* sampleCount= */ 1);
     assertNoSamplesToRead(FORMAT_SYNC_SAMPLE_ONLY_2);
@@ -913,7 +931,7 @@ public final class SampleQueueTest {
     success = sampleQueue.seekTo(SAMPLE_TIMESTAMPS[0], /* allowTimeBeyondBuffer= */ false);
 
     assertThat(success).isTrue();
-    assertThat(sampleQueue.getReadIndex()).isEqualTo(0);
+    assertThat(sampleQueue.getReadIndex()).isEqualTo(CLOSE_TO_CAPACITY_SIZE);
     assertReadSyncSampleOnlyTestData();
     assertNoSamplesToRead(FORMAT_SYNC_SAMPLE_ONLY_2);
   }
@@ -1572,6 +1590,15 @@ public final class SampleQueueTest {
         data.length,
         /* offset= */ 0,
         (sampleFlags & C.BUFFER_FLAG_ENCRYPTED) != 0 ? CRYPTO_DATA : null);
+  }
+
+  private void writeAndDiscardPlaceholderSamples(int sampleCount) {
+    writeFormat(FORMAT_SYNC_SAMPLE_ONLY_1);
+    for (int i = 0; i < sampleCount; i++) {
+      writeSample(
+          Util.EMPTY_BYTE_ARRAY, /* timestampUs= */ 0, /* sampleFlags= */ C.BUFFER_FLAG_KEY_FRAME);
+    }
+    sampleQueue.discardToEnd();
   }
 
   /** Asserts correct reading of the sync-sample-only test data from {@code sampleQueue}. */
