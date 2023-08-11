@@ -310,18 +310,28 @@ public final class CmcdHeadersFactory {
         this.objectDurationMs = C.TIME_UNSET;
       }
 
-      /** Sets the {@link CmcdObject#bitrateKbps}. The default value is {@link C#RATE_UNSET_INT}. */
+      /**
+       * Sets the {@link CmcdObject#bitrateKbps}. The default value is {@link C#RATE_UNSET_INT}.
+       *
+       * @throws IllegalArgumentException If {@code bitrateKbps} is not equal to {@link
+       *     C#RATE_UNSET_INT} and is negative.
+       */
       @CanIgnoreReturnValue
       public Builder setBitrateKbps(int bitrateKbps) {
+        checkArgument(bitrateKbps >= 0 || bitrateKbps == C.RATE_UNSET_INT);
         this.bitrateKbps = bitrateKbps;
         return this;
       }
 
       /**
        * Sets the {@link CmcdObject#topBitrateKbps}. The default value is {@link C#RATE_UNSET_INT}.
+       *
+       * @throws IllegalArgumentException If {@code topBitrateKbps} is not equal to {@link
+       *     C#RATE_UNSET_INT} and is negative.
        */
       @CanIgnoreReturnValue
       public Builder setTopBitrateKbps(int topBitrateKbps) {
+        checkArgument(topBitrateKbps >= 0 || topBitrateKbps == C.RATE_UNSET_INT);
         this.topBitrateKbps = topBitrateKbps;
         return this;
       }
@@ -329,11 +339,12 @@ public final class CmcdHeadersFactory {
       /**
        * Sets the {@link CmcdObject#objectDurationMs}. The default value is {@link C#TIME_UNSET}.
        *
-       * @throws IllegalArgumentException If {@code objectDurationMs} is negative.
+       * @throws IllegalArgumentException If {@code objectDurationMs} is not equal to {@link
+       *     C#TIME_UNSET} and is negative.
        */
       @CanIgnoreReturnValue
       public Builder setObjectDurationMs(long objectDurationMs) {
-        checkArgument(objectDurationMs >= 0);
+        checkArgument(objectDurationMs >= 0 || objectDurationMs == C.TIME_UNSET);
         this.objectDurationMs = objectDurationMs;
         return this;
       }
@@ -471,11 +482,12 @@ public final class CmcdHeadersFactory {
        * Sets the {@link CmcdRequest#bufferLengthMs}. Rounded to nearest 100 ms. The default value
        * is {@link C#TIME_UNSET}.
        *
-       * @throws IllegalArgumentException If {@code bufferLengthMs} is negative.
+       * @throws IllegalArgumentException If {@code bufferLengthMs} is not equal to {@link
+       *     C#TIME_UNSET} and is negative.
        */
       @CanIgnoreReturnValue
       public Builder setBufferLengthMs(long bufferLengthMs) {
-        checkArgument(bufferLengthMs >= 0);
+        checkArgument(bufferLengthMs >= 0 || bufferLengthMs == C.TIME_UNSET);
         this.bufferLengthMs = ((bufferLengthMs + 50) / 100) * 100;
         return this;
       }
@@ -484,11 +496,12 @@ public final class CmcdHeadersFactory {
        * Sets the {@link CmcdRequest#measuredThroughputInKbps}. Rounded to nearest 100 kbps. The
        * default value is {@link Long#MIN_VALUE}.
        *
-       * @throws IllegalArgumentException If {@code measuredThroughputInKbps} is negative.
+       * @throws IllegalArgumentException If {@code measuredThroughputInKbps} is not equal to {@link
+       *     Long#MIN_VALUE} and is negative.
        */
       @CanIgnoreReturnValue
       public Builder setMeasuredThroughputInKbps(long measuredThroughputInKbps) {
-        checkArgument(measuredThroughputInKbps >= 0);
+        checkArgument(measuredThroughputInKbps >= 0 || measuredThroughputInKbps == Long.MIN_VALUE);
         this.measuredThroughputInKbps = ((measuredThroughputInKbps + 50) / 100) * 100;
 
         return this;
@@ -683,9 +696,15 @@ public final class CmcdHeadersFactory {
         return this;
       }
 
-      /** Sets the {@link CmcdSession#playbackRate}. The default value is {@link C#RATE_UNSET}. */
+      /**
+       * Sets the {@link CmcdSession#playbackRate}. The default value is {@link C#RATE_UNSET}.
+       *
+       * @throws IllegalArgumentException If {@code playbackRate} is not equal to {@link
+       *     C#RATE_UNSET} and is non-positive.
+       */
       @CanIgnoreReturnValue
       public Builder setPlaybackRate(float playbackRate) {
+        checkArgument(playbackRate > 0 || playbackRate == C.RATE_UNSET);
         this.playbackRate = playbackRate;
         return this;
       }
@@ -834,8 +853,8 @@ public final class CmcdHeadersFactory {
       @CanIgnoreReturnValue
       public Builder setMaximumRequestedThroughputKbps(int maximumRequestedThroughputKbps) {
         checkArgument(
-            maximumRequestedThroughputKbps == C.RATE_UNSET_INT
-                || maximumRequestedThroughputKbps >= 0);
+            maximumRequestedThroughputKbps >= 0
+                || maximumRequestedThroughputKbps == C.RATE_UNSET_INT);
 
         this.maximumRequestedThroughputKbps =
             maximumRequestedThroughputKbps == C.RATE_UNSET_INT
