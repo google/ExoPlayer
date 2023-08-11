@@ -28,17 +28,19 @@ import java.nio.ByteBuffer;
 
 /** Processes raw audio samples. */
 /* package */ final class AudioGraph {
-  private final AudioMixerImpl mixer;
+  private final AudioMixer mixer;
   private final SparseArray<AudioGraphInput> inputs;
 
+  private AudioFormat outputAudioFormat;
   private int finishedInputs;
   private ByteBuffer currentOutput;
 
   /** Creates an instance. */
-  public AudioGraph() {
-    mixer = new AudioMixerImpl(/* outputSilenceWithNoSources= */ false);
+  public AudioGraph(AudioMixer.Factory mixerFactory) {
+    mixer = mixerFactory.create();
     inputs = new SparseArray<>();
     currentOutput = EMPTY_BUFFER;
+    outputAudioFormat = AudioFormat.NOT_SET;
   }
 
   /** Returns a new {@link AudioGraphInput} instance. */
@@ -48,10 +50,9 @@ import java.nio.ByteBuffer;
       AudioGraphInput audioGraphInput = new AudioGraphInput(item, format);
 
       if (inputs.size() == 0) {
+        outputAudioFormat = audioGraphInput.getOutputAudioFormat();
         mixer.configure(
-            audioGraphInput.getOutputAudioFormat(),
-            /* bufferSizeMs= */ C.LENGTH_UNSET,
-            /* startTimeUs= */ 0);
+            outputAudioFormat, /* bufferSizeMs= */ C.LENGTH_UNSET, /* startTimeUs= */ 0);
       }
 
       int sourceId = mixer.addSource(audioGraphInput.getOutputAudioFormat(), /* startTimeUs= */ 0);
@@ -69,7 +70,7 @@ import java.nio.ByteBuffer;
    * registered}.
    */
   public AudioFormat getOutputAudioFormat() {
-    return mixer.getOutputAudioFormat();
+    return outputAudioFormat;
   }
 
   /**

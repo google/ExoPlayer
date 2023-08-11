@@ -94,6 +94,7 @@ public final class Transformer {
     private boolean flattenForSlowMotion;
     private ListenerSet<Transformer.Listener> listeners;
     private AssetLoader.@MonotonicNonNull Factory assetLoaderFactory;
+    private AudioMixer.Factory audioMixerFactory;
     private VideoFrameProcessor.Factory videoFrameProcessorFactory;
     private Codec.EncoderFactory encoderFactory;
     private Muxer.Factory muxerFactory;
@@ -110,6 +111,7 @@ public final class Transformer {
       this.context = context.getApplicationContext();
       audioProcessors = ImmutableList.of();
       videoEffects = ImmutableList.of();
+      audioMixerFactory = new DefaultAudioMixer.Factory();
       videoFrameProcessorFactory = new DefaultVideoFrameProcessor.Factory.Builder().build();
       encoderFactory = new DefaultEncoderFactory.Builder(this.context).build();
       muxerFactory = new DefaultMuxer.Factory();
@@ -131,6 +133,7 @@ public final class Transformer {
       this.removeVideo = transformer.removeVideo;
       this.listeners = transformer.listeners;
       this.assetLoaderFactory = transformer.assetLoaderFactory;
+      this.audioMixerFactory = transformer.audioMixerFactory;
       this.videoFrameProcessorFactory = transformer.videoFrameProcessorFactory;
       this.encoderFactory = transformer.encoderFactory;
       this.muxerFactory = transformer.muxerFactory;
@@ -339,7 +342,23 @@ public final class Transformer {
     }
 
     /**
-     * Sets the factory to be used to create {@link VideoFrameProcessor} instances.
+     * Sets the {@link AudioMixer.Factory} to be used when {@linkplain AudioMixer audio mixing} is
+     * needed.
+     *
+     * <p>The default value is a {@link DefaultAudioMixer.Factory} with default values.
+     *
+     * @param audioMixerFactory A {@link AudioMixer.Factory}.
+     * @return This builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder setAudioMixerFactory(AudioMixer.Factory audioMixerFactory) {
+      this.audioMixerFactory = audioMixerFactory;
+      return this;
+    }
+
+    /**
+     * Sets the {@link VideoFrameProcessor.Factory} to be used to create {@link VideoFrameProcessor}
+     * instances.
      *
      * <p>The default value is a {@link DefaultVideoFrameProcessor.Factory} built with default
      * values.
@@ -369,7 +388,7 @@ public final class Transformer {
     }
 
     /**
-     * Sets the factory for muxers that write the media container.
+     * Sets the {@link Muxer.Factory} for muxers that write the media container.
      *
      * <p>The default value is a {@link DefaultMuxer.Factory}.
      *
@@ -468,6 +487,7 @@ public final class Transformer {
           flattenForSlowMotion,
           listeners,
           assetLoaderFactory,
+          audioMixerFactory,
           videoFrameProcessorFactory,
           encoderFactory,
           muxerFactory,
@@ -637,6 +657,7 @@ public final class Transformer {
   private final boolean flattenForSlowMotion;
   private final ListenerSet<Transformer.Listener> listeners;
   @Nullable private final AssetLoader.Factory assetLoaderFactory;
+  private final AudioMixer.Factory audioMixerFactory;
   private final VideoFrameProcessor.Factory videoFrameProcessorFactory;
   private final Codec.EncoderFactory encoderFactory;
   private final Muxer.Factory muxerFactory;
@@ -656,6 +677,7 @@ public final class Transformer {
       boolean flattenForSlowMotion,
       ListenerSet<Listener> listeners,
       @Nullable AssetLoader.Factory assetLoaderFactory,
+      AudioMixer.Factory audioMixerFactory,
       VideoFrameProcessor.Factory videoFrameProcessorFactory,
       Codec.EncoderFactory encoderFactory,
       Muxer.Factory muxerFactory,
@@ -672,6 +694,7 @@ public final class Transformer {
     this.flattenForSlowMotion = flattenForSlowMotion;
     this.listeners = listeners;
     this.assetLoaderFactory = assetLoaderFactory;
+    this.audioMixerFactory = audioMixerFactory;
     this.videoFrameProcessorFactory = videoFrameProcessorFactory;
     this.encoderFactory = encoderFactory;
     this.muxerFactory = muxerFactory;
@@ -839,6 +862,7 @@ public final class Transformer {
             path,
             transformationRequest,
             assetLoaderFactory,
+            audioMixerFactory,
             videoFrameProcessorFactory,
             encoderFactory,
             muxerFactory,

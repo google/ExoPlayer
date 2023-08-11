@@ -136,6 +136,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       String outputPath,
       TransformationRequest transformationRequest,
       AssetLoader.Factory assetLoaderFactory,
+      AudioMixer.Factory audioMixerFactory,
       VideoFrameProcessor.Factory videoFrameProcessorFactory,
       Codec.EncoderFactory encoderFactory,
       Muxer.Factory muxerFactory,
@@ -162,6 +163,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               /* sequenceIndex= */ i,
               composition,
               transformationRequest,
+              audioMixerFactory,
               videoFrameProcessorFactory,
               fallbackListener,
               debugViewProvider);
@@ -449,6 +451,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     private final ImmutableList<EditedMediaItem> editedMediaItems;
     private final Composition composition;
     private final TransformationRequest transformationRequest;
+    private final AudioMixer.Factory audioMixerFactory;
     private final VideoFrameProcessor.Factory videoFrameProcessorFactory;
     private final FallbackListener fallbackListener;
     private final DebugViewProvider debugViewProvider;
@@ -458,6 +461,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         int sequenceIndex,
         Composition composition,
         TransformationRequest transformationRequest,
+        AudioMixer.Factory audioMixerFactory,
         VideoFrameProcessor.Factory videoFrameProcessorFactory,
         FallbackListener fallbackListener,
         DebugViewProvider debugViewProvider) {
@@ -465,6 +469,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       this.editedMediaItems = composition.sequences.get(sequenceIndex).editedMediaItems;
       this.composition = composition;
       this.transformationRequest = transformationRequest;
+      this.audioMixerFactory = audioMixerFactory;
       this.videoFrameProcessorFactory = videoFrameProcessorFactory;
       this.fallbackListener = fallbackListener;
       this.debugViewProvider = debugViewProvider;
@@ -579,6 +584,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 /* firstInputFormat= */ assetLoaderOutputFormat,
                 transformationRequest,
                 editedMediaItems.get(0),
+                audioMixerFactory,
                 encoderFactory,
                 muxerWrapper,
                 fallbackListener));

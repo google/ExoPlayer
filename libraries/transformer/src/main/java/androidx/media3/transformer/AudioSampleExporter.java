@@ -52,12 +52,13 @@ import org.checkerframework.dataflow.qual.Pure;
       Format firstInputFormat,
       TransformationRequest transformationRequest,
       EditedMediaItem firstEditedMediaItem,
+      AudioMixer.Factory mixerFactory,
       Codec.EncoderFactory encoderFactory,
       MuxerWrapper muxerWrapper,
       FallbackListener fallbackListener)
       throws ExportException {
     super(firstAssetLoaderTrackFormat, muxerWrapper);
-    audioGraph = new AudioGraph();
+    audioGraph = new AudioGraph(mixerFactory);
     this.firstInputFormat = firstInputFormat;
     firstInput = audioGraph.registerInput(firstEditedMediaItem, firstInputFormat);
     encoderInputAudioFormat = audioGraph.getOutputAudioFormat();

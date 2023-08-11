@@ -53,9 +53,18 @@ import java.nio.ByteBuffer;
  */
 @UnstableApi
 public interface AudioMixer {
-  /** Creates an unconfigured instance. */
-  public static AudioMixer create() {
-    return new AudioMixerImpl(/* outputSilenceWithNoSources= */ true);
+
+  /** A factory for {@link AudioMixer} instances. */
+  interface Factory {
+    AudioMixer create();
+  }
+
+  /**
+   * @deprecated Use {@link DefaultAudioMixer.Factory#create()}.
+   */
+  @Deprecated
+  static AudioMixer create() {
+    return new DefaultAudioMixer.Factory(/* outputSilenceWithNoSources= */ true).create();
   }
 
   /**
