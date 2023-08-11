@@ -300,10 +300,10 @@ public interface ExoTrackSelection extends TrackSelection {
   /**
    * Returns the most recent bitrate estimate utilised for track selection.
    *
-   * <p>The default behavior is to return {@link Long#MIN_VALUE}, indicating that the bitrate
+   * <p>The default behavior is to return {@link C#RATE_UNSET_INT}, indicating that the bitrate
    * estimate was not computed for the track selection decision.
    */
   default long getLatestBitrateEstimate() {
-    return Long.MIN_VALUE;
+    return C.RATE_UNSET_INT;
   }
 }

@@ -246,7 +246,7 @@ public final class CmcdHeadersFactory {
       cmcdRequest.setBufferLengthMs(Util.usToMs(bufferedDurationUs));
     }
     if (cmcdConfiguration.isMeasuredThroughputLoggingAllowed()
-        && trackSelection.getLatestBitrateEstimate() != Long.MIN_VALUE) {
+        && trackSelection.getLatestBitrateEstimate() != C.RATE_UNSET_INT) {
       cmcdRequest.setMeasuredThroughputInKbps(
           Util.ceilDivide(trackSelection.getLatestBitrateEstimate(), 1000));
     }
@@ -475,7 +475,7 @@ public final class CmcdHeadersFactory {
       /** Creates a new instance with default values. */
       public Builder() {
         this.bufferLengthMs = C.TIME_UNSET;
-        this.measuredThroughputInKbps = Long.MIN_VALUE;
+        this.measuredThroughputInKbps = C.RATE_UNSET_INT;
         this.deadlineMs = C.TIME_UNSET;
       }
 
@@ -495,14 +495,15 @@ public final class CmcdHeadersFactory {
 
       /**
        * Sets the {@link CmcdRequest#measuredThroughputInKbps}. Rounded to nearest 100 kbps. The
-       * default value is {@link Long#MIN_VALUE}.
+       * default value is {@link C#RATE_UNSET_INT}.
        *
        * @throws IllegalArgumentException If {@code measuredThroughputInKbps} is not equal to {@link
-       *     Long#MIN_VALUE} and is negative.
+       *     C#RATE_UNSET_INT} and is negative.
        */
       @CanIgnoreReturnValue
       public Builder setMeasuredThroughputInKbps(long measuredThroughputInKbps) {
-        checkArgument(measuredThroughputInKbps >= 0 || measuredThroughputInKbps == Long.MIN_VALUE);
+        checkArgument(
+            measuredThroughputInKbps >= 0 || measuredThroughputInKbps == C.RATE_UNSET_INT);
         this.measuredThroughputInKbps = ((measuredThroughputInKbps + 50) / 100) * 100;
 
         return this;
@@ -555,7 +556,7 @@ public final class CmcdHeadersFactory {
 
     /**
      * The throughput between client and server, as measured by the client, or {@link
-     * Long#MIN_VALUE} if unset.
+     * C#RATE_UNSET_INT} if unset.
      *
      * <p>This value MUST be rounded to the nearest 100 kbps. This value, however derived, SHOULD be
      * the value that the client is using to make its next Adaptive Bitrate switching decision. If
@@ -611,7 +612,7 @@ public final class CmcdHeadersFactory {
       if (bufferLengthMs != C.TIME_UNSET) {
         headerValueList.add(CmcdConfiguration.KEY_BUFFER_LENGTH + "=" + bufferLengthMs);
       }
-      if (measuredThroughputInKbps != Long.MIN_VALUE) {
+      if (measuredThroughputInKbps != C.RATE_UNSET_INT) {
         headerValueList.add(
             CmcdConfiguration.KEY_MEASURED_THROUGHPUT + "=" + measuredThroughputInKbps);
       }
