@@ -14,12 +14,14 @@
 // limitations under the License.
 
 // ES 2 fragment shader that samples from a (non-external) texture with
-// uTexSampler and copies this to the output.
+// uTexSampler, and multiplies its alpha value by uAlphaScale.
 
 precision mediump float;
 uniform sampler2D uTexSampler;
+uniform float uAlphaScale;
 varying vec2 vTexSamplingCoord;
 
 void main() {
-    gl_FragColor = texture2D(uTexSampler, vTexSamplingCoord);
+    vec4 src = texture2D(uTexSampler, vTexSamplingCoord);
+    gl_FragColor = vec4(src.rgb, src.a * uAlphaScale);
 }

@@ -1,0 +1,193 @@
+/*
+ * Copyright 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.google.android.exoplayer2.effect;
+
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
+import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
+import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.createArgb8888BitmapFromFocusedGlFramebuffer;
+import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.createGlTextureFromBitmap;
+import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceArgb8888;
+import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.maybeSaveTestBitmap;
+import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.readBitmap;
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.common.truth.Truth.assertThat;
+
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.opengl.EGLContext;
+import android.opengl.EGLDisplay;
+import android.opengl.EGLSurface;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.android.exoplayer2.testutil.BitmapPixelTestUtil;
+import com.google.android.exoplayer2.util.GlUtil;
+import com.google.android.exoplayer2.util.Size;
+import com.google.android.exoplayer2.util.VideoFrameProcessingException;
+import java.io.IOException;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestName;
+import org.junit.runner.RunWith;
+
+/**
+ * Pixel tests for {@link AlphaScale}.
+ *
+ * <p>Expected images are taken from an emulator, so tests on different emulators or physical
+ * devices may fail. To test on other devices, please increase the {@link
+ * BitmapPixelTestUtil#MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE} and/or inspect the saved output
+ * bitmaps as recommended in {@link DefaultVideoFrameProcessorPixelTest}.
+ */
+@RunWith(AndroidJUnit4.class)
+public final class AlphaScaleShaderProgramPixelTest {
+  @Rule public final TestName testName = new TestName();
+  // TODO: b/262694346 - Use media3test_srgb instead of media3test, throughout our tests. This is
+  //  this test image is intended to be interpreted as sRGB, but media3test is stored in a niche
+  //  color transfer, which can make alpha tests more difficult to debug.
+  private static final String ORIGINAL_PNG_ASSET_PATH =
+      "media/bitmap/input_images/media3test_srgb.png";
+  private static final String DECREASE_ALPHA_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/electrical_colors/decrease_alpha.png";
+  private static final String INCREASE_ALPHA_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/electrical_colors/increase_alpha.png";
+  private static final String ZERO_ALPHA_PNG_ASSET_PATH =
+      "media/bitmap/sample_mp4_first_frame/electrical_colors/zero_alpha.png";
+
+  private final Context context = getApplicationContext();
+
+  private @MonotonicNonNull String testId;
+  private @MonotonicNonNull EGLDisplay eglDisplay;
+  private @MonotonicNonNull EGLContext eglContext;
+  private @MonotonicNonNull SingleFrameGlShaderProgram defaultShaderProgram;
+  private @MonotonicNonNull EGLSurface placeholderEglSurface;
+  private int inputTexId;
+  private int inputWidth;
+  private int inputHeight;
+
+  @Before
+  public void createGlObjects() throws IOException, GlUtil.GlException {
+    eglDisplay = GlUtil.getDefaultEglDisplay();
+    eglContext = GlUtil.createEglContext(eglDisplay);
+    placeholderEglSurface = GlUtil.createFocusedPlaceholderEglSurface(eglContext, eglDisplay);
+
+    Bitmap inputBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
+    inputWidth = inputBitmap.getWidth();
+    inputHeight = inputBitmap.getHeight();
+    inputTexId = createGlTextureFromBitmap(inputBitmap);
+
+    int outputTexId =
+        GlUtil.createTexture(inputWidth, inputHeight, /* useHighPrecisionColorComponents= */ false);
+    int frameBuffer = GlUtil.createFboForTexture(outputTexId);
+    GlUtil.focusFramebuffer(
+        checkNotNull(eglDisplay),
+        checkNotNull(eglContext),
+        checkNotNull(placeholderEglSurface),
+        frameBuffer,
+        inputWidth,
+        inputHeight);
+    GlUtil.clearFocusedBuffers();
+  }
+
+  @Before
+  @EnsuresNonNull("testId")
+  public void setUpTestId() {
+    testId = testName.getMethodName();
+  }
+
+  @After
+  public void release() throws GlUtil.GlException, VideoFrameProcessingException {
+    if (defaultShaderProgram != null) {
+      defaultShaderProgram.release();
+    }
+    GlUtil.destroyEglContext(eglDisplay, eglContext);
+  }
+
+  @Test
+  @RequiresNonNull("testId")
+  public void noOpAlpha_matchesGoldenFile() throws Exception {
+    defaultShaderProgram = new AlphaScale(1.0f).toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = defaultShaderProgram.configure(inputWidth, inputHeight);
+    Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
+    maybeSaveTestBitmap(testId, /* bitmapLabel= */ "input", expectedBitmap, /* path= */ null);
+
+    defaultShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    Bitmap actualBitmap =
+        createArgb8888BitmapFromFocusedGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
+
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
+    maybeSaveTestBitmap(testId, /* bitmapLabel= */ "actual", actualBitmap, /* path= */ null);
+    float averagePixelAbsoluteDifference =
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
+  @RequiresNonNull("testId")
+  public void zeroAlpha_matchesGoldenFile() throws Exception {
+    defaultShaderProgram = new AlphaScale(0.0f).toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = defaultShaderProgram.configure(inputWidth, inputHeight);
+    Bitmap expectedBitmap = readBitmap(ZERO_ALPHA_PNG_ASSET_PATH);
+
+    defaultShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    Bitmap actualBitmap =
+        createArgb8888BitmapFromFocusedGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
+
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
+    maybeSaveTestBitmap(testId, /* bitmapLabel= */ "actual", actualBitmap, /* path= */ null);
+    float averagePixelAbsoluteDifference =
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
+  @RequiresNonNull("testId")
+  public void decreaseAlpha_matchesGoldenFile() throws Exception {
+    defaultShaderProgram = new AlphaScale(0.5f).toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = defaultShaderProgram.configure(inputWidth, inputHeight);
+    Bitmap expectedBitmap = readBitmap(DECREASE_ALPHA_PNG_ASSET_PATH);
+
+    defaultShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    Bitmap actualBitmap =
+        createArgb8888BitmapFromFocusedGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
+
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
+    maybeSaveTestBitmap(testId, /* bitmapLabel= */ "actual", actualBitmap, /* path= */ null);
+    float averagePixelAbsoluteDifference =
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+
+  @Test
+  @RequiresNonNull("testId")
+  public void increaseAlpha_matchesGoldenFile() throws Exception {
+    defaultShaderProgram = new AlphaScale(1.5f).toGlShaderProgram(context, /* useHdr= */ false);
+    Size outputSize = defaultShaderProgram.configure(inputWidth, inputHeight);
+    Bitmap expectedBitmap = readBitmap(INCREASE_ALPHA_PNG_ASSET_PATH);
+
+    defaultShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
+    Bitmap actualBitmap =
+        createArgb8888BitmapFromFocusedGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
+
+    // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
+    maybeSaveTestBitmap(testId, /* bitmapLabel= */ "actual", actualBitmap, /* path= */ null);
+    float averagePixelAbsoluteDifference =
+        getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
+  }
+}
