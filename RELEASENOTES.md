@@ -104,6 +104,8 @@
 *   Metadata:
 *   DRM:
 *   Effect:
+    *   Add `VideoFrameProcessor.queueInputBitmap(Bitmap, Iterator<Long>)`
+        queuing bitmap input by timestamp.
 *   Muxers:
 *   IMA extension:
 *   Session:

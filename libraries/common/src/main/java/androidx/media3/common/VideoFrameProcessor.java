@@ -28,6 +28,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -150,7 +151,11 @@ public interface VideoFrameProcessor {
   long DROP_OUTPUT_FRAME = -2;
 
   /**
-   * Provides an input {@link Bitmap} to the {@link VideoFrameProcessor}.
+   * Provides an input {@link Bitmap} to the {@link VideoFrameProcessor} to generate an input stream
+   * of frames.
+   *
+   * <p>Each call must be made after {@linkplain #registerInputStream registering a new input
+   * stream}.
    *
    * <p>Can be called on any thread.
    *
@@ -161,9 +166,25 @@ public interface VideoFrameProcessor {
    * @throws UnsupportedOperationException If the {@code VideoFrameProcessor} does not accept
    *     {@linkplain #INPUT_TYPE_BITMAP bitmap input}.
    */
-  // TODO(b/262693274): Remove duration and frameRate parameters when EditedMediaItem can be
-  //  signalled down to the processors.
+  // TODO(b/262693274): Delete this method and usages in favor of the one below (Note it is not
+  //   deprecated because transformer still relies on this method for frame duplication).
   void queueInputBitmap(Bitmap inputBitmap, long durationUs, float frameRate);
+
+  /**
+   * Provides an input {@link Bitmap} to the {@link VideoFrameProcessor}.
+   *
+   * <p>Can be called many times after {@link #registerInputStream(int, List, FrameInfo) registering
+   * the input stream} to put multiple frames in the same input stream.
+   *
+   * <p>Can be called on any thread.
+   *
+   * @param inputBitmap The {@link Bitmap} queued to the {@code VideoFrameProcessor}.
+   * @param inStreamOffsetsUs The times within the current stream that the bitmap should be shown
+   *     at. The timestamps should be monotonically increasing.
+   * @throws UnsupportedOperationException If the {@code VideoFrameProcessor} does not accept
+   *     {@linkplain #INPUT_TYPE_BITMAP bitmap input}.
+   */
+  void queueInputBitmap(Bitmap inputBitmap, Iterator<Long> inStreamOffsetsUs);
 
   /**
    * Provides an input texture ID to the {@code VideoFrameProcessor}.
