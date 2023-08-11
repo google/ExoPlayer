@@ -1,12 +1,44 @@
 # Release notes
 
-### 2.19.0 (2023-07-05)
+### 2.19.1 (2023-08-14)
 
 This is the last planned release of the `com.google.android.exoplayer2`
 artifacts. This project is now deprecated. All users should migrate to
 `androidx.media3` (which contains the same ExoPlayer code). See
 [the migration guide](https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide)
 for more details, including a script to help with the migration.
+
+This release corresponds to the
+[AndroidX Media3 1.1.1 release](https://github.com/androidx/media/releases/tag/1.1.1).
+
+*   Common Library:
+    *   Remove accidentally added `multidex` dependency from all modules
+        ([#499](https://github.com/androidx/media/issues/499)).
+*   ExoPlayer:
+    *   Fix issue in `PlaybackStatsListener` where spurious `PlaybackStats` are
+        created after the playlist is cleared.
+    *   Add additional fields to Common Media Client Data (CMCD) logging:
+        streaming format (sf), stream type (st), version (v), top birate (tb),
+        object duration (d), measured throughput (mtp) and object type (ot)
+        ([#8699](https://github.com/google/ExoPlayer/issues/8699)).
+*   Audio:
+    *   Fix a bug where `Player.getState()` never transitioned to `STATE_ENDED`
+        when playing very short files
+        ([#538](https://github.com/androidx/media/issues/538)).
+*   Audio Offload:
+    *   Prepend Ogg ID Header and Comment Header Pages to bitstream for
+        offloaded Opus playback in accordance with RFC 7845.
+*   Video:
+    *   H.265/HEVC: Fix parsing SPS short and long term reference picture info.
+*   Text:
+    *   CEA-608: Change cue truncation logic to only consider visible text.
+        Previously indent and tab offset were included when limiting the cue
+        length to 32 characters (which was technically correct by the spec)
+        ([#11019](https://github.com/google/ExoPlayer/issues/11019)).
+*   IMA extension:
+    *   Bump IMA SDK version to 3.30.3.
+
+### 2.19.0 (2023-07-05)
 
 This release corresponds to the
 [AndroidX Media3 1.1.0 release](https://github.com/androidx/media/releases/tag/1.1.0).
