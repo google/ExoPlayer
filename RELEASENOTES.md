@@ -13,8 +13,6 @@
         and nullable array element types are not detected as nullable. Examples
         are `TrackSelectorResult` and `SimpleDecoder` method parameters
         ([6792](https://github.com/google/ExoPlayer/issues/6792)).
-    *   Remove accidentally added `multidex` dependency from all modules
-        ([#499](https://github.com/androidx/media/issues/499)).
 *   ExoPlayer:
     *   Fix seeking issues in AC4 streams caused by not identifying decode-only
         samples correctly
@@ -27,18 +25,12 @@
         is attempted when no suitable audio outputs are available, or if all
         suitable outputs are disconnected during playback. The suppression
         reason will be removed when a suitable output is connected.
-    *   Fix issue in `PlaybackStatsListener` where spurious `PlaybackStats` are
-        created after the playlist is cleared.
     *   Add `MediaSource.canUpdateMediaItem` and `MediaSource.updateMediaItem`
         to accept `MediaItem` updates after creation via
         `Player.replaceMediaItem(s)`.
     *   Allow `MediaItem` updates for all `MediaSource` classes provided by the
         library via `Player.replaceMediaItem(s)`
         (([#33](https://github.com/androidx/media/issues/33)),([#9978](https://github.com/google/ExoPlayer/issues/9978))).
-    *   Add additional fields to Common Media Client Data (CMCD) logging:
-        streaming format (sf), stream type (st), version (v), top birate (tb),
-        object duration (d), measured throughput (mtp) and object type(ot)
-        ([#8699](https://github.com/google/ExoPlayer/issues/8699)).
     *   Rename `MimeTypes.TEXT_EXOPLAYER_CUES` to
         `MimeTypes.APPLICATION_MEDIA3_CUES`.
     *   Add `PngExtractor` that sends and reads a whole png file into the the
@@ -77,9 +69,6 @@
     *   Add support for 24/32-bit big endian PCM in MP4 and Matroska, and parse
         PCM encoding for `lpcm` in MP4.
     *   Add support for extracting Vorbis audio in MP4.
-    *   Fix a bug where `Player.getState()` never transitioned to `STATE_ENDED`
-        when playing very short files
-        ([#538](https://github.com/androidx/media/issues/538)).
 *   Audio Offload:
     *   Add `AudioSink.getFormatOffloadSupport(Format)` that retrieves level of
         offload support the sink can provide for the format through a
@@ -100,8 +89,6 @@
         in offload, then no track will be selected.
     *   Disabling gapless support for offload when pre-API level 33 due to
         playback position issue after track transition.
-    *   Prepend Ogg ID Header and Comment Header Pages to bitstream for
-        offloaded Opus playback in accordance with RFC 7845.
     *   Remove parameter `enableOffload` from
         `DefaultRenderersFactory.buildAudioSink` method signature.
     *   Remove method `DefaultAudioSink.Builder.setOffloadMode`.
@@ -110,40 +97,16 @@
 *   Video:
     *   Allow `MediaCodecVideoRenderer` to use a custom
         `VideoFrameProcessor.Factory`.
-    *   H.265/HEVC: Fix parsing SPS short and long term reference picture info.
     *   Fix bug where the first frame couldn't be rendered if the audio stream
         starts with negative timestamps
         ([#291](https://github.com/androidx/media/issues/291)).
 *   Text:
-    *   CEA-608: Change cue truncation logic to only consider visible text.
-        Previously indent and tab offset were included when limiting the cue
-        length to 32 characters (which was technically correct by the spec)
-        ([#11019](https://github.com/google/ExoPlayer/issues/11019)).
 *   Metadata:
 *   DRM:
 *   Effect:
 *   Muxers:
 *   IMA extension:
-    *   Bump IMA SDK version to 3.30.3.
 *   Session:
-    *   Add custom layout to the state of the controller and provide a getter to
-        access it. When the custom layout changes,
-        `MediaController.Listener.onCustomLayoutChanged` is called. The callback
-        `MediaController.Listener.onSetCustomLayout()` is deprecated. Apps that
-        want to send different custom layouts to different Media3 controller can
-        do this in `MediaSession.Callback.onConnect` by using an
-        `AcceptedResultBuilder` to make sure the custom layout is available to
-        the controller when connection completes.
-    *   Fix cases where `MediaLibraryServiceLegacyStub` sent an error to a
-        `Result` that didn't support this which produced an
-        `UnsuportedOperationException`
-        ([#78](https://github.com/androidx/media/issues/78)).
-    *   Fix the way `PlayerWrapper` creates a `VolumeProviderCompat` by
-        determining `volumeControlType` through both legacy commands
-        (`COMMAND_ADJUST_DEVICE_VOLUME` and `COMMAND_SET_DEVICE_VOLUME`) and new
-        commands (`COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS` and
-        `COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS`)
-        ([#554](https://github.com/androidx/media/issues/554)).
 *   UI:
     *   Add a `Player.Listener` implementation for Wear OS devices that handles
         playback suppression due to
@@ -173,8 +136,6 @@
     *   Make `TestExoPlayerBuilder` and `FakeClock` compatible with Espresso UI
         tests and Compose UI tests. This fixes a bug where playback advances
         non-deterministically during Espresso or Compose view interactions.
-    *   Add a `nanoTime()` method to `Clock` to provide override support of
-        `System.nanoTime()`
 *   Remove deprecated symbols:
     *   Remove
         `TransformationRequest.Builder.setEnableRequestSdrToneMapping(boolean)`
@@ -184,6 +145,59 @@
         `Transformer.start(Composition, String)` instead.
 
 ## 1.1
+
+### 1.1.1 (2023-08-14)
+
+This release corresponds to the
+[ExoPlayer 2.19.1 release](https://github.com/google/ExoPlayer/releases/tag/r2.19.1).
+
+This release includes the following changes since the
+[1.1.0 release](#110-2023-07-05):
+
+*   Common Library:
+    *   Remove accidentally added `multidex` dependency from all modules
+        ([#499](https://github.com/androidx/media/issues/499)).
+*   ExoPlayer:
+    *   Fix issue in `PlaybackStatsListener` where spurious `PlaybackStats` are
+        created after the playlist is cleared.
+    *   Add additional fields to Common Media Client Data (CMCD) logging:
+        streaming format (sf), stream type (st), version (v), top birate (tb),
+        object duration (d), measured throughput (mtp) and object type (ot)
+        ([#8699](https://github.com/google/ExoPlayer/issues/8699)).
+*   Audio:
+    *   Fix a bug where `Player.getState()` never transitioned to `STATE_ENDED`
+        when playing very short files
+        ([#538](https://github.com/androidx/media/issues/538)).
+*   Audio Offload:
+    *   Prepend Ogg ID Header and Comment Header Pages to bitstream for
+        offloaded Opus playback in accordance with RFC 7845.
+*   Video:
+    *   H.265/HEVC: Fix parsing SPS short and long term reference picture info.
+*   Text:
+    *   CEA-608: Change cue truncation logic to only consider visible text.
+        Previously indent and tab offset were included when limiting the cue
+        length to 32 characters (which was technically correct by the spec)
+        ([#11019](https://github.com/google/ExoPlayer/issues/11019)).
+*   IMA extension:
+    *   Bump IMA SDK version to 3.30.3.
+*   Session:
+    *   Add custom layout to the state of the controller and provide a getter to
+        access it. When the custom layout changes,
+        `MediaController.Listener.onCustomLayoutChanged` is called. Apps that
+        want to send different custom layouts to different Media3 controller can
+        do this in `MediaSession.Callback.onConnect` by using an
+        `AcceptedResultBuilder` to make sure the custom layout is available to
+        the controller when connection completes.
+    *   Fix cases where `MediaLibraryServiceLegacyStub` sent an error to a
+        `Result` that didn't support this which produced an
+        `UnsuportedOperationException`
+        ([#78](https://github.com/androidx/media/issues/78)).
+    *   Fix the way `PlayerWrapper` creates a `VolumeProviderCompat` by
+        determining `volumeControlType` through both legacy commands
+        (`COMMAND_ADJUST_DEVICE_VOLUME` and `COMMAND_SET_DEVICE_VOLUME`) and new
+        commands (`COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS` and
+        `COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS`)
+        ([#554](https://github.com/androidx/media/issues/554)).
 
 ### 1.1.0 (2023-07-05)
 
