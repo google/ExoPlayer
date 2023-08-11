@@ -411,7 +411,7 @@ public class AdaptiveTrackSelection extends BaseTrackSelection {
     playbackSpeed = 1f;
     reason = C.SELECTION_REASON_UNKNOWN;
     lastBufferEvaluationMs = C.TIME_UNSET;
-    latestBitrateEstimate = Long.MIN_VALUE;
+    latestBitrateEstimate = C.RATE_UNSET_INT;
   }
 
   @CallSuper
