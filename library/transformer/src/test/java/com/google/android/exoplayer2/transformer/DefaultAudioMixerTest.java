@@ -33,7 +33,7 @@ import org.robolectric.ParameterizedRobolectricTestRunner.Parameter;
 import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
 
 /**
- * Unit tests for {@link AudioMixerImpl}.
+ * Unit tests for {@link DefaultAudioMixer}.
  *
  * <p>The duration of a given buffer can be calculated with the {@link AudioFormat}:
  *
@@ -48,7 +48,7 @@ import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
  */
 // TODO(b/290002720): Expand and generalize parameterized test cases.
 @RunWith(ParameterizedRobolectricTestRunner.class)
-public final class AudioMixerImplTest {
+public final class DefaultAudioMixerTest {
 
   @Parameters(name = "outputSilenceWithNoSources={0}")
   public static ImmutableList<Boolean> parameters() {
@@ -67,7 +67,7 @@ public final class AudioMixerImplTest {
 
   @Before
   public void setup() {
-    mixer = new AudioMixerImpl(outputSilenceWithNoSources);
+    mixer = new DefaultAudioMixer.Factory(outputSilenceWithNoSources).create();
   }
 
   @Test

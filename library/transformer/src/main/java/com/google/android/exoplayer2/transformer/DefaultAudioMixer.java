@@ -41,7 +41,35 @@ import java.nio.ByteOrder;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-/* package */ final class AudioMixerImpl implements AudioMixer {
+public final class DefaultAudioMixer implements AudioMixer {
+
+  /** An {@link AudioMixer.Factory} implementation for {@link DefaultAudioMixer} instances. */
+  public static final class Factory implements AudioMixer.Factory {
+    private final boolean outputSilenceWithNoSources;
+
+    /**
+     * Creates an instance that does not {@linkplain #getOutput() output} silence when there are no
+     * {@linkplain #addSource sources}.
+     */
+    public Factory() {
+      this(/* outputSilenceWithNoSources= */ false);
+    }
+
+    /**
+     * Creates an instance.
+     *
+     * @param outputSilenceWithNoSources Whether to {@linkplain #getOutput() output} silence when
+     *     there are no {@linkplain #addSource sources}.
+     */
+    public Factory(boolean outputSilenceWithNoSources) {
+      this.outputSilenceWithNoSources = outputSilenceWithNoSources;
+    }
+
+    @Override
+    public DefaultAudioMixer create() {
+      return new DefaultAudioMixer(outputSilenceWithNoSources);
+    }
+  }
 
   // TODO(b/290002438, b/276734854): Improve buffer management & determine best default size.
   private static final int DEFAULT_BUFFER_SIZE_MS = 500;
@@ -68,13 +96,7 @@ import java.nio.ByteOrder;
    */
   private long maxPositionOfRemovedSources;
 
-  /**
-   * Creates an instance.
-   *
-   * @param outputSilenceWithNoSources Whether {@link #getOutput()} should output buffers of silence
-   *     when there are no {@link #addSource sources}.
-   */
-  public AudioMixerImpl(boolean outputSilenceWithNoSources) {
+  private DefaultAudioMixer(boolean outputSilenceWithNoSources) {
     sources = new SparseArray<>();
     outputAudioFormat = AudioFormat.NOT_SET;
     bufferSizeFrames = C.LENGTH_UNSET;
@@ -85,10 +107,6 @@ import java.nio.ByteOrder;
     if (outputSilenceWithNoSources) {
       maxPositionOfRemovedSources = Long.MAX_VALUE;
     }
-  }
-
-  public AudioFormat getOutputAudioFormat() {
-    return outputAudioFormat;
   }
 
   @Override
