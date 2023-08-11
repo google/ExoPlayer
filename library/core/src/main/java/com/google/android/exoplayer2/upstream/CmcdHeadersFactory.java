@@ -28,12 +28,14 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.ArrayList;
 
 /**
  * This class serves as a factory for generating Common Media Client Data (CMCD) HTTP request
@@ -50,6 +52,8 @@ import java.lang.annotation.Target;
  */
 @Deprecated
 public final class CmcdHeadersFactory {
+
+  private static final Joiner COMMA_JOINER = Joiner.on(",");
 
   /**
    * Retrieves the object type value from the given {@link ExoTrackSelection}.
@@ -430,34 +434,27 @@ public final class CmcdHeadersFactory {
      */
     public void populateHttpRequestHeaders(
         ImmutableMap.Builder<@CmcdConfiguration.HeaderKey String, String> httpRequestHeaders) {
-      StringBuilder headerValue = new StringBuilder();
+      ArrayList<String> headerValueList = new ArrayList<>();
       if (bitrateKbps != C.RATE_UNSET_INT) {
-        headerValue.append(
-            Util.formatInvariant("%s=%d,", CmcdConfiguration.KEY_BITRATE, bitrateKbps));
+        headerValueList.add(CmcdConfiguration.KEY_BITRATE + "=" + bitrateKbps);
       }
       if (topBitrateKbps != C.RATE_UNSET_INT) {
-        headerValue.append(
-            Util.formatInvariant("%s=%d,", CmcdConfiguration.KEY_TOP_BITRATE, topBitrateKbps));
+        headerValueList.add(CmcdConfiguration.KEY_TOP_BITRATE + "=" + topBitrateKbps);
       }
       if (objectDurationMs != C.TIME_UNSET) {
-        headerValue.append(
-            Util.formatInvariant(
-                "%s=%d,", CmcdConfiguration.KEY_OBJECT_DURATION, objectDurationMs));
+        headerValueList.add(CmcdConfiguration.KEY_OBJECT_DURATION + "=" + objectDurationMs);
       }
       if (!TextUtils.isEmpty(objectType)) {
-        headerValue.append(
-            Util.formatInvariant("%s=%s,", CmcdConfiguration.KEY_OBJECT_TYPE, objectType));
+        headerValueList.add(CmcdConfiguration.KEY_OBJECT_TYPE + "=" + objectType);
       }
       if (!TextUtils.isEmpty(customData)) {
-        headerValue.append(Util.formatInvariant("%s,", customData));
+        headerValueList.add(customData);
       }
 
-      if (headerValue.length() == 0) {
-        return;
+      if (!headerValueList.isEmpty()) {
+        httpRequestHeaders.put(
+            CmcdConfiguration.KEY_CMCD_OBJECT, COMMA_JOINER.join(headerValueList));
       }
-      // Remove the trailing comma as headerValue is not empty
-      headerValue.setLength(headerValue.length() - 1);
-      httpRequestHeaders.put(CmcdConfiguration.KEY_CMCD_OBJECT, headerValue.toString());
     }
   }
 
@@ -610,36 +607,28 @@ public final class CmcdHeadersFactory {
      */
     public void populateHttpRequestHeaders(
         ImmutableMap.Builder<@CmcdConfiguration.HeaderKey String, String> httpRequestHeaders) {
-      StringBuilder headerValue = new StringBuilder();
+      ArrayList<String> headerValueList = new ArrayList<>();
       if (bufferLengthMs != C.TIME_UNSET) {
-        headerValue.append(
-            Util.formatInvariant("%s=%d,", CmcdConfiguration.KEY_BUFFER_LENGTH, bufferLengthMs));
+        headerValueList.add(CmcdConfiguration.KEY_BUFFER_LENGTH + "=" + bufferLengthMs);
       }
       if (measuredThroughputInKbps != Long.MIN_VALUE) {
-        headerValue.append(
-            Util.formatInvariant(
-                "%s=%d,", CmcdConfiguration.KEY_MEASURED_THROUGHPUT, measuredThroughputInKbps));
+        headerValueList.add(
+            CmcdConfiguration.KEY_MEASURED_THROUGHPUT + "=" + measuredThroughputInKbps);
       }
       if (deadlineMs != C.TIME_UNSET) {
-        headerValue
-            .append(CmcdConfiguration.KEY_DEADLINE)
-            .append("=")
-            .append(deadlineMs)
-            .append(",");
+        headerValueList.add(CmcdConfiguration.KEY_DEADLINE + "=" + deadlineMs);
       }
       if (startup) {
-        headerValue.append(CmcdConfiguration.KEY_STARTUP).append(",");
+        headerValueList.add(CmcdConfiguration.KEY_STARTUP);
       }
       if (!TextUtils.isEmpty(customData)) {
-        headerValue.append(Util.formatInvariant("%s,", customData));
+        headerValueList.add(customData);
       }
 
-      if (headerValue.length() == 0) {
-        return;
+      if (!headerValueList.isEmpty()) {
+        httpRequestHeaders.put(
+            CmcdConfiguration.KEY_CMCD_REQUEST, COMMA_JOINER.join(headerValueList));
       }
-      // Remove the trailing comma as headerValue is not empty
-      headerValue.setLength(headerValue.length() - 1);
-      httpRequestHeaders.put(CmcdConfiguration.KEY_CMCD_REQUEST, headerValue.toString());
     }
   }
 
@@ -792,41 +781,36 @@ public final class CmcdHeadersFactory {
      */
     public void populateHttpRequestHeaders(
         ImmutableMap.Builder<@CmcdConfiguration.HeaderKey String, String> httpRequestHeaders) {
-      StringBuilder headerValue = new StringBuilder();
+      ArrayList<String> headerValueList = new ArrayList<>();
       if (!TextUtils.isEmpty(this.contentId)) {
-        headerValue.append(
-            Util.formatInvariant("%s=\"%s\",", CmcdConfiguration.KEY_CONTENT_ID, contentId));
+        headerValueList.add(
+            Util.formatInvariant("%s=\"%s\"", CmcdConfiguration.KEY_CONTENT_ID, contentId));
       }
       if (!TextUtils.isEmpty(this.sessionId)) {
-        headerValue.append(
-            Util.formatInvariant("%s=\"%s\",", CmcdConfiguration.KEY_SESSION_ID, sessionId));
+        headerValueList.add(
+            Util.formatInvariant("%s=\"%s\"", CmcdConfiguration.KEY_SESSION_ID, sessionId));
       }
       if (!TextUtils.isEmpty(this.streamingFormat)) {
-        headerValue.append(
-            Util.formatInvariant(
-                "%s=%s,", CmcdConfiguration.KEY_STREAMING_FORMAT, streamingFormat));
+        headerValueList.add(CmcdConfiguration.KEY_STREAMING_FORMAT + "=" + streamingFormat);
       }
       if (!TextUtils.isEmpty(this.streamType)) {
-        headerValue.append(
-            Util.formatInvariant("%s=%s,", CmcdConfiguration.KEY_STREAM_TYPE, streamType));
+        headerValueList.add(CmcdConfiguration.KEY_STREAM_TYPE + "=" + streamType);
       }
       if (playbackRate != C.RATE_UNSET && playbackRate != 1.0f) {
-        headerValue.append(
-            Util.formatInvariant("%s=%.2f,", CmcdConfiguration.KEY_PLAYBACK_RATE, playbackRate));
+        headerValueList.add(
+            Util.formatInvariant("%s=%.2f", CmcdConfiguration.KEY_PLAYBACK_RATE, playbackRate));
       }
       if (VERSION != 1) {
-        headerValue.append(Util.formatInvariant("%s=%d,", CmcdConfiguration.KEY_VERSION, VERSION));
+        headerValueList.add(CmcdConfiguration.KEY_VERSION + "=" + VERSION);
       }
       if (!TextUtils.isEmpty(customData)) {
-        headerValue.append(Util.formatInvariant("%s,", customData));
+        headerValueList.add(customData);
       }
 
-      if (headerValue.length() == 0) {
-        return;
+      if (!headerValueList.isEmpty()) {
+        httpRequestHeaders.put(
+            CmcdConfiguration.KEY_CMCD_SESSION, COMMA_JOINER.join(headerValueList));
       }
-      // Remove the trailing comma as headerValue is not empty
-      headerValue.setLength(headerValue.length() - 1);
-      httpRequestHeaders.put(CmcdConfiguration.KEY_CMCD_SESSION, headerValue.toString());
     }
   }
 
@@ -924,26 +908,22 @@ public final class CmcdHeadersFactory {
      */
     public void populateHttpRequestHeaders(
         ImmutableMap.Builder<@CmcdConfiguration.HeaderKey String, String> httpRequestHeaders) {
-      StringBuilder headerValue = new StringBuilder();
+      ArrayList<String> headerValueList = new ArrayList<>();
       if (maximumRequestedThroughputKbps != C.RATE_UNSET_INT) {
-        headerValue.append(
-            Util.formatInvariant(
-                "%s=%d,",
-                CmcdConfiguration.KEY_MAXIMUM_REQUESTED_BITRATE, maximumRequestedThroughputKbps));
+        headerValueList.add(
+            CmcdConfiguration.KEY_MAXIMUM_REQUESTED_BITRATE + "=" + maximumRequestedThroughputKbps);
       }
       if (bufferStarvation) {
-        headerValue.append(CmcdConfiguration.KEY_BUFFER_STARVATION).append(",");
+        headerValueList.add(CmcdConfiguration.KEY_BUFFER_STARVATION);
       }
       if (!TextUtils.isEmpty(customData)) {
-        headerValue.append(Util.formatInvariant("%s,", customData));
+        headerValueList.add(customData);
       }
 
-      if (headerValue.length() == 0) {
-        return;
+      if (!headerValueList.isEmpty()) {
+        httpRequestHeaders.put(
+            CmcdConfiguration.KEY_CMCD_STATUS, COMMA_JOINER.join(headerValueList));
       }
-      // Remove the trailing comma as headerValue is not empty
-      headerValue.setLength(headerValue.length() - 1);
-      httpRequestHeaders.put(CmcdConfiguration.KEY_CMCD_STATUS, headerValue.toString());
     }
   }
 }
