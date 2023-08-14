@@ -22,7 +22,8 @@ import static androidx.media3.transformer.TestUtil.FILE_AUDIO_RAW_STEREO_48000KH
 import static androidx.media3.transformer.TestUtil.FILE_AUDIO_RAW_VIDEO;
 import static androidx.media3.transformer.TestUtil.FILE_AUDIO_VIDEO;
 import static androidx.media3.transformer.TestUtil.FILE_AUDIO_VIDEO_INCREASING_TIMESTAMPS_15S;
-import static androidx.media3.transformer.TestUtil.createEncodersAndDecoders;
+import static androidx.media3.transformer.TestUtil.addAudioDecoders;
+import static androidx.media3.transformer.TestUtil.addAudioEncoders;
 import static androidx.media3.transformer.TestUtil.createPitchChangingAudioProcessor;
 import static androidx.media3.transformer.TestUtil.createTransformerBuilder;
 import static androidx.media3.transformer.TestUtil.getDumpFileName;
@@ -31,6 +32,7 @@ import static androidx.media3.transformer.TestUtil.removeEncodersAndDecoders;
 import android.content.Context;
 import androidx.media3.common.Effect;
 import androidx.media3.common.MediaItem;
+import androidx.media3.common.MimeTypes;
 import androidx.media3.common.audio.SonicAudioProcessor;
 import androidx.media3.common.util.Util;
 import androidx.media3.effect.RgbFilter;
@@ -68,7 +70,8 @@ public final class SequenceExportTest {
     context = ApplicationProvider.getApplicationContext();
     outputPath = Util.createTempFile(context, "TransformerTest").getPath();
     muxerFactory = new CapturingMuxer.Factory();
-    createEncodersAndDecoders();
+    addAudioDecoders(MimeTypes.AUDIO_RAW);
+    addAudioEncoders(MimeTypes.AUDIO_AAC);
   }
 
   @After
