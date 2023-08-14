@@ -16,10 +16,8 @@
 package com.google.android.exoplayer2.transformer;
 
 import android.content.Context;
-import android.media.MediaCrypto;
 import android.media.MediaFormat;
 import android.os.Looper;
-import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import com.google.android.exoplayer2.C;
@@ -31,7 +29,6 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Ints;
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import org.robolectric.shadows.MediaCodecInfoBuilder;
@@ -125,81 +122,15 @@ public final class TestUtil {
   public static final String FILE_AUDIO_RAW_STEREO_48000KHZ = "wav/sample_rf64.wav";
   public static final String FILE_WITH_SUBTITLES = "mkv/sample_with_srt.mkv";
   public static final String FILE_WITH_SEF_SLOW_MOTION = "mp4/sample_sef_slow_motion.mp4";
-  public static final String FILE_AUDIO_UNSUPPORTED_BY_DECODER = "amr/sample_wb.amr";
-  public static final String FILE_AUDIO_UNSUPPORTED_BY_ENCODER = "amr/sample_nb.amr";
-  public static final String FILE_AUDIO_UNSUPPORTED_BY_MUXER = "mp4/sample_ac3.mp4";
+  public static final String FILE_AUDIO_AMR_WB = "amr/sample_wb.amr";
+  public static final String FILE_AUDIO_AMR_NB = "amr/sample_nb.amr";
+  public static final String FILE_AUDIO_AC3_UNSUPPORTED_BY_MUXER = "mp4/sample_ac3.mp4";
   public static final String FILE_UNKNOWN_DURATION = "mp4/sample_fragmented.mp4";
 
   private static final String DUMP_FILE_OUTPUT_DIRECTORY = "transformerdumps";
   private static final String DUMP_FILE_EXTENSION = "dump";
 
   private TestUtil() {}
-
-  public static void createEncodersAndDecoders() {
-    ShadowMediaCodec.CodecConfig codecConfig =
-        new ShadowMediaCodec.CodecConfig(
-            /* inputBufferSize= */ 100_000,
-            /* outputBufferSize= */ 100_000,
-            /* codec= */ (in, out) -> out.put(in));
-    addCodec(
-        MimeTypes.AUDIO_AAC,
-        codecConfig,
-        /* colorFormats= */ ImmutableList.of(),
-        /* isDecoder= */ true);
-    addCodec(
-        MimeTypes.AUDIO_AC3,
-        codecConfig,
-        /* colorFormats= */ ImmutableList.of(),
-        /* isDecoder= */ true);
-    addCodec(
-        MimeTypes.AUDIO_RAW,
-        codecConfig,
-        /* colorFormats= */ ImmutableList.of(),
-        /* isDecoder= */ true);
-    addCodec(
-        MimeTypes.AUDIO_AAC,
-        codecConfig,
-        /* colorFormats= */ ImmutableList.of(),
-        /* isDecoder= */ false);
-
-    ShadowMediaCodec.CodecConfig throwingCodecConfig =
-        new ShadowMediaCodec.CodecConfig(
-            /* inputBufferSize= */ 100_000,
-            /* outputBufferSize= */ 100_000,
-            new ShadowMediaCodec.CodecConfig.Codec() {
-
-              @Override
-              public void process(ByteBuffer in, ByteBuffer out) {
-                out.put(in);
-              }
-
-              @Override
-              public void onConfigured(
-                  MediaFormat format,
-                  @Nullable Surface surface,
-                  @Nullable MediaCrypto crypto,
-                  int flags) {
-                throw new IllegalArgumentException("Format unsupported");
-              }
-            });
-
-    addCodec(
-        MimeTypes.AUDIO_AMR_WB,
-        throwingCodecConfig,
-        /* colorFormats= */ ImmutableList.of(),
-        /* isDecoder= */ true);
-    addCodec(
-        MimeTypes.AUDIO_AMR_NB,
-        throwingCodecConfig,
-        /* colorFormats= */ ImmutableList.of(),
-        /* isDecoder= */ false);
-  }
-
-  public static void removeEncodersAndDecoders() {
-    ShadowMediaCodec.clearCodecs();
-    ShadowMediaCodecList.reset();
-    EncoderUtil.clearCachedEncoders();
-  }
 
   public static Transformer.Builder createTransformerBuilder(
       CapturingMuxer.Factory muxerFactory, boolean enableFallback) {
@@ -219,6 +150,68 @@ public final class TestUtil {
 
   public static String getDumpFileName(String originalFileName) {
     return DUMP_FILE_OUTPUT_DIRECTORY + '/' + originalFileName + '.' + DUMP_FILE_EXTENSION;
+  }
+
+  /**
+   * Adds an audio decoder for each {@linkplain MimeTypes mime type}.
+   *
+   * <p>Input buffers are copied directly to the output.
+   *
+   * <p>When adding codecs, {@link #removeEncodersAndDecoders()} should be called in the test class
+   * {@link org.junit.After @After} method.
+   */
+  public static void addAudioDecoders(String... mimeTypes) {
+    for (String mimeType : mimeTypes) {
+      addCodec(
+          mimeType,
+          new ShadowMediaCodec.CodecConfig(
+              /* inputBufferSize= */ 100_000,
+              /* outputBufferSize= */ 100_000,
+              /* codec= */ (in, out) -> out.put(in)),
+          /* colorFormats= */ ImmutableList.of(),
+          /* isDecoder= */ true);
+    }
+  }
+
+  /**
+   * Adds an audio encoder for each {@linkplain MimeTypes mime type}.
+   *
+   * <p>Input buffers are copied directly to the output.
+   *
+   * <p>When adding codecs, {@link #removeEncodersAndDecoders()} should be called in the test class
+   * {@link org.junit.After @After} method.
+   */
+  public static void addAudioEncoders(String... mimeTypes) {
+    addAudioEncoders(
+        new ShadowMediaCodec.CodecConfig(
+            /* inputBufferSize= */ 100_000,
+            /* outputBufferSize= */ 100_000,
+            /* codec= */ (in, out) -> out.put(in)),
+        mimeTypes);
+  }
+
+  /**
+   * Adds an audio encoder for each {@linkplain MimeTypes mime type}.
+   *
+   * <p>Input buffers are handled according to the {@link
+   * org.robolectric.shadows.ShadowMediaCodec.CodecConfig} provided.
+   *
+   * <p>When adding codecs, {@link #removeEncodersAndDecoders()} should be called in the test's
+   * {@link org.junit.After @After} method.
+   */
+  public static void addAudioEncoders(
+      ShadowMediaCodec.CodecConfig codecConfig, String... mimeTypes) {
+    for (String mimeType : mimeTypes) {
+      addCodec(
+          mimeType, codecConfig, /* colorFormats= */ ImmutableList.of(), /* isDecoder= */ false);
+    }
+  }
+
+  /** Clears all cached codecs. */
+  public static void removeEncodersAndDecoders() {
+    ShadowMediaCodec.clearCodecs();
+    ShadowMediaCodecList.reset();
+    EncoderUtil.clearCachedEncoders();
   }
 
   private static void addCodec(

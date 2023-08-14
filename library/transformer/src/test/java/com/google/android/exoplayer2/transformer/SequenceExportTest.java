@@ -22,7 +22,8 @@ import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_RAW_
 import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_RAW_VIDEO;
 import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_VIDEO;
 import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_VIDEO_INCREASING_TIMESTAMPS_15S;
-import static com.google.android.exoplayer2.transformer.TestUtil.createEncodersAndDecoders;
+import static com.google.android.exoplayer2.transformer.TestUtil.addAudioDecoders;
+import static com.google.android.exoplayer2.transformer.TestUtil.addAudioEncoders;
 import static com.google.android.exoplayer2.transformer.TestUtil.createPitchChangingAudioProcessor;
 import static com.google.android.exoplayer2.transformer.TestUtil.createTransformerBuilder;
 import static com.google.android.exoplayer2.transformer.TestUtil.getDumpFileName;
@@ -36,6 +37,7 @@ import com.google.android.exoplayer2.audio.SonicAudioProcessor;
 import com.google.android.exoplayer2.effect.RgbFilter;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.util.Effect;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.nio.file.Files;
@@ -68,7 +70,8 @@ public final class SequenceExportTest {
     context = ApplicationProvider.getApplicationContext();
     outputPath = Util.createTempFile(context, "TransformerTest").getPath();
     muxerFactory = new CapturingMuxer.Factory();
-    createEncodersAndDecoders();
+    addAudioDecoders(MimeTypes.AUDIO_RAW);
+    addAudioEncoders(MimeTypes.AUDIO_AAC);
   }
 
   @After

@@ -20,17 +20,18 @@ import static com.google.android.exoplayer2.robolectric.RobolectricUtil.runLoope
 import static com.google.android.exoplayer2.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_DECODED;
 import static com.google.android.exoplayer2.transformer.AssetLoader.SUPPORTED_OUTPUT_TYPE_ENCODED;
 import static com.google.android.exoplayer2.transformer.TestUtil.ASSET_URI_PREFIX;
+import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_AC3_UNSUPPORTED_BY_MUXER;
+import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_AMR_NB;
+import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_AMR_WB;
 import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_RAW;
-import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_UNSUPPORTED_BY_DECODER;
-import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_UNSUPPORTED_BY_ENCODER;
-import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_UNSUPPORTED_BY_MUXER;
 import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_VIDEO;
 import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_VIDEO_INCREASING_TIMESTAMPS_15S;
 import static com.google.android.exoplayer2.transformer.TestUtil.FILE_UNKNOWN_DURATION;
 import static com.google.android.exoplayer2.transformer.TestUtil.FILE_VIDEO_ONLY;
 import static com.google.android.exoplayer2.transformer.TestUtil.FILE_WITH_SEF_SLOW_MOTION;
 import static com.google.android.exoplayer2.transformer.TestUtil.FILE_WITH_SUBTITLES;
-import static com.google.android.exoplayer2.transformer.TestUtil.createEncodersAndDecoders;
+import static com.google.android.exoplayer2.transformer.TestUtil.addAudioDecoders;
+import static com.google.android.exoplayer2.transformer.TestUtil.addAudioEncoders;
 import static com.google.android.exoplayer2.transformer.TestUtil.createTransformerBuilder;
 import static com.google.android.exoplayer2.transformer.TestUtil.getDumpFileName;
 import static com.google.android.exoplayer2.transformer.TestUtil.removeEncodersAndDecoders;
@@ -47,11 +48,14 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import android.content.Context;
+import android.media.MediaCrypto;
+import android.media.MediaFormat;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.view.Surface;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
@@ -77,6 +81,7 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -93,6 +98,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.robolectric.shadows.ShadowMediaCodec;
 
 /**
  * End-to-end test for exporting a single {@link MediaItem} or {@link EditedMediaItem} with {@link
@@ -114,7 +120,8 @@ public final class MediaItemExportTest {
     muxerFactory = new CapturingMuxer.Factory();
     progressHolder = new ProgressHolder();
     compositionArgumentCaptor = ArgumentCaptor.forClass(Composition.class);
-    createEncodersAndDecoders();
+    addAudioDecoders(MimeTypes.AUDIO_RAW, MimeTypes.AUDIO_AAC, MimeTypes.AUDIO_AC3);
+    addAudioEncoders(MimeTypes.AUDIO_AAC, MimeTypes.AUDIO_AC3);
   }
 
   @After
@@ -140,15 +147,14 @@ public final class MediaItemExportTest {
   public void start_audioOnlyPassthrough_completesSuccessfully() throws Exception {
     Transformer transformer =
         createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_ENCODER);
+    // No decoders or encoders for AMR NB.
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_AMR_NB);
 
     transformer.start(mediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(
-        context,
-        muxerFactory.getCreatedMuxer(),
-        getDumpFileName(FILE_AUDIO_UNSUPPORTED_BY_ENCODER));
+        context, muxerFactory.getCreatedMuxer(), getDumpFileName(FILE_AUDIO_AMR_NB));
   }
 
   @Test
@@ -285,7 +291,7 @@ public final class MediaItemExportTest {
   public void start_forceAudioTrackOnAudioOnly_isIgnored() throws Exception {
     Transformer transformer =
         createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_ENCODER);
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_AMR_NB);
     EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(mediaItem).build();
     EditedMediaItemSequence sequence =
         new EditedMediaItemSequence(ImmutableList.of(editedMediaItem));
@@ -298,9 +304,7 @@ public final class MediaItemExportTest {
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(
-        context,
-        muxerFactory.getCreatedMuxer(),
-        getDumpFileName(FILE_AUDIO_UNSUPPORTED_BY_ENCODER));
+        context, muxerFactory.getCreatedMuxer(), getDumpFileName(FILE_AUDIO_AMR_NB));
   }
 
   @Test
@@ -492,9 +496,10 @@ public final class MediaItemExportTest {
             .addListener(mockListener1)
             .addListener(mockListener2)
             .addListener(mockListener3)
-            .setAudioMimeType(MimeTypes.AUDIO_AAC) // Request transcoding so that decoder is used.
+            .setAudioMimeType(
+                MimeTypes.AUDIO_AAC) // Request transcoding so AMR_WB decoder is needed.
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_DECODER);
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_AMR_WB);
 
     transformer.start(mediaItem, outputPath);
     ExportException exception =
@@ -521,7 +526,7 @@ public final class MediaItemExportTest {
             .addListener(mockListener2)
             .addListener(mockListener3)
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_MUXER);
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_AC3_UNSUPPORTED_BY_MUXER);
 
     transformer.start(mediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
@@ -634,7 +639,7 @@ public final class MediaItemExportTest {
                   }
                 })
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_MUXER);
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_AC3_UNSUPPORTED_BY_MUXER);
 
     transformer.start(mediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
@@ -695,28 +700,51 @@ public final class MediaItemExportTest {
   }
 
   @Test
-  public void start_withAudioEncoderFormatUnsupported_completesWithError() {
+  public void start_whenCodecFailsToConfigure_completesWithError() {
+    String expectedFailureMessage = "Format not valid. AMR NB (3gpp)";
+    ShadowMediaCodec.CodecConfig throwOnConfigureCodecConfig =
+        new ShadowMediaCodec.CodecConfig(
+            /* inputBufferSize= */ 100_000,
+            /* outputBufferSize= */ 100_000,
+            /* codec= */ new ShadowMediaCodec.CodecConfig.Codec() {
+              @Override
+              public void process(ByteBuffer in, ByteBuffer out) {
+                out.put(in);
+              }
+
+              @Override
+              public void onConfigured(
+                  MediaFormat format, Surface surface, MediaCrypto crypto, int flags) {
+                // MediaCodec#configure documented to throw IAE if format is invalid.
+                throw new IllegalArgumentException(expectedFailureMessage);
+              }
+            });
+
+    // Add the AMR_NB encoder that throws when configured.
+    addAudioEncoders(throwOnConfigureCodecConfig, MimeTypes.AUDIO_AMR_NB);
+
     Transformer transformer =
-        createTransformerBuilder(muxerFactory, /* enableFallback= */ false)
-            .setAudioMimeType(MimeTypes.AUDIO_AMR_NB) // unsupported by encoder, supported by muxer
+        createTransformerBuilder(muxerFactory, /* enableFallback= */ true)
+            .setAudioMimeType(MimeTypes.AUDIO_AMR_NB)
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_MUXER);
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW);
 
     transformer.start(mediaItem, outputPath);
     ExportException exception =
         assertThrows(ExportException.class, () -> TransformerTestRunner.runLooper(transformer));
-    assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
     assertThat(exception.errorCode)
         .isEqualTo(ExportException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED);
+    assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
+    assertThat(exception).hasCauseThat().hasMessageThat().isEqualTo(expectedFailureMessage);
   }
 
   @Test
-  public void start_withAudioDecoderFormatUnsupported_completesWithError() {
+  public void start_withAudioFormatUnsupportedByDecoder_completesWithError() {
     Transformer transformer =
         createTransformerBuilder(muxerFactory, /* enableFallback= */ false)
             .setAudioMimeType(MimeTypes.AUDIO_AAC) // supported by encoder and muxer
             .build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_DECODER);
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_AMR_WB);
 
     transformer.start(mediaItem, outputPath);
     ExportException exception =
@@ -724,6 +752,64 @@ public final class MediaItemExportTest {
     assertThat(exception).hasCauseThat().isInstanceOf(IllegalArgumentException.class);
     assertThat(exception.errorCode)
         .isEqualTo(ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
+  }
+
+  @Test
+  public void
+      start_withAudioFormatUnsupportedByMuxer_ignoresDisabledFallbackAndCompletesSuccessfully()
+          throws Exception {
+    // Test succeeds because MIME type fallback is mandatory.
+    Transformer.Listener mockListener = mock(Transformer.Listener.class);
+    TransformationRequest originalTransformationRequest =
+        new TransformationRequest.Builder().build();
+    TransformationRequest fallbackTransformationRequest =
+        new TransformationRequest.Builder().setAudioMimeType(MimeTypes.AUDIO_AAC).build();
+    Transformer transformer =
+        createTransformerBuilder(muxerFactory, /* enableFallback= */ false)
+            .addListener(mockListener)
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_AC3_UNSUPPORTED_BY_MUXER);
+
+    transformer.start(mediaItem, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    DumpFileAsserts.assertOutput(
+        context,
+        muxerFactory.getCreatedMuxer(),
+        getDumpFileName(FILE_AUDIO_AC3_UNSUPPORTED_BY_MUXER + ".fallback"));
+    verify(mockListener)
+        .onFallbackApplied(
+            any(Composition.class),
+            eq(originalTransformationRequest),
+            eq(fallbackTransformationRequest));
+  }
+
+  @Test
+  public void start_withAudioFormatUnsupportedByMuxer_fallsBackAndCompletesSuccessfully()
+      throws Exception {
+    Transformer.Listener mockListener = mock(Transformer.Listener.class);
+    TransformationRequest originalTransformationRequest =
+        new TransformationRequest.Builder().build();
+    TransformationRequest fallbackTransformationRequest =
+        new TransformationRequest.Builder().setAudioMimeType(MimeTypes.AUDIO_AAC).build();
+    Transformer transformer =
+        createTransformerBuilder(muxerFactory, /* enableFallback= */ true)
+            .addListener(mockListener)
+            .build();
+    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_AC3_UNSUPPORTED_BY_MUXER);
+
+    transformer.start(mediaItem, outputPath);
+    TransformerTestRunner.runLooper(transformer);
+
+    DumpFileAsserts.assertOutput(
+        context,
+        muxerFactory.getCreatedMuxer(),
+        getDumpFileName(FILE_AUDIO_AC3_UNSUPPORTED_BY_MUXER + ".fallback"));
+    verify(mockListener)
+        .onFallbackApplied(
+            any(Composition.class),
+            eq(originalTransformationRequest),
+            eq(fallbackTransformationRequest));
   }
 
   @Test
@@ -737,61 +823,6 @@ public final class MediaItemExportTest {
         assertThrows(ExportException.class, () -> TransformerTestRunner.runLooper(transformer));
     assertThat(exception).hasCauseThat().hasCauseThat().isInstanceOf(IOException.class);
     assertThat(exception.errorCode).isEqualTo(ExportException.ERROR_CODE_IO_FILE_NOT_FOUND);
-  }
-
-  @Test
-  public void start_withAudioMuxerFormatUnsupported_completesSuccessfully() throws Exception {
-    // Test succeeds because MIME type fallback is mandatory.
-    Transformer.Listener mockListener = mock(Transformer.Listener.class);
-    TransformationRequest originalTransformationRequest =
-        new TransformationRequest.Builder().build();
-    TransformationRequest fallbackTransformationRequest =
-        new TransformationRequest.Builder().setAudioMimeType(MimeTypes.AUDIO_AAC).build();
-    Transformer transformer =
-        createTransformerBuilder(muxerFactory, /* enableFallback= */ false)
-            .addListener(mockListener)
-            .build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_MUXER);
-
-    transformer.start(mediaItem, outputPath);
-    TransformerTestRunner.runLooper(transformer);
-
-    DumpFileAsserts.assertOutput(
-        context,
-        muxerFactory.getCreatedMuxer(),
-        getDumpFileName(FILE_AUDIO_UNSUPPORTED_BY_MUXER + ".fallback"));
-    verify(mockListener)
-        .onFallbackApplied(
-            any(Composition.class),
-            eq(originalTransformationRequest),
-            eq(fallbackTransformationRequest));
-  }
-
-  @Test
-  public void start_withAudioMuxerFormatFallback_completesSuccessfully() throws Exception {
-    Transformer.Listener mockListener = mock(Transformer.Listener.class);
-    TransformationRequest originalTransformationRequest =
-        new TransformationRequest.Builder().build();
-    TransformationRequest fallbackTransformationRequest =
-        new TransformationRequest.Builder().setAudioMimeType(MimeTypes.AUDIO_AAC).build();
-    Transformer transformer =
-        createTransformerBuilder(muxerFactory, /* enableFallback= */ true)
-            .addListener(mockListener)
-            .build();
-    MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_UNSUPPORTED_BY_MUXER);
-
-    transformer.start(mediaItem, outputPath);
-    TransformerTestRunner.runLooper(transformer);
-
-    DumpFileAsserts.assertOutput(
-        context,
-        muxerFactory.getCreatedMuxer(),
-        getDumpFileName(FILE_AUDIO_UNSUPPORTED_BY_MUXER + ".fallback"));
-    verify(mockListener)
-        .onFallbackApplied(
-            any(Composition.class),
-            eq(originalTransformationRequest),
-            eq(fallbackTransformationRequest));
   }
 
   @Test
