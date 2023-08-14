@@ -2258,6 +2258,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
     // Process any batched data.
     checkState(!outputStreamEnded);
     if (bypassBatchBuffer.hasSamples()) {
+      boolean isDecodeOnly = bypassBatchBuffer.getLastSampleTimeUs() < getLastResetPositionUs();
       if (processOutputBuffer(
           positionUs,
           elapsedRealtimeUs,
@@ -2267,7 +2268,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           /* bufferFlags= */ 0,
           bypassBatchBuffer.getSampleCount(),
           bypassBatchBuffer.getFirstSampleTimeUs(),
-          bypassBatchBuffer.isDecodeOnly(),
+          isDecodeOnly,
           bypassBatchBuffer.isEndOfStream(),
           outputFormat)) {
         // The batch buffer has been fully processed.
@@ -2350,7 +2351,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
               && inputFormat.sampleMimeType.equals(MimeTypes.AUDIO_OPUS)) {
             oggOpusAudioPacketizer.packetize(bypassSampleBuffer, inputFormat.initializationData);
           }
-          if (!bypassBatchBuffer.append(bypassSampleBuffer)) {
+          if (!haveBypassBatchBufferAndNewSampleSameDecodeOnlyState()
+              || !bypassBatchBuffer.append(bypassSampleBuffer)) {
             bypassSampleBufferPending = true;
             return;
           }
@@ -2359,6 +2361,19 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           throw new IllegalStateException();
       }
     }
+  }
+
+  private boolean haveBypassBatchBufferAndNewSampleSameDecodeOnlyState() {
+    // TODO: b/295800114 - Splitting the batch buffer by decode-only state isn't safe for formats
+    // where not every sample is a keyframe because the downstream component may receive encoded
+    // data starting from a non-keyframe sample.
+    if (!bypassBatchBuffer.hasSamples()) {
+      return true;
+    }
+    long lastResetPositionUs = getLastResetPositionUs();
+    boolean batchBufferIsDecodeOnly = bypassBatchBuffer.getLastSampleTimeUs() < lastResetPositionUs;
+    boolean sampleBufferIsDecodeOnly = bypassSampleBuffer.timeUs < lastResetPositionUs;
+    return batchBufferIsDecodeOnly == sampleBufferIsDecodeOnly;
   }
 
   private static boolean isMediaCodecException(IllegalStateException error) {

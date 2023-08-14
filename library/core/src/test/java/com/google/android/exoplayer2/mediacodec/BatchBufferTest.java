@@ -105,49 +105,6 @@ public final class BatchBufferTest {
   }
 
   @Test
-  public void appendFirstSample_withDecodeOnlyFlag_setsDecodeOnlyFlag() {
-    initSampleBuffer();
-    sampleBuffer.setFlags(C.BUFFER_FLAG_DECODE_ONLY);
-    batchBuffer.append(sampleBuffer);
-
-    assertThat(batchBuffer.isDecodeOnly()).isTrue();
-  }
-
-  @Test
-  public void appendSecondSample_toDecodeOnlyBuffer_withDecodeOnlyFlag_succeeds() {
-    initSampleBuffer();
-    sampleBuffer.setFlags(C.BUFFER_FLAG_DECODE_ONLY);
-    batchBuffer.append(sampleBuffer);
-
-    initSampleBuffer();
-    sampleBuffer.setFlags(C.BUFFER_FLAG_DECODE_ONLY);
-
-    assertThat(batchBuffer.append(sampleBuffer)).isTrue();
-  }
-
-  @Test
-  public void appendSecondSample_toDecodeOnlyBuffer_withoutDecodeOnlyFlag_fails() {
-    initSampleBuffer();
-    sampleBuffer.setFlags(C.BUFFER_FLAG_DECODE_ONLY);
-    batchBuffer.append(sampleBuffer);
-
-    initSampleBuffer();
-
-    assertThat(batchBuffer.append(sampleBuffer)).isFalse();
-  }
-
-  @Test
-  public void appendSecondSample_toNonDecodeOnlyBuffer_withDecodeOnlyFlag_fails() {
-    initSampleBuffer();
-    batchBuffer.append(sampleBuffer);
-
-    initSampleBuffer();
-    sampleBuffer.setFlags(C.BUFFER_FLAG_DECODE_ONLY);
-
-    assertThat(batchBuffer.append(sampleBuffer)).isFalse();
-  }
-
-  @Test
   public void appendSecondSample_withKeyframeFlag_setsKeyframeFlag() {
     initSampleBuffer();
     sampleBuffer.setFlags(C.BUFFER_FLAG_KEY_FRAME);

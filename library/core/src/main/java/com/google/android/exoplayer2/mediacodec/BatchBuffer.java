@@ -113,9 +113,6 @@ import java.nio.ByteBuffer;
         setFlags(C.BUFFER_FLAG_KEY_FRAME);
       }
     }
-    if (buffer.isDecodeOnly()) {
-      setFlags(C.BUFFER_FLAG_DECODE_ONLY);
-    }
     @Nullable ByteBuffer bufferData = buffer.data;
     if (bufferData != null) {
       ensureSpaceForWrite(bufferData.remaining());
@@ -131,9 +128,6 @@ import java.nio.ByteBuffer;
       return true;
     }
     if (sampleCount >= maxSampleCount) {
-      return false;
-    }
-    if (buffer.isDecodeOnly() != isDecodeOnly()) {
       return false;
     }
     @Nullable ByteBuffer bufferData = buffer.data;
