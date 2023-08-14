@@ -38,8 +38,8 @@ public final class PlayerId {
 
   /** Creates an instance for API &lt; 31. */
   public PlayerId() {
-    this(/* logSessionIdApi31= */ (LogSessionIdApi31) null);
     checkState(Util.SDK_INT < 31);
+    this.logSessionIdApi31 = null;
   }
 
   /**
@@ -52,7 +52,7 @@ public final class PlayerId {
     this(new LogSessionIdApi31(logSessionId));
   }
 
-  private PlayerId(@Nullable LogSessionIdApi31 logSessionIdApi31) {
+  private PlayerId(LogSessionIdApi31 logSessionIdApi31) {
     this.logSessionIdApi31 = logSessionIdApi31;
   }
 

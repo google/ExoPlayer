@@ -172,7 +172,7 @@ public final class VideoFrameReleaseHelper {
    * @param surface The new {@link Surface}, or {@code null} if the renderer does not have one.
    */
   public void onSurfaceChanged(@Nullable Surface surface) {
-    if (surface instanceof PlaceholderSurface) {
+    if (Util.SDK_INT >= 17 && Api17.isPlaceholderSurface(surface)) {
       // We don't care about dummy surfaces for release timing, since they're not visible.
       surface = null;
     }
@@ -651,6 +651,15 @@ public final class VideoFrameReleaseHelper {
           sampledVsyncTimeNs = C.TIME_UNSET;
         }
       }
+    }
+  }
+
+  @RequiresApi(17)
+  private static final class Api17 {
+
+    @DoNotInline
+    public static boolean isPlaceholderSurface(@Nullable Surface surface) {
+      return surface instanceof PlaceholderSurface;
     }
   }
 }
