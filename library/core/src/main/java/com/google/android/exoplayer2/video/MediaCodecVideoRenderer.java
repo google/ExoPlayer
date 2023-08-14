@@ -21,6 +21,7 @@ import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCA
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_NO;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.android.exoplayer2.util.Util.msToUs;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -69,10 +70,12 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryExcep
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
+import com.google.android.exoplayer2.util.FrameInfo;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Size;
+import com.google.android.exoplayer2.util.SurfaceInfo;
 import com.google.android.exoplayer2.util.TraceUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
@@ -81,10 +84,17 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener.EventDispa
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
-import com.google.common.util.concurrent.MoreExecutors;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
+import java.util.ArrayDeque;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
+import org.checkerframework.checker.initialization.qual.UnderInitialization;
+import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Decodes and renders video using {@link MediaCodec}.
@@ -115,7 +125,7 @@ import java.util.concurrent.Executor;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-public class MediaCodecVideoRenderer extends MediaCodecRenderer implements VideoSink.RenderControl {
+public class MediaCodecVideoRenderer extends MediaCodecRenderer {
 
   private static final String TAG = "MediaCodecVideoRenderer";
   private static final String KEY_CROP_LEFT = "crop-left";
@@ -139,16 +149,13 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
   /** The minimum input buffer size for HEVC. */
   private static final int HEVC_MAX_INPUT_SIZE_THRESHOLD = 2 * 1024 * 1024;
 
-  /** The maximum earliest time, in microseconds, to release a frame on the surface. */
-  private static final long MAX_EARLY_US_THRESHOLD = 50_000;
-
   private static boolean evaluatedDeviceNeedsSetOutputSurfaceWorkaround;
   private static boolean deviceNeedsSetOutputSurfaceWorkaround;
 
   private final Context context;
   private final VideoFrameReleaseHelper frameReleaseHelper;
-  private final CompositingVideoSinkProvider videoSinkProvider;
   private final EventDispatcher eventDispatcher;
+  private final VideoFrameProcessorManager videoFrameProcessorManager;
   private final long allowedJoiningTimeMs;
   private final int maxDroppedFramesToNotify;
   private final boolean deviceNeedsNoPostProcessWorkaround;
@@ -156,6 +163,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
   private CodecMaxValues codecMaxValues;
   private boolean codecNeedsSetOutputSurfaceWorkaround;
   private boolean codecHandlesHdr10PlusOutOfBandMetadata;
+
   @Nullable private Surface displaySurface;
   @Nullable private PlaceholderSurface placeholderSurface;
   private boolean haveReportedFirstFrameRenderedForCurrentSurface;
@@ -172,16 +180,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
   private long totalVideoFrameProcessingOffsetUs;
   private int videoFrameProcessingOffsetCount;
   private long lastFrameReleaseTimeNs;
+
   private VideoSize decodedVideoSize;
   @Nullable private VideoSize reportedVideoSize;
-  private boolean hasEffects;
-  private boolean hasInitializedPlayback;
 
   private boolean tunneling;
   private int tunnelingAudioSessionId;
   /* package */ @Nullable OnFrameRenderedListenerV23 tunnelingOnFrameRenderedListener;
   @Nullable private VideoFrameMetadataListener frameMetadataListener;
-  @Nullable private VideoSink videoSink;
 
   /**
    * @param context A context.
@@ -398,9 +404,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
     this.context = context.getApplicationContext();
     frameReleaseHelper = new VideoFrameReleaseHelper(this.context);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
-    videoSinkProvider =
-        new CompositingVideoSinkProvider(
-            context, videoFrameProcessorFactory, /* renderControl= */ this);
+    videoFrameProcessorManager =
+        new VideoFrameProcessorManager(
+            videoFrameProcessorFactory, frameReleaseHelper, /* renderer= */ this);
     deviceNeedsNoPostProcessWorkaround = deviceNeedsNoPostProcessWorkaround();
     joiningDeadlineMs = C.TIME_UNSET;
     scalingMode = C.VIDEO_SCALING_MODE_DEFAULT;
@@ -523,49 +529,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
         format);
   }
 
-  // RenderControl implementation
-
-  @Override
-  public long getFrameRenderTimeNs(
-      long presentationTimeUs, long positionUs, long elapsedRealtimeUs, float playbackSpeed) {
-    long earlyUs =
-        calculateEarlyTimeUs(
-            positionUs,
-            elapsedRealtimeUs,
-            presentationTimeUs,
-            getState() == STATE_STARTED,
-            playbackSpeed,
-            getClock());
-    if (isBufferLate(earlyUs)) {
-      return VideoSink.RenderControl.RENDER_TIME_DROP;
-    }
-    if (shouldForceRender(positionUs, earlyUs)) {
-      return VideoSink.RenderControl.RENDER_TIME_IMMEDIATELY;
-    }
-
-    if (getState() != STATE_STARTED
-        || positionUs == initialPositionUs
-        || earlyUs > MAX_EARLY_US_THRESHOLD) {
-      return VideoSink.RenderControl.RENDER_TIME_TRY_AGAIN_LATER;
-    }
-    // Compute the buffer's desired release time in nanoseconds.
-    long unadjustedFrameReleaseTimeNs = getClock().nanoTime() + (earlyUs * 1000);
-    // Apply a timestamp adjustment, if there is one.
-    return frameReleaseHelper.adjustReleaseTime(unadjustedFrameReleaseTimeNs);
-  }
-
-  @Override
-  public void onNextFrame(long presentationTimeUs) {
-    frameReleaseHelper.onNextFrame(presentationTimeUs);
-  }
-
-  @Override
-  public void onFrameRendered() {
-    lastRenderRealtimeUs = Util.msToUs(getClock().elapsedRealtime());
-  }
-
-  // Other methods
-
   /**
    * Returns a list of decoders that can decode media in the specified format, in the priority order
    * specified by the {@link MediaCodecSelector}. Note that since the {@link MediaCodecSelector}
@@ -655,14 +618,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
   @Override
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
     super.onPositionReset(positionUs, joining);
-    if (videoSink != null) {
-      videoSink.flush();
+    if (videoFrameProcessorManager.isEnabled()) {
+      videoFrameProcessorManager.flush();
     }
-
-    if (videoSinkProvider.isInitialized()) {
-      videoSinkProvider.setStreamOffsetUs(getOutputStreamOffsetUs());
-    }
-
     lowerFirstFrameState(C.FIRST_FRAME_NOT_RENDERED);
     frameReleaseHelper.onPositionReset();
     lastBufferPresentationTimeUs = C.TIME_UNSET;
@@ -677,13 +635,17 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
 
   @Override
   public boolean isEnded() {
-    return super.isEnded() && (videoSink == null || videoSink.isEnded());
+    boolean isEnded = super.isEnded();
+    if (videoFrameProcessorManager.isEnabled()) {
+      isEnded &= videoFrameProcessorManager.releasedLastFrame();
+    }
+    return isEnded;
   }
 
   @Override
   public boolean isReady() {
     if (super.isReady()
-        && (videoSink == null || videoSink.isReady())
+        && (!videoFrameProcessorManager.isEnabled() || videoFrameProcessorManager.isReady())
         && (firstFrameState == C.FIRST_FRAME_RENDERED
             || (placeholderSurface != null && displaySurface == placeholderSurface)
             || getCodec() == null
@@ -745,18 +707,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
     try {
       super.onReset();
     } finally {
-      hasInitializedPlayback = false;
+      if (videoFrameProcessorManager.isEnabled()) {
+        videoFrameProcessorManager.reset();
+      }
       if (placeholderSurface != null) {
         releasePlaceholderSurface();
       }
-    }
-  }
-
-  @Override
-  protected void onRelease() {
-    super.onRelease();
-    if (videoSinkProvider.isInitialized()) {
-      videoSinkProvider.release();
     }
   }
 
@@ -779,7 +735,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
         break;
       case MSG_SET_VIDEO_FRAME_METADATA_LISTENER:
         frameMetadataListener = (VideoFrameMetadataListener) message;
-        videoSinkProvider.setVideoFrameMetadataListener(frameMetadataListener);
         break;
       case MSG_SET_AUDIO_SESSION_ID:
         int tunnelingAudioSessionId = (int) message;
@@ -793,16 +748,14 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
       case MSG_SET_VIDEO_EFFECTS:
         @SuppressWarnings("unchecked")
         List<Effect> videoEffects = (List<Effect>) checkNotNull(message);
-        videoSinkProvider.setVideoEffects(videoEffects);
-        hasEffects = true;
+        videoFrameProcessorManager.setVideoEffects(videoEffects);
         break;
       case MSG_SET_VIDEO_OUTPUT_RESOLUTION:
         Size outputResolution = (Size) checkNotNull(message);
-        if (videoSinkProvider.isInitialized()
-            && outputResolution.getWidth() != 0
+        if (outputResolution.getWidth() != 0
             && outputResolution.getHeight() != 0
             && displaySurface != null) {
-          videoSinkProvider.setOutputSurfaceInfo(displaySurface, outputResolution);
+          videoFrameProcessorManager.setOutputSurfaceInfo(displaySurface, outputResolution);
         }
         break;
       case MSG_SET_AUDIO_ATTRIBUTES:
@@ -841,7 +794,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
 
       @State int state = getState();
       @Nullable MediaCodecAdapter codec = getCodec();
-      if (codec != null && videoSinkProvider.isInitialized()) {
+      if (codec != null && !videoFrameProcessorManager.isEnabled()) {
         if (Util.SDK_INT >= 23 && displaySurface != null && !codecNeedsSetOutputSurfaceWorkaround) {
           setOutputSurfaceV23(codec, displaySurface);
         } else {
@@ -858,16 +811,17 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
           // Set joining deadline to report MediaCodecVideoRenderer is ready.
           setJoiningDeadlineMs();
         }
-        // When effects previewing is enabled, set display surface and an unknown size.
-        if (videoSinkProvider.isInitialized()) {
-          videoSinkProvider.setOutputSurfaceInfo(displaySurface, Size.UNKNOWN);
+        // When VideoFrameProcessorManager is enabled, set VideoFrameProcessorManager's display
+        // surface and an unknown size.
+        if (videoFrameProcessorManager.isEnabled()) {
+          videoFrameProcessorManager.setOutputSurfaceInfo(displaySurface, Size.UNKNOWN);
         }
       } else {
         // The display surface has been removed.
         clearReportedVideoSize();
         lowerFirstFrameState(C.FIRST_FRAME_NOT_RENDERED);
-        if (videoSinkProvider.isInitialized()) {
-          videoSinkProvider.clearOutputSurfaceInfo();
+        if (videoFrameProcessorManager.isEnabled()) {
+          videoFrameProcessorManager.clearOutputSurfaceInfo();
         }
       }
     } else if (displaySurface != null && displaySurface != placeholderSurface) {
@@ -919,20 +873,19 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
       }
       displaySurface = placeholderSurface;
     }
-    maybeSetKeyAllowFrameDrop(mediaFormat);
+
+    if (videoFrameProcessorManager.isEnabled()) {
+      mediaFormat = videoFrameProcessorManager.amendMediaFormatKeys(mediaFormat);
+    }
+
     return MediaCodecAdapter.Configuration.createForVideoDecoding(
         codecInfo,
         mediaFormat,
         format,
-        videoSink != null ? videoSink.getInputSurface() : displaySurface,
+        videoFrameProcessorManager.isEnabled()
+            ? videoFrameProcessorManager.getInputSurface()
+            : displaySurface,
         crypto);
-  }
-
-  @SuppressWarnings("InlinedApi") // VideoSink will check the API level
-  private void maybeSetKeyAllowFrameDrop(MediaFormat mediaFormat) {
-    if (videoSink != null && !videoSink.isFrameDropAllowedOnInput()) {
-      mediaFormat.setInteger(MediaFormat.KEY_ALLOW_FRAME_DROP, 0);
-    }
   }
 
   @Override
@@ -960,8 +913,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
   @Override
   public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
     super.render(positionUs, elapsedRealtimeUs);
-    if (videoSink != null) {
-      videoSink.render(positionUs, elapsedRealtimeUs);
+    if (videoFrameProcessorManager.isEnabled()) {
+      videoFrameProcessorManager.releaseProcessedFrames(positionUs, elapsedRealtimeUs);
     }
   }
 
@@ -977,9 +930,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
       throws ExoPlaybackException {
     super.setPlaybackSpeed(currentPlaybackSpeed, targetPlaybackSpeed);
     frameReleaseHelper.onPlaybackSpeed(currentPlaybackSpeed);
-    if (videoSink != null) {
-      videoSink.setPlaybackSpeed(currentPlaybackSpeed);
-    }
   }
 
   /**
@@ -1071,51 +1021,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
   @CallSuper
   @Override
   protected void onReadyToInitializeCodec(Format format) throws ExoPlaybackException {
-    // We only enable effects preview on the first time a codec is initialized and if effects are
-    // already set. We do not enable effects mid-playback. For effects to be enabled after
-    // playback has started, the renderer needs to be reset first.
-    if (hasEffects && !hasInitializedPlayback && !videoSinkProvider.isInitialized()) {
-      try {
-        videoSinkProvider.initialize(format);
-        videoSinkProvider.setStreamOffsetUs(getOutputStreamOffsetUs());
-        if (frameMetadataListener != null) {
-          videoSinkProvider.setVideoFrameMetadataListener(frameMetadataListener);
-        }
-      } catch (VideoSink.VideoSinkException e) {
-        throw createRendererException(
-            e, format, PlaybackException.ERROR_CODE_VIDEO_FRAME_PROCESSOR_INIT_FAILED);
-      }
+    if (!videoFrameProcessorManager.isEnabled()) {
+      videoFrameProcessorManager.maybeEnable(format, getOutputStreamOffsetUs(), getClock());
     }
-
-    if (videoSink == null && videoSinkProvider.isInitialized()) {
-      videoSink = videoSinkProvider.getSink();
-      videoSink.setListener(
-          new VideoSink.Listener() {
-            @Override
-            public void onFirstFrameRendered(VideoSink videoSink) {
-              maybeNotifyRenderedFirstFrame();
-            }
-
-            @Override
-            public void onVideoSizeChanged(VideoSink videoSink, VideoSize videoSize) {
-              maybeNotifyVideoSizeChanged(videoSize);
-            }
-
-            @Override
-            public void onError(
-                VideoSink videoSink, VideoSink.VideoSinkException videoSinkException) {
-              setPendingPlaybackException(
-                  createRendererException(
-                      videoSinkException,
-                      videoSinkException.format,
-                      PlaybackException.ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED));
-            }
-          },
-          // Pass a direct executor since the callback handling involves posting on the app looper
-          // again, so there's no need to do two hops.
-          MoreExecutors.directExecutor());
-    }
-    hasInitializedPlayback = true;
   }
 
   @Override
@@ -1131,6 +1039,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
     if (Util.SDK_INT >= 23 && tunneling) {
       tunnelingOnFrameRenderedListener = new OnFrameRenderedListenerV23(checkNotNull(getCodec()));
     }
+    videoFrameProcessorManager.onCodecInitialized(name);
   }
 
   @Override
@@ -1218,17 +1127,16 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
         height = rotatedHeight;
         pixelWidthHeightRatio = 1 / pixelWidthHeightRatio;
       }
-    } else if (videoSink == null) {
-      // Neither the codec nor the video sink applies the rotation.
+    } else if (!videoFrameProcessorManager.isEnabled()) {
+      // Neither the codec nor the VideoFrameProcessor applies the rotation.
       unappliedRotationDegrees = format.rotationDegrees;
     }
     decodedVideoSize =
         new VideoSize(width, height, unappliedRotationDegrees, pixelWidthHeightRatio);
     frameReleaseHelper.onFormatChanged(format.frameRate);
 
-    if (videoSink != null) {
-      videoSink.registerInputStream(
-          /* inputType= */ VideoSink.INPUT_TYPE_SURFACE,
+    if (videoFrameProcessorManager.isEnabled()) {
+      videoFrameProcessorManager.setInputFormat(
           format
               .buildUpon()
               .setWidth(width)
@@ -1291,7 +1199,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
     }
 
     if (bufferPresentationTimeUs != lastBufferPresentationTimeUs) {
-      if (videoSink == null) {
+      if (!videoFrameProcessorManager.isEnabled()) {
         frameReleaseHelper.onNextFrame(bufferPresentationTimeUs);
       } // else, update the frameReleaseHelper when releasing the processed frames.
       this.lastBufferPresentationTimeUs = bufferPresentationTimeUs;
@@ -1305,15 +1213,16 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
       return true;
     }
 
+    // Note: Use of double rather than float is intentional for accuracy in the calculations below.
     boolean isStarted = getState() == STATE_STARTED;
+    long elapsedRealtimeNowUs = msToUs(getClock().elapsedRealtime());
     long earlyUs =
         calculateEarlyTimeUs(
             positionUs,
             elapsedRealtimeUs,
+            elapsedRealtimeNowUs,
             bufferPresentationTimeUs,
-            isStarted,
-            getPlaybackSpeed(),
-            getClock());
+            isStarted);
 
     if (displaySurface == placeholderSurface) {
       // Skip frames in sync with playback, so we'll be at the right frame if the mode changes.
@@ -1325,21 +1234,20 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
       return false;
     }
 
-    if (videoSink != null) {
-      videoSink.render(positionUs, elapsedRealtimeUs);
-      long releaseTimeNs = videoSink.registerInputFrame(presentationTimeUs, isLastBuffer);
-      if (releaseTimeNs == C.TIME_UNSET) {
-        return false;
-      }
-      renderOutputBuffer(codec, bufferIndex, presentationTimeUs, releaseTimeNs);
-      return true;
-    }
-
     boolean forceRenderOutputBuffer = shouldForceRender(positionUs, earlyUs);
     if (forceRenderOutputBuffer) {
-      long releaseTimeNs = getClock().nanoTime();
-      notifyFrameMetadataListener(presentationTimeUs, releaseTimeNs, format);
-      renderOutputBuffer(codec, bufferIndex, presentationTimeUs, releaseTimeNs);
+      boolean notifyFrameMetaDataListener;
+      if (videoFrameProcessorManager.isEnabled()) {
+        notifyFrameMetaDataListener = false;
+        if (!videoFrameProcessorManager.maybeRegisterFrame(
+            format, presentationTimeUs, isLastBuffer)) {
+          return false;
+        }
+      } else {
+        notifyFrameMetaDataListener = true;
+      }
+      renderOutputBufferNow(
+          codec, format, bufferIndex, presentationTimeUs, notifyFrameMetaDataListener);
       updateVideoFrameProcessingOffsetCounters(earlyUs);
       return true;
     }
@@ -1351,9 +1259,13 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
     // Compute the buffer's desired release time in nanoseconds.
     long systemTimeNs = getClock().nanoTime();
     long unadjustedFrameReleaseTimeNs = systemTimeNs + (earlyUs * 1000);
+
     // Apply a timestamp adjustment, if there is one.
     long adjustedReleaseTimeNs = frameReleaseHelper.adjustReleaseTime(unadjustedFrameReleaseTimeNs);
-    earlyUs = (adjustedReleaseTimeNs - systemTimeNs) / 1000;
+    if (!videoFrameProcessorManager.isEnabled()) {
+      earlyUs = (adjustedReleaseTimeNs - systemTimeNs) / 1000;
+    } // else, use the unadjusted earlyUs in previewing use cases.
+
     boolean treatDroppedBuffersAsSkipped = joiningDeadlineMs != C.TIME_UNSET;
     if (shouldDropBuffersToKeyframe(earlyUs, elapsedRealtimeUs, isLastBuffer)
         && maybeDropBuffersToKeyframe(positionUs, treatDroppedBuffersAsSkipped)) {
@@ -1368,9 +1280,23 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
       return true;
     }
 
+    if (videoFrameProcessorManager.isEnabled()) {
+      videoFrameProcessorManager.releaseProcessedFrames(positionUs, elapsedRealtimeUs);
+      if (videoFrameProcessorManager.maybeRegisterFrame(format, presentationTimeUs, isLastBuffer)) {
+        renderOutputBufferNow(
+            codec,
+            format,
+            bufferIndex,
+            presentationTimeUs,
+            /* notifyFrameMetadataListener= */ false);
+        return true;
+      }
+      return false;
+    }
+
     if (Util.SDK_INT >= 21) {
       // Let the underlying framework time the release.
-      if (earlyUs < MAX_EARLY_US_THRESHOLD) {
+      if (earlyUs < 50000) {
         if (shouldSkipBuffersWithIdenticalReleaseTime()
             && adjustedReleaseTimeNs == lastFrameReleaseTimeNs) {
           // This frame should be displayed on the same vsync with the previous released frame. We
@@ -1441,28 +1367,29 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
    *     iteration of the rendering loop.
    * @param elapsedRealtimeUs {@link SystemClock#elapsedRealtime()} in microseconds, measured at the
    *     start of the current iteration of the rendering loop.
+   * @param elapsedRealtimeNowUs {@link SystemClock#elapsedRealtime()} in microseconds, measured
+   *     before calling this method.
    * @param bufferPresentationTimeUs The presentation time of the output buffer in microseconds,
    *     with {@linkplain #getOutputStreamOffsetUs() stream offset added}.
    * @param isStarted Whether the playback is in {@link #STATE_STARTED}.
-   * @param playbackSpeed The current playback speed.
-   * @param clock The {@link Clock} used by the renderer.
    * @return The calculated early time, in microseconds.
    */
-  private static long calculateEarlyTimeUs(
+  private long calculateEarlyTimeUs(
       long positionUs,
       long elapsedRealtimeUs,
+      long elapsedRealtimeNowUs,
       long bufferPresentationTimeUs,
-      boolean isStarted,
-      float playbackSpeed,
-      Clock clock) {
+      boolean isStarted) {
+    // Note: Use of double rather than float is intentional for accuracy in the calculations below.
+    double playbackSpeed = getPlaybackSpeed();
+
     // Calculate how early we are. In other words, the realtime duration that needs to elapse whilst
     // the renderer is started before the frame should be rendered. A negative value means that
     // we're already late.
-    // Note: Use of double rather than float is intentional for accuracy in the calculations below.
-    long earlyUs = (long) ((bufferPresentationTimeUs - positionUs) / (double) playbackSpeed);
+    long earlyUs = (long) ((bufferPresentationTimeUs - positionUs) / playbackSpeed);
     if (isStarted) {
       // Account for the elapsed time since the start of this iteration of the rendering loop.
-      earlyUs -= Util.msToUs(clock.elapsedRealtime()) - elapsedRealtimeUs;
+      earlyUs -= elapsedRealtimeNowUs - elapsedRealtimeUs;
     }
 
     return earlyUs;
@@ -1503,9 +1430,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
   protected void onProcessedStreamChange() {
     super.onProcessedStreamChange();
     lowerFirstFrameState(C.FIRST_FRAME_NOT_RENDERED_AFTER_STREAM_CHANGE);
-    if (videoSinkProvider.isInitialized()) {
-      videoSinkProvider.setStreamOffsetUs(getOutputStreamOffsetUs());
-    }
   }
 
   /**
@@ -1616,8 +1540,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
           droppedSourceBufferCount, /* droppedDecoderBufferCount= */ buffersInCodecCount);
     }
     flushOrReinitializeCodec();
-    if (videoSink != null) {
-      videoSink.flush();
+    if (videoFrameProcessorManager.isEnabled()) {
+      videoFrameProcessorManager.flush();
     }
     return true;
   }
@@ -1656,16 +1580,56 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
   }
 
   /**
+   * Returns a {@link Pair} of {@linkplain ColorInfo input color} and {@linkplain ColorInfo output
+   * color} to configure the {@code VideoFrameProcessor}.
+   */
+  protected Pair<ColorInfo, ColorInfo> experimentalGetVideoFrameProcessorColorConfiguration(
+      @Nullable ColorInfo inputColorInfo) {
+    // TODO(b/279163661) Remove this method after VideoFrameProcessor supports texture ID
+    //  input/output.
+    if (!ColorInfo.isTransferHdr(inputColorInfo)) {
+      return Pair.create(ColorInfo.SDR_BT709_LIMITED, ColorInfo.SDR_BT709_LIMITED);
+    }
+
+    if (inputColorInfo.colorTransfer == C.COLOR_TRANSFER_HLG) {
+      // SurfaceView only supports BT2020 PQ input, converting HLG to PQ.
+      return Pair.create(
+          inputColorInfo,
+          inputColorInfo.buildUpon().setColorTransfer(C.COLOR_TRANSFER_ST2084).build());
+    }
+
+    return Pair.create(inputColorInfo, inputColorInfo);
+  }
+
+  /**
    * Renders the output buffer with the specified index now.
    *
    * @param codec The codec that owns the output buffer.
+   * @param format The {@link Format} associated with the buffer.
    * @param index The index of the output buffer to drop.
    * @param presentationTimeUs The presentation time of the output buffer, in microseconds.
-   * @param releaseTimeNs The release timestamp that needs to be associated with this buffer, in
-   *     nanoseconds.
+   * @param notifyFrameMetadataListener Whether to notify the {@link VideoFrameMetadataListener}.
    */
-  private void renderOutputBuffer(
-      MediaCodecAdapter codec, int index, long presentationTimeUs, long releaseTimeNs) {
+  private void renderOutputBufferNow(
+      MediaCodecAdapter codec,
+      Format format,
+      int index,
+      long presentationTimeUs,
+      boolean notifyFrameMetadataListener) {
+    // In previewing mode, use the presentation time as release time so that the SurfaceTexture is
+    // accompanied by the rendered frame's presentation time. Setting a realtime based release time
+    // is only relevant when rendering to a SurfaceView (that is when not using VideoFrameProcessor)
+    // for better frame release. In previewing mode MediaCodec renders to VideoFrameProcessor's
+    // input surface, which is not a SurfaceView.
+    long releaseTimeNs =
+        videoFrameProcessorManager.isEnabled()
+            ? videoFrameProcessorManager.getCorrectedFramePresentationTimeUs(
+                    presentationTimeUs, getOutputStreamOffsetUs())
+                * 1000
+            : getClock().nanoTime();
+    if (notifyFrameMetadataListener) {
+      notifyFrameMetadataListener(presentationTimeUs, releaseTimeNs, format);
+    }
     if (Util.SDK_INT >= 21) {
       renderOutputBufferV21(codec, index, presentationTimeUs, releaseTimeNs);
     } else {
@@ -1677,6 +1641,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
    * Renders the output buffer with the specified index. This method is only called if the platform
    * API version of the device is less than 21.
    *
+   * <p>When video frame processing is {@linkplain VideoFrameProcessorManager#isEnabled()} enabled},
+   * this method renders to {@link VideoFrameProcessorManager}'s {@linkplain
+   * VideoFrameProcessorManager#getInputSurface() input surface}.
+   *
    * @param codec The codec that owns the output buffer.
    * @param index The index of the output buffer to drop.
    * @param presentationTimeUs The presentation time of the output buffer, in microseconds.
@@ -1687,7 +1655,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
     TraceUtil.endSection();
     decoderCounters.renderedOutputBufferCount++;
     consecutiveDroppedFrameCount = 0;
-    if (videoSink == null) {
+    if (!videoFrameProcessorManager.isEnabled()) {
       lastRenderRealtimeUs = msToUs(getClock().elapsedRealtime());
       maybeNotifyVideoSizeChanged(decodedVideoSize);
       maybeNotifyRenderedFirstFrame();
@@ -1697,6 +1665,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
   /**
    * Renders the output buffer with the specified index. This method is only called if the platform
    * API version of the device is 21 or later.
+   *
+   * <p>When video frame processing is {@linkplain VideoFrameProcessorManager#isEnabled()} enabled},
+   * this method renders to {@link VideoFrameProcessorManager}'s {@linkplain
+   * VideoFrameProcessorManager#getInputSurface() input surface}.
    *
    * @param codec The codec that owns the output buffer.
    * @param index The index of the output buffer to drop.
@@ -1711,7 +1683,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
     TraceUtil.endSection();
     decoderCounters.renderedOutputBufferCount++;
     consecutiveDroppedFrameCount = 0;
-    if (videoSink == null) {
+    if (!videoFrameProcessorManager.isEnabled()) {
       lastRenderRealtimeUs = msToUs(getClock().elapsedRealtime());
       maybeNotifyVideoSizeChanged(decodedVideoSize);
       maybeNotifyRenderedFirstFrame();
@@ -1756,7 +1728,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
     }
   }
 
-  private void maybeNotifyRenderedFirstFrame() {
+  /* package */ void maybeNotifyRenderedFirstFrame() {
     if (firstFrameState != C.FIRST_FRAME_RENDERED) {
       firstFrameState = C.FIRST_FRAME_RENDERED;
       eventDispatcher.renderedFirstFrame(displaySurface);
@@ -1966,6 +1938,505 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
   protected MediaCodecDecoderException createDecoderException(
       Throwable cause, @Nullable MediaCodecInfo codecInfo) {
     return new MediaCodecVideoDecoderException(cause, codecInfo, displaySurface);
+  }
+
+  /** Manages {@link VideoFrameProcessor} interactions. */
+  private static final class VideoFrameProcessorManager {
+
+    /** The threshold for releasing a processed frame. */
+    private static final long EARLY_THRESHOLD_US = 50_000;
+
+    private final VideoFrameReleaseHelper frameReleaseHelper;
+    // TODO(b/238302341) Consider removing the reference to the containing class and make this class
+    //  non-static.
+    private final MediaCodecVideoRenderer renderer;
+    private final ArrayDeque<Long> processedFramesTimestampsUs;
+    private final ArrayDeque<Pair<Long, Format>> pendingFrameFormats;
+    private final VideoFrameProcessor.Factory videoFrameProcessorFactory;
+
+    private @MonotonicNonNull Handler handler;
+    @Nullable private VideoFrameProcessor videoFrameProcessor;
+    @Nullable private CopyOnWriteArrayList<Effect> videoEffects;
+    @Nullable private Format inputFormat;
+
+    /**
+     * The current frame {@link Format} and the earliest presentationTimeUs that associates to it.
+     */
+    private @MonotonicNonNull Pair<Long, Format> currentFrameFormat;
+
+    private @MonotonicNonNull Clock clock;
+    @Nullable private Pair<Surface, Size> currentSurfaceAndSize;
+
+    private int videoFrameProcessorMaxPendingFrameCount;
+    private boolean canEnableFrameProcessing;
+
+    /**
+     * Whether the last frame of the current stream is decoded and registered to {@link
+     * VideoFrameProcessor}.
+     */
+    private boolean registeredLastFrame;
+
+    /**
+     * Whether the last frame of the current stream is processed by the {@link VideoFrameProcessor}.
+     */
+    private boolean processedLastFrame;
+
+    /** Whether the last frame of the current stream is released to the output {@link Surface}. */
+    private boolean releasedLastFrame;
+
+    private long lastCodecBufferPresentationTimestampUs;
+    private VideoSize processedFrameSize;
+    private boolean pendingOutputSizeChange;
+
+    /** The presentation time, after which the listener should be notified about the size change. */
+    private long pendingOutputSizeChangeNotificationTimeUs;
+
+    private long initialStreamOffsetUs;
+
+    /** Creates a new instance. */
+    public VideoFrameProcessorManager(
+        VideoFrameProcessor.Factory videoFrameProcessorFactory,
+        VideoFrameReleaseHelper frameReleaseHelper,
+        @UnderInitialization MediaCodecVideoRenderer renderer) {
+      this.videoFrameProcessorFactory = videoFrameProcessorFactory;
+      this.frameReleaseHelper = frameReleaseHelper;
+      this.renderer = renderer;
+      processedFramesTimestampsUs = new ArrayDeque<>();
+      pendingFrameFormats = new ArrayDeque<>();
+      videoFrameProcessorMaxPendingFrameCount = C.LENGTH_UNSET;
+      canEnableFrameProcessing = true;
+      lastCodecBufferPresentationTimestampUs = C.TIME_UNSET;
+      processedFrameSize = VideoSize.UNKNOWN;
+      pendingOutputSizeChangeNotificationTimeUs = C.TIME_UNSET;
+      initialStreamOffsetUs = C.TIME_UNSET;
+    }
+
+    /** Sets the {@linkplain Effect video effects}. */
+    public void setVideoEffects(List<Effect> videoEffects) {
+      if (this.videoEffects == null) {
+        this.videoEffects = new CopyOnWriteArrayList<>(videoEffects);
+        return;
+      }
+      this.videoEffects.clear();
+      this.videoEffects.addAll(videoEffects);
+    }
+
+    /** Returns whether video frame processing is enabled. */
+    public boolean isEnabled() {
+      return videoFrameProcessor != null;
+    }
+
+    /** Returns whether {@code VideoFrameProcessorManager} is ready to accept input frames. */
+    public boolean isReady() {
+      return currentSurfaceAndSize == null || !currentSurfaceAndSize.second.equals(Size.UNKNOWN);
+    }
+
+    /**
+     * Whether the {@link VideoFrameProcessor} has released the last frame in the current stream.
+     */
+    public boolean releasedLastFrame() {
+      return releasedLastFrame;
+    }
+
+    /**
+     * Flushes the {@link VideoFrameProcessor}.
+     *
+     * <p>Caller must ensure video frame processing {@linkplain #isEnabled() is enabled} before
+     * calling this method.
+     */
+    public void flush() {
+      checkStateNotNull(videoFrameProcessor);
+      videoFrameProcessor.flush();
+      processedFramesTimestampsUs.clear();
+      handler.removeCallbacksAndMessages(/* token= */ null);
+
+      if (registeredLastFrame) {
+        registeredLastFrame = false;
+        processedLastFrame = false;
+        releasedLastFrame = false;
+      }
+    }
+
+    /**
+     * Tries to enable video frame processing.
+     *
+     * <p>Caller must ensure video frame processing {@linkplain #isEnabled() is not enabled} before
+     * calling this method.
+     *
+     * @param inputFormat The {@link Format} that is input into the {@link VideoFrameProcessor}.
+     * @return Whether video frame processing is enabled.
+     * @throws ExoPlaybackException When enabling the {@link VideoFrameProcessor} failed.
+     */
+    @CanIgnoreReturnValue
+    public boolean maybeEnable(Format inputFormat, long initialStreamOffsetUs, Clock clock)
+        throws ExoPlaybackException {
+      checkState(!isEnabled());
+      if (!canEnableFrameProcessing) {
+        return false;
+      }
+      if (videoEffects == null) {
+        canEnableFrameProcessing = false;
+        return false;
+      }
+
+      // Playback thread handler.
+      handler = Util.createHandlerForCurrentLooper();
+      this.clock = clock;
+
+      Pair<ColorInfo, ColorInfo> inputAndOutputColorInfos =
+          renderer.experimentalGetVideoFrameProcessorColorConfiguration(inputFormat.colorInfo);
+      try {
+        // TODO(b/243036513): Set rotation in setInputFormat() after supporting changing effects.
+        if (!codecAppliesRotation() && inputFormat.rotationDegrees != 0) {
+          // Insert as the first effect as if the decoder has applied the rotation.
+          videoEffects.add(
+              /* index= */ 0,
+              ScaleAndRotateAccessor.createRotationEffect(inputFormat.rotationDegrees));
+        }
+
+        videoFrameProcessor =
+            videoFrameProcessorFactory.create(
+                renderer.context,
+                DebugViewProvider.NONE,
+                inputAndOutputColorInfos.first,
+                inputAndOutputColorInfos.second,
+                /* renderFramesAutomatically= */ false,
+                /* listenerExecutor= */ handler::post,
+                new VideoFrameProcessor.Listener() {
+                  @Override
+                  public void onOutputSizeChanged(int width, int height) {
+                    @Nullable Format inputFormat = VideoFrameProcessorManager.this.inputFormat;
+                    checkStateNotNull(inputFormat);
+                    // TODO(b/264889146): Handle Effect that changes output size based on pts.
+                    processedFrameSize =
+                        new VideoSize(
+                            width,
+                            height,
+                            // VideoFrameProcessor is configured to produce rotation free
+                            // frames.
+                            /* unappliedRotationDegrees= */ 0,
+                            // VideoFrameProcessor always outputs pixelWidthHeightRatio 1.
+                            /* pixelWidthHeightRatio= */ 1.f);
+                    pendingOutputSizeChange = true;
+                  }
+
+                  @Override
+                  public void onOutputFrameAvailableForRendering(long presentationTimeUs) {
+                    if (registeredLastFrame) {
+                      checkState(lastCodecBufferPresentationTimestampUs != C.TIME_UNSET);
+                    }
+                    processedFramesTimestampsUs.add(presentationTimeUs);
+                    // TODO(b/257464707) Support extensively modified media.
+                    if (registeredLastFrame
+                        && presentationTimeUs >= lastCodecBufferPresentationTimestampUs) {
+                      processedLastFrame = true;
+                    }
+                    if (pendingOutputSizeChange) {
+                      // Report the size change on releasing this frame.
+                      pendingOutputSizeChange = false;
+                      pendingOutputSizeChangeNotificationTimeUs = presentationTimeUs;
+                    }
+                  }
+
+                  @Override
+                  public void onError(VideoFrameProcessingException exception) {
+                    renderer.setPendingPlaybackException(
+                        renderer.createRendererException(
+                            exception,
+                            inputFormat,
+                            PlaybackException.ERROR_CODE_VIDEO_FRAME_PROCESSING_FAILED));
+                  }
+
+                  @Override
+                  public void onEnded() {
+                    throw new IllegalStateException();
+                  }
+                });
+
+        this.initialStreamOffsetUs = initialStreamOffsetUs;
+      } catch (Exception e) {
+        throw renderer.createRendererException(
+            e, inputFormat, PlaybackException.ERROR_CODE_VIDEO_FRAME_PROCESSOR_INIT_FAILED);
+      }
+
+      if (currentSurfaceAndSize != null) {
+        Size outputSurfaceSize = currentSurfaceAndSize.second;
+        videoFrameProcessor.setOutputSurfaceInfo(
+            new SurfaceInfo(
+                currentSurfaceAndSize.first,
+                outputSurfaceSize.getWidth(),
+                outputSurfaceSize.getHeight()));
+      }
+
+      return true;
+    }
+
+    public long getCorrectedFramePresentationTimeUs(
+        long framePresentationTimeUs, long currentStreamOffsetUs) {
+      // VideoFrameProcessor takes in frames with monotonically increasing, non-offset frame
+      // timestamps. That is, with two ten-second long videos, the first frame of the second video
+      // should bear a timestamp of 10s seen from VideoFrameProcessor; while in ExoPlayer, the
+      // timestamp of the said frame would be 0s, but the streamOffset is incremented 10s to include
+      // the duration of the first video. Thus this correction is need to correct for the different
+      // handling of presentation timestamps in ExoPlayer and VideoFrameProcessor.
+      checkState(initialStreamOffsetUs != C.TIME_UNSET);
+      return framePresentationTimeUs + currentStreamOffsetUs - initialStreamOffsetUs;
+    }
+
+    /**
+     * Returns the {@linkplain VideoFrameProcessor#getInputSurface input surface} of the {@link
+     * VideoFrameProcessor}.
+     *
+     * <p>Caller must ensure the {@code VideoFrameProcessorManager} {@link #isEnabled()} before
+     * calling this method.
+     */
+    public Surface getInputSurface() {
+      return checkNotNull(videoFrameProcessor).getInputSurface();
+    }
+
+    /**
+     * Sets the output surface info.
+     *
+     * @param outputSurface The {@link Surface} to which {@link VideoFrameProcessor} outputs.
+     * @param outputResolution The {@link Size} of the output resolution.
+     */
+    public void setOutputSurfaceInfo(Surface outputSurface, Size outputResolution) {
+      if (currentSurfaceAndSize != null
+          && currentSurfaceAndSize.first.equals(outputSurface)
+          && currentSurfaceAndSize.second.equals(outputResolution)) {
+        return;
+      }
+      currentSurfaceAndSize = Pair.create(outputSurface, outputResolution);
+      if (isEnabled()) {
+        checkNotNull(videoFrameProcessor)
+            .setOutputSurfaceInfo(
+                new SurfaceInfo(
+                    outputSurface, outputResolution.getWidth(), outputResolution.getHeight()));
+      }
+    }
+
+    /**
+     * Clears the set output surface info.
+     *
+     * <p>Caller must ensure the {@code VideoFrameProcessorManager} {@link #isEnabled()} before
+     * calling this method.
+     */
+    public void clearOutputSurfaceInfo() {
+      checkNotNull(videoFrameProcessor).setOutputSurfaceInfo(null);
+      currentSurfaceAndSize = null;
+    }
+
+    /**
+     * Sets the input surface info.
+     *
+     * <p>Caller must ensure the {@code VideoFrameProcessorManager} {@link #isEnabled()} before
+     * calling this method.
+     */
+    public void setInputFormat(Format inputFormat) {
+      checkNotNull(videoFrameProcessor)
+          .registerInputStream(
+              VideoFrameProcessor.INPUT_TYPE_SURFACE,
+              checkNotNull(videoEffects),
+              new FrameInfo.Builder(inputFormat.width, inputFormat.height)
+                  .setPixelWidthHeightRatio(inputFormat.pixelWidthHeightRatio)
+                  .build());
+      this.inputFormat = inputFormat;
+
+      if (registeredLastFrame) {
+        registeredLastFrame = false;
+        processedLastFrame = false;
+        releasedLastFrame = false;
+      }
+    }
+
+    /** Sets the necessary {@link MediaFormat} keys for video frame processing. */
+    @SuppressWarnings("InlinedApi")
+    public MediaFormat amendMediaFormatKeys(MediaFormat mediaFormat) {
+      if (Util.SDK_INT >= 29
+          && renderer.context.getApplicationContext().getApplicationInfo().targetSdkVersion >= 29) {
+        mediaFormat.setInteger(MediaFormat.KEY_ALLOW_FRAME_DROP, 0);
+      }
+      return mediaFormat;
+    }
+
+    /**
+     * Must be called when the codec is initialized.
+     *
+     * <p>Sets the {@code videoFrameProcessorMaxPendingFrameCount} based on the {@code codecName}.
+     */
+    public void onCodecInitialized(String codecName) {
+      videoFrameProcessorMaxPendingFrameCount =
+          Util.getMaxPendingFramesCountForMediaCodecDecoders(renderer.context);
+    }
+
+    /**
+     * Tries to {@linkplain VideoFrameProcessor#registerInputFrame register an input frame}.
+     *
+     * <p>Caller must ensure the {@code VideoFrameProcessorManager} {@link #isEnabled()} before
+     * calling this method.
+     *
+     * @param format The {@link Format} associated with the frame.
+     * @param isLastBuffer Whether the buffer is the last from the decoder to register.
+     * @return Whether {@link MediaCodec} should render the frame to {@link VideoFrameProcessor}.
+     */
+    public boolean maybeRegisterFrame(
+        Format format, long presentationTimestampUs, boolean isLastBuffer) {
+      checkStateNotNull(videoFrameProcessor);
+      checkState(videoFrameProcessorMaxPendingFrameCount != C.LENGTH_UNSET);
+
+      if (videoFrameProcessor.getPendingInputFrameCount()
+          < videoFrameProcessorMaxPendingFrameCount) {
+        videoFrameProcessor.registerInputFrame();
+
+        if (currentFrameFormat == null) {
+          currentFrameFormat = Pair.create(presentationTimestampUs, format);
+        } else if (!Util.areEqual(format, currentFrameFormat.second)) {
+          // TODO(b/258213806) Remove format comparison for better performance.
+          pendingFrameFormats.add(Pair.create(presentationTimestampUs, format));
+        }
+
+        if (isLastBuffer) {
+          registeredLastFrame = true;
+          lastCodecBufferPresentationTimestampUs = presentationTimestampUs;
+        }
+        return true;
+      }
+      return false;
+    }
+
+    /**
+     * Releases the processed frames to the {@linkplain #setOutputSurfaceInfo output surface}.
+     *
+     * <p>Caller must ensure the {@code VideoFrameProcessorManager} {@link #isEnabled()} before
+     * calling this method.
+     */
+    public void releaseProcessedFrames(long positionUs, long elapsedRealtimeUs) {
+      checkStateNotNull(videoFrameProcessor);
+      while (!processedFramesTimestampsUs.isEmpty()) {
+        boolean isStarted = renderer.getState() == STATE_STARTED;
+        long framePresentationTimeUs = checkNotNull(processedFramesTimestampsUs.peek());
+        long bufferPresentationTimeUs = framePresentationTimeUs + initialStreamOffsetUs;
+        long earlyUs =
+            renderer.calculateEarlyTimeUs(
+                positionUs,
+                elapsedRealtimeUs,
+                msToUs(clock.elapsedRealtime()),
+                bufferPresentationTimeUs,
+                isStarted);
+
+        boolean isLastFrame = processedLastFrame && processedFramesTimestampsUs.size() == 1;
+        boolean shouldReleaseFrameImmediately = renderer.shouldForceRender(positionUs, earlyUs);
+        if (shouldReleaseFrameImmediately) {
+          releaseProcessedFrameInternal(
+              VideoFrameProcessor.RENDER_OUTPUT_FRAME_IMMEDIATELY, isLastFrame);
+          break;
+        } else if (!isStarted || positionUs == renderer.initialPositionUs) {
+          return;
+        }
+
+        // Only release frames that are reasonably close to presentation.
+        // This way frameReleaseHelper.onNextFrame() is called only once for each frame.
+        if (earlyUs > EARLY_THRESHOLD_US) {
+          break;
+        }
+
+        frameReleaseHelper.onNextFrame(bufferPresentationTimeUs);
+        long systemNanoTime = checkNotNull(clock).nanoTime();
+        long unadjustedFrameReleaseTimeNs = systemNanoTime + earlyUs * 1000;
+        long adjustedFrameReleaseTimeNs =
+            frameReleaseHelper.adjustReleaseTime(unadjustedFrameReleaseTimeNs);
+        earlyUs = (adjustedFrameReleaseTimeNs - systemNanoTime) / 1000;
+
+        // TODO(b/238302341) Handle very late buffers and drop to key frame. Need to flush
+        //  VideoFrameProcessor input frames in this case.
+        if (renderer.shouldDropOutputBuffer(earlyUs, elapsedRealtimeUs, isLastFrame)) {
+          releaseProcessedFrameInternal(VideoFrameProcessor.DROP_OUTPUT_FRAME, isLastFrame);
+          continue;
+        }
+
+        if (!pendingFrameFormats.isEmpty()
+            && bufferPresentationTimeUs > pendingFrameFormats.peek().first) {
+          currentFrameFormat = pendingFrameFormats.remove();
+        }
+        renderer.notifyFrameMetadataListener(
+            framePresentationTimeUs, adjustedFrameReleaseTimeNs, currentFrameFormat.second);
+        if (pendingOutputSizeChangeNotificationTimeUs >= bufferPresentationTimeUs) {
+          pendingOutputSizeChangeNotificationTimeUs = C.TIME_UNSET;
+          renderer.maybeNotifyVideoSizeChanged(processedFrameSize);
+        }
+        releaseProcessedFrameInternal(adjustedFrameReleaseTimeNs, isLastFrame);
+      }
+    }
+
+    /**
+     * Releases the resources.
+     *
+     * <p>Caller must ensure video frame processing {@linkplain #isEnabled() is not enabled} before
+     * calling this method.
+     */
+    public void reset() {
+      checkNotNull(videoFrameProcessor).release();
+      videoFrameProcessor = null;
+      if (handler != null) {
+        handler.removeCallbacksAndMessages(/* token= */ null);
+      }
+      if (videoEffects != null) {
+        videoEffects.clear();
+      }
+      processedFramesTimestampsUs.clear();
+      canEnableFrameProcessing = true;
+    }
+
+    private void releaseProcessedFrameInternal(long releaseTimeNs, boolean isLastFrame) {
+      // VideoFrameProcessor renders to its output surface using
+      // VideoFrameProcessor.renderOutputFrame, to release the MediaCodecVideoRenderer frame.
+      checkStateNotNull(videoFrameProcessor);
+      videoFrameProcessor.renderOutputFrame(releaseTimeNs);
+      processedFramesTimestampsUs.remove();
+      renderer.lastRenderRealtimeUs = msToUs(clock.elapsedRealtime());
+      if (releaseTimeNs != VideoFrameProcessor.DROP_OUTPUT_FRAME) {
+        renderer.maybeNotifyRenderedFirstFrame();
+      }
+      if (isLastFrame) {
+        releasedLastFrame = true;
+      }
+    }
+
+    private static final class ScaleAndRotateAccessor {
+      private static @MonotonicNonNull Constructor<?>
+          scaleAndRotateTransformationBuilderConstructor;
+      private static @MonotonicNonNull Method setRotationMethod;
+      private static @MonotonicNonNull Method buildScaleAndRotateTransformationMethod;
+
+      public static Effect createRotationEffect(float rotationDegrees) throws Exception {
+        prepare();
+        Object builder = scaleAndRotateTransformationBuilderConstructor.newInstance();
+        setRotationMethod.invoke(builder, rotationDegrees);
+        return (Effect) checkNotNull(buildScaleAndRotateTransformationMethod.invoke(builder));
+      }
+
+      @EnsuresNonNull({
+        "scaleAndRotateTransformationBuilderConstructor",
+        "setRotationMethod",
+        "buildScaleAndRotateTransformationMethod"
+      })
+      private static void prepare() throws Exception {
+        if (scaleAndRotateTransformationBuilderConstructor == null
+            || setRotationMethod == null
+            || buildScaleAndRotateTransformationMethod == null) {
+          // TODO: b/284964524- Add LINT and proguard checks for media3.effect reflection.
+          Class<?> scaleAndRotateTransformationBuilderClass =
+              Class.forName(
+                  "com.google.android.exoplayer2.effect.ScaleAndRotateTransformation$Builder");
+          scaleAndRotateTransformationBuilderConstructor =
+              scaleAndRotateTransformationBuilderClass.getConstructor();
+          setRotationMethod =
+              scaleAndRotateTransformationBuilderClass.getMethod("setRotationDegrees", float.class);
+          buildScaleAndRotateTransformationMethod =
+              scaleAndRotateTransformationBuilderClass.getMethod("build");
+        }
+      }
+    }
   }
 
   /**
