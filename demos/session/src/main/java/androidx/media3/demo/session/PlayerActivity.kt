@@ -23,9 +23,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Button
-import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
+import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.media3.common.C.TRACK_TYPE_TEXT
@@ -33,6 +33,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.common.Tracks
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import androidx.media3.ui.PlayerView
@@ -63,6 +64,7 @@ class PlayerActivity : AppCompatActivity() {
         val controller = this.controller ?: return@run
         if (controller.currentMediaItemIndex == position) {
           controller.playWhenReady = !controller.playWhenReady
+          @OptIn(UnstableApi::class) // PlayerView.hideController
           if (controller.playWhenReady) {
             playerView.hideController()
           }
@@ -99,6 +101,7 @@ class PlayerActivity : AppCompatActivity() {
     MediaController.releaseFuture(controllerFuture)
   }
 
+  @OptIn(UnstableApi::class) // PlayerView.setShowSubtitleButton
   private fun setController() {
     val controller = this.controller ?: return
 

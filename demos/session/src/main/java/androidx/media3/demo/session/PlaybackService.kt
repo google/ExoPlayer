@@ -24,11 +24,12 @@ import android.app.TaskStackBuilder
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import androidx.annotation.OptIn
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.MediaItem
-import androidx.media3.common.util.Util
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DataSourceBitmapLoader
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.*
@@ -58,6 +59,7 @@ class PlaybackService : MediaLibraryService() {
     private val immutableFlag = if (Build.VERSION.SDK_INT >= 23) FLAG_IMMUTABLE else 0
   }
 
+  @OptIn(UnstableApi::class) // MediaSessionService.setListener
   override fun onCreate() {
     super.onCreate()
     customCommands =
@@ -83,6 +85,9 @@ class PlaybackService : MediaLibraryService() {
     }
   }
 
+  // MediaSession.setSessionActivity
+  // MediaSessionService.clearListener
+  @OptIn(UnstableApi::class)
   override fun onDestroy() {
     mediaLibrarySession.setSessionActivity(getBackStackedActivity())
     mediaLibrarySession.release()
@@ -93,6 +98,9 @@ class PlaybackService : MediaLibraryService() {
 
   private inner class CustomMediaLibrarySessionCallback : MediaLibrarySession.Callback {
 
+    // ConnectionResult.DEFAULT_SESSION_AND_LIBRARY_COMMANDS
+    // ConnectionResult.AcceptedResultBuilder
+    @OptIn(UnstableApi::class)
     override fun onConnect(session: MediaSession, controller: ControllerInfo): ConnectionResult {
       val availableSessionCommands =
         ConnectionResult.DEFAULT_SESSION_AND_LIBRARY_COMMANDS.buildUpon()
@@ -220,6 +228,11 @@ class PlaybackService : MediaLibraryService() {
         .build()
     MediaItemTree.initialize(assets)
 
+    // MediaLibrarySession.Builder.setCustomLayout
+    // MediaLibrarySession.Builder.setBitmapLoader
+    // CacheBitmapLoader
+    // DataSourceBitmapLoader
+    @OptIn(UnstableApi::class)
     mediaLibrarySession =
       MediaLibrarySession.Builder(this, player, librarySessionCallback)
         .setSessionActivity(getSingleTopActivity())
@@ -263,6 +276,7 @@ class PlaybackService : MediaLibraryService() {
     /* Do nothing. */
   }
 
+  @OptIn(UnstableApi::class) // MediaSessionService.Listener
   private inner class MediaSessionServiceListener : Listener {
 
     /**
@@ -294,7 +308,10 @@ class PlaybackService : MediaLibraryService() {
   }
 
   private fun ensureNotificationChannel(notificationManagerCompat: NotificationManagerCompat) {
-    if (Util.SDK_INT < 26 || notificationManagerCompat.getNotificationChannel(CHANNEL_ID) != null) {
+    if (
+      Build.VERSION.SDK_INT < 26 ||
+        notificationManagerCompat.getNotificationChannel(CHANNEL_ID) != null
+    ) {
       return
     }
 

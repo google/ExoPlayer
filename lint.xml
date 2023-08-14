@@ -21,8 +21,6 @@
       regexp='\(markerClass = androidx\.media3\.common\.util\.UnstableApi\.class\)' />
     <ignore path='demos/gl/'
       regexp='\(markerClass = androidx\.media3\.common\.util\.UnstableApi\.class\)' />
-    <ignore path='demos/session/'
-      regexp='\(markerClass = androidx\.media3\.common\.util\.UnstableApi\.class\)' />
     <ignore path='demos/surface/'
       regexp='\(markerClass = androidx\.media3\.common\.util\.UnstableApi\.class\)' />
     <ignore path='demos/transformer/'
