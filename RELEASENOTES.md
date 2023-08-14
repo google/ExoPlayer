@@ -192,7 +192,7 @@ This release includes the following changes since the
         the controller when connection completes.
     *   Fix cases where `MediaLibraryServiceLegacyStub` sent an error to a
         `Result` that didn't support this which produced an
-        `UnsuportedOperationException`
+        `UnsupportedOperationException`
         ([#78](https://github.com/androidx/media/issues/78)).
     *   Fix the way `PlayerWrapper` creates a `VolumeProviderCompat` by
         determining `volumeControlType` through both legacy commands
