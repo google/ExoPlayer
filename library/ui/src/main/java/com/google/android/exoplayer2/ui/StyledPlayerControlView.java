@@ -339,6 +339,7 @@ public class StyledPlayerControlView extends FrameLayout {
   private boolean isFullScreen;
   private boolean isAttachedToWindow;
   private boolean showMultiWindowTimeBar;
+  private boolean showPlayButtonIfSuppressed;
   private boolean multiWindowTimeBar;
   private boolean scrubbing;
   private int showTimeoutMs;
@@ -377,6 +378,7 @@ public class StyledPlayerControlView extends FrameLayout {
       @Nullable AttributeSet playbackAttrs) {
     super(context, attrs, defStyleAttr);
     int controllerLayoutId = R.layout.exo_styled_player_control_view;
+    showPlayButtonIfSuppressed = true;
     showTimeoutMs = DEFAULT_SHOW_TIMEOUT_MS;
     repeatToggleModes = DEFAULT_REPEAT_TOGGLE_MODES;
     timeBarMinUpdateIntervalMs = DEFAULT_TIME_BAR_MIN_UPDATE_INTERVAL_MS;
@@ -686,6 +688,20 @@ public class StyledPlayerControlView extends FrameLayout {
   }
 
   /**
+   * Sets whether a play button is shown if playback is {@linkplain
+   * Player#getPlaybackSuppressionReason() suppressed}.
+   *
+   * <p>The default is {@code true}.
+   *
+   * @param showPlayButtonIfSuppressed Whether to show a play button if playback is {@linkplain
+   *     Player#getPlaybackSuppressionReason() suppressed}.
+   */
+  public void setShowPlayButtonIfPlaybackIsSuppressed(boolean showPlayButtonIfSuppressed) {
+    this.showPlayButtonIfSuppressed = showPlayButtonIfSuppressed;
+    updatePlayPauseButton();
+  }
+
+  /**
    * Sets the millisecond positions of extra ad markers relative to the start of the window (or
    * timeline, if in multi-window mode) and whether each extra ad has been played or not. The
    * markers are shown in addition to any ad markers for ads in the player's timeline.
@@ -992,7 +1008,7 @@ public class StyledPlayerControlView extends FrameLayout {
       return;
     }
     if (playPauseButton != null) {
-      boolean shouldShowPlayButton = Util.shouldShowPlayButton(player);
+      boolean shouldShowPlayButton = Util.shouldShowPlayButton(player, showPlayButtonIfSuppressed);
       @DrawableRes
       int drawableRes =
           shouldShowPlayButton
@@ -1491,7 +1507,7 @@ public class StyledPlayerControlView extends FrameLayout {
         switch (keyCode) {
           case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
           case KeyEvent.KEYCODE_HEADSETHOOK:
-            Util.handlePlayPauseButtonAction(player);
+            Util.handlePlayPauseButtonAction(player, showPlayButtonIfSuppressed);
             break;
           case KeyEvent.KEYCODE_MEDIA_PLAY:
             Util.handlePlayButtonAction(player);
@@ -1722,7 +1738,7 @@ public class StyledPlayerControlView extends FrameLayout {
           player.seekBack();
         }
       } else if (playPauseButton == view) {
-        Util.handlePlayPauseButtonAction(player);
+        Util.handlePlayPauseButtonAction(player, showPlayButtonIfSuppressed);
       } else if (repeatToggleButton == view) {
         if (player.isCommandAvailable(COMMAND_SET_REPEAT_MODE)) {
           player.setRepeatMode(

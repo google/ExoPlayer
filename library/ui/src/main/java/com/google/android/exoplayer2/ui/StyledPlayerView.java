@@ -1098,6 +1098,20 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
   }
 
   /**
+   * Sets whether a play button is shown if playback is {@linkplain
+   * Player#getPlaybackSuppressionReason() suppressed}.
+   *
+   * <p>The default is {@code true}.
+   *
+   * @param showPlayButtonIfSuppressed Whether to show a play button if playback is {@linkplain
+   *     Player#getPlaybackSuppressionReason() suppressed}.
+   */
+  public void setShowPlayButtonIfPlaybackIsSuppressed(boolean showPlayButtonIfSuppressed) {
+    Assertions.checkStateNotNull(controller);
+    controller.setShowPlayButtonIfPlaybackIsSuppressed(showPlayButtonIfSuppressed);
+  }
+
+  /**
    * Sets the millisecond positions of extra ad markers relative to the start of the window (or
    * timeline, if in multi-window mode) and whether each extra ad has been played or not. The
    * markers are shown in addition to any ad markers for ads in the player's timeline.
