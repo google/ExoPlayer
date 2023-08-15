@@ -1000,14 +1000,8 @@ public final class AdPlaybackState implements Bundleable {
    * Appends a live postroll placeholder ad group to the ad playback state.
    *
    * <p>Adding such a placeholder is only required for periods of server side ad insertion live
-   * streams.
-   *
-   * <p>When building the media period queue, it sets {@link MediaPeriodId#nextAdGroupIndex} of a
-   * content period to the index of the placeholder. However, the placeholder will not produce a
-   * period in the media period queue. This only happens when an actual ad group is inserted at the
-   * given {@code nextAdGroupIndex}. In this case the newly inserted ad group will be used to insert
-   * an ad period into the media period queue following the content period with the given {@link
-   * MediaPeriodId#nextAdGroupIndex}.
+   * streams. A player is not expected to play this placeholder. It is only used to indicate that
+   * another ad group with this ad group index will be inserted in the future.
    *
    * <p>See {@link #endsWithLivePostrollPlaceHolder()} also.
    *

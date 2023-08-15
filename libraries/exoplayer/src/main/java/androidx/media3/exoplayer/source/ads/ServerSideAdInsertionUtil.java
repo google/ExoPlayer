@@ -21,12 +21,12 @@ import static java.lang.Math.max;
 import androidx.annotation.CheckResult;
 import androidx.media3.common.AdPlaybackState;
 import androidx.media3.common.C;
-import androidx.media3.common.MediaPeriodId;
 import androidx.media3.common.Player;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.source.MediaPeriod;
+import androidx.media3.exoplayer.source.MediaSource.MediaPeriodId;
 
 /** A static utility class with methods to work with server-side inserted ads. */
 @UnstableApi

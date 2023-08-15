@@ -21,12 +21,12 @@ import static java.lang.Math.min;
 
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
-import androidx.media3.common.MediaPeriodId;
 import androidx.media3.common.Timeline;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
+import androidx.media3.exoplayer.source.MediaSource.MediaPeriodId;
 import androidx.media3.exoplayer.source.TrackGroupArray;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
 import androidx.media3.exoplayer.upstream.Allocator;
