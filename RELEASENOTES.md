@@ -13,6 +13,13 @@
         and nullable array element types are not detected as nullable. Examples
         are `TrackSelectorResult` and `SimpleDecoder` method parameters
         ([6792](https://github.com/google/ExoPlayer/issues/6792)).
+    *   Change default UI and notification behavior in
+        `Util.shouldShowPlayButton` to show a "play" button while playback is
+        temporarily suppressed (e.g. due to transient audio focus loss). The
+        legacy behavior can be maintained by using
+        `PlayerView.setShowPlayButtonIfPlaybackIsSuppressed(false)` or
+        `MediaSession.Builder.setShowPlayButtonIfPlaybackIsSuppressed(false)`
+        ([#11213](https://github.com/google/ExoPlayer/issues/11213)).
 *   ExoPlayer:
     *   Fix seeking issues in AC4 streams caused by not identifying decode-only
         samples correctly

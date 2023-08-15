@@ -65,6 +65,7 @@ import static androidx.media3.test.session.common.MediaSessionConstants.TEST_GET
 import static androidx.media3.test.session.common.MediaSessionConstants.TEST_IS_SESSION_COMMAND_AVAILABLE;
 import static androidx.media3.test.session.common.MediaSessionConstants.TEST_ON_TRACKS_CHANGED_VIDEO_TO_AUDIO_TRANSITION;
 import static androidx.media3.test.session.common.MediaSessionConstants.TEST_ON_VIDEO_SIZE_CHANGED;
+import static androidx.media3.test.session.common.MediaSessionConstants.TEST_SET_SHOW_PLAY_BUTTON_IF_SUPPRESSED_TO_FALSE;
 import static androidx.media3.test.session.common.MediaSessionConstants.TEST_WITH_CUSTOM_COMMANDS;
 
 import android.app.PendingIntent;
@@ -282,6 +283,11 @@ public class MediaSessionProviderService extends Service {
           {
             mockPlayer.videoSize = MediaTestUtils.createDefaultVideoSize();
             mockPlayer.currentTracks = MediaTestUtils.createDefaultVideoTracks();
+            break;
+          }
+        case TEST_SET_SHOW_PLAY_BUTTON_IF_SUPPRESSED_TO_FALSE:
+          {
+            builder.setShowPlayButtonIfPlaybackIsSuppressed(false);
             break;
           }
         default: // fall out

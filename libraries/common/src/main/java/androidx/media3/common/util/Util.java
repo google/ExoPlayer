@@ -3171,23 +3171,42 @@ public final class Util {
    * <p>Use {@link #handlePlayPauseButtonAction}, {@link #handlePlayButtonAction} or {@link
    * #handlePauseButtonAction} to handle the interaction with the play or pause button UI element.
    *
-   * @param player The {@link Player}. May be null.
+   * @param player The {@link Player}. May be {@code null}.
    */
   @EnsuresNonNullIf(result = false, expression = "#1")
   public static boolean shouldShowPlayButton(@Nullable Player player) {
+    return shouldShowPlayButton(player, /* playIfSuppressed= */ true);
+  }
+
+  /**
+   * Returns whether a play button should be presented on a UI element for playback control. If
+   * {@code false}, a pause button should be shown instead.
+   *
+   * <p>Use {@link #handlePlayPauseButtonAction}, {@link #handlePlayButtonAction} or {@link
+   * #handlePauseButtonAction} to handle the interaction with the play or pause button UI element.
+   *
+   * @param player The {@link Player}. May be {@code null}.
+   * @param playIfSuppressed Whether to show a play button if playback is {@linkplain
+   *     Player#getPlaybackSuppressionReason() suppressed}.
+   */
+  @UnstableApi
+  @EnsuresNonNullIf(result = false, expression = "#1")
+  public static boolean shouldShowPlayButton(@Nullable Player player, boolean playIfSuppressed) {
     return player == null
         || !player.getPlayWhenReady()
         || player.getPlaybackState() == Player.STATE_IDLE
-        || player.getPlaybackState() == Player.STATE_ENDED;
+        || player.getPlaybackState() == Player.STATE_ENDED
+        || (playIfSuppressed
+            && player.getPlaybackSuppressionReason() != Player.PLAYBACK_SUPPRESSION_REASON_NONE);
   }
 
   /**
    * Updates the player to handle an interaction with a play button.
    *
    * <p>This method assumes the play button is enabled if {@link #shouldShowPlayButton} returns
-   * true.
+   * {@code true}.
    *
-   * @param player The {@link Player}. May be null.
+   * @param player The {@link Player}. May be {@code null}.
    * @return Whether a player method was triggered to handle this action.
    */
   public static boolean handlePlayButtonAction(@Nullable Player player) {
@@ -3215,9 +3234,9 @@ public final class Util {
    * Updates the player to handle an interaction with a pause button.
    *
    * <p>This method assumes the pause button is enabled if {@link #shouldShowPlayButton} returns
-   * false.
+   * {@code false}.
    *
-   * @param player The {@link Player}. May be null.
+   * @param player The {@link Player}. May be {@code null}.
    * @return Whether a player method was triggered to handle this action.
    */
   public static boolean handlePauseButtonAction(@Nullable Player player) {
@@ -3232,13 +3251,30 @@ public final class Util {
    * Updates the player to handle an interaction with a play or pause button.
    *
    * <p>This method assumes that the UI element enables a play button if {@link
-   * #shouldShowPlayButton} returns true and a pause button otherwise.
+   * #shouldShowPlayButton} returns {@code true} and a pause button otherwise.
    *
-   * @param player The {@link Player}. May be null.
+   * @param player The {@link Player}. May be {@code null}.
    * @return Whether a player method was triggered to handle this action.
    */
   public static boolean handlePlayPauseButtonAction(@Nullable Player player) {
-    if (shouldShowPlayButton(player)) {
+    return handlePlayPauseButtonAction(player, /* playIfSuppressed= */ true);
+  }
+
+  /**
+   * Updates the player to handle an interaction with a play or pause button.
+   *
+   * <p>This method assumes that the UI element enables a play button if {@link
+   * #shouldShowPlayButton(Player, boolean)} returns {@code true} and a pause button otherwise.
+   *
+   * @param player The {@link Player}. May be {@code null}.
+   * @param playIfSuppressed Whether to trigger a play action if playback is {@linkplain
+   *     Player#getPlaybackSuppressionReason() suppressed}.
+   * @return Whether a player method was triggered to handle this action.
+   */
+  @UnstableApi
+  public static boolean handlePlayPauseButtonAction(
+      @Nullable Player player, boolean playIfSuppressed) {
+    if (shouldShowPlayButton(player, playIfSuppressed)) {
       return handlePlayButtonAction(player);
     } else {
       return handlePauseButtonAction(player);

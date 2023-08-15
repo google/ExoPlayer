@@ -23,7 +23,6 @@ import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_STOP;
-import static androidx.media3.common.Player.STATE_ENDED;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
@@ -320,8 +319,8 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
                 mediaSession,
                 player.getAvailableCommands(),
                 customLayoutWithEnabledCommandButtonsOnly.build(),
-                /* showPauseButton= */ player.getPlayWhenReady()
-                    && player.getPlaybackState() != STATE_ENDED),
+                !Util.shouldShowPlayButton(
+                    player, mediaSession.getShowPlayButtonIfPlaybackIsSuppressed())),
             builder,
             actionFactory);
     mediaStyle.setShowActionsInCompactView(compactViewIndices);

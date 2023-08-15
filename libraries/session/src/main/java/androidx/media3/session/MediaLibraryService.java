@@ -462,6 +462,22 @@ public abstract class MediaLibraryService extends MediaSessionService {
       }
 
       /**
+       * Sets whether a play button is shown if playback is {@linkplain
+       * Player#getPlaybackSuppressionReason() suppressed}.
+       *
+       * <p>The default is {@code true}.
+       *
+       * @param showPlayButtonIfPlaybackIsSuppressed Whether to show a play button if playback is
+       *     {@linkplain Player#getPlaybackSuppressionReason() suppressed}.
+       */
+      @UnstableApi
+      @Override
+      public Builder setShowPlayButtonIfPlaybackIsSuppressed(
+          boolean showPlayButtonIfPlaybackIsSuppressed) {
+        return super.setShowPlayButtonIfPlaybackIsSuppressed(showPlayButtonIfPlaybackIsSuppressed);
+      }
+
+      /**
        * Builds a {@link MediaLibrarySession}.
        *
        * @return A new session.
@@ -481,7 +497,8 @@ public abstract class MediaLibraryService extends MediaSessionService {
             customLayout,
             callback,
             extras,
-            checkNotNull(bitmapLoader));
+            checkNotNull(bitmapLoader),
+            playIfSuppressed);
       }
     }
 
@@ -493,9 +510,18 @@ public abstract class MediaLibraryService extends MediaSessionService {
         ImmutableList<CommandButton> customLayout,
         MediaSession.Callback callback,
         Bundle tokenExtras,
-        BitmapLoader bitmapLoader) {
+        BitmapLoader bitmapLoader,
+        boolean playIfSuppressed) {
       super(
-          context, id, player, sessionActivity, customLayout, callback, tokenExtras, bitmapLoader);
+          context,
+          id,
+          player,
+          sessionActivity,
+          customLayout,
+          callback,
+          tokenExtras,
+          bitmapLoader,
+          playIfSuppressed);
     }
 
     @Override
@@ -507,7 +533,8 @@ public abstract class MediaLibraryService extends MediaSessionService {
         ImmutableList<CommandButton> customLayout,
         MediaSession.Callback callback,
         Bundle tokenExtras,
-        BitmapLoader bitmapLoader) {
+        BitmapLoader bitmapLoader,
+        boolean playIfSuppressed) {
       return new MediaLibrarySessionImpl(
           this,
           context,
@@ -517,7 +544,8 @@ public abstract class MediaLibraryService extends MediaSessionService {
           customLayout,
           (Callback) callback,
           tokenExtras,
-          bitmapLoader);
+          bitmapLoader,
+          playIfSuppressed);
     }
 
     @Override

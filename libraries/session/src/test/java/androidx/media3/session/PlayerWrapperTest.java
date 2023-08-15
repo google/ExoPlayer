@@ -42,7 +42,7 @@ public class PlayerWrapperTest {
 
   @Before
   public void setUp() {
-    playerWrapper = new PlayerWrapper(player);
+    playerWrapper = new PlayerWrapper(player, /* playIfSuppressed= */ true);
     when(player.isCommandAvailable(anyInt())).thenReturn(true);
     when(player.getApplicationLooper()).thenReturn(Looper.myLooper());
   }

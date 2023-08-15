@@ -346,7 +346,9 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     mediaPlayPauseKeyHandler.clearPendingMediaPlayPauseKey();
     dispatchSessionTaskWithPlayerCommand(
         COMMAND_PLAY_PAUSE,
-        controller -> Util.handlePlayPauseButtonAction(sessionImpl.getPlayerWrapper()),
+        controller ->
+            Util.handlePlayPauseButtonAction(
+                sessionImpl.getPlayerWrapper(), sessionImpl.shouldPlayIfSuppressed()),
         remoteUserInfo);
   }
 

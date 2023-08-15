@@ -78,7 +78,8 @@ import java.util.concurrent.Future;
       ImmutableList<CommandButton> customLayout,
       MediaLibrarySession.Callback callback,
       Bundle tokenExtras,
-      BitmapLoader bitmapLoader) {
+      BitmapLoader bitmapLoader,
+      boolean playIfSuppressed) {
     super(
         instance,
         context,
@@ -88,7 +89,8 @@ import java.util.concurrent.Future;
         customLayout,
         callback,
         tokenExtras,
-        bitmapLoader);
+        bitmapLoader,
+        playIfSuppressed);
     this.instance = instance;
     this.callback = callback;
     subscriptions = new ArrayMap<>();

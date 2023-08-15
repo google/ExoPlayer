@@ -330,6 +330,7 @@ public class LegacyPlayerControlView extends FrameLayout {
 
   private boolean isAttachedToWindow;
   private boolean showMultiWindowTimeBar;
+  private boolean showPlayButtonIfSuppressed;
   private boolean multiWindowTimeBar;
   private boolean scrubbing;
   private int showTimeoutMs;
@@ -373,6 +374,7 @@ public class LegacyPlayerControlView extends FrameLayout {
       @Nullable AttributeSet playbackAttrs) {
     super(context, attrs, defStyleAttr);
     int controllerLayoutId = R.layout.exo_legacy_player_control_view;
+    showPlayButtonIfSuppressed = true;
     showTimeoutMs = DEFAULT_SHOW_TIMEOUT_MS;
     repeatToggleModes = DEFAULT_REPEAT_TOGGLE_MODES;
     timeBarMinUpdateIntervalMs = DEFAULT_TIME_BAR_MIN_UPDATE_INTERVAL_MS;
@@ -569,6 +571,20 @@ public class LegacyPlayerControlView extends FrameLayout {
   public void setShowMultiWindowTimeBar(boolean showMultiWindowTimeBar) {
     this.showMultiWindowTimeBar = showMultiWindowTimeBar;
     updateTimeline();
+  }
+
+  /**
+   * Sets whether a play button is shown if playback is {@linkplain
+   * Player#getPlaybackSuppressionReason() suppressed}.
+   *
+   * <p>The default is {@code true}.
+   *
+   * @param showPlayButtonIfSuppressed Whether to show a play button if playback is {@linkplain
+   *     Player#getPlaybackSuppressionReason() suppressed}.
+   */
+  public void setShowPlayButtonIfPlaybackIsSuppressed(boolean showPlayButtonIfSuppressed) {
+    this.showPlayButtonIfSuppressed = showPlayButtonIfSuppressed;
+    updatePlayPauseButton();
   }
 
   /**
@@ -842,7 +858,7 @@ public class LegacyPlayerControlView extends FrameLayout {
     }
     boolean requestPlayPauseFocus = false;
     boolean requestPlayPauseAccessibilityFocus = false;
-    boolean shouldShowPlayButton = Util.shouldShowPlayButton(player);
+    boolean shouldShowPlayButton = Util.shouldShowPlayButton(player, showPlayButtonIfSuppressed);
     if (playButton != null) {
       requestPlayPauseFocus |= !shouldShowPlayButton && playButton.isFocused();
       requestPlayPauseAccessibilityFocus |=
@@ -1083,7 +1099,7 @@ public class LegacyPlayerControlView extends FrameLayout {
   }
 
   private void requestPlayPauseFocus() {
-    boolean shouldShowPlayButton = Util.shouldShowPlayButton(player);
+    boolean shouldShowPlayButton = Util.shouldShowPlayButton(player, showPlayButtonIfSuppressed);
     if (shouldShowPlayButton && playButton != null) {
       playButton.requestFocus();
     } else if (!shouldShowPlayButton && pauseButton != null) {
@@ -1092,7 +1108,7 @@ public class LegacyPlayerControlView extends FrameLayout {
   }
 
   private void requestPlayPauseAccessibilityFocus() {
-    boolean shouldShowPlayButton = Util.shouldShowPlayButton(player);
+    boolean shouldShowPlayButton = Util.shouldShowPlayButton(player, showPlayButtonIfSuppressed);
     if (shouldShowPlayButton && playButton != null) {
       playButton.sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_FOCUSED);
     } else if (!shouldShowPlayButton && pauseButton != null) {
@@ -1202,7 +1218,7 @@ public class LegacyPlayerControlView extends FrameLayout {
         switch (keyCode) {
           case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
           case KeyEvent.KEYCODE_HEADSETHOOK:
-            Util.handlePlayPauseButtonAction(player);
+            Util.handlePlayPauseButtonAction(player, showPlayButtonIfSuppressed);
             break;
           case KeyEvent.KEYCODE_MEDIA_PLAY:
             Util.handlePlayButtonAction(player);

@@ -759,24 +759,25 @@ import java.util.concurrent.TimeoutException;
 
   /** Converts {@link Player}' states to state of {@link PlaybackStateCompat}. */
   @PlaybackStateCompat.State
-  public static int convertToPlaybackStateCompatState(
-      @Nullable PlaybackException playerError,
-      @Player.State int playbackState,
-      boolean playWhenReady) {
-    if (playerError != null) {
+  public static int convertToPlaybackStateCompatState(Player player, boolean playIfSuppressed) {
+    if (player.getPlayerError() != null) {
       return PlaybackStateCompat.STATE_ERROR;
     }
+    @Player.State int playbackState = player.getPlaybackState();
+    boolean shouldShowPlayButton = Util.shouldShowPlayButton(player, playIfSuppressed);
     switch (playbackState) {
       case Player.STATE_IDLE:
         return PlaybackStateCompat.STATE_NONE;
       case Player.STATE_READY:
-        return playWhenReady ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED;
+        return shouldShowPlayButton
+            ? PlaybackStateCompat.STATE_PAUSED
+            : PlaybackStateCompat.STATE_PLAYING;
       case Player.STATE_ENDED:
         return PlaybackStateCompat.STATE_STOPPED;
       case Player.STATE_BUFFERING:
-        return playWhenReady
-            ? PlaybackStateCompat.STATE_BUFFERING
-            : PlaybackStateCompat.STATE_PAUSED;
+        return shouldShowPlayButton
+            ? PlaybackStateCompat.STATE_PAUSED
+            : PlaybackStateCompat.STATE_BUFFERING;
       default:
         throw new IllegalArgumentException("Unrecognized State: " + playbackState);
     }

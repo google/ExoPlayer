@@ -112,6 +112,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final BitmapLoader bitmapLoader;
   private final Runnable periodicSessionPositionInfoUpdateRunnable;
   private final Handler mainHandler;
+  private final boolean playIfSuppressed;
 
   private PlayerInfo playerInfo;
   private PlayerWrapper playerWrapper;
@@ -140,7 +141,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       ImmutableList<CommandButton> customLayout,
       MediaSession.Callback callback,
       Bundle tokenExtras,
-      BitmapLoader bitmapLoader) {
+      BitmapLoader bitmapLoader,
+      boolean playIfSuppressed) {
     this.context = context;
     this.instance = instance;
 
@@ -156,6 +158,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     applicationHandler = new Handler(player.getApplicationLooper());
     this.callback = callback;
     this.bitmapLoader = bitmapLoader;
+    this.playIfSuppressed = playIfSuppressed;
 
     playerInfo = PlayerInfo.DEFAULT;
     onPlayerInfoChangedHandler = new PlayerInfoChangedHandler(player.getApplicationLooper());
@@ -189,7 +192,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     sessionLegacyStub =
         new MediaSessionLegacyStub(/* session= */ thisRef, sessionUri, applicationHandler);
 
-    PlayerWrapper playerWrapper = new PlayerWrapper(player);
+    PlayerWrapper playerWrapper = new PlayerWrapper(player, playIfSuppressed);
     this.playerWrapper = playerWrapper;
     this.playerWrapper.setCustomLayout(customLayout);
     postOrRun(
@@ -208,7 +211,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (player == playerWrapper.getWrappedPlayer()) {
       return;
     }
-    setPlayerInternal(/* oldPlayerWrapper= */ playerWrapper, new PlayerWrapper(player));
+    setPlayerInternal(
+        /* oldPlayerWrapper= */ playerWrapper, new PlayerWrapper(player, playIfSuppressed));
   }
 
   private void setPlayerInternal(
@@ -395,6 +399,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   public BitmapLoader getBitmapLoader() {
     return bitmapLoader;
+  }
+
+  public boolean shouldPlayIfSuppressed() {
+    return playIfSuppressed;
   }
 
   public void setAvailableCommands(

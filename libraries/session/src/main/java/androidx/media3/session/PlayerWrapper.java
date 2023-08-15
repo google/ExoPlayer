@@ -64,13 +64,16 @@ import java.util.List;
 
   private static final int STATUS_CODE_SUCCESS_COMPAT = -1;
 
+  private final boolean playIfSuppressed;
+
   private int legacyStatusCode;
   @Nullable private String legacyErrorMessage;
   @Nullable private Bundle legacyErrorExtras;
   private ImmutableList<CommandButton> customLayout;
 
-  public PlayerWrapper(Player player) {
+  public PlayerWrapper(Player player, boolean playIfSuppressed) {
     super(player);
+    this.playIfSuppressed = playIfSuppressed;
     legacyStatusCode = STATUS_CODE_SUCCESS_COMPAT;
     customLayout = ImmutableList.of();
   }
@@ -968,9 +971,7 @@ import java.util.List;
           .build();
     }
     @Nullable PlaybackException playerError = getPlayerError();
-    int state =
-        MediaUtils.convertToPlaybackStateCompatState(
-            playerError, getPlaybackState(), getPlayWhenReady());
+    int state = MediaUtils.convertToPlaybackStateCompatState(/* player= */ this, playIfSuppressed);
     // Always advertise ACTION_SET_RATING.
     long actions = PlaybackStateCompat.ACTION_SET_RATING;
     Commands availableCommands = getAvailableCommands();

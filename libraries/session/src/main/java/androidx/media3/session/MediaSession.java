@@ -378,6 +378,22 @@ public class MediaSession {
     }
 
     /**
+     * Sets whether a play button is shown if playback is {@linkplain
+     * Player#getPlaybackSuppressionReason() suppressed}.
+     *
+     * <p>The default is {@code true}.
+     *
+     * @param showPlayButtonIfPlaybackIsSuppressed Whether to show a play button if playback is
+     *     {@linkplain Player#getPlaybackSuppressionReason() suppressed}.
+     */
+    @UnstableApi
+    @Override
+    public Builder setShowPlayButtonIfPlaybackIsSuppressed(
+        boolean showPlayButtonIfPlaybackIsSuppressed) {
+      return super.setShowPlayButtonIfPlaybackIsSuppressed(showPlayButtonIfPlaybackIsSuppressed);
+    }
+
+    /**
      * Builds a {@link MediaSession}.
      *
      * @return A new session.
@@ -397,7 +413,8 @@ public class MediaSession {
           customLayout,
           callback,
           extras,
-          checkNotNull(bitmapLoader));
+          checkNotNull(bitmapLoader),
+          playIfSuppressed);
     }
   }
 
@@ -589,7 +606,8 @@ public class MediaSession {
       ImmutableList<CommandButton> customLayout,
       Callback callback,
       Bundle tokenExtras,
-      BitmapLoader bitmapLoader) {
+      BitmapLoader bitmapLoader,
+      boolean playIfSuppressed) {
     synchronized (STATIC_LOCK) {
       if (SESSION_ID_TO_SESSION_MAP.containsKey(id)) {
         throw new IllegalStateException("Session ID must be unique. ID=" + id);
@@ -605,7 +623,8 @@ public class MediaSession {
             customLayout,
             callback,
             tokenExtras,
-            bitmapLoader);
+            bitmapLoader,
+            playIfSuppressed);
   }
 
   /* package */ MediaSessionImpl createImpl(
@@ -616,7 +635,8 @@ public class MediaSession {
       ImmutableList<CommandButton> customLayout,
       Callback callback,
       Bundle tokenExtras,
-      BitmapLoader bitmapLoader) {
+      BitmapLoader bitmapLoader,
+      boolean playIfSuppressed) {
     return new MediaSessionImpl(
         this,
         context,
@@ -626,7 +646,8 @@ public class MediaSession {
         customLayout,
         callback,
         tokenExtras,
-        bitmapLoader);
+        bitmapLoader,
+        playIfSuppressed);
   }
 
   /* package */ MediaSessionImpl getImpl() {
@@ -933,6 +954,15 @@ public class MediaSession {
   @UnstableApi
   public final BitmapLoader getBitmapLoader() {
     return impl.getBitmapLoader();
+  }
+
+  /**
+   * Returns whether a play button is shown if playback is {@linkplain
+   * Player#getPlaybackSuppressionReason() suppressed}.
+   */
+  @UnstableApi
+  public final boolean getShowPlayButtonIfPlaybackIsSuppressed() {
+    return impl.shouldPlayIfSuppressed();
   }
 
   /**
@@ -1740,6 +1770,7 @@ public class MediaSession {
     /* package */ @Nullable PendingIntent sessionActivity;
     /* package */ Bundle extras;
     /* package */ @MonotonicNonNull BitmapLoader bitmapLoader;
+    /* package */ boolean playIfSuppressed;
 
     /* package */ ImmutableList<CommandButton> customLayout;
 
@@ -1751,6 +1782,7 @@ public class MediaSession {
       this.callback = callback;
       extras = Bundle.EMPTY;
       customLayout = ImmutableList.of();
+      playIfSuppressed = true;
     }
 
     @SuppressWarnings("unchecked")
@@ -1786,6 +1818,13 @@ public class MediaSession {
     @SuppressWarnings("unchecked")
     public BuilderT setCustomLayout(List<CommandButton> customLayout) {
       this.customLayout = ImmutableList.copyOf(customLayout);
+      return (BuilderT) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public BuilderT setShowPlayButtonIfPlaybackIsSuppressed(
+        boolean showPlayButtonIfPlaybackIsSuppressed) {
+      this.playIfSuppressed = showPlayButtonIfPlaybackIsSuppressed;
       return (BuilderT) this;
     }
 

@@ -712,6 +712,7 @@ public class PlayerNotificationManager {
   private boolean useRewindActionInCompactView;
   private boolean useFastForwardActionInCompactView;
   private boolean usePlayPauseActions;
+  private boolean showPlayButtonIfSuppressed;
   private boolean useStopAction;
   private int badgeIconType;
   private boolean colorized;
@@ -762,6 +763,7 @@ public class PlayerNotificationManager {
     usePreviousAction = true;
     useNextAction = true;
     usePlayPauseActions = true;
+    showPlayButtonIfSuppressed = true;
     useRewindAction = true;
     useFastForwardAction = true;
     colorized = true;
@@ -967,6 +969,22 @@ public class PlayerNotificationManager {
   public final void setUsePlayPauseActions(boolean usePlayPauseActions) {
     if (this.usePlayPauseActions != usePlayPauseActions) {
       this.usePlayPauseActions = usePlayPauseActions;
+      invalidate();
+    }
+  }
+
+  /**
+   * Sets whether a play button is shown if playback is {@linkplain
+   * Player#getPlaybackSuppressionReason() suppressed}.
+   *
+   * <p>The default is {@code true}.
+   *
+   * @param showPlayButtonIfSuppressed Whether to show a play button if playback is {@linkplain
+   *     Player#getPlaybackSuppressionReason() suppressed}.
+   */
+  public void setShowPlayButtonIfPlaybackIsSuppressed(boolean showPlayButtonIfSuppressed) {
+    if (this.showPlayButtonIfSuppressed != showPlayButtonIfSuppressed) {
+      this.showPlayButtonIfSuppressed = showPlayButtonIfSuppressed;
       invalidate();
     }
   }
@@ -1339,7 +1357,7 @@ public class PlayerNotificationManager {
       stringActions.add(ACTION_REWIND);
     }
     if (usePlayPauseActions) {
-      if (Util.shouldShowPlayButton(player)) {
+      if (Util.shouldShowPlayButton(player, showPlayButtonIfSuppressed)) {
         stringActions.add(ACTION_PLAY);
       } else {
         stringActions.add(ACTION_PAUSE);
@@ -1387,7 +1405,7 @@ public class PlayerNotificationManager {
     if (leftSideActionIndex != -1) {
       actionIndices[actionCounter++] = leftSideActionIndex;
     }
-    boolean shouldShowPlayButton = Util.shouldShowPlayButton(player);
+    boolean shouldShowPlayButton = Util.shouldShowPlayButton(player, showPlayButtonIfSuppressed);
     if (pauseActionIndex != -1 && !shouldShowPlayButton) {
       actionIndices[actionCounter++] = pauseActionIndex;
     } else if (playActionIndex != -1 && shouldShowPlayButton) {

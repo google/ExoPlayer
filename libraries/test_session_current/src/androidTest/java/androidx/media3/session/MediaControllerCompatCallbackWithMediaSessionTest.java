@@ -20,6 +20,7 @@ import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_MEDIA_ID
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_USER_RATING;
 import static androidx.media3.common.Player.STATE_ENDED;
 import static androidx.media3.common.Player.STATE_READY;
+import static androidx.media3.test.session.common.MediaSessionConstants.TEST_SET_SHOW_PLAY_BUTTON_IF_SUPPRESSED_TO_FALSE;
 import static androidx.media3.test.session.common.TestUtils.LONG_TIMEOUT_MS;
 import static androidx.media3.test.session.common.TestUtils.TIMEOUT_MS;
 import static com.google.common.truth.Truth.assertThat;
@@ -668,12 +669,6 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
                 .getExtras()
                 .getFloat(MediaConstants.EXTRAS_KEY_PLAYBACK_SPEED_COMPAT))
         .isEqualTo(1f);
-    assertThat(
-            playbackStateCompatRef
-                .get()
-                .getExtras()
-                .getFloat(MediaConstants.EXTRAS_KEY_PLAYBACK_SPEED_COMPAT))
-        .isEqualTo(1f);
     assertThat(controllerCompat.getPlaybackState().getState())
         .isEqualTo(PlaybackStateCompat.STATE_PAUSED);
     assertThat(controllerCompat.getPlaybackState().getPlaybackSpeed()).isEqualTo(0f);
@@ -713,12 +708,6 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
     assertThat(playbackStateCompatRef.get().getState())
         .isEqualTo(PlaybackStateCompat.STATE_BUFFERING);
     assertThat(playbackStateCompatRef.get().getPlaybackSpeed()).isEqualTo(0f);
-    assertThat(
-            playbackStateCompatRef
-                .get()
-                .getExtras()
-                .getFloat(MediaConstants.EXTRAS_KEY_PLAYBACK_SPEED_COMPAT))
-        .isEqualTo(1f);
     assertThat(
             playbackStateCompatRef
                 .get()
@@ -766,12 +755,6 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
                 .getExtras()
                 .getFloat(MediaConstants.EXTRAS_KEY_PLAYBACK_SPEED_COMPAT))
         .isEqualTo(1f);
-    assertThat(
-            playbackStateCompatRef
-                .get()
-                .getExtras()
-                .getFloat(MediaConstants.EXTRAS_KEY_PLAYBACK_SPEED_COMPAT))
-        .isEqualTo(1f);
     assertThat(controllerCompat.getPlaybackState().getState())
         .isEqualTo(PlaybackStateCompat.STATE_STOPPED);
     assertThat(controllerCompat.getPlaybackState().getPlaybackSpeed()).isEqualTo(0f);
@@ -784,8 +767,57 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
   }
 
   @Test
-  public void playbackStateChange_withPlaybackSuppression_notifiesPlayingWithSpeedZero()
-      throws Exception {
+  public void playbackStateChange_withPlaybackSuppression_notifiesPaused() throws Exception {
+    session.getMockPlayer().setPlaybackState(Player.STATE_READY);
+    session
+        .getMockPlayer()
+        .setPlayWhenReady(/* playWhenReady= */ true, Player.PLAYBACK_SUPPRESSION_REASON_NONE);
+    AtomicReference<PlaybackStateCompat> playbackStateCompatRef = new AtomicReference<>();
+    CountDownLatch latch = new CountDownLatch(1);
+    MediaControllerCompat.Callback callback =
+        new MediaControllerCompat.Callback() {
+          @Override
+          public void onPlaybackStateChanged(PlaybackStateCompat playbackStateCompat) {
+            playbackStateCompatRef.set(playbackStateCompat);
+            latch.countDown();
+          }
+        };
+    controllerCompat.registerCallback(callback, handler);
+
+    session
+        .getMockPlayer()
+        .notifyPlayWhenReadyChanged(
+            /* playWhenReady= */ true,
+            Player.PLAYBACK_SUPPRESSION_REASON_TRANSIENT_AUDIO_FOCUS_LOSS);
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(playbackStateCompatRef.get().getState()).isEqualTo(PlaybackStateCompat.STATE_PAUSED);
+    assertThat(playbackStateCompatRef.get().getPlaybackSpeed()).isEqualTo(0f);
+    assertThat(
+            playbackStateCompatRef
+                .get()
+                .getExtras()
+                .getFloat(MediaConstants.EXTRAS_KEY_PLAYBACK_SPEED_COMPAT))
+        .isEqualTo(1f);
+    assertThat(controllerCompat.getPlaybackState().getState())
+        .isEqualTo(PlaybackStateCompat.STATE_PAUSED);
+    assertThat(controllerCompat.getPlaybackState().getPlaybackSpeed()).isEqualTo(0f);
+    assertThat(
+            controllerCompat
+                .getPlaybackState()
+                .getExtras()
+                .getFloat(MediaConstants.EXTRAS_KEY_PLAYBACK_SPEED_COMPAT))
+        .isEqualTo(1f);
+  }
+
+  @Test
+  public void
+      playbackStateChange_withPlaybackSuppressionWithoutShowPauseIfSuppressed_notifiesPlayingWithSpeedZero()
+          throws Exception {
+    RemoteMediaSession session =
+        new RemoteMediaSession(TEST_SET_SHOW_PLAY_BUTTON_IF_SUPPRESSED_TO_FALSE, context, null);
+    MediaControllerCompat controllerCompat =
+        new MediaControllerCompat(context, session.getCompatToken());
     session.getMockPlayer().setPlaybackState(Player.STATE_READY);
     session
         .getMockPlayer()
@@ -818,12 +850,6 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
                 .getExtras()
                 .getFloat(MediaConstants.EXTRAS_KEY_PLAYBACK_SPEED_COMPAT))
         .isEqualTo(1f);
-    assertThat(
-            playbackStateCompatRef
-                .get()
-                .getExtras()
-                .getFloat(MediaConstants.EXTRAS_KEY_PLAYBACK_SPEED_COMPAT))
-        .isEqualTo(1f);
     assertThat(controllerCompat.getPlaybackState().getState())
         .isEqualTo(PlaybackStateCompat.STATE_PLAYING);
     assertThat(controllerCompat.getPlaybackState().getPlaybackSpeed()).isEqualTo(0f);
@@ -833,6 +859,7 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
                 .getExtras()
                 .getFloat(MediaConstants.EXTRAS_KEY_PLAYBACK_SPEED_COMPAT))
         .isEqualTo(1f);
+    session.release();
   }
 
   @Test
