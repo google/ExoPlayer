@@ -995,7 +995,7 @@ public class DefaultAnalyticsCollector implements AnalyticsCollector {
     if (error instanceof ExoPlaybackException) {
       ExoPlaybackException exoError = (ExoPlaybackException) error;
       if (exoError.mediaPeriodId != null) {
-        return generateEventTime(new MediaPeriodId(exoError.mediaPeriodId));
+        return generateEventTime(exoError.mediaPeriodId);
       }
     }
     return generateCurrentPlayerMediaPeriodEventTime();
