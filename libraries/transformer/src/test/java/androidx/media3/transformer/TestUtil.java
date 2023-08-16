@@ -22,6 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
+import androidx.media3.common.audio.AudioProcessor;
 import androidx.media3.common.audio.SonicAudioProcessor;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
@@ -142,6 +143,11 @@ public final class TestUtil {
         .setMuxerFactory(muxerFactory)
         .setEncoderFactory(
             new DefaultEncoderFactory.Builder(context).setEnableFallback(enableFallback).build());
+  }
+
+  public static Effects createAudioEffects(AudioProcessor... audioProcessors) {
+    return new Effects(
+        ImmutableList.copyOf(audioProcessors), /* videoEffects= */ ImmutableList.of());
   }
 
   public static SonicAudioProcessor createPitchChangingAudioProcessor(float pitch) {
