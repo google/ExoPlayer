@@ -145,7 +145,9 @@ public final class DvbParser implements SubtitleParser {
 
     @Nullable PageComposition pageComposition = subtitleService.pageComposition;
     if (pageComposition == null) {
-      return ImmutableList.of();
+      return ImmutableList.of(
+          new CuesWithTiming(
+              ImmutableList.of(), /* startTimeUs= */ C.TIME_UNSET, /* durationUs= */ C.TIME_UNSET));
     }
 
     // Update the canvas bitmap if necessary.
