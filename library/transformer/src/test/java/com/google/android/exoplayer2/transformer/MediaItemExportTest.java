@@ -58,9 +58,11 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.view.Surface;
+import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.audio.SonicAudioProcessor;
 import com.google.android.exoplayer2.effect.Presentation;
@@ -75,11 +77,11 @@ import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.testutil.FakeClock;
-import com.google.android.exoplayer2.transformer.TestUtil.FakeAssetLoader;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -1297,5 +1299,77 @@ public final class MediaItemExportTest {
         extractor.release();
       }
     }
+  }
+
+  public static final class FakeAssetLoader implements AssetLoader {
+
+    public static final class Factory implements AssetLoader.Factory {
+
+      private final @SupportedOutputTypes int supportedOutputTypes;
+      @Nullable private final AtomicReference<SampleConsumer> sampleConsumerRef;
+
+      public Factory(
+          @SupportedOutputTypes int supportedOutputTypes,
+          @Nullable AtomicReference<SampleConsumer> sampleConsumerRef) {
+        this.supportedOutputTypes = supportedOutputTypes;
+        this.sampleConsumerRef = sampleConsumerRef;
+      }
+
+      @Override
+      public AssetLoader createAssetLoader(
+          EditedMediaItem editedMediaItem, Looper looper, Listener listener) {
+        return new FakeAssetLoader(listener, supportedOutputTypes, sampleConsumerRef);
+      }
+    }
+
+    private final AssetLoader.Listener listener;
+    private final @SupportedOutputTypes int supportedOutputTypes;
+    @Nullable private final AtomicReference<SampleConsumer> sampleConsumerRef;
+
+    public FakeAssetLoader(
+        Listener listener,
+        @SupportedOutputTypes int supportedOutputTypes,
+        @Nullable AtomicReference<SampleConsumer> sampleConsumerRef) {
+      this.listener = listener;
+      this.supportedOutputTypes = supportedOutputTypes;
+      this.sampleConsumerRef = sampleConsumerRef;
+    }
+
+    @Override
+    public void start() {
+      listener.onDurationUs(10_000_000);
+      listener.onTrackCount(1);
+      Format format =
+          new Format.Builder()
+              .setSampleMimeType(MimeTypes.AUDIO_AAC)
+              .setSampleRate(44100)
+              .setChannelCount(2)
+              .build();
+      try {
+        if (listener.onTrackAdded(format, supportedOutputTypes)) {
+          format = format.buildUpon().setPcmEncoding(C.ENCODING_PCM_16BIT).build();
+        }
+
+        SampleConsumer sampleConsumer = listener.onOutputFormat(format);
+        if (sampleConsumerRef != null) {
+          sampleConsumerRef.set(sampleConsumer);
+        }
+      } catch (ExportException e) {
+        throw new IllegalStateException(e);
+      }
+    }
+
+    @Override
+    public @Transformer.ProgressState int getProgress(ProgressHolder progressHolder) {
+      return 0;
+    }
+
+    @Override
+    public ImmutableMap<Integer, String> getDecoderNames() {
+      return ImmutableMap.of();
+    }
+
+    @Override
+    public void release() {}
   }
 }
