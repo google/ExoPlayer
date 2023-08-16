@@ -50,6 +50,17 @@ public final class Mp3ExtractorTest {
   }
 
   @Test
+  public void mp3SampleWithCbrSeekingAlwaysEnabled() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        () -> new Mp3Extractor(Mp3Extractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING_ALWAYS),
+        "media/mp3/bear-cbr-variable-frame-size-no-seek-table.mp3",
+        new AssertionConfig.Builder()
+            .setDumpFilesPrefix("extractordumps/mp3/bear-cbr_cbr-seeking-always-enabled")
+            .build(),
+        simulationConfig);
+  }
+
+  @Test
   public void mp3SampleWithIndexSeeker() throws Exception {
     ExtractorAsserts.assertBehavior(
         () -> new Mp3Extractor(Mp3Extractor.FLAG_ENABLE_INDEX_SEEKING),
