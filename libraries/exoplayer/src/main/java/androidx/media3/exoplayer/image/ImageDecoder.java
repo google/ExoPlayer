@@ -17,14 +17,36 @@ package androidx.media3.exoplayer.image;
 
 import android.graphics.Bitmap;
 import androidx.annotation.Nullable;
+import androidx.media3.common.Format;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.decoder.Decoder;
 import androidx.media3.decoder.DecoderInputBuffer;
+import androidx.media3.exoplayer.RendererCapabilities.Capabilities;
 
 /** A {@link Decoder} implementation for images. */
 @UnstableApi
 public interface ImageDecoder
     extends Decoder<DecoderInputBuffer, ImageOutputBuffer, ImageDecoderException> {
+
+  /** A factory for image decoders. */
+  interface Factory {
+
+    /** Default implementation of an image decoder factory. */
+    ImageDecoder.Factory DEFAULT = new DefaultImageDecoder.Factory();
+
+    /**
+     * Returns the highest {@link Capabilities} of the factory's decoders for the given {@link
+     * Format}.
+     *
+     * @param format The {@link Format}.
+     * @return The {@link Capabilities} of the decoders the factory can instantiate for this format.
+     */
+    @Capabilities
+    int supportsFormat(Format format);
+
+    /** Creates a new {@link ImageDecoder}. */
+    ImageDecoder createImageDecoder();
+  }
 
   /**
    * Queues an {@link DecoderInputBuffer} to the decoder.
