@@ -54,9 +54,6 @@ public final class PgsParser implements SubtitleParser {
   }
 
   @Override
-  public void reset() {}
-
-  @Override
   public ImmutableList<CuesWithTiming> parse(byte[] data, int offset, int length) {
     buffer.reset(data, /* limit= */ offset + length);
     buffer.setPosition(offset);

@@ -151,9 +151,6 @@ public final class SubripParser implements SubtitleParser {
     return cues.build();
   }
 
-  @Override
-  public void reset() {}
-
   /**
    * Determine UTF encoding of the byte array from a byte order mark (BOM), defaulting to UTF-8 if
    * no BOM is found.
