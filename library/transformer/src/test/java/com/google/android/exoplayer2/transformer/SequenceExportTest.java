@@ -24,6 +24,7 @@ import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_VIDE
 import static com.google.android.exoplayer2.transformer.TestUtil.FILE_AUDIO_VIDEO_INCREASING_TIMESTAMPS_15S;
 import static com.google.android.exoplayer2.transformer.TestUtil.addAudioDecoders;
 import static com.google.android.exoplayer2.transformer.TestUtil.addAudioEncoders;
+import static com.google.android.exoplayer2.transformer.TestUtil.createAudioEffects;
 import static com.google.android.exoplayer2.transformer.TestUtil.createPitchChangingAudioProcessor;
 import static com.google.android.exoplayer2.transformer.TestUtil.createTransformerBuilder;
 import static com.google.android.exoplayer2.transformer.TestUtil.getDumpFileName;
@@ -33,10 +34,8 @@ import android.content.Context;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.audio.SonicAudioProcessor;
 import com.google.android.exoplayer2.effect.RgbFilter;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
-import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
@@ -109,12 +108,13 @@ public final class SequenceExportTest {
     Transformer transformer =
         createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
-    SonicAudioProcessor sonicAudioProcessor = createPitchChangingAudioProcessor(/* pitch= */ 2f);
-    Effect videoEffect = RgbFilter.createGrayscaleFilter();
-    Effects effects =
-        new Effects(ImmutableList.of(sonicAudioProcessor), ImmutableList.of(videoEffect));
     EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
+        new EditedMediaItem.Builder(mediaItem)
+            .setEffects(
+                new Effects(
+                    ImmutableList.of(createPitchChangingAudioProcessor(/* pitch= */ 2f)),
+                    ImmutableList.of(RgbFilter.createGrayscaleFilter())))
+            .build();
     EditedMediaItemSequence editedMediaItemSequence =
         new EditedMediaItemSequence(ImmutableList.of(editedMediaItem, editedMediaItem));
     Composition composition =
@@ -237,18 +237,12 @@ public final class SequenceExportTest {
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_VIDEO);
     EditedMediaItem audioEditedMediaItem =
         new EditedMediaItem.Builder(mediaItem)
-            .setEffects(
-                new Effects(
-                    ImmutableList.of(createPitchChangingAudioProcessor(/* pitch= */ 2f)),
-                    /* videoEffects= */ ImmutableList.of()))
+            .setEffects(createAudioEffects(createPitchChangingAudioProcessor(/* pitch= */ 2f)))
             .build();
     EditedMediaItem noAudioEditedMediaItem =
         new EditedMediaItem.Builder(mediaItem)
             .setRemoveAudio(true)
-            .setEffects(
-                new Effects(
-                    ImmutableList.of(createPitchChangingAudioProcessor(/* pitch= */ 2f)),
-                    /* videoEffects= */ ImmutableList.of()))
+            .setEffects(createAudioEffects(createPitchChangingAudioProcessor(/* pitch= */ 2f)))
             .build();
     EditedMediaItemSequence sequence =
         new EditedMediaItemSequence(ImmutableList.of(audioEditedMediaItem, noAudioEditedMediaItem));
@@ -276,17 +270,11 @@ public final class SequenceExportTest {
     EditedMediaItem noAudioEditedMediaItem =
         new EditedMediaItem.Builder(mediaItem)
             .setRemoveAudio(true)
-            .setEffects(
-                new Effects(
-                    ImmutableList.of(createPitchChangingAudioProcessor(/* pitch= */ 2f)),
-                    /* videoEffects= */ ImmutableList.of()))
+            .setEffects(createAudioEffects(createPitchChangingAudioProcessor(/* pitch= */ 2f)))
             .build();
     EditedMediaItem audioEditedMediaItem =
         new EditedMediaItem.Builder(mediaItem)
-            .setEffects(
-                new Effects(
-                    ImmutableList.of(createPitchChangingAudioProcessor(/* pitch= */ 2f)),
-                    /* videoEffects= */ ImmutableList.of()))
+            .setEffects(createAudioEffects(createPitchChangingAudioProcessor(/* pitch= */ 2f)))
             .build();
     Composition composition =
         new Composition.Builder(
@@ -340,18 +328,12 @@ public final class SequenceExportTest {
     EditedMediaItem silenceWithEffectsItem =
         new EditedMediaItem.Builder(mediaItem)
             .setRemoveAudio(true)
-            .setEffects(
-                new Effects(
-                    ImmutableList.of(createPitchChangingAudioProcessor(/* pitch= */ 2f)),
-                    /* videoEffects= */ ImmutableList.of()))
+            .setEffects(createAudioEffects(createPitchChangingAudioProcessor(/* pitch= */ 2f)))
             .build();
     EditedMediaItem silenceItem =
         new EditedMediaItem.Builder(mediaItem)
             .setRemoveAudio(true)
-            .setEffects(
-                new Effects(
-                    ImmutableList.of(createPitchChangingAudioProcessor(/* pitch= */ 2f)),
-                    /* videoEffects= */ ImmutableList.of()))
+            .setEffects(createAudioEffects(createPitchChangingAudioProcessor(/* pitch= */ 2f)))
             .build();
     EditedMediaItemSequence sequence =
         new EditedMediaItemSequence(ImmutableList.of(silenceWithEffectsItem, silenceItem));
@@ -379,18 +361,12 @@ public final class SequenceExportTest {
     EditedMediaItem silenceWithEffectsItem =
         new EditedMediaItem.Builder(mediaItem)
             .setRemoveAudio(true)
-            .setEffects(
-                new Effects(
-                    ImmutableList.of(createPitchChangingAudioProcessor(/* pitch= */ 2f)),
-                    /* videoEffects= */ ImmutableList.of()))
+            .setEffects(createAudioEffects(createPitchChangingAudioProcessor(/* pitch= */ 2f)))
             .build();
     EditedMediaItem silenceItem =
         new EditedMediaItem.Builder(mediaItem)
             .setRemoveAudio(true)
-            .setEffects(
-                new Effects(
-                    ImmutableList.of(createPitchChangingAudioProcessor(/* pitch= */ 2f)),
-                    /* videoEffects= */ ImmutableList.of()))
+            .setEffects(createAudioEffects(createPitchChangingAudioProcessor(/* pitch= */ 2f)))
             .build();
     EditedMediaItemSequence sequence =
         new EditedMediaItemSequence(ImmutableList.of(silenceItem, silenceWithEffectsItem));
@@ -418,18 +394,12 @@ public final class SequenceExportTest {
     EditedMediaItem firstItem =
         new EditedMediaItem.Builder(mediaItem)
             .setRemoveAudio(true)
-            .setEffects(
-                new Effects(
-                    ImmutableList.of(createPitchChangingAudioProcessor(/* pitch= */ 2f)),
-                    /* videoEffects= */ ImmutableList.of()))
+            .setEffects(createAudioEffects(createPitchChangingAudioProcessor(/* pitch= */ 2f)))
             .build();
     EditedMediaItem secondItem =
         new EditedMediaItem.Builder(mediaItem)
             .setRemoveAudio(true)
-            .setEffects(
-                new Effects(
-                    ImmutableList.of(createPitchChangingAudioProcessor(/* pitch= */ 2f)),
-                    /* videoEffects= */ ImmutableList.of()))
+            .setEffects(createAudioEffects(createPitchChangingAudioProcessor(/* pitch= */ 2f)))
             .build();
     EditedMediaItemSequence sequence =
         new EditedMediaItemSequence(ImmutableList.of(firstItem, secondItem));
@@ -472,11 +442,10 @@ public final class SequenceExportTest {
     Transformer transformer =
         createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
     MediaItem audioOnlyMediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW);
-    SonicAudioProcessor sonicAudioProcessor = createPitchChangingAudioProcessor(/* pitch= */ 2f);
-    Effects effects =
-        new Effects(ImmutableList.of(sonicAudioProcessor), /* videoEffects= */ ImmutableList.of());
     EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(audioOnlyMediaItem).setEffects(effects).build();
+        new EditedMediaItem.Builder(audioOnlyMediaItem)
+            .setEffects(createAudioEffects(createPitchChangingAudioProcessor(/* pitch= */ 2f)))
+            .build();
     EditedMediaItemSequence editedMediaItemSequence =
         new EditedMediaItemSequence(ImmutableList.of(editedMediaItem, editedMediaItem));
     Composition composition =
@@ -497,23 +466,15 @@ public final class SequenceExportTest {
     Transformer transformer =
         createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
     MediaItem audioOnlyMediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW);
-    Effects highPitchEffects =
-        new Effects(
-            ImmutableList.of(createPitchChangingAudioProcessor(/* pitch= */ 2f)),
-            /* videoEffects= */ ImmutableList.of());
     EditedMediaItem highPitchMediaItem =
         new EditedMediaItem.Builder(audioOnlyMediaItem)
             .setRemoveVideo(true)
-            .setEffects(highPitchEffects)
+            .setEffects(createAudioEffects(createPitchChangingAudioProcessor(/* pitch= */ 2f)))
             .build();
-    Effects lowPitchEffects =
-        new Effects(
-            ImmutableList.of(createPitchChangingAudioProcessor(/* pitch= */ 0.5f)),
-            /* videoEffects= */ ImmutableList.of());
     EditedMediaItem lowPitchMediaItem =
         new EditedMediaItem.Builder(audioOnlyMediaItem)
             .setRemoveVideo(true)
-            .setEffects(lowPitchEffects)
+            .setEffects(createAudioEffects(createPitchChangingAudioProcessor(/* pitch= */ 0.5f)))
             .build();
     EditedMediaItemSequence sequence =
         new EditedMediaItemSequence(ImmutableList.of(highPitchMediaItem, lowPitchMediaItem));
@@ -558,19 +519,14 @@ public final class SequenceExportTest {
     Transformer transformer =
         createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
 
-    Effects highPitch =
-        new Effects(
-            ImmutableList.of(createPitchChangingAudioProcessor(/* pitch= */ 2f)),
-            /* videoEffects= */ ImmutableList.of());
-
     EditedMediaItem stereo48000Audio =
         new EditedMediaItem.Builder(
                 MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_STEREO_48000KHZ))
-            .setEffects(highPitch)
+            .setEffects(createAudioEffects(createPitchChangingAudioProcessor(/* pitch= */ 2f)))
             .build();
     EditedMediaItem mono44100Audio =
         new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW))
-            .setEffects(highPitch)
+            .setEffects(createAudioEffects(createPitchChangingAudioProcessor(/* pitch= */ 2f)))
             .build();
 
     EditedMediaItemSequence editedMediaItemSequence =
@@ -596,17 +552,11 @@ public final class SequenceExportTest {
     EditedMediaItem stereo48000AudioHighPitch =
         new EditedMediaItem.Builder(
                 MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_STEREO_48000KHZ))
-            .setEffects(
-                new Effects(
-                    ImmutableList.of(createPitchChangingAudioProcessor(/* pitch= */ 2f)),
-                    /* videoEffects= */ ImmutableList.of()))
+            .setEffects(createAudioEffects(createPitchChangingAudioProcessor(/* pitch= */ 2f)))
             .build();
     EditedMediaItem mono44100AudioLowPitch =
         new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW))
-            .setEffects(
-                new Effects(
-                    ImmutableList.of(createPitchChangingAudioProcessor(/* pitch= */ 0.5f)),
-                    /* videoEffects= */ ImmutableList.of()))
+            .setEffects(createAudioEffects(createPitchChangingAudioProcessor(/* pitch= */ 0.5f)))
             .build();
     EditedMediaItemSequence editedMediaItemSequence =
         new EditedMediaItemSequence(

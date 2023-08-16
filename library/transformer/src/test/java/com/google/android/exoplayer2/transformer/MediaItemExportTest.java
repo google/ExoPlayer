@@ -32,6 +32,8 @@ import static com.google.android.exoplayer2.transformer.TestUtil.FILE_WITH_SEF_S
 import static com.google.android.exoplayer2.transformer.TestUtil.FILE_WITH_SUBTITLES;
 import static com.google.android.exoplayer2.transformer.TestUtil.addAudioDecoders;
 import static com.google.android.exoplayer2.transformer.TestUtil.addAudioEncoders;
+import static com.google.android.exoplayer2.transformer.TestUtil.createAudioEffects;
+import static com.google.android.exoplayer2.transformer.TestUtil.createPitchChangingAudioProcessor;
 import static com.google.android.exoplayer2.transformer.TestUtil.createTransformerBuilder;
 import static com.google.android.exoplayer2.transformer.TestUtil.getDumpFileName;
 import static com.google.android.exoplayer2.transformer.TestUtil.removeEncodersAndDecoders;
@@ -60,7 +62,6 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.SonicAudioProcessor;
 import com.google.android.exoplayer2.effect.Presentation;
 import com.google.android.exoplayer2.effect.ScaleAndRotateTransformation;
@@ -361,7 +362,7 @@ public final class MediaItemExportTest {
     EditedMediaItem editedMediaItem =
         new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO))
             .setRemoveAudio(true)
-            .setEffects(new Effects(ImmutableList.of(sonicAudioProcessor), ImmutableList.of()))
+            .setEffects(createAudioEffects(sonicAudioProcessor))
             .build();
     EditedMediaItemSequence sequence =
         new EditedMediaItemSequence(ImmutableList.of(editedMediaItem));
@@ -427,10 +428,11 @@ public final class MediaItemExportTest {
     Transformer transformer =
         createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
-    ImmutableList<AudioProcessor> audioProcessors = ImmutableList.of(sonicAudioProcessor);
-    Effects effects = new Effects(audioProcessors, /* videoEffects= */ ImmutableList.of());
+
     EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
+        new EditedMediaItem.Builder(mediaItem)
+            .setEffects(createAudioEffects(sonicAudioProcessor))
+            .build();
 
     transformer.start(editedMediaItem, outputPath);
     TransformerTestRunner.runLooper(transformer);
@@ -446,10 +448,10 @@ public final class MediaItemExportTest {
     Transformer transformer =
         createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
-    ImmutableList<AudioProcessor> audioProcessors = ImmutableList.of(sonicAudioProcessor);
-    Effects effects = new Effects(audioProcessors, /* videoEffects= */ ImmutableList.of());
     EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
+        new EditedMediaItem.Builder(mediaItem)
+            .setEffects(createAudioEffects(sonicAudioProcessor))
+            .build();
     EditedMediaItemSequence editedMediaItemSequence =
         new EditedMediaItemSequence(ImmutableList.of(editedMediaItem));
     Composition composition =
@@ -971,10 +973,10 @@ public final class MediaItemExportTest {
                     SUPPORTED_OUTPUT_TYPE_ENCODED, /* sampleConsumerRef= */ null))
             .build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
-    ImmutableList<AudioProcessor> audioProcessors = ImmutableList.of(new SonicAudioProcessor());
-    Effects effects = new Effects(audioProcessors, /* videoEffects= */ ImmutableList.of());
     EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(mediaItem).setEffects(effects).build();
+        new EditedMediaItem.Builder(mediaItem)
+            .setEffects(createAudioEffects(createPitchChangingAudioProcessor(/* pitch= */ 2f)))
+            .build();
 
     transformer.start(editedMediaItem, outputPath);
     ExportException exportException =
