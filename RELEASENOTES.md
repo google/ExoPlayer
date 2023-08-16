@@ -3,6 +3,42 @@
 ### Unreleased changes
 
 *   Common Library:
+*   ExoPlayer:
+*   Transformer:
+*   Track Selection:
+*   Extractors:
+*   Audio:
+*   Audio Offload:
+*   Video:
+*   Text:
+*   Metadata:
+*   DRM:
+*   Effect:
+*   Muxers:
+*   IMA extension:
+*   Session:
+*   UI:
+*   Downloads:
+*   OkHttp Extension:
+*   Cronet Extension:
+*   RTMP Extension:
+*   HLS Extension:
+*   Smooth Streaming Extension:
+*   RTSP Extension:
+*   Decoder Extensions (FFmpeg, VP9, AV1, etc.):
+*   MIDI extension:
+*   Cast Extension:
+*   Test Utilities:
+*   Remove deprecated symbols:
+
+## 1.2
+
+### 1.2.0-alpha01 (2023-08-17)
+
+This release includes the following changes since
+[1.1.1 release](#111-2023-08-14)):
+
+*   Common Library:
     *   Add a `@Nullable Throwable` parameter to the methods in the `Log.Logger`
         interface. The `message` parameter to these methods no longer contains
         any information about the `Throwable` passed to the `Log.{d,i,w,e}()`
@@ -60,7 +96,6 @@
         associated constants. Use `Composition.HdrMode` and its associated
         constants instead.
     *   Simplify the `OverlaySettings` to fix rotation issues.
-*   Track Selection:
 *   Extractors:
     *   MPEG-TS: Ensure the last frame is rendered by passing the last access
         unit of a stream to the sample queue
@@ -107,15 +142,9 @@
     *   Fix bug where the first frame couldn't be rendered if the audio stream
         starts with negative timestamps
         ([#291](https://github.com/androidx/media/issues/291)).
-*   Text:
-*   Metadata:
-*   DRM:
 *   Effect:
     *   Add `VideoFrameProcessor.queueInputBitmap(Bitmap, Iterator<Long>)`
         queuing bitmap input by timestamp.
-*   Muxers:
-*   IMA extension:
-*   Session:
 *   UI:
     *   Add a `Player.Listener` implementation for Wear OS devices that handles
         playback suppression due to
@@ -130,13 +159,6 @@
         add `dataSync` as `foregroundServiceType` in the manifest and add the
         `FOREGROUND_SERVICE_DATA_SYNC` permission
         ([#11239](https://github.com/google/ExoPlayer/issues/11239)).
-*   OkHttp Extension:
-*   Cronet Extension:
-*   RTMP Extension:
-*   HLS Extension:
-*   Smooth Streaming Extension:
-*   RTSP Extension:
-*   Decoder Extensions (FFmpeg, VP9, AV1, etc.):
 *   MIDI extension:
     *   Release the MIDI decoder module, which provides support for playback of
         standard MIDI files using the Jsyn library to synthesize audio.
