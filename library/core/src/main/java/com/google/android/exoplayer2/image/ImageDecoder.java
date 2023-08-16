@@ -17,6 +17,8 @@ package com.google.android.exoplayer2.ext.image;
 
 import android.graphics.Bitmap;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.RendererCapabilities.Capabilities;
 import com.google.android.exoplayer2.decoder.Decoder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 
@@ -31,6 +33,26 @@ import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 @Deprecated
 public interface ImageDecoder
     extends Decoder<DecoderInputBuffer, ImageOutputBuffer, ImageDecoderException> {
+
+  /** A factory for image decoders. */
+  interface Factory {
+
+    /** Default implementation of an image decoder factory. */
+    ImageDecoder.Factory DEFAULT = new DefaultImageDecoder.Factory();
+
+    /**
+     * Returns the highest {@link Capabilities} of the factory's decoders for the given {@link
+     * Format}.
+     *
+     * @param format The {@link Format}.
+     * @return The {@link Capabilities} of the decoders the factory can instantiate for this format.
+     */
+    @Capabilities
+    int supportsFormat(Format format);
+
+    /** Creates a new {@link ImageDecoder}. */
+    ImageDecoder createImageDecoder();
+  }
 
   /**
    * Queues an {@link DecoderInputBuffer} to the decoder.

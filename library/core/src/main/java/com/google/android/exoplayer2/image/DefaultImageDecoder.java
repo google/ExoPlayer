@@ -25,8 +25,13 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import androidx.annotation.Nullable;
 import androidx.exifinterface.media.ExifInterface;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.SimpleDecoder;
+import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.common.collect.ImmutableSet;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,6 +52,36 @@ import java.nio.ByteBuffer;
 public class DefaultImageDecoder
     extends SimpleDecoder<DecoderInputBuffer, ImageOutputBuffer, ImageDecoderException>
     implements ImageDecoder {
+
+  /** A factory for {@link DefaultImageDecoder} instances. */
+  public static final class Factory implements ImageDecoder.Factory {
+
+    private static final ImmutableSet<String> SUPPORTED_IMAGE_TYPES =
+        ImmutableSet.of(
+            MimeTypes.IMAGE_PNG,
+            MimeTypes.IMAGE_JPEG,
+            MimeTypes.IMAGE_BMP,
+            MimeTypes.IMAGE_HEIF,
+            MimeTypes.IMAGE_WEBP);
+
+    @Override
+    public @RendererCapabilities.Capabilities int supportsFormat(Format format) {
+      if (!MimeTypes.isImage(format.containerMimeType)) {
+        return RendererCapabilities.create(C.FORMAT_UNSUPPORTED_TYPE);
+      }
+      if (format.tileCountHorizontal != 1 || format.tileCountVertical != 1) {
+        return RendererCapabilities.create(C.FORMAT_EXCEEDS_CAPABILITIES);
+      }
+      return SUPPORTED_IMAGE_TYPES.contains(format.containerMimeType)
+          ? RendererCapabilities.create(C.FORMAT_HANDLED)
+          : RendererCapabilities.create(C.FORMAT_UNSUPPORTED_SUBTYPE);
+    }
+
+    @Override
+    public DefaultImageDecoder createImageDecoder() {
+      return new DefaultImageDecoder();
+    }
+  }
 
   /** Creates an instance. */
   public DefaultImageDecoder() {
@@ -102,7 +137,7 @@ public class DefaultImageDecoder
    * @return The decoded {@link Bitmap}.
    * @throws ImageDecoderException If a decoding error occurs.
    */
-  protected Bitmap decode(byte[] data, int length) throws ImageDecoderException {
+  /* package */ Bitmap decode(byte[] data, int length) throws ImageDecoderException {
     @Nullable Bitmap bitmap = BitmapFactory.decodeByteArray(data, /* offset= */ 0, length);
     if (bitmap == null) {
       throw new ImageDecoderException(
