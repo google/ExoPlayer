@@ -1,0 +1,17 @@
+seekMap:
+  isSeekable = true
+  duration = 2821187
+  getPosition(0) = [[timeUs=0, position=240]]
+  getPosition(1) = [[timeUs=0, position=240], [timeUs=26062, position=657]]
+  getPosition(1410593) = [[timeUs=1407375, position=22758], [timeUs=1433437, position=23175]]
+  getPosition(2821187) = [[timeUs=2795125, position=44962]]
+numberOfTracks = 1
+track 0:
+  total output bytes = 0
+  sample count = 0
+  format 0:
+    sampleMimeType = audio/mpeg
+    maxInputSize = 4096
+    channelCount = 2
+    sampleRate = 44100
+tracksEnded = true
