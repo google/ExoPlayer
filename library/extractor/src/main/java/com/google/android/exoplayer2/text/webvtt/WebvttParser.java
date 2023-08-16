@@ -92,9 +92,6 @@ public final class WebvttParser implements SubtitleParser {
     return subtitle.toCuesWithTimingList();
   }
 
-  @Override
-  public void reset() {}
-
   /**
    * Positions the input right before the next event, and returns the kind of event found. Does not
    * consume any data from such event, if any.

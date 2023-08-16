@@ -123,9 +123,6 @@ public final class SsaParser implements SubtitleParser {
     }
   }
 
-  @Override
-  public void reset() {}
-
   @Nullable
   @Override
   public ImmutableList<CuesWithTiming> parse(byte[] data, int offset, int length) {

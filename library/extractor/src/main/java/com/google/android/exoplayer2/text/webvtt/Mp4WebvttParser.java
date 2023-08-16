@@ -82,9 +82,6 @@ public final class Mp4WebvttParser implements SubtitleParser {
         new CuesWithTiming(cues, /* startTimeUs= */ C.TIME_UNSET, /* durationUs= */ C.TIME_UNSET));
   }
 
-  @Override
-  public void reset() {}
-
   private static Cue parseVttCueBox(ParsableByteArray sampleData, int remainingCueBoxBytes) {
     @Nullable Cue.Builder cueBuilder = null;
     @Nullable CharSequence cueText = null;

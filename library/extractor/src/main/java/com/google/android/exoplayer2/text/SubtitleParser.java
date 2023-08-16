@@ -95,6 +95,8 @@ public interface SubtitleParser {
    * Clears any data stored inside this parser from previous {@link #parse(byte[])} calls.
    *
    * <p>This must be called after a seek or other similar discontinuity in the source data.
+   *
+   * <p>The default implementation is a no-op.
    */
-  void reset();
+  default void reset() {}
 }

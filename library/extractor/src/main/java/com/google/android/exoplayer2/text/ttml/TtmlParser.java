@@ -195,9 +195,6 @@ public final class TtmlParser implements SubtitleParser {
     }
   }
 
-  @Override
-  public void reset() {}
-
   private static FrameAndTickRate parseFrameAndTickRates(XmlPullParser xmlParser) {
     int frameRate = DEFAULT_FRAME_RATE;
     String frameRateString = xmlParser.getAttributeValue(TTP, "frameRate");

@@ -127,9 +127,6 @@ public final class Tx3gParser implements SubtitleParser {
   }
 
   @Override
-  public void reset() {}
-
-  @Override
   public ImmutableList<CuesWithTiming> parse(byte[] data, int offset, int length) {
     parsableByteArray.reset(data, /* limit= */ offset + length);
     parsableByteArray.setPosition(offset);
