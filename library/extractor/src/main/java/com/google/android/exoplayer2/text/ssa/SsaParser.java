@@ -145,11 +145,13 @@ public final class SsaParser implements SubtitleParser {
         // An empty cue list has already been implicitly encoded in the duration of the previous
         // sample (unless there was no previous sample).
         continue;
+      } else if (i == cues.size() - 1) {
+        // The last cue list must be empty
+        throw new IllegalStateException();
       }
       long startTimeUs = startTimesUs.get(i);
-      // The duration of the last CuesWithTiming is C.TIME_UNSET by design
-      long durationUs =
-          i == cues.size() - 1 ? C.TIME_UNSET : startTimesUs.get(i + 1) - startTimesUs.get(i);
+      // It's safe to inspect element i+1, because we already exited the loop above if i=size()-1.
+      long durationUs = startTimesUs.get(i + 1) - startTimesUs.get(i);
       cuesWithStartTimeAndDuration.add(
           new CuesWithTiming(cuesForThisStartTime, startTimeUs, durationUs));
     }
