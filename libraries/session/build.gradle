@@ -43,6 +43,7 @@ dependencies {
     compileOnly 'org.checkerframework:checker-qual:' + checkerframeworkVersion
     implementation 'androidx.collection:collection:' + androidxCollectionVersion
     implementation 'androidx.media:media:' + androidxMediaVersion
+    implementation 'androidx.core:core:' + androidxCoreVersion
     androidTestImplementation 'com.squareup.okhttp3:mockwebserver:' + okhttpVersion
     androidTestImplementation project(modulePrefix + 'test-utils')
     androidTestImplementation project(modulePrefix + 'test-data')

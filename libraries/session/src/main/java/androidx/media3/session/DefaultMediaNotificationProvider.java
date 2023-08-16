@@ -371,6 +371,10 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
         .setShowWhen(displayElapsedTimeWithChronometer)
         .setUsesChronometer(displayElapsedTimeWithChronometer);
 
+    if (Util.SDK_INT >= 31) {
+      Api31.setForegroundServiceBehavior(builder);
+    }
+
     Notification notification =
         builder
             .setContentIntent(mediaSession.getSessionActivity())
@@ -689,6 +693,14 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
         channel.setShowBadge(false);
       }
       notificationManager.createNotificationChannel(channel);
+    }
+  }
+
+  @RequiresApi(31)
+  private static class Api31 {
+    @DoNotInline
+    public static void setForegroundServiceBehavior(NotificationCompat.Builder builder) {
+      builder.setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE);
     }
   }
 

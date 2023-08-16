@@ -145,6 +145,9 @@ This release includes the following changes since
 *   Effect:
     *   Add `VideoFrameProcessor.queueInputBitmap(Bitmap, Iterator<Long>)`
         queuing bitmap input by timestamp.
+    *   Set the notifications foreground service behavior to
+        `FOREGROUND_SERVICE_IMMEDIATE` in `DefaultMediaNotificationProvider`
+        ([#167](https://github.com/androidx/media/issues/167)).
 *   UI:
     *   Add a `Player.Listener` implementation for Wear OS devices that handles
         playback suppression due to
