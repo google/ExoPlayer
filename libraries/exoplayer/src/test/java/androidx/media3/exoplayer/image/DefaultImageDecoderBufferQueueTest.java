@@ -42,22 +42,17 @@ public class DefaultImageDecoderBufferQueueTest {
   private Bitmap decodedBitmap1;
   private Bitmap decodedBitmap2;
 
+  public int decodeCallCount;
+
   @Before
   public void setUp() throws Exception {
+    decodeCallCount = 0;
     decodedBitmap1 = Bitmap.createBitmap(/* width= */ 1, /* height= */ 1, Bitmap.Config.ARGB_8888);
     decodedBitmap2 = Bitmap.createBitmap(/* width= */ 2, /* height= */ 2, Bitmap.Config.ARGB_8888);
     fakeImageDecoder =
-        new DefaultImageDecoder() {
-
-          public int decodeCallCount;
-
-          /** Overrides the decode method to fake it. */
-          @Override
-          protected Bitmap decode(byte[] data, int length) {
-            decodeCallCount++;
-            return decodeCallCount == 1 ? decodedBitmap1 : decodedBitmap2;
-          }
-        };
+        new DefaultImageDecoder.Factory(
+                (data, length) -> ++decodeCallCount == 1 ? decodedBitmap1 : decodedBitmap2)
+            .createImageDecoder();
   }
 
   @After

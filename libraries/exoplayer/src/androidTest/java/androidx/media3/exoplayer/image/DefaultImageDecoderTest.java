@@ -15,15 +15,18 @@
  */
 package androidx.media3.exoplayer.image;
 
+import static androidx.media3.common.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.test.utils.TestUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import java.nio.ByteBuffer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,16 +39,20 @@ public class DefaultImageDecoderTest {
   private static final String PNG_TEST_IMAGE_PATH = "media/png/non-motion-photo-shortened.png";
   private static final String JPEG_TEST_IMAGE_PATH = "media/jpeg/non-motion-photo-shortened.jpg";
 
-  private DefaultImageDecoder imageDecoder;
+  private DefaultImageDecoder decoder;
+  private DecoderInputBuffer inputBuffer;
+  private ImageOutputBuffer outputBuffer;
 
   @Before
   public void setUp() {
-    imageDecoder = new DefaultImageDecoder();
+    decoder = new DefaultImageDecoder.Factory().createImageDecoder();
+    inputBuffer = decoder.createInputBuffer();
+    outputBuffer = decoder.createOutputBuffer();
   }
 
   @After
   public void tearDown() {
-    imageDecoder.release();
+    decoder.release();
   }
 
   @Test
@@ -53,7 +60,7 @@ public class DefaultImageDecoderTest {
     byte[] imageData =
         TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), PNG_TEST_IMAGE_PATH);
 
-    Bitmap bitmap = imageDecoder.decode(imageData, imageData.length);
+    Bitmap bitmap = decode(imageData);
 
     assertThat(
             bitmap.sameAs(
@@ -79,14 +86,22 @@ public class DefaultImageDecoderTest {
             rotationMatrix,
             /* filter= */ false);
 
-    Bitmap actualBitmap = imageDecoder.decode(imageData, imageData.length);
+    Bitmap actualBitmap = decode(imageData);
 
     assertThat(actualBitmap.sameAs(expectedBitmap)).isTrue();
   }
 
   @Test
   public void decodeBitmap_withInvalidData_throws() throws ImageDecoderException {
-    assertThrows(
-        ImageDecoderException.class, () -> imageDecoder.decode(new byte[1], /* length= */ 1));
+    assertThrows(ImageDecoderException.class, () -> decode(new byte[1]));
+  }
+
+  private Bitmap decode(byte[] data) throws Exception {
+    inputBuffer.data = ByteBuffer.wrap(data);
+    Exception e = decoder.decode(inputBuffer, outputBuffer, /* reset= */ false);
+    if (e != null) {
+      throw e;
+    }
+    return checkNotNull(outputBuffer.bitmap);
   }
 }
