@@ -125,7 +125,7 @@ public final class ColorInfo implements Bundleable {
     /**
      * Sets the luma bit depth.
      *
-     * @param lumaBitdepth The lumaBitdepth.  The default value is {@link Format#NO_VALUE}.
+     * @param lumaBitdepth The lumaBitdepth. The default value is {@link Format#NO_VALUE}.
      * @return The builder.
      */
     @CanIgnoreReturnValue
@@ -148,7 +148,8 @@ public final class ColorInfo implements Bundleable {
 
     /** Builds a new {@link ColorInfo} instance. */
     public ColorInfo build() {
-      return new ColorInfo(colorSpace, colorRange, colorTransfer, hdrStaticInfo, lumaBitdepth, chromaBitdepth);
+      return new ColorInfo(
+          colorSpace, colorRange, colorTransfer, hdrStaticInfo, lumaBitdepth, chromaBitdepth);
     }
   }
 
@@ -245,6 +246,7 @@ public final class ColorInfo implements Bundleable {
 
   /** The bit depth of the luma samples of the video. */
   public final int lumaBitdepth;
+
   /** The bit depth of the chroma samples of the video. It may differ from the luma bit depth. */
   public final int chromaBitdepth;
 
@@ -286,8 +288,8 @@ public final class ColorInfo implements Bundleable {
   /**
    * Returns whether this instance is valid.
    *
-   * <p>This instance is valid if no color members are {@link Format#NO_VALUE},
-   *  while bit depths may be unset.
+   * <p>This instance is valid if no color members are {@link Format#NO_VALUE}, while bit depths may
+   * be unset.
    */
   public boolean isValid() {
     return colorSpace != Format.NO_VALUE
@@ -318,8 +320,7 @@ public final class ColorInfo implements Bundleable {
    * <p>This instance has valid bitdepths if none of them is {@link Format#NO_VALUE}.
    */
   public boolean isBppValid() {
-    return lumaBitdepth != Format.NO_VALUE
-        && chromaBitdepth != Format.NO_VALUE;
+    return lumaBitdepth != Format.NO_VALUE && chromaBitdepth != Format.NO_VALUE;
   }
 
   public String toBppString() {
