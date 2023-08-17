@@ -39,6 +39,7 @@ import androidx.media3.decoder.DecoderInputBuffer;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -347,6 +348,38 @@ import java.util.concurrent.atomic.AtomicInteger;
     sequenceAssetLoaderListener.onError(exportException);
   }
 
+  /**
+   * Given an {@link Iterator}, creates an iterator that includes all the values in the original
+   * iterator (in the same order) up to and including the first occurrence of the {@code
+   * clippingValue}.
+   */
+  private static final class ClippingIterator implements Iterator<Long> {
+
+    private final Iterator<Long> iterator;
+    private final long clippingValue;
+    private boolean hasReachedClippingValue;
+
+    public ClippingIterator(Iterator<Long> iterator, long clippingValue) {
+      this.iterator = iterator;
+      this.clippingValue = clippingValue;
+    }
+
+    @Override
+    public boolean hasNext() {
+      return !hasReachedClippingValue && iterator.hasNext();
+    }
+
+    @Override
+    public Long next() {
+      checkState(hasNext());
+      Long next = iterator.next();
+      if (clippingValue == next) {
+        hasReachedClippingValue = true;
+      }
+      return next;
+    }
+  }
+
   // Classes accessed from AssetLoader threads.
 
   private final class SampleConsumerWrapper implements SampleConsumer {
@@ -396,8 +429,6 @@ import java.util.concurrent.atomic.AtomicInteger;
       return true;
     }
 
-    // TODO(b/262693274): Test that concatenate 2 images or an image and a video works as expected
-    //  once ImageAssetLoader implementation is complete.
     @Override
     public boolean queueInputBitmap(Bitmap inputBitmap, long durationUs, int frameRate) {
       if (isLooping && totalDurationUs + durationUs > maxSequenceDurationUs) {
@@ -416,6 +447,33 @@ import java.util.concurrent.atomic.AtomicInteger;
       }
 
       return sampleConsumer.queueInputBitmap(inputBitmap, durationUs, frameRate);
+    }
+
+    @Override
+    public boolean queueInputBitmap(Bitmap inputBitmap, Iterator<Long> inStreamOffsetsUs) {
+      Iterator<Long> iteratorToUse = inStreamOffsetsUs;
+      if (isLooping) {
+        long durationLeftUs = maxSequenceDurationUs - totalDurationUs;
+        if (durationLeftUs <= 0) {
+          if (!videoLoopingEnded) {
+            videoLoopingEnded = true;
+            signalEndOfVideoInput();
+          }
+          return false;
+        }
+        while (inStreamOffsetsUs.hasNext()) {
+          long offsetUs = inStreamOffsetsUs.next();
+          if (totalDurationUs + offsetUs > maxSequenceDurationUs) {
+            if (!isMaxSequenceDurationUsFinal) {
+              return false;
+            }
+            iteratorToUse = new ClippingIterator(inStreamOffsetsUs, offsetUs);
+            videoLoopingEnded = true;
+            break;
+          }
+        }
+      }
+      return sampleConsumer.queueInputBitmap(inputBitmap, iteratorToUse);
     }
 
     @Override

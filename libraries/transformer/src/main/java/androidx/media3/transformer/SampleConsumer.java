@@ -22,6 +22,7 @@ import androidx.media3.common.ColorInfo;
 import androidx.media3.common.OnInputFrameProcessedListener;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.decoder.DecoderInputBuffer;
+import java.util.Iterator;
 
 /** Consumer of encoded media samples, raw audio or raw video frames. */
 @UnstableApi
@@ -77,7 +78,22 @@ public interface SampleConsumer {
    * @return Whether the {@link Bitmap} was successfully queued. If {@code false}, the caller should
    *     try again later.
    */
+  // TODO(b/262693274): Delete this method and usages in favor of the one below (Note it is not
+  //   deprecated because transformer still relies on this method for frame duplication).
   default boolean queueInputBitmap(Bitmap inputBitmap, long durationUs, int frameRate) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Attempts to provide an input {@link Bitmap} to the consumer.
+   *
+   * <p>Should only be used for image data.
+   *
+   * @param inputBitmap The {@link Bitmap} to queue to the consumer.
+   * @param inStreamOffsetsUs The times within the current stream that the bitmap should be
+   *     displayed at. The timestamps should be monotonically increasing.
+   */
+  default boolean queueInputBitmap(Bitmap inputBitmap, Iterator<Long> inStreamOffsetsUs) {
     throw new UnsupportedOperationException();
   }
 
