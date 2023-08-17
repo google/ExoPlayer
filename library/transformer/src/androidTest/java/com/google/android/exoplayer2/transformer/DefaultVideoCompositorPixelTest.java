@@ -18,7 +18,7 @@ package com.google.android.exoplayer2.transformer;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.maybeSaveTestBitmap;
-import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.readBitmap;
+import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.readBitmapUnpremultipliedAlpha;
 import static com.google.android.exoplayer2.testutil.VideoFrameProcessorTestRunner.VIDEO_FRAME_PROCESSING_WAIT_MS;
 import static com.google.android.exoplayer2.util.Util.SDK_INT;
 import static com.google.common.truth.Truth.assertThat;
@@ -474,7 +474,7 @@ public final class DefaultVideoCompositorPixelTest {
                 }
                 outputTimestampsToBitmaps.put(
                     presentationTimeUs,
-                    BitmapPixelTestUtil.createArgb8888BitmapFromFocusedGlFramebuffer(
+                    BitmapPixelTestUtil.createUnpremultipliedArgb8888BitmapFromFocusedGlFramebuffer(
                         outputTexture.width, outputTexture.height));
                 releaseOutputTextureCallback.release(presentationTimeUs);
               },
@@ -519,7 +519,7 @@ public final class DefaultVideoCompositorPixelTest {
       inputVideoFrameProcessorTestRunners
           .get(inputId)
           .queueInputBitmap(
-              readBitmap(ORIGINAL_PNG_ASSET_PATH),
+              readBitmapUnpremultipliedAlpha(ORIGINAL_PNG_ASSET_PATH),
               /* durationUs= */ durationSec * C.MICROS_PER_SECOND,
               /* offsetToAddUs= */ offsetToAddSec * C.MICROS_PER_SECOND,
               /* frameRate= */ frameRate);
@@ -613,7 +613,8 @@ public final class DefaultVideoCompositorPixelTest {
                           releaseOutputTextureCallback,
                       long syncObject) -> {
                     GlUtil.awaitSyncObject(syncObject);
-                    textureBitmapReader.readBitmap(outputTexture, presentationTimeUs);
+                    textureBitmapReader.readBitmapUnpremultipliedAlpha(
+                        outputTexture, presentationTimeUs);
                     videoCompositor.queueInputTexture(
                         inputId, outputTexture, presentationTimeUs, releaseOutputTextureCallback);
                   },
@@ -703,7 +704,7 @@ public final class DefaultVideoCompositorPixelTest {
     maybeSaveTestBitmap(testId, actualBitmapLabel, actualBitmap, /* path= */ null);
     float averagePixelAbsoluteDifference =
         BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceArgb8888(
-            readBitmap(expectedBitmapAssetPath), actualBitmap, testId);
+            readBitmapUnpremultipliedAlpha(expectedBitmapAssetPath), actualBitmap, testId);
     assertWithMessage("Pixel difference for bitmapLabel = " + actualBitmapLabel)
         .that(averagePixelAbsoluteDifference)
         .isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_WITH_OVERLAY);
