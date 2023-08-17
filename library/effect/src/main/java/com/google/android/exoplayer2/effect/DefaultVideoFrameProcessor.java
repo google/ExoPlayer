@@ -676,6 +676,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             /* outputColorInfo= */ linearColorInfo,
             glObjectsProvider,
             videoFrameProcessingTaskExecutor,
+            /* errorListenerExecutor= */ videoFrameProcessorListenerExecutor,
+            /* samplingShaderProgramErrorListener= */ listener::onError,
             enableColorTransfers);
 
     FinalShaderProgramWrapper finalShaderProgramWrapper =
