@@ -1022,7 +1022,7 @@ public class MatroskaExtractor implements Extractor {
       case ID_COLOUR_BITS_PER_CHANNEL:
         assertInTrackEntry(id);
         currentTrack.hasColorInfo = true;
-        currentTrack.bitsPerChannel = (int)value;
+        currentTrack.bitsPerChannel = (int) value;
         break;
       case ID_COLOUR_RANGE:
         assertInTrackEntry(id);
@@ -2308,7 +2308,14 @@ public class MatroskaExtractor implements Extractor {
         @Nullable ColorInfo colorInfo = null;
         if (hasColorInfo) {
           @Nullable byte[] hdrStaticInfo = getHdrStaticInfo();
-          colorInfo = new ColorInfo(colorSpace, colorRange, colorTransfer, hdrStaticInfo, bitsPerChannel, bitsPerChannel);
+          colorInfo =
+              new ColorInfo(
+                  colorSpace,
+                  colorRange,
+                  colorTransfer,
+                  hdrStaticInfo,
+                  bitsPerChannel,
+                  bitsPerChannel);
         }
         int rotationDegrees = Format.NO_VALUE;
 
