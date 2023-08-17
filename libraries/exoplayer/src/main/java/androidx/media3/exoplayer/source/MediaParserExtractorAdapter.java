@@ -36,7 +36,9 @@ import androidx.media3.exoplayer.source.mediaparser.OutputConsumerAdapterV30;
 import androidx.media3.extractor.Extractor;
 import androidx.media3.extractor.ExtractorOutput;
 import androidx.media3.extractor.PositionHolder;
+import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,18 +48,54 @@ import java.util.Map;
 public final class MediaParserExtractorAdapter implements ProgressiveMediaExtractor {
 
   /**
-   * A {@link ProgressiveMediaExtractor.Factory} for instances of this class, which rely on platform
-   * extractors through {@link MediaParser}.
+   * @deprecated Use {@link MediaParserExtractorAdapter.Factory} instead.
    */
-  public static final ProgressiveMediaExtractor.Factory FACTORY = MediaParserExtractorAdapter::new;
+  @Deprecated
+  public static final ProgressiveMediaExtractor.Factory FACTORY =
+      playerId -> new MediaParserExtractorAdapter(playerId, ImmutableMap.of());
+
+  /**
+   * A {@link ProgressiveMediaExtractor.Factory} for instances of {@link
+   * MediaParserExtractorAdapter}.
+   */
+  public static final class Factory implements ProgressiveMediaExtractor.Factory {
+
+    private static final Map<String, Object> parameters = new HashMap<>();
+
+    /** Enables constant bitrate seeking for formats where it's supported by MediaParser. */
+    public void setConstantBitrateSeekingEnabled(boolean enabled) {
+      if (enabled) {
+        parameters.put(MediaParser.PARAMETER_ADTS_ENABLE_CBR_SEEKING, true);
+        parameters.put(MediaParser.PARAMETER_AMR_ENABLE_CBR_SEEKING, true);
+        parameters.put(MediaParser.PARAMETER_MP3_ENABLE_CBR_SEEKING, true);
+      } else {
+        parameters.remove(MediaParser.PARAMETER_ADTS_ENABLE_CBR_SEEKING);
+        parameters.remove(MediaParser.PARAMETER_AMR_ENABLE_CBR_SEEKING);
+        parameters.remove(MediaParser.PARAMETER_MP3_ENABLE_CBR_SEEKING);
+      }
+    }
+
+    @Override
+    public MediaParserExtractorAdapter createProgressiveMediaExtractor(PlayerId playerId) {
+      return new MediaParserExtractorAdapter(playerId, parameters);
+    }
+  }
 
   private final OutputConsumerAdapterV30 outputConsumerAdapter;
   private final InputReaderAdapterV30 inputReaderAdapter;
   private final MediaParser mediaParser;
   private String parserName;
 
-  @SuppressLint("WrongConstant")
+  /**
+   * @deprecated Use {@link MediaParserExtractorAdapter.Factory} instead.
+   */
+  @Deprecated
   public MediaParserExtractorAdapter(PlayerId playerId) {
+    this(playerId, ImmutableMap.of());
+  }
+
+  @SuppressLint("WrongConstant")
+  private MediaParserExtractorAdapter(PlayerId playerId, Map<String, Object> parameters) {
     // TODO: Add support for injecting the desired extractor list.
     outputConsumerAdapter = new OutputConsumerAdapterV30();
     inputReaderAdapter = new InputReaderAdapterV30();
@@ -65,6 +103,9 @@ public final class MediaParserExtractorAdapter implements ProgressiveMediaExtrac
     mediaParser.setParameter(PARAMETER_EAGERLY_EXPOSE_TRACK_TYPE, true);
     mediaParser.setParameter(PARAMETER_IN_BAND_CRYPTO_INFO, true);
     mediaParser.setParameter(PARAMETER_INCLUDE_SUPPLEMENTAL_DATA, true);
+    for (Map.Entry<String, Object> parameter : parameters.entrySet()) {
+      mediaParser.setParameter(parameter.getKey(), parameter.getValue());
+    }
     parserName = MediaParser.PARSER_NAME_UNKNOWN;
     if (Util.SDK_INT >= 31) {
       MediaParserUtil.setLogSessionIdOnMediaParser(mediaParser, playerId);

@@ -62,8 +62,9 @@ public final class ProgressiveMediaPeriodTest {
   @Test
   public void prepareUsingMediaParser_updatesSourceInfoBeforeOnPreparedCallback()
       throws TimeoutException {
-    testExtractorsUpdatesSourceInfoBeforeOnPreparedCallback(
-        new MediaParserExtractorAdapter(PlayerId.UNSET), C.TIME_UNSET);
+    MediaParserExtractorAdapter extractor =
+        new MediaParserExtractorAdapter.Factory().createProgressiveMediaExtractor(PlayerId.UNSET);
+    testExtractorsUpdatesSourceInfoBeforeOnPreparedCallback(extractor, C.TIME_UNSET);
   }
 
   private static void testExtractorsUpdatesSourceInfoBeforeOnPreparedCallback(
