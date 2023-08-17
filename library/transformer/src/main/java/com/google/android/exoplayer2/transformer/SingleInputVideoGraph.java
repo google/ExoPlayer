@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
@@ -178,6 +179,12 @@ import java.util.concurrent.atomic.AtomicLong;
   @Override
   public boolean queueInputBitmap(Bitmap inputBitmap, long durationUs, int frameRate) {
     videoFrameProcessor.queueInputBitmap(inputBitmap, durationUs, frameRate);
+    return true;
+  }
+
+  @Override
+  public boolean queueInputBitmap(Bitmap inputBitmap, Iterator<Long> inStreamOffsetsUs) {
+    videoFrameProcessor.queueInputBitmap(inputBitmap, inStreamOffsetsUs);
     return true;
   }
 
