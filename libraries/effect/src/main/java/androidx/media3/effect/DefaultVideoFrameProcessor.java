@@ -253,9 +253,9 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
         throws VideoFrameProcessingException {
       // TODO(b/261188041) Add tests to verify the Listener is invoked on the given Executor.
 
-      checkArgument(inputColorInfo.isColorValid());
+      checkArgument(inputColorInfo.isDataSpaceValid());
       checkArgument(inputColorInfo.colorTransfer != C.COLOR_TRANSFER_LINEAR);
-      checkArgument(outputColorInfo.isColorValid());
+      checkArgument(outputColorInfo.isDataSpaceValid());
       checkArgument(outputColorInfo.colorTransfer != C.COLOR_TRANSFER_LINEAR);
       if (ColorInfo.isTransferHdr(inputColorInfo) || ColorInfo.isTransferHdr(outputColorInfo)) {
         checkArgument(enableColorTransfers);

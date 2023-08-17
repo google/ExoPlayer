@@ -288,10 +288,10 @@ public final class ColorInfo implements Bundleable {
   /**
    * Returns whether this instance is valid.
    *
-   * <p>This instance is valid if at least one between bitdepths and color info are valid.
+   * <p>This instance is valid if at least one between bitdepths and DataSpace info are valid.
    */
   public boolean isValid() {
-    return isBitdepthValid() || isColorValid();
+    return isBitdepthValid() || isDataSpaceValid();
   }
 
   /**
@@ -304,11 +304,11 @@ public final class ColorInfo implements Bundleable {
   }
 
   /**
-   * Returns whether this instance is color valid.
+   * Returns whether this instance has valid DataSpace members.
    *
-   * <p>This instance is valid if no color members are {@link Format#NO_VALUE}.
+   * <p>This instance is valid if no DataSpace members are {@link Format#NO_VALUE}.
    */
-  public boolean isColorValid() {
+  public boolean isDataSpaceValid() {
     return colorSpace != Format.NO_VALUE
         && colorRange != Format.NO_VALUE
         && colorTransfer != Format.NO_VALUE;
@@ -325,11 +325,11 @@ public final class ColorInfo implements Bundleable {
     }
 
     String bitdepthsString = isBitdepthValid() ? lumaBitdepth + "/" + chromaBitdepth : "NA";
-    String colorString = isColorValid() ? Util.formatInvariant("%s/%s/%s",
+    String dataspaceString = isDataSpaceValid() ? Util.formatInvariant("%s/%s/%s",
         colorSpaceToString(colorSpace),
         colorRangeToString(colorRange),
         colorTransferToString(colorTransfer)) : "NA";
-    return bitdepthsString + "/" + colorString;
+    return bitdepthsString + "/" + dataspaceString;
   }
 
   @Override
