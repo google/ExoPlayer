@@ -460,7 +460,7 @@ import java.util.List;
   @Override
   public void drawFrame(int inputTexId, long presentationTimeUs)
       throws VideoFrameProcessingException {
-    updateCompositeRgbaMatrixArray(presentationTimeUs);
+    updateCompositeRgbMatrixArray(presentationTimeUs);
     updateCompositeTransformationMatrixAndVisiblePolygon(presentationTimeUs);
     if (visiblePolygon.size() < 3) {
       return; // Need at least three visible vertices for a triangle.
@@ -562,7 +562,7 @@ import java.util.List;
   }
 
   /** Updates {@link #compositeRgbMatrixArray} based on the given frame timestamp. */
-  private void updateCompositeRgbaMatrixArray(long presentationTimeUs) {
+  private void updateCompositeRgbMatrixArray(long presentationTimeUs) {
     float[][] matricesCurrTimestamp = new float[rgbMatrices.size()][16];
     for (int i = 0; i < rgbMatrices.size(); i++) {
       matricesCurrTimestamp[i] = rgbMatrices.get(i).getMatrix(presentationTimeUs, useHdr);
