@@ -16,12 +16,14 @@
 
 package androidx.media3.test.utils;
 
+import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.view.Surface;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.GlUtil;
@@ -35,6 +37,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * {@inheritDoc}
  *
  * <p>Reads from an OpenGL texture. Only for use on physical devices.
+ *
+ * <p>For images with alpha, this method incorrectly marks the output Bitmap as {@link
+ * Bitmap#isPremultiplied() premultiplied}, even though OpenGL typically outputs only
+ * non-premultiplied alpha.
  */
 @UnstableApi
 public final class TextureBitmapReader implements VideoFrameProcessorTestRunner.BitmapReader {
@@ -75,8 +81,18 @@ public final class TextureBitmapReader implements VideoFrameProcessorTestRunner.
   /**
    * Reads the given {@code outputTexture}.
    *
-   * <p>The read result can be fetched by calling one of me {@link #getBitmap} methods.
+   * <p>The read result can be fetched by calling one of the {@link #getBitmap} methods.
+   *
+   * <p>This implementation incorrectly marks the output Bitmap as {@link Bitmap#isPremultiplied()
+   * premultiplied}, even though OpenGL typically outputs only non-premultiplied alpha. Use {@link
+   * #readBitmapUnpremultipliedAlpha} to properly handle alpha.
    */
+  // TODO: b/295523484 - In createBitmapFromCurrentGlFrameBuffer, call
+  //  createUnpremultipliedArgb8888BitmapFromFocusedGlFramebuffer instead of
+  //  createArgb8888BitmapFromFocusedGlFramebuffer, so that TextureBitmapReader always reads bitmaps
+  //  as unpremultiplied alpha. Then, remove this method (as we'll already be using premultiplied
+  //  alpha).
+  @RequiresApi(17) // BitmapPixelTestUtil#createArgb8888BitmapFromFocusedGlFramebuffer.
   public void readBitmap(GlTextureInfo outputTexture, long presentationTimeUs)
       throws VideoFrameProcessingException {
     try {
@@ -91,6 +107,28 @@ public final class TextureBitmapReader implements VideoFrameProcessorTestRunner.
     }
   }
 
+  /**
+   * Reads the given {@code outputTexture} as one with unpremultiplied alpha.
+   *
+   * <p>The read result can be fetched by calling one of the {@link #getBitmap} methods.
+   */
+  @RequiresApi(19) // BitmapPixelTestUtil#createArgb8888BitmapFromFocusedGlFramebuffer.
+  public void readBitmapUnpremultipliedAlpha(GlTextureInfo outputTexture, long presentationTimeUs)
+      throws VideoFrameProcessingException {
+    checkState(!useHighPrecisionColorComponents);
+    try {
+      GlUtil.focusFramebufferUsingCurrentContext(
+          outputTexture.fboId, outputTexture.width, outputTexture.height);
+      outputBitmap =
+          BitmapPixelTestUtil.createUnpremultipliedArgb8888BitmapFromFocusedGlFramebuffer(
+              outputTexture.width, outputTexture.height);
+      outputTimestampsToBitmaps.put(presentationTimeUs, outputBitmap);
+    } catch (GlUtil.GlException e) {
+      throw new VideoFrameProcessingException(e);
+    }
+  }
+
+  @RequiresApi(17) // BitmapPixelTestUtil#createArgb8888BitmapFromFocusedGlFramebuffer.
   private static Bitmap createBitmapFromCurrentGlFrameBuffer(
       int width, int height, boolean useHighPrecisionColorComponents) throws GlUtil.GlException {
     if (!useHighPrecisionColorComponents) {

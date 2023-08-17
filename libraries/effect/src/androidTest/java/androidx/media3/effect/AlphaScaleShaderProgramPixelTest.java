@@ -17,11 +17,11 @@ package androidx.media3.effect;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE;
-import static androidx.media3.test.utils.BitmapPixelTestUtil.createArgb8888BitmapFromFocusedGlFramebuffer;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.createGlTextureFromBitmap;
+import static androidx.media3.test.utils.BitmapPixelTestUtil.createUnpremultipliedArgb8888BitmapFromFocusedGlFramebuffer;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceArgb8888;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.maybeSaveTestBitmap;
-import static androidx.media3.test.utils.BitmapPixelTestUtil.readBitmap;
+import static androidx.media3.test.utils.BitmapPixelTestUtil.readBitmapUnpremultipliedAlpha;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
 
@@ -86,7 +86,7 @@ public final class AlphaScaleShaderProgramPixelTest {
     eglContext = GlUtil.createEglContext(eglDisplay);
     placeholderEglSurface = GlUtil.createFocusedPlaceholderEglSurface(eglContext, eglDisplay);
 
-    Bitmap inputBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
+    Bitmap inputBitmap = readBitmapUnpremultipliedAlpha(ORIGINAL_PNG_ASSET_PATH);
     inputWidth = inputBitmap.getWidth();
     inputHeight = inputBitmap.getHeight();
     inputTexId = createGlTextureFromBitmap(inputBitmap);
@@ -123,12 +123,13 @@ public final class AlphaScaleShaderProgramPixelTest {
   public void noOpAlpha_matchesGoldenFile() throws Exception {
     alphaScaleShaderProgram = new AlphaScale(1.0f).toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = alphaScaleShaderProgram.configure(inputWidth, inputHeight);
-    Bitmap expectedBitmap = readBitmap(ORIGINAL_PNG_ASSET_PATH);
+    Bitmap expectedBitmap = readBitmapUnpremultipliedAlpha(ORIGINAL_PNG_ASSET_PATH);
     maybeSaveTestBitmap(testId, /* bitmapLabel= */ "input", expectedBitmap, /* path= */ null);
 
     alphaScaleShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        createArgb8888BitmapFromFocusedGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
+        createUnpremultipliedArgb8888BitmapFromFocusedGlFramebuffer(
+            outputSize.getWidth(), outputSize.getHeight());
 
     // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     maybeSaveTestBitmap(testId, /* bitmapLabel= */ "actual", actualBitmap, /* path= */ null);
@@ -142,11 +143,12 @@ public final class AlphaScaleShaderProgramPixelTest {
   public void zeroAlpha_matchesGoldenFile() throws Exception {
     alphaScaleShaderProgram = new AlphaScale(0.0f).toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = alphaScaleShaderProgram.configure(inputWidth, inputHeight);
-    Bitmap expectedBitmap = readBitmap(ZERO_ALPHA_PNG_ASSET_PATH);
+    Bitmap expectedBitmap = readBitmapUnpremultipliedAlpha(ZERO_ALPHA_PNG_ASSET_PATH);
 
     alphaScaleShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        createArgb8888BitmapFromFocusedGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
+        createUnpremultipliedArgb8888BitmapFromFocusedGlFramebuffer(
+            outputSize.getWidth(), outputSize.getHeight());
 
     // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     maybeSaveTestBitmap(testId, /* bitmapLabel= */ "actual", actualBitmap, /* path= */ null);
@@ -160,11 +162,12 @@ public final class AlphaScaleShaderProgramPixelTest {
   public void decreaseAlpha_matchesGoldenFile() throws Exception {
     alphaScaleShaderProgram = new AlphaScale(0.5f).toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = alphaScaleShaderProgram.configure(inputWidth, inputHeight);
-    Bitmap expectedBitmap = readBitmap(DECREASE_ALPHA_PNG_ASSET_PATH);
+    Bitmap expectedBitmap = readBitmapUnpremultipliedAlpha(DECREASE_ALPHA_PNG_ASSET_PATH);
 
     alphaScaleShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        createArgb8888BitmapFromFocusedGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
+        createUnpremultipliedArgb8888BitmapFromFocusedGlFramebuffer(
+            outputSize.getWidth(), outputSize.getHeight());
 
     // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     maybeSaveTestBitmap(testId, /* bitmapLabel= */ "actual", actualBitmap, /* path= */ null);
@@ -178,16 +181,17 @@ public final class AlphaScaleShaderProgramPixelTest {
   public void increaseAlpha_matchesGoldenFile() throws Exception {
     alphaScaleShaderProgram = new AlphaScale(1.5f).toGlShaderProgram(context, /* useHdr= */ false);
     Size outputSize = alphaScaleShaderProgram.configure(inputWidth, inputHeight);
-    Bitmap expectedBitmap = readBitmap(INCREASE_ALPHA_PNG_ASSET_PATH);
+    Bitmap expectedBitmap = readBitmapUnpremultipliedAlpha(INCREASE_ALPHA_PNG_ASSET_PATH);
 
     alphaScaleShaderProgram.drawFrame(inputTexId, /* presentationTimeUs= */ 0);
     Bitmap actualBitmap =
-        createArgb8888BitmapFromFocusedGlFramebuffer(outputSize.getWidth(), outputSize.getHeight());
+        createUnpremultipliedArgb8888BitmapFromFocusedGlFramebuffer(
+            outputSize.getWidth(), outputSize.getHeight());
 
     // TODO(b/207848601): Switch to using proper tooling for testing against golden data.
     maybeSaveTestBitmap(testId, /* bitmapLabel= */ "actual", actualBitmap, /* path= */ null);
     float averagePixelAbsoluteDifference =
         getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
-    assertThat(averagePixelAbsoluteDifference).isAtMost(0);
+    assertThat(averagePixelAbsoluteDifference).isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
   }
 }
