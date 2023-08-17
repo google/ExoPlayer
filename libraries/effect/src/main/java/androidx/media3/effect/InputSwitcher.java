@@ -35,6 +35,7 @@ import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
 import com.google.common.collect.ImmutableList;
+import java.util.concurrent.Executor;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
@@ -46,6 +47,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final ColorInfo outputColorInfo;
   private final GlObjectsProvider glObjectsProvider;
   private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
+  private final GlShaderProgram.ErrorListener samplingShaderProgramErrorListener;
+  private final Executor errorListenerExecutor;
   private final SparseArray<Input> inputs;
   private final boolean enableColorTransfers;
 
@@ -57,11 +60,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       ColorInfo outputColorInfo,
       GlObjectsProvider glObjectsProvider,
       VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor,
+      Executor errorListenerExecutor,
+      GlShaderProgram.ErrorListener samplingShaderProgramErrorListener,
       boolean enableColorTransfers) {
     this.context = context;
     this.outputColorInfo = outputColorInfo;
     this.glObjectsProvider = glObjectsProvider;
     this.videoFrameProcessingTaskExecutor = videoFrameProcessingTaskExecutor;
+    this.errorListenerExecutor = errorListenerExecutor;
+    this.samplingShaderProgramErrorListener = samplingShaderProgramErrorListener;
     this.inputs = new SparseArray<>();
     this.enableColorTransfers = enableColorTransfers;
   }
@@ -98,6 +105,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 inputColorInfo,
                 outputColorInfo,
                 enableColorTransfers);
+        samplingShaderProgram.setErrorListener(
+            errorListenerExecutor, samplingShaderProgramErrorListener);
         textureManager =
             new ExternalTextureManager(
                 glObjectsProvider, samplingShaderProgram, videoFrameProcessingTaskExecutor);
@@ -113,6 +122,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 outputColorInfo,
                 enableColorTransfers,
                 inputType);
+        samplingShaderProgram.setErrorListener(
+            errorListenerExecutor, samplingShaderProgramErrorListener);
         textureManager =
             new BitmapTextureManager(
                 glObjectsProvider, samplingShaderProgram, videoFrameProcessingTaskExecutor);
@@ -128,6 +139,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 outputColorInfo,
                 enableColorTransfers,
                 inputType);
+        samplingShaderProgram.setErrorListener(
+            errorListenerExecutor, samplingShaderProgramErrorListener);
         textureManager =
             new TexIdTextureManager(
                 glObjectsProvider, samplingShaderProgram, videoFrameProcessingTaskExecutor);
