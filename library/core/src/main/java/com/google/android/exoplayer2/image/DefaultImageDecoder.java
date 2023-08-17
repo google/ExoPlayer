@@ -49,13 +49,27 @@ import java.nio.ByteBuffer;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-public class DefaultImageDecoder
+public final class DefaultImageDecoder
     extends SimpleDecoder<DecoderInputBuffer, ImageOutputBuffer, ImageDecoderException>
     implements ImageDecoder {
 
+  /** A functional interface for turning byte arrays into bitmaps. */
+  public interface BitmapDecoder {
+
+    /**
+     * Decodes data into a {@link Bitmap}.
+     *
+     * @param data An array holding the data to be decoded, starting at position 0.
+     * @param length The length of the input to be decoded.
+     * @return The decoded {@link Bitmap}.
+     * @throws ImageDecoderException If a decoding error occurs.
+     */
+    Bitmap decode(byte[] data, int length) throws ImageDecoderException;
+  }
+
   /** A factory for {@link DefaultImageDecoder} instances. */
   public static final class Factory implements ImageDecoder.Factory {
-
+    private final BitmapDecoder bitmapDecoder;
     private static final ImmutableSet<String> SUPPORTED_IMAGE_TYPES =
         ImmutableSet.of(
             MimeTypes.IMAGE_PNG,
@@ -63,6 +77,22 @@ public class DefaultImageDecoder
             MimeTypes.IMAGE_BMP,
             MimeTypes.IMAGE_HEIF,
             MimeTypes.IMAGE_WEBP);
+
+    /**
+     * Creates an instance using a {@link BitmapFactory} implementation of {@link BitmapDecoder}.
+     */
+    public Factory() {
+      this.bitmapDecoder = DefaultImageDecoder::decode;
+    }
+
+    /**
+     * Creates an instance.
+     *
+     * @param bitmapDecoder The {@link BitmapDecoder} used to turn a byte arrays into a bitmap.
+     */
+    public Factory(BitmapDecoder bitmapDecoder) {
+      this.bitmapDecoder = bitmapDecoder;
+    }
 
     @Override
     public @RendererCapabilities.Capabilities int supportsFormat(Format format) {
@@ -79,13 +109,15 @@ public class DefaultImageDecoder
 
     @Override
     public DefaultImageDecoder createImageDecoder() {
-      return new DefaultImageDecoder();
+      return new DefaultImageDecoder(bitmapDecoder);
     }
   }
 
-  /** Creates an instance. */
-  public DefaultImageDecoder() {
+  private final BitmapDecoder bitmapDecoder;
+
+  private DefaultImageDecoder(BitmapDecoder bitmapDecoder) {
     super(new DecoderInputBuffer[1], new ImageOutputBuffer[1]);
+    this.bitmapDecoder = bitmapDecoder;
   }
 
   @Override
@@ -121,7 +153,7 @@ public class DefaultImageDecoder
       ByteBuffer inputData = checkNotNull(inputBuffer.data);
       checkState(inputData.hasArray());
       checkArgument(inputData.arrayOffset() == 0);
-      outputBuffer.bitmap = decode(inputData.array(), inputData.remaining());
+      outputBuffer.bitmap = bitmapDecoder.decode(inputData.array(), inputData.remaining());
       outputBuffer.timeUs = inputBuffer.timeUs;
       return null;
     } catch (ImageDecoderException e) {
@@ -137,7 +169,7 @@ public class DefaultImageDecoder
    * @return The decoded {@link Bitmap}.
    * @throws ImageDecoderException If a decoding error occurs.
    */
-  /* package */ Bitmap decode(byte[] data, int length) throws ImageDecoderException {
+  private static Bitmap decode(byte[] data, int length) throws ImageDecoderException {
     @Nullable Bitmap bitmap = BitmapFactory.decodeByteArray(data, /* offset= */ 0, length);
     if (bitmap == null) {
       throw new ImageDecoderException(
