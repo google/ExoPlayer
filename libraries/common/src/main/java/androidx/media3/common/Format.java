@@ -1260,7 +1260,7 @@ public final class Format implements Bundleable {
       builder.append(", res=").append(format.width).append("x").append(format.height);
     }
     if (format.colorInfo != null && format.colorInfo.isValid()) {
-      builder.append(", color=").append(format.colorInfo.toColorString());
+      builder.append(", color=").append(format.colorInfo.toLogString());
     }
     if (format.frameRate != NO_VALUE) {
       builder.append(", fps=").append(format.frameRate);

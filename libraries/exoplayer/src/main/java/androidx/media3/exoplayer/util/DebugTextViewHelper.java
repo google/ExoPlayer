@@ -189,10 +189,7 @@ public class DebugTextViewHelper {
   }
 
   private static String getColorInfoString(@Nullable ColorInfo colorInfo) {
-    return colorInfo != null
-        ? (colorInfo.isBppValid() ? " b:" + colorInfo.toBppString() : "")
-            + (colorInfo.isValid() ? " colr:" + colorInfo.toColorString() : "")
-        : "";
+    return colorInfo != null && colorInfo.isValid() ? " colr:" + colorInfo.toLogString() : "";
   }
 
   private static String getPixelAspectRatioString(float pixelAspectRatio) {

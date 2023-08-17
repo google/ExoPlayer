@@ -288,10 +288,27 @@ public final class ColorInfo implements Bundleable {
   /**
    * Returns whether this instance is valid.
    *
-   * <p>This instance is valid if no color members are {@link Format#NO_VALUE}, while bit depths may
-   * be unset.
+   * <p>This instance is valid if at least one between bitdepths and color info are valid.
    */
   public boolean isValid() {
+    return isBitdepthValid() || isColorValid();
+  }
+
+  /**
+   * Returns whether this instance has valid bitdepths.
+   *
+   * <p>This instance has valid bitdepths if none of them is {@link Format#NO_VALUE}.
+   */
+  public boolean isBitdepthValid() {
+    return lumaBitdepth != Format.NO_VALUE && chromaBitdepth != Format.NO_VALUE;
+  }
+
+  /**
+   * Returns whether this instance is color valid.
+   *
+   * <p>This instance is valid if no color members are {@link Format#NO_VALUE}.
+   */
+  public boolean isColorValid() {
     return colorSpace != Format.NO_VALUE
         && colorRange != Format.NO_VALUE
         && colorTransfer != Format.NO_VALUE;
@@ -302,29 +319,17 @@ public final class ColorInfo implements Bundleable {
    *
    * @see Format#toLogString(Format)
    */
-  public String toColorString() {
+  public String toLogString() {
     if (!isValid()) {
       return "NA";
     }
 
-    return Util.formatInvariant(
-        "%s/%s/%s",
+    String bitdepthsString = isBitdepthValid() ? lumaBitdepth + "/" + chromaBitdepth : "NA";
+    String colorString = isColorValid() ? Util.formatInvariant("%s/%s/%s",
         colorSpaceToString(colorSpace),
         colorRangeToString(colorRange),
-        colorTransferToString(colorTransfer));
-  }
-
-  /**
-   * Returns whether this instance has valid bitdepths.
-   *
-   * <p>This instance has valid bitdepths if none of them is {@link Format#NO_VALUE}.
-   */
-  public boolean isBppValid() {
-    return lumaBitdepth != Format.NO_VALUE && chromaBitdepth != Format.NO_VALUE;
-  }
-
-  public String toBppString() {
-    return isBppValid() ? lumaBitdepth + "," + chromaBitdepth : "NA";
+        colorTransferToString(colorTransfer)) : "NA";
+    return bitdepthsString + "/" + colorString;
   }
 
   @Override
@@ -347,9 +352,9 @@ public final class ColorInfo implements Bundleable {
   @Override
   public String toString() {
     return "ColorInfo("
-        + lumaBitdepth
+        + lumaBitdepthToString(lumaBitdepth)
         + ", "
-        + chromaBitdepth
+        + chromaBitdepthToString(chromaBitdepth)
         + ", "
         + colorSpaceToString(colorSpace)
         + ", "
@@ -359,6 +364,14 @@ public final class ColorInfo implements Bundleable {
         + ", "
         + (hdrStaticInfo != null)
         + ")";
+  }
+
+  private static String lumaBitdepthToString(int val) {
+    return val != Format.NO_VALUE ? val + "bit Luma" : "NA";
+  }
+
+  private static String chromaBitdepthToString(int val) {
+    return val != Format.NO_VALUE ? val + "bit Chroma" : "NA";
   }
 
   private static String colorSpaceToString(@C.ColorSpace int colorSpace) {
