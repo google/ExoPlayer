@@ -36,6 +36,7 @@ def addMissingAarTypeToXml(xml) {
         "androidx.appcompat:appcompat",
         "androidx.core:core",
         "androidx.core:core-ktx",
+        "androidx.exifinterface:exifinterface",
         "androidx.leanback:leanback",
         "androidx.media:media",
         "androidx.media2:media2-session",
