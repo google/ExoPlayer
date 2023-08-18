@@ -71,7 +71,7 @@ public final class DefaultVideoCompositor implements VideoCompositor {
   private static final String THREAD_NAME = "Effect:DefaultVideoCompositor:GlThread";
   private static final String TAG = "DefaultVideoCompositor";
   private static final String VERTEX_SHADER_PATH = "shaders/vertex_shader_transformation_es2.glsl";
-  private static final String FRAGMENT_SHADER_PATH = "shaders/fragment_shader_compositor_es2.glsl";
+  private static final String FRAGMENT_SHADER_PATH = "shaders/fragment_shader_copy_es2.glsl";
   private static final int PRIMARY_INPUT_ID = 0;
 
   private final Context context;
@@ -394,6 +394,8 @@ public final class DefaultVideoCompositor implements VideoCompositor {
           "aFramePosition",
           GlUtil.getNormalizedCoordinateBounds(),
           GlUtil.HOMOGENEOUS_COORDINATE_VECTOR_SIZE);
+      glProgram.setFloatsUniform("uTexTransformationMatrix", GlUtil.create4x4IdentityMatrix());
+      glProgram.setFloatsUniform("uTransformationMatrix", GlUtil.create4x4IdentityMatrix());
     } catch (IOException e) {
       throw new VideoFrameProcessingException(e);
     }
@@ -408,16 +410,33 @@ public final class DefaultVideoCompositor implements VideoCompositor {
 
     GlProgram glProgram = checkNotNull(this.glProgram);
     glProgram.use();
-    glProgram.setSamplerTexIdUniform("uTexSampler1", inputTexture1.texId, /* texUnitIndex= */ 0);
-    glProgram.setSamplerTexIdUniform("uTexSampler2", inputTexture2.texId, /* texUnitIndex= */ 1);
 
-    glProgram.setFloatsUniform("uTexTransformationMatrix", GlUtil.create4x4IdentityMatrix());
-    glProgram.setFloatsUniform("uTransformationMatrix", GlUtil.create4x4IdentityMatrix());
-    glProgram.setBufferAttribute(
-        "aFramePosition",
-        GlUtil.getNormalizedCoordinateBounds(),
-        GlUtil.HOMOGENEOUS_COORDINATE_VECTOR_SIZE);
+    // Setup for blending.
+    GLES20.glEnable(GLES20.GL_BLEND);
+    // Similar to:
+    // dst.rgb = src.rgb * src.a + dst.rgb * (1 - src.a)
+    // dst.a   = src.a           + dst.a   * (1 - src.a)
+    GLES20.glBlendFuncSeparate(
+        /* srcRGB= */ GLES20.GL_SRC_ALPHA,
+        /* dstRGB= */ GLES20.GL_ONE_MINUS_SRC_ALPHA,
+        /* srcAlpha= */ GLES20.GL_ONE,
+        /* dstAlpha= */ GLES20.GL_ONE_MINUS_SRC_ALPHA);
+    GlUtil.checkGlError();
+
+    // Draw textures from back to front.
+    blendOntoFocusedTexture(inputTexture2.texId);
+    blendOntoFocusedTexture(inputTexture1.texId);
+
+    GLES20.glDisable(GLES20.GL_BLEND);
+
+    GlUtil.checkGlError();
+  }
+
+  private void blendOntoFocusedTexture(int texId) throws GlUtil.GlException {
+    GlProgram glProgram = checkNotNull(this.glProgram);
+    glProgram.setSamplerTexIdUniform("uTexSampler", texId, /* texUnitIndex= */ 0);
     glProgram.bindAttributesAndUniforms();
+
     // The four-vertex triangle strip forms a quad.
     GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
     GlUtil.checkGlError();

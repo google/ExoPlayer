@@ -37,6 +37,7 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
 import android.text.style.TypefaceSpan;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.effect.AlphaScale;
 import com.google.android.exoplayer2.effect.DefaultGlObjectsProvider;
 import com.google.android.exoplayer2.effect.DefaultVideoCompositor;
 import com.google.android.exoplayer2.effect.DefaultVideoFrameProcessor;
@@ -98,15 +99,17 @@ public final class DefaultVideoCompositorPixelTest {
   @Parameterized.Parameter public boolean useSharedExecutor;
   @Rule public final TestName testName = new TestName();
 
-  private static final String ORIGINAL_PNG_ASSET_PATH = "media/bitmap/input_images/media3test.png";
+  private static final String ORIGINAL_PNG_ASSET_PATH =
+      "media/bitmap/input_images/media3test_srgb.png";
   private static final String TEST_DIRECTORY = "media/bitmap/CompositorTestTimestamps/";
 
   private @MonotonicNonNull String testId;
   private @MonotonicNonNull VideoCompositorTestRunner compositorTestRunner;
-  private static final ImmutableList<Effect> TWO_INPUT_COMPOSITOR_EFFECTS =
+  private static final ImmutableList<ImmutableList<Effect>> TWO_INPUT_COMPOSITOR_EFFECT_LISTS =
       ImmutableList.of(
-          RgbFilter.createGrayscaleFilter(),
-          new ScaleAndRotateTransformation.Builder().setRotationDegrees(180).build());
+          ImmutableList.of(RgbFilter.createGrayscaleFilter(), new AlphaScale(0.7f)),
+          ImmutableList.of(
+              new ScaleAndRotateTransformation.Builder().setRotationDegrees(180).build()));
 
   @Before
   @EnsuresNonNull("testId")
@@ -126,7 +129,7 @@ public final class DefaultVideoCompositorPixelTest {
   public void compositeTwoInputs_withOneFrameFromEach_differentTimestamp_matchesExpectedBitmap()
       throws Exception {
     compositorTestRunner =
-        new VideoCompositorTestRunner(testId, useSharedExecutor, TWO_INPUT_COMPOSITOR_EFFECTS);
+        new VideoCompositorTestRunner(testId, useSharedExecutor, TWO_INPUT_COMPOSITOR_EFFECT_LISTS);
 
     compositorTestRunner.queueBitmapToInput(
         /* inputId= */ 0, /* durationSec= */ 1, /* offsetToAddSec= */ 0, /* frameRate= */ 1);
@@ -149,10 +152,102 @@ public final class DefaultVideoCompositorPixelTest {
 
   @Test
   @RequiresNonNull("testId")
+  public void compositeTwoInputs_withPrimaryTransparent_differentTimestamp_matchesExpectedBitmap()
+      throws Exception {
+    ImmutableList<ImmutableList<Effect>> inputEffects =
+        ImmutableList.of(
+            ImmutableList.of(new AlphaScale(0f)),
+            ImmutableList.of(
+                new ScaleAndRotateTransformation.Builder().setRotationDegrees(180).build()));
+    compositorTestRunner = new VideoCompositorTestRunner(testId, useSharedExecutor, inputEffects);
+
+    compositorTestRunner.queueBitmapToInput(
+        /* inputId= */ 0, /* durationSec= */ 1, /* offsetToAddSec= */ 0, /* frameRate= */ 1);
+    compositorTestRunner.queueBitmapToInput(
+        /* inputId= */ 1, /* durationSec= */ 1, /* offsetToAddSec= */ 1, /* frameRate= */ 1);
+    compositorTestRunner.endCompositing();
+
+    saveAndAssertBitmapMatchesExpected(
+        testId,
+        compositorTestRunner.inputBitmapReaders.get(0).getBitmap(),
+        /* actualBitmapLabel= */ "actual_input_transparent",
+        TEST_DIRECTORY + "input_transparent.png");
+    saveAndAssertBitmapMatchesExpected(
+        testId,
+        compositorTestRunner.inputBitmapReaders.get(1).getBitmap(),
+        /* actualBitmapLabel= */ "actual_input_rotate180",
+        TEST_DIRECTORY + "input_rotate180_1s.png");
+    compositorTestRunner.saveAndAssertCompositedBitmapsMatchExpected(
+        ImmutableList.of("0s_transparent_1s"));
+  }
+
+  @Test
+  @RequiresNonNull("testId")
+  public void compositeTwoInputs_withPrimaryOpaque_differentTimestamp_matchesExpectedBitmap()
+      throws Exception {
+    ImmutableList<ImmutableList<Effect>> inputEffects =
+        ImmutableList.of(
+            ImmutableList.of(RgbFilter.createGrayscaleFilter(), new AlphaScale(100f)),
+            ImmutableList.of(
+                new ScaleAndRotateTransformation.Builder().setRotationDegrees(180).build()));
+    compositorTestRunner = new VideoCompositorTestRunner(testId, useSharedExecutor, inputEffects);
+
+    compositorTestRunner.queueBitmapToInput(
+        /* inputId= */ 0, /* durationSec= */ 1, /* offsetToAddSec= */ 0, /* frameRate= */ 1);
+    compositorTestRunner.queueBitmapToInput(
+        /* inputId= */ 1, /* durationSec= */ 1, /* offsetToAddSec= */ 1, /* frameRate= */ 1);
+    compositorTestRunner.endCompositing();
+
+    saveAndAssertBitmapMatchesExpected(
+        testId,
+        compositorTestRunner.inputBitmapReaders.get(0).getBitmap(),
+        /* actualBitmapLabel= */ "actual_input_grayscale_opaque",
+        TEST_DIRECTORY + "output_grayscale_opaque_0s.png");
+    saveAndAssertBitmapMatchesExpected(
+        testId,
+        compositorTestRunner.inputBitmapReaders.get(1).getBitmap(),
+        /* actualBitmapLabel= */ "actual_input_rotate180",
+        TEST_DIRECTORY + "input_rotate180_1s.png");
+    compositorTestRunner.saveAndAssertCompositedBitmapsMatchExpected(
+        ImmutableList.of("grayscale_opaque_0s"));
+  }
+
+  @Test
+  @RequiresNonNull("testId")
+  public void compositeTwoInputs_withSecondaryAlphaZero_differentTimestamp_matchesExpectedBitmap()
+      throws Exception {
+    ImmutableList<ImmutableList<Effect>> inputEffects =
+        ImmutableList.of(
+            ImmutableList.of(RgbFilter.createGrayscaleFilter(), new AlphaScale(0.7f)),
+            ImmutableList.of(new AlphaScale(0f)));
+    compositorTestRunner = new VideoCompositorTestRunner(testId, useSharedExecutor, inputEffects);
+
+    compositorTestRunner.queueBitmapToInput(
+        /* inputId= */ 0, /* durationSec= */ 1, /* offsetToAddSec= */ 0, /* frameRate= */ 1);
+    compositorTestRunner.queueBitmapToInput(
+        /* inputId= */ 1, /* durationSec= */ 1, /* offsetToAddSec= */ 1, /* frameRate= */ 1);
+    compositorTestRunner.endCompositing();
+
+    saveAndAssertBitmapMatchesExpected(
+        testId,
+        compositorTestRunner.inputBitmapReaders.get(0).getBitmap(),
+        /* actualBitmapLabel= */ "actual_input_grayscale",
+        TEST_DIRECTORY + "input_grayscale_0s.png");
+    saveAndAssertBitmapMatchesExpected(
+        testId,
+        compositorTestRunner.inputBitmapReaders.get(1).getBitmap(),
+        /* actualBitmapLabel= */ "actual_input_transparent",
+        TEST_DIRECTORY + "input_transparent.png");
+    compositorTestRunner.saveAndAssertCompositedBitmapsMatchExpected(
+        ImmutableList.of("0s_1s_transparent"));
+  }
+
+  @Test
+  @RequiresNonNull("testId")
   public void compositeTwoInputs_withFiveFramesFromEach_matchesExpectedTimestamps()
       throws Exception {
     compositorTestRunner =
-        new VideoCompositorTestRunner(testId, useSharedExecutor, TWO_INPUT_COMPOSITOR_EFFECTS);
+        new VideoCompositorTestRunner(testId, useSharedExecutor, TWO_INPUT_COMPOSITOR_EFFECT_LISTS);
 
     compositorTestRunner.queueBitmapToAllInputs(/* durationSec= */ 5);
     compositorTestRunner.endCompositing();
@@ -182,7 +277,7 @@ public final class DefaultVideoCompositorPixelTest {
   public void composite_onePrimaryAndFiveSecondaryFrames_matchesExpectedTimestamps()
       throws Exception {
     compositorTestRunner =
-        new VideoCompositorTestRunner(testId, useSharedExecutor, TWO_INPUT_COMPOSITOR_EFFECTS);
+        new VideoCompositorTestRunner(testId, useSharedExecutor, TWO_INPUT_COMPOSITOR_EFFECT_LISTS);
 
     compositorTestRunner.queueBitmapToInput(
         /* inputId= */ 0, /* durationSec= */ 5, /* offsetToAddSec= */ 0, /* frameRate= */ 0.2f);
@@ -215,7 +310,7 @@ public final class DefaultVideoCompositorPixelTest {
   public void composite_fivePrimaryAndOneSecondaryFrames_matchesExpectedTimestamps()
       throws Exception {
     compositorTestRunner =
-        new VideoCompositorTestRunner(testId, useSharedExecutor, TWO_INPUT_COMPOSITOR_EFFECTS);
+        new VideoCompositorTestRunner(testId, useSharedExecutor, TWO_INPUT_COMPOSITOR_EFFECT_LISTS);
 
     compositorTestRunner.queueBitmapToInput(
         /* inputId= */ 0, /* durationSec= */ 5, /* offsetToAddSec= */ 0, /* frameRate= */ 1f);
@@ -249,7 +344,7 @@ public final class DefaultVideoCompositorPixelTest {
   public void composite_primaryDoubleSecondaryFrameRate_matchesExpectedTimestamps()
       throws Exception {
     compositorTestRunner =
-        new VideoCompositorTestRunner(testId, useSharedExecutor, TWO_INPUT_COMPOSITOR_EFFECTS);
+        new VideoCompositorTestRunner(testId, useSharedExecutor, TWO_INPUT_COMPOSITOR_EFFECT_LISTS);
 
     compositorTestRunner.queueBitmapToInput(
         /* inputId= */ 0, /* durationSec= */ 4, /* offsetToAddSec= */ 0, /* frameRate= */ 1f);
@@ -282,7 +377,7 @@ public final class DefaultVideoCompositorPixelTest {
   @RequiresNonNull("testId")
   public void composite_primaryHalfSecondaryFrameRate_matchesExpectedTimestamps() throws Exception {
     compositorTestRunner =
-        new VideoCompositorTestRunner(testId, useSharedExecutor, TWO_INPUT_COMPOSITOR_EFFECTS);
+        new VideoCompositorTestRunner(testId, useSharedExecutor, TWO_INPUT_COMPOSITOR_EFFECT_LISTS);
 
     compositorTestRunner.queueBitmapToInput(
         /* inputId= */ 0, /* durationSec= */ 4, /* offsetToAddSec= */ 0, /* frameRate= */ 0.5f);
@@ -316,7 +411,7 @@ public final class DefaultVideoCompositorPixelTest {
   public void composite_primaryVariableFrameRateWithOffset_matchesExpectedTimestampsAndBitmaps()
       throws Exception {
     compositorTestRunner =
-        new VideoCompositorTestRunner(testId, useSharedExecutor, TWO_INPUT_COMPOSITOR_EFFECTS);
+        new VideoCompositorTestRunner(testId, useSharedExecutor, TWO_INPUT_COMPOSITOR_EFFECT_LISTS);
 
     compositorTestRunner.queueBitmapToInput(
         /* inputId= */ 0, /* durationSec= */ 2, /* offsetToAddSec= */ 1, /* frameRate= */ 0.5f);
@@ -353,7 +448,7 @@ public final class DefaultVideoCompositorPixelTest {
   public void composite_secondaryVariableFrameRateWithOffset_matchesExpectedTimestampsAndBitmaps()
       throws Exception {
     compositorTestRunner =
-        new VideoCompositorTestRunner(testId, useSharedExecutor, TWO_INPUT_COMPOSITOR_EFFECTS);
+        new VideoCompositorTestRunner(testId, useSharedExecutor, TWO_INPUT_COMPOSITOR_EFFECT_LISTS);
 
     compositorTestRunner.queueBitmapToInput(
         /* inputId= */ 0, /* durationSec= */ 5, /* offsetToAddSec= */ 0, /* frameRate= */ 1f);
@@ -390,7 +485,7 @@ public final class DefaultVideoCompositorPixelTest {
   public void compositeTwoInputs_withTenFramesFromEach_matchesExpectedFrameCount()
       throws Exception {
     compositorTestRunner =
-        new VideoCompositorTestRunner(testId, useSharedExecutor, TWO_INPUT_COMPOSITOR_EFFECTS);
+        new VideoCompositorTestRunner(testId, useSharedExecutor, TWO_INPUT_COMPOSITOR_EFFECT_LISTS);
     int numberOfFramesToQueue = 10;
 
     compositorTestRunner.queueBitmapToAllInputs(/* durationSec= */ numberOfFramesToQueue);
@@ -428,13 +523,15 @@ public final class DefaultVideoCompositorPixelTest {
      * @param testId The {@link String} identifier for the test, used to name output files.
      * @param useSharedExecutor Whether to use a shared executor for {@link
      *     VideoFrameProcessorTestRunner} and {@link VideoCompositor} instances.
-     * @param inputEffects {@link Effect}s to apply for {@link VideoCompositor} input sources. The
-     *     size of this {@link List} is the amount of inputs. One {@link Effect} is used for each
-     *     input. For each input, the frame timestamp and {@code inputId} are overlaid via {@link
-     *     TextOverlay} prior to any {@code inputEffects} being applied.
+     * @param inputEffectLists {@link Effect}s to apply for {@link VideoCompositor} input sources.
+     *     The size of this outer {@link List} is the amount of inputs. One inner list of {@link
+     *     Effect}s is used for each input. For each input, the frame timestamp and {@code inputId}
+     *     are overlaid via {@link TextOverlay} prior to its effects being applied.
      */
     public VideoCompositorTestRunner(
-        String testId, boolean useSharedExecutor, List<Effect> inputEffects)
+        String testId,
+        boolean useSharedExecutor,
+        ImmutableList<ImmutableList<Effect>> inputEffectLists)
         throws GlUtil.GlException, VideoFrameProcessingException {
       this.testId = testId;
       sharedExecutorService =
@@ -481,10 +578,12 @@ public final class DefaultVideoCompositorPixelTest {
               /* textureOutputCapacity= */ 1);
       inputBitmapReaders = new ArrayList<>();
       inputVideoFrameProcessorTestRunners = new ArrayList<>();
-      assertThat(inputEffects).hasSize(COMPOSITOR_INPUT_SIZE);
-      for (int i = 0; i < inputEffects.size(); i++) {
+      assertThat(inputEffectLists).hasSize(COMPOSITOR_INPUT_SIZE);
+      for (int i = 0; i < inputEffectLists.size(); i++) {
         TextureBitmapReader textureBitmapReader = new TextureBitmapReader();
         inputBitmapReaders.add(textureBitmapReader);
+        ImmutableList.Builder<Effect> effectsToApply = new ImmutableList.Builder<>();
+        effectsToApply.add(createTimestampOverlayEffect(i)).addAll(inputEffectLists.get(i));
         VideoFrameProcessorTestRunner vfpTestRunner =
             createVideoFrameProcessorTestRunnerBuilder(
                     testId,
@@ -492,7 +591,7 @@ public final class DefaultVideoCompositorPixelTest {
                     videoCompositor,
                     sharedExecutorService,
                     glObjectsProvider)
-                .setEffects(createTimestampOverlayEffect(i), inputEffects.get(i))
+                .setEffects(effectsToApply.build())
                 .build();
         inputVideoFrameProcessorTestRunners.add(vfpTestRunner);
       }
