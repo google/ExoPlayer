@@ -257,6 +257,11 @@ public class BitmapPixelTestUtil {
         int actualColor = actual.getPixel(x, y);
         int expectedColor = expected.getPixel(x, y);
 
+        if (Color.alpha(actualColor) == 0 && Color.alpha(expectedColor) == 0) {
+          // If both colors are transparent, ignore RGB pixel differences for this pixel.
+          differencesBitmap.setPixel(x, y, Color.TRANSPARENT);
+          continue;
+        }
         int alphaDifference = abs(Color.alpha(actualColor) - Color.alpha(expectedColor));
         int redDifference = abs(Color.red(actualColor) - Color.red(expectedColor));
         int blueDifference = abs(Color.blue(actualColor) - Color.blue(expectedColor));
@@ -303,6 +308,10 @@ public class BitmapPixelTestUtil {
         Color actualColor = actual.getColor(x, y);
         Color expectedColor = expected.getColor(x, y);
 
+        if (actualColor.alpha() == 0 && expectedColor.alpha() == 0) {
+          // If both colors are transparent, ignore RGB pixel differences for this pixel.
+          continue;
+        }
         float alphaDifference = abs(actualColor.alpha() - expectedColor.alpha());
         float redDifference = abs(actualColor.red() - expectedColor.red());
         float blueDifference = abs(actualColor.blue() - expectedColor.blue());
