@@ -254,8 +254,8 @@ public final class DebugTraceUtil {
     private int totalCount;
 
     public EventLogger() {
-      firstLogs = new ArrayList<>();
-      lastLogs = new ArrayDeque<>();
+      firstLogs = new ArrayList<>(MAX_FIRST_LAST_LOGS);
+      lastLogs = new ArrayDeque<>(MAX_FIRST_LAST_LOGS);
       totalCount = 0;
     }
 
