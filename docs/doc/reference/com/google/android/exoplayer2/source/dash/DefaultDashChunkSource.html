@@ -307,20 +307,21 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>protected <a href="../chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newInitializationChunk(com.google.android.exoplayer2.source.dash.DefaultDashChunkSource.RepresentationHolder,com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.C.SelectionReasonint,java.lang.Object,com.google.android.exoplayer2.source.dash.manifest.RangedUri,com.google.android.exoplayer2.source.dash.manifest.RangedUri)">newInitializationChunk</a></span>&#8203;(<a href="DefaultDashChunkSource.RepresentationHolder.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationHolder</a>&nbsp;representationHolder,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newInitializationChunk(com.google.android.exoplayer2.source.dash.DefaultDashChunkSource.RepresentationHolder,com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.C.SelectionReasonint,java.lang.Object,com.google.android.exoplayer2.source.dash.manifest.RangedUri,com.google.android.exoplayer2.source.dash.manifest.RangedUri,com.google.android.exoplayer2.upstream.CmcdHeadersFactory)">newInitializationChunk</a></span>&#8203;(<a href="DefaultDashChunkSource.RepresentationHolder.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationHolder</a>&nbsp;representationHolder,
                       <a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
                       <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
                       @com.google.android.exoplayer2.C.SelectionReason int&nbsp;trackSelectionReason,
                       <a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a>&nbsp;trackSelectionData,
                       <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;initializationUri,
-                      <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;indexUri)</code></th>
+                      <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;indexUri,
+                      <a href="../../upstream/CmcdHeadersFactory.html" title="class in com.google.android.exoplayer2.upstream">CmcdHeadersFactory</a>&nbsp;cmcdHeadersFactory)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 &nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>protected <a href="../chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newMediaChunk(com.google.android.exoplayer2.source.dash.DefaultDashChunkSource.RepresentationHolder,com.google.android.exoplayer2.upstream.DataSource,@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.C.SelectionReasonint,java.lang.Object,long,int,long,long,com.google.android.exoplayer2.upstream.CmcdLog)">newMediaChunk</a></span>&#8203;(<a href="DefaultDashChunkSource.RepresentationHolder.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationHolder</a>&nbsp;representationHolder,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#newMediaChunk(com.google.android.exoplayer2.source.dash.DefaultDashChunkSource.RepresentationHolder,com.google.android.exoplayer2.upstream.DataSource,@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.C.SelectionReasonint,java.lang.Object,long,int,long,long,com.google.android.exoplayer2.upstream.CmcdHeadersFactory)">newMediaChunk</a></span>&#8203;(<a href="DefaultDashChunkSource.RepresentationHolder.html" title="class in com.google.android.exoplayer2.source.dash">DefaultDashChunkSource.RepresentationHolder</a>&nbsp;representationHolder,
              <a href="../../upstream/DataSource.html" title="interface in com.google.android.exoplayer2.upstream">DataSource</a>&nbsp;dataSource,
              @com.google.android.exoplayer2.C.TrackType int&nbsp;trackType,
              <a href="../../Format.html" title="class in com.google.android.exoplayer2">Format</a>&nbsp;trackFormat,
@@ -330,7 +331,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
              int&nbsp;maxSegmentCount,
              long&nbsp;seekTimeUs,
              long&nbsp;nowPeriodTimeUs,
-             <a href="../../upstream/CmcdLog.html" title="class in com.google.android.exoplayer2.upstream">CmcdLog</a>&nbsp;cmcdLog)</code></th>
+             <a href="../../upstream/CmcdHeadersFactory.html" title="class in com.google.android.exoplayer2.upstream">CmcdHeadersFactory</a>&nbsp;cmcdHeadersFactory)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 &nbsp;</td>
@@ -728,7 +729,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
 </dl>
 </li>
 </ul>
-<a id="newInitializationChunk(com.google.android.exoplayer2.source.dash.DefaultDashChunkSource.RepresentationHolder,com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.C.SelectionReasonint,java.lang.Object,com.google.android.exoplayer2.source.dash.manifest.RangedUri,com.google.android.exoplayer2.source.dash.manifest.RangedUri)">
+<a id="newInitializationChunk(com.google.android.exoplayer2.source.dash.DefaultDashChunkSource.RepresentationHolder,com.google.android.exoplayer2.upstream.DataSource,com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.C.SelectionReasonint,java.lang.Object,com.google.android.exoplayer2.source.dash.manifest.RangedUri,com.google.android.exoplayer2.source.dash.manifest.RangedUri,com.google.android.exoplayer2.upstream.CmcdHeadersFactory)">
 <!--   -->
 </a>
 <ul class="blockList">
@@ -743,11 +744,13 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
                                        @Nullable
                                        <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;initializationUri,
                                        @Nullable
-                                       <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;indexUri)</pre>
+                                       <a href="manifest/RangedUri.html" title="class in com.google.android.exoplayer2.source.dash.manifest">RangedUri</a>&nbsp;indexUri,
+                                       @Nullable
+                                       <a href="../../upstream/CmcdHeadersFactory.html" title="class in com.google.android.exoplayer2.upstream">CmcdHeadersFactory</a>&nbsp;cmcdHeadersFactory)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>
-<a id="newMediaChunk(com.google.android.exoplayer2.source.dash.DefaultDashChunkSource.RepresentationHolder,com.google.android.exoplayer2.upstream.DataSource,@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.C.SelectionReasonint,java.lang.Object,long,int,long,long,com.google.android.exoplayer2.upstream.CmcdLog)">
+<a id="newMediaChunk(com.google.android.exoplayer2.source.dash.DefaultDashChunkSource.RepresentationHolder,com.google.android.exoplayer2.upstream.DataSource,@com.google.android.exoplayer2.C.TrackTypeint,com.google.android.exoplayer2.Format,@com.google.android.exoplayer2.C.SelectionReasonint,java.lang.Object,long,int,long,long,com.google.android.exoplayer2.upstream.CmcdHeadersFactory)">
 <!--   -->
 </a>
 <ul class="blockListLast">
@@ -764,7 +767,7 @@ implements <a href="DashChunkSource.html" title="interface in com.google.android
                               long&nbsp;seekTimeUs,
                               long&nbsp;nowPeriodTimeUs,
                               @Nullable
-                              <a href="../../upstream/CmcdLog.html" title="class in com.google.android.exoplayer2.upstream">CmcdLog</a>&nbsp;cmcdLog)</pre>
+                              <a href="../../upstream/CmcdHeadersFactory.html" title="class in com.google.android.exoplayer2.upstream">CmcdHeadersFactory</a>&nbsp;cmcdHeadersFactory)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 </li>
 </ul>

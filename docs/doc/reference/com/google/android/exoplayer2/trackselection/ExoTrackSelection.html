@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":38,"i1":38,"i2":38,"i3":38,"i4":38,"i5":38,"i6":38,"i7":38,"i8":38,"i9":38,"i10":50,"i11":38,"i12":50,"i13":50,"i14":50,"i15":38};
+var data = {"i0":38,"i1":38,"i2":38,"i3":38,"i4":50,"i5":38,"i6":38,"i7":38,"i8":38,"i9":38,"i10":38,"i11":50,"i12":38,"i13":50,"i14":50,"i15":50,"i16":38};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],4:["t3","Abstract Methods"],16:["t5","Default Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -254,6 +254,14 @@ extends <a href="TrackSelection.html" title="interface in com.google.android.exo
 </td>
 </tr>
 <tr id="i4" class="altColor">
+<td class="colFirst"><code>default long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLatestBitrateEstimate()">getLatestBitrateEstimate</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns the most recent bitrate estimate utilised for track selection.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code><a href="../Format.html" title="class in com.google.android.exoplayer2">Format</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSelectedFormat()">getSelectedFormat</a></span>()</code></th>
 <td class="colLast">
@@ -261,7 +269,7 @@ extends <a href="TrackSelection.html" title="interface in com.google.android.exo
 <div class="block">Returns the <a href="../Format.html" title="class in com.google.android.exoplayer2"><code>Format</code></a> of the individual selected track.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSelectedIndex()">getSelectedIndex</a></span>()</code></th>
 <td class="colLast">
@@ -269,7 +277,7 @@ extends <a href="TrackSelection.html" title="interface in com.google.android.exo
 <div class="block">Returns the index of the selected track.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSelectedIndexInTrackGroup()">getSelectedIndexInTrackGroup</a></span>()</code></th>
 <td class="colLast">
@@ -277,7 +285,7 @@ extends <a href="TrackSelection.html" title="interface in com.google.android.exo
 <div class="block">Returns the index in the track group of the individual selected track.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSelectionData()">getSelectionData</a></span>()</code></th>
 <td class="colLast">
@@ -285,7 +293,7 @@ extends <a href="TrackSelection.html" title="interface in com.google.android.exo
 <div class="block">Returns optional data associated with the current track selection.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>@com.google.android.exoplayer2.C.SelectionReason int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSelectionReason()">getSelectionReason</a></span>()</code></th>
 <td class="colLast">
@@ -293,7 +301,7 @@ extends <a href="TrackSelection.html" title="interface in com.google.android.exo
 <div class="block">Returns the reason for the current track selection.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#isTrackExcluded(int,long)">isTrackExcluded</a></span>&#8203;(int&nbsp;index,
                long&nbsp;nowMs)</code></th>
@@ -302,7 +310,7 @@ extends <a href="TrackSelection.html" title="interface in com.google.android.exo
 <div class="block">Returns whether the track at the specified index in the selection is excluded.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onDiscontinuity()">onDiscontinuity</a></span>()</code></th>
 <td class="colLast">
@@ -310,7 +318,7 @@ extends <a href="TrackSelection.html" title="interface in com.google.android.exo
 <div class="block">Called to notify the selection of a position discontinuity.</div>
 </td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i12" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlaybackSpeed(float)">onPlaybackSpeed</a></span>&#8203;(float&nbsp;playbackSpeed)</code></th>
 <td class="colLast">
@@ -318,7 +326,7 @@ extends <a href="TrackSelection.html" title="interface in com.google.android.exo
 <div class="block">Called to notify the selection of the current playback speed.</div>
 </td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i13" class="rowColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlayWhenReadyChanged(boolean)">onPlayWhenReadyChanged</a></span>&#8203;(boolean&nbsp;playWhenReady)</code></th>
 <td class="colLast">
@@ -326,7 +334,7 @@ extends <a href="TrackSelection.html" title="interface in com.google.android.exo
 <div class="block">Called to notify when the playback is paused or resumed.</div>
 </td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>default void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onRebuffer()">onRebuffer</a></span>()</code></th>
 <td class="colLast">
@@ -334,7 +342,7 @@ extends <a href="TrackSelection.html" title="interface in com.google.android.exo
 <div class="block">Called to notify when a rebuffer occurred.</div>
 </td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>default boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#shouldCancelChunkLoad(long,com.google.android.exoplayer2.source.chunk.Chunk,java.util.List)">shouldCancelChunkLoad</a></span>&#8203;(long&nbsp;playbackPositionUs,
                      <a href="../source/chunk/Chunk.html" title="class in com.google.android.exoplayer2.source.chunk">Chunk</a>&nbsp;loadingChunk,
@@ -344,7 +352,7 @@ extends <a href="TrackSelection.html" title="interface in com.google.android.exo
 <div class="block">Returns whether an ongoing load of a chunk should be canceled.</div>
 </td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#updateSelectedTrack(long,long,long,java.util.List,com.google.android.exoplayer2.source.chunk.MediaChunkIterator%5B%5D)">updateSelectedTrack</a></span>&#8203;(long&nbsp;playbackPositionUs,
                    long&nbsp;bufferedDurationUs,
@@ -669,7 +677,7 @@ extends <a href="TrackSelection.html" title="interface in com.google.android.exo
 <a id="isTrackExcluded(int,long)">
 <!--   -->
 </a>
-<ul class="blockListLast">
+<ul class="blockList">
 <li class="blockList">
 <h4>isTrackExcluded</h4>
 <pre class="methodSignature">boolean&nbsp;isTrackExcluded&#8203;(int&nbsp;index,
@@ -681,6 +689,20 @@ extends <a href="TrackSelection.html" title="interface in com.google.android.exo
 <dd><code>index</code> - The index of the track in the selection.</dd>
 <dd><code>nowMs</code> - The current time in the timebase of <a href="https://developer.android.com/reference/android/os/SystemClock.html#elapsedRealtime()" title="class or interface in android.os" class="externalLink" target="_top"><code>SystemClock.elapsedRealtime()</code></a>.</dd>
 </dl>
+</li>
+</ul>
+<a id="getLatestBitrateEstimate()">
+<!--   -->
+</a>
+<ul class="blockListLast">
+<li class="blockList">
+<h4>getLatestBitrateEstimate</h4>
+<pre class="methodSignature">default&nbsp;long&nbsp;getLatestBitrateEstimate()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns the most recent bitrate estimate utilised for track selection.
+
+ <p>The default behavior is to return <a href="https://developer.android.com/reference/java/lang/Long.html#MIN_VALUE" title="class or interface in java.lang" class="externalLink" target="_top"><code>Long.MIN_VALUE</code></a>, indicating that the bitrate
+ estimate was not computed for the track selection decision.</div>
 </li>
 </ul>
 </li>

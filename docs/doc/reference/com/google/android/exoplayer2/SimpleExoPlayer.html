@@ -3199,7 +3199,9 @@ public&nbsp;void&nbsp;prepare&#8203;(<a href="source/MediaSource.html" title="in
 <pre class="methodSignature">public&nbsp;void&nbsp;setShuffleOrder&#8203;(<a href="source/ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source">ShuffleOrder</a>&nbsp;shuffleOrder)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExoPlayer.html#setShuffleOrder(com.google.android.exoplayer2.source.ShuffleOrder)">ExoPlayer</a></code></span></div>
-<div class="block">Sets the shuffle order.</div>
+<div class="block">Sets the shuffle order.
+
+ <p>The <a href="source/ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source"><code>ShuffleOrder</code></a> passed must have the same length as the current playlist (<a href="Player.html#getMediaItemCount()"><code>Player.getMediaItemCount()</code></a>).</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="ExoPlayer.html#setShuffleOrder(com.google.android.exoplayer2.source.ShuffleOrder)">setShuffleOrder</a></code>&nbsp;in interface&nbsp;<code><a href="ExoPlayer.html" title="interface in com.google.android.exoplayer2">ExoPlayer</a></code></dd>

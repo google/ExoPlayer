@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":42,"i6":42,"i7":42,"i8":42,"i9":42,"i10":42,"i11":42};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -379,6 +379,14 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 </td>
 </tr>
 <tr id="i4" class="altColor">
+<td class="colFirst"><code>long</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getLatestBitrateEstimate()">getLatestBitrateEstimate</a></span>()</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Returns the most recent bitrate estimate utilised for track selection.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
 <td class="colFirst"><code>protected long</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getMinDurationToRetainAfterDiscardUs()">getMinDurationToRetainAfterDiscardUs</a></span>()</code></th>
 <td class="colLast">
@@ -387,7 +395,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
  to retain after discarding chunks.</div>
 </td>
 </tr>
-<tr id="i5" class="rowColor">
+<tr id="i6" class="altColor">
 <td class="colFirst"><code>int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSelectedIndex()">getSelectedIndex</a></span>()</code></th>
 <td class="colLast">
@@ -395,7 +403,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <div class="block">Returns the index of the selected track.</div>
 </td>
 </tr>
-<tr id="i6" class="altColor">
+<tr id="i7" class="rowColor">
 <td class="colFirst"><code><a href="https://developer.android.com/reference/java/lang/Object.html" title="class or interface in java.lang" class="externalLink" target="_top">Object</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSelectionData()">getSelectionData</a></span>()</code></th>
 <td class="colLast">
@@ -403,7 +411,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <div class="block">Returns optional data associated with the current track selection.</div>
 </td>
 </tr>
-<tr id="i7" class="rowColor">
+<tr id="i8" class="altColor">
 <td class="colFirst"><code>@com.google.android.exoplayer2.C.SelectionReason int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getSelectionReason()">getSelectionReason</a></span>()</code></th>
 <td class="colLast">
@@ -411,7 +419,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <div class="block">Returns the reason for the current track selection.</div>
 </td>
 </tr>
-<tr id="i8" class="altColor">
+<tr id="i9" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#onPlaybackSpeed(float)">onPlaybackSpeed</a></span>&#8203;(float&nbsp;playbackSpeed)</code></th>
 <td class="colLast">
@@ -419,7 +427,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
 <div class="block">Called to notify the selection of the current playback speed.</div>
 </td>
 </tr>
-<tr id="i9" class="rowColor">
+<tr id="i10" class="altColor">
 <td class="colFirst"><code>protected boolean</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#shouldEvaluateQueueSize(long,java.util.List)">shouldEvaluateQueueSize</a></span>&#8203;(long&nbsp;nowMs,
                        <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink">List</a>&lt;? extends <a href="../source/chunk/MediaChunk.html" title="class in com.google.android.exoplayer2.source.chunk" target="_top">MediaChunk</a>&gt;&nbsp;queue)</code></th>
@@ -429,7 +437,7 @@ extends <a href="BaseTrackSelection.html" title="class in com.google.android.exo
  performed.</div>
 </td>
 </tr>
-<tr id="i10" class="altColor">
+<tr id="i11" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#updateSelectedTrack(long,long,long,java.util.List,com.google.android.exoplayer2.source.chunk.MediaChunkIterator%5B%5D)">updateSelectedTrack</a></span>&#8203;(long&nbsp;playbackPositionUs,
                    long&nbsp;bufferedDurationUs,
@@ -852,6 +860,21 @@ public&nbsp;<a href="https://developer.android.com/reference/java/lang/Object.ht
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>The number of chunks to retain in the queue.</dd>
 </dl>
+</li>
+</ul>
+<a id="getLatestBitrateEstimate()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getLatestBitrateEstimate</h4>
+<pre class="methodSignature">public&nbsp;long&nbsp;getLatestBitrateEstimate()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="ExoTrackSelection.html#getLatestBitrateEstimate()">ExoTrackSelection</a></code></span></div>
+<div class="block">Returns the most recent bitrate estimate utilised for track selection.
+
+ <p>The default behavior is to return <a href="https://developer.android.com/reference/java/lang/Long.html#MIN_VALUE" title="class or interface in java.lang" class="externalLink" target="_top"><code>Long.MIN_VALUE</code></a>, indicating that the bitrate
+ estimate was not computed for the track selection decision.</div>
 </li>
 </ul>
 <a id="canSelectFormat(com.google.android.exoplayer2.Format,int,long)">
