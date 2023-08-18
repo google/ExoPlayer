@@ -27,6 +27,7 @@ import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREAS
 import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_8K24_FORMAT;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_REMOTE_8K24_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.recordTestSkipped;
+import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 import android.net.Uri;
@@ -39,6 +40,7 @@ import androidx.media3.transformer.AndroidTestUtil.ForceEncodeEncoderFactory;
 import androidx.media3.transformer.DefaultEncoderFactory;
 import androidx.media3.transformer.EditedMediaItem;
 import androidx.media3.transformer.Effects;
+import androidx.media3.transformer.ExportTestResult;
 import androidx.media3.transformer.Transformer;
 import androidx.media3.transformer.TransformerAndroidTestRunner;
 import androidx.media3.transformer.VideoEncoderSettings;
@@ -237,9 +239,13 @@ public class ExportTest {
         new EditedMediaItem.Builder(MediaItem.fromUri(Uri.parse(MP4_ASSET_SEF_URI_STRING)))
             .setFlattenForSlowMotion(true)
             .build();
-    new TransformerAndroidTestRunner.Builder(context, transformer)
-        .build()
-        .run(testId, editedMediaItem);
+    ExportTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, editedMediaItem);
+
+    assertThat(result.exportResult.durationMs).isGreaterThan(800);
+    assertThat(result.exportResult.durationMs).isLessThan(950);
   }
 
   @Test

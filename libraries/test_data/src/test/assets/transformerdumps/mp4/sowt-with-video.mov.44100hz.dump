@@ -1,0 +1,1203 @@
+format 0:
+  id = 1
+  sampleMimeType = video/avc
+  codecs = avc1.64002A
+  maxInputSize = 41084
+  width = 1920
+  height = 1080
+  frameRate = 50.0
+  colorInfo:
+    colorSpace = 1
+    colorRange = 2
+    colorTransfer = -1
+    hdrStaticInfo = length 0, hash 0
+  metadata = entries=[Mp4Timestamp: creation time=0, modification time=0, timescale=1000]
+  initializationData:
+    data = length 34, hash 8D738018
+    data = length 10, hash 7A0D0F2B
+container metadata = entries=[Mp4Timestamp: creation time=0, modification time=0, timescale=1000]
+format 1:
+  averageBitrate = 131072
+  sampleMimeType = audio/mp4a-latm
+  channelCount = 2
+  sampleRate = 44100
+  pcmEncoding = 2
+  metadata = entries=[Mp4Timestamp: creation time=0, modification time=0, timescale=1000]
+container metadata = entries=[Mp4Timestamp: creation time=0, modification time=0, timescale=1000]
+sample:
+  trackIndex = 0
+  dataHashCode = 33691269
+  size = 41054
+  isKeyFrame = true
+  presentationTimeUs = 0
+sample:
+  trackIndex = 0
+  dataHashCode = 951153212
+  size = 15163
+  isKeyFrame = false
+  presentationTimeUs = 40000
+sample:
+  trackIndex = 0
+  dataHashCode = 552307150
+  size = 6490
+  isKeyFrame = false
+  presentationTimeUs = 20000
+sample:
+  trackIndex = 0
+  dataHashCode = -151063635
+  size = 25484
+  isKeyFrame = false
+  presentationTimeUs = 120000
+sample:
+  trackIndex = 0
+  dataHashCode = -1847115463
+  size = 14792
+  isKeyFrame = false
+  presentationTimeUs = 80000
+sample:
+  trackIndex = 0
+  dataHashCode = 775037055
+  size = 8823
+  isKeyFrame = false
+  presentationTimeUs = 60000
+sample:
+  trackIndex = 0
+  dataHashCode = 1452603441
+  size = 7905
+  isKeyFrame = false
+  presentationTimeUs = 100000
+sample:
+  trackIndex = 0
+  dataHashCode = 1732228513
+  size = 21086
+  isKeyFrame = false
+  presentationTimeUs = 200000
+sample:
+  trackIndex = 0
+  dataHashCode = 1246814657
+  size = 13181
+  isKeyFrame = false
+  presentationTimeUs = 160000
+sample:
+  trackIndex = 0
+  dataHashCode = 426081419
+  size = 7666
+  isKeyFrame = false
+  presentationTimeUs = 140000
+sample:
+  trackIndex = 0
+  dataHashCode = -241872379
+  size = 8627
+  isKeyFrame = false
+  presentationTimeUs = 180000
+sample:
+  trackIndex = 0
+  dataHashCode = 1109784816
+  size = 23310
+  isKeyFrame = false
+  presentationTimeUs = 280000
+sample:
+  trackIndex = 0
+  dataHashCode = -377448231
+  size = 16108
+  isKeyFrame = false
+  presentationTimeUs = 240000
+sample:
+  trackIndex = 0
+  dataHashCode = -688376574
+  size = 10591
+  isKeyFrame = false
+  presentationTimeUs = 220000
+sample:
+  trackIndex = 0
+  dataHashCode = 496944885
+  size = 9652
+  isKeyFrame = false
+  presentationTimeUs = 260000
+sample:
+  trackIndex = 0
+  dataHashCode = 591739725
+  size = 26209
+  isKeyFrame = false
+  presentationTimeUs = 360000
+sample:
+  trackIndex = 0
+  dataHashCode = -469037805
+  size = 14679
+  isKeyFrame = false
+  presentationTimeUs = 320000
+sample:
+  trackIndex = 0
+  dataHashCode = 2089439735
+  size = 11258
+  isKeyFrame = false
+  presentationTimeUs = 300000
+sample:
+  trackIndex = 0
+  dataHashCode = -991522861
+  size = 8380
+  isKeyFrame = false
+  presentationTimeUs = 340000
+sample:
+  trackIndex = 0
+  dataHashCode = 1228181765
+  size = 21371
+  isKeyFrame = false
+  presentationTimeUs = 420000
+sample:
+  trackIndex = 0
+  dataHashCode = -881594031
+  size = 15113
+  isKeyFrame = false
+  presentationTimeUs = 380000
+sample:
+  trackIndex = 0
+  dataHashCode = -1336355567
+  size = 10553
+  isKeyFrame = false
+  presentationTimeUs = 400000
+sample:
+  trackIndex = 0
+  dataHashCode = -1156719720
+  size = 34938
+  isKeyFrame = false
+  presentationTimeUs = 480000
+sample:
+  trackIndex = 0
+  dataHashCode = 396046716
+  size = 17842
+  isKeyFrame = false
+  presentationTimeUs = 440000
+sample:
+  trackIndex = 0
+  dataHashCode = -1084632521
+  size = 11502
+  isKeyFrame = false
+  presentationTimeUs = 460000
+sample:
+  trackIndex = 0
+  dataHashCode = -337819407
+  size = 18009
+  isKeyFrame = false
+  presentationTimeUs = 500000
+sample:
+  trackIndex = 0
+  dataHashCode = 1295059940
+  size = 24298
+  isKeyFrame = false
+  presentationTimeUs = 520000
+sample:
+  trackIndex = 0
+  dataHashCode = -929598998
+  size = 21682
+  isKeyFrame = false
+  presentationTimeUs = 540000
+sample:
+  trackIndex = 0
+  dataHashCode = 1579805687
+  size = 31833
+  isKeyFrame = false
+  presentationTimeUs = 620000
+sample:
+  trackIndex = 0
+  dataHashCode = 79553286
+  size = 20853
+  isKeyFrame = false
+  presentationTimeUs = 580000
+sample:
+  trackIndex = 0
+  dataHashCode = -119845353
+  size = 12906
+  isKeyFrame = false
+  presentationTimeUs = 560000
+sample:
+  trackIndex = 0
+  dataHashCode = -1242905044
+  size = 17165
+  isKeyFrame = false
+  presentationTimeUs = 600000
+sample:
+  trackIndex = 0
+  dataHashCode = 1161132039
+  size = 35065
+  isKeyFrame = false
+  presentationTimeUs = 700000
+sample:
+  trackIndex = 0
+  dataHashCode = 1801923857
+  size = 19881
+  isKeyFrame = false
+  presentationTimeUs = 660000
+sample:
+  trackIndex = 0
+  dataHashCode = -1201934910
+  size = 22571
+  isKeyFrame = false
+  presentationTimeUs = 640000
+sample:
+  trackIndex = 0
+  dataHashCode = -655417171
+  size = 11566
+  isKeyFrame = false
+  presentationTimeUs = 680000
+sample:
+  trackIndex = 0
+  dataHashCode = 2011055114
+  size = 24236
+  isKeyFrame = false
+  presentationTimeUs = 780000
+sample:
+  trackIndex = 0
+  dataHashCode = 1098159553
+  size = 10515
+  isKeyFrame = false
+  presentationTimeUs = 740000
+sample:
+  trackIndex = 0
+  dataHashCode = 813195513
+  size = 8188
+  isKeyFrame = false
+  presentationTimeUs = 720000
+sample:
+  trackIndex = 0
+  dataHashCode = 1610084647
+  size = 9662
+  isKeyFrame = false
+  presentationTimeUs = 760000
+sample:
+  trackIndex = 0
+  dataHashCode = -389131647
+  size = 22443
+  isKeyFrame = false
+  presentationTimeUs = 860000
+sample:
+  trackIndex = 0
+  dataHashCode = -49148581
+  size = 12726
+  isKeyFrame = false
+  presentationTimeUs = 820000
+sample:
+  trackIndex = 0
+  dataHashCode = 650534699
+  size = 8521
+  isKeyFrame = false
+  presentationTimeUs = 800000
+sample:
+  trackIndex = 0
+  dataHashCode = 554081714
+  size = 7850
+  isKeyFrame = false
+  presentationTimeUs = 840000
+sample:
+  trackIndex = 0
+  dataHashCode = -539147636
+  size = 30005
+  isKeyFrame = false
+  presentationTimeUs = 940000
+sample:
+  trackIndex = 0
+  dataHashCode = 863445487
+  size = 19430
+  isKeyFrame = false
+  presentationTimeUs = 900000
+sample:
+  trackIndex = 0
+  dataHashCode = -210870675
+  size = 12962
+  isKeyFrame = false
+  presentationTimeUs = 880000
+sample:
+  trackIndex = 0
+  dataHashCode = -1294790684
+  size = 10767
+  isKeyFrame = false
+  presentationTimeUs = 920000
+sample:
+  trackIndex = 0
+  dataHashCode = -650391415
+  size = 25914
+  isKeyFrame = false
+  presentationTimeUs = 1000000
+sample:
+  trackIndex = 0
+  dataHashCode = 1964249241
+  size = 11471
+  isKeyFrame = false
+  presentationTimeUs = 960000
+sample:
+  trackIndex = 0
+  dataHashCode = 1901943199
+  size = 8639
+  isKeyFrame = false
+  presentationTimeUs = 980000
+sample:
+  trackIndex = 0
+  dataHashCode = 754314804
+  size = 22173
+  isKeyFrame = false
+  presentationTimeUs = 1060000
+sample:
+  trackIndex = 0
+  dataHashCode = 1631939129
+  size = 10274
+  isKeyFrame = false
+  presentationTimeUs = 1020000
+sample:
+  trackIndex = 0
+  dataHashCode = -914580412
+  size = 8625
+  isKeyFrame = false
+  presentationTimeUs = 1040000
+sample:
+  trackIndex = 0
+  dataHashCode = 464184359
+  size = 19443
+  isKeyFrame = false
+  presentationTimeUs = 1100000
+sample:
+  trackIndex = 0
+  dataHashCode = 521590252
+  size = 9189
+  isKeyFrame = false
+  presentationTimeUs = 1080000
+sample:
+  trackIndex = 0
+  dataHashCode = -1920606290
+  size = 16242
+  isKeyFrame = false
+  presentationTimeUs = 1120000
+sample:
+  trackIndex = 0
+  dataHashCode = -1462753526
+  size = 16036
+  isKeyFrame = false
+  presentationTimeUs = 1140000
+sample:
+  trackIndex = 0
+  dataHashCode = -2095257664
+  size = 16431
+  isKeyFrame = false
+  presentationTimeUs = 1160000
+sample:
+  trackIndex = 0
+  dataHashCode = -1722510728
+  size = 16421
+  isKeyFrame = false
+  presentationTimeUs = 1180000
+sample:
+  trackIndex = 0
+  dataHashCode = -2075073532
+  size = 23643
+  isKeyFrame = false
+  presentationTimeUs = 1240000
+sample:
+  trackIndex = 0
+  dataHashCode = 1068866869
+  size = 9962
+  isKeyFrame = false
+  presentationTimeUs = 1200000
+sample:
+  trackIndex = 0
+  dataHashCode = 2139806323
+  size = 8627
+  isKeyFrame = false
+  presentationTimeUs = 1220000
+sample:
+  trackIndex = 0
+  dataHashCode = -75510961
+  size = 20148
+  isKeyFrame = false
+  presentationTimeUs = 1280000
+sample:
+  trackIndex = 0
+  dataHashCode = -1734586788
+  size = 8888
+  isKeyFrame = false
+  presentationTimeUs = 1260000
+sample:
+  trackIndex = 0
+  dataHashCode = 1689355701
+  size = 19300
+  isKeyFrame = false
+  presentationTimeUs = 1320000
+sample:
+  trackIndex = 0
+  dataHashCode = 1014386281
+  size = 8455
+  isKeyFrame = false
+  presentationTimeUs = 1300000
+sample:
+  trackIndex = 0
+  dataHashCode = 655967971
+  size = 29708
+  isKeyFrame = false
+  presentationTimeUs = 1400000
+sample:
+  trackIndex = 0
+  dataHashCode = 651498019
+  size = 12715
+  isKeyFrame = false
+  presentationTimeUs = 1360000
+sample:
+  trackIndex = 0
+  dataHashCode = -1326592134
+  size = 8573
+  isKeyFrame = false
+  presentationTimeUs = 1340000
+sample:
+  trackIndex = 0
+  dataHashCode = -481876840
+  size = 8982
+  isKeyFrame = false
+  presentationTimeUs = 1380000
+sample:
+  trackIndex = 0
+  dataHashCode = -1289166593
+  size = 25026
+  isKeyFrame = false
+  presentationTimeUs = 1460000
+sample:
+  trackIndex = 0
+  dataHashCode = 1533284887
+  size = 9600
+  isKeyFrame = false
+  presentationTimeUs = 1420000
+sample:
+  trackIndex = 0
+  dataHashCode = 931231084
+  size = 8098
+  isKeyFrame = false
+  presentationTimeUs = 1440000
+sample:
+  trackIndex = 0
+  dataHashCode = 593905363
+  size = 27032
+  isKeyFrame = false
+  presentationTimeUs = 1540000
+sample:
+  trackIndex = 0
+  dataHashCode = -61693143
+  size = 11416
+  isKeyFrame = false
+  presentationTimeUs = 1500000
+sample:
+  trackIndex = 0
+  dataHashCode = 2034274294
+  size = 8119
+  isKeyFrame = false
+  presentationTimeUs = 1480000
+sample:
+  trackIndex = 0
+  dataHashCode = -1382173825
+  size = 7355
+  isKeyFrame = false
+  presentationTimeUs = 1520000
+sample:
+  trackIndex = 0
+  dataHashCode = 1141112289
+  size = 27694
+  isKeyFrame = false
+  presentationTimeUs = 1620000
+sample:
+  trackIndex = 0
+  dataHashCode = 615108734
+  size = 10665
+  isKeyFrame = false
+  presentationTimeUs = 1580000
+sample:
+  trackIndex = 0
+  dataHashCode = -192568269
+  size = 7176
+  isKeyFrame = false
+  presentationTimeUs = 1560000
+sample:
+  trackIndex = 0
+  dataHashCode = 1139129648
+  size = 7375
+  isKeyFrame = false
+  presentationTimeUs = 1600000
+sample:
+  trackIndex = 0
+  dataHashCode = -644623072
+  size = 24651
+  isKeyFrame = false
+  presentationTimeUs = 1700000
+sample:
+  trackIndex = 0
+  dataHashCode = 1087668168
+  size = 9679
+  isKeyFrame = false
+  presentationTimeUs = 1660000
+sample:
+  trackIndex = 0
+  dataHashCode = 1406222068
+  size = 6862
+  isKeyFrame = false
+  presentationTimeUs = 1640000
+sample:
+  trackIndex = 0
+  dataHashCode = -622032068
+  size = 6000
+  isKeyFrame = false
+  presentationTimeUs = 1680000
+sample:
+  trackIndex = 0
+  dataHashCode = 1191619637
+  size = 22101
+  isKeyFrame = false
+  presentationTimeUs = 1780000
+sample:
+  trackIndex = 0
+  dataHashCode = 603349552
+  size = 8537
+  isKeyFrame = false
+  presentationTimeUs = 1740000
+sample:
+  trackIndex = 0
+  dataHashCode = -1784449460
+  size = 6288
+  isKeyFrame = false
+  presentationTimeUs = 1720000
+sample:
+  trackIndex = 0
+  dataHashCode = 1158465085
+  size = 5152
+  isKeyFrame = false
+  presentationTimeUs = 1760000
+sample:
+  trackIndex = 0
+  dataHashCode = 147323155
+  size = 19889
+  isKeyFrame = false
+  presentationTimeUs = 1860000
+sample:
+  trackIndex = 0
+  dataHashCode = 1714081095
+  size = 8893
+  isKeyFrame = false
+  presentationTimeUs = 1820000
+sample:
+  trackIndex = 0
+  dataHashCode = -1894307035
+  size = 5905
+  isKeyFrame = false
+  presentationTimeUs = 1800000
+sample:
+  trackIndex = 0
+  dataHashCode = -1208848015
+  size = 5635
+  isKeyFrame = false
+  presentationTimeUs = 1840000
+sample:
+  trackIndex = 0
+  dataHashCode = 1015012687
+  size = 14896
+  isKeyFrame = false
+  presentationTimeUs = 1940000
+sample:
+  trackIndex = 0
+  dataHashCode = 513736378
+  size = 9260
+  isKeyFrame = false
+  presentationTimeUs = 1900000
+sample:
+  trackIndex = 0
+  dataHashCode = 1346700024
+  size = 5850
+  isKeyFrame = false
+  presentationTimeUs = 1880000
+sample:
+  trackIndex = 0
+  dataHashCode = 279399292
+  size = 7154
+  isKeyFrame = false
+  presentationTimeUs = 1920000
+sample:
+  trackIndex = 0
+  dataHashCode = 831498454
+  size = 8605
+  isKeyFrame = false
+  presentationTimeUs = 1980000
+sample:
+  trackIndex = 0
+  dataHashCode = -20875598
+  size = 6983
+  isKeyFrame = false
+  presentationTimeUs = 1960000
+sample:
+  trackIndex = 1
+  dataHashCode = 838148193
+  size = 3760
+  isKeyFrame = true
+  presentationTimeUs = 0
+sample:
+  trackIndex = 1
+  dataHashCode = 867867043
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 21315
+sample:
+  trackIndex = 1
+  dataHashCode = -1491441898
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 42653
+sample:
+  trackIndex = 1
+  dataHashCode = 834552609
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 63990
+sample:
+  trackIndex = 1
+  dataHashCode = 300797245
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 85328
+sample:
+  trackIndex = 1
+  dataHashCode = -1462810335
+  size = 3760
+  isKeyFrame = true
+  presentationTimeUs = 106666
+sample:
+  trackIndex = 1
+  dataHashCode = 1944686734
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 127981
+sample:
+  trackIndex = 1
+  dataHashCode = -1341756866
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 149319
+sample:
+  trackIndex = 1
+  dataHashCode = -2028679386
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 170657
+sample:
+  trackIndex = 1
+  dataHashCode = -1875874972
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 191995
+sample:
+  trackIndex = 1
+  dataHashCode = 502983932
+  size = 3760
+  isKeyFrame = true
+  presentationTimeUs = 213333
+sample:
+  trackIndex = 1
+  dataHashCode = -152413040
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 234648
+sample:
+  trackIndex = 1
+  dataHashCode = 2115857425
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 255986
+sample:
+  trackIndex = 1
+  dataHashCode = 1565297003
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 277324
+sample:
+  trackIndex = 1
+  dataHashCode = -1352896324
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 298662
+sample:
+  trackIndex = 1
+  dataHashCode = -1419566217
+  size = 3760
+  isKeyFrame = true
+  presentationTimeUs = 320000
+sample:
+  trackIndex = 1
+  dataHashCode = -140145063
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 341315
+sample:
+  trackIndex = 1
+  dataHashCode = -1064854301
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 362653
+sample:
+  trackIndex = 1
+  dataHashCode = 1140211756
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 383990
+sample:
+  trackIndex = 1
+  dataHashCode = 1410022017
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 405328
+sample:
+  trackIndex = 1
+  dataHashCode = 1543094264
+  size = 3760
+  isKeyFrame = true
+  presentationTimeUs = 426666
+sample:
+  trackIndex = 1
+  dataHashCode = -194814421
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 447981
+sample:
+  trackIndex = 1
+  dataHashCode = -1036665888
+  size = 1884
+  isKeyFrame = true
+  presentationTimeUs = 469319
+sample:
+  trackIndex = 1
+  dataHashCode = 1775616337
+  size = 3528
+  isKeyFrame = true
+  presentationTimeUs = 480000
+sample:
+  trackIndex = 1
+  dataHashCode = 931216668
+  size = 3996
+  isKeyFrame = true
+  presentationTimeUs = 500000
+sample:
+  trackIndex = 1
+  dataHashCode = 16108289
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 522653
+sample:
+  trackIndex = 1
+  dataHashCode = 1621627919
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 543990
+sample:
+  trackIndex = 1
+  dataHashCode = 2068064692
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 565328
+sample:
+  trackIndex = 1
+  dataHashCode = -992940742
+  size = 3760
+  isKeyFrame = true
+  presentationTimeUs = 586666
+sample:
+  trackIndex = 1
+  dataHashCode = -1602575392
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 607981
+sample:
+  trackIndex = 1
+  dataHashCode = -250495549
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 629319
+sample:
+  trackIndex = 1
+  dataHashCode = 230148053
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 650657
+sample:
+  trackIndex = 1
+  dataHashCode = -1831510348
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 671995
+sample:
+  trackIndex = 1
+  dataHashCode = -1720336442
+  size = 3760
+  isKeyFrame = true
+  presentationTimeUs = 693333
+sample:
+  trackIndex = 1
+  dataHashCode = 967577141
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 714648
+sample:
+  trackIndex = 1
+  dataHashCode = 1942439530
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 735986
+sample:
+  trackIndex = 1
+  dataHashCode = -935502622
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 757324
+sample:
+  trackIndex = 1
+  dataHashCode = -843755946
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 778662
+sample:
+  trackIndex = 1
+  dataHashCode = 1069393122
+  size = 3760
+  isKeyFrame = true
+  presentationTimeUs = 800000
+sample:
+  trackIndex = 1
+  dataHashCode = 49423702
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 821315
+sample:
+  trackIndex = 1
+  dataHashCode = -553195030
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 842653
+sample:
+  trackIndex = 1
+  dataHashCode = -1811527473
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 863990
+sample:
+  trackIndex = 1
+  dataHashCode = -1747277513
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 885328
+sample:
+  trackIndex = 1
+  dataHashCode = 1624044866
+  size = 3760
+  isKeyFrame = true
+  presentationTimeUs = 906666
+sample:
+  trackIndex = 1
+  dataHashCode = -647085493
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 927981
+sample:
+  trackIndex = 1
+  dataHashCode = 685235410
+  size = 1884
+  isKeyFrame = true
+  presentationTimeUs = 949319
+sample:
+  trackIndex = 1
+  dataHashCode = 932376296
+  size = 3760
+  isKeyFrame = true
+  presentationTimeUs = 960000
+sample:
+  trackIndex = 1
+  dataHashCode = 1297632614
+  size = 3296
+  isKeyFrame = true
+  presentationTimeUs = 981315
+sample:
+  trackIndex = 1
+  dataHashCode = -1698066806
+  size = 4232
+  isKeyFrame = true
+  presentationTimeUs = 1000000
+sample:
+  trackIndex = 1
+  dataHashCode = 1930678601
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 1023990
+sample:
+  trackIndex = 1
+  dataHashCode = -1846516440
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 1045328
+sample:
+  trackIndex = 1
+  dataHashCode = -1427786374
+  size = 3760
+  isKeyFrame = true
+  presentationTimeUs = 1066666
+sample:
+  trackIndex = 1
+  dataHashCode = 318451114
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 1087981
+sample:
+  trackIndex = 1
+  dataHashCode = -715132585
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 1109319
+sample:
+  trackIndex = 1
+  dataHashCode = 264171543
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 1130657
+sample:
+  trackIndex = 1
+  dataHashCode = -1040207413
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 1151995
+sample:
+  trackIndex = 1
+  dataHashCode = 879854128
+  size = 3760
+  isKeyFrame = true
+  presentationTimeUs = 1173333
+sample:
+  trackIndex = 1
+  dataHashCode = 876243983
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 1194648
+sample:
+  trackIndex = 1
+  dataHashCode = -363528509
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 1215986
+sample:
+  trackIndex = 1
+  dataHashCode = -135578478
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 1237324
+sample:
+  trackIndex = 1
+  dataHashCode = -515064024
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 1258662
+sample:
+  trackIndex = 1
+  dataHashCode = -1108659851
+  size = 3760
+  isKeyFrame = true
+  presentationTimeUs = 1280000
+sample:
+  trackIndex = 1
+  dataHashCode = -968838622
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 1301315
+sample:
+  trackIndex = 1
+  dataHashCode = -1420164148
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 1322653
+sample:
+  trackIndex = 1
+  dataHashCode = -1112607201
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 1343990
+sample:
+  trackIndex = 1
+  dataHashCode = 1558783105
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 1365328
+sample:
+  trackIndex = 1
+  dataHashCode = -352924987
+  size = 3760
+  isKeyFrame = true
+  presentationTimeUs = 1386666
+sample:
+  trackIndex = 1
+  dataHashCode = 2106460158
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 1407981
+sample:
+  trackIndex = 1
+  dataHashCode = -41009645
+  size = 1884
+  isKeyFrame = true
+  presentationTimeUs = 1429319
+sample:
+  trackIndex = 1
+  dataHashCode = 1436590081
+  size = 3760
+  isKeyFrame = true
+  presentationTimeUs = 1440000
+sample:
+  trackIndex = 1
+  dataHashCode = 1687127132
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 1461315
+sample:
+  trackIndex = 1
+  dataHashCode = 624992026
+  size = 3060
+  isKeyFrame = true
+  presentationTimeUs = 1482653
+sample:
+  trackIndex = 1
+  dataHashCode = -1816384888
+  size = 4468
+  isKeyFrame = true
+  presentationTimeUs = 1500000
+sample:
+  trackIndex = 1
+  dataHashCode = 1234475840
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 1525328
+sample:
+  trackIndex = 1
+  dataHashCode = 1059545106
+  size = 3760
+  isKeyFrame = true
+  presentationTimeUs = 1546666
+sample:
+  trackIndex = 1
+  dataHashCode = -122199485
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 1567981
+sample:
+  trackIndex = 1
+  dataHashCode = 1959246634
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 1589319
+sample:
+  trackIndex = 1
+  dataHashCode = 850067509
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 1610657
+sample:
+  trackIndex = 1
+  dataHashCode = 1980472225
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 1631995
+sample:
+  trackIndex = 1
+  dataHashCode = -925055805
+  size = 3760
+  isKeyFrame = true
+  presentationTimeUs = 1653333
+sample:
+  trackIndex = 1
+  dataHashCode = -1674063596
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 1674648
+sample:
+  trackIndex = 1
+  dataHashCode = -207399418
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 1695986
+sample:
+  trackIndex = 1
+  dataHashCode = 1414022975
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 1717324
+sample:
+  trackIndex = 1
+  dataHashCode = -750183218
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 1738662
+sample:
+  trackIndex = 1
+  dataHashCode = 2010693178
+  size = 3760
+  isKeyFrame = true
+  presentationTimeUs = 1760000
+sample:
+  trackIndex = 1
+  dataHashCode = -2140767398
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 1781315
+sample:
+  trackIndex = 1
+  dataHashCode = 797139457
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 1802653
+sample:
+  trackIndex = 1
+  dataHashCode = 1273236854
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 1823990
+sample:
+  trackIndex = 1
+  dataHashCode = -1033659332
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 1845328
+sample:
+  trackIndex = 1
+  dataHashCode = -476572566
+  size = 3760
+  isKeyFrame = true
+  presentationTimeUs = 1866666
+sample:
+  trackIndex = 1
+  dataHashCode = -1957052196
+  size = 3764
+  isKeyFrame = true
+  presentationTimeUs = 1887981
+sample:
+  trackIndex = 1
+  dataHashCode = 191919408
+  size = 1884
+  isKeyFrame = true
+  presentationTimeUs = 1909319
+sample:
+  trackIndex = 1
+  dataHashCode = 10326927
+  size = 3760
+  isKeyFrame = true
+  presentationTimeUs = 1920000
+sample:
+  trackIndex = 1
+  dataHashCode = -672114487
+  size = 7528
+  isKeyFrame = true
+  presentationTimeUs = 1941315
+sample:
+  trackIndex = 1
+  dataHashCode = 1403065337
+  size = 2824
+  isKeyFrame = true
+  presentationTimeUs = 1983990
+sample:
+  trackIndex = 1
+  dataHashCode = 923521
+  size = 4
+  isKeyFrame = true
+  presentationTimeUs = 2000000
+released = true

@@ -45,6 +45,7 @@ import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.effect.DebugTraceUtil;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 import org.checkerframework.checker.initialization.qual.UnknownInitialization;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNullIf;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -72,7 +73,6 @@ public final class DefaultCodec implements Codec {
 
   private @MonotonicNonNull Format outputFormat;
   @Nullable private ByteBuffer outputBuffer;
-
   private int inputBufferIndex;
   private int outputBufferIndex;
   private boolean inputStreamEnded;
@@ -413,16 +413,12 @@ public final class DefaultCodec implements Codec {
 
   private static Format convertToFormat(
       MediaFormat mediaFormat, boolean isDecoder, @Nullable Metadata metadata) {
-    Format.Builder formatBuilder =
-        MediaFormatUtil.createFormatFromMediaFormat(mediaFormat).buildUpon().setMetadata(metadata);
-    if (isDecoder) {
-      // TODO(b/178685617): Restrict this to only set the PCM encoding for audio/raw once we have
-      // a way to simulate more realistic codec input/output formats in tests.
+    Format format = MediaFormatUtil.createFormatFromMediaFormat(mediaFormat);
+    Format.Builder formatBuilder = format.buildUpon().setMetadata(metadata);
 
-      // With Robolectric, codecs do not actually encode/decode. The format of buffers is passed
-      // through. However downstream components need to know the PCM encoding of the data being
-      // output, so if a decoder is not outputting raw audio, we need to set the PCM
-      // encoding to the default.
+    if (isDecoder
+        && format.pcmEncoding == Format.NO_VALUE
+        && Objects.equals(format.sampleMimeType, MimeTypes.AUDIO_RAW)) {
       formatBuilder.setPcmEncoding(DEFAULT_PCM_ENCODING);
     }
     return formatBuilder.build();
