@@ -102,7 +102,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -379,10 +378,8 @@ public final class TransformerActivity extends AppCompatActivity {
               bundle.getBoolean(ConfigurationActivity.SHOULD_FLATTEN_FOR_SLOW_MOTION))
           .setEffects(new Effects(audioProcessors, videoEffects));
     }
-    List<EditedMediaItem> editedMediaItems = ImmutableList.of(editedMediaItemBuilder.build());
-    List<EditedMediaItemSequence> sequences =
-        ImmutableList.of(new EditedMediaItemSequence(editedMediaItems));
-    Composition.Builder compositionBuilder = new Composition.Builder(sequences);
+    Composition.Builder compositionBuilder =
+        new Composition.Builder(new EditedMediaItemSequence(editedMediaItemBuilder.build()));
     if (bundle != null) {
       compositionBuilder
           .setHdrMode(bundle.getInt(ConfigurationActivity.HDR_MODE))

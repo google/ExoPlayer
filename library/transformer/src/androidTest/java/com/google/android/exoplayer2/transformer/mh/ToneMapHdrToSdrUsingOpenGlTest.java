@@ -42,7 +42,6 @@ import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
-import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import org.json.JSONException;
 import org.junit.Test;
@@ -92,12 +91,10 @@ public class ToneMapHdrToSdrUsingOpenGlTest {
 
   private void runTransformerWithOpenGlToneMapping(String testId, String fileUri) throws Exception {
     Transformer transformer = new Transformer.Builder(context).build();
-    MediaItem mediaItem = MediaItem.fromUri(fileUri);
-    EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(mediaItem).build();
-    EditedMediaItemSequence sequence =
-        new EditedMediaItemSequence(ImmutableList.of(editedMediaItem));
     Composition composition =
-        new Composition.Builder(ImmutableList.of(sequence))
+        new Composition.Builder(
+                new EditedMediaItemSequence(
+                    new EditedMediaItem.Builder(MediaItem.fromUri(fileUri)).build()))
             .setHdrMode(Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL)
             .build();
     ExportTestResult exportTestResult =

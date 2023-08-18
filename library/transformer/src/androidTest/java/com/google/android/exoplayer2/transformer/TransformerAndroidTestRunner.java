@@ -36,7 +36,6 @@ import com.google.android.exoplayer2.util.NullableType;
 import com.google.android.exoplayer2.util.SystemClock;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Ascii;
-import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.io.File;
 import java.io.IOException;
@@ -227,9 +226,8 @@ public class TransformerAndroidTestRunner {
    * @throws Exception The cause of the export not completing.
    */
   public ExportTestResult run(String testId, EditedMediaItem editedMediaItem) throws Exception {
-    EditedMediaItemSequence sequence =
-        new EditedMediaItemSequence(ImmutableList.of(editedMediaItem));
-    Composition composition = new Composition.Builder(ImmutableList.of(sequence)).build();
+    Composition composition =
+        new Composition.Builder(new EditedMediaItemSequence(editedMediaItem)).build();
     return run(testId, composition);
   }
 

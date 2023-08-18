@@ -33,7 +33,6 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Util;
-import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import org.json.JSONException;
@@ -126,12 +125,10 @@ public class ForceEndOfStreamTest {
 
   private static Composition createComposition(MediaItem mediaItem) {
     return new Composition.Builder(
-            ImmutableList.of(
-                new EditedMediaItemSequence(
-                    ImmutableList.of(
-                        new EditedMediaItem.Builder(mediaItem)
-                            .setEffects(FORCE_TRANSCODE_VIDEO_EFFECTS)
-                            .build()))))
+            new EditedMediaItemSequence(
+                new EditedMediaItem.Builder(mediaItem)
+                    .setEffects(FORCE_TRANSCODE_VIDEO_EFFECTS)
+                    .build()))
         .build();
   }
 

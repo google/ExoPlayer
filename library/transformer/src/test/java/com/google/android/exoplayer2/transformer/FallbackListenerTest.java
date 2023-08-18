@@ -29,7 +29,6 @@ import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.ListenerSet;
 import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.shadows.ShadowLooper;
@@ -40,10 +39,8 @@ public class FallbackListenerTest {
 
   private static final Composition PLACEHOLDER_COMPOSITION =
       new Composition.Builder(
-              ImmutableList.of(
-                  new EditedMediaItemSequence(
-                      ImmutableList.of(
-                          new EditedMediaItem.Builder(MediaItem.fromUri(Uri.EMPTY)).build()))))
+              new EditedMediaItemSequence(
+                  new EditedMediaItem.Builder(MediaItem.fromUri(Uri.EMPTY)).build()))
           .build();
 
   @Test
