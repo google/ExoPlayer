@@ -25,22 +25,20 @@ import static com.google.android.exoplayer2.transformer.TestUtil.createPitchChan
 import static com.google.android.exoplayer2.transformer.TestUtil.createTransformerBuilder;
 import static com.google.android.exoplayer2.transformer.TestUtil.removeEncodersAndDecoders;
 import static com.google.common.truth.Truth.assertThat;
+import static java.util.stream.Collectors.toList;
 
-import android.content.Context;
-import androidx.test.core.app.ApplicationProvider;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.android.exoplayer2.util.Util;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
+import com.google.common.collect.Sets;
 import java.util.List;
-import org.checkerframework.dataflow.qual.Pure;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
 import org.robolectric.ParameterizedRobolectricTestRunner.Parameter;
@@ -51,8 +49,8 @@ import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
 public final class ParameterizedAudioExportTest {
   public static final String AUDIO_44100_MONO = ASSET_URI_PREFIX + FILE_AUDIO_RAW;
   public static final String AUDIO_48000_STEREO = ASSET_URI_PREFIX + FILE_AUDIO_RAW_VIDEO;
-  public static final ImmutableList<ItemConfig> EDITED_MEDIA_ITEMS =
-      ImmutableList.of(
+  public static final ImmutableSet<ItemConfig> EDITED_MEDIA_ITEMS =
+      ImmutableSet.of(
           new ItemConfig(AUDIO_44100_MONO, /* withEffects= */ false),
           new ItemConfig(AUDIO_44100_MONO, /* withEffects= */ true),
           new ItemConfig(AUDIO_48000_STEREO, /* withEffects= */ false),
@@ -60,35 +58,26 @@ public final class ParameterizedAudioExportTest {
 
   @Parameters(name = "{0}")
   public static List<SequenceConfig> params() {
-    ImmutableList<ImmutableList<ItemConfig>> itemsList =
-        generateAllPermutationsOfAllCombinations(EDITED_MEDIA_ITEMS);
-
-    ArrayList<SequenceConfig> sequences = new ArrayList<>();
-    for (List<ItemConfig> itemConfigs : itemsList) {
-      sequences.add(new SequenceConfig(itemConfigs));
-    }
-    return sequences;
+    // All permutations of all combinations.
+    return Sets.powerSet(EDITED_MEDIA_ITEMS).stream()
+        .filter(s -> !s.isEmpty())
+        .flatMap(s -> Collections2.permutations(s).stream())
+        .map(SequenceConfig::new)
+        .collect(toList());
   }
 
-  private final Context context = ApplicationProvider.getApplicationContext();
-
+  @Rule public final TemporaryFolder outputDir = new TemporaryFolder();
   @Parameter public SequenceConfig sequence;
-
-  private String outputPath;
-
-  private CapturingMuxer.Factory muxerFactory;
+  private final CapturingMuxer.Factory muxerFactory = new CapturingMuxer.Factory();
 
   @Before
-  public void setUp() throws Exception {
-    outputPath = Util.createTempFile(context, "TransformerTest").getPath();
-    muxerFactory = new CapturingMuxer.Factory();
+  public void setUp() {
     addAudioDecoders(MimeTypes.AUDIO_RAW);
     addAudioEncoders(MimeTypes.AUDIO_AAC);
   }
 
   @After
-  public void tearDown() throws Exception {
-    Files.delete(Paths.get(outputPath));
+  public void tearDown() {
     removeEncodersAndDecoders();
   }
 
@@ -96,32 +85,11 @@ public final class ParameterizedAudioExportTest {
   public void export() throws Exception {
     Transformer transformer =
         createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
-    transformer.start(sequence.asComposition(), outputPath);
+
+    transformer.start(sequence.asComposition(), outputDir.newFile().getPath());
+
     ExportResult result = TransformerTestRunner.runLooper(transformer);
-
     assertThat(result.processedInputs).hasSize(sequence.getSize());
-  }
-
-  @Pure
-  private static <T> ImmutableList<ImmutableList<T>> generateAllPermutationsOfAllCombinations(
-      List<T> items) {
-    if (items.size() == 1) {
-      return ImmutableList.of(ImmutableList.of(items.get(0)));
-    }
-
-    ImmutableList.Builder<ImmutableList<T>> permutations = new ImmutableList.Builder<>();
-    for (T mainItem : items) {
-      ArrayList<T> otherItems = new ArrayList<>(items);
-      otherItems.remove(mainItem);
-      ImmutableList<ImmutableList<T>> subLists =
-          generateAllPermutationsOfAllCombinations(otherItems);
-      for (ImmutableList<T> sublist : subLists) {
-        permutations.add(sublist);
-        permutations.add(new ImmutableList.Builder<T>().add(mainItem).addAll(sublist).build());
-      }
-    }
-
-    return ImmutableSet.copyOf(permutations.build()).asList();
   }
 
   private static class SequenceConfig {
