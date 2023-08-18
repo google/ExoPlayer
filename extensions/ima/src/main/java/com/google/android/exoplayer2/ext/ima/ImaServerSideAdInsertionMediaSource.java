@@ -56,7 +56,6 @@ import com.google.ads.interactivemedia.v3.api.AdEvent;
 import com.google.ads.interactivemedia.v3.api.AdEvent.AdEventListener;
 import com.google.ads.interactivemedia.v3.api.AdPodInfo;
 import com.google.ads.interactivemedia.v3.api.AdsLoader.AdsLoadedListener;
-import com.google.ads.interactivemedia.v3.api.AdsManager;
 import com.google.ads.interactivemedia.v3.api.AdsManagerLoadedEvent;
 import com.google.ads.interactivemedia.v3.api.AdsRenderingSettings;
 import com.google.ads.interactivemedia.v3.api.CompanionAdSlot;
@@ -245,7 +244,8 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
 
       /**
        * Sets the optional {@link AdEventListener} that will be passed to {@link
-       * AdsManager#addAdEventListener(AdEventListener)}.
+       * StreamManager#addAdEventListener(AdEventListener)} when the stream manager becomes
+       * available.
        *
        * @param adEventListener The ad event listener.
        * @return This builder, for convenience.
@@ -258,7 +258,8 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
 
       /**
        * Sets the optional {@link AdErrorEvent.AdErrorListener} that will be passed to {@link
-       * AdsManager#addAdErrorListener(AdErrorEvent.AdErrorListener)}.
+       * StreamManager#addAdErrorListener(AdErrorEvent.AdErrorListener)} when the stream manager
+       * becomes available.
        *
        * @param adErrorListener The {@link AdErrorEvent.AdErrorListener}.
        * @return This builder, for convenience.
