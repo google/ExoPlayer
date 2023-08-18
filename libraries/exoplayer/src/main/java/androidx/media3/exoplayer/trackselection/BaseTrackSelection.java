@@ -201,9 +201,7 @@ public abstract class BaseTrackSelection implements ExoTrackSelection {
     return hashCode;
   }
 
-  // Track groups are compared by identity not value, as distinct groups may have the same value.
   @Override
-  @SuppressWarnings({"ReferenceEquality", "EqualsGetClass"})
   public boolean equals(@Nullable Object obj) {
     if (this == obj) {
       return true;
@@ -212,6 +210,6 @@ public abstract class BaseTrackSelection implements ExoTrackSelection {
       return false;
     }
     BaseTrackSelection other = (BaseTrackSelection) obj;
-    return group == other.group && Arrays.equals(tracks, other.tracks);
+    return group.equals(other.group) && Arrays.equals(tracks, other.tracks);
   }
 }
