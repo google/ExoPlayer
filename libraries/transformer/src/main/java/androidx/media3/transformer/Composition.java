@@ -50,6 +50,16 @@ public final class Composition {
     private boolean transmuxVideo;
     private @HdrMode int hdrMode;
 
+    /** Creates a new instance to build upon the provided {@link Composition}. */
+    private Builder(Composition composition) {
+      sequences = composition.sequences;
+      effects = composition.effects;
+      forceAudioTrack = composition.forceAudioTrack;
+      transmuxAudio = composition.transmuxAudio;
+      transmuxVideo = composition.transmuxVideo;
+      hdrMode = composition.hdrMode;
+    }
+
     /**
      * Creates an instance.
      *
@@ -305,6 +315,11 @@ public final class Composition {
    * <p>For more information, see {@link Builder#setHdrMode(int)}.
    */
   public final @HdrMode int hdrMode;
+
+  /** Returns a {@link Composition.Builder} initialized with the values of this instance. */
+  public Builder buildUpon() {
+    return new Builder(this);
+  }
 
   private Composition(
       List<EditedMediaItemSequence> sequences,
