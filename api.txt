@@ -1,4 +1,4 @@
-// Signature format: 3.0
+// Signature format: 2.0
 package androidx.media3.common {
 
   public final class AdOverlayInfo {
