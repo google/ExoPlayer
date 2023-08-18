@@ -1347,14 +1347,14 @@ implements <a href="Player.html" title="interface in com.google.android.exoplaye
 <ul class="blockList">
 <li class="blockList">
 <h4>addListener</h4>
-<pre class="methodSignature">@CallSuper
-public&nbsp;void&nbsp;addListener&#8203;(<a href="Player.Listener.html" title="interface in com.google.android.exoplayer2">Player.Listener</a>&nbsp;listener)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;addListener&#8203;(<a href="Player.Listener.html" title="interface in com.google.android.exoplayer2">Player.Listener</a>&nbsp;listener)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Calls <a href="Player.html#addListener(com.google.android.exoplayer2.Player.Listener)"><code>Player.addListener(Listener)</code></a> on the delegate.
 
- <p>Overrides of this method must delegate to <code>super.addListener</code> and not <code>
- delegate.addListener</code>, in order to ensure the correct <a href="Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> instance is passed to
- <a href="Player.Listener.html#onEvents(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.Player.Events)"><code>Player.Listener.onEvents(Player, Events)</code></a> (i.e. this forwarding instance, and not the
+ <p>Overrides of this method must <strong>not</strong> directly call <code>
+ delegate.addListener</code>. If the override wants to pass the <a href="Player.Listener.html" title="interface in com.google.android.exoplayer2"><code>Player.Listener</code></a> instance to
+ the delegate <a href="Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>, it must do so by calling <code>super.addListener</code> instead. This
+ ensures the correct <a href="Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a> instance is passed to <a href="Player.Listener.html#onEvents(com.google.android.exoplayer2.Player,com.google.android.exoplayer2.Player.Events)"><code>Player.Listener.onEvents(Player, Events)</code></a> (i.e. this forwarding instance, and not the
  underlying <code>delegate</code> instance).</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
@@ -1370,14 +1370,13 @@ public&nbsp;void&nbsp;addListener&#8203;(<a href="Player.Listener.html" title="i
 <ul class="blockList">
 <li class="blockList">
 <h4>removeListener</h4>
-<pre class="methodSignature">@CallSuper
-public&nbsp;void&nbsp;removeListener&#8203;(<a href="Player.Listener.html" title="interface in com.google.android.exoplayer2">Player.Listener</a>&nbsp;listener)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;removeListener&#8203;(<a href="Player.Listener.html" title="interface in com.google.android.exoplayer2">Player.Listener</a>&nbsp;listener)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Calls <a href="Player.html#removeListener(com.google.android.exoplayer2.Player.Listener)"><code>Player.removeListener(Listener)</code></a> on the delegate.
 
- <p>Overrides of this method must delegate to <code>super.removeListener</code> and not <code>
- delegate.removeListener</code>, in order to ensure the listener 'matches' the listener added via
- <a href="#addListener(com.google.android.exoplayer2.Player.Listener)"><code>addListener(com.google.android.exoplayer2.Player.Listener)</code></a> (otherwise the listener registered on the delegate won't be removed).</div>
+ <p>Overrides of this method must <strong>not</strong> directly call <code>
+ delegate.removeListener</code>. If the override wants to pass the <a href="Player.Listener.html" title="interface in com.google.android.exoplayer2"><code>Player.Listener</code></a> instance to
+ the delegate <a href="Player.html" title="interface in com.google.android.exoplayer2"><code>Player</code></a>, it must do so by calling <code>super.removeListener</code> instead.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="Player.html#removeListener(com.google.android.exoplayer2.Player.Listener)">removeListener</a></code>&nbsp;in interface&nbsp;<code><a href="Player.html" title="interface in com.google.android.exoplayer2">Player</a></code></dd>

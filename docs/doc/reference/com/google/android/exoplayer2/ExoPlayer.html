@@ -183,7 +183,7 @@ extends <a href="Player.html" title="interface in com.google.android.exoplayer2"
 
  <p>The figure below shows ExoPlayer's threading model.
 
- <p style="align:center"><img src="https://exoplayer.dev/doc/reference/com/google/android/exoplayer2/doc-files/exoplayer-threading-model.svg" alt="ExoPlayer's threading model">
+ <p style="align:center"><img src="https://developer.android.com/static/images/reference/com/google/android/exoplayer2/exoplayer-threading-model.svg" alt="ExoPlayer's threading model">
 
  <ul>
    <li>ExoPlayer instances must be accessed from a single application thread unless indicated
@@ -1447,7 +1447,9 @@ void&nbsp;prepare&#8203;(<a href="source/MediaSource.html" title="interface in c
 <h4>setShuffleOrder</h4>
 <pre class="methodSignature">void&nbsp;setShuffleOrder&#8203;(<a href="source/ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source">ShuffleOrder</a>&nbsp;shuffleOrder)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
-<div class="block">Sets the shuffle order.</div>
+<div class="block">Sets the shuffle order.
+
+ <p>The <a href="source/ShuffleOrder.html" title="interface in com.google.android.exoplayer2.source"><code>ShuffleOrder</code></a> passed must have the same length as the current playlist (<a href="Player.html#getMediaItemCount()"><code>Player.getMediaItemCount()</code></a>).</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>shuffleOrder</code> - The shuffle order.</dd>
