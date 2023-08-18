@@ -74,7 +74,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
   public AudioGraphInput(EditedMediaItem item, Format inputFormat)
       throws UnhandledAudioFormatException {
-    checkArgument(inputFormat.pcmEncoding != Format.NO_VALUE);
+    AudioFormat inputAudioFormat = new AudioFormat(inputFormat);
+    checkArgument(isInputAudioFormatValid(inputAudioFormat), /* errorMessage= */ inputAudioFormat);
+
     availableInputBuffers = new ConcurrentLinkedDeque<>();
     ByteBuffer emptyBuffer = ByteBuffer.allocateDirect(0).order(ByteOrder.nativeOrder());
     for (int i = 0; i < MAX_INPUT_BUFFER_COUNT; i++) {
@@ -84,7 +86,6 @@ import java.util.concurrent.atomic.AtomicReference;
     }
     pendingInputBuffers = new ConcurrentLinkedDeque<>();
     pendingMediaItemChange = new AtomicReference<>();
-    AudioFormat inputAudioFormat = new AudioFormat(inputFormat);
     silentAudioGenerator = new SilentAudioGenerator(inputAudioFormat);
     audioProcessingPipeline =
         configureProcessing(
@@ -133,7 +134,8 @@ import java.util.concurrent.atomic.AtomicReference;
           "Could not generate silent audio because duration is unknown.");
     } else {
       checkState(MimeTypes.isAudio(trackFormat.sampleMimeType));
-      checkState(trackFormat.pcmEncoding != Format.NO_VALUE);
+      AudioFormat trackAudioFormat = new AudioFormat(trackFormat);
+      checkState(isInputAudioFormatValid(trackAudioFormat), /* errorMessage= */ trackAudioFormat);
     }
     pendingMediaItemChange.set(
         new MediaItemChange(editedMediaItem, durationUs, trackFormat, isLast));
@@ -369,6 +371,22 @@ import java.util.concurrent.atomic.AtomicReference;
     }
 
     return audioProcessingPipeline;
+  }
+
+  private static boolean isInputAudioFormatValid(AudioFormat format) {
+    if (format.encoding == Format.NO_VALUE) {
+      return false;
+    }
+    if (format.sampleRate == Format.NO_VALUE) {
+      return false;
+    }
+    if (format.channelCount == Format.NO_VALUE) {
+      return false;
+    }
+    if (format.bytesPerFrame == Format.NO_VALUE) {
+      return false;
+    }
+    return true;
   }
 
   private static final class MediaItemChange {

@@ -27,6 +27,7 @@ import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSE
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_REMOTE_8K24_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_REMOTE_8K24_URI_STRING;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
+import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
 import android.net.Uri;
@@ -39,6 +40,7 @@ import com.google.android.exoplayer2.transformer.AndroidTestUtil.ForceEncodeEnco
 import com.google.android.exoplayer2.transformer.DefaultEncoderFactory;
 import com.google.android.exoplayer2.transformer.EditedMediaItem;
 import com.google.android.exoplayer2.transformer.Effects;
+import com.google.android.exoplayer2.transformer.ExportTestResult;
 import com.google.android.exoplayer2.transformer.Transformer;
 import com.google.android.exoplayer2.transformer.TransformerAndroidTestRunner;
 import com.google.android.exoplayer2.transformer.VideoEncoderSettings;
@@ -237,9 +239,13 @@ public class ExportTest {
         new EditedMediaItem.Builder(MediaItem.fromUri(Uri.parse(MP4_ASSET_SEF_URI_STRING)))
             .setFlattenForSlowMotion(true)
             .build();
-    new TransformerAndroidTestRunner.Builder(context, transformer)
-        .build()
-        .run(testId, editedMediaItem);
+    ExportTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, editedMediaItem);
+
+    assertThat(result.exportResult.durationMs).isGreaterThan(800);
+    assertThat(result.exportResult.durationMs).isLessThan(950);
   }
 
   @Test
