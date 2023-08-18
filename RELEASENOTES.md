@@ -79,7 +79,7 @@ This release includes the following changes since
         (([#33](https://github.com/androidx/media/issues/33)),([#9978](https://github.com/google/ExoPlayer/issues/9978))).
     *   Rename `MimeTypes.TEXT_EXOPLAYER_CUES` to
         `MimeTypes.APPLICATION_MEDIA3_CUES`.
-    *   Add `PngExtractor` that sends and reads a whole png file into the the
+    *   Add `PngExtractor` that sends and reads a whole PNG file into the
         `TrackOutput` as one sample.
     *   Enhance `SequenceableLoader.continueLoading(long)` method in the
         `SequenceableLoader` interface to
@@ -111,7 +111,7 @@ This release includes the following changes since
         implementation details of an `Extractor` you must first call
         `Extractor.getUnderlyingInstance`.
 *   Audio:
-    *   Add support for 24/32-bit big endian PCM in MP4 and Matroska, and parse
+    *   Add support for 24/32-bit big-endian PCM in MP4 and Matroska, and parse
         PCM encoding for `lpcm` in MP4.
     *   Add support for extracting Vorbis audio in MP4.
 *   Audio Offload:
