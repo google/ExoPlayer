@@ -29,7 +29,6 @@ import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.HandlerWrapper;
 import androidx.media3.common.util.ListenerSet;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.shadows.ShadowLooper;
@@ -40,10 +39,8 @@ public class FallbackListenerTest {
 
   private static final Composition PLACEHOLDER_COMPOSITION =
       new Composition.Builder(
-              ImmutableList.of(
-                  new EditedMediaItemSequence(
-                      ImmutableList.of(
-                          new EditedMediaItem.Builder(MediaItem.fromUri(Uri.EMPTY)).build()))))
+              new EditedMediaItemSequence(
+                  new EditedMediaItem.Builder(MediaItem.fromUri(Uri.EMPTY)).build()))
           .build();
 
   @Test

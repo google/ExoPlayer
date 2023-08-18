@@ -131,16 +131,13 @@ public final class ParameterizedAudioExportTest {
       this.itemConfigs = itemConfigs;
     }
 
-    public EditedMediaItemSequence asSequence() {
+    public Composition asComposition() {
       ImmutableList.Builder<EditedMediaItem> items = new ImmutableList.Builder<>();
       for (ItemConfig itemConfig : itemConfigs) {
         items.add(itemConfig.asItem());
       }
-      return new EditedMediaItemSequence(items.build());
-    }
 
-    public Composition asComposition() {
-      return new Composition.Builder(ImmutableList.of(asSequence())).build();
+      return new Composition.Builder(new EditedMediaItemSequence(items.build())).build();
     }
 
     public int getSize() {

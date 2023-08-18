@@ -63,6 +63,15 @@ public final class Composition {
     /**
      * Creates an instance.
      *
+     * @see Builder#Builder(List)
+     */
+    public Builder(EditedMediaItemSequence... sequences) {
+      this(ImmutableList.copyOf(sequences));
+    }
+
+    /**
+     * Creates an instance.
+     *
      * @param sequences The {@link EditedMediaItemSequence} instances to compose. {@link MediaItem}
      *     instances from different sequences that are overlapping in time will be mixed in the
      *     output. This list must not be empty.

@@ -900,9 +900,7 @@ public final class Transformer {
    * @throws IllegalStateException If an export is already in progress.
    */
   public void start(EditedMediaItem editedMediaItem, String path) {
-    EditedMediaItemSequence sequence =
-        new EditedMediaItemSequence(ImmutableList.of(editedMediaItem));
-    start(new Composition.Builder(ImmutableList.of(sequence)).build(), path);
+    start(new Composition.Builder(new EditedMediaItemSequence(editedMediaItem)).build(), path);
   }
 
   /**

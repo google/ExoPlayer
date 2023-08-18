@@ -78,16 +78,15 @@ public class CompositionExportTest {
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
     transformer.start(mediaItem, outputPath);
     ExportResult expectedExportResult = TransformerTestRunner.runLooper(transformer);
+
     EditedMediaItem audioEditedMediaItem =
         new EditedMediaItem.Builder(mediaItem).setRemoveVideo(true).build();
-    EditedMediaItemSequence audioSequence =
-        new EditedMediaItemSequence(ImmutableList.of(audioEditedMediaItem));
     EditedMediaItem videoEditedMediaItem =
         new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).build();
-    EditedMediaItemSequence videoSequence =
-        new EditedMediaItemSequence(ImmutableList.of(videoEditedMediaItem));
     Composition composition =
-        new Composition.Builder(ImmutableList.of(audioSequence, videoSequence))
+        new Composition.Builder(
+                new EditedMediaItemSequence(audioEditedMediaItem),
+                new EditedMediaItemSequence(videoEditedMediaItem))
             .setTransmuxAudio(true)
             .setTransmuxVideo(true)
             .build();
@@ -109,16 +108,16 @@ public class CompositionExportTest {
         createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
     EditedMediaItem audioEditedMediaItem =
         new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_ONLY)).build();
-    EditedMediaItemSequence audioSequence =
+    EditedMediaItemSequence loopingAudioSequence =
         new EditedMediaItemSequence(
             ImmutableList.of(audioEditedMediaItem, audioEditedMediaItem), /* isLooping= */ true);
     EditedMediaItem videoEditedMediaItem =
         new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_VIDEO_ONLY)).build();
     EditedMediaItemSequence videoSequence =
         new EditedMediaItemSequence(
-            ImmutableList.of(videoEditedMediaItem, videoEditedMediaItem, videoEditedMediaItem));
+            videoEditedMediaItem, videoEditedMediaItem, videoEditedMediaItem);
     Composition composition =
-        new Composition.Builder(ImmutableList.of(audioSequence, videoSequence))
+        new Composition.Builder(loopingAudioSequence, videoSequence)
             .setTransmuxAudio(true)
             .setTransmuxVideo(true)
             .build();
@@ -141,14 +140,14 @@ public class CompositionExportTest {
         new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_ONLY)).build();
     EditedMediaItemSequence audioSequence =
         new EditedMediaItemSequence(
-            ImmutableList.of(audioEditedMediaItem, audioEditedMediaItem, audioEditedMediaItem));
+            audioEditedMediaItem, audioEditedMediaItem, audioEditedMediaItem);
     EditedMediaItem videoEditedMediaItem =
         new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_VIDEO_ONLY)).build();
-    EditedMediaItemSequence videoSequence =
+    EditedMediaItemSequence loopingVideoSequence =
         new EditedMediaItemSequence(
             ImmutableList.of(videoEditedMediaItem, videoEditedMediaItem), /* isLooping= */ true);
     Composition composition =
-        new Composition.Builder(ImmutableList.of(audioSequence, videoSequence))
+        new Composition.Builder(audioSequence, loopingVideoSequence)
             .setTransmuxAudio(true)
             .setTransmuxVideo(true)
             .build();
@@ -167,24 +166,21 @@ public class CompositionExportTest {
   public void start_loopingRawAudio_producesExpectedResult() throws Exception {
     Transformer transformer =
         createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
-    EditedMediaItemSequence audioSequence =
+    EditedMediaItemSequence loopingAudioSequence =
         new EditedMediaItemSequence(
             ImmutableList.of(
                 new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW))
                     .build()),
             /* isLooping= */ true);
-
     EditedMediaItem videoEditedMediaItem =
         new EditedMediaItem.Builder(
                 MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO_INCREASING_TIMESTAMPS_15S))
             .setRemoveAudio(true)
             .build();
     EditedMediaItemSequence videoSequence =
-        new EditedMediaItemSequence(ImmutableList.of(videoEditedMediaItem, videoEditedMediaItem));
+        new EditedMediaItemSequence(videoEditedMediaItem, videoEditedMediaItem);
     Composition composition =
-        new Composition.Builder(ImmutableList.of(audioSequence, videoSequence))
-            .setTransmuxVideo(true)
-            .build();
+        new Composition.Builder(loopingAudioSequence, videoSequence).setTransmuxVideo(true).build();
 
     transformer.start(composition, outputPath);
     ExportResult exportResult = TransformerTestRunner.runLooper(transformer);
@@ -201,17 +197,15 @@ public class CompositionExportTest {
     Transformer transformer =
         createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
 
-    EditedMediaItem rawAudioItem =
+    EditedMediaItem rawAudioEditedMediaItem =
         new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW)).build();
-    EditedMediaItemSequence firstSequence =
-        new EditedMediaItemSequence(ImmutableList.of(rawAudioItem));
+    Composition composition =
+        new Composition.Builder(
+                new EditedMediaItemSequence(rawAudioEditedMediaItem),
+                new EditedMediaItemSequence(rawAudioEditedMediaItem))
+            .build();
 
-    EditedMediaItemSequence secondSequence =
-        new EditedMediaItemSequence(ImmutableList.of(rawAudioItem));
-
-    transformer.start(
-        new Composition.Builder(ImmutableList.of(firstSequence, secondSequence)).build(),
-        outputPath);
+    transformer.start(composition, outputPath);
     ExportResult exportResult = TransformerTestRunner.runLooper(transformer);
 
     assertThat(exportResult.processedInputs).hasSize(2);
@@ -223,23 +217,21 @@ public class CompositionExportTest {
   public void start_audioVideoCompositionWithExtraAudio_isCorrect() throws Exception {
     Transformer transformer =
         createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
-    EditedMediaItem audioVideoItem =
+    EditedMediaItem audioVideoEditedMediaItem =
         new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_VIDEO))
             .build();
-    EditedMediaItemSequence audioVideoSeq =
-        new EditedMediaItemSequence(ImmutableList.of(audioVideoItem));
-
-    EditedMediaItem audioItem =
+    EditedMediaItem audioEditedMediaItem =
         new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_VIDEO))
             .setRemoveVideo(true)
             .build();
-    EditedMediaItemSequence audioSeq = new EditedMediaItemSequence(ImmutableList.of(audioItem));
-
-    transformer.start(
-        new Composition.Builder(ImmutableList.of(audioVideoSeq, audioSeq))
+    Composition composition =
+        new Composition.Builder(
+                new EditedMediaItemSequence(audioVideoEditedMediaItem),
+                new EditedMediaItemSequence(audioEditedMediaItem))
             .setTransmuxVideo(true)
-            .build(),
-        outputPath);
+            .build();
+
+    transformer.start(composition, outputPath);
     ExportResult exportResult = TransformerTestRunner.runLooper(transformer);
 
     assertThat(exportResult.processedInputs).hasSize(2);
@@ -250,25 +242,25 @@ public class CompositionExportTest {
   public void start_audioVideoCompositionWithLoopingAudio_isCorrect() throws Exception {
     Transformer transformer =
         createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
-    EditedMediaItem audioVideoItem =
+    EditedMediaItem audioVideoEditedMediaItem =
         new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_VIDEO))
             .build();
-    EditedMediaItemSequence audioVideoSeq =
+    EditedMediaItemSequence audioVideoSequence =
         new EditedMediaItemSequence(
-            ImmutableList.of(audioVideoItem, audioVideoItem, audioVideoItem));
-
-    EditedMediaItem audioItem =
+            audioVideoEditedMediaItem, audioVideoEditedMediaItem, audioVideoEditedMediaItem);
+    EditedMediaItem audioEditedMediaItem =
         new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_VIDEO))
             .setRemoveVideo(true)
             .build();
-    EditedMediaItemSequence audioSeq =
-        new EditedMediaItemSequence(ImmutableList.of(audioItem), /* isLooping= */ true);
+    EditedMediaItemSequence loopingAudioSequence =
+        new EditedMediaItemSequence(ImmutableList.of(audioEditedMediaItem), /* isLooping= */ true);
 
-    transformer.start(
-        new Composition.Builder(ImmutableList.of(audioVideoSeq, audioSeq))
+    Composition composition =
+        new Composition.Builder(audioVideoSequence, loopingAudioSequence)
             .setTransmuxVideo(true)
-            .build(),
-        outputPath);
+            .build();
+
+    transformer.start(composition, outputPath);
     ExportResult exportResult = TransformerTestRunner.runLooper(transformer);
 
     assertThat(exportResult.processedInputs).hasSize(7);

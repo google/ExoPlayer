@@ -85,10 +85,8 @@ public final class SequenceExportTest {
         createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
     EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(mediaItem).build();
-    EditedMediaItemSequence editedMediaItemSequence =
-        new EditedMediaItemSequence(ImmutableList.of(editedMediaItem, editedMediaItem));
     Composition composition =
-        new Composition.Builder(ImmutableList.of(editedMediaItemSequence))
+        new Composition.Builder(new EditedMediaItemSequence(editedMediaItem, editedMediaItem))
             .setTransmuxAudio(true)
             .setTransmuxVideo(true)
             .build();
@@ -115,10 +113,8 @@ public final class SequenceExportTest {
                     ImmutableList.of(createPitchChangingAudioProcessor(/* pitch= */ 2f)),
                     ImmutableList.of(RgbFilter.createGrayscaleFilter())))
             .build();
-    EditedMediaItemSequence editedMediaItemSequence =
-        new EditedMediaItemSequence(ImmutableList.of(editedMediaItem, editedMediaItem));
     Composition composition =
-        new Composition.Builder(ImmutableList.of(editedMediaItemSequence))
+        new Composition.Builder(new EditedMediaItemSequence(editedMediaItem, editedMediaItem))
             .setTransmuxAudio(true)
             .setTransmuxVideo(true)
             .build();
@@ -159,10 +155,8 @@ public final class SequenceExportTest {
             .setClippingConfiguration(clippingConfiguration2)
             .build();
     EditedMediaItem editedMediaItem2 = new EditedMediaItem.Builder(mediaItem2).build();
-    EditedMediaItemSequence editedMediaItemSequence =
-        new EditedMediaItemSequence(ImmutableList.of(editedMediaItem1, editedMediaItem2));
     Composition composition =
-        new Composition.Builder(ImmutableList.of(editedMediaItemSequence))
+        new Composition.Builder(new EditedMediaItemSequence(editedMediaItem1, editedMediaItem2))
             .setTransmuxAudio(true)
             .setTransmuxVideo(true)
             .build();
@@ -186,10 +180,9 @@ public final class SequenceExportTest {
     EditedMediaItem audioVideoMediaItem = new EditedMediaItem.Builder(mediaItem).build();
     EditedMediaItem videoOnlyMediaItem =
         new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).build();
-    EditedMediaItemSequence sequence =
-        new EditedMediaItemSequence(ImmutableList.of(audioVideoMediaItem, videoOnlyMediaItem));
     Composition composition =
-        new Composition.Builder(ImmutableList.of(sequence))
+        new Composition.Builder(
+                new EditedMediaItemSequence(audioVideoMediaItem, videoOnlyMediaItem))
             .experimentalSetForceAudioTrack(true)
             .setTransmuxVideo(true)
             .build();
@@ -212,10 +205,9 @@ public final class SequenceExportTest {
     EditedMediaItem videoOnlyMediaItem =
         new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).build();
     EditedMediaItem audioVideoMediaItem = new EditedMediaItem.Builder(mediaItem).build();
-    EditedMediaItemSequence sequence =
-        new EditedMediaItemSequence(ImmutableList.of(videoOnlyMediaItem, audioVideoMediaItem));
     Composition composition =
-        new Composition.Builder(ImmutableList.of(sequence))
+        new Composition.Builder(
+                new EditedMediaItemSequence(videoOnlyMediaItem, audioVideoMediaItem))
             .experimentalSetForceAudioTrack(true)
             .setTransmuxVideo(true)
             .build();
@@ -244,10 +236,9 @@ public final class SequenceExportTest {
             .setRemoveAudio(true)
             .setEffects(createAudioEffects(createPitchChangingAudioProcessor(/* pitch= */ 2f)))
             .build();
-    EditedMediaItemSequence sequence =
-        new EditedMediaItemSequence(ImmutableList.of(audioEditedMediaItem, noAudioEditedMediaItem));
     Composition composition =
-        new Composition.Builder(ImmutableList.of(sequence))
+        new Composition.Builder(
+                new EditedMediaItemSequence(audioEditedMediaItem, noAudioEditedMediaItem))
             .experimentalSetForceAudioTrack(true)
             .setTransmuxVideo(true)
             .build();
@@ -278,9 +269,7 @@ public final class SequenceExportTest {
             .build();
     Composition composition =
         new Composition.Builder(
-                ImmutableList.of(
-                    new EditedMediaItemSequence(
-                        ImmutableList.of(noAudioEditedMediaItem, audioEditedMediaItem))))
+                new EditedMediaItemSequence(noAudioEditedMediaItem, audioEditedMediaItem))
             .experimentalSetForceAudioTrack(true)
             .setTransmuxVideo(true)
             .build();
@@ -302,10 +291,8 @@ public final class SequenceExportTest {
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_VIDEO);
     EditedMediaItem videoOnlyMediaItem =
         new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).build();
-    EditedMediaItemSequence sequence =
-        new EditedMediaItemSequence(ImmutableList.of(videoOnlyMediaItem, videoOnlyMediaItem));
     Composition composition =
-        new Composition.Builder(ImmutableList.of(sequence))
+        new Composition.Builder(new EditedMediaItemSequence(videoOnlyMediaItem, videoOnlyMediaItem))
             .experimentalSetForceAudioTrack(true)
             .setTransmuxVideo(true)
             .build();
@@ -335,10 +322,8 @@ public final class SequenceExportTest {
             .setRemoveAudio(true)
             .setEffects(createAudioEffects(createPitchChangingAudioProcessor(/* pitch= */ 2f)))
             .build();
-    EditedMediaItemSequence sequence =
-        new EditedMediaItemSequence(ImmutableList.of(silenceWithEffectsItem, silenceItem));
     Composition composition =
-        new Composition.Builder(ImmutableList.of(sequence))
+        new Composition.Builder(new EditedMediaItemSequence(silenceWithEffectsItem, silenceItem))
             .experimentalSetForceAudioTrack(true)
             .setTransmuxVideo(true)
             .build();
@@ -368,10 +353,8 @@ public final class SequenceExportTest {
             .setRemoveAudio(true)
             .setEffects(createAudioEffects(createPitchChangingAudioProcessor(/* pitch= */ 2f)))
             .build();
-    EditedMediaItemSequence sequence =
-        new EditedMediaItemSequence(ImmutableList.of(silenceItem, silenceWithEffectsItem));
     Composition composition =
-        new Composition.Builder(ImmutableList.of(sequence))
+        new Composition.Builder(new EditedMediaItemSequence(silenceItem, silenceWithEffectsItem))
             .experimentalSetForceAudioTrack(true)
             .setTransmuxVideo(true)
             .build();
@@ -401,10 +384,8 @@ public final class SequenceExportTest {
             .setRemoveAudio(true)
             .setEffects(createAudioEffects(createPitchChangingAudioProcessor(/* pitch= */ 2f)))
             .build();
-    EditedMediaItemSequence sequence =
-        new EditedMediaItemSequence(ImmutableList.of(firstItem, secondItem));
     Composition composition =
-        new Composition.Builder(ImmutableList.of(sequence))
+        new Composition.Builder(new EditedMediaItemSequence(firstItem, secondItem))
             .experimentalSetForceAudioTrack(true)
             .setTransmuxVideo(true)
             .build();
@@ -424,10 +405,9 @@ public final class SequenceExportTest {
         createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
     MediaItem audioOnlyMediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW);
     EditedMediaItem editedMediaItem = new EditedMediaItem.Builder(audioOnlyMediaItem).build();
-    EditedMediaItemSequence editedMediaItemSequence =
-        new EditedMediaItemSequence(ImmutableList.of(editedMediaItem, editedMediaItem));
     Composition composition =
-        new Composition.Builder(ImmutableList.of(editedMediaItemSequence)).build();
+        new Composition.Builder(new EditedMediaItemSequence(editedMediaItem, editedMediaItem))
+            .build();
 
     transformer.start(composition, outputPath);
     TransformerTestRunner.runLooper(transformer);
@@ -446,10 +426,9 @@ public final class SequenceExportTest {
         new EditedMediaItem.Builder(audioOnlyMediaItem)
             .setEffects(createAudioEffects(createPitchChangingAudioProcessor(/* pitch= */ 2f)))
             .build();
-    EditedMediaItemSequence editedMediaItemSequence =
-        new EditedMediaItemSequence(ImmutableList.of(editedMediaItem, editedMediaItem));
     Composition composition =
-        new Composition.Builder(ImmutableList.of(editedMediaItemSequence)).build();
+        new Composition.Builder(new EditedMediaItemSequence(editedMediaItem, editedMediaItem))
+            .build();
 
     transformer.start(composition, outputPath);
     TransformerTestRunner.runLooper(transformer);
@@ -476,9 +455,9 @@ public final class SequenceExportTest {
             .setRemoveVideo(true)
             .setEffects(createAudioEffects(createPitchChangingAudioProcessor(/* pitch= */ 0.5f)))
             .build();
-    EditedMediaItemSequence sequence =
-        new EditedMediaItemSequence(ImmutableList.of(highPitchMediaItem, lowPitchMediaItem));
-    Composition composition = new Composition.Builder(ImmutableList.of(sequence)).build();
+    Composition composition =
+        new Composition.Builder(new EditedMediaItemSequence(highPitchMediaItem, lowPitchMediaItem))
+            .build();
 
     transformer.start(composition, outputPath);
     TransformerTestRunner.runLooper(transformer);
@@ -496,13 +475,12 @@ public final class SequenceExportTest {
     MediaItem stereo48000Audio =
         MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_STEREO_48000KHZ);
     MediaItem mono44100Audio = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW);
-    EditedMediaItemSequence editedMediaItemSequence =
-        new EditedMediaItemSequence(
-            ImmutableList.of(
-                new EditedMediaItem.Builder(stereo48000Audio).build(),
-                new EditedMediaItem.Builder(mono44100Audio).build()));
     Composition composition =
-        new Composition.Builder(ImmutableList.of(editedMediaItemSequence)).build();
+        new Composition.Builder(
+                new EditedMediaItemSequence(
+                    new EditedMediaItem.Builder(stereo48000Audio).build(),
+                    new EditedMediaItem.Builder(mono44100Audio).build()))
+            .build();
 
     transformer.start(composition, outputPath);
     TransformerTestRunner.runLooper(transformer);
@@ -528,11 +506,9 @@ public final class SequenceExportTest {
         new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW))
             .setEffects(createAudioEffects(createPitchChangingAudioProcessor(/* pitch= */ 2f)))
             .build();
-
-    EditedMediaItemSequence editedMediaItemSequence =
-        new EditedMediaItemSequence(ImmutableList.of(stereo48000Audio, mono44100Audio));
     Composition composition =
-        new Composition.Builder(ImmutableList.of(editedMediaItemSequence)).build();
+        new Composition.Builder(new EditedMediaItemSequence(stereo48000Audio, mono44100Audio))
+            .build();
 
     transformer.start(composition, outputPath);
     TransformerTestRunner.runLooper(transformer);
@@ -558,11 +534,10 @@ public final class SequenceExportTest {
         new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW))
             .setEffects(createAudioEffects(createPitchChangingAudioProcessor(/* pitch= */ 0.5f)))
             .build();
-    EditedMediaItemSequence editedMediaItemSequence =
-        new EditedMediaItemSequence(
-            ImmutableList.of(stereo48000AudioHighPitch, mono44100AudioLowPitch));
     Composition composition =
-        new Composition.Builder(ImmutableList.of(editedMediaItemSequence)).build();
+        new Composition.Builder(
+                new EditedMediaItemSequence(stereo48000AudioHighPitch, mono44100AudioLowPitch))
+            .build();
 
     transformer.start(composition, outputPath);
     TransformerTestRunner.runLooper(transformer);

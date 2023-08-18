@@ -77,9 +77,7 @@ public class TransformerMixedInputEndToEndTest {
     ExportTestResult result =
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .build()
-            .run(
-                testId,
-                buildComposition(ImmutableList.of(imageEditedMediaItem, videoEditedMediaItem)));
+            .run(testId, buildComposition(imageEditedMediaItem, videoEditedMediaItem));
 
     assertThat(result.exportResult.videoFrameCount)
         .isEqualTo(imageFrameCount + VIDEO_FRAME_COUNT_FOR_MP4_ASSET);
@@ -110,9 +108,7 @@ public class TransformerMixedInputEndToEndTest {
     ExportTestResult result =
         new TransformerAndroidTestRunner.Builder(context, transformer)
             .build()
-            .run(
-                testId,
-                buildComposition(ImmutableList.of(videoEditedMediaItem, imageEditedMediaItem)));
+            .run(testId, buildComposition(videoEditedMediaItem, imageEditedMediaItem));
 
     assertThat(result.exportResult.videoFrameCount)
         .isEqualTo(imageFrameCount + VIDEO_FRAME_COUNT_FOR_MP4_ASSET);
@@ -150,14 +146,13 @@ public class TransformerMixedInputEndToEndTest {
             .run(
                 testId,
                 buildComposition(
-                    ImmutableList.of(
-                        videoEditedMediaItem,
-                        videoEditedMediaItem,
-                        imageEditedMediaItem1,
-                        imageEditedMediaItem2,
-                        videoEditedMediaItem,
-                        imageEditedMediaItem1,
-                        videoEditedMediaItem)));
+                    videoEditedMediaItem,
+                    videoEditedMediaItem,
+                    imageEditedMediaItem1,
+                    imageEditedMediaItem2,
+                    videoEditedMediaItem,
+                    imageEditedMediaItem1,
+                    videoEditedMediaItem));
 
     assertThat(result.exportResult.videoFrameCount)
         .isEqualTo(3 * imageFrameCount + 4 * VIDEO_FRAME_COUNT_FOR_MP4_ASSET);
@@ -195,14 +190,13 @@ public class TransformerMixedInputEndToEndTest {
             .run(
                 testId,
                 buildComposition(
-                    ImmutableList.of(
-                        imageEditedMediaItem,
-                        videoEditedMediaItem,
-                        videoEditedMediaItem,
-                        imageEditedMediaItem,
-                        imageEditedMediaItem,
-                        videoEditedMediaItem,
-                        imageEditedMediaItem)));
+                    imageEditedMediaItem,
+                    videoEditedMediaItem,
+                    videoEditedMediaItem,
+                    imageEditedMediaItem,
+                    imageEditedMediaItem,
+                    videoEditedMediaItem,
+                    imageEditedMediaItem));
 
     assertThat(result.exportResult.videoFrameCount)
         .isEqualTo(4 * imageFrameCount + 3 * VIDEO_FRAME_COUNT_FOR_MP4_ASSET);
@@ -230,11 +224,11 @@ public class TransformerMixedInputEndToEndTest {
         .build();
   }
 
-  private static Composition buildComposition(ImmutableList<EditedMediaItem> editedMediaItems) {
-    return new Composition.Builder(ImmutableList.of(new EditedMediaItemSequence(editedMediaItems)))
+  private static Composition buildComposition(EditedMediaItem... editedMediaItems) {
+    return new Composition.Builder(new EditedMediaItemSequence(editedMediaItems))
         .setEffects(
             new Effects(
-                ImmutableList.of(),
+                /* audioProcessors= */ ImmutableList.of(),
                 ImmutableList.of(
                     // To ensure that software encoders can encode.
                     Presentation.createForWidthAndHeight(
