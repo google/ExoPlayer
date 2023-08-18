@@ -17,6 +17,9 @@
 *   Muxers:
 *   IMA extension:
 *   Session:
+    *   Set the notifications foreground service behavior to
+        `FOREGROUND_SERVICE_IMMEDIATE` in `DefaultMediaNotificationProvider`
+        ([#167](https://github.com/androidx/media/issues/167)).
 *   UI:
 *   Downloads:
 *   OkHttp Extension:
@@ -145,9 +148,6 @@ This release includes the following changes since
 *   Effect:
     *   Add `VideoFrameProcessor.queueInputBitmap(Bitmap, Iterator<Long>)`
         queuing bitmap input by timestamp.
-    *   Set the notifications foreground service behavior to
-        `FOREGROUND_SERVICE_IMMEDIATE` in `DefaultMediaNotificationProvider`
-        ([#167](https://github.com/androidx/media/issues/167)).
 *   UI:
     *   Add a `Player.Listener` implementation for Wear OS devices that handles
         playback suppression due to
@@ -165,7 +165,6 @@ This release includes the following changes since
 *   MIDI extension:
     *   Release the MIDI decoder module, which provides support for playback of
         standard MIDI files using the Jsyn library to synthesize audio.
-*   Cast Extension:
 *   Test Utilities:
     *   Make `TestExoPlayerBuilder` and `FakeClock` compatible with Espresso UI
         tests and Compose UI tests. This fixes a bug where playback advances
