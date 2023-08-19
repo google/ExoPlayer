@@ -15,9 +15,13 @@
  */
 package androidx.media3.common.util;
 
+import static java.lang.Math.min;
+
 import android.net.Uri;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
+import com.google.common.base.Ascii;
+import java.util.List;
 
 /** Utility methods for manipulating URIs. */
 @UnstableApi
@@ -282,5 +286,56 @@ public final class UriUtil {
     indices[QUERY] = queryIndex;
     indices[FRAGMENT] = fragmentIndex;
     return indices;
+  }
+
+  /**
+   * Calculates the relative path from a base URI to a target URI.
+   *
+   * @return The relative path from the base URI to the target URI, or {@code targetUri} if the URIs
+   *     have different schemes or authorities.
+   */
+  @UnstableApi
+  public static String getRelativePath(Uri baseUri, Uri targetUri) {
+    if (baseUri.isOpaque() || targetUri.isOpaque()) {
+      return targetUri.toString();
+    }
+
+    String baseUriScheme = baseUri.getScheme();
+    String targetUriScheme = targetUri.getScheme();
+    boolean isSameScheme =
+        baseUriScheme == null
+            ? targetUriScheme == null
+            : targetUriScheme != null && Ascii.equalsIgnoreCase(baseUriScheme, targetUriScheme);
+    if (!isSameScheme || !Util.areEqual(baseUri.getAuthority(), targetUri.getAuthority())) {
+      // Different schemes or authorities, cannot find relative path, return targetUri.
+      return targetUri.toString();
+    }
+
+    List<String> basePathSegments = baseUri.getPathSegments();
+    List<String> targetPathSegments = targetUri.getPathSegments();
+
+    int commonPrefixCount = 0;
+    int minSize = min(basePathSegments.size(), targetPathSegments.size());
+
+    for (int i = 0; i < minSize; i++) {
+      if (!basePathSegments.get(i).equals(targetPathSegments.get(i))) {
+        break;
+      }
+      commonPrefixCount++;
+    }
+
+    StringBuilder relativePath = new StringBuilder();
+    for (int i = commonPrefixCount; i < basePathSegments.size(); i++) {
+      relativePath.append("../");
+    }
+
+    for (int i = commonPrefixCount; i < targetPathSegments.size(); i++) {
+      relativePath.append(targetPathSegments.get(i));
+      if (i < targetPathSegments.size() - 1) {
+        relativePath.append("/");
+      }
+    }
+
+    return relativePath.toString();
   }
 }

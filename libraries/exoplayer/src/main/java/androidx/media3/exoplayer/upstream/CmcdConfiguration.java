@@ -71,7 +71,9 @@ public final class CmcdConfiguration {
     KEY_BUFFER_STARVATION,
     KEY_DEADLINE,
     KEY_PLAYBACK_RATE,
-    KEY_STARTUP
+    KEY_STARTUP,
+    KEY_NEXT_OBJECT_REQUEST,
+    KEY_NEXT_RANGE_REQUEST
   })
   @Documented
   @Target(TYPE_USE)
@@ -100,6 +102,8 @@ public final class CmcdConfiguration {
   public static final String KEY_DEADLINE = "dl";
   public static final String KEY_PLAYBACK_RATE = "pr";
   public static final String KEY_STARTUP = "su";
+  public static final String KEY_NEXT_OBJECT_REQUEST = "nor";
+  public static final String KEY_NEXT_RANGE_REQUEST = "nrr";
 
   /**
    * Factory for {@link CmcdConfiguration} instances.
@@ -355,5 +359,21 @@ public final class CmcdConfiguration {
    */
   public boolean isStartupLoggingAllowed() {
     return requestConfig.isKeyAllowed(KEY_STARTUP);
+  }
+
+  /**
+   * Returns whether logging next object request is allowed based on the {@linkplain RequestConfig
+   * request configuration}.
+   */
+  public boolean isNextObjectRequestLoggingAllowed() {
+    return requestConfig.isKeyAllowed(KEY_NEXT_OBJECT_REQUEST);
+  }
+
+  /**
+   * Returns whether logging next range request is allowed based on the {@linkplain RequestConfig
+   * request configuration}.
+   */
+  public boolean isNextRangeRequestLoggingAllowed() {
+    return requestConfig.isKeyAllowed(KEY_NEXT_RANGE_REQUEST);
   }
 }

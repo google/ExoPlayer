@@ -20,6 +20,7 @@ import static androidx.media3.common.util.Assertions.checkState;
 import static java.lang.Math.max;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
+import android.net.Uri;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringDef;
@@ -149,6 +150,8 @@ public final class CmcdHeadersFactory {
   private final boolean isBufferEmpty;
   private long chunkDurationUs;
   private @Nullable @ObjectType String objectType;
+  @Nullable private String nextObjectRequest;
+  @Nullable private String nextRangeRequest;
 
   /**
    * Creates an instance.
@@ -215,6 +218,30 @@ public final class CmcdHeadersFactory {
     return this;
   }
 
+  /**
+   * Sets the relative path of the next object to be requested. This can be used to trigger
+   * pre-fetching by the CDN.
+   *
+   * <p>Default is {@code null}.
+   */
+  @CanIgnoreReturnValue
+  public CmcdHeadersFactory setNextObjectRequest(@Nullable String nextObjectRequest) {
+    this.nextObjectRequest = nextObjectRequest;
+    return this;
+  }
+
+  /**
+   * Sets the byte range representing the partial object request. This can be used to trigger
+   * pre-fetching by the CDN.
+   *
+   * <p>Default is {@code null}.
+   */
+  @CanIgnoreReturnValue
+  public CmcdHeadersFactory setNextRangeRequest(@Nullable String nextRangeRequest) {
+    this.nextRangeRequest = nextRangeRequest;
+    return this;
+  }
+
   /** Creates and returns a new {@link ImmutableMap} containing the CMCD HTTP request headers. */
   public ImmutableMap<@CmcdConfiguration.HeaderKey String, String> createHttpRequestHeaders() {
     ImmutableListMultimap<@CmcdConfiguration.HeaderKey String, String> customData =
@@ -263,6 +290,12 @@ public final class CmcdHeadersFactory {
     }
     if (cmcdConfiguration.isStartupLoggingAllowed()) {
       cmcdRequest.setStartup(didRebuffer || isBufferEmpty);
+    }
+    if (cmcdConfiguration.isNextObjectRequestLoggingAllowed()) {
+      cmcdRequest.setNextObjectRequest(nextObjectRequest);
+    }
+    if (cmcdConfiguration.isNextRangeRequestLoggingAllowed()) {
+      cmcdRequest.setNextRangeRequest(nextRangeRequest);
     }
     if (customData.containsKey(CmcdConfiguration.KEY_CMCD_REQUEST)) {
       cmcdRequest.setCustomDataList(customData.get(CmcdConfiguration.KEY_CMCD_REQUEST));
@@ -476,7 +509,7 @@ public final class CmcdHeadersFactory {
 
   /**
    * Keys whose values vary with each request. Contains CMCD fields: {@code bl}, {@code mtp}, {@code
-   * dl} and {@code su}.
+   * dl}, {@code su}, {@code nor} and {@code nrr}.
    */
   private static final class CmcdRequest {
 
@@ -486,6 +519,8 @@ public final class CmcdHeadersFactory {
       private long measuredThroughputInKbps;
       private long deadlineMs;
       private boolean startup;
+      @Nullable private String nextObjectRequest;
+      @Nullable private String nextRangeRequest;
       private ImmutableList<String> customDataList;
 
       /** Creates a new instance with default values. */
@@ -547,6 +582,23 @@ public final class CmcdHeadersFactory {
         return this;
       }
 
+      /**
+       * Sets the {@link CmcdRequest#nextObjectRequest}. This string is URL encoded. The default
+       * value is {@code null}.
+       */
+      @CanIgnoreReturnValue
+      public Builder setNextObjectRequest(@Nullable String nextObjectRequest) {
+        this.nextObjectRequest = nextObjectRequest == null ? null : Uri.encode(nextObjectRequest);
+        return this;
+      }
+
+      /** Sets the {@link CmcdRequest#nextRangeRequest}. The default value is {@code null}. */
+      @CanIgnoreReturnValue
+      public Builder setNextRangeRequest(@Nullable String nextRangeRequest) {
+        this.nextRangeRequest = nextRangeRequest;
+        return this;
+      }
+
       /** Sets the {@link CmcdRequest#customDataList}. The default value is an empty list. */
       @CanIgnoreReturnValue
       public Builder setCustomDataList(List<String> customDataList) {
@@ -601,6 +653,27 @@ public final class CmcdHeadersFactory {
      */
     public final boolean startup;
 
+    /**
+     * Relative path of the next object to be requested, or {@code null} if unset. This can be used
+     * to trigger pre-fetching by the CDN. This MUST be a path relative to the current request.
+     *
+     * <p>This string MUST be URL encoded.
+     *
+     * <p><b>Note:</b> The client SHOULD NOT depend upon any pre-fetch action being taken - it is
+     * merely a request for such a pre-fetch to take place.
+     */
+    @Nullable public final String nextObjectRequest;
+
+    /**
+     * The byte range representing the partial object request, or {@code null} if unset. If the
+     * {@link #nextObjectRequest} field is not set, then the object is assumed to match the object
+     * currently being requested.
+     *
+     * <p><b>Note:</b> The client SHOULD NOT depend upon any pre-fetch action being taken - it is
+     * merely a request for such a pre-fetch to take place.
+     */
+    @Nullable public final String nextRangeRequest;
+
     /** Custom data that vary with each request. */
     public final ImmutableList<String> customDataList;
 
@@ -609,6 +682,8 @@ public final class CmcdHeadersFactory {
       this.measuredThroughputInKbps = builder.measuredThroughputInKbps;
       this.deadlineMs = builder.deadlineMs;
       this.startup = builder.startup;
+      this.nextObjectRequest = builder.nextObjectRequest;
+      this.nextRangeRequest = builder.nextRangeRequest;
       this.customDataList = builder.customDataList;
     }
 
@@ -633,6 +708,16 @@ public final class CmcdHeadersFactory {
       }
       if (startup) {
         headerValueList.add(CmcdConfiguration.KEY_STARTUP);
+      }
+      if (!TextUtils.isEmpty(nextObjectRequest)) {
+        headerValueList.add(
+            Util.formatInvariant(
+                "%s=\"%s\"", CmcdConfiguration.KEY_NEXT_OBJECT_REQUEST, nextObjectRequest));
+      }
+      if (!TextUtils.isEmpty(nextRangeRequest)) {
+        headerValueList.add(
+            Util.formatInvariant(
+                "%s=\"%s\"", CmcdConfiguration.KEY_NEXT_RANGE_REQUEST, nextRangeRequest));
       }
       headerValueList.addAll(customDataList);
 

@@ -24,6 +24,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.UriUtil;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DataSpec;
 import androidx.media3.datasource.TransferListener;
@@ -290,21 +291,26 @@ public class DefaultSsChunkSource implements SsChunkSource {
     int manifestTrackIndex = trackSelection.getIndexInTrackGroup(trackSelectionIndex);
     Uri uri = streamElement.buildRequestUri(manifestTrackIndex, chunkIndex);
 
-    @Nullable
-    CmcdHeadersFactory cmcdHeadersFactory =
-        cmcdConfiguration == null
-            ? null
-            : new CmcdHeadersFactory(
-                    cmcdConfiguration,
-                    trackSelection,
-                    bufferedDurationUs,
-                    /* playbackRate= */ loadingInfo.playbackSpeed,
-                    /* streamingFormat= */ CmcdHeadersFactory.STREAMING_FORMAT_SS,
-                    /* isLive= */ manifest.isLive,
-                    /* didRebuffer= */ loadingInfo.rebufferedSince(lastChunkRequestRealtimeMs),
-                    /* isBufferEmpty= */ queue.isEmpty())
-                .setChunkDurationUs(chunkEndTimeUs - chunkStartTimeUs)
-                .setObjectType(CmcdHeadersFactory.getObjectType(trackSelection));
+    @Nullable CmcdHeadersFactory cmcdHeadersFactory = null;
+    if (cmcdConfiguration != null) {
+      cmcdHeadersFactory =
+          new CmcdHeadersFactory(
+                  cmcdConfiguration,
+                  trackSelection,
+                  bufferedDurationUs,
+                  /* playbackRate= */ loadingInfo.playbackSpeed,
+                  /* streamingFormat= */ CmcdHeadersFactory.STREAMING_FORMAT_SS,
+                  /* isLive= */ manifest.isLive,
+                  /* didRebuffer= */ loadingInfo.rebufferedSince(lastChunkRequestRealtimeMs),
+                  /* isBufferEmpty= */ queue.isEmpty())
+              .setChunkDurationUs(chunkEndTimeUs - chunkStartTimeUs)
+              .setObjectType(CmcdHeadersFactory.getObjectType(trackSelection));
+
+      if (chunkIndex + 1 < streamElement.chunkCount) {
+        Uri nextUri = streamElement.buildRequestUri(manifestTrackIndex, chunkIndex + 1);
+        cmcdHeadersFactory.setNextObjectRequest(UriUtil.getRelativePath(uri, nextUri));
+      }
+    }
     lastChunkRequestRealtimeMs = SystemClock.elapsedRealtime();
 
     out.chunk =

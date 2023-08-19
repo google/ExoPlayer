@@ -4,6 +4,9 @@
 
 *   Common Library:
 *   ExoPlayer:
+    *   Add additional fields to Common Media Client Data (CMCD) logging: next
+        object request (`nor`) and next range request (`nrr`)
+        ([#8699](https://github.com/google/ExoPlayer/issues/8699)).
 *   Transformer:
 *   Track Selection:
 *   Extractors:

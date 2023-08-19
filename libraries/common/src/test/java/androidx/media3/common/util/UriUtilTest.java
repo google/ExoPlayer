@@ -155,4 +155,77 @@ public final class UriUtilTest {
     assertThat(UriUtil.isAbsolute("/path/to/file")).isFalse();
     assertThat(UriUtil.isAbsolute("path/to/file")).isFalse();
   }
+
+  @Test
+  public void getRelativePath_withDifferentSchemes_shouldReturnTargetUri() {
+    Uri baseUri = Uri.parse("http://uri");
+    Uri targetUri = Uri.parse("https://uri");
+
+    assertThat(UriUtil.getRelativePath(baseUri, targetUri)).isEqualTo(targetUri.toString());
+  }
+
+  @Test
+  public void getRelativePath_withDifferentAuthorities_shouldReturnTargetUri() {
+    Uri baseUri = Uri.parse("http://baseUri");
+    Uri targetUri = Uri.parse("http://targetUri");
+
+    assertThat(UriUtil.getRelativePath(baseUri, targetUri)).isEqualTo(targetUri.toString());
+  }
+
+  @Test
+  public void getRelativePath_withoutSchemesAndDifferentAuthorities_shouldReturnTargetUri() {
+    Uri baseUri = Uri.parse("//baseUri/a");
+    Uri targetUri = Uri.parse("//targetUri/b");
+
+    assertThat(UriUtil.getRelativePath(baseUri, targetUri)).isEqualTo(targetUri.toString());
+  }
+
+  @Test
+  public void getRelativePath_withoutSchemesAndSameAuthority_shouldReturnCorrectRelativePath() {
+    Uri baseUri = Uri.parse("//uri/a");
+    Uri targetUri = Uri.parse("//uri/b");
+
+    assertThat(UriUtil.getRelativePath(baseUri, targetUri)).isEqualTo("../b");
+  }
+
+  @Test
+  public void
+      getRelativePath_withoutSchemesAndWithoutAuthorities_shouldReturnCorrectRelativePath() {
+    Uri baseUri = Uri.parse("a/b/c");
+    Uri targetUri = Uri.parse("d/e/f");
+
+    assertThat(UriUtil.getRelativePath(baseUri, targetUri)).isEqualTo("../../../d/e/f");
+  }
+
+  @Test
+  public void getRelativePath_withEqualPathSegmentsLength_shouldReturnCorrectRelativePath() {
+    Uri baseUri = Uri.parse("http://uri/a/b/c");
+    Uri targetUri = Uri.parse("http://uri/d/e/f");
+
+    assertThat(UriUtil.getRelativePath(baseUri, targetUri)).isEqualTo("../../../d/e/f");
+  }
+
+  @Test
+  public void getRelativePath_withUnEqualPathSegmentsLength_shouldReturnCorrectRelativePath() {
+    Uri baseUri = Uri.parse("http://uri/a/b/c");
+    Uri targetUri = Uri.parse("http://uri/a/b/d/e/f");
+
+    assertThat(UriUtil.getRelativePath(baseUri, targetUri)).isEqualTo("../d/e/f");
+  }
+
+  @Test
+  public void getRelativePath_withEqualUris_shouldReturnEmptyString() {
+    Uri baseUri = Uri.parse("http://uri/a/b/c");
+    Uri targetUri = Uri.parse("http://uri/a/b/c");
+
+    assertThat(UriUtil.getRelativePath(baseUri, targetUri)).isEmpty();
+  }
+
+  @Test
+  public void getRelativePath_nonHierarchicalUris_shouldReturnCorrectRelativePath() {
+    Uri baseUri = Uri.parse("schema:a@b");
+    Uri targetUri = Uri.parse("schema:a@c");
+
+    assertThat(UriUtil.getRelativePath(baseUri, targetUri)).isEqualTo(targetUri.toString());
+  }
 }
