@@ -39,6 +39,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -470,6 +471,7 @@ public final class CmcdHeadersFactory {
       headerValueList.addAll(customDataList);
 
       if (!headerValueList.isEmpty()) {
+        Collections.sort(headerValueList);
         httpRequestHeaders.put(
             CmcdConfiguration.KEY_CMCD_OBJECT, COMMA_JOINER.join(headerValueList));
       }
@@ -639,6 +641,7 @@ public final class CmcdHeadersFactory {
       headerValueList.addAll(customDataList);
 
       if (!headerValueList.isEmpty()) {
+        Collections.sort(headerValueList);
         httpRequestHeaders.put(
             CmcdConfiguration.KEY_CMCD_REQUEST, COMMA_JOINER.join(headerValueList));
       }
@@ -818,6 +821,7 @@ public final class CmcdHeadersFactory {
       headerValueList.addAll(customDataList);
 
       if (!headerValueList.isEmpty()) {
+        Collections.sort(headerValueList);
         httpRequestHeaders.put(
             CmcdConfiguration.KEY_CMCD_SESSION, COMMA_JOINER.join(headerValueList));
       }
@@ -924,6 +928,7 @@ public final class CmcdHeadersFactory {
       headerValueList.addAll(customDataList);
 
       if (!headerValueList.isEmpty()) {
+        Collections.sort(headerValueList);
         httpRequestHeaders.put(
             CmcdConfiguration.KEY_CMCD_STATUS, COMMA_JOINER.join(headerValueList));
       }

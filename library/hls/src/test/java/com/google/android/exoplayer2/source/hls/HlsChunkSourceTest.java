@@ -214,11 +214,11 @@ public class HlsChunkSourceTest {
     assertThat(output.chunk.dataSpec.httpRequestHeaders)
         .containsExactly(
             "CMCD-Object",
-            "br=800,tb=800,d=4000,ot=v",
+            "br=800,d=4000,ot=v,tb=800",
             "CMCD-Request",
             "bl=0,dl=0,su",
             "CMCD-Session",
-            "cid=\"mediaId\",sid=\"" + cmcdConfiguration.sessionId + "\",sf=h,st=v");
+            "cid=\"mediaId\",sf=h,sid=\"" + cmcdConfiguration.sessionId + "\",st=v");
 
     testChunkSource.getNextChunk(
         new LoadingInfo.Builder().setPlaybackPositionUs(3_000_000).setPlaybackSpeed(1.25f).build(),
@@ -230,11 +230,11 @@ public class HlsChunkSourceTest {
     assertThat(output.chunk.dataSpec.httpRequestHeaders)
         .containsExactly(
             "CMCD-Object",
-            "br=800,tb=800,d=4000,ot=v",
+            "br=800,d=4000,ot=v,tb=800",
             "CMCD-Request",
             "bl=1000,dl=800",
             "CMCD-Session",
-            "cid=\"mediaId\",sid=\"" + cmcdConfiguration.sessionId + "\",sf=h,st=v,pr=1.25");
+            "cid=\"mediaId\",pr=1.25,sf=h,sid=\"" + cmcdConfiguration.sessionId + "\",st=v");
   }
 
   @Test
@@ -327,7 +327,7 @@ public class HlsChunkSourceTest {
     assertThat(output.chunk.dataSpec.httpRequestHeaders)
         .containsExactly(
             "CMCD-Object",
-            "br=800,tb=800,d=4000,ot=v",
+            "br=800,d=4000,ot=v,tb=800",
             "CMCD-Request",
             "bl=0,dl=0,su",
             "CMCD-Session",
@@ -376,11 +376,11 @@ public class HlsChunkSourceTest {
     assertThat(output.chunk.dataSpec.httpRequestHeaders)
         .containsExactly(
             "CMCD-Object",
-            "br=800,tb=800,d=4000,ot=v,key-1=1",
+            "br=800,d=4000,key-1=1,ot=v,tb=800",
             "CMCD-Request",
-            "bl=0,dl=0,su,key-2=\"stringValue\"",
+            "bl=0,dl=0,key-2=\"stringValue\",su",
             "CMCD-Session",
-            "cid=\"mediaId\",sid=\"" + cmcdConfiguration.sessionId + "\",sf=h,st=v,key-3=3",
+            "cid=\"mediaId\",key-3=3,sf=h,sid=\"" + cmcdConfiguration.sessionId + "\",st=v",
             "CMCD-Status",
             "key-4=5.0");
   }
