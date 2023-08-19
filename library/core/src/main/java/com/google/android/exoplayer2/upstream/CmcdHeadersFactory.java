@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.upstream;
 
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.Math.max;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
@@ -29,6 +30,8 @@ import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
@@ -36,6 +39,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * This class serves as a factory for generating Common Media Client Data (CMCD) HTTP request
@@ -54,6 +59,8 @@ import java.util.ArrayList;
 public final class CmcdHeadersFactory {
 
   private static final Joiner COMMA_JOINER = Joiner.on(",");
+  private static final Pattern CUSTOM_KEY_NAME_PATTERN =
+      Pattern.compile("[a-zA-Z0-9]+(-[a-zA-Z0-9]+)+");
 
   /**
    * Retrieves the object type value from the given {@link ExoTrackSelection}.
@@ -213,12 +220,15 @@ public final class CmcdHeadersFactory {
 
   /** Creates and returns a new {@link ImmutableMap} containing the CMCD HTTP request headers. */
   public ImmutableMap<@CmcdConfiguration.HeaderKey String, String> createHttpRequestHeaders() {
-    ImmutableMap<@CmcdConfiguration.HeaderKey String, String> customData =
+    ImmutableListMultimap<@CmcdConfiguration.HeaderKey String, String> customData =
         cmcdConfiguration.requestConfig.getCustomData();
+    for (String headerKey : customData.keySet()) {
+      validateCustomDataListFormat(customData.get(headerKey));
+    }
+
     int bitrateKbps = Util.ceilDivide(trackSelection.getSelectedFormat().bitrate, 1000);
 
-    CmcdObject.Builder cmcdObject =
-        new CmcdObject.Builder().setCustomData(customData.get(CmcdConfiguration.KEY_CMCD_OBJECT));
+    CmcdObject.Builder cmcdObject = new CmcdObject.Builder();
     if (!getIsInitSegment()) {
       if (cmcdConfiguration.isBitrateLoggingAllowed()) {
         cmcdObject.setBitrateKbps(bitrateKbps);
@@ -235,13 +245,14 @@ public final class CmcdHeadersFactory {
         cmcdObject.setObjectDurationMs(Util.usToMs(chunkDurationUs));
       }
     }
-
     if (cmcdConfiguration.isObjectTypeLoggingAllowed()) {
       cmcdObject.setObjectType(objectType);
     }
+    if (customData.containsKey(CmcdConfiguration.KEY_CMCD_OBJECT)) {
+      cmcdObject.setCustomDataList(customData.get(CmcdConfiguration.KEY_CMCD_OBJECT));
+    }
 
-    CmcdRequest.Builder cmcdRequest =
-        new CmcdRequest.Builder().setCustomData(customData.get(CmcdConfiguration.KEY_CMCD_REQUEST));
+    CmcdRequest.Builder cmcdRequest = new CmcdRequest.Builder();
     if (!getIsInitSegment() && cmcdConfiguration.isBufferLengthLoggingAllowed()) {
       cmcdRequest.setBufferLengthMs(Util.usToMs(bufferedDurationUs));
     }
@@ -256,9 +267,11 @@ public final class CmcdHeadersFactory {
     if (cmcdConfiguration.isStartupLoggingAllowed()) {
       cmcdRequest.setStartup(didRebuffer || isBufferEmpty);
     }
+    if (customData.containsKey(CmcdConfiguration.KEY_CMCD_REQUEST)) {
+      cmcdRequest.setCustomDataList(customData.get(CmcdConfiguration.KEY_CMCD_REQUEST));
+    }
 
-    CmcdSession.Builder cmcdSession =
-        new CmcdSession.Builder().setCustomData(customData.get(CmcdConfiguration.KEY_CMCD_SESSION));
+    CmcdSession.Builder cmcdSession = new CmcdSession.Builder();
     if (cmcdConfiguration.isContentIdLoggingAllowed()) {
       cmcdSession.setContentId(cmcdConfiguration.contentId);
     }
@@ -274,15 +287,20 @@ public final class CmcdHeadersFactory {
     if (cmcdConfiguration.isPlaybackRateLoggingAllowed()) {
       cmcdSession.setPlaybackRate(playbackRate);
     }
+    if (customData.containsKey(CmcdConfiguration.KEY_CMCD_SESSION)) {
+      cmcdSession.setCustomDataList(customData.get(CmcdConfiguration.KEY_CMCD_SESSION));
+    }
 
-    CmcdStatus.Builder cmcdStatus =
-        new CmcdStatus.Builder().setCustomData(customData.get(CmcdConfiguration.KEY_CMCD_STATUS));
+    CmcdStatus.Builder cmcdStatus = new CmcdStatus.Builder();
     if (cmcdConfiguration.isMaximumRequestThroughputLoggingAllowed()) {
       cmcdStatus.setMaximumRequestedThroughputKbps(
           cmcdConfiguration.requestConfig.getRequestedMaximumThroughputKbps(bitrateKbps));
     }
     if (cmcdConfiguration.isBufferStarvationLoggingAllowed()) {
       cmcdStatus.setBufferStarvation(didRebuffer);
+    }
+    if (customData.containsKey(CmcdConfiguration.KEY_CMCD_STATUS)) {
+      cmcdStatus.setCustomDataList(customData.get(CmcdConfiguration.KEY_CMCD_STATUS));
     }
 
     ImmutableMap.Builder<String, String> httpRequestHeaders = ImmutableMap.builder();
@@ -297,6 +315,13 @@ public final class CmcdHeadersFactory {
     return objectType != null && objectType.equals(OBJECT_TYPE_INIT_SEGMENT);
   }
 
+  private void validateCustomDataListFormat(List<String> customDataList) {
+    for (String customData : customDataList) {
+      String key = Util.split(customData, "=")[0];
+      checkState(CUSTOM_KEY_NAME_PATTERN.matcher(key).matches());
+    }
+  }
+
   /**
    * Keys whose values vary with the object being requested. Contains CMCD fields: {@code br},
    * {@code tb}, {@code d} and {@code ot}.
@@ -309,13 +334,14 @@ public final class CmcdHeadersFactory {
       private int topBitrateKbps;
       private long objectDurationMs;
       @Nullable private @ObjectType String objectType;
-      @Nullable private String customData;
+      private ImmutableList<String> customDataList;
 
       /** Creates a new instance with default values. */
       public Builder() {
         this.bitrateKbps = C.RATE_UNSET_INT;
         this.topBitrateKbps = C.RATE_UNSET_INT;
         this.objectDurationMs = C.TIME_UNSET;
+        this.customDataList = ImmutableList.of();
       }
 
       /**
@@ -364,10 +390,10 @@ public final class CmcdHeadersFactory {
         return this;
       }
 
-      /** Sets the {@link CmcdObject#customData}. The default value is {@code null}. */
+      /** Sets the {@link CmcdObject#customDataList}. The default value is an empty list. */
       @CanIgnoreReturnValue
-      public Builder setCustomData(@Nullable String customData) {
-        this.customData = customData;
+      public Builder setCustomDataList(List<String> customDataList) {
+        this.customDataList = ImmutableList.copyOf(customDataList);
         return this;
       }
 
@@ -409,21 +435,15 @@ public final class CmcdHeadersFactory {
      */
     @Nullable public final @ObjectType String objectType;
 
-    /**
-     * Custom data where the values of the keys vary with the object being requested, or {@code
-     * null} if unset.
-     *
-     * <p>The String consists of key-value pairs separated by commas.<br>
-     * Example: {@code key1=intValue,key2="stringValue"}.
-     */
-    @Nullable public final String customData;
+    /** Custom data that vary based on the specific object being requested. */
+    public final ImmutableList<String> customDataList;
 
     private CmcdObject(Builder builder) {
       this.bitrateKbps = builder.bitrateKbps;
       this.topBitrateKbps = builder.topBitrateKbps;
       this.objectDurationMs = builder.objectDurationMs;
       this.objectType = builder.objectType;
-      this.customData = builder.customData;
+      this.customDataList = builder.customDataList;
     }
 
     /**
@@ -447,9 +467,7 @@ public final class CmcdHeadersFactory {
       if (!TextUtils.isEmpty(objectType)) {
         headerValueList.add(CmcdConfiguration.KEY_OBJECT_TYPE + "=" + objectType);
       }
-      if (!TextUtils.isEmpty(customData)) {
-        headerValueList.add(customData);
-      }
+      headerValueList.addAll(customDataList);
 
       if (!headerValueList.isEmpty()) {
         httpRequestHeaders.put(
@@ -470,13 +488,14 @@ public final class CmcdHeadersFactory {
       private long measuredThroughputInKbps;
       private long deadlineMs;
       private boolean startup;
-      @Nullable private String customData;
+      private ImmutableList<String> customDataList;
 
       /** Creates a new instance with default values. */
       public Builder() {
         this.bufferLengthMs = C.TIME_UNSET;
         this.measuredThroughputInKbps = C.RATE_UNSET_INT;
         this.deadlineMs = C.TIME_UNSET;
+        this.customDataList = ImmutableList.of();
       }
 
       /**
@@ -530,10 +549,10 @@ public final class CmcdHeadersFactory {
         return this;
       }
 
-      /** Sets the {@link CmcdRequest#customData}. The default value is {@code null}. */
+      /** Sets the {@link CmcdRequest#customDataList}. The default value is an empty list. */
       @CanIgnoreReturnValue
-      public Builder setCustomData(@Nullable String customData) {
-        this.customData = customData;
+      public Builder setCustomDataList(List<String> customDataList) {
+        this.customDataList = ImmutableList.copyOf(customDataList);
         return this;
       }
 
@@ -584,20 +603,15 @@ public final class CmcdHeadersFactory {
      */
     public final boolean startup;
 
-    /**
-     * Custom data where the values of the keys vary with each request, or {@code null} if unset.
-     *
-     * <p>The String consists of key-value pairs separated by commas.<br>
-     * Example: {@code key1=intValue, key2="stringValue"}.
-     */
-    @Nullable public final String customData;
+    /** Custom data that vary with each request. */
+    public final ImmutableList<String> customDataList;
 
     private CmcdRequest(Builder builder) {
       this.bufferLengthMs = builder.bufferLengthMs;
       this.measuredThroughputInKbps = builder.measuredThroughputInKbps;
       this.deadlineMs = builder.deadlineMs;
       this.startup = builder.startup;
-      this.customData = builder.customData;
+      this.customDataList = builder.customDataList;
     }
 
     /**
@@ -622,9 +636,7 @@ public final class CmcdHeadersFactory {
       if (startup) {
         headerValueList.add(CmcdConfiguration.KEY_STARTUP);
       }
-      if (!TextUtils.isEmpty(customData)) {
-        headerValueList.add(customData);
-      }
+      headerValueList.addAll(customDataList);
 
       if (!headerValueList.isEmpty()) {
         httpRequestHeaders.put(
@@ -646,7 +658,12 @@ public final class CmcdHeadersFactory {
       @Nullable private @StreamingFormat String streamingFormat;
       @Nullable private @StreamType String streamType;
       private float playbackRate;
-      @Nullable private String customData;
+      private ImmutableList<String> customDataList;
+
+      /** Creates a new instance with default values. */
+      public Builder() {
+        this.customDataList = ImmutableList.of();
+      }
 
       /**
        * Sets the {@link CmcdSession#contentId}. Maximum length allowed is 64 characters. The
@@ -703,10 +720,10 @@ public final class CmcdHeadersFactory {
         return this;
       }
 
-      /** Sets the {@link CmcdSession#customData}. The default value is {@code null}. */
+      /** Sets the {@link CmcdSession#customDataList}. The default value is an empty list. */
       @CanIgnoreReturnValue
-      public Builder setCustomData(@Nullable String customData) {
-        this.customData = customData;
+      public Builder setCustomDataList(List<String> customDataList) {
+        this.customDataList = ImmutableList.copyOf(customDataList);
         return this;
       }
 
@@ -756,14 +773,8 @@ public final class CmcdHeadersFactory {
      */
     public final float playbackRate;
 
-    /**
-     * Custom data where the values of the keys are expected to be invariant over the life of the
-     * session, or {@code null} if unset.
-     *
-     * <p>The String consists of key-value pairs separated by commas.<br>
-     * Example: {@code key1=intValue, key2="stringValue"}.
-     */
-    @Nullable public final String customData;
+    /** Custom data that is expected to be invariant over the life of the session. */
+    public final ImmutableList<String> customDataList;
 
     private CmcdSession(Builder builder) {
       this.contentId = builder.contentId;
@@ -771,7 +782,7 @@ public final class CmcdHeadersFactory {
       this.streamingFormat = builder.streamingFormat;
       this.streamType = builder.streamType;
       this.playbackRate = builder.playbackRate;
-      this.customData = builder.customData;
+      this.customDataList = builder.customDataList;
     }
 
     /**
@@ -804,9 +815,7 @@ public final class CmcdHeadersFactory {
       if (VERSION != 1) {
         headerValueList.add(CmcdConfiguration.KEY_VERSION + "=" + VERSION);
       }
-      if (!TextUtils.isEmpty(customData)) {
-        headerValueList.add(customData);
-      }
+      headerValueList.addAll(customDataList);
 
       if (!headerValueList.isEmpty()) {
         httpRequestHeaders.put(
@@ -825,11 +834,12 @@ public final class CmcdHeadersFactory {
     public static final class Builder {
       private int maximumRequestedThroughputKbps;
       private boolean bufferStarvation;
-      @Nullable private String customData;
+      private ImmutableList<String> customDataList;
 
       /** Creates a new instance with default values. */
       public Builder() {
         this.maximumRequestedThroughputKbps = C.RATE_UNSET_INT;
+        this.customDataList = ImmutableList.of();
       }
 
       /**
@@ -860,10 +870,10 @@ public final class CmcdHeadersFactory {
         return this;
       }
 
-      /** Sets the {@link CmcdStatus#customData}. The default value is {@code null}. */
+      /** Sets the {@link CmcdStatus#customDataList}. The default value is an empty list. */
       @CanIgnoreReturnValue
-      public Builder setCustomData(@Nullable String customData) {
-        this.customData = customData;
+      public Builder setCustomDataList(List<String> customDataList) {
+        this.customDataList = ImmutableList.copyOf(customDataList);
         return this;
       }
 
@@ -886,19 +896,13 @@ public final class CmcdHeadersFactory {
      */
     public final boolean bufferStarvation;
 
-    /**
-     * Custom data where the values of the keys do not vary with every request or object, or {@code
-     * null} if unset.
-     *
-     * <p>The String consists of key-value pairs separated by commas.<br>
-     * Example: {@code key1=intValue, key2="stringValue"}.
-     */
-    @Nullable public final String customData;
+    /** Custom data that do not vary with every request or object. */
+    public final ImmutableList<String> customDataList;
 
     private CmcdStatus(Builder builder) {
       this.maximumRequestedThroughputKbps = builder.maximumRequestedThroughputKbps;
       this.bufferStarvation = builder.bufferStarvation;
-      this.customData = builder.customData;
+      this.customDataList = builder.customDataList;
     }
 
     /**
@@ -917,9 +921,7 @@ public final class CmcdHeadersFactory {
       if (bufferStarvation) {
         headerValueList.add(CmcdConfiguration.KEY_BUFFER_STARVATION);
       }
-      if (!TextUtils.isEmpty(customData)) {
-        headerValueList.add(customData);
-      }
+      headerValueList.addAll(customDataList);
 
       if (!headerValueList.isEmpty()) {
         httpRequestHeaders.put(

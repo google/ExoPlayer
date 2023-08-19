@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2.upstream;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -24,6 +25,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,11 +43,13 @@ public class CmcdHeadersFactoryTest {
                 mediaItem.mediaId,
                 new CmcdConfiguration.RequestConfig() {
                   @Override
-                  public ImmutableMap<@CmcdConfiguration.HeaderKey String, String> getCustomData() {
-                    return new ImmutableMap.Builder<String, String>()
-                        .put("CMCD-Object", "key1=value1")
-                        .put("CMCD-Request", "key2=\"stringValue\"")
-                        .buildOrThrow();
+                  public ImmutableListMultimap<@CmcdConfiguration.HeaderKey String, String>
+                      getCustomData() {
+                    return new ImmutableListMultimap.Builder<String, String>()
+                        .putAll("CMCD-Object", "key-1=1", "key-2-separated-by-multiple-hyphens=2")
+                        .put("CMCD-Request", "key-3=\"stringValue1,stringValue2\"")
+                        .put("CMCD-Status", "key-4=\"stringValue3=stringValue4\"")
+                        .build();
                   }
 
                   @Override
@@ -79,12 +83,47 @@ public class CmcdHeadersFactoryTest {
     assertThat(requestHeaders)
         .containsExactly(
             "CMCD-Object",
-            "br=840,tb=1000,d=3000,key1=value1",
+            "br=840,tb=1000,d=3000,key-1=1,key-2-separated-by-multiple-hyphens=2",
             "CMCD-Request",
-            "bl=1800,mtp=500,dl=900,su,key2=\"stringValue\"",
+            "bl=1800,mtp=500,dl=900,su,key-3=\"stringValue1,stringValue2\"",
             "CMCD-Session",
             "cid=\"mediaId\",sid=\"sessionId\",sf=d,st=l,pr=2.00",
             "CMCD-Status",
-            "rtp=1700,bs");
+            "rtp=1700,bs,key-4=\"stringValue3=stringValue4\"");
+  }
+
+  @Test
+  public void createInstance_withInvalidNonHyphenatedCustomKey_throwsIllegalStateException() {
+    CmcdConfiguration.Factory cmcdConfigurationFactory =
+        mediaItem ->
+            new CmcdConfiguration(
+                null,
+                null,
+                new CmcdConfiguration.RequestConfig() {
+                  @Override
+                  public ImmutableListMultimap<@CmcdConfiguration.HeaderKey String, String>
+                      getCustomData() {
+                    return ImmutableListMultimap.of("CMCD-Object", "key1=1");
+                  }
+                });
+    MediaItem mediaItem = new MediaItem.Builder().setMediaId("mediaId").build();
+    CmcdConfiguration cmcdConfiguration =
+        cmcdConfigurationFactory.createCmcdConfiguration(mediaItem);
+    ExoTrackSelection trackSelection = mock(ExoTrackSelection.class);
+    when(trackSelection.getSelectedFormat()).thenReturn(new Format.Builder().build());
+
+    assertThrows(
+        IllegalStateException.class,
+        () ->
+            new CmcdHeadersFactory(
+                    cmcdConfiguration,
+                    trackSelection,
+                    /* bufferedDurationUs= */ 0,
+                    /* playbackRate= */ 1.0f,
+                    /* streamingFormat= */ CmcdHeadersFactory.STREAMING_FORMAT_DASH,
+                    /* isLive= */ true,
+                    /* didRebuffer= */ true,
+                    /* isBufferEmpty= */ false)
+                .createHttpRequestHeaders());
   }
 }
