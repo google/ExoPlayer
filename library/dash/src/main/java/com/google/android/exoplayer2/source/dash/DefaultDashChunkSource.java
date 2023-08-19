@@ -20,6 +20,7 @@ import static java.lang.Math.min;
 
 import android.net.Uri;
 import android.os.SystemClock;
+import android.util.Pair;
 import androidx.annotation.CheckResult;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
@@ -54,6 +55,7 @@ import com.google.android.exoplayer2.upstream.HttpDataSource.InvalidResponseCode
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.upstream.LoaderErrorThrower;
 import com.google.android.exoplayer2.upstream.TransferListener;
+import com.google.android.exoplayer2.util.UriUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableMap;
 import java.io.IOException;
@@ -735,12 +737,17 @@ public class DefaultDashChunkSource implements DashChunkSource {
               ? 0
               : DataSpec.FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED;
       ImmutableMap<@CmcdConfiguration.HeaderKey String, String> httpRequestHeaders =
-          cmcdHeadersFactory == null
-              ? ImmutableMap.of()
-              : cmcdHeadersFactory
-                  .setChunkDurationUs(endTimeUs - startTimeUs)
-                  .setObjectType(CmcdHeadersFactory.getObjectType(trackSelection))
-                  .createHttpRequestHeaders();
+          ImmutableMap.of();
+      if (cmcdHeadersFactory != null) {
+        Pair<String, String> nextObjectAndRangeRequest =
+            getNextObjectAndRangeRequest(firstSegmentNum, segmentUri, representationHolder);
+        cmcdHeadersFactory
+            .setChunkDurationUs(endTimeUs - startTimeUs)
+            .setObjectType(CmcdHeadersFactory.getObjectType(trackSelection))
+            .setNextObjectRequest(nextObjectAndRangeRequest.first)
+            .setNextRangeRequest(nextObjectAndRangeRequest.second);
+        httpRequestHeaders = cmcdHeadersFactory.createHttpRequestHeaders();
+      }
       DataSpec dataSpec =
           DashUtil.buildDataSpec(
               representation,
@@ -785,12 +792,17 @@ public class DefaultDashChunkSource implements DashChunkSource {
               ? 0
               : DataSpec.FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED;
       ImmutableMap<@CmcdConfiguration.HeaderKey String, String> httpRequestHeaders =
-          cmcdHeadersFactory == null
-              ? ImmutableMap.of()
-              : cmcdHeadersFactory
-                  .setChunkDurationUs(endTimeUs - startTimeUs)
-                  .setObjectType(CmcdHeadersFactory.getObjectType(trackSelection))
-                  .createHttpRequestHeaders();
+          ImmutableMap.of();
+      if (cmcdHeadersFactory != null) {
+        Pair<String, String> nextObjectAndRangeRequest =
+            getNextObjectAndRangeRequest(segmentNum, segmentUri, representationHolder);
+        cmcdHeadersFactory
+            .setChunkDurationUs(endTimeUs - startTimeUs)
+            .setObjectType(CmcdHeadersFactory.getObjectType(trackSelection))
+            .setNextObjectRequest(nextObjectAndRangeRequest.first)
+            .setNextRangeRequest(nextObjectAndRangeRequest.second);
+        httpRequestHeaders = cmcdHeadersFactory.createHttpRequestHeaders();
+      }
       DataSpec dataSpec =
           DashUtil.buildDataSpec(
               representation,
@@ -814,6 +826,23 @@ public class DefaultDashChunkSource implements DashChunkSource {
           sampleOffsetUs,
           representationHolder.chunkExtractor);
     }
+  }
+
+  private Pair<String, String> getNextObjectAndRangeRequest(
+      long segmentNum, RangedUri segmentUri, RepresentationHolder representationHolder) {
+    if (segmentNum + 1 < representationHolder.getSegmentCount()) {
+      RangedUri nextSegmentUri = representationHolder.getSegmentUrl(segmentNum + 1);
+      Uri uri = segmentUri.resolveUri(representationHolder.selectedBaseUrl.url);
+      Uri nextUri = nextSegmentUri.resolveUri(representationHolder.selectedBaseUrl.url);
+      String nextObjectRequest = UriUtil.getRelativePath(uri, nextUri);
+
+      String nextRangeRequest = nextSegmentUri.start + "-";
+      if (nextSegmentUri.length != C.LENGTH_UNSET) {
+        nextRangeRequest += (nextSegmentUri.start + nextSegmentUri.length);
+      }
+      return new Pair<>(nextObjectRequest, nextRangeRequest);
+    }
+    return new Pair<>(null, null);
   }
 
   private RepresentationHolder updateSelectedBaseUrl(int trackIndex) {

@@ -321,7 +321,7 @@ public class DefaultDashChunkSourceTest {
             "CMCD-Object",
             "br=700,d=4000,ot=v,tb=1300",
             "CMCD-Request",
-            "bl=0,dl=0,mtp=1000,su",
+            "bl=0,dl=0,mtp=1000,nor=\"..%2Fvideo_4000_700000.m4s\",nrr=\"0-\",su",
             "CMCD-Session",
             "cid=\"mediaId\",sf=d,sid=\"" + cmcdConfiguration.sessionId + "\",st=v");
 
@@ -336,7 +336,7 @@ public class DefaultDashChunkSourceTest {
             "CMCD-Object",
             "br=700,d=4000,ot=v,tb=1300",
             "CMCD-Request",
-            "bl=1000,dl=800,mtp=1000",
+            "bl=1000,dl=800,mtp=1000,nor=\"..%2Fvideo_8000_700000.m4s\",nrr=\"0-\"",
             "CMCD-Session",
             "cid=\"mediaId\",pr=1.25,sf=d,sid=\"" + cmcdConfiguration.sessionId + "\",st=v");
   }
@@ -420,7 +420,7 @@ public class DefaultDashChunkSourceTest {
             "CMCD-Object",
             "br=700,d=4000,ot=v,tb=1300",
             "CMCD-Request",
-            "bl=0,dl=0,mtp=1000,su",
+            "bl=0,dl=0,mtp=1000,nor=\"..%2Fvideo_4000_700000.m4s\",nrr=\"0-\",su",
             "CMCD-Session",
             "cid=\"mediaIdcontentIdSuffix\",sf=d,st=v",
             "CMCD-Status",
@@ -468,7 +468,7 @@ public class DefaultDashChunkSourceTest {
             "CMCD-Object",
             "br=700,d=4000,key-1=1,ot=v,tb=1300",
             "CMCD-Request",
-            "bl=0,dl=0,key-2=\"stringValue\",mtp=1000,su",
+            "bl=0,dl=0,key-2=\"stringValue\",mtp=1000,nor=\"..%2Fvideo_4000_700000.m4s\",nrr=\"0-\",su",
             "CMCD-Session",
             "cid=\"mediaId\",key-3=3,sf=d,sid=\"" + cmcdConfiguration.sessionId + "\",st=v",
             "CMCD-Status",

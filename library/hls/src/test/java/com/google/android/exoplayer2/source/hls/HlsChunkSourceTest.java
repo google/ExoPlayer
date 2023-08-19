@@ -216,7 +216,7 @@ public class HlsChunkSourceTest {
             "CMCD-Object",
             "br=800,d=4000,ot=v,tb=800",
             "CMCD-Request",
-            "bl=0,dl=0,su",
+            "bl=0,dl=0,nor=\"..%2F3.mp4\",nrr=\"0-\",su",
             "CMCD-Session",
             "cid=\"mediaId\",sf=h,sid=\"" + cmcdConfiguration.sessionId + "\",st=v");
 
@@ -232,7 +232,7 @@ public class HlsChunkSourceTest {
             "CMCD-Object",
             "br=800,d=4000,ot=v,tb=800",
             "CMCD-Request",
-            "bl=1000,dl=800",
+            "bl=1000,dl=800,nor=\"..%2F3.mp4\",nrr=\"0-\"",
             "CMCD-Session",
             "cid=\"mediaId\",pr=1.25,sf=h,sid=\"" + cmcdConfiguration.sessionId + "\",st=v");
   }
@@ -329,7 +329,7 @@ public class HlsChunkSourceTest {
             "CMCD-Object",
             "br=800,d=4000,ot=v,tb=800",
             "CMCD-Request",
-            "bl=0,dl=0,su",
+            "bl=0,dl=0,nor=\"..%2F3.mp4\",nrr=\"0-\",su",
             "CMCD-Session",
             "cid=\"mediaIdcontentIdSuffix\",sf=h,st=v",
             "CMCD-Status",
@@ -378,7 +378,7 @@ public class HlsChunkSourceTest {
             "CMCD-Object",
             "br=800,d=4000,key-1=1,ot=v,tb=800",
             "CMCD-Request",
-            "bl=0,dl=0,key-2=\"stringValue\",su",
+            "bl=0,dl=0,key-2=\"stringValue\",nor=\"..%2F3.mp4\",nrr=\"0-\",su",
             "CMCD-Session",
             "cid=\"mediaId\",key-3=3,sf=h,sid=\"" + cmcdConfiguration.sessionId + "\",st=v",
             "CMCD-Status",

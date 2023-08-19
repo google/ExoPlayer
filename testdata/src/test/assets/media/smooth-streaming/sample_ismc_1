@@ -39,6 +39,7 @@
 
         <c t = "0" d = "19680000" />
         <c n = "1" t = "19680000" d="8980000" />
+        <c n = "2" t = "28660000" d="8980000" />
 
     </StreamIndex>
 </SmoothStreamingMedia>

@@ -496,23 +496,44 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     seenExpectedPlaylistError = false;
     expectedPlaylistUrl = null;
 
-    @Nullable
-    CmcdHeadersFactory cmcdHeadersFactory =
-        cmcdConfiguration == null
-            ? null
-            : new CmcdHeadersFactory(
-                    cmcdConfiguration,
-                    trackSelection,
-                    bufferedDurationUs,
-                    /* playbackRate= */ loadingInfo.playbackSpeed,
-                    /* streamingFormat= */ CmcdHeadersFactory.STREAMING_FORMAT_HLS,
-                    /* isLive= */ !playlist.hasEndTag,
-                    /* didRebuffer= */ loadingInfo.rebufferedSince(lastChunkRequestRealtimeMs),
-                    /* isBufferEmpty= */ queue.isEmpty())
-                .setObjectType(
-                    getIsMuxedAudioAndVideo()
-                        ? CmcdHeadersFactory.OBJECT_TYPE_MUXED_AUDIO_AND_VIDEO
-                        : CmcdHeadersFactory.getObjectType(trackSelection));
+    @Nullable CmcdHeadersFactory cmcdHeadersFactory = null;
+    if (cmcdConfiguration != null) {
+      cmcdHeadersFactory =
+          new CmcdHeadersFactory(
+                  cmcdConfiguration,
+                  trackSelection,
+                  bufferedDurationUs,
+                  /* playbackRate= */ loadingInfo.playbackSpeed,
+                  /* streamingFormat= */ CmcdHeadersFactory.STREAMING_FORMAT_HLS,
+                  /* isLive= */ !playlist.hasEndTag,
+                  /* didRebuffer= */ loadingInfo.rebufferedSince(lastChunkRequestRealtimeMs),
+                  /* isBufferEmpty= */ queue.isEmpty())
+              .setObjectType(
+                  getIsMuxedAudioAndVideo()
+                      ? CmcdHeadersFactory.OBJECT_TYPE_MUXED_AUDIO_AND_VIDEO
+                      : CmcdHeadersFactory.getObjectType(trackSelection));
+
+      long nextChunkMediaSequence =
+          partIndex == C.LENGTH_UNSET
+              ? (chunkMediaSequence == C.LENGTH_UNSET ? C.LENGTH_UNSET : chunkMediaSequence + 1)
+              : chunkMediaSequence;
+      int nextPartIndex = partIndex == C.LENGTH_UNSET ? C.LENGTH_UNSET : partIndex + 1;
+      SegmentBaseHolder nextSegmentBaseHolder =
+          getNextSegmentHolder(playlist, nextChunkMediaSequence, nextPartIndex);
+      if (nextSegmentBaseHolder != null) {
+        Uri uri = UriUtil.resolveToUri(playlist.baseUri, segmentBaseHolder.segmentBase.url);
+        Uri nextUri = UriUtil.resolveToUri(playlist.baseUri, nextSegmentBaseHolder.segmentBase.url);
+        cmcdHeadersFactory.setNextObjectRequest(UriUtil.getRelativePath(uri, nextUri));
+
+        String nextRangeRequest = nextSegmentBaseHolder.segmentBase.byteRangeOffset + "-";
+        if (nextSegmentBaseHolder.segmentBase.byteRangeLength != C.LENGTH_UNSET) {
+          nextRangeRequest +=
+              (nextSegmentBaseHolder.segmentBase.byteRangeOffset
+                  + nextSegmentBaseHolder.segmentBase.byteRangeLength);
+        }
+        cmcdHeadersFactory.setNextRangeRequest(nextRangeRequest);
+      }
+    }
     lastChunkRequestRealtimeMs = SystemClock.elapsedRealtime();
 
     // Check if the media segment or its initialization segment are fully encrypted.
