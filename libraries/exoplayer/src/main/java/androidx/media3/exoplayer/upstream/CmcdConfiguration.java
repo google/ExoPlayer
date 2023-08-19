@@ -24,7 +24,7 @@ import androidx.annotation.StringDef;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.util.UnstableApi;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableListMultimap;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -160,24 +160,39 @@ public final class CmcdConfiguration {
      *
      * <p>By default, no custom data is provided.
      *
-     * <p>The key should belong to the {@link HeaderKey}. The value should consist of key-value
-     * pairs separated by commas. If the value contains one of the keys defined in the {@link
-     * CmcdKey} list, then this key should not be {@linkplain #isKeyAllowed(String) allowed},
-     * otherwise the key could be included twice in the produced log.
+     * <p>The data payload consists of a series of key/value pairs constructed according to the
+     * following rules:
+     *
+     * <ul>
+     *   <li>Custom keys SHOULD be allocated to one of the four defined header names defined in the
+     *       {@link HeaderKey} annotation.
+     *   <li>All information in the payload MUST be represented as key=value pairs.
+     *   <li>The key and value MUST be separated by an equals sign. If the value type is boolean and
+     *       the value is {@code true}, then the equals sign and the value MUST be omitted.
+     *   <li>The key names are case-sensitive and reserved. Custom key names MUST carry a hyphenated
+     *       prefix to ensure no namespace collision with future revisions to Common Media Client
+     *       Data (CMCD) specification. Clients SHOULD use a reverse-DNS syntax when defining their
+     *       own prefix.
+     *   <li>Any value of type String MUST be enclosed by opening and closing double quotes. Double
+     *       quotes and backslashes MUST be escaped using a backslash "\" character. Any value that
+     *       is not of type string does not require quoting.
+     * </ul>
+     *
+     * <p><b>Note:</b> The key words MUST and SHOULD are to be interpreted as described in RFC 2119.
      *
      * <p>Example:
      *
      * <ul>
-     *   <li>CMCD-Request:customField1=25400
-     *   <li>CMCD-Object:customField2=3200,customField3=4004,customField4=v,customField5=6000
-     *   <li>CMCD-Status:customField6,customField7=15000
-     *   <li>CMCD-Session:customField8="6e2fb550-c457-11e9-bb97-0800200c9a66"
+     *   <li>CMCD-Request:custom-field1=25400
+     *   <li>CMCD-Object:custom-field2=3200,custom-field3=4004,custom-field4=v,custom-field5=6000
+     *   <li>CMCD-Status:custom-field6,custom-field7=15000
+     *   <li>CMCD-Session:custom-field8="stringValue"
      * </ul>
      *
-     * @return An {@link ImmutableMap} containing the custom data.
+     * @return An {@link ImmutableListMultimap} containing the custom data.
      */
-    default ImmutableMap<@HeaderKey String, String> getCustomData() {
-      return ImmutableMap.of();
+    default ImmutableListMultimap<@HeaderKey String, String> getCustomData() {
+      return ImmutableListMultimap.of();
     }
 
     /**

@@ -38,7 +38,7 @@ import androidx.media3.test.utils.TestUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableListMultimap;
 import java.io.IOException;
 import java.time.Duration;
 import org.junit.Test;
@@ -186,13 +186,15 @@ public class DefaultSsChunkSourceTest {
           CmcdConfiguration.RequestConfig cmcdRequestConfig =
               new CmcdConfiguration.RequestConfig() {
                 @Override
-                public ImmutableMap<@CmcdConfiguration.HeaderKey String, String> getCustomData() {
-                  return new ImmutableMap.Builder<@CmcdConfiguration.HeaderKey String, String>()
-                      .put(CmcdConfiguration.KEY_CMCD_OBJECT, "key1=value1")
-                      .put(CmcdConfiguration.KEY_CMCD_REQUEST, "key2=\"stringValue\"")
-                      .put(CmcdConfiguration.KEY_CMCD_SESSION, "key3=1")
-                      .put(CmcdConfiguration.KEY_CMCD_STATUS, "key4=5.0")
-                      .buildOrThrow();
+                public ImmutableListMultimap<@CmcdConfiguration.HeaderKey String, String>
+                    getCustomData() {
+                  return new ImmutableListMultimap.Builder<
+                          @CmcdConfiguration.HeaderKey String, String>()
+                      .put(CmcdConfiguration.KEY_CMCD_OBJECT, "key-1=1")
+                      .put(CmcdConfiguration.KEY_CMCD_REQUEST, "key-2=\"stringValue\"")
+                      .put(CmcdConfiguration.KEY_CMCD_SESSION, "key-3=3")
+                      .put(CmcdConfiguration.KEY_CMCD_STATUS, "key-4=5.0")
+                      .build();
                 }
               };
 
@@ -214,13 +216,13 @@ public class DefaultSsChunkSourceTest {
     assertThat(output.chunk.dataSpec.httpRequestHeaders)
         .containsExactly(
             "CMCD-Object",
-            "br=308,tb=1536,d=1968,ot=v,key1=value1",
+            "br=308,tb=1536,d=1968,ot=v,key-1=1",
             "CMCD-Request",
-            "bl=0,mtp=1000,dl=0,su,key2=\"stringValue\"",
+            "bl=0,mtp=1000,dl=0,su,key-2=\"stringValue\"",
             "CMCD-Session",
-            "cid=\"mediaId\",sid=\"" + cmcdConfiguration.sessionId + "\",sf=s,st=v,key3=1",
+            "cid=\"mediaId\",sid=\"" + cmcdConfiguration.sessionId + "\",sf=s,st=v,key-3=3",
             "CMCD-Status",
-            "key4=5.0");
+            "key-4=5.0");
   }
 
   private SsChunkSource createSsChunkSource(

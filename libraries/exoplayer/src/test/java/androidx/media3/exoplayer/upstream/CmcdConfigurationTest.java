@@ -21,7 +21,7 @@ import static org.junit.Assert.assertThrows;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableListMultimap;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -97,11 +97,12 @@ public class CmcdConfigurationTest {
                   }
 
                   @Override
-                  public ImmutableMap<@CmcdConfiguration.HeaderKey String, String> getCustomData() {
-                    return new ImmutableMap.Builder<String, String>()
-                        .put("CMCD-Object", "key1=value1")
-                        .put("CMCD-Request", "key2=\"stringValue\"")
-                        .buildOrThrow();
+                  public ImmutableListMultimap<@CmcdConfiguration.HeaderKey String, String>
+                      getCustomData() {
+                    return new ImmutableListMultimap.Builder<String, String>()
+                        .putAll("CMCD-Object", "key-1=1", "key-2=2")
+                        .put("CMCD-Request", "key-3=\"stringValue1,stringValue2\"")
+                        .build();
                   }
 
                   @Override
@@ -121,8 +122,13 @@ public class CmcdConfigurationTest {
     assertThat(cmcdConfiguration.isContentIdLoggingAllowed()).isFalse();
     assertThat(cmcdConfiguration.isSessionIdLoggingAllowed()).isFalse();
     assertThat(cmcdConfiguration.isMaximumRequestThroughputLoggingAllowed()).isTrue();
+    assertThat(cmcdConfiguration.requestConfig.getCustomData().keySet()).hasSize(2);
     assertThat(cmcdConfiguration.requestConfig.getCustomData())
-        .containsExactly("CMCD-Object", "key1=value1", "CMCD-Request", "key2=\"stringValue\"");
+        .valuesForKey(CmcdConfiguration.KEY_CMCD_OBJECT)
+        .containsExactly("key-1=1", "key-2=2");
+    assertThat(cmcdConfiguration.requestConfig.getCustomData())
+        .valuesForKey(CmcdConfiguration.KEY_CMCD_REQUEST)
+        .containsExactly("key-3=\"stringValue1,stringValue2\"");
     assertThat(
             cmcdConfiguration.requestConfig.getRequestedMaximumThroughputKbps(
                 /* throughputKbps= */ 100))

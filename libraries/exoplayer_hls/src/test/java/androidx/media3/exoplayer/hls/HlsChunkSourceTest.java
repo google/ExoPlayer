@@ -40,7 +40,7 @@ import androidx.media3.test.utils.TestUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableListMultimap;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
@@ -345,13 +345,15 @@ public class HlsChunkSourceTest {
           CmcdConfiguration.RequestConfig cmcdRequestConfig =
               new CmcdConfiguration.RequestConfig() {
                 @Override
-                public ImmutableMap<@CmcdConfiguration.HeaderKey String, String> getCustomData() {
-                  return new ImmutableMap.Builder<@CmcdConfiguration.HeaderKey String, String>()
-                      .put(CmcdConfiguration.KEY_CMCD_OBJECT, "key1=value1")
-                      .put(CmcdConfiguration.KEY_CMCD_REQUEST, "key2=\"stringValue\"")
-                      .put(CmcdConfiguration.KEY_CMCD_SESSION, "key3=1")
-                      .put(CmcdConfiguration.KEY_CMCD_STATUS, "key4=5.0")
-                      .buildOrThrow();
+                public ImmutableListMultimap<@CmcdConfiguration.HeaderKey String, String>
+                    getCustomData() {
+                  return new ImmutableListMultimap.Builder<
+                          @CmcdConfiguration.HeaderKey String, String>()
+                      .put(CmcdConfiguration.KEY_CMCD_OBJECT, "key-1=1")
+                      .put(CmcdConfiguration.KEY_CMCD_REQUEST, "key-2=\"stringValue\"")
+                      .put(CmcdConfiguration.KEY_CMCD_SESSION, "key-3=3")
+                      .put(CmcdConfiguration.KEY_CMCD_STATUS, "key-4=5.0")
+                      .build();
                 }
               };
 
@@ -374,13 +376,13 @@ public class HlsChunkSourceTest {
     assertThat(output.chunk.dataSpec.httpRequestHeaders)
         .containsExactly(
             "CMCD-Object",
-            "br=800,tb=800,d=4000,ot=v,key1=value1",
+            "br=800,tb=800,d=4000,ot=v,key-1=1",
             "CMCD-Request",
-            "bl=0,dl=0,su,key2=\"stringValue\"",
+            "bl=0,dl=0,su,key-2=\"stringValue\"",
             "CMCD-Session",
-            "cid=\"mediaId\",sid=\"" + cmcdConfiguration.sessionId + "\",sf=h,st=v,key3=1",
+            "cid=\"mediaId\",sid=\"" + cmcdConfiguration.sessionId + "\",sf=h,st=v,key-3=3",
             "CMCD-Status",
-            "key4=5.0");
+            "key-4=5.0");
   }
 
   private HlsChunkSource createHlsChunkSource(@Nullable CmcdConfiguration cmcdConfiguration) {
