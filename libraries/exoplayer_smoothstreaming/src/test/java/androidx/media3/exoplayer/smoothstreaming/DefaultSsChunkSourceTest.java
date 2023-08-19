@@ -69,11 +69,11 @@ public class DefaultSsChunkSourceTest {
     assertThat(output.chunk.dataSpec.httpRequestHeaders)
         .containsExactly(
             "CMCD-Object",
-            "br=308,tb=1536,d=1968,ot=v",
+            "br=308,d=1968,ot=v,tb=1536",
             "CMCD-Request",
-            "bl=0,mtp=1000,dl=0,su",
+            "bl=0,dl=0,mtp=1000,su",
             "CMCD-Session",
-            "cid=\"mediaId\",sid=\"" + cmcdConfiguration.sessionId + "\",sf=s,st=v");
+            "cid=\"mediaId\",sf=s,sid=\"" + cmcdConfiguration.sessionId + "\",st=v");
 
     chunkSource.getNextChunk(
         new LoadingInfo.Builder().setPlaybackPositionUs(3_000_000).setPlaybackSpeed(2.0f).build(),
@@ -84,11 +84,11 @@ public class DefaultSsChunkSourceTest {
     assertThat(output.chunk.dataSpec.httpRequestHeaders)
         .containsExactly(
             "CMCD-Object",
-            "br=308,tb=1536,d=898,ot=v",
+            "br=308,d=898,ot=v,tb=1536",
             "CMCD-Request",
-            "bl=1000,mtp=1000,dl=500",
+            "bl=1000,dl=500,mtp=1000",
             "CMCD-Session",
-            "cid=\"mediaId\",sid=\"" + cmcdConfiguration.sessionId + "\",sf=s,st=v,pr=2.00");
+            "cid=\"mediaId\",pr=2.00,sf=s,sid=\"" + cmcdConfiguration.sessionId + "\",st=v");
   }
 
   @Test
@@ -168,9 +168,9 @@ public class DefaultSsChunkSourceTest {
     assertThat(output.chunk.dataSpec.httpRequestHeaders)
         .containsExactly(
             "CMCD-Object",
-            "br=308,tb=1536,d=1968,ot=v",
+            "br=308,d=1968,ot=v,tb=1536",
             "CMCD-Request",
-            "bl=0,mtp=1000,dl=0,su",
+            "bl=0,dl=0,mtp=1000,su",
             "CMCD-Session",
             "cid=\"mediaIdcontentIdSuffix\",sf=s,st=v",
             "CMCD-Status",
@@ -216,11 +216,11 @@ public class DefaultSsChunkSourceTest {
     assertThat(output.chunk.dataSpec.httpRequestHeaders)
         .containsExactly(
             "CMCD-Object",
-            "br=308,tb=1536,d=1968,ot=v,key-1=1",
+            "br=308,d=1968,key-1=1,ot=v,tb=1536",
             "CMCD-Request",
-            "bl=0,mtp=1000,dl=0,su,key-2=\"stringValue\"",
+            "bl=0,dl=0,key-2=\"stringValue\",mtp=1000,su",
             "CMCD-Session",
-            "cid=\"mediaId\",sid=\"" + cmcdConfiguration.sessionId + "\",sf=s,st=v,key-3=3",
+            "cid=\"mediaId\",key-3=3,sf=s,sid=\"" + cmcdConfiguration.sessionId + "\",st=v",
             "CMCD-Status",
             "key-4=5.0");
   }

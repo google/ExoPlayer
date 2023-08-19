@@ -83,13 +83,13 @@ public class CmcdHeadersFactoryTest {
     assertThat(requestHeaders)
         .containsExactly(
             "CMCD-Object",
-            "br=840,tb=1000,d=3000,key-1=1,key-2-separated-by-multiple-hyphens=2",
+            "br=840,d=3000,key-1=1,key-2-separated-by-multiple-hyphens=2,tb=1000",
             "CMCD-Request",
-            "bl=1800,mtp=500,dl=900,su,key-3=\"stringValue1,stringValue2\"",
+            "bl=1800,dl=900,key-3=\"stringValue1,stringValue2\",mtp=500,su",
             "CMCD-Session",
-            "cid=\"mediaId\",sid=\"sessionId\",sf=d,st=l,pr=2.00",
+            "cid=\"mediaId\",pr=2.00,sf=d,sid=\"sessionId\",st=l",
             "CMCD-Status",
-            "rtp=1700,bs,key-4=\"stringValue3=stringValue4\"");
+            "bs,key-4=\"stringValue3=stringValue4\",rtp=1700");
   }
 
   @Test
