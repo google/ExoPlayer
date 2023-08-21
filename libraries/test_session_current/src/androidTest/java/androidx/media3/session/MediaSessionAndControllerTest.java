@@ -32,7 +32,6 @@ import androidx.media3.common.Player;
 import androidx.media3.common.TrackGroup;
 import androidx.media3.common.TrackSelectionOverride;
 import androidx.media3.common.Tracks;
-import androidx.media3.common.util.Util;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.MainLooperTestRule;
 import androidx.test.core.app.ApplicationProvider;
@@ -43,7 +42,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -124,7 +122,6 @@ public class MediaSessionAndControllerTest {
             .setApplicationLooper(threadTestRule.getHandler().getLooper())
             .build();
     Handler mainHandler = new Handler(Looper.getMainLooper());
-    Executor mainExecutor = (runnable) -> Util.postOrRun(mainHandler, runnable);
     for (int i = 0; i < 100; i++) {
       MediaSession session =
           sessionTestRule.ensureReleaseAfterTest(
@@ -161,7 +158,7 @@ public class MediaSessionAndControllerTest {
                     latch.countDown();
                   }
                 },
-                mainExecutor);
+                mainHandler::post);
           });
       threadTestRule.getHandler().postAndSync(session::release);
       assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
