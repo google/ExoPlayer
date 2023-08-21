@@ -16,6 +16,7 @@
 package androidx.media3.effect;
 
 import androidx.annotation.CallSuper;
+import androidx.media3.common.C;
 import androidx.media3.common.GlObjectsProvider;
 import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.VideoFrameProcessingException;
@@ -46,6 +47,8 @@ public abstract class BaseGlShaderProgram implements GlShaderProgram {
   private OutputListener outputListener;
   private ErrorListener errorListener;
   private Executor errorListenerExecutor;
+  private int inputWidth;
+  private int inputHeight;
 
   /**
    * Creates a {@code BaseGlShaderProgram} instance.
@@ -61,6 +64,8 @@ public abstract class BaseGlShaderProgram implements GlShaderProgram {
     outputListener = new OutputListener() {};
     errorListener = (frameProcessingException) -> {};
     errorListenerExecutor = MoreExecutors.directExecutor();
+    inputWidth = C.LENGTH_UNSET;
+    inputHeight = C.LENGTH_UNSET;
   }
 
   /**
@@ -125,9 +130,15 @@ public abstract class BaseGlShaderProgram implements GlShaderProgram {
   public void queueInputFrame(
       GlObjectsProvider glObjectsProvider, GlTextureInfo inputTexture, long presentationTimeUs) {
     try {
-      Size outputTextureSize = configure(inputTexture.width, inputTexture.height);
-      outputTexturePool.ensureConfigured(
-          glObjectsProvider, outputTextureSize.getWidth(), outputTextureSize.getHeight());
+      if (inputWidth != inputTexture.width
+          || inputHeight != inputTexture.height
+          || !outputTexturePool.isConfigured()) {
+        inputWidth = inputTexture.width;
+        inputHeight = inputTexture.height;
+        Size outputTextureSize = configure(inputTexture.width, inputTexture.height);
+        outputTexturePool.ensureConfigured(
+            glObjectsProvider, outputTextureSize.getWidth(), outputTextureSize.getHeight());
+      }
 
       // Focus on the next free buffer.
       GlTextureInfo outputTexture = outputTexturePool.useTexture();
