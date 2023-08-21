@@ -114,6 +114,7 @@ public final class ParameterizedAudioExportTest {
               /* removeVideo= */ false));
 
   @Rule public final TemporaryFolder outputDir = new TemporaryFolder();
+
   @Parameter public SequenceConfig sequence;
 
   private final CapturingMuxer.Factory muxerFactory = new CapturingMuxer.Factory();

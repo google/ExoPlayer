@@ -35,13 +35,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.util.MimeTypes;
-import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
 /**
@@ -50,23 +49,19 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public class CompositionExportTest {
+  @Rule public final TemporaryFolder outputDir = new TemporaryFolder();
 
-  private Context context;
-  private String outputPath;
-  private CapturingMuxer.Factory muxerFactory;
+  private final Context context = ApplicationProvider.getApplicationContext();
+  private final CapturingMuxer.Factory muxerFactory = new CapturingMuxer.Factory();
 
   @Before
-  public void setUp() throws Exception {
-    context = ApplicationProvider.getApplicationContext();
-    outputPath = Util.createTempFile(context, "TransformerTest").getPath();
-    muxerFactory = new CapturingMuxer.Factory();
+  public void setUp() {
     addAudioDecoders(MimeTypes.AUDIO_RAW);
     addAudioEncoders(MimeTypes.AUDIO_AAC);
   }
 
   @After
-  public void tearDown() throws Exception {
-    Files.delete(Paths.get(outputPath));
+  public void tearDown() {
     removeEncodersAndDecoders();
   }
 
@@ -76,7 +71,7 @@ public class CompositionExportTest {
     Transformer transformer =
         createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO);
-    transformer.start(mediaItem, outputPath);
+    transformer.start(mediaItem, outputDir.newFile().getPath());
     ExportResult expectedExportResult = TransformerTestRunner.runLooper(transformer);
 
     EditedMediaItem audioEditedMediaItem =
@@ -91,7 +86,7 @@ public class CompositionExportTest {
             .setTransmuxVideo(true)
             .build();
 
-    transformer.start(composition, outputPath);
+    transformer.start(composition, outputDir.newFile().getPath());
     ExportResult exportResult = TransformerTestRunner.runLooper(transformer);
 
     // We can't compare the muxer output against a dump file because the asset loaders in each
@@ -122,7 +117,7 @@ public class CompositionExportTest {
             .setTransmuxVideo(true)
             .build();
 
-    transformer.start(composition, outputPath);
+    transformer.start(composition, outputDir.newFile().getPath());
     ExportResult exportResult = TransformerTestRunner.runLooper(transformer);
 
     assertThat(exportResult.processedInputs).hasSize(6);
@@ -152,7 +147,7 @@ public class CompositionExportTest {
             .setTransmuxVideo(true)
             .build();
 
-    transformer.start(composition, outputPath);
+    transformer.start(composition, outputDir.newFile().getPath());
     ExportResult exportResult = TransformerTestRunner.runLooper(transformer);
 
     assertThat(exportResult.processedInputs).hasSize(7);
@@ -182,7 +177,7 @@ public class CompositionExportTest {
     Composition composition =
         new Composition.Builder(loopingAudioSequence, videoSequence).setTransmuxVideo(true).build();
 
-    transformer.start(composition, outputPath);
+    transformer.start(composition, outputDir.newFile().getPath());
     ExportResult exportResult = TransformerTestRunner.runLooper(transformer);
 
     assertThat(exportResult.durationMs).isEqualTo(31_053);
@@ -205,7 +200,7 @@ public class CompositionExportTest {
                 new EditedMediaItemSequence(rawAudioEditedMediaItem))
             .build();
 
-    transformer.start(composition, outputPath);
+    transformer.start(composition, outputDir.newFile().getPath());
     ExportResult exportResult = TransformerTestRunner.runLooper(transformer);
 
     assertThat(exportResult.processedInputs).hasSize(2);
@@ -234,7 +229,7 @@ public class CompositionExportTest {
             .setTransmuxVideo(true)
             .build();
 
-    transformer.start(composition, outputPath);
+    transformer.start(composition, outputDir.newFile().getPath());
     ExportResult exportResult = TransformerTestRunner.runLooper(transformer);
 
     assertThat(exportResult.processedInputs).hasSize(2);
@@ -263,7 +258,7 @@ public class CompositionExportTest {
             .setTransmuxVideo(true)
             .build();
 
-    transformer.start(composition, outputPath);
+    transformer.start(composition, outputDir.newFile().getPath());
     ExportResult exportResult = TransformerTestRunner.runLooper(transformer);
 
     assertThat(exportResult.processedInputs).hasSize(7);
