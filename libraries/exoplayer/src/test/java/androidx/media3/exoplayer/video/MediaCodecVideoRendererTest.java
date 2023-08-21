@@ -51,6 +51,7 @@ import androidx.media3.common.VideoSize;
 import androidx.media3.common.util.Clock;
 import androidx.media3.decoder.CryptoInfo;
 import androidx.media3.exoplayer.DecoderCounters;
+import androidx.media3.exoplayer.ExoPlaybackException;
 import androidx.media3.exoplayer.LoadingInfo;
 import androidx.media3.exoplayer.Renderer;
 import androidx.media3.exoplayer.RendererCapabilities;
@@ -81,6 +82,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -219,7 +221,7 @@ public class MediaCodecVideoRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 0,
-        /* offsetUs */ 0);
+        /* offsetUs= */ 0);
 
     mediaCodecVideoRenderer.start();
     mediaCodecVideoRenderer.render(0, SystemClock.elapsedRealtime() * 1000);
@@ -527,7 +529,7 @@ public class MediaCodecVideoRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 0,
-        /* offsetUs */ 0);
+        /* offsetUs= */ 0);
     mediaCodecVideoRenderer.setCurrentStreamFinal();
     mediaCodecVideoRenderer.start();
 
@@ -573,7 +575,7 @@ public class MediaCodecVideoRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ false,
         /* startPositionUs= */ 0,
-        /* offsetUs */ 0);
+        /* offsetUs= */ 0);
     mediaCodecVideoRenderer.start();
     mediaCodecVideoRenderer.render(/* positionUs= */ 0, msToUs(SystemClock.elapsedRealtime()));
     ShadowSystemClock.advanceBy(10, TimeUnit.MILLISECONDS);
@@ -628,7 +630,7 @@ public class MediaCodecVideoRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 0,
-        /* offsetUs */ 0);
+        /* offsetUs= */ 0);
 
     mediaCodecVideoRenderer.start();
     mediaCodecVideoRenderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
@@ -668,7 +670,7 @@ public class MediaCodecVideoRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 0,
-        /* offsetUs */ 0);
+        /* offsetUs= */ 0);
     for (int i = 0; i < 10; i++) {
       mediaCodecVideoRenderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
     }
@@ -698,7 +700,7 @@ public class MediaCodecVideoRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ false,
         /* startPositionUs= */ 0,
-        /* offsetUs */ 0);
+        /* offsetUs= */ 0);
     for (int i = 0; i < 10; i++) {
       mediaCodecVideoRenderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
     }
@@ -727,7 +729,7 @@ public class MediaCodecVideoRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ false,
         /* startPositionUs= */ 0,
-        /* offsetUs */ 0);
+        /* offsetUs= */ 0);
     mediaCodecVideoRenderer.start();
     for (int i = 0; i < 10; i++) {
       mediaCodecVideoRenderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
@@ -801,7 +803,7 @@ public class MediaCodecVideoRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 0,
-        /* offsetUs */ 0);
+        /* offsetUs= */ 0);
     mediaCodecVideoRenderer.start();
 
     boolean replacedStream = false;
@@ -863,7 +865,7 @@ public class MediaCodecVideoRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 0,
-        /* offsetUs */ 0);
+        /* offsetUs= */ 0);
 
     boolean replacedStream = false;
     for (int i = 0; i < 10; i++) {
@@ -1209,6 +1211,70 @@ public class MediaCodecVideoRendererTest {
     assertThat(RendererCapabilities.getFormatSupport(capabilities)).isEqualTo(C.FORMAT_HANDLED);
     assertThat(RendererCapabilities.getDecoderSupport(capabilities))
         .isEqualTo(RendererCapabilities.DECODER_SUPPORT_PRIMARY);
+  }
+
+  @Test
+  public void setVideoOutput_withNoEffects_updatesSurfaceOnMediaCodec()
+      throws ExoPlaybackException {
+    ArrayList<Surface> surfacesSet = new ArrayList<>();
+    MediaCodecAdapter.Factory codecAdapterFactory =
+        configuration ->
+            new ForwardingSynchronousMediaCodecAdapter(
+                new SynchronousMediaCodecAdapter.Factory().createAdapter(configuration)) {
+              @Override
+              public void setOutputSurface(Surface surface) {
+                super.setOutputSurface(surface);
+                surfacesSet.add(surface);
+              }
+            };
+    MediaCodecVideoRenderer mediaCodecVideoRenderer =
+        new MediaCodecVideoRenderer(
+            ApplicationProvider.getApplicationContext(),
+            codecAdapterFactory,
+            mediaCodecSelector,
+            /* allowedJoiningTimeMs= */ 0,
+            /* enableDecoderFallback= */ false,
+            /* eventHandler= */ new Handler(testMainLooper),
+            /* eventListener= */ eventListener,
+            /* maxDroppedFramesToNotify= */ 1,
+            /* assumedMinimumCodecOperatingRate= */ 30) {
+          @Override
+          protected @Capabilities int supportsFormat(
+              MediaCodecSelector mediaCodecSelector, Format format) {
+            return RendererCapabilities.create(C.FORMAT_HANDLED);
+          }
+        };
+    mediaCodecVideoRenderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
+    mediaCodecVideoRenderer.handleMessage(Renderer.MSG_SET_VIDEO_OUTPUT, surface);
+    FakeSampleStream fakeSampleStream =
+        new FakeSampleStream(
+            new DefaultAllocator(/* trimOnReset= */ true, /* individualAllocationSize= */ 1024),
+            /* mediaSourceEventDispatcher= */ null,
+            DrmSessionManager.DRM_UNSUPPORTED,
+            new DrmSessionEventListener.EventDispatcher(),
+            /* initialFormat= */ VIDEO_H264,
+            /* fakeSampleStreamItems= */ ImmutableList.of(
+                oneByteSample(/* timeUs= */ 0, C.BUFFER_FLAG_KEY_FRAME), // First buffer.
+                oneByteSample(/* timeUs= */ 50_000), // Late buffer.
+                oneByteSample(/* timeUs= */ 100_000), // Last buffer.
+                END_OF_STREAM_ITEM));
+    fakeSampleStream.writeData(/* startPositionUs= */ 0);
+    mediaCodecVideoRenderer.enable(
+        RendererConfiguration.DEFAULT,
+        new Format[] {VIDEO_H264},
+        fakeSampleStream,
+        /* positionUs= */ 0,
+        /* joining= */ false,
+        /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
+        /* offsetUs= */ 0);
+    mediaCodecVideoRenderer.start();
+    mediaCodecVideoRenderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
+
+    Surface newSurface = new Surface(new SurfaceTexture(/* texName= */ 0));
+    mediaCodecVideoRenderer.handleMessage(Renderer.MSG_SET_VIDEO_OUTPUT, newSurface);
+
+    assertThat(surfacesSet).containsExactly(newSurface);
   }
 
   private static CodecCapabilities createCodecCapabilities(int profile, int level) {
