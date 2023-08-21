@@ -61,8 +61,6 @@ public final class DefaultVideoCompositor implements VideoCompositor {
   //  * Use a lock to synchronize inputFrameInfos more narrowly, to reduce blocking.
   //  * If the primary stream ends, consider setting the secondary stream as the new primary stream,
   //    so that secondary stream frames aren't dropped.
-  //  * Consider adding info about the timestamps for each input frame used to composite an output
-  //    frame, to aid debugging and testing.
 
   private static final String THREAD_NAME = "Effect:DefaultVideoCompositor:GlThread";
   private static final String TAG = "DefaultVideoCompositor";
@@ -133,6 +131,9 @@ public final class DefaultVideoCompositor implements VideoCompositor {
    * <p>The input source must be able to have at least two {@linkplain #queueInputTexture queued
    * textures} before one texture is {@linkplain
    * DefaultVideoFrameProcessor.ReleaseOutputTextureCallback released}.
+   *
+   * <p>When composited, textures are drawn in the reverse order of their registration order, so
+   * that the first registered source is on the very top.
    */
   @Override
   public synchronized int registerInputSource() {
@@ -269,9 +270,7 @@ public final class DefaultVideoCompositor implements VideoCompositor {
 
     ensureGlProgramConfigured();
 
-    // TODO: b/262694346 -
-    //  * Support an arbitrary number of inputs.
-    //  * Allow different input frame dimensions.
+    // TODO: b/262694346 - Allow different input frame dimensions.
     InputFrameInfo primaryInputFrame = framesToComposite.get(PRIMARY_INPUT_ID);
     GlTextureInfo primaryInputTexture = primaryInputFrame.texture;
     outputTexturePool.ensureConfigured(
