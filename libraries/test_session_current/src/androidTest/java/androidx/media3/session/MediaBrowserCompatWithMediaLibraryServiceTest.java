@@ -78,6 +78,7 @@ import androidx.test.filters.LargeTest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -114,10 +115,10 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   @Test
   public void getItem_browsable() throws Exception {
     String mediaId = MEDIA_ID_GET_BROWSABLE_ITEM;
-
     connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
     AtomicReference<MediaItem> itemRef = new AtomicReference<>();
+
     browserCompat.getItem(
         mediaId,
         new ItemCallback() {
@@ -137,10 +138,10 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   @Test
   public void getItem_playable() throws Exception {
     String mediaId = MEDIA_ID_GET_PLAYABLE_ITEM;
-
     connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
     AtomicReference<MediaItem> itemRef = new AtomicReference<>();
+
     browserCompat.getItem(
         mediaId,
         new ItemCallback() {
@@ -160,10 +161,10 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   @Test
   public void getItem_metadata() throws Exception {
     String mediaId = MEDIA_ID_GET_ITEM_WITH_METADATA;
-
     connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
     AtomicReference<MediaItem> itemRef = new AtomicReference<>();
+
     browserCompat.getItem(
         mediaId,
         new ItemCallback() {
@@ -191,24 +192,32 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   @Test
   public void getItem_nullResult() throws Exception {
     String mediaId = "random_media_id";
-
     connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
+    AtomicBoolean onItemLoadedCalled = new AtomicBoolean();
+    AtomicReference<MediaItem> itemRef = new AtomicReference<>();
+    AtomicBoolean onErrorCalled = new AtomicBoolean();
+
     browserCompat.getItem(
         mediaId,
         new ItemCallback() {
           @Override
           public void onItemLoaded(MediaItem item) {
-            assertThat(item).isNull();
+            onItemLoadedCalled.set(true);
+            itemRef.set(item);
             latch.countDown();
           }
 
           @Override
           public void onError(String itemId) {
-            assertWithMessage("").fail();
+            onErrorCalled.set(true);
           }
         });
+
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(onItemLoadedCalled.get()).isTrue();
+    assertThat(itemRef.get()).isNull();
+    assertThat(onErrorCalled.get()).isFalse();
   }
 
   @Test
@@ -220,6 +229,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
     connectAndWait(rootHints);
     CountDownLatch latch = new CountDownLatch(1);
     List<MediaItem> capturedMediaItems = new ArrayList<>();
+
     browserCompat.getItem(
         MEDIA_ID_GET_BROWSABLE_ITEM,
         new ItemCallback() {
@@ -239,31 +249,33 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
     String testParentId = PARENT_ID;
     connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
-    List<MediaItem> receivedChildren = new ArrayList<>();
-    final String[] receivedParentId = new String[1];
+    AtomicReference<String> parentIdRef = new AtomicReference<>();
+    AtomicReference<List<MediaItem>> childrenRef = new AtomicReference<>();
+    AtomicBoolean onChildrenLoadedWithBundleCalled = new AtomicBoolean();
 
     browserCompat.subscribe(
         testParentId,
         new SubscriptionCallback() {
           @Override
           public void onChildrenLoaded(String parentId, List<MediaItem> children) {
-            receivedParentId[0] = parentId;
-            receivedChildren.addAll(children);
+            parentIdRef.set(parentId);
+            childrenRef.set(children);
             latch.countDown();
           }
 
           @Override
           public void onChildrenLoaded(String parentId, List<MediaItem> children, Bundle option) {
-            assertWithMessage("").fail();
+            onChildrenLoadedWithBundleCalled.set(true);
           }
         });
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(receivedParentId[0]).isEqualTo(testParentId);
-    assertThat(receivedChildren).hasSize(GET_CHILDREN_RESULT.size());
+    assertThat(parentIdRef.get()).isEqualTo(testParentId);
+    List<MediaItem> children = childrenRef.get();
+    assertThat(children).hasSize(GET_CHILDREN_RESULT.size());
     // Compare the given results with originals.
-    for (int i = 0; i < receivedChildren.size(); i++) {
-      MediaItem mediaItem = receivedChildren.get(i);
+    for (int i = 0; i < children.size(); i++) {
+      MediaItem mediaItem = children.get(i);
       assertThat(mediaItem.getMediaId()).isEqualTo(GET_CHILDREN_RESULT.get(i));
       assertThat(
               mediaItem
@@ -274,38 +286,45 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
                       /* defaultValue= */ EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED + 1))
           .isEqualTo(EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED);
       assertThat(mediaItem.getDescription().getIconBitmap()).isNotNull();
+      assertThat(onChildrenLoadedWithBundleCalled.get()).isFalse();
     }
   }
 
   @Test
   public void getChildren_withLongList() throws Exception {
     String testParentId = PARENT_ID_LONG_LIST;
-
     connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
+    AtomicReference<String> parentIdRef = new AtomicReference<>();
+    AtomicReference<List<MediaItem>> childrenRef = new AtomicReference<>();
+    AtomicBoolean onChildrenLoadedWithBundleCalled = new AtomicBoolean();
+
     browserCompat.subscribe(
         testParentId,
         new SubscriptionCallback() {
           @Override
           public void onChildrenLoaded(String parentId, List<MediaItem> children) {
-            assertThat(parentId).isEqualTo(testParentId);
-            assertThat(children).isNotNull();
-            assertThat(children.size() < LONG_LIST_COUNT).isTrue();
-
-            // Compare the given results with originals.
-            for (int i = 0; i < children.size(); i++) {
-              assertThat(children.get(i).getMediaId())
-                  .isEqualTo(TestUtils.getMediaIdInFakeTimeline(i));
-            }
+            parentIdRef.set(parentId);
+            childrenRef.set(children);
             latch.countDown();
           }
 
           @Override
           public void onChildrenLoaded(String parentId, List<MediaItem> children, Bundle option) {
-            assertWithMessage("").fail();
+            onChildrenLoadedWithBundleCalled.set(true);
           }
         });
+
     assertThat(latch.await(LONG_TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(parentIdRef.get()).isEqualTo(testParentId);
+    List<MediaItem> children = childrenRef.get();
+    assertThat(children).isNotNull();
+    assertThat(children.size()).isLessThan(LONG_LIST_COUNT);
+    // Compare the given results with originals.
+    for (int i = 0; i < children.size(); i++) {
+      assertThat(children.get(i).getMediaId()).isEqualTo(TestUtils.getMediaIdInFakeTimeline(i));
+    }
+    assertThat(onChildrenLoadedWithBundleCalled.get()).isFalse();
   }
 
   @Test
@@ -315,42 +334,48 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
     int pageSize = 10;
     Bundle extras = new Bundle();
     extras.putString(testParentId, testParentId);
-
     connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
     Bundle option = new Bundle();
     option.putInt(MediaBrowserCompat.EXTRA_PAGE, page);
     option.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, pageSize);
+    AtomicReference<String> parentIdRef = new AtomicReference<>();
+    AtomicReference<List<MediaItem>> childrenRef = new AtomicReference<>();
+    AtomicBoolean onChildrenLoadedWithoutBundleCalled = new AtomicBoolean();
+
     browserCompat.subscribe(
         testParentId,
         option,
         new SubscriptionCallback() {
           @Override
           public void onChildrenLoaded(String parentId, List<MediaItem> children, Bundle options) {
-            assertThat(parentId).isEqualTo(testParentId);
-            assertThat(option.getInt(MediaBrowserCompat.EXTRA_PAGE)).isEqualTo(page);
-            assertThat(option.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE)).isEqualTo(pageSize);
-            assertThat(children).isNotNull();
-
-            int fromIndex = page * pageSize;
-            int toIndex = Math.min((page + 1) * pageSize, CHILDREN_COUNT);
-
-            // Compare the given results with originals.
-            for (int originalIndex = fromIndex; originalIndex < toIndex; originalIndex++) {
-              int relativeIndex = originalIndex - fromIndex;
-              assertThat(children.get(relativeIndex).getMediaId())
-                  .isEqualTo(GET_CHILDREN_RESULT.get(originalIndex));
-              assertThat(children.get(relativeIndex).getDescription().getIconBitmap()).isNotNull();
-            }
+            parentIdRef.set(parentId);
+            childrenRef.set(children);
             latch.countDown();
           }
 
           @Override
           public void onChildrenLoaded(String parentId, List<MediaItem> children) {
-            assertWithMessage("").fail();
+            onChildrenLoadedWithoutBundleCalled.set(true);
           }
         });
+
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(parentIdRef.get()).isEqualTo(testParentId);
+    assertThat(option.getInt(MediaBrowserCompat.EXTRA_PAGE)).isEqualTo(page);
+    assertThat(option.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE)).isEqualTo(pageSize);
+    List<MediaItem> children = childrenRef.get();
+    assertThat(children).isNotNull();
+    int fromIndex = page * pageSize;
+    int toIndex = Math.min((page + 1) * pageSize, CHILDREN_COUNT);
+    // Compare the given results with originals.
+    for (int originalIndex = fromIndex; originalIndex < toIndex; originalIndex++) {
+      int relativeIndex = originalIndex - fromIndex;
+      assertThat(children.get(relativeIndex).getMediaId())
+          .isEqualTo(GET_CHILDREN_RESULT.get(originalIndex));
+      assertThat(children.get(relativeIndex).getDescription().getIconBitmap()).isNotNull();
+    }
+    assertThat(onChildrenLoadedWithoutBundleCalled.get()).isFalse();
   }
 
   @Test
@@ -358,16 +383,20 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
     String testParentId = PARENT_ID_AUTH_EXPIRED_ERROR;
     connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch errorLatch = new CountDownLatch(1);
+    AtomicReference parentIdRefOnError = new AtomicReference<>();
+
     browserCompat.subscribe(
         testParentId,
         new SubscriptionCallback() {
           @Override
           public void onError(String parentId) {
-            assertThat(parentId).isEqualTo(testParentId);
+            parentIdRefOnError.set(parentId);
             errorLatch.countDown();
           }
         });
+
     assertThat(errorLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(parentIdRefOnError.get()).isEqualTo(testParentId);
     assertThat(lastReportedPlaybackStateCompat.getState())
         .isEqualTo(PlaybackStateCompat.STATE_ERROR);
     assertThat(
@@ -377,16 +406,20 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
         .isEqualTo(PARENT_ID_AUTH_EXPIRED_ERROR_KEY_ERROR_RESOLUTION_ACTION_LABEL);
 
     CountDownLatch successLatch = new CountDownLatch(1);
+    AtomicReference parentIdRefOnChildrenLoaded = new AtomicReference<>();
+
     browserCompat.subscribe(
         PARENT_ID,
         new SubscriptionCallback() {
           @Override
           public void onChildrenLoaded(String parentId, List<MediaItem> children) {
-            assertThat(parentId).isEqualTo(PARENT_ID);
+            parentIdRefOnChildrenLoaded.set(parentId);
             successLatch.countDown();
           }
         });
+
     assertThat(successLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(parentIdRefOnChildrenLoaded.get()).isEqualTo(PARENT_ID);
     // Any successful calls remove the error state,
     assertThat(lastReportedPlaybackStateCompat.getState())
         .isNotEqualTo(PlaybackStateCompat.STATE_ERROR);
@@ -400,43 +433,52 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   @Test
   public void getChildren_emptyResult() throws Exception {
     String testParentId = PARENT_ID_NO_CHILDREN;
-
     connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
+    AtomicReference<List<MediaItem>> childrenRef = new AtomicReference<>();
+
     browserCompat.subscribe(
         testParentId,
         new SubscriptionCallback() {
           @Override
           public void onChildrenLoaded(String parentId, List<MediaItem> children) {
-            assertThat(children).isNotNull();
-            assertThat(children.size()).isEqualTo(0);
+            childrenRef.set(children);
             latch.countDown();
           }
         });
+
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    List<MediaItem> children = childrenRef.get();
+    assertThat(children).isNotNull();
+    assertThat(children).isEmpty();
   }
 
   @Test
   public void getChildren_nullResult() throws Exception {
     String testParentId = PARENT_ID_ERROR;
-
     connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
+    AtomicReference<String> parentIdRef = new AtomicReference<>();
+    AtomicBoolean onChildrenLoadedWithBundleCalled = new AtomicBoolean();
+
     browserCompat.subscribe(
         testParentId,
         new SubscriptionCallback() {
           @Override
           public void onError(String parentId) {
-            assertThat(parentId).isEqualTo(testParentId);
+            parentIdRef.set(parentId);
             latch.countDown();
           }
 
           @Override
           public void onChildrenLoaded(String parentId, List<MediaItem> children, Bundle options) {
-            assertWithMessage("").fail();
+            onChildrenLoadedWithBundleCalled.set(true);
           }
         });
+
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(parentIdRef.get()).isEqualTo(testParentId);
+    assertThat(onChildrenLoadedWithBundleCalled.get()).isFalse();
   }
 
   @Test
@@ -450,9 +492,12 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
           browserCompat =
               new MediaBrowserCompat(context, getServiceComponent(), connectionCallback, rootHints);
         });
+
     browserCompat.connect();
+
     assertThat(connectionCallback.connectedLatch.await(SERVICE_CONNECTION_TIMEOUT_MS, MILLISECONDS))
         .isTrue();
+
     CountDownLatch errorLatch = new CountDownLatch(1);
 
     browserCompat.subscribe(
@@ -476,34 +521,38 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
     testExtras.putString(testQuery, testQuery);
     testExtras.putInt(MediaBrowserCompat.EXTRA_PAGE, page);
     testExtras.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, pageSize);
-
+    AtomicReference<String> queryRef = new AtomicReference<>();
+    AtomicReference<Bundle> extrasRef = new AtomicReference<>();
+    AtomicReference<List<MediaItem>> itemsRef = new AtomicReference<>();
     connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
+
     browserCompat.search(
         testQuery,
         testExtras,
         new SearchCallback() {
           @Override
           public void onSearchResult(String query, Bundle extras, List<MediaItem> items) {
-            assertThat(query).isEqualTo(testQuery);
-            assertThat(TestUtils.equals(testExtras, extras)).isTrue();
-            int expectedSize =
-                Math.max(Math.min(pageSize, SEARCH_RESULT_COUNT - pageSize * page), 0);
-            assertThat(items.size()).isEqualTo(expectedSize);
-
-            int fromIndex = page * pageSize;
-            int toIndex = Math.min((page + 1) * pageSize, SEARCH_RESULT_COUNT);
-
-            // Compare the given results with originals.
-            for (int originalIndex = fromIndex; originalIndex < toIndex; originalIndex++) {
-              int relativeIndex = originalIndex - fromIndex;
-              assertThat(items.get(relativeIndex).getMediaId())
-                  .isEqualTo(SEARCH_RESULT.get(originalIndex));
-            }
+            queryRef.set(query);
+            extrasRef.set(extras);
+            itemsRef.set(items);
             latch.countDown();
           }
         });
+
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(queryRef.get()).isEqualTo(testQuery);
+    assertThat(TestUtils.equals(testExtras, extrasRef.get())).isTrue();
+    List<MediaItem> items = itemsRef.get();
+    int expectedSize = Math.max(Math.min(pageSize, SEARCH_RESULT_COUNT - pageSize * page), 0);
+    assertThat(items.size()).isEqualTo(expectedSize);
+    int fromIndex = page * pageSize;
+    int toIndex = Math.min((page + 1) * pageSize, SEARCH_RESULT_COUNT);
+    // Compare the given results with originals.
+    for (int originalIndex = fromIndex; originalIndex < toIndex; originalIndex++) {
+      int relativeIndex = originalIndex - fromIndex;
+      assertThat(items.get(relativeIndex).getMediaId()).isEqualTo(SEARCH_RESULT.get(originalIndex));
+    }
   }
 
   @Test
@@ -515,28 +564,34 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
     testExtras.putString(testQuery, testQuery);
     testExtras.putInt(MediaBrowserCompat.EXTRA_PAGE, page);
     testExtras.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, pageSize);
-
+    AtomicReference<String> queryRef = new AtomicReference<>();
+    AtomicReference<Bundle> extrasRef = new AtomicReference<>();
+    AtomicReference<List<MediaItem>> itemsRef = new AtomicReference<>();
     connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
+
     browserCompat.search(
         testQuery,
         testExtras,
         new SearchCallback() {
           @Override
           public void onSearchResult(String query, Bundle extras, List<MediaItem> items) {
-            assertThat(query).isEqualTo(testQuery);
-            assertThat(TestUtils.equals(testExtras, extras)).isTrue();
-
-            assertThat(items).isNotNull();
-            assertThat(items.size() < LONG_LIST_COUNT).isTrue();
-            for (int i = 0; i < items.size(); i++) {
-              assertThat(items.get(i).getMediaId())
-                  .isEqualTo(TestUtils.getMediaIdInFakeTimeline(i));
-            }
+            queryRef.set(query);
+            extrasRef.set(extras);
+            itemsRef.set(items);
             latch.countDown();
           }
         });
+
     assertThat(latch.await(LONG_TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(queryRef.get()).isEqualTo(testQuery);
+    assertThat(TestUtils.equals(testExtras, extrasRef.get())).isTrue();
+    List<MediaItem> items = itemsRef.get();
+    assertThat(items).isNotNull();
+    assertThat(items.size()).isLessThan(LONG_LIST_COUNT);
+    for (int i = 0; i < items.size(); i++) {
+      assertThat(items.get(i).getMediaId()).isEqualTo(TestUtils.getMediaIdInFakeTimeline(i));
+    }
   }
 
   @Test
@@ -544,23 +599,31 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
     String testQuery = SEARCH_QUERY_EMPTY_RESULT;
     Bundle testExtras = new Bundle();
     testExtras.putString(testQuery, testQuery);
-
+    AtomicReference<String> queryRef = new AtomicReference<>();
+    AtomicReference<Bundle> extrasRef = new AtomicReference<>();
+    AtomicReference<List<MediaItem>> itemsRef = new AtomicReference<>();
     connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
+
     browserCompat.search(
         testQuery,
         testExtras,
         new SearchCallback() {
           @Override
           public void onSearchResult(String query, Bundle extras, List<MediaItem> items) {
-            assertThat(query).isEqualTo(testQuery);
-            assertThat(TestUtils.equals(testExtras, extras)).isTrue();
-            assertThat(items).isNotNull();
-            assertThat(items.size()).isEqualTo(0);
+            queryRef.set(query);
+            extrasRef.set(extras);
+            itemsRef.set(items);
             latch.countDown();
           }
         });
+
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(queryRef.get()).isEqualTo(testQuery);
+    assertThat(TestUtils.equals(testExtras, extrasRef.get())).isTrue();
+    List<MediaItem> items = itemsRef.get();
+    assertThat(items).isNotNull();
+    assertThat(items).isEmpty();
   }
 
   @Test
@@ -597,26 +660,33 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
     String testQuery = SEARCH_QUERY_ERROR;
     Bundle testExtras = new Bundle();
     testExtras.putString(testQuery, testQuery);
-
     connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
+    AtomicReference<String> queryRef = new AtomicReference<>();
+    AtomicReference<Bundle> extrasRef = new AtomicReference<>();
+    AtomicBoolean onSearchResultCalled = new AtomicBoolean();
+
     browserCompat.search(
         testQuery,
         testExtras,
         new SearchCallback() {
           @Override
           public void onError(String query, Bundle extras) {
-            assertThat(query).isEqualTo(testQuery);
-            assertThat(TestUtils.equals(testExtras, extras)).isTrue();
+            queryRef.set(query);
+            extrasRef.set(extras);
             latch.countDown();
           }
 
           @Override
           public void onSearchResult(String query, Bundle extras, List<MediaItem> items) {
-            assertWithMessage("").fail();
+            onSearchResultCalled.set(true);
           }
         });
+
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(queryRef.get()).isEqualTo(testQuery);
+    assertThat(TestUtils.equals(testExtras, extrasRef.get())).isTrue();
+    assertThat(onSearchResultCalled.get()).isFalse();
   }
 
   // TODO: Add test for onCustomCommand() in MediaLibrarySessionLegacyCallbackTest.
@@ -624,22 +694,29 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   public void customAction() throws Exception {
     Bundle testArgs = new Bundle();
     testArgs.putString("args_key", "args_value");
-
     connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
+    AtomicReference<String> actionRef = new AtomicReference<>();
+    AtomicReference<Bundle> extrasRef = new AtomicReference<>();
+    AtomicReference<Bundle> resultDataRef = new AtomicReference<>();
+
     browserCompat.sendCustomAction(
         CUSTOM_ACTION,
         testArgs,
         new CustomActionCallback() {
           @Override
           public void onResult(String action, Bundle extras, Bundle resultData) {
-            assertThat(action).isEqualTo(CUSTOM_ACTION);
-            assertThat(TestUtils.equals(testArgs, extras)).isTrue();
-            assertThat(TestUtils.equals(CUSTOM_ACTION_EXTRAS, resultData)).isTrue();
+            actionRef.set(action);
+            extrasRef.set(extras);
+            resultDataRef.set(resultData);
             latch.countDown();
           }
         });
+
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(actionRef.get()).isEqualTo(CUSTOM_ACTION);
+    assertThat(TestUtils.equals(testArgs, extrasRef.get())).isTrue();
+    assertThat(TestUtils.equals(CUSTOM_ACTION_EXTRAS, resultDataRef.get())).isTrue();
   }
 
   // TODO: Add test for onCustomCommand() in MediaLibrarySessionLegacyCallbackTest.
@@ -647,9 +724,9 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   public void customAction_rejected() throws Exception {
     // This action will not be allowed by the library session.
     String testAction = "random_custom_action";
-
     connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
+
     browserCompat.sendCustomAction(
         testAction,
         null,
@@ -659,6 +736,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
             latch.countDown();
           }
         });
+
     assertWithMessage("BrowserCompat shouldn't receive custom command")
         .that(latch.await(NO_RESPONSE_TIMEOUT_MS, MILLISECONDS))
         .isFalse();
