@@ -52,11 +52,13 @@ public final class PgsParser implements SubtitleParser {
   private final ParsableByteArray inflatedBuffer;
   private final CueBuilder cueBuilder;
   @Nullable private Inflater inflater;
+  private final ArrayList<Cue> cues;
 
   public PgsParser() {
     buffer = new ParsableByteArray();
     inflatedBuffer = new ParsableByteArray();
     cueBuilder = new CueBuilder();
+    cues = new ArrayList<>();
   }
 
   @Override
@@ -65,7 +67,7 @@ public final class PgsParser implements SubtitleParser {
     buffer.setPosition(offset);
     maybeInflateData(buffer);
     cueBuilder.reset();
-    ArrayList<Cue> cues = new ArrayList<>();
+    cues.clear();
     while (buffer.bytesLeft() >= 3) {
       Cue cue = readNextSection(buffer, cueBuilder);
       if (cue != null) {
