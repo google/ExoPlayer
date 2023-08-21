@@ -97,7 +97,11 @@ public final class SequenceExportTest {
     DumpFileAsserts.assertOutput(
         context,
         muxerFactory.getCreatedMuxer(),
-        getDumpFileName(FILE_AUDIO_VIDEO + ".concatenated_transmux"));
+        getDumpFileName(
+            /* originalFileName= */ FILE_AUDIO_VIDEO,
+            /* modifications...= */ "original",
+            "original",
+            "transmux"));
   }
 
   @Test
@@ -125,7 +129,11 @@ public final class SequenceExportTest {
     DumpFileAsserts.assertOutput(
         context,
         muxerFactory.getCreatedMuxer(),
-        getDumpFileName(FILE_AUDIO_VIDEO + ".concatenated_transmux"));
+        getDumpFileName(
+            /* originalFileName= */ FILE_AUDIO_VIDEO,
+            /* modifications...= */ "original",
+            "original",
+            "transmux"));
   }
 
   @Test
@@ -168,7 +176,10 @@ public final class SequenceExportTest {
         context,
         muxerFactory.getCreatedMuxer(),
         getDumpFileName(
-            FILE_AUDIO_VIDEO_INCREASING_TIMESTAMPS_15S + ".clipped_concatenated_transmux"));
+            /* originalFileName= */ FILE_AUDIO_VIDEO_INCREASING_TIMESTAMPS_15S,
+            /* modifications...= */ "clipped",
+            "clipped",
+            "transmux"));
   }
 
   @Test
@@ -193,7 +204,10 @@ public final class SequenceExportTest {
     DumpFileAsserts.assertOutput(
         context,
         muxerFactory.getCreatedMuxer(),
-        getDumpFileName(FILE_AUDIO_RAW_VIDEO + ".audio_then_silence"));
+        getDumpFileName(
+            /* originalFileName= */ FILE_AUDIO_RAW_VIDEO,
+            /* modifications...= */ "original",
+            "silence"));
   }
 
   @Test
@@ -218,7 +232,10 @@ public final class SequenceExportTest {
     DumpFileAsserts.assertOutput(
         context,
         muxerFactory.getCreatedMuxer(),
-        getDumpFileName(FILE_AUDIO_RAW_VIDEO + ".silence_then_audio"));
+        getDumpFileName(
+            /* originalFileName= */ FILE_AUDIO_RAW_VIDEO,
+            /* modifications...= */ "silence",
+            "original"));
   }
 
   @Test
@@ -249,7 +266,10 @@ public final class SequenceExportTest {
     DumpFileAsserts.assertOutput(
         context,
         muxerFactory.getCreatedMuxer(),
-        getDumpFileName(FILE_AUDIO_RAW_VIDEO + ".audio_then_silence_with_effects"));
+        getDumpFileName(
+            /* originalFileName= */ FILE_AUDIO_RAW_VIDEO,
+            /* modifications...= */ "highPitch",
+            "silenceHighPitch"));
   }
 
   @Test
@@ -258,7 +278,7 @@ public final class SequenceExportTest {
     Transformer transformer =
         createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_VIDEO);
-    EditedMediaItem noAudioEditedMediaItem =
+    EditedMediaItem silenceEditedMediaItem =
         new EditedMediaItem.Builder(mediaItem)
             .setRemoveAudio(true)
             .setEffects(createAudioEffects(createPitchChangingAudioProcessor(/* pitch= */ 2f)))
@@ -269,7 +289,7 @@ public final class SequenceExportTest {
             .build();
     Composition composition =
         new Composition.Builder(
-                new EditedMediaItemSequence(noAudioEditedMediaItem, audioEditedMediaItem))
+                new EditedMediaItemSequence(silenceEditedMediaItem, audioEditedMediaItem))
             .experimentalSetForceAudioTrack(true)
             .setTransmuxVideo(true)
             .build();
@@ -280,7 +300,10 @@ public final class SequenceExportTest {
     DumpFileAsserts.assertOutput(
         context,
         muxerFactory.getCreatedMuxer(),
-        getDumpFileName(FILE_AUDIO_RAW_VIDEO + ".silence_then_audio_with_effects"));
+        getDumpFileName(
+            /* originalFileName= */ FILE_AUDIO_RAW_VIDEO,
+            /* modifications...= */ "silenceHighPitch",
+            "highPitch"));
   }
 
   @Test
@@ -303,7 +326,10 @@ public final class SequenceExportTest {
     DumpFileAsserts.assertOutput(
         context,
         muxerFactory.getCreatedMuxer(),
-        getDumpFileName(FILE_AUDIO_RAW_VIDEO + ".silence_then_silence"));
+        getDumpFileName(
+            /* originalFileName= */ FILE_AUDIO_RAW_VIDEO,
+            /* modifications...= */ "silence",
+            "silence"));
   }
 
   @Test
@@ -318,10 +344,7 @@ public final class SequenceExportTest {
             .setEffects(createAudioEffects(createPitchChangingAudioProcessor(/* pitch= */ 2f)))
             .build();
     EditedMediaItem silenceItem =
-        new EditedMediaItem.Builder(mediaItem)
-            .setRemoveAudio(true)
-            .setEffects(createAudioEffects(createPitchChangingAudioProcessor(/* pitch= */ 2f)))
-            .build();
+        new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).build();
     Composition composition =
         new Composition.Builder(new EditedMediaItemSequence(silenceWithEffectsItem, silenceItem))
             .experimentalSetForceAudioTrack(true)
@@ -334,7 +357,10 @@ public final class SequenceExportTest {
     DumpFileAsserts.assertOutput(
         context,
         muxerFactory.getCreatedMuxer(),
-        getDumpFileName(FILE_AUDIO_RAW_VIDEO + ".silence-effects_then_silence"));
+        getDumpFileName(
+            /* originalFileName= */ FILE_AUDIO_RAW_VIDEO,
+            /* modifications...= */ "silenceHighPitch",
+            "silence"));
   }
 
   @Test
@@ -343,12 +369,9 @@ public final class SequenceExportTest {
     Transformer transformer =
         createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_RAW_VIDEO);
-    EditedMediaItem silenceWithEffectsItem =
-        new EditedMediaItem.Builder(mediaItem)
-            .setRemoveAudio(true)
-            .setEffects(createAudioEffects(createPitchChangingAudioProcessor(/* pitch= */ 2f)))
-            .build();
     EditedMediaItem silenceItem =
+        new EditedMediaItem.Builder(mediaItem).setRemoveAudio(true).build();
+    EditedMediaItem silenceWithEffectsItem =
         new EditedMediaItem.Builder(mediaItem)
             .setRemoveAudio(true)
             .setEffects(createAudioEffects(createPitchChangingAudioProcessor(/* pitch= */ 2f)))
@@ -365,7 +388,10 @@ public final class SequenceExportTest {
     DumpFileAsserts.assertOutput(
         context,
         muxerFactory.getCreatedMuxer(),
-        getDumpFileName(FILE_AUDIO_RAW_VIDEO + ".silence_then_silence-effects"));
+        getDumpFileName(
+            /* originalFileName= */ FILE_AUDIO_RAW_VIDEO,
+            /* modifications...= */ "silence",
+            "silenceHighPitch"));
   }
 
   @Test
@@ -396,7 +422,10 @@ public final class SequenceExportTest {
     DumpFileAsserts.assertOutput(
         context,
         muxerFactory.getCreatedMuxer(),
-        getDumpFileName(FILE_AUDIO_RAW_VIDEO + ".silence_then_silence_with_effects"));
+        getDumpFileName(
+            /* originalFileName= */ FILE_AUDIO_RAW_VIDEO,
+            /* modifications...= */ "silenceHighPitch",
+            "silenceHighPitch"));
   }
 
   @Test
@@ -413,7 +442,12 @@ public final class SequenceExportTest {
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(
-        context, muxerFactory.getCreatedMuxer(), getDumpFileName(FILE_AUDIO_RAW + ".concatenated"));
+        context,
+        muxerFactory.getCreatedMuxer(),
+        getDumpFileName(
+            /* originalFileName= */ FILE_AUDIO_RAW, /* modifications...= */
+            "original",
+            "original"));
   }
 
   @Test
@@ -436,7 +470,10 @@ public final class SequenceExportTest {
     DumpFileAsserts.assertOutput(
         context,
         muxerFactory.getCreatedMuxer(),
-        getDumpFileName(FILE_AUDIO_RAW + ".concatenated_high_pitch"));
+        getDumpFileName(
+            /* originalFileName= */ FILE_AUDIO_RAW,
+            /* modifications...= */ "highPitch",
+            "highPitch"));
   }
 
   @Test
@@ -465,7 +502,10 @@ public final class SequenceExportTest {
     DumpFileAsserts.assertOutput(
         context,
         muxerFactory.getCreatedMuxer(),
-        getDumpFileName(FILE_AUDIO_RAW + ".high_pitch_then_low_pitch"));
+        getDumpFileName(
+            /* originalFileName= */ FILE_AUDIO_RAW,
+            /* modifications...= */ "highPitch",
+            "lowPitch"));
   }
 
   @Test
@@ -488,7 +528,10 @@ public final class SequenceExportTest {
     DumpFileAsserts.assertOutput(
         context,
         muxerFactory.getCreatedMuxer(),
-        getDumpFileName(FILE_AUDIO_RAW_STEREO_48000KHZ + "_then_sample.wav"));
+        getDumpFileName(
+            /* originalFileName= */ FILE_AUDIO_RAW_STEREO_48000KHZ,
+            /* modifications...= */ "original",
+            "sample.wav"));
   }
 
   @Test
@@ -516,7 +559,10 @@ public final class SequenceExportTest {
     DumpFileAsserts.assertOutput(
         context,
         muxerFactory.getCreatedMuxer(),
-        getDumpFileName(FILE_AUDIO_RAW_STEREO_48000KHZ + "-high_pitch_then_sample.wav-high_pitch"));
+        getDumpFileName(
+            /* originalFileName= */ FILE_AUDIO_RAW_STEREO_48000KHZ,
+            /* modifications...= */ "highPitch",
+            "sample.wavHighPitch"));
   }
 
   @Test
@@ -545,6 +591,9 @@ public final class SequenceExportTest {
     DumpFileAsserts.assertOutput(
         context,
         muxerFactory.getCreatedMuxer(),
-        getDumpFileName(FILE_AUDIO_RAW_STEREO_48000KHZ + "-high_pitch_then_sample.wav-low_pitch"));
+        getDumpFileName(
+            /* originalFileName= */ FILE_AUDIO_RAW_STEREO_48000KHZ,
+            /* modifications...= */ "highPitch",
+            "sample.wavLowPitch"));
   }
 }

@@ -78,8 +78,14 @@ public final class TestUtil {
     return sonicAudioProcessor;
   }
 
-  public static String getDumpFileName(String originalFileName) {
-    return DUMP_FILE_OUTPUT_DIRECTORY + '/' + originalFileName + '.' + DUMP_FILE_EXTENSION;
+  public static String getDumpFileName(String originalFileName, String... modifications) {
+    String fileName = DUMP_FILE_OUTPUT_DIRECTORY + '/' + originalFileName + '/';
+    if (modifications.length == 0) {
+      fileName += "original";
+    } else {
+      fileName += String.join("_", modifications);
+    }
+    return fileName + '.' + DUMP_FILE_EXTENSION;
   }
 
   /**
