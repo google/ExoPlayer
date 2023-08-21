@@ -275,18 +275,22 @@ public final class DefaultVideoCompositor implements VideoCompositor {
 
     // TODO: b/262694346 -
     //  * Support an arbitrary number of inputs.
-    //  * Allow different frame dimensions.
-    InputFrameInfo inputFrame1 = framesToComposite.get(0);
-    InputFrameInfo inputFrame2 = framesToComposite.get(1);
-    checkState(inputFrame1.texture.width == inputFrame2.texture.width);
-    checkState(inputFrame1.texture.height == inputFrame2.texture.height);
+    //  * Allow different input frame dimensions.
+    InputFrameInfo primaryInputFrame = framesToComposite.get(PRIMARY_INPUT_ID);
+    GlTextureInfo primaryInputTexture = primaryInputFrame.texture;
     outputTexturePool.ensureConfigured(
-        glObjectsProvider, inputFrame1.texture.width, inputFrame1.texture.height);
+        glObjectsProvider, primaryInputTexture.width, primaryInputTexture.height);
+
+    for (int i = 1; i < framesToComposite.size(); i++) {
+      GlTextureInfo textureToComposite = framesToComposite.get(i).texture;
+      checkState(primaryInputTexture.width == textureToComposite.width);
+      checkState(primaryInputTexture.height == textureToComposite.height);
+    }
     GlTextureInfo outputTexture = outputTexturePool.useTexture();
-    long outputPresentationTimestampUs = framesToComposite.get(PRIMARY_INPUT_ID).presentationTimeUs;
+    long outputPresentationTimestampUs = primaryInputFrame.presentationTimeUs;
     outputTextureTimestamps.add(outputPresentationTimestampUs);
 
-    drawFrame(inputFrame1.texture, inputFrame2.texture, outputTexture);
+    drawFrame(framesToComposite, outputTexture);
     long syncObject = GlUtil.createGlSyncFence();
     syncObjects.add(syncObject);
     textureOutputListener.onTextureRendered(
@@ -299,7 +303,7 @@ public final class DefaultVideoCompositor implements VideoCompositor {
     releaseFrames(primaryInputSource, /* numberOfFramesToRelease= */ 1);
     releaseExcessFramesInAllSecondaryStreams();
 
-    if (allInputsEnded && inputSources.get(PRIMARY_INPUT_ID).frameInfos.isEmpty()) {
+    if (allInputsEnded && primaryInputSource.frameInfos.isEmpty()) {
       listener.onEnded();
     }
   }
@@ -401,8 +405,7 @@ public final class DefaultVideoCompositor implements VideoCompositor {
     }
   }
 
-  private void drawFrame(
-      GlTextureInfo inputTexture1, GlTextureInfo inputTexture2, GlTextureInfo outputTexture)
+  private void drawFrame(List<InputFrameInfo> framesToComposite, GlTextureInfo outputTexture)
       throws GlUtil.GlException {
     GlUtil.focusFramebufferUsingCurrentContext(
         outputTexture.fboId, outputTexture.width, outputTexture.height);
@@ -424,8 +427,9 @@ public final class DefaultVideoCompositor implements VideoCompositor {
     GlUtil.checkGlError();
 
     // Draw textures from back to front.
-    blendOntoFocusedTexture(inputTexture2.texId);
-    blendOntoFocusedTexture(inputTexture1.texId);
+    for (int i = framesToComposite.size() - 1; i >= 0; i--) {
+      blendOntoFocusedTexture(framesToComposite.get(i).texture.texId);
+    }
 
     GLES20.glDisable(GLES20.GL_BLEND);
 
@@ -463,8 +467,10 @@ public final class DefaultVideoCompositor implements VideoCompositor {
 
   /** Holds information on an input source. */
   private static final class InputSource {
-    // A queue of {link InputFrameInfo}s, inserted in order from lower to higher {@code
-    // presentationTimeUs} values.
+    /**
+     * A queue of {link InputFrameInfo}s, monotonically increasing in order of {@code
+     * presentationTimeUs} values.
+     */
     public final Queue<InputFrameInfo> frameInfos;
 
     public boolean isInputEnded;
