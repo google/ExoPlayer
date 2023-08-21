@@ -34,6 +34,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.util.List;
+import java.util.Set;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -48,26 +49,73 @@ import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
 @RunWith(ParameterizedRobolectricTestRunner.class)
 public final class ParameterizedAudioExportTest {
   public static final String AUDIO_44100_MONO = ASSET_URI_PREFIX + FILE_AUDIO_RAW;
-  public static final String AUDIO_48000_STEREO = ASSET_URI_PREFIX + FILE_AUDIO_RAW_VIDEO;
-  public static final ImmutableSet<ItemConfig> EDITED_MEDIA_ITEMS =
-      ImmutableSet.of(
-          new ItemConfig(AUDIO_44100_MONO, /* withEffects= */ false),
-          new ItemConfig(AUDIO_44100_MONO, /* withEffects= */ true),
-          new ItemConfig(AUDIO_48000_STEREO, /* withEffects= */ false),
-          new ItemConfig(AUDIO_48000_STEREO, /* withEffects= */ true));
+  public static final String AUDIO_48000_STEREO_VIDEO = ASSET_URI_PREFIX + FILE_AUDIO_RAW_VIDEO;
 
   @Parameters(name = "{0}")
   public static List<SequenceConfig> params() {
-    // All permutations of all combinations.
-    return Sets.powerSet(EDITED_MEDIA_ITEMS).stream()
+    return new ImmutableList.Builder<SequenceConfig>()
+        .addAll(getAllPermutationsOfAllCombinations(AUDIO_ITEMS))
+        .addAll(getAllPermutationsOfAllCombinations(AUDIO_VIDEO_ITEMS))
+        .build();
+  }
+
+  private static List<SequenceConfig> getAllPermutationsOfAllCombinations(Set<ItemConfig> items) {
+    return Sets.powerSet(items).stream()
         .filter(s -> !s.isEmpty())
         .flatMap(s -> Collections2.permutations(s).stream())
         .map(SequenceConfig::new)
         .collect(toList());
   }
 
+  private static final ImmutableSet<ItemConfig> AUDIO_ITEMS =
+      ImmutableSet.of(
+          new ItemConfig(
+              AUDIO_44100_MONO,
+              /* audioEffects= */ false,
+              /* withSilentAudio= */ false,
+              /* removeVideo= */ true),
+          new ItemConfig(
+              AUDIO_44100_MONO,
+              /* audioEffects= */ true,
+              /* withSilentAudio= */ false,
+              /* removeVideo= */ true),
+          new ItemConfig(
+              AUDIO_48000_STEREO_VIDEO,
+              /* audioEffects= */ false,
+              /* withSilentAudio= */ false,
+              /* removeVideo= */ true),
+          new ItemConfig(
+              AUDIO_48000_STEREO_VIDEO,
+              /* audioEffects= */ true,
+              /* withSilentAudio= */ false,
+              /* removeVideo= */ true));
+
+  private static final ImmutableSet<ItemConfig> AUDIO_VIDEO_ITEMS =
+      ImmutableSet.of(
+          new ItemConfig(
+              AUDIO_48000_STEREO_VIDEO,
+              /* audioEffects= */ false,
+              /* withSilentAudio= */ false,
+              /* removeVideo= */ false),
+          new ItemConfig(
+              AUDIO_48000_STEREO_VIDEO,
+              /* audioEffects= */ true,
+              /* withSilentAudio= */ false,
+              /* removeVideo= */ false),
+          new ItemConfig(
+              AUDIO_48000_STEREO_VIDEO,
+              /* audioEffects= */ false,
+              /* withSilentAudio= */ true,
+              /* removeVideo= */ false),
+          new ItemConfig(
+              AUDIO_48000_STEREO_VIDEO,
+              /* audioEffects= */ true,
+              /* withSilentAudio= */ true,
+              /* removeVideo= */ false));
+
   @Rule public final TemporaryFolder outputDir = new TemporaryFolder();
   @Parameter public SequenceConfig sequence;
+
   private final CapturingMuxer.Factory muxerFactory = new CapturingMuxer.Factory();
 
   @Before
@@ -105,7 +153,10 @@ public final class ParameterizedAudioExportTest {
         items.add(itemConfig.asItem());
       }
 
-      return new Composition.Builder(new EditedMediaItemSequence(items.build())).build();
+      return new Composition.Builder(new EditedMediaItemSequence(items.build()))
+          .setTransmuxVideo(true)
+          .experimentalSetForceAudioTrack(true)
+          .build();
     }
 
     public int getSize() {
@@ -126,17 +177,24 @@ public final class ParameterizedAudioExportTest {
 
   private static class ItemConfig {
     private final String uri;
-    private final boolean withEffects;
+    private final boolean audioEffects;
+    private final boolean withSilentAudio;
+    private final boolean removeVideo;
 
-    public ItemConfig(String uri, boolean withEffects) {
+    public ItemConfig(
+        String uri, boolean audioEffects, boolean withSilentAudio, boolean removeVideo) {
       this.uri = uri;
-      this.withEffects = withEffects;
+      this.audioEffects = audioEffects;
+      this.withSilentAudio = withSilentAudio;
+      this.removeVideo = removeVideo;
     }
 
     public EditedMediaItem asItem() {
       EditedMediaItem.Builder editedMediaItem =
-          new EditedMediaItem.Builder(MediaItem.fromUri(uri)).setRemoveVideo(true);
-      if (withEffects) {
+          new EditedMediaItem.Builder(MediaItem.fromUri(uri))
+              .setRemoveAudio(withSilentAudio)
+              .setRemoveVideo(removeVideo);
+      if (audioEffects) {
         editedMediaItem.setEffects(
             new Effects(
                 ImmutableList.of(createPitchChangingAudioProcessor(0.6f)), ImmutableList.of()));
@@ -147,14 +205,20 @@ public final class ParameterizedAudioExportTest {
 
     @Override
     public String toString() {
-      String itemName = uri;
-      if (uri.equals(AUDIO_44100_MONO)) {
-        itemName = "mono_44.1kHz";
-      } else if (uri.equals(AUDIO_48000_STEREO)) {
-        itemName = "stereo_48kHz";
+      String itemName = "audio(";
+      if (withSilentAudio) {
+        itemName += "silence";
+      } else if (uri.equals(AUDIO_44100_MONO)) {
+        itemName += "mono_44.1kHz";
+      } else if (uri.equals(AUDIO_48000_STEREO_VIDEO)) {
+        itemName += "stereo_48kHz";
+      } else {
+        throw new IllegalArgumentException();
       }
+      itemName += audioEffects ? "+effects" : "";
+      itemName += !removeVideo ? ")_video(transmux)" : ")";
 
-      return itemName + (withEffects ? "_effects" : "");
+      return itemName;
     }
   }
 }
