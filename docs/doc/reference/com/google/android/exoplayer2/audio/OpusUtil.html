@@ -25,7 +25,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":41,"i1":41,"i2":41,"i3":41,"i4":41};
+var data = {"i0":41,"i1":41,"i2":41,"i3":41,"i4":41,"i5":41};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -226,6 +226,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>static int</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parseOggPacketForPreAudioSampleByteCount(java.nio.ByteBuffer)">parseOggPacketForPreAudioSampleByteCount</a></span>&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Calculate the offset from the start of the buffer to audio sample Ogg packets.</div>
+</td>
+</tr>
+<tr id="i5" class="rowColor">
+<td class="colFirst"><code>static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#parsePacketAudioSampleCount(java.nio.ByteBuffer)">parsePacketAudioSampleCount</a></span>&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
@@ -346,6 +354,23 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dd><code>buffer</code> - The audio packet.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>Returns the number of audio samples in the packet.</dd>
+</dl>
+</li>
+</ul>
+<a id="parseOggPacketForPreAudioSampleByteCount(java.nio.ByteBuffer)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>parseOggPacketForPreAudioSampleByteCount</h4>
+<pre class="methodSignature">public static&nbsp;int&nbsp;parseOggPacketForPreAudioSampleByteCount&#8203;(<a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top">ByteBuffer</a>&nbsp;buffer)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
+<div class="block">Calculate the offset from the start of the buffer to audio sample Ogg packets.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>buffer</code> - containing the Ogg Encapsulated Opus audio bitstream.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>the offset before the Ogg packet containing audio samples.</dd>
 </dl>
 </li>
 </ul>

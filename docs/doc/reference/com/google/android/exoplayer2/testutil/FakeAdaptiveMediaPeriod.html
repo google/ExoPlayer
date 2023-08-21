@@ -553,16 +553,20 @@ implements <a href="../source/MediaPeriod.html" title="interface in com.google.a
 <div class="block"><span class="descfrmTypeLabel">Description copied from interface:&nbsp;<code><a href="../source/MediaPeriod.html#readDiscontinuity()">MediaPeriod</a></code></span></div>
 <div class="block">Attempts to read a discontinuity.
 
- <p>After this method has returned a value other than <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>, all <a href="../source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>s provided by the period are guaranteed to start from a key frame.
+ <p>A discontinuity implies that the provided <a href="../source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStreams</code></a> will start from
+ a new playback position and any output pipelines need to be reset. This happens for example if
+ the streams provide decode-only samples before the intended playback start position that need
+ to be dropped.
 
- <p>This method is only called after the period has been prepared and before reading from any
- <a href="../source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStream</code></a>s provided by the period.</div>
+ <p>After this method has returned a value other than <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>, all <a href="../source/SampleStream.html" title="interface in com.google.android.exoplayer2.source"><code>SampleStreams</code></a> provided by the period are guaranteed to start from a key frame.
+
+ <p>This method is only called after the period has been prepared.</div>
 <dl>
 <dt><span class="overrideSpecifyLabel">Specified by:</span></dt>
 <dd><code><a href="../source/MediaPeriod.html#readDiscontinuity()">readDiscontinuity</a></code>&nbsp;in interface&nbsp;<code><a href="../source/MediaPeriod.html" title="interface in com.google.android.exoplayer2.source">MediaPeriod</a></code></dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>If a discontinuity was read then the playback position in microseconds after the
-     discontinuity. Else <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>.</dd>
+<dd>The playback position after the discontinuity, in microseconds, or <a href="../C.html#TIME_UNSET"><code>C.TIME_UNSET</code></a>
+     if there is no discontinuity.</dd>
 </dl>
 </li>
 </ul>

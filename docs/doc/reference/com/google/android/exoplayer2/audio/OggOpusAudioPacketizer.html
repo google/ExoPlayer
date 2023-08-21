@@ -137,7 +137,7 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
      contains the same ExoPlayer code). See <a href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
      migration guide</a> for more details, including a script to help with the migration.</div>
 </div>
-<div class="block">A packetizer that encapsulates OPUS audio encodings in OGG packets.</div>
+<div class="block">A packetizer that encapsulates Opus audio encodings in Ogg packets.</div>
 </li>
 </ul>
 </div>
@@ -184,7 +184,8 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#packetize(com.google.android.exoplayer2.decoder.DecoderInputBuffer)">packetize</a></span>&#8203;(<a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;inputBuffer)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#packetize(com.google.android.exoplayer2.decoder.DecoderInputBuffer,java.util.List)">packetize</a></span>&#8203;(<a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;inputBuffer,
+         <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData)</code></th>
 <td class="colLast">
 <div class="block"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Packetizes the audio data between the position and limit of the <code>inputBuffer</code>.</div>
@@ -243,13 +244,14 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <!--   -->
 </a>
 <h3>Method Detail</h3>
-<a id="packetize(com.google.android.exoplayer2.decoder.DecoderInputBuffer)">
+<a id="packetize(com.google.android.exoplayer2.decoder.DecoderInputBuffer,java.util.List)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>packetize</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;packetize&#8203;(<a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;inputBuffer)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;packetize&#8203;(<a href="../decoder/DecoderInputBuffer.html" title="class in com.google.android.exoplayer2.decoder">DecoderInputBuffer</a>&nbsp;inputBuffer,
+                      <a href="https://developer.android.com/reference/java/util/List.html" title="class or interface in java.util" class="externalLink" target="_top">List</a>&lt;byte[]&gt;&nbsp;initializationData)</pre>
 <div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span></div>
 <div class="block">Packetizes the audio data between the position and limit of the <code>inputBuffer</code>.</div>
 <dl>
@@ -257,6 +259,10 @@ extends <a href="https://developer.android.com/reference/java/lang/Object.html" 
 <dd><code>inputBuffer</code> - The input buffer to packetize. It must be a direct <a href="https://developer.android.com/reference/java/nio/ByteBuffer.html" title="class or interface in java.nio" class="externalLink" target="_top"><code>ByteBuffer</code></a> with
      LITTLE_ENDIAN order. The contents will be overwritten with the Ogg packet. The caller
      retains ownership of the provided buffer.</dd>
+<dd><code>initializationData</code> - contains set-up data for the Opus Decoder. The data will be provided
+     in an Ogg ID Header Page prepended to the bitstream. The list should contain either one or
+     three byte arrays. The first item is the payload for the Ogg ID Header Page. If three
+     items, then it also contains the Opus pre-skip and seek pre-roll values in that order.</dd>
 </dl>
 </li>
 </ul>
