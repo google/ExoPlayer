@@ -29,23 +29,6 @@ afterEvaluate {
                     groupId = 'androidx.media3'
                     artifactId = findProperty('releaseArtifactId') ?: ''
                     version = findProperty('releaseVersion') ?: ''
-                    configurations.create("sourcesElement") { variant ->
-                        variant.visible = false
-                        variant.canBeResolved = false
-                        variant.attributes.attribute(
-                            Usage.USAGE_ATTRIBUTE,
-                            project.objects.named(Usage, Usage.JAVA_RUNTIME))
-                        variant.attributes.attribute(
-                            Category.CATEGORY_ATTRIBUTE,
-                            project.objects.named(Category, Category.DOCUMENTATION))
-                        variant.attributes.attribute(
-                            Bundling.BUNDLING_ATTRIBUTE,
-                            project.objects.named(Bundling, Bundling.EXTERNAL))
-                        variant.attributes.attribute(
-                            DocsType.DOCS_TYPE_ATTRIBUTE,
-                            project.objects.named(DocsType, DocsType.SOURCES))
-                        components.release.addVariantsFromConfiguration(variant) {}
-                    }
                     pom {
                         name =
                             findProperty('releaseName')
