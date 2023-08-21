@@ -49,6 +49,7 @@ import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.OnInputFrameProcessedListener;
 import com.google.android.exoplayer2.util.SurfaceInfo;
+import com.google.android.exoplayer2.util.TimestampIterator;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
@@ -57,7 +58,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -442,7 +442,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   }
 
   @Override
-  public void queueInputBitmap(Bitmap inputBitmap, Iterator<Long> inStreamOffsetsUs) {
+  public void queueInputBitmap(Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs) {
     FrameInfo frameInfo = checkNotNull(this.nextInputFrameInfo);
     // TODO(b/262693274): move frame duplication logic out of the texture manager so
     //   textureManager.queueInputBitmap() frame rate and duration parameters be removed.

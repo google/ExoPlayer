@@ -35,11 +35,11 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.OnInputFrameProcessedListener;
 import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.util.SurfaceInfo;
+import com.google.android.exoplayer2.util.TimestampIterator;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
@@ -183,7 +183,7 @@ import java.util.concurrent.atomic.AtomicLong;
   }
 
   @Override
-  public boolean queueInputBitmap(Bitmap inputBitmap, Iterator<Long> inStreamOffsetsUs) {
+  public boolean queueInputBitmap(Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs) {
     videoFrameProcessor.queueInputBitmap(inputBitmap, inStreamOffsetsUs);
     return true;
   }

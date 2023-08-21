@@ -35,11 +35,11 @@ import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.HandlerWrapper;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.OnInputFrameProcessedListener;
+import com.google.android.exoplayer2.util.TimestampIterator;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -355,17 +355,16 @@ import java.util.concurrent.atomic.AtomicInteger;
   }
 
   /**
-   * Given an {@link Iterator}, creates an iterator that includes all the values in the original
-   * iterator (in the same order) up to and including the first occurrence of the {@code
-   * clippingValue}.
+   * Wraps a {@link TimestampIterator}, providing all the values in the original timestamp iterator
+   * (in the same order) up to and including the first occurrence of the {@code clippingValue}.
    */
-  private static final class ClippingIterator implements Iterator<Long> {
+  private static final class ClippingIterator implements TimestampIterator {
 
-    private final Iterator<Long> iterator;
+    private final TimestampIterator iterator;
     private final long clippingValue;
     private boolean hasReachedClippingValue;
 
-    public ClippingIterator(Iterator<Long> iterator, long clippingValue) {
+    public ClippingIterator(TimestampIterator iterator, long clippingValue) {
       this.iterator = iterator;
       this.clippingValue = clippingValue;
     }
@@ -376,9 +375,9 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
 
     @Override
-    public Long next() {
+    public long next() {
       checkState(hasNext());
-      Long next = iterator.next();
+      long next = iterator.next();
       if (clippingValue == next) {
         hasReachedClippingValue = true;
       }
@@ -456,8 +455,8 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
 
     @Override
-    public boolean queueInputBitmap(Bitmap inputBitmap, Iterator<Long> inStreamOffsetsUs) {
-      Iterator<Long> iteratorToUse = inStreamOffsetsUs;
+    public boolean queueInputBitmap(Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs) {
+      TimestampIterator iteratorToUse = inStreamOffsetsUs;
       if (isLooping) {
         long durationLeftUs = maxSequenceDurationUs - totalDurationUs;
         if (durationLeftUs <= 0) {

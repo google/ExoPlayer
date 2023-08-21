@@ -23,12 +23,12 @@ import android.opengl.EGLExt;
 import android.view.Surface;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.util.util.TimestampIterator;
 import com.google.android.exoplayer2.video.ColorInfo;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -189,7 +189,7 @@ public interface VideoFrameProcessor {
    * @throws UnsupportedOperationException If the {@code VideoFrameProcessor} does not accept
    *     {@linkplain #INPUT_TYPE_BITMAP bitmap input}.
    */
-  void queueInputBitmap(Bitmap inputBitmap, Iterator<Long> inStreamOffsetsUs);
+  void queueInputBitmap(Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs);
 
   /**
    * Provides an input texture ID to the {@code VideoFrameProcessor}.

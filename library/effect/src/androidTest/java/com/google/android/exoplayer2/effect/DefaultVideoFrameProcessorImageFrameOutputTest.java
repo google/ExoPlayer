@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.effect;
 
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.readBitmap;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.TimestampIterator.createFromLongIterator;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.Bitmap;
@@ -209,8 +210,9 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
     videoFrameProcessorTestRunner.queueInputBitmaps(
         bitmap1.getWidth(),
         bitmap1.getHeight(),
-        Pair.create(bitmap1, ImmutableList.of(offset1).iterator()),
-        Pair.create(bitmap2, ImmutableList.of(offset2, offset3).iterator()));
+        Pair.create(bitmap1, createFromLongIterator(ImmutableList.of(offset1).iterator())),
+        Pair.create(
+            bitmap2, createFromLongIterator(ImmutableList.of(offset2, offset3).iterator())));
     videoFrameProcessorTestRunner.endFrameProcessing();
 
     assertThat(actualPresentationTimesUs).containsExactly(offset1, offset2, offset3).inOrder();

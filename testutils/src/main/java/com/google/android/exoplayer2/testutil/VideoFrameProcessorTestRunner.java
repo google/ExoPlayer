@@ -42,13 +42,13 @@ import com.google.android.exoplayer2.util.FrameInfo;
 import com.google.android.exoplayer2.util.GlTextureInfo;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.SurfaceInfo;
+import com.google.android.exoplayer2.util.TimestampIterator;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
@@ -357,14 +357,14 @@ public final class VideoFrameProcessorTestRunner {
     videoFrameProcessor.queueInputBitmap(inputBitmap, durationUs, frameRate);
   }
 
-  public void queueInputBitmaps(int width, int height, Pair<Bitmap, Iterator<Long>>... frames) {
+  public void queueInputBitmaps(int width, int height, Pair<Bitmap, TimestampIterator>... frames) {
     videoFrameProcessor.registerInputStream(
         INPUT_TYPE_BITMAP,
         effects,
         new FrameInfo.Builder(width, height)
             .setPixelWidthHeightRatio(pixelWidthHeightRatio)
             .build());
-    for (Pair<Bitmap, Iterator<Long>> frame : frames) {
+    for (Pair<Bitmap, TimestampIterator> frame : frames) {
       videoFrameProcessor.queueInputBitmap(frame.first, frame.second);
     }
   }
