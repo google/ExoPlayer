@@ -20,9 +20,9 @@ import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.OnInputFrameProcessedListener;
+import androidx.media3.common.util.TimestampIterator;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.decoder.DecoderInputBuffer;
-import java.util.Iterator;
 
 /** Consumer of encoded media samples, raw audio or raw video frames. */
 @UnstableApi
@@ -93,7 +93,7 @@ public interface SampleConsumer {
    * @param inStreamOffsetsUs The times within the current stream that the bitmap should be
    *     displayed at. The timestamps should be monotonically increasing.
    */
-  default boolean queueInputBitmap(Bitmap inputBitmap, Iterator<Long> inStreamOffsetsUs) {
+  default boolean queueInputBitmap(Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs) {
     throw new UnsupportedOperationException();
   }
 

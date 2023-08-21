@@ -16,6 +16,7 @@
 package androidx.media3.effect;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.common.util.TimestampIterator.createFromLongIterator;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.readBitmap;
 import static com.google.common.truth.Truth.assertThat;
 
@@ -209,8 +210,9 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
     videoFrameProcessorTestRunner.queueInputBitmaps(
         bitmap1.getWidth(),
         bitmap1.getHeight(),
-        Pair.create(bitmap1, ImmutableList.of(offset1).iterator()),
-        Pair.create(bitmap2, ImmutableList.of(offset2, offset3).iterator()));
+        Pair.create(bitmap1, createFromLongIterator(ImmutableList.of(offset1).iterator())),
+        Pair.create(
+            bitmap2, createFromLongIterator(ImmutableList.of(offset2, offset3).iterator())));
     videoFrameProcessorTestRunner.endFrameProcessing();
 
     assertThat(actualPresentationTimesUs).containsExactly(offset1, offset2, offset3).inOrder();

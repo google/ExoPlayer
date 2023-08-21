@@ -52,13 +52,13 @@ import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Log;
+import androidx.media3.common.util.TimestampIterator;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -438,7 +438,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   }
 
   @Override
-  public void queueInputBitmap(Bitmap inputBitmap, Iterator<Long> inStreamOffsetsUs) {
+  public void queueInputBitmap(Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs) {
     FrameInfo frameInfo = checkNotNull(this.nextInputFrameInfo);
     // TODO(b/262693274): move frame duplication logic out of the texture manager so
     //   textureManager.queueInputBitmap() frame rate and duration parameters be removed.

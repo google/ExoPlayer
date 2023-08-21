@@ -37,9 +37,9 @@ import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.util.Consumer;
 import androidx.media3.common.util.Size;
+import androidx.media3.common.util.TimestampIterator;
 import androidx.media3.effect.Presentation;
 import com.google.common.collect.ImmutableList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
@@ -175,7 +175,7 @@ import java.util.concurrent.atomic.AtomicLong;
   }
 
   @Override
-  public boolean queueInputBitmap(Bitmap inputBitmap, Iterator<Long> inStreamOffsetsUs) {
+  public boolean queueInputBitmap(Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs) {
     videoFrameProcessor.queueInputBitmap(inputBitmap, inStreamOffsetsUs);
     return true;
   }

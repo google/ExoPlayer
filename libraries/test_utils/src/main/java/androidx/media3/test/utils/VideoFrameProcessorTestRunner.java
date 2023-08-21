@@ -45,11 +45,11 @@ import androidx.media3.common.SurfaceInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.util.GlUtil;
+import androidx.media3.common.util.TimestampIterator;
 import androidx.media3.common.util.UnstableApi;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
@@ -359,14 +359,14 @@ public final class VideoFrameProcessorTestRunner {
     videoFrameProcessor.queueInputBitmap(inputBitmap, durationUs, frameRate);
   }
 
-  public void queueInputBitmaps(int width, int height, Pair<Bitmap, Iterator<Long>>... frames) {
+  public void queueInputBitmaps(int width, int height, Pair<Bitmap, TimestampIterator>... frames) {
     videoFrameProcessor.registerInputStream(
         INPUT_TYPE_BITMAP,
         effects,
         new FrameInfo.Builder(width, height)
             .setPixelWidthHeightRatio(pixelWidthHeightRatio)
             .build());
-    for (Pair<Bitmap, Iterator<Long>> frame : frames) {
+    for (Pair<Bitmap, TimestampIterator> frame : frames) {
       videoFrameProcessor.queueInputBitmap(frame.first, frame.second);
     }
   }
