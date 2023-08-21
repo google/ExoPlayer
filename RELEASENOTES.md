@@ -62,6 +62,11 @@ This release includes the following changes since
         `PlayerView.setShowPlayButtonIfPlaybackIsSuppressed(false)` or
         `MediaSession.Builder.setShowPlayButtonIfPlaybackIsSuppressed(false)`
         ([#11213](https://github.com/google/ExoPlayer/issues/11213)).
+    *   Upgrade `androidx.annotation:annotation-experimental` to `1.3.1`. This
+        also introduces a transitive dependency on the Kotlin standard library
+        from `media3-common`. Apps can
+        [downgrade to remove this dependency if they want](https://developer.android.com/guide/topics/media/exoplayer/shrinking#remove-kotlin-dep).
+        Fixes https://issuetracker.google.com/251172715.
 *   ExoPlayer:
     *   Fix seeking issues in AC4 streams caused by not identifying decode-only
         samples correctly
