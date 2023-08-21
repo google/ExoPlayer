@@ -35,29 +35,25 @@ import androidx.media3.test.utils.FakeClock;
 import androidx.media3.test.utils.FakeExtractorOutput;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
 /** End-to-end test for {@link Transformer} with {@link InAppMuxer}. */
 @RunWith(AndroidJUnit4.class)
 public class TransformerWithInAppMuxerEndToEndTest {
   private static final String XMP_SAMPLE_DATA = "media/xmp/sample_datetime_xmp.xmp";
-  private Context context;
+
+  @Rule public final TemporaryFolder outputDir = new TemporaryFolder();
+
+  private final Context context = ApplicationProvider.getApplicationContext();
   private String outputPath;
 
   @Before
-  public void setUp() throws Exception {
-    context = ApplicationProvider.getApplicationContext();
-    outputPath = Util.createTempFile(context, "TransformerTest").getPath();
-  }
-
-  @After
-  public void tearDown() throws Exception {
-    Files.delete(Paths.get(outputPath));
+  public void setup() throws Exception {
+    outputPath = outputDir.newFile().getPath();
   }
 
   @Test
