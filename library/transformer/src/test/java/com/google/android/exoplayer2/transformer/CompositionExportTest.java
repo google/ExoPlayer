@@ -210,7 +210,10 @@ public class CompositionExportTest {
 
     assertThat(exportResult.processedInputs).hasSize(2);
     DumpFileAsserts.assertOutput(
-        context, muxerFactory.getCreatedMuxer(), getDumpFileName(FILE_AUDIO_RAW + ".concurrent"));
+        context,
+        muxerFactory.getCreatedMuxer(),
+        getDumpFileName(
+            /* originalFileName= */ FILE_AUDIO_RAW, /* modifications...= */ "concurrent"));
   }
 
   @Test

@@ -171,7 +171,9 @@ public final class MediaItemExportTest {
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(
-        context, muxerFactory.getCreatedMuxer(), getDumpFileName(FILE_AUDIO_RAW + ".aac"));
+        context,
+        muxerFactory.getCreatedMuxer(),
+        getDumpFileName(/* originalFileName= */ FILE_AUDIO_RAW, /* modifications...= */ "aac"));
   }
 
   @Test
@@ -209,7 +211,9 @@ public final class MediaItemExportTest {
     DumpFileAsserts.assertOutput(
         context,
         muxerFactory.getCreatedMuxer(),
-        getDumpFileName(FILE_AUDIO_VIDEO_INCREASING_TIMESTAMPS_15S + ".clipped"));
+        getDumpFileName(
+            /* originalFileName= */ FILE_AUDIO_VIDEO_INCREASING_TIMESTAMPS_15S,
+            /* modifications...= */ "clipped"));
   }
 
   @Test
@@ -227,7 +231,10 @@ public final class MediaItemExportTest {
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(
-        context, muxerFactory.getCreatedMuxer(), getDumpFileName(FILE_WITH_SUBTITLES) + ".noaudio");
+        context,
+        muxerFactory.getCreatedMuxer(),
+        getDumpFileName(
+            /* originalFileName= */ FILE_WITH_SUBTITLES, /* modifications...= */ "noaudio"));
   }
 
   @Test
@@ -273,7 +280,10 @@ public final class MediaItemExportTest {
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(
-        context, muxerFactory.getCreatedMuxer(), getDumpFileName(FILE_AUDIO_VIDEO + ".noaudio"));
+        context,
+        muxerFactory.getCreatedMuxer(),
+        getDumpFileName(
+            /* originalFileName= */ FILE_AUDIO_VIDEO, /* modifications...= */ "noaudio"));
   }
 
   @Test
@@ -289,7 +299,10 @@ public final class MediaItemExportTest {
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(
-        context, muxerFactory.getCreatedMuxer(), getDumpFileName(FILE_AUDIO_VIDEO + ".novideo"));
+        context,
+        muxerFactory.getCreatedMuxer(),
+        getDumpFileName(
+            /* originalFileName= */ FILE_AUDIO_VIDEO, /* modifications...= */ "novideo"));
   }
 
   @Test
@@ -347,7 +360,8 @@ public final class MediaItemExportTest {
     DumpFileAsserts.assertOutput(
         context,
         muxerFactory.getCreatedMuxer(),
-        getDumpFileName(FILE_AUDIO_VIDEO + ".silentaudio"));
+        getDumpFileName(
+            /* originalFileName= */ FILE_AUDIO_VIDEO, /* modifications...= */ "silence"));
   }
 
   @Test
@@ -373,7 +387,10 @@ public final class MediaItemExportTest {
     DumpFileAsserts.assertOutput(
         context,
         muxerFactory.getCreatedMuxer(),
-        getDumpFileName(FILE_AUDIO_VIDEO + ".silentaudio_48000hz"));
+        getDumpFileName(
+            /* originalFileName= */ FILE_AUDIO_VIDEO, /* modifications...= */
+            "silence",
+            "48000hz"));
   }
 
   @Test
@@ -392,7 +409,10 @@ public final class MediaItemExportTest {
     transformer.start(composition, outputPath);
     TransformerTestRunner.runLooper(transformer);
     DumpFileAsserts.assertOutput(
-        context, muxerFactory.getCreatedMuxer(), getDumpFileName(FILE_AUDIO_VIDEO + ".novideo"));
+        context,
+        muxerFactory.getCreatedMuxer(),
+        getDumpFileName(
+            /* originalFileName= */ FILE_AUDIO_VIDEO, /* modifications...= */ "novideo"));
   }
 
   @Test
@@ -410,7 +430,10 @@ public final class MediaItemExportTest {
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(
-        context, muxerFactory.getCreatedMuxer(), getDumpFileName(FILE_VIDEO_ONLY + ".silentaudio"));
+        context,
+        muxerFactory.getCreatedMuxer(),
+        getDumpFileName(
+            /* originalFileName= */ FILE_VIDEO_ONLY, /* modifications...= */ "silence"));
   }
 
   @Test
@@ -430,7 +453,9 @@ public final class MediaItemExportTest {
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(
-        context, muxerFactory.getCreatedMuxer(), getDumpFileName(FILE_AUDIO_RAW + ".48000hz"));
+        context,
+        muxerFactory.getCreatedMuxer(),
+        getDumpFileName(/* originalFileName= */ FILE_AUDIO_RAW, /* modifications...= */ "48000hz"));
   }
 
   @Test
@@ -452,7 +477,9 @@ public final class MediaItemExportTest {
     transformer.start(composition, outputPath);
     TransformerTestRunner.runLooper(transformer);
     DumpFileAsserts.assertOutput(
-        context, muxerFactory.getCreatedMuxer(), getDumpFileName(FILE_AUDIO_RAW + ".48000hz"));
+        context,
+        muxerFactory.getCreatedMuxer(),
+        getDumpFileName(/* originalFileName= */ FILE_AUDIO_RAW, /* modifications...= */ "48000hz"));
   }
 
   @Test
@@ -677,7 +704,8 @@ public final class MediaItemExportTest {
     DumpFileAsserts.assertOutput(
         context,
         muxerFactory.getCreatedMuxer(),
-        getDumpFileName(FILE_WITH_SEF_SLOW_MOTION) + ".noaudio");
+        getDumpFileName(
+            /* originalFileName= */ FILE_WITH_SEF_SLOW_MOTION, /* modifications...= */ "noaudio"));
   }
 
   @Test
@@ -774,7 +802,9 @@ public final class MediaItemExportTest {
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(
-        context, muxerFactory.getCreatedMuxer(), getDumpFileName(FILE_AUDIO_RAW + ".aac"));
+        context,
+        muxerFactory.getCreatedMuxer(),
+        getDumpFileName(/* originalFileName= */ FILE_AUDIO_RAW, /* modifications...= */ "aac"));
     verify(mockListener)
         .onFallbackApplied(
             any(Composition.class),
@@ -806,7 +836,9 @@ public final class MediaItemExportTest {
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(
-        context, muxerFactory.getCreatedMuxer(), getDumpFileName(FILE_AUDIO_RAW + ".aac"));
+        context,
+        muxerFactory.getCreatedMuxer(),
+        getDumpFileName(/* originalFileName= */ FILE_AUDIO_RAW, /* modifications...= */ "aac"));
     verify(mockListener)
         .onFallbackApplied(
             any(Composition.class),
@@ -1024,7 +1056,10 @@ public final class MediaItemExportTest {
 
     // Video transcoding in unit tests is not supported.
     DumpFileAsserts.assertOutput(
-        context, muxerFactory.getCreatedMuxer(), getDumpFileName(FILE_AUDIO_VIDEO + ".rotated"));
+        context,
+        muxerFactory.getCreatedMuxer(),
+        getDumpFileName(
+            /* originalFileName= */ FILE_AUDIO_VIDEO, /* modifications...= */ "rotated"));
   }
 
   @Test
