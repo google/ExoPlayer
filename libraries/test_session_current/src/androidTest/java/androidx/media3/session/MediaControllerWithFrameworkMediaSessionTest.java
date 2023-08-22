@@ -24,7 +24,6 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import android.content.Context;
 import android.media.session.MediaSession;
 import android.media.session.PlaybackState;
-import android.os.Build;
 import android.os.HandlerThread;
 import androidx.media3.common.Player;
 import androidx.media3.common.Player.State;
@@ -34,11 +33,11 @@ import androidx.media3.test.session.common.TestHandler;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -47,7 +46,6 @@ import org.junit.runner.RunWith;
 /** Tests for {@link MediaController} with framework MediaSession, which exists since Android-L. */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP) // For framework MediaSession
 public class MediaControllerWithFrameworkMediaSessionTest {
 
   private static final String TAG = "MCFMediaSessionTest";
@@ -56,30 +54,22 @@ public class MediaControllerWithFrameworkMediaSessionTest {
 
   private Context context;
   private TestHandler handler;
-  private MediaSession fwkSession;
 
   @Before
   public void setUp() {
+    if (Util.SDK_INT < 21) {
+      return;
+    }
     context = ApplicationProvider.getApplicationContext();
 
     HandlerThread handlerThread = new HandlerThread(TAG);
     handlerThread.start();
     TestHandler handler = new TestHandler(handlerThread.getLooper());
     this.handler = handler;
-
-    fwkSession = new android.media.session.MediaSession(context, TAG);
-    fwkSession.setActive(true);
-    fwkSession.setFlags(
-        MediaSession.FLAG_HANDLES_MEDIA_BUTTONS | MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
-    fwkSession.setCallback(new android.media.session.MediaSession.Callback() {}, handler);
   }
 
   @After
   public void cleanUp() {
-    if (fwkSession != null) {
-      fwkSession.release();
-      fwkSession = null;
-    }
     if (handler != null) {
       if (Util.SDK_INT >= 18) {
         handler.getLooper().quitSafely();
@@ -90,8 +80,15 @@ public class MediaControllerWithFrameworkMediaSessionTest {
     }
   }
 
+  @SuppressWarnings("UnnecessarilyFullyQualified") // Intentionally fully qualified for fwk session.
   @Test
   public void createController() throws Exception {
+    Assume.assumeTrue(Util.SDK_INT >= 21); // For framework MediaSession.
+    MediaSession fwkSession = new android.media.session.MediaSession(context, TAG);
+    fwkSession.setActive(true);
+    fwkSession.setFlags(
+        MediaSession.FLAG_HANDLES_MEDIA_BUTTONS | MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
+    fwkSession.setCallback(new android.media.session.MediaSession.Callback() {}, handler);
     SessionToken token =
         SessionToken.createSessionToken(context, fwkSession.getSessionToken())
             .get(TIMEOUT_MS, MILLISECONDS);
@@ -101,10 +98,18 @@ public class MediaControllerWithFrameworkMediaSessionTest {
             .buildAsync()
             .get(SERVICE_CONNECTION_TIMEOUT_MS, MILLISECONDS);
     handler.postAndSync(controller::release);
+    fwkSession.release();
   }
 
+  @SuppressWarnings("UnnecessarilyFullyQualified") // Intentionally fully qualified for fwk session.
   @Test
   public void onPlaybackStateChanged_isNotifiedByFwkSessionChanges() throws Exception {
+    Assume.assumeTrue(Util.SDK_INT >= 21); // For framework MediaSession.
+    MediaSession fwkSession = new android.media.session.MediaSession(context, TAG);
+    fwkSession.setActive(true);
+    fwkSession.setFlags(
+        MediaSession.FLAG_HANDLES_MEDIA_BUTTONS | MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
+    fwkSession.setCallback(new android.media.session.MediaSession.Callback() {}, handler);
     CountDownLatch playbackStateChangedLatch = new CountDownLatch(1);
     AtomicInteger playbackStateRef = new AtomicInteger();
     AtomicBoolean playWhenReadyRef = new AtomicBoolean();
@@ -136,6 +141,7 @@ public class MediaControllerWithFrameworkMediaSessionTest {
       assertThat(playWhenReadyRef.get()).isTrue();
     } finally {
       handler.postAndSync(controller::release);
+      fwkSession.release();
     }
   }
 }

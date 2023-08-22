@@ -37,9 +37,9 @@ import androidx.media3.test.session.common.TestHandler;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 import java.util.concurrent.CountDownLatch;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -50,8 +50,6 @@ import org.junit.runner.RunWith;
  * Tests for key event handling of {@link MediaSession}. In order to get the media key events, the
  * player state is set to 'Playing' before every test method.
  */
-// TODO(b/199064299): Down minSdk to 19 (AudioManager#dispatchMediaKeyEvent() requires API 19)
-@SdkSuppress(minSdkVersion = 21)
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MediaSessionKeyEventTest {
@@ -88,6 +86,9 @@ public class MediaSessionKeyEventTest {
 
   @Before
   public void setUp() throws Exception {
+    if (Util.SDK_INT < 21) {
+      return;
+    }
     Context context = ApplicationProvider.getApplicationContext();
     audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
     handler = threadTestRule.getHandler();
@@ -128,6 +129,9 @@ public class MediaSessionKeyEventTest {
 
   @After
   public void tearDown() throws Exception {
+    if (Util.SDK_INT < 21) {
+      return;
+    }
     handler.postAndSync(
         () -> {
           if (mediaPlayer != null) {
@@ -140,6 +144,7 @@ public class MediaSessionKeyEventTest {
 
   @Test
   public void playKeyEvent() throws Exception {
+    Assume.assumeTrue(Util.SDK_INT >= 21); // TODO: b/199064299 - Lower minSdk to 19.
     dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY, false);
 
     player.awaitMethodCalled(MockPlayer.METHOD_PLAY, TIMEOUT_MS);
@@ -147,6 +152,7 @@ public class MediaSessionKeyEventTest {
 
   @Test
   public void pauseKeyEvent() throws Exception {
+    Assume.assumeTrue(Util.SDK_INT >= 21); // TODO: b/199064299 - Lower minSdk to 19.
     dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PAUSE, false);
 
     player.awaitMethodCalled(MockPlayer.METHOD_PAUSE, TIMEOUT_MS);
@@ -154,6 +160,7 @@ public class MediaSessionKeyEventTest {
 
   @Test
   public void nextKeyEvent() throws Exception {
+    Assume.assumeTrue(Util.SDK_INT >= 21); // TODO: b/199064299 - Lower minSdk to 19.
     dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_NEXT, false);
 
     player.awaitMethodCalled(MockPlayer.METHOD_SEEK_TO_NEXT, TIMEOUT_MS);
@@ -161,6 +168,7 @@ public class MediaSessionKeyEventTest {
 
   @Test
   public void previousKeyEvent() throws Exception {
+    Assume.assumeTrue(Util.SDK_INT >= 21); // TODO: b/199064299 - Lower minSdk to 19.
     dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PREVIOUS, false);
 
     player.awaitMethodCalled(MockPlayer.METHOD_SEEK_TO_PREVIOUS, TIMEOUT_MS);
@@ -168,6 +176,7 @@ public class MediaSessionKeyEventTest {
 
   @Test
   public void stopKeyEvent() throws Exception {
+    Assume.assumeTrue(Util.SDK_INT >= 21); // TODO: b/199064299 - Lower minSdk to 19.
     dispatchMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_STOP, false);
 
     player.awaitMethodCalled(MockPlayer.METHOD_STOP, TIMEOUT_MS);
@@ -226,6 +235,7 @@ public class MediaSessionKeyEventTest {
 
   @Test
   public void playPauseKeyEvent_playing_pause() throws Exception {
+    Assume.assumeTrue(Util.SDK_INT >= 21); // TODO: b/199064299 - Lower minSdk to 19.
     handler.postAndSync(
         () -> {
           player.playWhenReady = true;
