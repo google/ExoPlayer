@@ -111,9 +111,6 @@ public final class MediaItemExportTest {
 
   private final Context context = ApplicationProvider.getApplicationContext();
   private final CapturingMuxer.Factory muxerFactory = new CapturingMuxer.Factory();
-  private final ProgressHolder progressHolder = new ProgressHolder();
-  private final ArgumentCaptor<Composition> compositionArgumentCaptor =
-      ArgumentCaptor.forClass(Composition.class);
 
   @Before
   public void setUp() {
@@ -479,6 +476,8 @@ public final class MediaItemExportTest {
 
   @Test
   public void start_withMultipleListeners_callsEachOnCompletion() throws Exception {
+    ArgumentCaptor<Composition> compositionArgumentCaptor =
+        ArgumentCaptor.forClass(Composition.class);
     Transformer.Listener mockListener1 = mock(Transformer.Listener.class);
     Transformer.Listener mockListener2 = mock(Transformer.Listener.class);
     Transformer.Listener mockListener3 = mock(Transformer.Listener.class);
@@ -501,6 +500,8 @@ public final class MediaItemExportTest {
 
   @Test
   public void start_withMultipleListeners_callsEachOnError() throws Exception {
+    ArgumentCaptor<Composition> compositionArgumentCaptor =
+        ArgumentCaptor.forClass(Composition.class);
     Transformer.Listener mockListener1 = mock(Transformer.Listener.class);
     Transformer.Listener mockListener2 = mock(Transformer.Listener.class);
     Transformer.Listener mockListener3 = mock(Transformer.Listener.class);
@@ -526,6 +527,8 @@ public final class MediaItemExportTest {
 
   @Test
   public void start_withMultipleListeners_callsEachOnFallback() throws Exception {
+    ArgumentCaptor<Composition> compositionArgumentCaptor =
+        ArgumentCaptor.forClass(Composition.class);
     Transformer.Listener mockListener1 = mock(Transformer.Listener.class);
     Transformer.Listener mockListener2 = mock(Transformer.Listener.class);
     Transformer.Listener mockListener3 = mock(Transformer.Listener.class);
@@ -665,6 +668,8 @@ public final class MediaItemExportTest {
   @Test
   public void start_afterBuildUponWithListenerRemoved_onlyCallsRemainingListeners()
       throws Exception {
+    ArgumentCaptor<Composition> compositionArgumentCaptor =
+        ArgumentCaptor.forClass(Composition.class);
     Transformer.Listener mockListener1 = mock(Transformer.Listener.class);
     Transformer.Listener mockListener2 = mock(Transformer.Listener.class);
     Transformer.Listener mockListener3 = mock(Transformer.Listener.class);
@@ -1072,7 +1077,8 @@ public final class MediaItemExportTest {
         new Handler(Looper.myLooper()) {
           @Override
           public void handleMessage(Message msg) {
-            @Transformer.ProgressState int progressState = transformer.getProgress(progressHolder);
+            @Transformer.ProgressState
+            int progressState = transformer.getProgress(new ProgressHolder());
             if (progressState == PROGRESS_STATE_UNAVAILABLE) {
               foundInconsistentState.set(true);
               return;
@@ -1117,6 +1123,7 @@ public final class MediaItemExportTest {
         new Handler(Looper.myLooper()) {
           @Override
           public void handleMessage(Message msg) {
+            ProgressHolder progressHolder = new ProgressHolder();
             @Transformer.ProgressState int progressState = transformer.getProgress(progressHolder);
             if (progressState == PROGRESS_STATE_NOT_STARTED) {
               return;
@@ -1147,7 +1154,7 @@ public final class MediaItemExportTest {
     Transformer transformer =
         createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
     MediaItem mediaItem = MediaItem.fromUri(ASSET_URI_PREFIX + FILE_VIDEO_ONLY);
-
+    ProgressHolder progressHolder = new ProgressHolder();
     @Transformer.ProgressState int stateBeforeTransform = transformer.getProgress(progressHolder);
     transformer.start(mediaItem, outputDir.newFile().getPath());
     TransformerTestRunner.runLooper(transformer);
@@ -1169,7 +1176,8 @@ public final class MediaItemExportTest {
         new Handler(Looper.myLooper()) {
           @Override
           public void handleMessage(Message msg) {
-            @Transformer.ProgressState int progressState = transformer.getProgress(progressHolder);
+            @Transformer.ProgressState
+            int progressState = transformer.getProgress(new ProgressHolder());
             switch (previousProgressState.get()) {
               case PROGRESS_STATE_WAITING_FOR_AVAILABILITY:
                 break;
@@ -1214,7 +1222,7 @@ public final class MediaItemExportTest {
         .post(
             () -> {
               try {
-                transformer.getProgress(progressHolder);
+                transformer.getProgress(new ProgressHolder());
               } catch (IllegalStateException e) {
                 illegalStateException.set(e);
               } finally {
