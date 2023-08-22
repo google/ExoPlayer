@@ -827,14 +827,14 @@ public class SampleQueue implements TrackOutput {
 
     if (sharedSampleMetadata.isEmpty()
         || !sharedSampleMetadata.getEndValue().format.equals(upstreamFormat)) {
+      Format upstreamFormat = checkNotNull(this.upstreamFormat);
       DrmSessionReference drmSessionReference =
           drmSessionManager != null
               ? drmSessionManager.preacquireSession(drmEventDispatcher, upstreamFormat)
               : DrmSessionReference.EMPTY;
 
       sharedSampleMetadata.appendSpan(
-          getWriteIndex(),
-          new SharedSampleMetadata(checkNotNull(upstreamFormat), drmSessionReference));
+          getWriteIndex(), new SharedSampleMetadata(upstreamFormat, drmSessionReference));
     }
 
     length++;
@@ -918,7 +918,8 @@ public class SampleQueue implements TrackOutput {
    */
   private void onFormatResult(Format newFormat, FormatHolder outputFormatHolder) {
     boolean isFirstFormat = downstreamFormat == null;
-    @Nullable DrmInitData oldDrmInitData = isFirstFormat ? null : downstreamFormat.drmInitData;
+    @Nullable
+    DrmInitData oldDrmInitData = downstreamFormat == null ? null : downstreamFormat.drmInitData;
     downstreamFormat = newFormat;
     @Nullable DrmInitData newDrmInitData = newFormat.drmInitData;
 
