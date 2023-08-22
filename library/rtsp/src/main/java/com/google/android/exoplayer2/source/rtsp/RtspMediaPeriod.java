@@ -506,18 +506,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return listBuilder.build();
   }
 
-  private final class InternalListener
-      implements ExtractorOutput,
-          Loader.Callback<RtpDataLoadable>,
-          UpstreamFormatChangedListener,
-          SessionInfoListener,
-          PlaybackEventListener {
+  // All interactions are on the loading thread
+  private final class ExtractorOutputImpl implements ExtractorOutput {
 
-    // ExtractorOutput implementation.
+    private final TrackOutput trackOutput;
+
+    private ExtractorOutputImpl(TrackOutput trackOutput) {
+      this.trackOutput = trackOutput;
+    }
 
     @Override
     public TrackOutput track(int id, int type) {
-      return checkNotNull(rtspLoaderWrappers.get(id)).sampleQueue;
+      return trackOutput;
     }
 
     @Override
@@ -529,6 +529,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     public void seekMap(SeekMap seekMap) {
       // RTSP does not support seek map.
     }
+  }
+
+  private final class InternalListener
+      implements Loader.Callback<RtpDataLoadable>,
+          UpstreamFormatChangedListener,
+          SessionInfoListener,
+          PlaybackEventListener {
 
     // Loadable.Callback implementation.
 
@@ -796,9 +803,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
      */
     public RtspLoaderWrapper(
         RtspMediaTrack mediaTrack, int trackId, RtpDataChannel.Factory rtpDataChannelFactory) {
-      loadInfo = new RtpLoadInfo(mediaTrack, trackId, rtpDataChannelFactory);
       loader = new Loader("ExoPlayer:RtspMediaPeriod:RtspLoaderWrapper " + trackId);
       sampleQueue = SampleQueue.createWithoutDrm(allocator);
+      loadInfo = new RtpLoadInfo(mediaTrack, trackId, sampleQueue, rtpDataChannelFactory);
       sampleQueue.setUpstreamFormatChangeListener(internalListener);
     }
 
@@ -881,7 +888,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     /** Creates a new instance. */
     public RtpLoadInfo(
-        RtspMediaTrack mediaTrack, int trackId, RtpDataChannel.Factory rtpDataChannelFactory) {
+        RtspMediaTrack mediaTrack,
+        int trackId,
+        TrackOutput trackOutput,
+        RtpDataChannel.Factory rtpDataChannelFactory) {
       this.mediaTrack = mediaTrack;
 
       // This listener runs on the playback thread, posted by the Loader thread.
@@ -905,7 +915,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               trackId,
               mediaTrack,
               /* eventListener= */ transportEventListener,
-              /* output= */ internalListener,
+              /* output= */ new ExtractorOutputImpl(trackOutput),
               rtpDataChannelFactory);
     }
 
