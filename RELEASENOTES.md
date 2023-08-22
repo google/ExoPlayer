@@ -36,6 +36,8 @@
 *   HLS Extension:
 *   Smooth Streaming Extension:
 *   RTSP Extension:
+    *   Fix a race condition that could lead to `IndexOutOfBoundsException` when
+        falling back to TCP, or playback hanging in some situations.
 *   Decoder Extensions (FFmpeg, VP9, AV1, etc.):
 *   MIDI extension:
 *   Cast Extension:
