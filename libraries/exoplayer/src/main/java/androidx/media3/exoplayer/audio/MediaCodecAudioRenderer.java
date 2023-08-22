@@ -409,8 +409,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       boolean requiresSecureDecoder,
       AudioSink audioSink)
       throws DecoderQueryException {
-    @Nullable String mimeType = format.sampleMimeType;
-    if (mimeType == null) {
+    if (format.sampleMimeType == null) {
       return ImmutableList.of();
     }
     if (audioSink.supportsFormat(format)) {
@@ -526,7 +525,8 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Nullable
   protected DecoderReuseEvaluation onInputFormatChanged(FormatHolder formatHolder)
       throws ExoPlaybackException {
-    inputFormat = checkNotNull(formatHolder.format);
+    Format inputFormat = checkNotNull(formatHolder.format);
+    this.inputFormat = inputFormat;
     @Nullable DecoderReuseEvaluation evaluation = super.onInputFormatChanged(formatHolder);
     eventDispatcher.inputFormatChanged(inputFormat, evaluation);
     return evaluation;
@@ -542,6 +542,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     } else if (getCodec() == null) { // Direct playback with codec bypass.
       audioSinkInputFormat = format;
     } else {
+      checkNotNull(mediaFormat);
       @C.PcmEncoding int pcmEncoding;
       if (MimeTypes.AUDIO_RAW.equals(format.sampleMimeType)) {
         // For PCM streams, the encoder passes through int samples despite set to float mode.
@@ -778,15 +779,15 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       throws ExoPlaybackException {
     switch (messageType) {
       case MSG_SET_VOLUME:
-        audioSink.setVolume((Float) message);
+        audioSink.setVolume((Float) checkNotNull(message));
         break;
       case MSG_SET_AUDIO_ATTRIBUTES:
         AudioAttributes audioAttributes = (AudioAttributes) message;
-        audioSink.setAudioAttributes(audioAttributes);
+        audioSink.setAudioAttributes(checkNotNull(audioAttributes));
         break;
       case MSG_SET_AUX_EFFECT_INFO:
         AuxEffectInfo auxEffectInfo = (AuxEffectInfo) message;
-        audioSink.setAuxEffectInfo(auxEffectInfo);
+        audioSink.setAuxEffectInfo(checkNotNull(auxEffectInfo));
         break;
       case MSG_SET_PREFERRED_AUDIO_DEVICE:
         if (Util.SDK_INT >= 23) {
@@ -794,10 +795,10 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
         }
         break;
       case MSG_SET_SKIP_SILENCE_ENABLED:
-        audioSink.setSkipSilenceEnabled((Boolean) message);
+        audioSink.setSkipSilenceEnabled((Boolean) checkNotNull(message));
         break;
       case MSG_SET_AUDIO_SESSION_ID:
-        audioSink.setAudioSessionId((Integer) message);
+        audioSink.setAudioSessionId((Integer) checkNotNull(message));
         break;
       case MSG_SET_WAKEUP_LISTENER:
         this.wakeupListener = (WakeupListener) message;
