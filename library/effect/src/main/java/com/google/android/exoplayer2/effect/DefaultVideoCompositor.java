@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.util.GlProgram;
 import com.google.android.exoplayer2.util.GlTextureInfo;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.LongArrayQueue;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.common.collect.ImmutableList;
@@ -85,8 +86,8 @@ public final class DefaultVideoCompositor implements VideoCompositor {
   private boolean allInputsEnded; // Whether all inputSources have signaled end of input.
 
   private final TexturePool outputTexturePool;
-  private final Queue<Long> outputTextureTimestamps; // Synchronized with outputTexturePool.
-  private final Queue<Long> syncObjects; // Synchronized with outputTexturePool.
+  private final LongArrayQueue outputTextureTimestamps; // Synchronized with outputTexturePool.
+  private final LongArrayQueue syncObjects; // Synchronized with outputTexturePool.
 
   // Only used on the GL Thread.
   private @MonotonicNonNull EGLContext eglContext;
@@ -115,8 +116,8 @@ public final class DefaultVideoCompositor implements VideoCompositor {
     inputSources = new ArrayList<>();
     outputTexturePool =
         new TexturePool(/* useHighPrecisionColorComponents= */ false, textureOutputCapacity);
-    outputTextureTimestamps = new ArrayDeque<>(textureOutputCapacity);
-    syncObjects = new ArrayDeque<>(textureOutputCapacity);
+    outputTextureTimestamps = new LongArrayQueue(textureOutputCapacity);
+    syncObjects = new LongArrayQueue(textureOutputCapacity);
 
     boolean ownsExecutor = executorService == null;
     ExecutorService instanceExecutorService =
@@ -378,7 +379,7 @@ public final class DefaultVideoCompositor implements VideoCompositor {
   private synchronized void releaseOutputFrameInternal(long presentationTimeUs)
       throws VideoFrameProcessingException, GlUtil.GlException {
     while (outputTexturePool.freeTextureCount() < outputTexturePool.capacity()
-        && checkNotNull(outputTextureTimestamps.peek()) <= presentationTimeUs) {
+        && outputTextureTimestamps.element() <= presentationTimeUs) {
       outputTexturePool.freeTexture();
       outputTextureTimestamps.remove();
       GlUtil.deleteSyncObject(syncObjects.remove());
