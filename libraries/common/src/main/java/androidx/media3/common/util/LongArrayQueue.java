@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,39 +13,57 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.media3.exoplayer.mediacodec;
+package androidx.media3.common.util;
 
-import androidx.media3.common.util.UnstableApi;
+import static androidx.media3.common.util.Assertions.checkArgument;
+
+import androidx.annotation.VisibleForTesting;
 import java.util.NoSuchElementException;
 
 /**
- * Array-based unbounded queue for int primitives with amortized O(1) add and remove.
+ * Array-based unbounded queue for long primitives with amortized O(1) add and remove.
  *
- * <p>Use this class instead of a {@link java.util.Deque} to avoid boxing int primitives to {@link
- * Integer} instances.
+ * <p>Use this class instead of a {@link java.util.Deque} to avoid boxing long primitives to {@link
+ * Long} instances.
  */
 @UnstableApi
-/* package */ final class IntArrayQueue {
+public final class LongArrayQueue {
 
-  /** Default capacity needs to be a power of 2. */
-  private static final int DEFAULT_INITIAL_CAPACITY = 16;
+  /** Default initial capacity. */
+  public static final int DEFAULT_INITIAL_CAPACITY = 16;
 
   private int headIndex;
   private int tailIndex;
   private int size;
-  private int[] data;
+  private long[] data;
   private int wrapAroundMask;
 
-  public IntArrayQueue() {
+  /** Creates a queue with an initial capacity of {@link #DEFAULT_INITIAL_CAPACITY}. */
+  public LongArrayQueue() {
+    this(DEFAULT_INITIAL_CAPACITY);
+  }
+
+  /**
+   * Creates a queue with capacity for at least {@code minCapacity}
+   *
+   * @param minCapacity minCapacity the minimum capacity, between 1 and 2^30 inclusive
+   */
+  public LongArrayQueue(int minCapacity) {
+    checkArgument(minCapacity >= 0 && minCapacity <= (1 << 30));
+    minCapacity = minCapacity == 0 ? 1 : minCapacity;
+    // If capacity isn't a power of 2, round up to the next highest power of 2.
+    if (Integer.bitCount(minCapacity) != 1) {
+      minCapacity = Integer.highestOneBit(minCapacity - 1) << 1;
+    }
     headIndex = 0;
     tailIndex = -1;
     size = 0;
-    data = new int[DEFAULT_INITIAL_CAPACITY];
+    data = new long[minCapacity];
     wrapAroundMask = data.length - 1;
   }
 
   /** Add a new item to the queue. */
-  public void add(int value) {
+  public void add(long value) {
     if (size == data.length) {
       doubleArraySize();
     }
@@ -60,16 +78,29 @@ import java.util.NoSuchElementException;
    *
    * @throws NoSuchElementException if the queue is empty.
    */
-  public int remove() {
+  public long remove() {
     if (size == 0) {
       throw new NoSuchElementException();
     }
 
-    int value = data[headIndex];
+    long value = data[headIndex];
     headIndex = (headIndex + 1) & wrapAroundMask;
     size--;
 
     return value;
+  }
+
+  /**
+   * Retrieves, but does not remove, the head of the queue.
+   *
+   * @throws NoSuchElementException if the queue is empty.
+   */
+  public long element() {
+    if (size == 0) {
+      throw new NoSuchElementException();
+    }
+
+    return data[headIndex];
   }
 
   /** Returns the number of items in the queue. */
@@ -90,7 +121,8 @@ import java.util.NoSuchElementException;
   }
 
   /** Returns the length of the backing array. */
-  public int capacity() {
+  @VisibleForTesting
+  /* package */ int capacity() {
     return data.length;
   }
 
@@ -100,7 +132,7 @@ import java.util.NoSuchElementException;
       throw new IllegalStateException();
     }
 
-    int[] newData = new int[newCapacity];
+    long[] newData = new long[newCapacity];
     int itemsToRight = data.length - headIndex;
     int itemsToLeft = headIndex;
     System.arraycopy(data, headIndex, newData, 0, itemsToRight);

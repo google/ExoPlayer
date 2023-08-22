@@ -41,10 +41,10 @@ import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Log;
+import androidx.media3.common.util.LongArrayQueue;
 import androidx.media3.common.util.Size;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
@@ -88,8 +88,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final VideoFrameProcessor.Listener videoFrameProcessorListener;
   private final Queue<Pair<GlTextureInfo, Long>> availableFrames;
   private final TexturePool outputTexturePool;
-  private final Queue<Long> outputTextureTimestamps; // Synchronized with outputTexturePool.
-  private final Queue<Long> syncObjects;
+  private final LongArrayQueue outputTextureTimestamps; // Synchronized with outputTexturePool.
+  private final LongArrayQueue syncObjects;
   @Nullable private final DefaultVideoFrameProcessor.TextureOutputListener textureOutputListener;
 
   private int inputWidth;
@@ -148,8 +148,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     boolean useHighPrecisionColorComponents = ColorInfo.isTransferHdr(outputColorInfo);
     outputTexturePool = new TexturePool(useHighPrecisionColorComponents, textureOutputCapacity);
-    outputTextureTimestamps = new ArrayDeque<>(textureOutputCapacity);
-    syncObjects = new ArrayDeque<>(textureOutputCapacity);
+    outputTextureTimestamps = new LongArrayQueue(textureOutputCapacity);
+    syncObjects = new LongArrayQueue(textureOutputCapacity);
   }
 
   @Override
@@ -227,7 +227,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private void releaseOutputFrameInternal(long presentationTimeUs) throws GlUtil.GlException {
     checkState(textureOutputListener != null);
     while (outputTexturePool.freeTextureCount() < outputTexturePool.capacity()
-        && checkNotNull(outputTextureTimestamps.peek()) <= presentationTimeUs) {
+        && outputTextureTimestamps.element() <= presentationTimeUs) {
       outputTexturePool.freeTexture();
       outputTextureTimestamps.remove();
       GlUtil.deleteSyncObject(syncObjects.remove());

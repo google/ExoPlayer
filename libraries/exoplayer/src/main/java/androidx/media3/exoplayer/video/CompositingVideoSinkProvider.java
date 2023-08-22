@@ -37,13 +37,13 @@ import androidx.media3.common.SurfaceInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.VideoSize;
+import androidx.media3.common.util.LongArrayQueue;
 import androidx.media3.common.util.Size;
 import androidx.media3.common.util.TimedValueQueue;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -168,8 +168,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     private final Context context;
     private final RenderControl renderControl;
     private final VideoFrameProcessor videoFrameProcessor;
-    // TODO b/293447478 - Use a queue for primitive longs to avoid the cost of boxing to Long.
-    private final ArrayDeque<Long> processedFramesBufferTimestampsUs;
+    private final LongArrayQueue processedFramesBufferTimestampsUs;
     private final TimedValueQueue<Long> streamOffsets;
     private final TimedValueQueue<VideoSize> videoSizeChanges;
     private final Handler handler;
@@ -219,7 +218,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         throws VideoFrameProcessingException {
       this.context = context;
       this.renderControl = renderControl;
-      processedFramesBufferTimestampsUs = new ArrayDeque<>();
+      processedFramesBufferTimestampsUs = new LongArrayQueue();
       streamOffsets = new TimedValueQueue<>();
       videoSizeChanges = new TimedValueQueue<>();
       // TODO b/226330223 - Investigate increasing frame count when frame dropping is
@@ -362,7 +361,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     @Override
     public void render(long positionUs, long elapsedRealtimeUs) {
       while (!processedFramesBufferTimestampsUs.isEmpty()) {
-        long bufferPresentationTimeUs = checkNotNull(processedFramesBufferTimestampsUs.peek());
+        long bufferPresentationTimeUs = processedFramesBufferTimestampsUs.element();
         // check whether this buffer comes with a new stream offset.
         if (maybeUpdateOutputStreamOffset(bufferPresentationTimeUs)) {
           renderedFirstFrame = false;
