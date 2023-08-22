@@ -162,9 +162,7 @@ public final class MediaItemExportTest {
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(
-        context,
-        muxerFactory.getCreatedMuxer(),
-        getDumpFileName(/* originalFileName= */ FILE_AUDIO_RAW, /* modifications...= */ "aac"));
+        context, muxerFactory.getCreatedMuxer(), getDumpFileName(FILE_AUDIO_RAW));
   }
 
   @Test
@@ -804,9 +802,7 @@ public final class MediaItemExportTest {
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(
-        context,
-        muxerFactory.getCreatedMuxer(),
-        getDumpFileName(/* originalFileName= */ FILE_AUDIO_RAW, /* modifications...= */ "aac"));
+        context, muxerFactory.getCreatedMuxer(), getDumpFileName(FILE_AUDIO_RAW));
     verify(mockListener)
         .onFallbackApplied(
             any(Composition.class),
@@ -838,9 +834,7 @@ public final class MediaItemExportTest {
     TransformerTestRunner.runLooper(transformer);
 
     DumpFileAsserts.assertOutput(
-        context,
-        muxerFactory.getCreatedMuxer(),
-        getDumpFileName(/* originalFileName= */ FILE_AUDIO_RAW, /* modifications...= */ "aac"));
+        context, muxerFactory.getCreatedMuxer(), getDumpFileName(FILE_AUDIO_RAW));
     verify(mockListener)
         .onFallbackApplied(
             any(Composition.class),
