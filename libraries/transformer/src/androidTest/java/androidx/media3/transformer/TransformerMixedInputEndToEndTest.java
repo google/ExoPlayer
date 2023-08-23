@@ -19,6 +19,7 @@ package androidx.media3.transformer;
 
 import static androidx.media3.transformer.AndroidTestUtil.JPG_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_FORMAT;
+import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_FRAME_COUNT;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.PNG_ASSET_URI_STRING;
 import static com.google.common.truth.Truth.assertThat;
@@ -44,10 +45,6 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public class TransformerMixedInputEndToEndTest {
-
-  // Result of the following command for MP4_ASSET_URI_STRING
-  // ffprobe -count_frames -select_streams v:0 -show_entries stream=nb_read_frames sample.mp4
-  private static final int VIDEO_FRAME_COUNT_FOR_MP4_ASSET = 30;
 
   private final Context context = ApplicationProvider.getApplicationContext();
 
@@ -80,7 +77,7 @@ public class TransformerMixedInputEndToEndTest {
             .run(testId, buildComposition(imageEditedMediaItem, videoEditedMediaItem));
 
     assertThat(result.exportResult.videoFrameCount)
-        .isEqualTo(imageFrameCount + VIDEO_FRAME_COUNT_FOR_MP4_ASSET);
+        .isEqualTo(imageFrameCount + MP4_ASSET_FRAME_COUNT);
   }
 
   @Test
@@ -111,7 +108,7 @@ public class TransformerMixedInputEndToEndTest {
             .run(testId, buildComposition(videoEditedMediaItem, imageEditedMediaItem));
 
     assertThat(result.exportResult.videoFrameCount)
-        .isEqualTo(imageFrameCount + VIDEO_FRAME_COUNT_FOR_MP4_ASSET);
+        .isEqualTo(imageFrameCount + MP4_ASSET_FRAME_COUNT);
   }
 
   @Test
@@ -155,7 +152,7 @@ public class TransformerMixedInputEndToEndTest {
                     videoEditedMediaItem));
 
     assertThat(result.exportResult.videoFrameCount)
-        .isEqualTo(3 * imageFrameCount + 4 * VIDEO_FRAME_COUNT_FOR_MP4_ASSET);
+        .isEqualTo(3 * imageFrameCount + 4 * MP4_ASSET_FRAME_COUNT);
   }
 
   @Test
@@ -199,7 +196,7 @@ public class TransformerMixedInputEndToEndTest {
                     imageEditedMediaItem));
 
     assertThat(result.exportResult.videoFrameCount)
-        .isEqualTo(4 * imageFrameCount + 3 * VIDEO_FRAME_COUNT_FOR_MP4_ASSET);
+        .isEqualTo(4 * imageFrameCount + 3 * MP4_ASSET_FRAME_COUNT);
   }
 
   /** Creates an {@link EditedMediaItem} with image, with duration of one second. */
