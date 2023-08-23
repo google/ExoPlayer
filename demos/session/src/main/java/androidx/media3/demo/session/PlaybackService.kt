@@ -48,8 +48,6 @@ class PlaybackService : MediaLibraryService() {
   private lateinit var customCommands: List<CommandButton>
 
   companion object {
-    private const val SEARCH_QUERY_PREFIX_COMPAT = "androidx://media3-session/playFromSearch"
-    private const val SEARCH_QUERY_PREFIX = "androidx://media3-session/setMediaUri"
     private const val CUSTOM_COMMAND_TOGGLE_SHUFFLE_MODE_ON =
       "android.media3.session.demo.SHUFFLE_ON"
     private const val CUSTOM_COMMAND_TOGGLE_SHUFFLE_MODE_OFF =
