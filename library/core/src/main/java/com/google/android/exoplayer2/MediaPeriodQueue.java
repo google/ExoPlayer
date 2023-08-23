@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static java.lang.Math.max;
 
 import android.os.Handler;
@@ -245,10 +246,9 @@ import com.google.common.collect.ImmutableList;
    * @return The updated reading period holder.
    */
   public MediaPeriodHolder advanceReadingPeriod() {
-    Assertions.checkState(reading != null && reading.getNext() != null);
-    reading = reading.getNext();
+    reading = checkStateNotNull(reading).getNext();
     notifyQueueUpdate();
-    return reading;
+    return checkStateNotNull(reading);
   }
 
   /**
@@ -286,14 +286,14 @@ import com.google.common.collect.ImmutableList;
    * @return Whether the reading period has been removed.
    */
   public boolean removeAfter(MediaPeriodHolder mediaPeriodHolder) {
-    Assertions.checkState(mediaPeriodHolder != null);
+    checkStateNotNull(mediaPeriodHolder);
     if (mediaPeriodHolder.equals(loading)) {
       return false;
     }
     boolean removedReading = false;
     loading = mediaPeriodHolder;
     while (mediaPeriodHolder.getNext() != null) {
-      mediaPeriodHolder = mediaPeriodHolder.getNext();
+      mediaPeriodHolder = checkNotNull(mediaPeriodHolder.getNext());
       if (mediaPeriodHolder == reading) {
         reading = playing;
         removedReading = true;
@@ -301,7 +301,7 @@ import com.google.common.collect.ImmutableList;
       mediaPeriodHolder.release();
       length--;
     }
-    loading.setNext(null);
+    checkNotNull(loading).setNext(null);
     notifyQueueUpdate();
     return removedReading;
   }
@@ -648,7 +648,7 @@ import com.google.common.collect.ImmutableList;
       int nextPeriodIndex =
           timeline.getNextPeriodIndex(
               currentPeriodIndex, period, window, repeatMode, shuffleModeEnabled);
-      while (lastValidPeriodHolder.getNext() != null
+      while (checkNotNull(lastValidPeriodHolder).getNext() != null
           && !lastValidPeriodHolder.info.isLastInTimelinePeriod) {
         lastValidPeriodHolder = lastValidPeriodHolder.getNext();
       }
