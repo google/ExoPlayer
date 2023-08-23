@@ -17,7 +17,6 @@ package com.google.android.exoplayer2.effect;
 
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.readBitmap;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
-import static com.google.android.exoplayer2.util.TimestampIterator.createFromLongIterator;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.Bitmap;
@@ -25,8 +24,11 @@ import android.util.Pair;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.testutil.VideoFrameProcessorTestRunner;
+import com.google.android.exoplayer2.util.TimestampIterator;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -210,12 +212,34 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
     videoFrameProcessorTestRunner.queueInputBitmaps(
         bitmap1.getWidth(),
         bitmap1.getHeight(),
-        Pair.create(bitmap1, createFromLongIterator(ImmutableList.of(offset1).iterator())),
-        Pair.create(
-            bitmap2, createFromLongIterator(ImmutableList.of(offset2, offset3).iterator())));
+        Pair.create(bitmap1, createTimestampIterator(ImmutableList.of(offset1))),
+        Pair.create(bitmap2, createTimestampIterator(ImmutableList.of(offset2, offset3))));
     videoFrameProcessorTestRunner.endFrameProcessing();
 
     assertThat(actualPresentationTimesUs).containsExactly(offset1, offset2, offset3).inOrder();
+  }
+
+  private static TimestampIterator createTimestampIterator(List<Long> elements) {
+
+    Iterator<Long> elementsIterator = elements.iterator();
+
+    return new TimestampIterator() {
+      @Override
+      public boolean hasNext() {
+        return elementsIterator.hasNext();
+      }
+
+      @Override
+      public long next() {
+        return elementsIterator.next();
+      }
+
+      @Override
+      public TimestampIterator copyOf() {
+        // Method not needed for effects tests.
+        throw new UnsupportedOperationException();
+      }
+    };
   }
 
   private VideoFrameProcessorTestRunner.Builder getDefaultFrameProcessorTestRunnerBuilder(

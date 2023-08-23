@@ -36,6 +36,7 @@ import android.util.Pair;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import com.google.android.exoplayer2.util.ConstantRateTimestampIterator;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.FrameInfo;
@@ -252,8 +253,7 @@ public final class VideoFrameProcessorTestRunner {
   private final AtomicReference<VideoFrameProcessingException> videoFrameProcessingException;
   private final VideoFrameProcessor videoFrameProcessor;
   private final ImmutableList<Effect> effects;
-
-  private @MonotonicNonNull BitmapReader bitmapReader;
+  private final @MonotonicNonNull BitmapReader bitmapReader;
 
   private VideoFrameProcessorTestRunner(
       String testId,
@@ -354,7 +354,8 @@ public final class VideoFrameProcessorTestRunner {
             .setPixelWidthHeightRatio(pixelWidthHeightRatio)
             .setOffsetToAddUs(offsetToAddUs)
             .build());
-    videoFrameProcessor.queueInputBitmap(inputBitmap, durationUs, frameRate);
+    videoFrameProcessor.queueInputBitmap(
+        inputBitmap, new ConstantRateTimestampIterator(durationUs, frameRate));
   }
 
   public void queueInputBitmaps(int width, int height, Pair<Bitmap, TimestampIterator>... frames) {

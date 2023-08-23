@@ -23,6 +23,7 @@ import android.view.Surface;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.util.FrameInfo;
 import com.google.android.exoplayer2.util.OnInputFrameProcessedListener;
+import com.google.android.exoplayer2.util.TimestampIterator;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
 
@@ -50,13 +51,16 @@ import com.google.android.exoplayer2.util.VideoFrameProcessor;
    * Provides an input {@link Bitmap} to put into the video frames.
    *
    * @param inputBitmap The {@link Bitmap} queued to the {@code VideoFrameProcessor}.
-   * @param durationUs The duration of the bitmap in the composition, in microseconds.
    * @param frameInfo Information about the bitmap being queued.
-   * @param frameRate The rate at which to generate frames with the bitmap, in frames per second.
+   * @param inStreamOffsetsUs The times within the current stream that the bitmap should be shown
+   *     at. The timestamps should be monotonically increasing.
    * @param useHdr Whether input and/or output colors are HDR.
    */
   default void queueInputBitmap(
-      Bitmap inputBitmap, long durationUs, FrameInfo frameInfo, float frameRate, boolean useHdr) {
+      Bitmap inputBitmap,
+      FrameInfo frameInfo,
+      TimestampIterator inStreamOffsetsUs,
+      boolean useHdr) {
     throw new UnsupportedOperationException();
   }
 

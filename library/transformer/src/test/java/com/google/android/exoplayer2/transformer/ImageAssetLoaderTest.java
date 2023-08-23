@@ -24,6 +24,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.util.TimestampIterator;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -126,7 +127,7 @@ public class ImageAssetLoaderTest {
   private static final class FakeSampleConsumer implements SampleConsumer {
 
     @Override
-    public boolean queueInputBitmap(Bitmap inputBitmap, long durationUs, int frameRate) {
+    public boolean queueInputBitmap(Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs) {
       return true;
     }
 

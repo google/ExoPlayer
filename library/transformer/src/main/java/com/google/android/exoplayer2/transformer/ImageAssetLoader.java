@@ -37,6 +37,7 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSourceBitmapLoader;
 import com.google.android.exoplayer2.upstream.DefaultDataSource;
 import com.google.android.exoplayer2.util.BitmapLoader;
+import com.google.android.exoplayer2.util.ConstantRateTimestampIterator;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
@@ -182,7 +183,9 @@ public final class ImageAssetLoader implements AssetLoader {
       //    callback rather than setting duration here.
       if (sampleConsumer == null
           || !sampleConsumer.queueInputBitmap(
-              bitmap, editedMediaItem.durationUs, editedMediaItem.frameRate)) {
+              bitmap,
+              new ConstantRateTimestampIterator(
+                  editedMediaItem.durationUs, editedMediaItem.frameRate))) {
         scheduledExecutorService.schedule(
             () -> queueBitmapInternal(bitmap, format), QUEUE_BITMAP_INTERVAL_MS, MILLISECONDS);
         return;

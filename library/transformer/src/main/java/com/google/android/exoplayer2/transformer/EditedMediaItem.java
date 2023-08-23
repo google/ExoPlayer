@@ -222,7 +222,7 @@ public final class EditedMediaItem {
   public final long durationUs;
 
   /** The frame rate of the image in the output video, in frames per second. */
-  @IntRange(from = 0)
+  @IntRange(from = 1)
   public final int frameRate;
 
   /** The {@link Effects} to apply to the {@link #mediaItem}. */
