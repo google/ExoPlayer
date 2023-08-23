@@ -348,37 +348,6 @@ import java.util.concurrent.atomic.AtomicInteger;
     sequenceAssetLoaderListener.onError(exportException);
   }
 
-  /**
-   * Wraps a {@link TimestampIterator}, providing all the values in the original timestamp iterator
-   * (in the same order) up to and including the first occurrence of the {@code clippingValue}.
-   */
-  private static final class ClippingIterator implements TimestampIterator {
-
-    private final TimestampIterator iterator;
-    private final long clippingValue;
-    private boolean hasReachedClippingValue;
-
-    public ClippingIterator(TimestampIterator iterator, long clippingValue) {
-      this.iterator = iterator;
-      this.clippingValue = clippingValue;
-    }
-
-    @Override
-    public boolean hasNext() {
-      return !hasReachedClippingValue && iterator.hasNext();
-    }
-
-    @Override
-    public long next() {
-      checkState(hasNext());
-      long next = iterator.next();
-      if (clippingValue == next) {
-        hasReachedClippingValue = true;
-      }
-      return next;
-    }
-  }
-
   // Classes accessed from AssetLoader threads.
 
   private final class SampleConsumerWrapper implements SampleConsumer {
@@ -429,50 +398,30 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
 
     @Override
-    public boolean queueInputBitmap(Bitmap inputBitmap, long durationUs, int frameRate) {
-      if (isLooping && totalDurationUs + durationUs > maxSequenceDurationUs) {
-        if (!isMaxSequenceDurationUsFinal) {
-          return false;
-        }
-        durationUs = maxSequenceDurationUs - totalDurationUs;
-        if (durationUs == 0) {
-          if (!videoLoopingEnded) {
-            videoLoopingEnded = true;
-            signalEndOfVideoInput();
-          }
-          return false;
-        }
-        videoLoopingEnded = true;
-      }
-
-      return sampleConsumer.queueInputBitmap(inputBitmap, durationUs, frameRate);
-    }
-
-    @Override
     public boolean queueInputBitmap(Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs) {
-      TimestampIterator iteratorToUse = inStreamOffsetsUs;
       if (isLooping) {
-        long durationLeftUs = maxSequenceDurationUs - totalDurationUs;
-        if (durationLeftUs <= 0) {
-          if (!videoLoopingEnded) {
-            videoLoopingEnded = true;
-            signalEndOfVideoInput();
-          }
-          return false;
-        }
+        long lastOffsetUs = C.TIME_UNSET;
         while (inStreamOffsetsUs.hasNext()) {
           long offsetUs = inStreamOffsetsUs.next();
           if (totalDurationUs + offsetUs > maxSequenceDurationUs) {
             if (!isMaxSequenceDurationUsFinal) {
               return false;
             }
-            iteratorToUse = new ClippingIterator(inStreamOffsetsUs, offsetUs);
+            if (lastOffsetUs == C.TIME_UNSET) {
+              if (!videoLoopingEnded) {
+                videoLoopingEnded = true;
+                signalEndOfVideoInput();
+              }
+              return false;
+            }
+            inStreamOffsetsUs = new ClippingIterator(inStreamOffsetsUs.copyOf(), lastOffsetUs);
             videoLoopingEnded = true;
             break;
           }
+          lastOffsetUs = offsetUs;
         }
       }
-      return sampleConsumer.queueInputBitmap(inputBitmap, iteratorToUse);
+      return sampleConsumer.queueInputBitmap(inputBitmap, inStreamOffsetsUs.copyOf());
     }
 
     @Override
@@ -562,6 +511,42 @@ import java.util.concurrent.atomic.AtomicInteger;
                   ExportException.createForAssetLoader(e, ExportException.ERROR_CODE_UNSPECIFIED));
             }
           });
+    }
+  }
+
+  /**
+   * Wraps a {@link TimestampIterator}, providing all the values in the original timestamp iterator
+   * (in the same order) up to and including the first occurrence of the {@code clippingValue}.
+   */
+  private static final class ClippingIterator implements TimestampIterator {
+
+    private final TimestampIterator iterator;
+    private final long clippingValue;
+    private boolean hasReachedClippingValue;
+
+    public ClippingIterator(TimestampIterator iterator, long clippingValue) {
+      this.iterator = iterator;
+      this.clippingValue = clippingValue;
+    }
+
+    @Override
+    public boolean hasNext() {
+      return !hasReachedClippingValue && iterator.hasNext();
+    }
+
+    @Override
+    public long next() {
+      checkState(hasNext());
+      long next = iterator.next();
+      if (clippingValue <= next) {
+        hasReachedClippingValue = true;
+      }
+      return next;
+    }
+
+    @Override
+    public TimestampIterator copyOf() {
+      return new ClippingIterator(iterator.copyOf(), clippingValue);
     }
   }
 }

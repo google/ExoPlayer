@@ -169,12 +169,6 @@ import java.util.concurrent.atomic.AtomicLong;
   }
 
   @Override
-  public boolean queueInputBitmap(Bitmap inputBitmap, long durationUs, int frameRate) {
-    videoFrameProcessor.queueInputBitmap(inputBitmap, durationUs, frameRate);
-    return true;
-  }
-
-  @Override
   public boolean queueInputBitmap(Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs) {
     videoFrameProcessor.queueInputBitmap(inputBitmap, inStreamOffsetsUs);
     return true;

@@ -44,6 +44,7 @@ import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.SurfaceInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
+import androidx.media3.common.util.ConstantRateTimestampIterator;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.TimestampIterator;
 import androidx.media3.common.util.UnstableApi;
@@ -254,8 +255,7 @@ public final class VideoFrameProcessorTestRunner {
   private final AtomicReference<VideoFrameProcessingException> videoFrameProcessingException;
   private final VideoFrameProcessor videoFrameProcessor;
   private final ImmutableList<Effect> effects;
-
-  private @MonotonicNonNull BitmapReader bitmapReader;
+  private final @MonotonicNonNull BitmapReader bitmapReader;
 
   private VideoFrameProcessorTestRunner(
       String testId,
@@ -356,7 +356,8 @@ public final class VideoFrameProcessorTestRunner {
             .setPixelWidthHeightRatio(pixelWidthHeightRatio)
             .setOffsetToAddUs(offsetToAddUs)
             .build());
-    videoFrameProcessor.queueInputBitmap(inputBitmap, durationUs, frameRate);
+    videoFrameProcessor.queueInputBitmap(
+        inputBitmap, new ConstantRateTimestampIterator(durationUs, frameRate));
   }
 
   public void queueInputBitmaps(int width, int height, Pair<Bitmap, TimestampIterator>... frames) {

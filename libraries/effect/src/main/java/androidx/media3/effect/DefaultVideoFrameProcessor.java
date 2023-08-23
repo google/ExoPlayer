@@ -349,7 +349,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   private volatile @MonotonicNonNull CountDownLatch latch;
   private volatile @MonotonicNonNull FrameInfo nextInputFrameInfo;
   private volatile boolean inputStreamEnded;
-  private volatile boolean hasRefreshedNextInputFrameInfo;
 
   private DefaultVideoFrameProcessor(
       Context context,
@@ -422,39 +421,15 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   }
 
   @Override
-  public void queueInputBitmap(Bitmap inputBitmap, long durationUs, float frameRate) {
-    checkState(
-        hasRefreshedNextInputFrameInfo,
-        "registerInputStream must be called before queueing another bitmap");
+  public void queueInputBitmap(Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs) {
+    FrameInfo frameInfo = checkNotNull(this.nextInputFrameInfo);
     inputSwitcher
         .activeTextureManager()
         .queueInputBitmap(
             inputBitmap,
-            durationUs,
-            checkNotNull(nextInputFrameInfo),
-            frameRate,
+            new FrameInfo.Builder(frameInfo).setOffsetToAddUs(frameInfo.offsetToAddUs).build(),
+            inStreamOffsetsUs,
             /* useHdr= */ false);
-    hasRefreshedNextInputFrameInfo = false;
-  }
-
-  @Override
-  public void queueInputBitmap(Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs) {
-    FrameInfo frameInfo = checkNotNull(this.nextInputFrameInfo);
-    // TODO(b/262693274): move frame duplication logic out of the texture manager so
-    //   textureManager.queueInputBitmap() frame rate and duration parameters be removed.
-    while (inStreamOffsetsUs.hasNext()) {
-      long inStreamOffsetUs = inStreamOffsetsUs.next();
-      inputSwitcher
-          .activeTextureManager()
-          .queueInputBitmap(
-              inputBitmap,
-              /* durationUs= */ C.MICROS_PER_SECOND,
-              new FrameInfo.Builder(frameInfo)
-                  .setOffsetToAddUs(frameInfo.offsetToAddUs + inStreamOffsetUs)
-                  .build(),
-              /* frameRate= */ 1,
-              /* useHdr= */ false);
-    }
   }
 
   @Override
@@ -482,7 +457,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             "InputType %s - %dx%d",
             getInputTypeString(inputType), frameInfo.width, frameInfo.height));
     nextInputFrameInfo = adjustForPixelWidthHeightRatio(frameInfo);
-    hasRefreshedNextInputFrameInfo = true;
     synchronized (lock) {
       if (!processingInput) {
         videoFrameProcessingTaskExecutor.submitAndBlock(() -> configureEffects(effects));
@@ -524,7 +498,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
         nextInputFrameInfo, "registerInputStream must be called before registering input frames");
 
     inputSwitcher.activeTextureManager().registerInputFrame(nextInputFrameInfo);
-    hasRefreshedNextInputFrameInfo = false;
   }
 
   @Override

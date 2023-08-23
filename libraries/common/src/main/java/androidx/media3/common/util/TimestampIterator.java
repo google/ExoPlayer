@@ -15,8 +15,6 @@
  */
 package androidx.media3.common.util;
 
-import java.util.Iterator;
-
 /** A primitive long iterator used for generating sequences of timestamps. */
 @UnstableApi
 public interface TimestampIterator {
@@ -27,18 +25,6 @@ public interface TimestampIterator {
   /** Returns the next timestamp. */
   long next();
 
-  /** Creates TimestampIterator */
-  static TimestampIterator createFromLongIterator(Iterator<Long> iterator) {
-    return new TimestampIterator() {
-      @Override
-      public boolean hasNext() {
-        return iterator.hasNext();
-      }
-
-      @Override
-      public long next() {
-        return iterator.next();
-      }
-    };
-  }
+  /** Returns fresh copy of the iterator. */
+  TimestampIterator copyOf();
 }

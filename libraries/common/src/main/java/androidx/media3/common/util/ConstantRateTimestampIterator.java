@@ -30,6 +30,8 @@ import androidx.media3.common.C;
 @UnstableApi
 public final class ConstantRateTimestampIterator implements TimestampIterator {
 
+  private final long durationUs;
+  private final float frameRate;
   private final double framesDurationUs;
   private double currentTimestampUs;
   private int framesToAdd;
@@ -45,6 +47,8 @@ public final class ConstantRateTimestampIterator implements TimestampIterator {
       @FloatRange(from = 0, fromInclusive = false) float frameRate) {
     checkArgument(durationUs > 0);
     checkArgument(frameRate > 0);
+    this.durationUs = durationUs;
+    this.frameRate = frameRate;
     framesToAdd = round(frameRate * (durationUs / (float) C.MICROS_PER_SECOND));
     framesDurationUs = C.MICROS_PER_SECOND / frameRate;
   }
@@ -61,5 +65,10 @@ public final class ConstantRateTimestampIterator implements TimestampIterator {
     long next = round(currentTimestampUs);
     currentTimestampUs += framesDurationUs;
     return next;
+  }
+
+  @Override
+  public ConstantRateTimestampIterator copyOf() {
+    return new ConstantRateTimestampIterator(durationUs, frameRate);
   }
 }

@@ -622,8 +622,8 @@ public class TransformerEndToEndTest {
 
     assertThat(result.exportResult.processedInputs).hasSize(7);
     assertThat(result.exportResult.channelCount).isEqualTo(1);
-    assertThat(result.exportResult.videoFrameCount).isEqualTo(94);
-    assertThat(result.exportResult.durationMs).isEqualTo(3100);
+    assertThat(result.exportResult.durationMs).isEqualTo(3133);
+    assertThat(result.exportResult.videoFrameCount).isEqualTo(95);
   }
 
   @Test

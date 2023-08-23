@@ -36,6 +36,7 @@ import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.BitmapLoader;
+import androidx.media3.common.util.ConstantRateTimestampIterator;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSource;
@@ -178,7 +179,9 @@ public final class ImageAssetLoader implements AssetLoader {
       //    callback rather than setting duration here.
       if (sampleConsumer == null
           || !sampleConsumer.queueInputBitmap(
-              bitmap, editedMediaItem.durationUs, editedMediaItem.frameRate)) {
+              bitmap,
+              new ConstantRateTimestampIterator(
+                  editedMediaItem.durationUs, editedMediaItem.frameRate))) {
         scheduledExecutorService.schedule(
             () -> queueBitmapInternal(bitmap, format), QUEUE_BITMAP_INTERVAL_MS, MILLISECONDS);
         return;

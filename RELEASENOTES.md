@@ -13,6 +13,8 @@
         object request (`nor`) and next range request (`nrr`)
         ([#8699](https://github.com/google/ExoPlayer/issues/8699)).
 *   Transformer:
+    *   Changed `frameRate` and `durationUs` parameters of
+        `SampleConsumer.queueInputBitmap` to `TimestampIterator`.
 *   Track Selection:
 *   Extractors:
 *   Audio:
@@ -22,6 +24,8 @@
 *   Metadata:
 *   DRM:
 *   Effect:
+    *   Changed `frameRate` and `durationUs` parameters of
+        `VideoFrameProcessor.queueInputBitmap` to `TimestampIterator`.
 *   Muxers:
 *   IMA extension:
 *   Session:
