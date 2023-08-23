@@ -39,8 +39,7 @@ public final class EditedMediaItem {
   /** A builder for {@link EditedMediaItem} instances. */
   public static final class Builder {
 
-    private final MediaItem mediaItem;
-
+    private MediaItem mediaItem;
     private boolean removeAudio;
     private boolean removeVideo;
     private boolean flattenForSlowMotion;
@@ -61,6 +60,16 @@ public final class EditedMediaItem {
       durationUs = C.TIME_UNSET;
       frameRate = C.RATE_UNSET_INT;
       effects = Effects.EMPTY;
+    }
+
+    private Builder(EditedMediaItem editedMediaItem) {
+      this.mediaItem = editedMediaItem.mediaItem;
+      this.removeAudio = editedMediaItem.removeAudio;
+      this.removeVideo = editedMediaItem.removeVideo;
+      this.flattenForSlowMotion = editedMediaItem.flattenForSlowMotion;
+      this.durationUs = editedMediaItem.durationUs;
+      this.frameRate = editedMediaItem.frameRate;
+      this.effects = editedMediaItem.effects;
     }
 
     /**
@@ -188,6 +197,18 @@ public final class EditedMediaItem {
           frameRate,
           effects);
     }
+
+    /**
+     * Sets the {@link MediaItem} on which transformations are applied.
+     *
+     * @param mediaItem The {@link MediaItem}.
+     * @return This builder.
+     */
+    @CanIgnoreReturnValue
+    /* package */ Builder setMediaItem(MediaItem mediaItem) {
+      this.mediaItem = mediaItem;
+      return this;
+    }
   }
 
   /** The {@link MediaItem} on which transformations are applied. */
@@ -244,5 +265,10 @@ public final class EditedMediaItem {
     this.durationUs = durationUs;
     this.frameRate = frameRate;
     this.effects = effects;
+  }
+
+  /** Returns a {@link Builder} initialized with the values of this instance. */
+  /* package */ Builder buildUpon() {
+    return new Builder(this);
   }
 }
