@@ -123,6 +123,8 @@ public final class TransformerActivity extends AppCompatActivity {
   private @MonotonicNonNull TextView informationTextView;
   private @MonotonicNonNull ViewGroup progressViewGroup;
   private @MonotonicNonNull LinearProgressIndicator progressIndicator;
+  private @MonotonicNonNull Button cancelButton;
+  private @MonotonicNonNull Button resumeButton;
   private @MonotonicNonNull Stopwatch exportStopwatch;
   private @MonotonicNonNull AspectRatioFrameLayout debugFrame;
 
@@ -147,6 +149,10 @@ public final class TransformerActivity extends AppCompatActivity {
     informationTextView = findViewById(R.id.information_text_view);
     progressViewGroup = findViewById(R.id.progress_view_group);
     progressIndicator = findViewById(R.id.progress_indicator);
+    cancelButton = findViewById(R.id.cancel_button);
+    cancelButton.setOnClickListener(this::cancelExport);
+    resumeButton = findViewById(R.id.resume_button);
+    resumeButton.setOnClickListener(this::resumeExport);
     debugFrame = findViewById(R.id.debug_aspect_ratio_frame_layout);
     displayInputButton = findViewById(R.id.display_input_button);
     displayInputButton.setOnClickListener(this::toggleInputVideoDisplay);
@@ -165,31 +171,20 @@ public final class TransformerActivity extends AppCompatActivity {
   protected void onStart() {
     super.onStart();
 
-    checkNotNull(progressIndicator);
-    checkNotNull(informationTextView);
-    checkNotNull(exportStopwatch);
-    checkNotNull(inputCardView);
-    checkNotNull(inputTextView);
-    checkNotNull(inputImageView);
-    checkNotNull(inputPlayerView);
-    checkNotNull(outputPlayerView);
-    checkNotNull(outputVideoTextView);
-    checkNotNull(debugTextView);
-    checkNotNull(progressViewGroup);
-    checkNotNull(debugFrame);
-    checkNotNull(displayInputButton);
     startExport();
 
-    inputPlayerView.onResume();
-    outputPlayerView.onResume();
+    checkNotNull(inputPlayerView).onResume();
+    checkNotNull(outputPlayerView).onResume();
   }
 
   @Override
   protected void onStop() {
     super.onStop();
 
-    checkNotNull(transformer).cancel();
-    transformer = null;
+    if (transformer != null) {
+      transformer.cancel();
+      transformer = null;
+    }
 
     // The stop watch is reset after cancelling the export, in case cancelling causes the stop watch
     // to be stopped in a transformer callback.
@@ -203,22 +198,23 @@ public final class TransformerActivity extends AppCompatActivity {
     externalCacheFile = null;
   }
 
-  @RequiresNonNull({
-    "displayInputButton",
-    "inputCardView",
-    "inputTextView",
-    "inputImageView",
-    "inputPlayerView",
-    "outputPlayerView",
-    "outputVideoTextView",
-    "debugTextView",
-    "informationTextView",
-    "progressIndicator",
-    "exportStopwatch",
-    "progressViewGroup",
-    "debugFrame",
-  })
   private void startExport() {
+    checkNotNull(progressIndicator);
+    checkNotNull(informationTextView);
+    checkNotNull(exportStopwatch);
+    checkNotNull(inputCardView);
+    checkNotNull(inputTextView);
+    checkNotNull(inputImageView);
+    checkNotNull(inputPlayerView);
+    checkNotNull(outputPlayerView);
+    checkNotNull(outputVideoTextView);
+    checkNotNull(debugTextView);
+    checkNotNull(progressViewGroup);
+    checkNotNull(debugFrame);
+    checkNotNull(displayInputButton);
+    checkNotNull(cancelButton);
+    checkNotNull(resumeButton);
+
     requestReadVideoPermission(/* activity= */ this);
 
     Intent intent = getIntent();
@@ -243,6 +239,8 @@ public final class TransformerActivity extends AppCompatActivity {
     debugTextView.setVisibility(View.GONE);
     informationTextView.setText(R.string.export_started);
     progressViewGroup.setVisibility(View.VISIBLE);
+    cancelButton.setVisibility(View.VISIBLE);
+    resumeButton.setVisibility(View.GONE);
     Handler mainHandler = new Handler(getMainLooper());
     ProgressHolder progressHolder = new ProgressHolder();
     mainHandler.post(
@@ -825,6 +823,21 @@ public final class TransformerActivity extends AppCompatActivity {
       inputCardView.setVisibility(View.GONE);
       displayInputButton.setText(getString(R.string.show_input_video));
     }
+  }
+
+  @RequiresNonNull({"transformer", "exportStopwatch", "cancelButton", "resumeButton"})
+  private void cancelExport(View view) {
+    transformer.cancel();
+    transformer = null;
+    exportStopwatch.stop();
+    cancelButton.setVisibility(View.GONE);
+    resumeButton.setVisibility(View.VISIBLE);
+  }
+
+  @RequiresNonNull({"exportStopwatch"})
+  private void resumeExport(View view) {
+    exportStopwatch.reset();
+    startExport();
   }
 
   private final class DemoDebugViewProvider implements DebugViewProvider {
