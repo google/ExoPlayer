@@ -63,7 +63,7 @@ public abstract class Representation {
   /** Supplemental properties in the adaptation set. May be empty. */
   public final List<Descriptor> supplementalProperties;
 
-  private final RangedUri initializationUri;
+  @Nullable private final RangedUri initializationUri;
 
   /**
    * Constructs a new instance.
