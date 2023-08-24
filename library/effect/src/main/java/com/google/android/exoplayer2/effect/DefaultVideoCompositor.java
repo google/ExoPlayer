@@ -74,8 +74,8 @@ public final class DefaultVideoCompositor implements VideoCompositor {
   private static final int PRIMARY_INPUT_ID = 0;
 
   private final Context context;
-  private final Listener listener;
-  private final DefaultVideoFrameProcessor.TextureOutputListener textureOutputListener;
+  private final VideoCompositor.Listener listener;
+  private final GlTextureProducer.Listener textureOutputListener;
   private final GlObjectsProvider glObjectsProvider;
   private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
 
@@ -105,8 +105,8 @@ public final class DefaultVideoCompositor implements VideoCompositor {
       Context context,
       GlObjectsProvider glObjectsProvider,
       @Nullable ExecutorService executorService,
-      Listener listener,
-      DefaultVideoFrameProcessor.TextureOutputListener textureOutputListener,
+      VideoCompositor.Listener listener,
+      GlTextureProducer.Listener textureOutputListener,
       @IntRange(from = 1) int textureOutputCapacity) {
     this.context = context;
     this.listener = listener;
@@ -133,8 +133,8 @@ public final class DefaultVideoCompositor implements VideoCompositor {
   /**
    * {@inheritDoc}
    *
-   * <p>The input source must be able to have at least two {@linkplain #queueInputTexture queued
-   * textures} before one texture is {@linkplain
+   * <p>The input source must be able to have at least two {@linkplain
+   * VideoCompositor#queueInputTexture queued textures} before one texture is {@linkplain
    * DefaultVideoFrameProcessor.ReleaseOutputTextureCallback released}.
    *
    * <p>When composited, textures are drawn in the reverse order of their registration order, so
@@ -177,14 +177,14 @@ public final class DefaultVideoCompositor implements VideoCompositor {
   @Override
   public synchronized void queueInputTexture(
       int inputId,
+      GlTextureProducer textureProducer,
       GlTextureInfo inputTexture,
-      long presentationTimeUs,
-      DefaultVideoFrameProcessor.ReleaseOutputTextureCallback releaseTextureCallback) {
+      long presentationTimeUs) {
     InputSource inputSource = inputSources.get(inputId);
     checkState(!inputSource.isInputEnded);
 
     InputFrameInfo inputFrameInfo =
-        new InputFrameInfo(inputTexture, presentationTimeUs, releaseTextureCallback);
+        new InputFrameInfo(textureProducer, inputTexture, presentationTimeUs);
     inputSource.frameInfos.add(inputFrameInfo);
 
     if (inputId == PRIMARY_INPUT_ID) {
@@ -204,6 +204,11 @@ public final class DefaultVideoCompositor implements VideoCompositor {
       Thread.currentThread().interrupt();
       throw new IllegalStateException(e);
     }
+  }
+
+  @Override
+  public void releaseOutputTexture(long presentationTimeUs) {
+    videoFrameProcessingTaskExecutor.submit(() -> releaseOutputTextureInternal(presentationTimeUs));
   }
 
   private synchronized void releaseExcessFramesInAllSecondaryStreams() {
@@ -252,7 +257,8 @@ public final class DefaultVideoCompositor implements VideoCompositor {
   private synchronized void releaseFrames(InputSource inputSource, int numberOfFramesToRelease) {
     for (int i = 0; i < numberOfFramesToRelease; i++) {
       InputFrameInfo frameInfoToRelease = inputSource.frameInfos.remove();
-      frameInfoToRelease.releaseCallback.release(frameInfoToRelease.presentationTimeUs);
+      frameInfoToRelease.textureProducer.releaseOutputTexture(
+          frameInfoToRelease.presentationTimeUs);
     }
   }
 
@@ -294,10 +300,7 @@ public final class DefaultVideoCompositor implements VideoCompositor {
     long syncObject = GlUtil.createGlSyncFence();
     syncObjects.add(syncObject);
     textureOutputListener.onTextureRendered(
-        outputTexture,
-        /* presentationTimeUs= */ outputPresentationTimestampUs,
-        this::releaseOutputFrame,
-        syncObject);
+        /* textureProducer= */ this, outputTexture, outputPresentationTimestampUs, syncObject);
 
     InputSource primaryInputSource = inputSources.get(PRIMARY_INPUT_ID);
     releaseFrames(primaryInputSource, /* numberOfFramesToRelease= */ 1);
@@ -372,11 +375,7 @@ public final class DefaultVideoCompositor implements VideoCompositor {
     return framesToCompositeList;
   }
 
-  private void releaseOutputFrame(long presentationTimeUs) {
-    videoFrameProcessingTaskExecutor.submit(() -> releaseOutputFrameInternal(presentationTimeUs));
-  }
-
-  private synchronized void releaseOutputFrameInternal(long presentationTimeUs)
+  private synchronized void releaseOutputTextureInternal(long presentationTimeUs)
       throws VideoFrameProcessingException, GlUtil.GlException {
     while (outputTexturePool.freeTextureCount() < outputTexturePool.capacity()
         && outputTextureTimestamps.element() <= presentationTimeUs) {
@@ -482,17 +481,15 @@ public final class DefaultVideoCompositor implements VideoCompositor {
 
   /** Holds information on a frame and how to release it. */
   private static final class InputFrameInfo {
+    public final GlTextureProducer textureProducer;
     public final GlTextureInfo texture;
     public final long presentationTimeUs;
-    public final DefaultVideoFrameProcessor.ReleaseOutputTextureCallback releaseCallback;
 
     public InputFrameInfo(
-        GlTextureInfo texture,
-        long presentationTimeUs,
-        DefaultVideoFrameProcessor.ReleaseOutputTextureCallback releaseCallback) {
+        GlTextureProducer textureProducer, GlTextureInfo texture, long presentationTimeUs) {
+      this.textureProducer = textureProducer;
       this.texture = texture;
       this.presentationTimeUs = presentationTimeUs;
-      this.releaseCallback = releaseCallback;
     }
   }
 }

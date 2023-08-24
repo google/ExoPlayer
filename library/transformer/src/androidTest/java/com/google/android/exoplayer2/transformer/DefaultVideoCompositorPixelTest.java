@@ -647,9 +647,9 @@ public final class DefaultVideoCompositorPixelTest {
                   compositorEnded.countDown();
                 }
               },
-              /* textureOutputListener= */ (outputTexture,
+              /* textureOutputListener= */ (outputTextureProducer,
+                  outputTexture,
                   presentationTimeUs,
-                  releaseOutputTextureCallback,
                   syncObject) -> {
                 if (!useSharedExecutor) {
                   GlUtil.awaitSyncObject(syncObject);
@@ -658,7 +658,7 @@ public final class DefaultVideoCompositorPixelTest {
                     presentationTimeUs,
                     BitmapPixelTestUtil.createUnpremultipliedArgb8888BitmapFromFocusedGlFramebuffer(
                         outputTexture.width, outputTexture.height));
-                releaseOutputTextureCallback.release(presentationTimeUs);
+                outputTextureProducer.releaseOutputTexture(presentationTimeUs);
               },
               /* textureOutputCapacity= */ 1);
       inputBitmapReaders = new ArrayList<>();
@@ -791,15 +791,15 @@ public final class DefaultVideoCompositorPixelTest {
           new DefaultVideoFrameProcessor.Factory.Builder()
               .setGlObjectsProvider(glObjectsProvider)
               .setTextureOutput(
-                  /* textureOutputListener= */ (outputTexture,
+                  /* textureOutputListener= */ (outputTextureProducer,
+                      outputTexture,
                       presentationTimeUs,
-                      releaseOutputTextureCallback,
                       syncObject) -> {
                     GlUtil.awaitSyncObject(syncObject);
                     textureBitmapReader.readBitmapUnpremultipliedAlpha(
                         outputTexture, presentationTimeUs);
                     videoCompositor.queueInputTexture(
-                        inputId, outputTexture, presentationTimeUs, releaseOutputTextureCallback);
+                        inputId, outputTextureProducer, outputTexture, presentationTimeUs);
                   },
                   /* textureOutputCapacity= */ 2);
       if (executorService != null) {

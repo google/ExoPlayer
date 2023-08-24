@@ -71,7 +71,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-/* package */ final class FinalShaderProgramWrapper implements GlShaderProgram {
+/* package */ final class FinalShaderProgramWrapper implements GlShaderProgram, GlTextureProducer {
 
   interface OnInputStreamProcessedListener {
     void onInputStreamProcessed();
@@ -96,7 +96,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final TexturePool outputTexturePool;
   private final LongArrayQueue outputTextureTimestamps; // Synchronized with outputTexturePool.
   private final LongArrayQueue syncObjects;
-  @Nullable private final DefaultVideoFrameProcessor.TextureOutputListener textureOutputListener;
+  @Nullable private final GlTextureProducer.Listener textureOutputListener;
 
   private int inputWidth;
   private int inputHeight;
@@ -133,7 +133,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor,
       Executor videoFrameProcessorListenerExecutor,
       VideoFrameProcessor.Listener videoFrameProcessorListener,
-      @Nullable DefaultVideoFrameProcessor.TextureOutputListener textureOutputListener,
+      @Nullable GlTextureProducer.Listener textureOutputListener,
       int textureOutputCapacity) {
     this.context = context;
     this.matrixTransformations = new ArrayList<>();
@@ -226,11 +226,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     throw new UnsupportedOperationException();
   }
 
-  private void releaseOutputFrame(long presentationTimeUs) {
-    videoFrameProcessingTaskExecutor.submit(() -> releaseOutputFrameInternal(presentationTimeUs));
+  @Override
+  public void releaseOutputTexture(long presentationTimeUs) {
+    videoFrameProcessingTaskExecutor.submit(() -> releaseOutputTextureInternal(presentationTimeUs));
   }
 
-  private void releaseOutputFrameInternal(long presentationTimeUs) throws GlUtil.GlException {
+  private void releaseOutputTextureInternal(long presentationTimeUs) throws GlUtil.GlException {
     checkState(textureOutputListener != null);
     while (outputTexturePool.freeTextureCount() < outputTexturePool.capacity()
         && outputTextureTimestamps.element() <= presentationTimeUs) {
@@ -396,7 +397,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     long syncObject = GlUtil.createGlSyncFence();
     syncObjects.add(syncObject);
     checkNotNull(textureOutputListener)
-        .onTextureRendered(outputTexture, presentationTimeUs, this::releaseOutputFrame, syncObject);
+        .onTextureRendered(
+            /* textureProducer= */ this, outputTexture, presentationTimeUs, syncObject);
   }
 
   /**

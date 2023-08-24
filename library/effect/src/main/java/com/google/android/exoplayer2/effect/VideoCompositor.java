@@ -30,7 +30,7 @@ import com.google.android.exoplayer2.util.VideoFrameProcessingException;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-public interface VideoCompositor {
+public interface VideoCompositor extends GlTextureProducer {
 
   /** Listener for errors. */
   interface Listener {
@@ -52,8 +52,7 @@ public interface VideoCompositor {
   int registerInputSource();
 
   /**
-   * Signals that no more frames will come from the upstream {@link
-   * DefaultVideoFrameProcessor.TextureOutputListener}.
+   * Signals that no more frames will come from the upstream {@link GlTextureProducer.Listener}.
    *
    * <p>Each input source must have a unique {@code inputId} returned from {@link
    * #registerInputSource}.
@@ -62,16 +61,16 @@ public interface VideoCompositor {
 
   /**
    * Queues an input texture to be composited, for example from an upstream {@link
-   * DefaultVideoFrameProcessor.TextureOutputListener}.
+   * GlTextureProducer.Listener}.
    *
    * <p>Each input source must have a unique {@code inputId} returned from {@link
    * #registerInputSource}.
    */
   void queueInputTexture(
       int inputId,
+      GlTextureProducer textureProducer,
       GlTextureInfo inputTexture,
-      long presentationTimeUs,
-      DefaultVideoFrameProcessor.ReleaseOutputTextureCallback releaseTextureCallback);
+      long presentationTimeUs);
 
   /** Releases all resources. */
   void release();
