@@ -46,23 +46,12 @@ public final class Composition {
   /** A builder for {@link Composition} instances. */
   public static final class Builder {
 
-    private final ImmutableList<EditedMediaItemSequence> sequences;
-
+    private ImmutableList<EditedMediaItemSequence> sequences;
     private Effects effects;
     private boolean forceAudioTrack;
     private boolean transmuxAudio;
     private boolean transmuxVideo;
     private @HdrMode int hdrMode;
-
-    /** Creates a new instance to build upon the provided {@link Composition}. */
-    private Builder(Composition composition) {
-      sequences = composition.sequences;
-      effects = composition.effects;
-      forceAudioTrack = composition.forceAudioTrack;
-      transmuxAudio = composition.transmuxAudio;
-      transmuxVideo = composition.transmuxVideo;
-      hdrMode = composition.hdrMode;
-    }
 
     /**
      * Creates an instance.
@@ -76,9 +65,8 @@ public final class Composition {
     /**
      * Creates an instance.
      *
-     * @param sequences The {@link EditedMediaItemSequence} instances to compose. {@link MediaItem}
-     *     instances from different sequences that are overlapping in time will be mixed in the
-     *     output. This list must not be empty.
+     * @param sequences The {@link EditedMediaItemSequence} instances to compose. The list must be
+     *     non empty. See {@link Composition#sequences} for more details.
      */
     public Builder(List<EditedMediaItemSequence> sequences) {
       checkArgument(
@@ -86,6 +74,16 @@ public final class Composition {
           "The composition must contain at least one EditedMediaItemSequence.");
       this.sequences = ImmutableList.copyOf(sequences);
       effects = Effects.EMPTY;
+    }
+
+    /** Creates a new instance to build upon the provided {@link Composition}. */
+    private Builder(Composition composition) {
+      sequences = composition.sequences;
+      effects = composition.effects;
+      forceAudioTrack = composition.forceAudioTrack;
+      transmuxAudio = composition.transmuxAudio;
+      transmuxVideo = composition.transmuxVideo;
+      hdrMode = composition.hdrMode;
     }
 
     /**
@@ -198,7 +196,7 @@ public final class Composition {
      *
      * <p>The default value is {@link #HDR_MODE_KEEP_HDR}. Apps that need to tone-map HDR to SDR
      * should generally prefer {@link #HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL} over {@link
-     * HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC}, because its behavior is likely to be more
+     * #HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC}, because its behavior is likely to be more
      * consistent across devices.
      *
      * @param hdrMode The {@link HdrMode} used.
@@ -214,6 +212,22 @@ public final class Composition {
     public Composition build() {
       return new Composition(
           sequences, effects, forceAudioTrack, transmuxAudio, transmuxVideo, hdrMode);
+    }
+
+    /**
+     * Sets {@link Composition#sequences}.
+     *
+     * @param sequences The {@link EditedMediaItemSequence} instances to compose. The list must not
+     *     be empty.
+     * @return This builder.
+     */
+    @CanIgnoreReturnValue
+    /* package */ Builder setSequences(List<EditedMediaItemSequence> sequences) {
+      checkArgument(
+          !sequences.isEmpty(),
+          "The composition must contain at least one EditedMediaItemSequence.");
+      this.sequences = ImmutableList.copyOf(sequences);
+      return this;
     }
   }
 
@@ -294,7 +308,8 @@ public final class Composition {
   /**
    * The {@link EditedMediaItemSequence} instances to compose.
    *
-   * <p>For more information, see {@link Builder#Builder(List)}.
+   * <p>{@link MediaItem} instances from different sequences that are overlapping in time will be
+   * mixed in the output.
    */
   public final ImmutableList<EditedMediaItemSequence> sequences;
 
@@ -330,7 +345,7 @@ public final class Composition {
   public final @HdrMode int hdrMode;
 
   /** Returns a {@link Composition.Builder} initialized with the values of this instance. */
-  public Builder buildUpon() {
+  /* package */ Builder buildUpon() {
     return new Builder(this);
   }
 
