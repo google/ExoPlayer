@@ -363,6 +363,9 @@ public final class Transformer {
      * <p>The default value is a {@link DefaultVideoFrameProcessor.Factory} built with default
      * values.
      *
+     * <p>If passing in a {@link DefaultVideoFrameProcessor.Factory}, the caller must not {@link
+     * DefaultVideoFrameProcessor.Factory.Builder#setTextureOutput set the texture output}.
+     *
      * @param videoFrameProcessorFactory A {@link VideoFrameProcessor.Factory}.
      * @return This builder.
      */
