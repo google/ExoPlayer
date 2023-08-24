@@ -45,7 +45,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 
 /** Processes decoded video frames from one single input. */
-/* package */ final class SingleInputVideoGraph implements GraphInput {
+/* package */ final class SingleInputVideoGraph {
 
   /**
    * Listener for video frame processing events.
@@ -68,11 +68,7 @@ import java.util.concurrent.atomic.AtomicLong;
     void onEnded(long finalFramePresentationTimeUs);
   }
 
-  private final VideoFrameProcessor videoFrameProcessor;
-  private final AtomicLong mediaItemOffsetUs;
-  private final ColorInfo inputColorInfo;
-
-  @Nullable final Presentation presentation;
+  private final VideoFrameProcessingWrapper videoFrameProcessingWrapper;
 
   private volatile boolean hasProducedFrameWithTimestampZero;
 
@@ -105,17 +101,14 @@ import java.util.concurrent.atomic.AtomicLong;
       boolean renderFramesAutomatically,
       @Nullable Presentation presentation)
       throws VideoFrameProcessingException {
-    this.mediaItemOffsetUs = new AtomicLong();
-    this.inputColorInfo = inputColorInfo;
-    this.presentation = presentation;
 
-    videoFrameProcessor =
-        videoFrameProcessorFactory.create(
+    videoFrameProcessingWrapper =
+        new VideoFrameProcessingWrapper(
             context,
-            debugViewProvider,
+            videoFrameProcessorFactory,
             inputColorInfo,
             outputColorInfo,
-            renderFramesAutomatically,
+            debugViewProvider,
             listenerExecutor,
             new VideoFrameProcessor.Listener() {
               private long lastProcessedFramePresentationTimeUs;
@@ -124,14 +117,12 @@ import java.util.concurrent.atomic.AtomicLong;
               public void onInputStreamRegistered(
                   @VideoFrameProcessor.InputType int inputType,
                   List<Effect> effects,
-                  FrameInfo frameInfo) {
-                // Do nothing.
-              }
+                  FrameInfo frameInfo) {}
 
               @Override
               public void onOutputSizeChanged(int width, int height) {
                 // TODO: b/289986435 - Allow setting output surface info on VideoGraph.
-                checkNotNull(videoFrameProcessor)
+                checkNotNull(videoFrameProcessingWrapper)
                     .setOutputSurfaceInfo(listener.onOutputSizeChanged(width, height));
               }
 
@@ -154,66 +145,14 @@ import java.util.concurrent.atomic.AtomicLong;
               public void onEnded() {
                 listener.onEnded(lastProcessedFramePresentationTimeUs);
               }
-            });
+            },
+            renderFramesAutomatically,
+            presentation);
   }
 
-  @Override
-  public void onMediaItemChanged(
-      EditedMediaItem editedMediaItem,
-      long durationUs,
-      @Nullable Format trackFormat,
-      boolean isLast) {
-    if (trackFormat != null) {
-      Size decodedSize = getDecodedSize(trackFormat);
-      videoFrameProcessor.registerInputStream(
-          getInputType(checkNotNull(trackFormat.sampleMimeType)),
-          createEffectListWithPresentation(editedMediaItem.effects.videoEffects, presentation),
-          new FrameInfo.Builder(decodedSize.getWidth(), decodedSize.getHeight())
-              .setPixelWidthHeightRatio(trackFormat.pixelWidthHeightRatio)
-              .setOffsetToAddUs(mediaItemOffsetUs.get())
-              .build());
-    }
-    mediaItemOffsetUs.addAndGet(durationUs);
-  }
-
-  @Override
-  public boolean queueInputBitmap(Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs) {
-    return videoFrameProcessor.queueInputBitmap(inputBitmap, inStreamOffsetsUs);
-  }
-
-  @Override
-  public void setOnInputFrameProcessedListener(OnInputFrameProcessedListener listener) {
-    videoFrameProcessor.setOnInputFrameProcessedListener(listener);
-  }
-
-  @Override
-  public boolean queueInputTexture(int texId, long presentationTimeUs) {
-    return videoFrameProcessor.queueInputTexture(texId, presentationTimeUs);
-  }
-
-  @Override
-  public Surface getInputSurface() {
-    return videoFrameProcessor.getInputSurface();
-  }
-
-  @Override
-  public ColorInfo getExpectedInputColorInfo() {
-    return inputColorInfo;
-  }
-
-  @Override
-  public int getPendingVideoFrameCount() {
-    return videoFrameProcessor.getPendingInputFrameCount();
-  }
-
-  @Override
-  public boolean registerVideoFrame(long presentationTimeUs) {
-    return videoFrameProcessor.registerInputFrame();
-  }
-
-  @Override
-  public void signalEndOfVideoInput() {
-    videoFrameProcessor.signalEndOfInput();
+  /** Returns the {@link GraphInput}. */
+  public GraphInput getInput() {
+    return videoFrameProcessingWrapper;
   }
 
   /* package */ boolean hasProducedFrameWithTimestampZero() {
@@ -221,36 +160,136 @@ import java.util.concurrent.atomic.AtomicLong;
   }
 
   public void release() {
-    videoFrameProcessor.release();
+    videoFrameProcessingWrapper.release();
   }
 
-  private static @VideoFrameProcessor.InputType int getInputType(String sampleMimeType) {
-    if (MimeTypes.isImage(sampleMimeType)) {
-      return INPUT_TYPE_BITMAP;
-    }
-    if (sampleMimeType.equals(MimeTypes.VIDEO_RAW)) {
-      return INPUT_TYPE_TEXTURE_ID;
-    }
-    if (MimeTypes.isVideo(sampleMimeType)) {
-      return INPUT_TYPE_SURFACE;
-    }
-    throw new IllegalArgumentException("MIME type not supported " + sampleMimeType);
-  }
+  private static final class VideoFrameProcessingWrapper implements GraphInput {
+    private final VideoFrameProcessor videoFrameProcessor;
+    private final AtomicLong mediaItemOffsetUs;
+    private final ColorInfo inputColorInfo;
 
-  private static Size getDecodedSize(Format format) {
-    // The decoder rotates encoded frames for display by firstInputFormat.rotationDegrees.
-    int decodedWidth = (format.rotationDegrees % 180 == 0) ? format.width : format.height;
-    int decodedHeight = (format.rotationDegrees % 180 == 0) ? format.height : format.width;
-    return new Size(decodedWidth, decodedHeight);
-  }
+    @Nullable private final Presentation presentation;
 
-  private static ImmutableList<Effect> createEffectListWithPresentation(
-      List<Effect> effects, @Nullable Presentation presentation) {
-    if (presentation == null) {
-      return ImmutableList.copyOf(effects);
+    public VideoFrameProcessingWrapper(
+        Context context,
+        VideoFrameProcessor.Factory videoFrameProcessorFactory,
+        ColorInfo inputColorInfo,
+        ColorInfo outputColorInfo,
+        DebugViewProvider debugViewProvider,
+        Executor listenerExecutor,
+        VideoFrameProcessor.Listener listener,
+        boolean renderFramesAutomatically,
+        @Nullable Presentation presentation)
+        throws VideoFrameProcessingException {
+      this.videoFrameProcessor =
+          videoFrameProcessorFactory.create(
+              context,
+              debugViewProvider,
+              inputColorInfo,
+              outputColorInfo,
+              renderFramesAutomatically,
+              listenerExecutor,
+              listener);
+      this.mediaItemOffsetUs = new AtomicLong();
+      this.inputColorInfo = inputColorInfo;
+      this.presentation = presentation;
     }
-    ImmutableList.Builder<Effect> effectsWithPresentationBuilder = new ImmutableList.Builder<>();
-    effectsWithPresentationBuilder.addAll(effects).add(presentation);
-    return effectsWithPresentationBuilder.build();
+
+    @Override
+    public void onMediaItemChanged(
+        EditedMediaItem editedMediaItem,
+        long durationUs,
+        @Nullable Format trackFormat,
+        boolean isLast) {
+      if (trackFormat != null) {
+        Size decodedSize = getDecodedSize(trackFormat);
+        videoFrameProcessor.registerInputStream(
+            getInputType(checkNotNull(trackFormat.sampleMimeType)),
+            createEffectListWithPresentation(editedMediaItem.effects.videoEffects, presentation),
+            new FrameInfo.Builder(decodedSize.getWidth(), decodedSize.getHeight())
+                .setPixelWidthHeightRatio(trackFormat.pixelWidthHeightRatio)
+                .setOffsetToAddUs(mediaItemOffsetUs.get())
+                .build());
+      }
+      mediaItemOffsetUs.addAndGet(durationUs);
+    }
+
+    @Override
+    public boolean queueInputBitmap(Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs) {
+      return videoFrameProcessor.queueInputBitmap(inputBitmap, inStreamOffsetsUs);
+    }
+
+    @Override
+    public void setOnInputFrameProcessedListener(OnInputFrameProcessedListener listener) {
+      videoFrameProcessor.setOnInputFrameProcessedListener(listener);
+    }
+
+    @Override
+    public boolean queueInputTexture(int texId, long presentationTimeUs) {
+      return videoFrameProcessor.queueInputTexture(texId, presentationTimeUs);
+    }
+
+    @Override
+    public Surface getInputSurface() {
+      return videoFrameProcessor.getInputSurface();
+    }
+
+    @Override
+    public ColorInfo getExpectedInputColorInfo() {
+      return inputColorInfo;
+    }
+
+    @Override
+    public int getPendingVideoFrameCount() {
+      return videoFrameProcessor.getPendingInputFrameCount();
+    }
+
+    @Override
+    public boolean registerVideoFrame(long presentationTimeUs) {
+      return videoFrameProcessor.registerInputFrame();
+    }
+
+    @Override
+    public void signalEndOfVideoInput() {
+      videoFrameProcessor.signalEndOfInput();
+    }
+
+    public void setOutputSurfaceInfo(@Nullable SurfaceInfo outputSurfaceInfo) {
+      videoFrameProcessor.setOutputSurfaceInfo(outputSurfaceInfo);
+    }
+
+    public void release() {
+      videoFrameProcessor.release();
+    }
+
+    private static @VideoFrameProcessor.InputType int getInputType(String sampleMimeType) {
+      if (MimeTypes.isImage(sampleMimeType)) {
+        return INPUT_TYPE_BITMAP;
+      }
+      if (sampleMimeType.equals(MimeTypes.VIDEO_RAW)) {
+        return INPUT_TYPE_TEXTURE_ID;
+      }
+      if (MimeTypes.isVideo(sampleMimeType)) {
+        return INPUT_TYPE_SURFACE;
+      }
+      throw new IllegalArgumentException("MIME type not supported " + sampleMimeType);
+    }
+
+    private static Size getDecodedSize(Format format) {
+      // The decoder rotates encoded frames for display by firstInputFormat.rotationDegrees.
+      int decodedWidth = (format.rotationDegrees % 180 == 0) ? format.width : format.height;
+      int decodedHeight = (format.rotationDegrees % 180 == 0) ? format.height : format.width;
+      return new Size(decodedWidth, decodedHeight);
+    }
+
+    private static ImmutableList<Effect> createEffectListWithPresentation(
+        List<Effect> effects, @Nullable Presentation presentation) {
+      if (presentation == null) {
+        return ImmutableList.copyOf(effects);
+      }
+      ImmutableList.Builder<Effect> effectsWithPresentationBuilder = new ImmutableList.Builder<>();
+      effectsWithPresentationBuilder.addAll(effects).add(presentation);
+      return effectsWithPresentationBuilder.build();
+    }
   }
 }

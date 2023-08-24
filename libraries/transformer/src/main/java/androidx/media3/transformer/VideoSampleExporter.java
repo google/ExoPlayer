@@ -179,7 +179,7 @@ import org.checkerframework.dataflow.qual.Pure;
 
   @Override
   public GraphInput getInput(EditedMediaItem item, Format format) {
-    return singleInputVideoGraph;
+    return singleInputVideoGraph.getInput();
   }
 
   @Override
