@@ -27,6 +27,7 @@ import android.media.ImageReader;
 import androidx.annotation.Nullable;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.DebugViewProvider;
+import androidx.media3.common.Effect;
 import androidx.media3.common.FrameInfo;
 import androidx.media3.common.SurfaceInfo;
 import androidx.media3.common.VideoFrameProcessingException;
@@ -282,6 +283,7 @@ public final class DefaultVideoFrameProcessorVideoFrameRenderingTest {
     AtomicReference<@NullableType VideoFrameProcessingException>
         videoFrameProcessingExceptionReference = new AtomicReference<>();
     BlankFrameProducer blankFrameProducer = new BlankFrameProducer(WIDTH, HEIGHT);
+    CountDownLatch videoFrameProcessorReadyCountDownLatch = new CountDownLatch(1);
     CountDownLatch videoFrameProcessingEndedCountDownLatch = new CountDownLatch(1);
     defaultVideoFrameProcessor =
         checkNotNull(
@@ -295,6 +297,14 @@ public final class DefaultVideoFrameProcessorVideoFrameRenderingTest {
                     renderFramesAutomatically,
                     MoreExecutors.directExecutor(),
                     new VideoFrameProcessor.Listener() {
+                      @Override
+                      public void onInputStreamRegistered(
+                          @VideoFrameProcessor.InputType int inputType,
+                          List<Effect> effects,
+                          FrameInfo frameInfo) {
+                        videoFrameProcessorReadyCountDownLatch.countDown();
+                      }
+
                       @Override
                       public void onOutputSizeChanged(int width, int height) {
                         ImageReader outputImageReader =
@@ -340,6 +350,7 @@ public final class DefaultVideoFrameProcessorVideoFrameRenderingTest {
             INPUT_TYPE_SURFACE,
             /* effects= */ ImmutableList.of((GlEffect) (context, useHdr) -> blankFrameProducer),
             new FrameInfo.Builder(WIDTH, HEIGHT).build());
+    videoFrameProcessorReadyCountDownLatch.await();
     blankFrameProducer.produceBlankFrames(inputPresentationTimesUs);
     defaultVideoFrameProcessor.signalEndOfInput();
     videoFrameProcessingEndedCountDownLatch.await();

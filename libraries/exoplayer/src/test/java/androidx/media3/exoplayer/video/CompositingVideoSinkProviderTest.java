@@ -17,6 +17,7 @@ package androidx.media3.exoplayer.video;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.when;
 
 import android.content.Context;
 import androidx.media3.common.ColorInfo;
@@ -148,6 +149,7 @@ public final class CompositingVideoSinkProviderTest {
         Executor listenerExecutor,
         VideoFrameProcessor.Listener listener)
         throws VideoFrameProcessingException {
+      when(videoFrameProcessor.registerInputFrame()).thenReturn(true);
       return videoFrameProcessor;
     }
   }

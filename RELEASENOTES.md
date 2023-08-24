@@ -162,6 +162,9 @@ This release includes the following changes since
 *   Effect:
     *   Add `VideoFrameProcessor.queueInputBitmap(Bitmap, Iterator<Long>)`
         queuing bitmap input by timestamp.
+    *   Change `VideoFrameProcessor.registerInputStream()` to be non-blocking.
+        Apps must implement
+        `VideoFrameProcessor.Listener#onInputStreamRegistered()`.
 *   UI:
     *   Add a `Player.Listener` implementation for Wear OS devices that handles
         playback suppression due to

@@ -121,6 +121,14 @@ import java.util.concurrent.atomic.AtomicLong;
               private long lastProcessedFramePresentationTimeUs;
 
               @Override
+              public void onInputStreamRegistered(
+                  @VideoFrameProcessor.InputType int inputType,
+                  List<Effect> effects,
+                  FrameInfo frameInfo) {
+                // Do nothing.
+              }
+
+              @Override
               public void onOutputSizeChanged(int width, int height) {
                 // TODO: b/289986435 - Allow setting output surface info on VideoGraph.
                 checkNotNull(videoFrameProcessor)
@@ -170,8 +178,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
   @Override
   public boolean queueInputBitmap(Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs) {
-    videoFrameProcessor.queueInputBitmap(inputBitmap, inStreamOffsetsUs);
-    return true;
+    return videoFrameProcessor.queueInputBitmap(inputBitmap, inStreamOffsetsUs);
   }
 
   @Override
@@ -181,8 +188,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
   @Override
   public boolean queueInputTexture(int texId, long presentationTimeUs) {
-    videoFrameProcessor.queueInputTexture(texId, presentationTimeUs);
-    return true;
+    return videoFrameProcessor.queueInputTexture(texId, presentationTimeUs);
   }
 
   @Override
@@ -202,8 +208,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
   @Override
   public boolean registerVideoFrame(long presentationTimeUs) {
-    videoFrameProcessor.registerInputFrame();
-    return true;
+    return videoFrameProcessor.registerInputFrame();
   }
 
   @Override

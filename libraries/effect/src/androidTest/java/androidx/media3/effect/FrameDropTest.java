@@ -34,6 +34,7 @@ import android.text.style.TypefaceSpan;
 import androidx.annotation.Nullable;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.DebugViewProvider;
+import androidx.media3.common.Effect;
 import androidx.media3.common.FrameInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
@@ -153,6 +154,7 @@ public class FrameDropTest {
         videoFrameProcessingExceptionReference = new AtomicReference<>();
     BlankFrameProducer blankFrameProducer =
         new BlankFrameProducer(BLANK_FRAME_WIDTH, BLANK_FRAME_HEIGHT);
+    CountDownLatch videoFrameProcessorReadyCountDownLatch = new CountDownLatch(1);
     CountDownLatch videoFrameProcessingEndedCountDownLatch = new CountDownLatch(1);
     ImmutableList.Builder<Long> actualPresentationTimesUs = new ImmutableList.Builder<>();
 
@@ -175,6 +177,14 @@ public class FrameDropTest {
                     /* renderFramesAutomatically= */ true,
                     MoreExecutors.directExecutor(),
                     new VideoFrameProcessor.Listener() {
+                      @Override
+                      public void onInputStreamRegistered(
+                          @VideoFrameProcessor.InputType int inputType,
+                          List<Effect> effects,
+                          FrameInfo frameInfo) {
+                        videoFrameProcessorReadyCountDownLatch.countDown();
+                      }
+
                       @Override
                       public void onOutputSizeChanged(int width, int height) {}
 
@@ -231,6 +241,7 @@ public class FrameDropTest {
                         })),
                 frameDropEffect),
             new FrameInfo.Builder(BLANK_FRAME_WIDTH, BLANK_FRAME_HEIGHT).build());
+    videoFrameProcessorReadyCountDownLatch.await();
     blankFrameProducer.produceBlankFrames(inputPresentationTimesUs);
     defaultVideoFrameProcessor.signalEndOfInput();
     videoFrameProcessingEndedCountDownLatch.await();

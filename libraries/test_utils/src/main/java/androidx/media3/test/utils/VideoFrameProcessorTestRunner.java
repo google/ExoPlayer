@@ -19,6 +19,7 @@ import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_BITMAP;
 import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_SURFACE;
 import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_TEXTURE_ID;
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.createArgb8888BitmapFromRgba8888Image;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.maybeSaveTestBitmap;
@@ -44,6 +45,7 @@ import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.SurfaceInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
+import androidx.media3.common.util.ConditionVariable;
 import androidx.media3.common.util.ConstantRateTimestampIterator;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.TimestampIterator;
@@ -251,6 +253,7 @@ public final class VideoFrameProcessorTestRunner {
   private final @MonotonicNonNull String videoAssetPath;
   private final String outputFileLabel;
   private final float pixelWidthHeightRatio;
+  private final ConditionVariable videoFrameProcessorReadyCondition;
   private final @MonotonicNonNull CountDownLatch videoFrameProcessingEndedLatch;
   private final AtomicReference<VideoFrameProcessingException> videoFrameProcessingException;
   private final VideoFrameProcessor videoFrameProcessor;
@@ -275,6 +278,7 @@ public final class VideoFrameProcessorTestRunner {
     this.videoAssetPath = videoAssetPath;
     this.outputFileLabel = outputFileLabel;
     this.pixelWidthHeightRatio = pixelWidthHeightRatio;
+    videoFrameProcessorReadyCondition = new ConditionVariable();
     videoFrameProcessingEndedLatch = new CountDownLatch(1);
     videoFrameProcessingException = new AtomicReference<>();
 
@@ -287,6 +291,14 @@ public final class VideoFrameProcessorTestRunner {
             /* renderFramesAutomatically= */ true,
             MoreExecutors.directExecutor(),
             new VideoFrameProcessor.Listener() {
+              @Override
+              public void onInputStreamRegistered(
+                  @VideoFrameProcessor.InputType int inputType,
+                  List<Effect> effects,
+                  FrameInfo frameInfo) {
+                videoFrameProcessorReadyCondition.open();
+              }
+
               @Override
               public void onOutputSizeChanged(int width, int height) {
                 boolean useHighPrecisionColorComponents = ColorInfo.isTransferHdr(outputColorInfo);
@@ -327,6 +339,7 @@ public final class VideoFrameProcessorTestRunner {
         new DecodeOneFrameUtil.Listener() {
           @Override
           public void onContainerExtracted(MediaFormat mediaFormat) {
+            videoFrameProcessorReadyCondition.close();
             videoFrameProcessor.registerInputStream(
                 INPUT_TYPE_SURFACE,
                 effects,
@@ -335,7 +348,13 @@ public final class VideoFrameProcessorTestRunner {
                         mediaFormat.getInteger(MediaFormat.KEY_HEIGHT))
                     .setPixelWidthHeightRatio(pixelWidthHeightRatio)
                     .build());
-            videoFrameProcessor.registerInputFrame();
+            try {
+              videoFrameProcessorReadyCondition.block();
+            } catch (InterruptedException e) {
+              Thread.currentThread().interrupt();
+              throw new IllegalStateException(e);
+            }
+            checkState(videoFrameProcessor.registerInputFrame());
           }
 
           @Override
@@ -348,7 +367,9 @@ public final class VideoFrameProcessorTestRunner {
   }
 
   public void queueInputBitmap(
-      Bitmap inputBitmap, long durationUs, long offsetToAddUs, float frameRate) {
+      Bitmap inputBitmap, long durationUs, long offsetToAddUs, float frameRate)
+      throws InterruptedException {
+    videoFrameProcessorReadyCondition.close();
     videoFrameProcessor.registerInputStream(
         INPUT_TYPE_BITMAP,
         effects,
@@ -356,23 +377,28 @@ public final class VideoFrameProcessorTestRunner {
             .setPixelWidthHeightRatio(pixelWidthHeightRatio)
             .setOffsetToAddUs(offsetToAddUs)
             .build());
-    videoFrameProcessor.queueInputBitmap(
-        inputBitmap, new ConstantRateTimestampIterator(durationUs, frameRate));
+    videoFrameProcessorReadyCondition.block();
+    checkState(
+        videoFrameProcessor.queueInputBitmap(
+            inputBitmap, new ConstantRateTimestampIterator(durationUs, frameRate)));
   }
 
-  public void queueInputBitmaps(int width, int height, Pair<Bitmap, TimestampIterator>... frames) {
+  public void queueInputBitmaps(int width, int height, Pair<Bitmap, TimestampIterator>... frames)
+      throws InterruptedException {
+    videoFrameProcessorReadyCondition.close();
     videoFrameProcessor.registerInputStream(
         INPUT_TYPE_BITMAP,
         effects,
         new FrameInfo.Builder(width, height)
             .setPixelWidthHeightRatio(pixelWidthHeightRatio)
             .build());
+    videoFrameProcessorReadyCondition.block();
     for (Pair<Bitmap, TimestampIterator> frame : frames) {
       videoFrameProcessor.queueInputBitmap(frame.first, frame.second);
     }
   }
 
-  public void queueInputTexture(GlTextureInfo inputTexture, long pts) {
+  public void queueInputTexture(GlTextureInfo inputTexture, long pts) throws InterruptedException {
     videoFrameProcessor.registerInputStream(
         INPUT_TYPE_TEXTURE_ID,
         effects,
@@ -388,7 +414,8 @@ public final class VideoFrameProcessorTestRunner {
             throw new VideoFrameProcessingException(e);
           }
         });
-    videoFrameProcessor.queueInputTexture(inputTexture.texId, pts);
+    videoFrameProcessorReadyCondition.block();
+    checkState(videoFrameProcessor.queueInputTexture(inputTexture.texId, pts));
   }
 
   /** {@link #endFrameProcessing(long)} with {@link #VIDEO_FRAME_PROCESSING_WAIT_MS} applied. */
