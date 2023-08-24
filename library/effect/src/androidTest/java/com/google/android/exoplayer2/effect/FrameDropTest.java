@@ -35,6 +35,7 @@ import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TextureBitmapReader;
 import com.google.android.exoplayer2.util.DebugViewProvider;
+import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.FrameInfo;
 import com.google.android.exoplayer2.util.NullableType;
 import com.google.android.exoplayer2.util.Util;
@@ -153,6 +154,7 @@ public class FrameDropTest {
         videoFrameProcessingExceptionReference = new AtomicReference<>();
     BlankFrameProducer blankFrameProducer =
         new BlankFrameProducer(BLANK_FRAME_WIDTH, BLANK_FRAME_HEIGHT);
+    CountDownLatch videoFrameProcessorReadyCountDownLatch = new CountDownLatch(1);
     CountDownLatch videoFrameProcessingEndedCountDownLatch = new CountDownLatch(1);
     ImmutableList.Builder<Long> actualPresentationTimesUs = new ImmutableList.Builder<>();
 
@@ -175,6 +177,14 @@ public class FrameDropTest {
                     /* renderFramesAutomatically= */ true,
                     MoreExecutors.directExecutor(),
                     new VideoFrameProcessor.Listener() {
+                      @Override
+                      public void onInputStreamRegistered(
+                          @VideoFrameProcessor.InputType int inputType,
+                          List<Effect> effects,
+                          FrameInfo frameInfo) {
+                        videoFrameProcessorReadyCountDownLatch.countDown();
+                      }
+
                       @Override
                       public void onOutputSizeChanged(int width, int height) {}
 
@@ -231,6 +241,7 @@ public class FrameDropTest {
                         })),
                 frameDropEffect),
             new FrameInfo.Builder(BLANK_FRAME_WIDTH, BLANK_FRAME_HEIGHT).build());
+    videoFrameProcessorReadyCountDownLatch.await();
     blankFrameProducer.produceBlankFrames(inputPresentationTimesUs);
     defaultVideoFrameProcessor.signalEndOfInput();
     videoFrameProcessingEndedCountDownLatch.await();

@@ -19,6 +19,7 @@ import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.createArgb8888BitmapFromRgba8888Image;
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.maybeSaveTestBitmap;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_BITMAP;
 import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_SURFACE;
@@ -36,6 +37,7 @@ import android.util.Pair;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.ConstantRateTimestampIterator;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
@@ -249,6 +251,7 @@ public final class VideoFrameProcessorTestRunner {
   private final @MonotonicNonNull String videoAssetPath;
   private final String outputFileLabel;
   private final float pixelWidthHeightRatio;
+  private final ConditionVariable videoFrameProcessorReadyCondition;
   private final @MonotonicNonNull CountDownLatch videoFrameProcessingEndedLatch;
   private final AtomicReference<VideoFrameProcessingException> videoFrameProcessingException;
   private final VideoFrameProcessor videoFrameProcessor;
@@ -273,6 +276,7 @@ public final class VideoFrameProcessorTestRunner {
     this.videoAssetPath = videoAssetPath;
     this.outputFileLabel = outputFileLabel;
     this.pixelWidthHeightRatio = pixelWidthHeightRatio;
+    videoFrameProcessorReadyCondition = new ConditionVariable();
     videoFrameProcessingEndedLatch = new CountDownLatch(1);
     videoFrameProcessingException = new AtomicReference<>();
 
@@ -285,6 +289,14 @@ public final class VideoFrameProcessorTestRunner {
             /* renderFramesAutomatically= */ true,
             MoreExecutors.directExecutor(),
             new VideoFrameProcessor.Listener() {
+              @Override
+              public void onInputStreamRegistered(
+                  @VideoFrameProcessor.InputType int inputType,
+                  List<Effect> effects,
+                  FrameInfo frameInfo) {
+                videoFrameProcessorReadyCondition.open();
+              }
+
               @Override
               public void onOutputSizeChanged(int width, int height) {
                 boolean useHighPrecisionColorComponents = ColorInfo.isTransferHdr(outputColorInfo);
@@ -325,6 +337,7 @@ public final class VideoFrameProcessorTestRunner {
         new DecodeOneFrameUtil.Listener() {
           @Override
           public void onContainerExtracted(MediaFormat mediaFormat) {
+            videoFrameProcessorReadyCondition.close();
             videoFrameProcessor.registerInputStream(
                 INPUT_TYPE_SURFACE,
                 effects,
@@ -333,7 +346,13 @@ public final class VideoFrameProcessorTestRunner {
                         mediaFormat.getInteger(MediaFormat.KEY_HEIGHT))
                     .setPixelWidthHeightRatio(pixelWidthHeightRatio)
                     .build());
-            videoFrameProcessor.registerInputFrame();
+            try {
+              videoFrameProcessorReadyCondition.block();
+            } catch (InterruptedException e) {
+              Thread.currentThread().interrupt();
+              throw new IllegalStateException(e);
+            }
+            checkState(videoFrameProcessor.registerInputFrame());
           }
 
           @Override
@@ -346,7 +365,9 @@ public final class VideoFrameProcessorTestRunner {
   }
 
   public void queueInputBitmap(
-      Bitmap inputBitmap, long durationUs, long offsetToAddUs, float frameRate) {
+      Bitmap inputBitmap, long durationUs, long offsetToAddUs, float frameRate)
+      throws InterruptedException {
+    videoFrameProcessorReadyCondition.close();
     videoFrameProcessor.registerInputStream(
         INPUT_TYPE_BITMAP,
         effects,
@@ -354,23 +375,28 @@ public final class VideoFrameProcessorTestRunner {
             .setPixelWidthHeightRatio(pixelWidthHeightRatio)
             .setOffsetToAddUs(offsetToAddUs)
             .build());
-    videoFrameProcessor.queueInputBitmap(
-        inputBitmap, new ConstantRateTimestampIterator(durationUs, frameRate));
+    videoFrameProcessorReadyCondition.block();
+    checkState(
+        videoFrameProcessor.queueInputBitmap(
+            inputBitmap, new ConstantRateTimestampIterator(durationUs, frameRate)));
   }
 
-  public void queueInputBitmaps(int width, int height, Pair<Bitmap, TimestampIterator>... frames) {
+  public void queueInputBitmaps(int width, int height, Pair<Bitmap, TimestampIterator>... frames)
+      throws InterruptedException {
+    videoFrameProcessorReadyCondition.close();
     videoFrameProcessor.registerInputStream(
         INPUT_TYPE_BITMAP,
         effects,
         new FrameInfo.Builder(width, height)
             .setPixelWidthHeightRatio(pixelWidthHeightRatio)
             .build());
+    videoFrameProcessorReadyCondition.block();
     for (Pair<Bitmap, TimestampIterator> frame : frames) {
       videoFrameProcessor.queueInputBitmap(frame.first, frame.second);
     }
   }
 
-  public void queueInputTexture(GlTextureInfo inputTexture, long pts) {
+  public void queueInputTexture(GlTextureInfo inputTexture, long pts) throws InterruptedException {
     videoFrameProcessor.registerInputStream(
         INPUT_TYPE_TEXTURE_ID,
         effects,
@@ -386,7 +412,8 @@ public final class VideoFrameProcessorTestRunner {
             throw new VideoFrameProcessingException(e);
           }
         });
-    videoFrameProcessor.queueInputTexture(inputTexture.texId, pts);
+    videoFrameProcessorReadyCondition.block();
+    checkState(videoFrameProcessor.queueInputTexture(inputTexture.texId, pts));
   }
 
   /** {@link #endFrameProcessing(long)} with {@link #VIDEO_FRAME_PROCESSING_WAIT_MS} applied. */

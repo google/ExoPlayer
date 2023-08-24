@@ -170,32 +170,6 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
 
   @Test
   @RequiresNonNull({"framesProduced", "testId"})
-  public void
-      imageInput_queueEndAndQueueAgain_outputsFirstSetOfFramesOnlyAtTheCorrectPresentationTimesUs()
-          throws Exception {
-    Queue<Long> actualPresentationTimesUs = new ConcurrentLinkedQueue<>();
-    videoFrameProcessorTestRunner =
-        getDefaultFrameProcessorTestRunnerBuilder(testId)
-            .setOnOutputFrameAvailableForRenderingListener(actualPresentationTimesUs::add)
-            .build();
-
-    videoFrameProcessorTestRunner.queueInputBitmap(
-        readBitmap(ORIGINAL_PNG_ASSET_PATH),
-        /* durationUs= */ C.MICROS_PER_SECOND,
-        /* offsetToAddUs= */ 0L,
-        /* frameRate= */ 2);
-    videoFrameProcessorTestRunner.endFrameProcessing();
-    videoFrameProcessorTestRunner.queueInputBitmap(
-        readBitmap(ORIGINAL_PNG_ASSET_PATH),
-        /* durationUs= */ 2 * C.MICROS_PER_SECOND,
-        /* offsetToAddUs= */ 0L,
-        /* frameRate= */ 3);
-
-    assertThat(actualPresentationTimesUs).containsExactly(0L, C.MICROS_PER_SECOND / 2).inOrder();
-  }
-
-  @Test
-  @RequiresNonNull({"framesProduced", "testId"})
   public void queueBitmapsWithTimestamps_outputsFramesAtTheCorrectPresentationTimesUs()
       throws Exception {
     Queue<Long> actualPresentationTimesUs = new ConcurrentLinkedQueue<>();

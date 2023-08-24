@@ -687,7 +687,7 @@ public final class DefaultVideoCompositorPixelTest {
      * Queues {@code durationSec} bitmaps, with one bitmap per second, starting from and including
      * {@code 0} seconds. Sources have a {@code frameRate} of {@code 1}.
      */
-    public void queueBitmapToAllInputs(int durationSec) throws IOException {
+    public void queueBitmapToAllInputs(int durationSec) throws IOException, InterruptedException {
       for (int i = 0; i < inputVideoFrameProcessorTestRunners.size(); i++) {
         queueBitmapToInput(
             /* inputId= */ i, durationSec, /* offsetToAddSec= */ 0L, /* frameRate= */ 1f);
@@ -700,7 +700,8 @@ public final class DefaultVideoCompositorPixelTest {
      * sources have a {@code frameRate} of {@code secondarySourceFrameRate}.
      */
     public void queueBitmapToInput(
-        int inputId, int durationSec, long offsetToAddSec, float frameRate) throws IOException {
+        int inputId, int durationSec, long offsetToAddSec, float frameRate)
+        throws IOException, InterruptedException {
       inputVideoFrameProcessorTestRunners
           .get(inputId)
           .queueInputBitmap(

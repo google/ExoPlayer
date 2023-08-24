@@ -16,7 +16,6 @@
 package com.google.android.exoplayer2.effect;
 
 import static androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE;
-import static com.google.android.exoplayer2.effect.DebugTraceUtil.EVENT_VFP_FINISH_PROCESSING_INPUT_STREAM;
 import static com.google.android.exoplayer2.effect.DebugTraceUtil.EVENT_VFP_RECEIVE_END_OF_INPUT;
 import static com.google.android.exoplayer2.effect.DebugTraceUtil.EVENT_VFP_REGISTER_NEW_INPUT_STREAM;
 import static com.google.android.exoplayer2.effect.DebugTraceUtil.EVENT_VFP_SIGNAL_ENDED;
@@ -40,6 +39,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.util.ConditionVariable;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.FrameInfo;
@@ -340,17 +340,23 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
   // Shader programs that apply Effects.
   private final List<GlShaderProgram> intermediateGlShaderPrograms;
+  private final ConditionVariable inputStreamRegisteredCondition;
 
-  // Whether DefaultVideoFrameProcessor is currently processing an input stream.
+  /**
+   * The input stream that is {@linkplain #registerInputStream(int, List, FrameInfo) registered},
+   * but the pipeline has not adapted to processing it.
+   */
   @GuardedBy("lock")
-  private boolean processingInput;
+  @Nullable
+  private InputStreamInfo pendingInputStreamInfo;
+
+  @GuardedBy("lock")
+  private boolean registeredFirstInputStream;
 
   private final List<Effect> activeEffects;
   private final Object lock;
   private final ColorInfo outputColorInfo;
 
-  // CountDownLatch to wait for the current input stream to finish processing.
-  private volatile @MonotonicNonNull CountDownLatch latch;
   private volatile @MonotonicNonNull FrameInfo nextInputFrameInfo;
   private volatile boolean inputStreamEnded;
 
@@ -379,24 +385,27 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     this.lock = new Object();
     this.outputColorInfo = outputColorInfo;
     this.finalShaderProgramWrapper = finalShaderProgramWrapper;
-    finalShaderProgramWrapper.setOnInputStreamProcessedListener(
+    this.intermediateGlShaderPrograms = new ArrayList<>();
+    this.inputStreamRegisteredCondition = new ConditionVariable();
+    inputStreamRegisteredCondition.open();
+    this.finalShaderProgramWrapper.setOnInputStreamProcessedListener(
         () -> {
-          logEvent(EVENT_VFP_FINISH_PROCESSING_INPUT_STREAM, C.TIME_END_OF_SOURCE);
-          boolean inputEndedAfterThisInputStream;
-          synchronized (lock) {
-            processingInput = false;
-            // inputStreamEnded could be overwritten right after counting down the latch.
-            inputEndedAfterThisInputStream = this.inputStreamEnded;
-            if (latch != null) {
-              latch.countDown();
-            }
-          }
-          if (inputEndedAfterThisInputStream) {
+          if (inputStreamEnded) {
             listenerExecutor.execute(listener::onEnded);
             logEvent(EVENT_VFP_SIGNAL_ENDED, C.TIME_END_OF_SOURCE);
+          } else {
+            synchronized (lock) {
+              if (pendingInputStreamInfo != null) {
+                InputStreamInfo pendingInputStreamInfo = this.pendingInputStreamInfo;
+                videoFrameProcessingTaskExecutor.submit(
+                    () -> {
+                      configureEffects(pendingInputStreamInfo, /* forceReconfigure= */ false);
+                    });
+                this.pendingInputStreamInfo = null;
+              }
+            }
           }
         });
-    this.intermediateGlShaderPrograms = new ArrayList<>();
   }
 
   /** Returns the task executor that runs video frame processing tasks. */
@@ -421,11 +430,14 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
    * @param height The default height for input buffers, in pixels.
    */
   public void setInputDefaultBufferSize(int width, int height) {
-    inputSwitcher.activeTextureManager().setDefaultBufferSize(width, height);
+    inputSwitcher.setInputDefaultBufferSize(width, height);
   }
 
   @Override
-  public void queueInputBitmap(Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs) {
+  public boolean queueInputBitmap(Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs) {
+    if (!inputStreamRegisteredCondition.isOpen()) {
+      return false;
+    }
     FrameInfo frameInfo = checkNotNull(this.nextInputFrameInfo);
     inputSwitcher
         .activeTextureManager()
@@ -434,16 +446,21 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             new FrameInfo.Builder(frameInfo).setOffsetToAddUs(frameInfo.offsetToAddUs).build(),
             inStreamOffsetsUs,
             /* useHdr= */ false);
+    return true;
   }
 
   @Override
-  public void queueInputTexture(int textureId, long presentationTimeUs) {
+  public boolean queueInputTexture(int textureId, long presentationTimeUs) {
+    if (!inputStreamRegisteredCondition.isOpen()) {
+      return false;
+    }
     inputSwitcher.activeTextureManager().queueInputTexture(textureId, presentationTimeUs);
+    return true;
   }
 
   @Override
   public void setOnInputFrameProcessedListener(OnInputFrameProcessedListener listener) {
-    inputSwitcher.activeTextureManager().setOnInputFrameProcessedListener(listener);
+    inputSwitcher.setOnInputFrameProcessedListener(listener);
   }
 
   @Override
@@ -454,6 +471,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
   @Override
   public void registerInputStream(
       @InputType int inputType, List<Effect> effects, FrameInfo frameInfo) {
+    // This method is only called after all samples in the current input stream are registered or
+    // queued.
     logEvent(
         EVENT_VFP_REGISTER_NEW_INPUT_STREAM,
         /* presentationTimeUs= */ frameInfo.offsetToAddUs,
@@ -461,52 +480,54 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
             "InputType %s - %dx%d",
             getInputTypeString(inputType), frameInfo.width, frameInfo.height));
     nextInputFrameInfo = adjustForPixelWidthHeightRatio(frameInfo);
-    synchronized (lock) {
-      if (!processingInput) {
-        videoFrameProcessingTaskExecutor.submitAndBlock(() -> configureEffects(effects));
-        inputSwitcher.switchToInput(inputType, nextInputFrameInfo);
-        inputSwitcher.activeTextureManager().setInputFrameInfo(nextInputFrameInfo);
-        processingInput = true;
-        return;
-      }
-    }
 
-    // Wait until the current input stream is processed before continuing to the next input.
-    latch = new CountDownLatch(1);
-    inputSwitcher.activeTextureManager().signalEndOfCurrentInputStream();
     try {
-      latch.await();
+      // Blocks until the previous input stream registration completes.
+      // TODO: b/296897956 - Handle multiple thread unblocking at the same time.
+      inputStreamRegisteredCondition.block();
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       listenerExecutor.execute(() -> listener.onError(VideoFrameProcessingException.from(e)));
     }
 
     synchronized (lock) {
-      processingInput = true;
+      // An input stream is pending until its effects are configured.
+      InputStreamInfo pendingInputStreamInfo = new InputStreamInfo(inputType, effects, frameInfo);
+      if (!registeredFirstInputStream) {
+        registeredFirstInputStream = true;
+        inputStreamRegisteredCondition.close();
+        videoFrameProcessingTaskExecutor.submit(
+            () -> configureEffects(pendingInputStreamInfo, /* forceReconfigure= */ true));
+      } else {
+        // Rejects further inputs after signaling EOS and before the next input stream is fully
+        // configured.
+        this.pendingInputStreamInfo = pendingInputStreamInfo;
+        inputStreamRegisteredCondition.close();
+        inputSwitcher.activeTextureManager().signalEndOfCurrentInputStream();
+      }
     }
-
-    if (!activeEffects.equals(effects)) {
-      // TODO(b/269424561) Investigate non blocking re-configuration.
-      // Shader program recreation must be on GL thread. Currently the calling thread is blocked
-      // until all shader programs are recreated, so that DefaultVideoFrameProcessor doesn't receive
-      // a new frame from the new input stream prematurely.
-      videoFrameProcessingTaskExecutor.submitAndBlock(() -> configureEffects(effects));
-    }
-    inputSwitcher.switchToInput(inputType, nextInputFrameInfo);
   }
 
   @Override
-  public void registerInputFrame() {
+  public boolean registerInputFrame() {
     checkState(!inputStreamEnded);
     checkStateNotNull(
         nextInputFrameInfo, "registerInputStream must be called before registering input frames");
-
+    if (!inputStreamRegisteredCondition.isOpen()) {
+      return false;
+    }
     inputSwitcher.activeTextureManager().registerInputFrame(nextInputFrameInfo);
+    return true;
   }
 
   @Override
   public int getPendingInputFrameCount() {
-    return inputSwitcher.activeTextureManager().getPendingFrameCount();
+    if (inputSwitcher.hasActiveInput()) {
+      return inputSwitcher.activeTextureManager().getPendingFrameCount();
+    }
+    // Return zero when InputSwitcher is not set up, i.e. before VideoFrameProcessor finishes its
+    // first configuration.
+    return 0;
   }
 
   /**
@@ -540,7 +561,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     logEvent(EVENT_VFP_RECEIVE_END_OF_INPUT, C.TIME_END_OF_SOURCE);
     checkState(!inputStreamEnded);
     inputStreamEnded = true;
-    inputSwitcher.signalEndOfCurrentInputStream();
+    inputSwitcher.signalEndOfInputStream();
   }
 
   @Override
@@ -796,31 +817,48 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     }
   }
 
-  /** Configures the {@link GlShaderProgram} instances for {@code effects}. */
-  private void configureEffects(List<Effect> effects) throws VideoFrameProcessingException {
-    if (!intermediateGlShaderPrograms.isEmpty()) {
-      for (int i = 0; i < intermediateGlShaderPrograms.size(); i++) {
-        intermediateGlShaderPrograms.get(i).release();
+  /**
+   * Configures the {@link GlShaderProgram} instances for {@code effects}.
+   *
+   * <p>The pipeline will only re-configure if the {@link InputStreamInfo#effects new effects}
+   * doesn't match the {@link #activeEffects}, or when {@code forceReconfigure} is set to {@code
+   * true}.
+   */
+  private void configureEffects(InputStreamInfo inputStreamInfo, boolean forceReconfigure)
+      throws VideoFrameProcessingException {
+    if (forceReconfigure || !activeEffects.equals(inputStreamInfo.effects)) {
+      if (!intermediateGlShaderPrograms.isEmpty()) {
+        for (int i = 0; i < intermediateGlShaderPrograms.size(); i++) {
+          intermediateGlShaderPrograms.get(i).release();
+        }
+        intermediateGlShaderPrograms.clear();
       }
-      intermediateGlShaderPrograms.clear();
+
+      // The GlShaderPrograms that should be inserted in between InputSwitcher and
+      // FinalShaderProgramWrapper.
+      intermediateGlShaderPrograms.addAll(
+          createGlShaderPrograms(
+              context, inputStreamInfo.effects, outputColorInfo, finalShaderProgramWrapper));
+      inputSwitcher.setDownstreamShaderProgram(
+          getFirst(intermediateGlShaderPrograms, /* defaultValue= */ finalShaderProgramWrapper));
+      chainShaderProgramsWithListeners(
+          glObjectsProvider,
+          intermediateGlShaderPrograms,
+          finalShaderProgramWrapper,
+          videoFrameProcessingTaskExecutor,
+          listener,
+          listenerExecutor);
+
+      activeEffects.clear();
+      activeEffects.addAll(inputStreamInfo.effects);
     }
 
-    // The GlShaderPrograms that should be inserted in between InputSwitcher and
-    // FinalShaderProgramWrapper.
-    intermediateGlShaderPrograms.addAll(
-        createGlShaderPrograms(context, effects, outputColorInfo, finalShaderProgramWrapper));
-    inputSwitcher.setDownstreamShaderProgram(
-        getFirst(intermediateGlShaderPrograms, /* defaultValue= */ finalShaderProgramWrapper));
-    chainShaderProgramsWithListeners(
-        glObjectsProvider,
-        intermediateGlShaderPrograms,
-        finalShaderProgramWrapper,
-        videoFrameProcessingTaskExecutor,
-        listener,
-        listenerExecutor);
-
-    activeEffects.clear();
-    activeEffects.addAll(effects);
+    inputSwitcher.switchToInput(inputStreamInfo.inputType, inputStreamInfo.frameInfo);
+    inputStreamRegisteredCondition.open();
+    listenerExecutor.execute(
+        () ->
+            listener.onInputStreamRegistered(
+                inputStreamInfo.inputType, inputStreamInfo.effects, inputStreamInfo.frameInfo));
   }
 
   /**
@@ -844,6 +882,18 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       } catch (GlUtil.GlException e) {
         Log.e(TAG, "Error releasing GL context", e);
       }
+    }
+  }
+
+  private static final class InputStreamInfo {
+    public final @InputType int inputType;
+    public final List<Effect> effects;
+    public final FrameInfo frameInfo;
+
+    public InputStreamInfo(@InputType int inputType, List<Effect> effects, FrameInfo frameInfo) {
+      this.inputType = inputType;
+      this.effects = effects;
+      this.frameInfo = frameInfo;
     }
   }
 }

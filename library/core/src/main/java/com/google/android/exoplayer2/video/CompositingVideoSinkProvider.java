@@ -338,7 +338,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           >= videoFrameProcessorMaxPendingFrameCount) {
         return C.TIME_UNSET;
       }
-      videoFrameProcessor.registerInputFrame();
+      if (!videoFrameProcessor.registerInputFrame()) {
+        return C.TIME_UNSET;
+      }
       // The sink takes in frames with monotonically increasing, non-offset frame
       // timestamps. That is, with two ten-second long videos, the first frame of the second video
       // should bear a timestamp of 10s seen from VideoFrameProcessor; while in ExoPlayer, the
@@ -410,6 +412,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     // VideoFrameProcessor.Listener impl
+
+    @Override
+    public void onInputStreamRegistered(
+        @VideoFrameProcessor.InputType int inputType, List<Effect> effects, FrameInfo frameInfo) {
+      // Do nothing.
+    }
 
     @Override
     public void onOutputSizeChanged(int width, int height) {

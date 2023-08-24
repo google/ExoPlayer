@@ -117,6 +117,22 @@ public interface VideoFrameProcessor {
   interface Listener {
 
     /**
+     * Called when the {@link VideoFrameProcessor} finishes {@linkplain #registerInputStream(int,
+     * List, FrameInfo) registering an input stream}.
+     *
+     * <p>The {@link VideoFrameProcessor} is now ready to accept new input {@linkplain
+     * VideoFrameProcessor#registerInputFrame frames}, {@linkplain
+     * VideoFrameProcessor#queueInputBitmap(Bitmap, TimestampIterator) bitmaps} or {@linkplain
+     * VideoFrameProcessor#queueInputTexture(int, long) textures}.
+     *
+     * @param inputType The {@link InputType} of the new input stream.
+     * @param effects The list of {@link Effect effects} to apply to the new input stream.
+     * @param frameInfo The {@link FrameInfo} of the new input stream.
+     */
+    void onInputStreamRegistered(
+        @InputType int inputType, List<Effect> effects, FrameInfo frameInfo);
+
+    /**
      * Called when the output size changes.
      *
      * <p>The output size is the frame size in pixels after applying all {@linkplain Effect
@@ -166,10 +182,12 @@ public interface VideoFrameProcessor {
    * @param inputBitmap The {@link Bitmap} queued to the {@code VideoFrameProcessor}.
    * @param inStreamOffsetsUs The times within the current stream that the bitmap should be shown
    *     at. The timestamps should be monotonically increasing.
+   * @return Whether the {@link Bitmap} was successfully queued. A return value of {@code false}
+   *     indicates the {@code VideoFrameProcessor} is not ready to accept input.
    * @throws UnsupportedOperationException If the {@code VideoFrameProcessor} does not accept
    *     {@linkplain #INPUT_TYPE_BITMAP bitmap input}.
    */
-  void queueInputBitmap(Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs);
+  boolean queueInputBitmap(Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs);
 
   /**
    * Provides an input texture ID to the {@code VideoFrameProcessor}.
@@ -181,8 +199,11 @@ public interface VideoFrameProcessor {
    *
    * @param textureId The ID of the texture queued to the {@code VideoFrameProcessor}.
    * @param presentationTimeUs The presentation time of the queued texture, in microseconds.
+   * @return Whether the texture was successfully queued. A return value of {@code false} indicates
+   *     the {@code VideoFrameProcessor} is not ready to accept input.
    */
-  void queueInputTexture(int textureId, long presentationTimeUs);
+  // TODO - b/294369303: Remove polling API.
+  boolean queueInputTexture(int textureId, long presentationTimeUs);
 
   /**
    * Sets the {@link OnInputFrameProcessedListener}.
@@ -212,6 +233,17 @@ public interface VideoFrameProcessor {
    * Informs the {@code VideoFrameProcessor} that a new input stream will be queued with the list of
    * {@link Effect Effects} to apply to the new input stream.
    *
+   * <p>After registering the first input stream, this method must only be called after the last
+   * frame of the already-registered input stream has been {@linkplain #registerInputFrame
+   * registered}, last bitmap {@link #queueInputBitmap queued} or last texture id {@linkplain
+   * #queueInputTexture queued}.
+   *
+   * <p>This method blocks the calling thread until the previous calls to this method finish, that
+   * is when {@link Listener#onInputStreamRegistered(int, List, FrameInfo)} is called after the
+   * underlying processing pipeline has been adapted to the registered input stream.
+   *
+   * <p>Can be called on any thread.
+   *
    * @param inputType The {@link InputType} of the new input stream.
    * @param effects The list of {@link Effect effects} to apply to the new input stream.
    * @param frameInfo The {@link FrameInfo} of the new input stream.
@@ -222,16 +254,22 @@ public interface VideoFrameProcessor {
    * Informs the {@code VideoFrameProcessor} that a frame will be queued to its {@linkplain
    * #getInputSurface() input surface}.
    *
-   * <p>Must be called before rendering a frame to the input surface.
+   * <p>Must be called before rendering a frame to the input surface. The caller must not render
+   * frames to the {@linkplain #getInputSurface input surface} when {@code false} is returned.
    *
    * <p>Can be called on any thread.
    *
+   * @return Whether the input frame was successfully registered. If {@link
+   *     #registerInputStream(int, List, FrameInfo)} is called, this method returns {@code false}
+   *     until {@link Listener#onInputStreamRegistered(int, List, FrameInfo)} is called. Otherwise,
+   *     a return value of {@code false} indicates the {@code VideoFrameProcessor} is not ready to
+   *     accept input.
    * @throws UnsupportedOperationException If the {@code VideoFrameProcessor} does not accept
    *     {@linkplain #INPUT_TYPE_SURFACE surface input}.
    * @throws IllegalStateException If called after {@link #signalEndOfInput()} or before {@link
    *     #registerInputStream}.
    */
-  void registerInputFrame();
+  boolean registerInputFrame();
 
   /**
    * Returns the number of input frames that have been made available to the {@code
