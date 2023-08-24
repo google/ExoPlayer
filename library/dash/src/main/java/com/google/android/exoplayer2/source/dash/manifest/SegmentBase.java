@@ -28,6 +28,7 @@ import com.google.common.math.BigIntegerMath;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.List;
+import org.checkerframework.checker.initialization.qual.UnderInitialization;
 
 /**
  * An approximate representation of a SegmentBase manifest element.
@@ -66,7 +67,8 @@ public abstract class SegmentBase {
    * @return A {@link RangedUri} defining the location of the initialization data, or null.
    */
   @Nullable
-  public RangedUri getInitialization(Representation representation) {
+  public RangedUri getInitialization(
+      @UnderInitialization(Representation.class) Representation representation) {
     return initialization;
   }
 
