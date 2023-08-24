@@ -26,7 +26,7 @@ import androidx.media3.common.util.UnstableApi;
  * <p>Input and output are provided via OpenGL textures.
  */
 @UnstableApi
-public interface VideoCompositor {
+public interface VideoCompositor extends GlTextureProducer {
 
   /** Listener for errors. */
   interface Listener {
@@ -48,8 +48,7 @@ public interface VideoCompositor {
   int registerInputSource();
 
   /**
-   * Signals that no more frames will come from the upstream {@link
-   * DefaultVideoFrameProcessor.TextureOutputListener}.
+   * Signals that no more frames will come from the upstream {@link GlTextureProducer.Listener}.
    *
    * <p>Each input source must have a unique {@code inputId} returned from {@link
    * #registerInputSource}.
@@ -58,16 +57,16 @@ public interface VideoCompositor {
 
   /**
    * Queues an input texture to be composited, for example from an upstream {@link
-   * DefaultVideoFrameProcessor.TextureOutputListener}.
+   * GlTextureProducer.Listener}.
    *
    * <p>Each input source must have a unique {@code inputId} returned from {@link
    * #registerInputSource}.
    */
   void queueInputTexture(
       int inputId,
+      GlTextureProducer textureProducer,
       GlTextureInfo inputTexture,
-      long presentationTimeUs,
-      DefaultVideoFrameProcessor.ReleaseOutputTextureCallback releaseTextureCallback);
+      long presentationTimeUs);
 
   /** Releases all resources. */
   void release();

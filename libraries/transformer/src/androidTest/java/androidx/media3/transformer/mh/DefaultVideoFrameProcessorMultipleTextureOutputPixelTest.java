@@ -138,12 +138,9 @@ public class DefaultVideoFrameProcessorMultipleTextureOutputPixelTest {
     VideoFrameProcessor.Factory defaultVideoFrameProcessorFactory =
         new DefaultVideoFrameProcessor.Factory.Builder()
             .setTextureOutput(
-                (outputTexture,
-                    presentationTimeUs,
-                    releaseOutputTextureCallback,
-                    unusedSyncObject) -> {
+                (outputTextureProducer, outputTexture, presentationTimeUs, unusedSyncObject) -> {
                   checkNotNull(textureBitmapReader).readBitmap(outputTexture, presentationTimeUs);
-                  releaseOutputTextureCallback.release(presentationTimeUs);
+                  outputTextureProducer.releaseOutputTexture(presentationTimeUs);
                 },
                 /* textureOutputCapacity= */ 1)
             .build();

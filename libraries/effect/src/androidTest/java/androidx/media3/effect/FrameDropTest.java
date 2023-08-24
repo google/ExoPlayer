@@ -162,10 +162,10 @@ public class FrameDropTest {
         checkNotNull(
             new DefaultVideoFrameProcessor.Factory.Builder()
                 .setTextureOutput(
-                    (outputTexture, presentationTimeUs, releaseOutputTextureCallback, token) -> {
+                    (textureProducer, outputTexture, presentationTimeUs, token) -> {
                       checkNotNull(textureBitmapReader)
                           .readBitmap(outputTexture, presentationTimeUs);
-                      releaseOutputTextureCallback.release(presentationTimeUs);
+                      textureProducer.releaseOutputTexture(presentationTimeUs);
                     },
                     /* textureOutputCapacity= */ 1)
                 .build()

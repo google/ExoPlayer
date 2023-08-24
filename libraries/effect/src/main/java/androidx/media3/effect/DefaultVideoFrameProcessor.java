@@ -44,7 +44,6 @@ import androidx.media3.common.DebugViewProvider;
 import androidx.media3.common.Effect;
 import androidx.media3.common.FrameInfo;
 import androidx.media3.common.GlObjectsProvider;
-import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.OnInputFrameProcessedListener;
 import androidx.media3.common.SurfaceInfo;
 import androidx.media3.common.VideoFrameProcessingException;
@@ -74,28 +73,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 @UnstableApi
 public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
 
-  /** Listener interface for texture output. */
-  @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
-  public interface TextureOutputListener {
-    /**
-     * Called when a texture has been rendered to.
-     *
-     * @param outputTexture The texture that has been rendered.
-     * @param presentationTimeUs The presentation time of the texture.
-     * @param releaseOutputTextureCallback A {@link ReleaseOutputTextureCallback} that must be
-     *     called to release the {@link GlTextureInfo}.
-     * @param syncObject A GL sync object that has been inserted into the GL command stream after
-     *     the last write of the {@code outputTexture}. Value is 0 if and only if the {@link
-     *     GLES30#glFenceSync} failed.
-     */
-    void onTextureRendered(
-        GlTextureInfo outputTexture,
-        long presentationTimeUs,
-        ReleaseOutputTextureCallback releaseOutputTextureCallback,
-        long syncObject)
-        throws VideoFrameProcessingException, GlUtil.GlException;
-  }
-
   /**
    * Releases the output information stored for textures before and at {@code presentationTimeUs}.
    */
@@ -112,7 +89,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       private boolean enableColorTransfers;
       private @MonotonicNonNull GlObjectsProvider glObjectsProvider;
       private @MonotonicNonNull ExecutorService executorService;
-      private @MonotonicNonNull TextureOutputListener textureOutputListener;
+      private GlTextureProducer.@MonotonicNonNull Listener textureOutputListener;
       private int textureOutputCapacity;
 
       /** Creates an instance. */
@@ -165,8 +142,8 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
        * Sets texture output settings.
        *
        * <p>If set, the {@link VideoFrameProcessor} will output to OpenGL textures, accessible via
-       * {@link TextureOutputListener#onTextureRendered}. Textures will stop being outputted when
-       * the number of output textures available reaches the {@code textureOutputCapacity}. To
+       * {@link GlTextureProducer.Listener#onTextureRendered}. Textures will stop being outputted
+       * when the number of output textures available reaches the {@code textureOutputCapacity}. To
        * regain capacity, output textures must be released using {@link
        * ReleaseOutputTextureCallback}.
        *
@@ -175,14 +152,14 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
        *
        * <p>If not set, there will be no texture output.
        *
-       * @param textureOutputListener The {@link TextureOutputListener}.
+       * @param textureOutputListener The {@link GlTextureProducer.Listener}.
        * @param textureOutputCapacity The amount of output textures that may be allocated at a time
        *     before texture output blocks. Must be greater than or equal to 1.
        */
       @VisibleForTesting
       @CanIgnoreReturnValue
       public Builder setTextureOutput(
-          TextureOutputListener textureOutputListener,
+          GlTextureProducer.Listener textureOutputListener,
           @IntRange(from = 1) int textureOutputCapacity) {
         this.textureOutputListener = textureOutputListener;
         checkArgument(textureOutputCapacity >= 1);
@@ -204,14 +181,14 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     private final boolean enableColorTransfers;
     private final GlObjectsProvider glObjectsProvider;
     @Nullable private final ExecutorService executorService;
-    @Nullable private final TextureOutputListener textureOutputListener;
+    @Nullable private final GlTextureProducer.Listener textureOutputListener;
     private final int textureOutputCapacity;
 
     private Factory(
         boolean enableColorTransfers,
         GlObjectsProvider glObjectsProvider,
         @Nullable ExecutorService executorService,
-        @Nullable TextureOutputListener textureOutputListener,
+        @Nullable GlTextureProducer.Listener textureOutputListener,
         int textureOutputCapacity) {
       this.enableColorTransfers = enableColorTransfers;
       this.glObjectsProvider = glObjectsProvider;
@@ -262,7 +239,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
         ColorInfo outputColorInfo,
         boolean renderFramesAutomatically,
         Executor listenerExecutor,
-        Listener listener)
+        VideoFrameProcessor.Listener listener)
         throws VideoFrameProcessingException {
       // TODO(b/261188041) Add tests to verify the Listener is invoked on the given Executor.
 
@@ -363,7 +340,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       EGLContext eglContext,
       InputSwitcher inputSwitcher,
       VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor,
-      Listener listener,
+      VideoFrameProcessor.Listener listener,
       Executor listenerExecutor,
       FinalShaderProgramWrapper finalShaderProgramWrapper,
       boolean renderFramesAutomatically,
@@ -626,9 +603,9 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       boolean renderFramesAutomatically,
       VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor,
       Executor videoFrameProcessorListenerExecutor,
-      Listener listener,
+      VideoFrameProcessor.Listener listener,
       GlObjectsProvider glObjectsProvider,
-      @Nullable TextureOutputListener textureOutputListener,
+      @Nullable GlTextureProducer.Listener textureOutputListener,
       int textureOutputCapacity)
       throws GlUtil.GlException, VideoFrameProcessingException {
     EGLDisplay eglDisplay = GlUtil.getDefaultEglDisplay();
@@ -780,7 +757,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       List<GlShaderProgram> shaderPrograms,
       FinalShaderProgramWrapper finalShaderProgramWrapper,
       VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor,
-      Listener videoFrameProcessorListener,
+      VideoFrameProcessor.Listener videoFrameProcessorListener,
       Executor videoFrameProcessorListenerExecutor) {
     ArrayList<GlShaderProgram> shaderProgramsToChain = new ArrayList<>(shaderPrograms);
     shaderProgramsToChain.add(finalShaderProgramWrapper);
