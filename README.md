@@ -47,13 +47,21 @@ also possible to clone this GitHub repository and depend on the modules locally.
 #### 1. Add module dependencies
 
 The easiest way to get started using AndroidX Media is to add gradle
-dependencies on the libraries you need in the `build.gradle` file of your app
-module.
+dependencies on the libraries you need in the `build.gradle.kts` file of your
+app module.
 
 For example, to depend on ExoPlayer with DASH playback support and UI components
 you can add dependencies on the modules like this:
 
-```gradle
+```kotlin
+implementation("androidx.media3:media3-exoplayer:1.X.X")
+implementation("androidx.media3:media3-exoplayer-dash:1.X.X")
+implementation("androidx.media3:media3-ui:1.X.X")
+```
+
+Or in Gradle Groovy DSL `build.gradle`:
+
+```groovy
 implementation 'androidx.media3:media3-exoplayer:1.X.X'
 implementation 'androidx.media3:media3-exoplayer-dash:1.X.X'
 implementation 'androidx.media3:media3-ui:1.X.X'
@@ -75,10 +83,18 @@ details.
 #### 2. Turn on Java 8 support
 
 If not enabled already, you also need to turn on Java 8 support in all
-`build.gradle` files depending on AndroidX Media, by adding the following to the
-`android` section:
+`build.gradle.kts` files depending on AndroidX Media, by adding the following to
+the `android` section:
 
-```gradle
+```kotlin
+compileOptions {
+  targetCompatibility = JavaVersion.VERSION_1_8
+}
+```
+
+Or in Gradle Groovy DSL `build.gradle`:
+
+```groovy
 compileOptions {
   targetCompatibility JavaVersion.VERSION_1_8
 }
@@ -103,18 +119,36 @@ git clone https://github.com/androidx/media.git
 cd media
 ```
 
-Next, add the following to your project's `settings.gradle` file, replacing
+Next, add the following to your project's `settings.gradle.kts` file, replacing
 `path/to/media` with the path to your local copy:
 
-```gradle
+```kotlin
+gradle.extra.apply {
+  set("androidxMediaModulePrefix", "media-")
+}
+apply(from = file("path/to/media/core_settings.gradle"))
+```
+
+Or in Gradle Groovy DSL `settings.gradle`:
+
+```groovy
 gradle.ext.androidxMediaModulePrefix = 'media-'
 apply from: file("path/to/media/core_settings.gradle")
 ```
 
 You should now see the AndroidX Media modules appear as part of your project.
-You can depend on them as you would on any other local module, for example:
+You can depend on them from `build.gradle.kts` as you would on any other local
+module, for example:
 
-```gradle
+```kotlin
+implementation(project(":media-lib-exoplayer"))
+implementation(project(":media-lib-exoplayer-dash"))
+implementation(project(":media-lib-ui"))
+```
+
+Or in Gradle Groovy DSL `build.gradle`:
+
+```groovy
 implementation project(':media-lib-exoplayer')
 implementation project(':media-lib-exoplayer-dash')
 implementation project(':media-lib-ui')
