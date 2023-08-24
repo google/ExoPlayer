@@ -49,10 +49,16 @@ also possible to clone the repository and depend on the modules locally.
 #### 1. Add ExoPlayer module dependencies
 
 The easiest way to get started using ExoPlayer is to add it as a gradle
-dependency in the `build.gradle` file of your app module. The following will add
-a dependency to the full library:
+dependency in the `build.gradle.kts` file of your app module. The following will
+add a dependency to the full library:
 
-```gradle
+```kotlin
+implementation("com.google.android.exoplayer:exoplayer:2.X.X")
+```
+
+Or in Gradle Groovy DSL `build.gradle`:
+
+```groovy
 implementation 'com.google.android.exoplayer:exoplayer:2.X.X'
 ```
 
@@ -63,7 +69,15 @@ modules that you actually need. For example the following will add dependencies
 on the Core, DASH and UI library modules, as might be required for an app that
 only plays DASH content:
 
-```gradle
+```kotlin
+implementation("com.google.android.exoplayer:exoplayer-core:2.X.X")
+implementation("com.google.android.exoplayer:exoplayer-dash:2.X.X")
+implementation("com.google.android.exoplayer:exoplayer-ui:2.X.X")
+```
+
+Or in Gradle Groovy DSL `build.gradle`:
+
+```groovy
 implementation 'com.google.android.exoplayer:exoplayer-core:2.X.X'
 implementation 'com.google.android.exoplayer:exoplayer-dash:2.X.X'
 implementation 'com.google.android.exoplayer:exoplayer-ui:2.X.X'
@@ -97,10 +111,18 @@ found on the [Google Maven ExoPlayer page][].
 #### 2. Turn on Java 8 support
 
 If not enabled already, you also need to turn on Java 8 support in all
-`build.gradle` files depending on ExoPlayer, by adding the following to the
+`build.gradle.kts` files depending on ExoPlayer, by adding the following to the
 `android` section:
 
-```gradle
+```kotlin
+compileOptions {
+  targetCompatibility = JavaVersion.VERSION_1_8
+}
+```
+
+Or in Gradle Groovy DSL `build.gradle`:
+
+```groovy
 compileOptions {
   targetCompatibility JavaVersion.VERSION_1_8
 }
@@ -126,19 +148,37 @@ git clone https://github.com/google/ExoPlayer.git
 cd ExoPlayer
 ```
 
-Next, add the following to your project's `settings.gradle` file, replacing
+Next, add the following to your project's `settings.gradle.kts` file, replacing
 `path/to/exoplayer` with the path to your local copy:
 
-```gradle
+```kotlin
+gradle.extra.apply {
+  set("exoplayerModulePrefix", "exoplayer-")
+}
+apply(from = file("path/to/exoplayer/core_settings.gradle"))
+```
+
+Or in Gradle Groovy DSL `settings.gradle`:
+
+```groovy
 gradle.ext.exoplayerModulePrefix = 'exoplayer-'
 apply from: file("path/to/exoplayer/core_settings.gradle")
 ```
 
 You should now see the ExoPlayer modules appear as part of your project. You can
-depend on them as you would on any other local module, for example:
+depend on them from `build.gradle.kts` as you would on any other local module,
+for example:
 
-```gradle
-implementation project(':exoplayer-library-core')
+```kotlin
+implementation(project(":exoplayer-library-exoplayer"))
+implementation(project(":exoplayer-library-dash"))
+implementation(project(":exoplayer-library-ui"))
+```
+
+Or in Gradle Groovy DSL `build.gradle`:
+
+```groovy
+implementation project(':exoplayer-library-exoplayer')
 implementation project(':exoplayer-library-dash')
 implementation project(':exoplayer-library-ui')
 ```
