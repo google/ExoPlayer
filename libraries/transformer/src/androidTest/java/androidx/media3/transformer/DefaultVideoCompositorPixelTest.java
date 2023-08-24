@@ -40,7 +40,6 @@ import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.Effect;
 import androidx.media3.common.GlObjectsProvider;
-import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Util;
@@ -648,11 +647,10 @@ public final class DefaultVideoCompositorPixelTest {
                   compositorEnded.countDown();
                 }
               },
-              /* textureOutputListener= */ (GlTextureInfo outputTexture,
-                  long presentationTimeUs,
-                  DefaultVideoFrameProcessor.ReleaseOutputTextureCallback
-                      releaseOutputTextureCallback,
-                  long syncObject) -> {
+              /* textureOutputListener= */ (outputTexture,
+                  presentationTimeUs,
+                  releaseOutputTextureCallback,
+                  syncObject) -> {
                 if (!useSharedExecutor) {
                   GlUtil.awaitSyncObject(syncObject);
                 }
@@ -793,11 +791,10 @@ public final class DefaultVideoCompositorPixelTest {
           new DefaultVideoFrameProcessor.Factory.Builder()
               .setGlObjectsProvider(glObjectsProvider)
               .setTextureOutput(
-                  /* textureOutputListener= */ (GlTextureInfo outputTexture,
-                      long presentationTimeUs,
-                      DefaultVideoFrameProcessor.ReleaseOutputTextureCallback
-                          releaseOutputTextureCallback,
-                      long syncObject) -> {
+                  /* textureOutputListener= */ (outputTexture,
+                      presentationTimeUs,
+                      releaseOutputTextureCallback,
+                      syncObject) -> {
                     GlUtil.awaitSyncObject(syncObject);
                     textureBitmapReader.readBitmapUnpremultipliedAlpha(
                         outputTexture, presentationTimeUs);
