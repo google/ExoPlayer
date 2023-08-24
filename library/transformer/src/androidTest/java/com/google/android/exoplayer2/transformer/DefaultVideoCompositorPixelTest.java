@@ -52,7 +52,6 @@ import com.google.android.exoplayer2.testutil.TextureBitmapReader;
 import com.google.android.exoplayer2.testutil.VideoFrameProcessorTestRunner;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.GlObjectsProvider;
-import com.google.android.exoplayer2.util.GlTextureInfo;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
@@ -648,11 +647,10 @@ public final class DefaultVideoCompositorPixelTest {
                   compositorEnded.countDown();
                 }
               },
-              /* textureOutputListener= */ (GlTextureInfo outputTexture,
-                  long presentationTimeUs,
-                  DefaultVideoFrameProcessor.ReleaseOutputTextureCallback
-                      releaseOutputTextureCallback,
-                  long syncObject) -> {
+              /* textureOutputListener= */ (outputTexture,
+                  presentationTimeUs,
+                  releaseOutputTextureCallback,
+                  syncObject) -> {
                 if (!useSharedExecutor) {
                   GlUtil.awaitSyncObject(syncObject);
                 }
@@ -793,11 +791,10 @@ public final class DefaultVideoCompositorPixelTest {
           new DefaultVideoFrameProcessor.Factory.Builder()
               .setGlObjectsProvider(glObjectsProvider)
               .setTextureOutput(
-                  /* textureOutputListener= */ (GlTextureInfo outputTexture,
-                      long presentationTimeUs,
-                      DefaultVideoFrameProcessor.ReleaseOutputTextureCallback
-                          releaseOutputTextureCallback,
-                      long syncObject) -> {
+                  /* textureOutputListener= */ (outputTexture,
+                      presentationTimeUs,
+                      releaseOutputTextureCallback,
+                      syncObject) -> {
                     GlUtil.awaitSyncObject(syncObject);
                     textureBitmapReader.readBitmapUnpremultipliedAlpha(
                         outputTexture, presentationTimeUs);
