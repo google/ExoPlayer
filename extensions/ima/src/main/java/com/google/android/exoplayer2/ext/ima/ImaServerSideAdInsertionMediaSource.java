@@ -899,17 +899,13 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
             return;
           }
           // Map adGroupIndex and adIndexInAdGroup to multi-period window.
+          int periodIndexInContentTimeline = oldPosition.periodIndex - window.firstPeriodIndex;
           Pair<Integer, Integer> adGroupIndexAndAdIndexInAdGroup =
               window.isLive()
                   ? getAdGroupAndIndexInLiveMultiPeriodTimeline(
-                      oldPosition.mediaItemIndex,
-                      oldPosition.periodIndex - window.firstPeriodIndex,
-                      timeline,
-                      adPlaybackState)
+                      periodIndexInContentTimeline, adPlaybackState, checkNotNull(contentTimeline))
                   : getAdGroupAndIndexInVodMultiPeriodTimeline(
-                      oldPosition.periodIndex - window.firstPeriodIndex,
-                      adPlaybackState,
-                      checkNotNull(contentTimeline));
+                      periodIndexInContentTimeline, adPlaybackState, checkNotNull(contentTimeline));
           adGroupIndex = adGroupIndexAndAdIndexInAdGroup.first;
           adIndexInAdGroup = adGroupIndexAndAdIndexInAdGroup.second;
         }
