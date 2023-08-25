@@ -26,7 +26,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 @UnstableApi
 public final class OverlaySettings {
   public final boolean useHdr;
-  public final float alpha;
+  public final float alphaScale;
   public final Pair<Float, Float> videoFrameAnchor;
   public final Pair<Float, Float> overlayAnchor;
   public final Pair<Float, Float> scale;
@@ -34,13 +34,13 @@ public final class OverlaySettings {
 
   private OverlaySettings(
       boolean useHdr,
-      float alpha,
+      float alphaScale,
       Pair<Float, Float> videoFrameAnchor,
       Pair<Float, Float> overlayAnchor,
       Pair<Float, Float> scale,
       float rotationDegrees) {
     this.useHdr = useHdr;
-    this.alpha = alpha;
+    this.alphaScale = alphaScale;
     this.videoFrameAnchor = videoFrameAnchor;
     this.overlayAnchor = overlayAnchor;
     this.scale = scale;
@@ -50,7 +50,7 @@ public final class OverlaySettings {
   /** A builder for {@link OverlaySettings} instances. */
   public static final class Builder {
     private boolean useHdr;
-    private float alpha;
+    private float alphaScale;
     private Pair<Float, Float> videoFrameAnchor;
     private Pair<Float, Float> overlayAnchor;
     private Pair<Float, Float> scale;
@@ -58,7 +58,7 @@ public final class OverlaySettings {
 
     /** Creates a new {@link Builder}. */
     public Builder() {
-      alpha = 1f;
+      alphaScale = 1f;
       videoFrameAnchor = Pair.create(0f, 0f);
       overlayAnchor = Pair.create(0f, 0f);
       scale = Pair.create(1f, 1f);
@@ -80,15 +80,15 @@ public final class OverlaySettings {
     /**
      * Sets the alpha scale value of the overlay, altering its translucency.
      *
-     * <p>An {@code alpha} value of {@code 1} means no change is applied. A value below {@code 1}
-     * increases translucency, and a value above {@code 1} reduces translucency.
+     * <p>An {@code alphaScale} value of {@code 1} means no change is applied. A value below {@code
+     * 1} increases translucency, and a value above {@code 1} reduces translucency.
      *
      * <p>Set to always return {@code 1} by default.
      */
     @CanIgnoreReturnValue
-    public Builder setAlpha(@FloatRange(from = 0) float alpha) {
-      checkArgument(0 <= alpha, "Alpha needs to be more than or equal to zero.");
-      this.alpha = alpha;
+    public Builder setAlphaScale(@FloatRange(from = 0) float alphaScale) {
+      checkArgument(0 <= alphaScale, "alphaScale needs to be greater than or equal to zero.");
+      this.alphaScale = alphaScale;
       return this;
     }
 
@@ -165,7 +165,7 @@ public final class OverlaySettings {
     /** Creates an instance of {@link OverlaySettings}, using defaults if values are unset. */
     public OverlaySettings build() {
       return new OverlaySettings(
-          useHdr, alpha, videoFrameAnchor, overlayAnchor, scale, rotationDegrees);
+          useHdr, alphaScale, videoFrameAnchor, overlayAnchor, scale, rotationDegrees);
     }
   }
 }

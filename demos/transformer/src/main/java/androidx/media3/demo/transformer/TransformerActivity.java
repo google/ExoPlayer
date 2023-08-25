@@ -617,7 +617,7 @@ public final class TransformerActivity extends AppCompatActivity {
     if (selectedEffects[ConfigurationActivity.BITMAP_OVERLAY_INDEX]) {
       OverlaySettings overlaySettings =
           new OverlaySettings.Builder()
-              .setAlpha(
+              .setAlphaScale(
                   bundle.getFloat(
                       ConfigurationActivity.BITMAP_OVERLAY_ALPHA, /* defaultValue= */ 1))
               .build();
@@ -631,7 +631,7 @@ public final class TransformerActivity extends AppCompatActivity {
     if (selectedEffects[ConfigurationActivity.TEXT_OVERLAY_INDEX]) {
       OverlaySettings overlaySettings =
           new OverlaySettings.Builder()
-              .setAlpha(
+              .setAlphaScale(
                   bundle.getFloat(ConfigurationActivity.TEXT_OVERLAY_ALPHA, /* defaultValue= */ 1))
               .build();
       SpannableString overlayText =
