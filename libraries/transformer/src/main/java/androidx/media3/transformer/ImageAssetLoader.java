@@ -20,6 +20,9 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.transformer.ExportException.ERROR_CODE_IO_UNSPECIFIED;
 import static androidx.media3.transformer.ExportException.ERROR_CODE_UNSPECIFIED;
+import static androidx.media3.transformer.SampleConsumer.INPUT_RESULT_END_OF_STREAM;
+import static androidx.media3.transformer.SampleConsumer.INPUT_RESULT_SUCCESS;
+import static androidx.media3.transformer.SampleConsumer.INPUT_RESULT_TRY_AGAIN_LATER;
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_AVAILABLE;
 import static androidx.media3.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -42,6 +45,7 @@ import androidx.media3.common.util.Util;
 import androidx.media3.datasource.DataSource;
 import androidx.media3.datasource.DataSourceBitmapLoader;
 import androidx.media3.datasource.DefaultDataSource;
+import androidx.media3.transformer.SampleConsumer.InputResult;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -174,20 +178,34 @@ public final class ImageAssetLoader implements AssetLoader {
     try {
       if (sampleConsumer == null) {
         sampleConsumer = listener.onOutputFormat(format);
-      }
-      // TODO(b/262693274): consider using listener.onDurationUs() or the MediaItem change
-      //    callback rather than setting duration here.
-      if (sampleConsumer == null
-          || !sampleConsumer.queueInputBitmap(
-              bitmap,
-              new ConstantRateTimestampIterator(
-                  editedMediaItem.durationUs, editedMediaItem.frameRate))) {
         scheduledExecutorService.schedule(
             () -> queueBitmapInternal(bitmap, format), QUEUE_BITMAP_INTERVAL_MS, MILLISECONDS);
         return;
       }
-      sampleConsumer.signalEndOfVideoInput();
-      progress = 100;
+      // TODO(b/262693274): consider using listener.onDurationUs() or the MediaItem change
+      //    callback rather than setting duration here.
+      @InputResult
+      int result =
+          sampleConsumer.queueInputBitmap(
+              bitmap,
+              new ConstantRateTimestampIterator(
+                  editedMediaItem.durationUs, editedMediaItem.frameRate));
+
+      switch (result) {
+        case INPUT_RESULT_SUCCESS:
+          progress = 100;
+          sampleConsumer.signalEndOfVideoInput();
+          break;
+        case INPUT_RESULT_TRY_AGAIN_LATER:
+          scheduledExecutorService.schedule(
+              () -> queueBitmapInternal(bitmap, format), QUEUE_BITMAP_INTERVAL_MS, MILLISECONDS);
+          break;
+        case INPUT_RESULT_END_OF_STREAM:
+          progress = 100;
+          break;
+        default:
+          throw new IllegalStateException();
+      }
     } catch (ExportException e) {
       listener.onError(e);
     } catch (RuntimeException e) {
