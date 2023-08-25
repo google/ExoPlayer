@@ -253,7 +253,7 @@ public class OverlayShaderProgramPixelTest {
   @RequiresNonNull("testId")
   public void drawFrame_translucentBitmapOverlay_blendsBitmapIntoFrame() throws Exception {
     Bitmap bitmap = readBitmap(OVERLAY_PNG_ASSET_PATH);
-    OverlaySettings overlaySettings = new OverlaySettings.Builder().setAlpha(0.5f).build();
+    OverlaySettings overlaySettings = new OverlaySettings.Builder().setAlphaScale(0.5f).build();
     BitmapOverlay translucentBitmapOverlay =
         BitmapOverlay.createStaticBitmapOverlay(bitmap, overlaySettings);
     overlayShaderProgram =
@@ -277,7 +277,7 @@ public class OverlayShaderProgramPixelTest {
   @RequiresNonNull("testId")
   public void drawFrame_transparentTextOverlay_blendsBitmapIntoFrame() throws Exception {
     SpannableString overlayText = new SpannableString(/* source= */ "Text styling");
-    OverlaySettings overlaySettings = new OverlaySettings.Builder().setAlpha(0f).build();
+    OverlaySettings overlaySettings = new OverlaySettings.Builder().setAlphaScale(0f).build();
     overlayText.setSpan(
         new ForegroundColorSpan(Color.GRAY),
         /* start= */ 0,
@@ -400,7 +400,7 @@ public class OverlayShaderProgramPixelTest {
         new OverlaySettings.Builder().setVideoFrameAnchor(0.5f, 0.5f).build();
     TextOverlay textOverlay = TextOverlay.createStaticTextOverlay(overlayText, overlaySettings1);
     Bitmap bitmap = readBitmap(OVERLAY_PNG_ASSET_PATH);
-    OverlaySettings overlaySettings2 = new OverlaySettings.Builder().setAlpha(0.5f).build();
+    OverlaySettings overlaySettings2 = new OverlaySettings.Builder().setAlphaScale(0.5f).build();
     BitmapOverlay bitmapOverlay = BitmapOverlay.createStaticBitmapOverlay(bitmap, overlaySettings2);
     overlayShaderProgram =
         new OverlayEffect(ImmutableList.of(textOverlay, bitmapOverlay))

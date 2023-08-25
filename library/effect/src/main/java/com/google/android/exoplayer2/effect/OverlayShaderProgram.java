@@ -284,7 +284,8 @@ import com.google.common.collect.ImmutableList;
               Util.formatInvariant("uTransformationMatrix%d", texUnitIndex), transformationMatrix);
 
           glProgram.setFloatUniform(
-              Util.formatInvariant("uOverlayAlpha%d", texUnitIndex), overlaySettings.alpha);
+              Util.formatInvariant("uOverlayAlphaScale%d", texUnitIndex),
+              overlaySettings.alphaScale);
         }
       }
       glProgram.setSamplerTexIdUniform("uVideoTexSampler0", inputTexId, /* texUnitIndex= */ 0);
@@ -395,7 +396,7 @@ import com.google.common.collect.ImmutableList;
     for (int texUnitIndex = 1; texUnitIndex <= numOverlays; texUnitIndex++) {
       shader
           .append(Util.formatInvariant("uniform sampler2D uOverlayTexSampler%d;\n", texUnitIndex))
-          .append(Util.formatInvariant("uniform float uOverlayAlpha%d;\n", texUnitIndex))
+          .append(Util.formatInvariant("uniform float uOverlayAlphaScale%d;\n", texUnitIndex))
           .append(Util.formatInvariant("varying vec2 vOverlayTexSamplingCoord%d;\n", texUnitIndex));
     }
 
@@ -413,7 +414,7 @@ import com.google.common.collect.ImmutableList;
                   texUnitIndex))
           .append(
               Util.formatInvariant(
-                  "    uOverlayTexSampler%d, vOverlayTexSamplingCoord%d, uOverlayAlpha%d);\n",
+                  "    uOverlayTexSampler%d, vOverlayTexSamplingCoord%d, uOverlayAlphaScale%d);\n",
                   texUnitIndex, texUnitIndex, texUnitIndex))
           .append(Util.formatInvariant("  vec4 opticalOverlayColor%d = vec4(\n", texUnitIndex))
           .append(
