@@ -53,6 +53,7 @@ import androidx.media3.common.util.UnstableApi;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
@@ -523,5 +524,28 @@ public final class VideoFrameProcessorTestRunner {
       outputImage.close();
       return outputBitmap;
     }
+  }
+
+  public static TimestampIterator createTimestampIterator(List<Long> elements) {
+
+    Iterator<Long> elementsIterator = elements.iterator();
+
+    return new TimestampIterator() {
+      @Override
+      public boolean hasNext() {
+        return elementsIterator.hasNext();
+      }
+
+      @Override
+      public long next() {
+        return elementsIterator.next();
+      }
+
+      @Override
+      public TimestampIterator copyOf() {
+        // Method not needed for effects tests.
+        throw new UnsupportedOperationException();
+      }
+    };
   }
 }

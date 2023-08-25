@@ -17,18 +17,16 @@ package androidx.media3.effect;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.readBitmap;
+import static androidx.media3.test.utils.VideoFrameProcessorTestRunner.createTimestampIterator;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.Bitmap;
 import android.util.Pair;
 import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
-import androidx.media3.common.util.TimestampIterator;
 import androidx.media3.test.utils.VideoFrameProcessorTestRunner;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -191,29 +189,6 @@ public class DefaultVideoFrameProcessorImageFrameOutputTest {
     videoFrameProcessorTestRunner.endFrameProcessing();
 
     assertThat(actualPresentationTimesUs).containsExactly(offset1, offset2, offset3).inOrder();
-  }
-
-  private static TimestampIterator createTimestampIterator(List<Long> elements) {
-
-    Iterator<Long> elementsIterator = elements.iterator();
-
-    return new TimestampIterator() {
-      @Override
-      public boolean hasNext() {
-        return elementsIterator.hasNext();
-      }
-
-      @Override
-      public long next() {
-        return elementsIterator.next();
-      }
-
-      @Override
-      public TimestampIterator copyOf() {
-        // Method not needed for effects tests.
-        throw new UnsupportedOperationException();
-      }
-    };
   }
 
   private VideoFrameProcessorTestRunner.Builder getDefaultFrameProcessorTestRunnerBuilder(
