@@ -32,7 +32,7 @@ public final class AlphaScale implements GlEffect {
    * modify translucency.
    *
    * <p>An {@code alphaScale} value of {@code 1} means no change is applied. A value below {@code 1}
-   * reduces translucency, and a value above {@code 1} increases translucency.
+   * increases translucency, and a value above {@code 1} reduces translucency.
    */
   public AlphaScale(@FloatRange(from = 0) float alphaScale) {
     checkArgument(0 <= alphaScale);

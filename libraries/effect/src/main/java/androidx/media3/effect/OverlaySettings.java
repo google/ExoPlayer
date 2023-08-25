@@ -78,15 +78,16 @@ public final class OverlaySettings {
     }
 
     /**
-     * Sets the alpha value of the overlay, altering its transparency.
+     * Sets the alpha scale value of the overlay, altering its translucency.
      *
-     * <p>Alpha values range from 0 (all transparent) to 1 (completely opaque).
+     * <p>An {@code alpha} value of {@code 1} means no change is applied. A value below {@code 1}
+     * increases translucency, and a value above {@code 1} reduces translucency.
      *
      * <p>Set to always return {@code 1} by default.
      */
     @CanIgnoreReturnValue
-    public Builder setAlpha(@FloatRange(from = 0, to = 1) float alpha) {
-      checkArgument(0 <= alpha && alpha <= 1, "Alpha needs to be in the interval [0, 1].");
+    public Builder setAlpha(@FloatRange(from = 0) float alpha) {
+      checkArgument(0 <= alpha, "Alpha needs to be more than or equal to zero.");
       this.alpha = alpha;
       return this;
     }
