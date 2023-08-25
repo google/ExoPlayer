@@ -474,6 +474,34 @@
             "uri": "https://html5demos.com/assets/dizzy.mp4"
           }
         ]
+      },
+      {
+        "name": "Playlist: No ads - DASH live: Tears of Steel (mid) - No ads",
+        "playlist": [
+          {
+            "uri": "https://html5demos.com/assets/dizzy.mp4"
+          },
+          {
+            "uri": "ssai://dai.google.com/?assetKey=PSzZMzAkSXCmlJOWDmRj8Q&format=0&adsId=1"
+          },
+          {
+            "uri": "https://html5demos.com/assets/dizzy.mp4"
+          }
+        ]
+      },
+      {
+        "name": "Playlist: No ads - HLS live: Big Buck Bunny - No ads",
+        "playlist": [
+          {
+            "uri": "https://html5demos.com/assets/dizzy.mp4"
+          },
+          {
+            "uri": "ssai://dai.google.com/?assetKey=sN_IYUG8STe1ZzhIIE_ksA&format=2&adsId=3"
+          },
+          {
+            "uri": "https://html5demos.com/assets/dizzy.mp4"
+          }
+        ]
       }
     ]
   },

@@ -801,22 +801,16 @@ import java.util.Set;
    * index in the timeline and the {@code adIndexInAdGroup} of the first unplayed ad in that ad
    * group.
    *
-   * @param currentMediaItemIndex The {@linkplain Player#getCurrentMediaItemIndex() current media
-   *     item index}.
    * @param adPeriodIndex The index of the ad period in the timeline.
-   * @param timeline The timeline that contains the period for the ad period index.
    * @param adPlaybackState The ad playback state that holds the ad group and ad information.
+   * @param timeline The single-window timeline that contains the period for the ad period index.
    * @return A pair with the ad group index (first) and the ad index in that ad group (second).
    * @exception IllegalStateException If no unplayed ad is found before or at the start time of the
    *     ad period.
    */
   public static Pair<Integer, Integer> getAdGroupAndIndexInLiveMultiPeriodTimeline(
-      int currentMediaItemIndex,
-      int adPeriodIndex,
-      Timeline timeline,
-      AdPlaybackState adPlaybackState) {
-    Timeline.Window window =
-        timeline.getWindow(/* windowIndex= */ currentMediaItemIndex, new Timeline.Window());
+      int adPeriodIndex, AdPlaybackState adPlaybackState, Timeline timeline) {
+    Timeline.Window window = timeline.getWindow(/* windowIndex= */ 0, new Timeline.Window());
     checkArgument(window.isLive());
     Timeline.Period period = new Timeline.Period();
     timeline.getPeriod(adPeriodIndex, period, /* setIds= */ true);
@@ -846,13 +840,13 @@ import java.util.Set;
    *
    * @param adPeriodIndex The period index of the ad period.
    * @param adPlaybackState The ad playback state that holds the ad group and ad information.
-   * @param contentTimeline The timeline that contains the ad period.
+   * @param timeline The single-window timeline that contains the ad period.
    * @return A pair with the ad group index (first) and the ad index in that ad group (second).
    */
   public static Pair<Integer, Integer> getAdGroupAndIndexInVodMultiPeriodTimeline(
-      int adPeriodIndex, AdPlaybackState adPlaybackState, Timeline contentTimeline) {
-    Timeline.Window window = contentTimeline.getWindow(/* windowIndex= */ 0, new Timeline.Window());
-    checkArgument(contentTimeline.getWindowCount() == 1);
+      int adPeriodIndex, AdPlaybackState adPlaybackState, Timeline timeline) {
+    Timeline.Window window = timeline.getWindow(/* windowIndex= */ 0, new Timeline.Window());
+    checkArgument(timeline.getWindowCount() == 1);
     int periodIndex = 0;
     long totalElapsedContentDurationUs = 0;
     if (window.isLive()) {
@@ -866,8 +860,8 @@ import java.util.Set;
       AdGroup adGroup = adPlaybackState.getAdGroup(/* adGroupIndex= */ i);
       long adGroupDurationUs = sum(adGroup.durationsUs);
       long elapsedAdGroupAdDurationUs = 0;
-      for (int j = periodIndex; j < min(contentTimeline.getPeriodCount(), adPeriodIndex + 1); j++) {
-        contentTimeline.getPeriod(j, period, /* setIds= */ true);
+      for (int j = periodIndex; j < min(timeline.getPeriodCount(), adPeriodIndex + 1); j++) {
+        timeline.getPeriod(j, period, /* setIds= */ true);
         if (totalElapsedContentDurationUs < adGroup.timeUs) {
           // Period starts before the ad group, so it is a content period.
           totalElapsedContentDurationUs += period.durationUs;
