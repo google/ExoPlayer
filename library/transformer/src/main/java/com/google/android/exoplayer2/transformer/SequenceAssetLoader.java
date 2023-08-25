@@ -404,21 +404,23 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
 
     @Override
-    public boolean queueInputBitmap(Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs) {
+    public @InputResult int queueInputBitmap(
+        Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs) {
       if (isLooping) {
         long lastOffsetUs = C.TIME_UNSET;
         while (inStreamOffsetsUs.hasNext()) {
           long offsetUs = inStreamOffsetsUs.next();
           if (totalDurationUs + offsetUs > maxSequenceDurationUs) {
             if (!isMaxSequenceDurationUsFinal) {
-              return false;
+              return INPUT_RESULT_TRY_AGAIN_LATER;
             }
             if (lastOffsetUs == C.TIME_UNSET) {
               if (!videoLoopingEnded) {
                 videoLoopingEnded = true;
                 signalEndOfVideoInput();
+                return INPUT_RESULT_END_OF_STREAM;
               }
-              return false;
+              return INPUT_RESULT_TRY_AGAIN_LATER;
             }
             inStreamOffsetsUs = new ClippingIterator(inStreamOffsetsUs.copyOf(), lastOffsetUs);
             videoLoopingEnded = true;
@@ -436,14 +438,15 @@ import java.util.concurrent.atomic.AtomicInteger;
     }
 
     @Override
-    public boolean queueInputTexture(int texId, long presentationTimeUs) {
+    public @InputResult int queueInputTexture(int texId, long presentationTimeUs) {
       long globalTimestampUs = totalDurationUs + presentationTimeUs;
       if (isLooping && globalTimestampUs >= maxSequenceDurationUs) {
         if (isMaxSequenceDurationUsFinal && !videoLoopingEnded) {
           videoLoopingEnded = true;
           signalEndOfVideoInput();
+          return INPUT_RESULT_END_OF_STREAM;
         }
-        return false;
+        return INPUT_RESULT_TRY_AGAIN_LATER;
       }
       return sampleConsumer.queueInputTexture(texId, presentationTimeUs);
     }

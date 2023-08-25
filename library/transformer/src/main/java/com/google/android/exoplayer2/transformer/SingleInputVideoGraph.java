@@ -223,8 +223,11 @@ import java.util.concurrent.atomic.AtomicLong;
     }
 
     @Override
-    public boolean queueInputBitmap(Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs) {
-      return videoFrameProcessor.queueInputBitmap(inputBitmap, inStreamOffsetsUs);
+    public @InputResult int queueInputBitmap(
+        Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs) {
+      return videoFrameProcessor.queueInputBitmap(inputBitmap, inStreamOffsetsUs)
+          ? INPUT_RESULT_SUCCESS
+          : INPUT_RESULT_TRY_AGAIN_LATER;
     }
 
     @Override
@@ -233,8 +236,10 @@ import java.util.concurrent.atomic.AtomicLong;
     }
 
     @Override
-    public boolean queueInputTexture(int texId, long presentationTimeUs) {
-      return videoFrameProcessor.queueInputTexture(texId, presentationTimeUs);
+    public @InputResult int queueInputTexture(int texId, long presentationTimeUs) {
+      return videoFrameProcessor.queueInputTexture(texId, presentationTimeUs)
+          ? INPUT_RESULT_SUCCESS
+          : INPUT_RESULT_TRY_AGAIN_LATER;
     }
 
     @Override

@@ -141,8 +141,8 @@ public class TextureAssetLoaderTest {
     public void setOnInputFrameProcessedListener(OnInputFrameProcessedListener listener) {}
 
     @Override
-    public boolean queueInputTexture(int texId, long presentationTimeUs) {
-      return true;
+    public @InputResult int queueInputTexture(int texId, long presentationTimeUs) {
+      return INPUT_RESULT_SUCCESS;
     }
 
     @Override

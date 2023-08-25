@@ -627,6 +627,33 @@ public class TransformerEndToEndTest {
   }
 
   @Test
+  public void loopingImage_loopingSequenceIsLongest_producesExpectedResult() throws Exception {
+    Transformer transformer = new Transformer.Builder(context).build();
+    String testId = "loopingImage_producesExpectedResult";
+    EditedMediaItem audioEditedMediaItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(MP3_ASSET_URI_STRING)).build();
+    EditedMediaItemSequence audioSequence = new EditedMediaItemSequence(audioEditedMediaItem);
+    EditedMediaItem imageEditedMediaItem =
+        new EditedMediaItem.Builder(MediaItem.fromUri(PNG_ASSET_URI_STRING))
+            .setDurationUs(1_050_000)
+            .setFrameRate(20)
+            .build();
+    EditedMediaItemSequence loopingImageSequence =
+        new EditedMediaItemSequence(
+            ImmutableList.of(imageEditedMediaItem, imageEditedMediaItem), /* isLooping= */ true);
+    Composition composition = new Composition.Builder(audioSequence, loopingImageSequence).build();
+
+    ExportTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, transformer)
+            .build()
+            .run(testId, composition);
+
+    assertThat(result.exportResult.processedInputs).hasSize(3);
+    assertThat(result.exportResult.channelCount).isEqualTo(1);
+    assertThat(result.exportResult.durationMs).isEqualTo(1000);
+  }
+
+  @Test
   public void audioTranscode_processesInInt16Pcm() throws Exception {
     String testId = "audioTranscode_processesInInt16Pcm";
     FormatTrackingAudioBufferSink audioFormatTracker = new FormatTrackingAudioBufferSink();

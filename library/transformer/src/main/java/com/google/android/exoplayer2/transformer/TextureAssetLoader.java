@@ -16,6 +16,8 @@
 package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.transformer.ExportException.ERROR_CODE_UNSPECIFIED;
+import static com.google.android.exoplayer2.transformer.SampleConsumer.INPUT_RESULT_END_OF_STREAM;
+import static com.google.android.exoplayer2.transformer.SampleConsumer.INPUT_RESULT_TRY_AGAIN_LATER;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_AVAILABLE;
 import static com.google.android.exoplayer2.transformer.Transformer.PROGRESS_STATE_NOT_STARTED;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
@@ -25,6 +27,7 @@ import static java.lang.Math.round;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.transformer.SampleConsumer.InputResult;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.OnInputFrameProcessedListener;
 import com.google.common.collect.ImmutableMap;
@@ -54,6 +57,7 @@ public final class TextureAssetLoader implements AssetLoader {
   private @MonotonicNonNull SampleConsumer sampleConsumer;
   private @Transformer.ProgressState int progressState;
   private boolean isTrackAdded;
+  private boolean isEndOfStreamSignaled;
 
   private volatile boolean isStarted;
   private volatile long lastQueuedPresentationTimeUs;
@@ -140,8 +144,12 @@ public final class TextureAssetLoader implements AssetLoader {
           sampleConsumer.setOnInputFrameProcessedListener(frameProcessedListener);
         }
       }
-      if (!sampleConsumer.queueInputTexture(texId, presentationTimeUs)) {
+      @InputResult int result = sampleConsumer.queueInputTexture(texId, presentationTimeUs);
+      if (result == INPUT_RESULT_TRY_AGAIN_LATER) {
         return false;
+      }
+      if (result == INPUT_RESULT_END_OF_STREAM) {
+        isEndOfStreamSignaled = true;
       }
       lastQueuedPresentationTimeUs = presentationTimeUs;
       return true;
@@ -160,7 +168,10 @@ public final class TextureAssetLoader implements AssetLoader {
    */
   public void signalEndOfVideoInput() {
     try {
-      checkNotNull(sampleConsumer).signalEndOfVideoInput();
+      if (!isEndOfStreamSignaled) {
+        isEndOfStreamSignaled = true;
+        checkNotNull(sampleConsumer).signalEndOfVideoInput();
+      }
     } catch (RuntimeException e) {
       assetLoaderListener.onError(ExportException.createForAssetLoader(e, ERROR_CODE_UNSPECIFIED));
     }

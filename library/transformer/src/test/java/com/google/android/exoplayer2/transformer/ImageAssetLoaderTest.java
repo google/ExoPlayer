@@ -127,8 +127,9 @@ public class ImageAssetLoaderTest {
   private static final class FakeSampleConsumer implements SampleConsumer {
 
     @Override
-    public boolean queueInputBitmap(Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs) {
-      return true;
+    public @InputResult int queueInputBitmap(
+        Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs) {
+      return INPUT_RESULT_SUCCESS;
     }
 
     @Override

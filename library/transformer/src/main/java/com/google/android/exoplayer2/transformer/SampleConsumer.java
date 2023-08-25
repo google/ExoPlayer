@@ -15,13 +15,20 @@
  */
 package com.google.android.exoplayer2.transformer;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.graphics.Bitmap;
 import android.view.Surface;
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.util.OnInputFrameProcessedListener;
 import com.google.android.exoplayer2.util.TimestampIterator;
 import com.google.android.exoplayer2.video.ColorInfo;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Consumer of encoded media samples, raw audio or raw video frames.
@@ -33,6 +40,39 @@ import com.google.android.exoplayer2.video.ColorInfo;
  */
 @Deprecated
 public interface SampleConsumer {
+
+  /**
+   * Specifies the result of an input operation. One of {@link #INPUT_RESULT_SUCCESS}, {@link
+   * #INPUT_RESULT_TRY_AGAIN_LATER} or {@link #INPUT_RESULT_END_OF_STREAM}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
+  @IntDef({INPUT_RESULT_SUCCESS, INPUT_RESULT_TRY_AGAIN_LATER, INPUT_RESULT_END_OF_STREAM})
+  @interface InputResult {}
+
+  /**
+   * The operation of queueing input was successful.
+   *
+   * <p>The caller can queue more input or signal {@link #signalEndOfVideoInput() signal end of
+   * input}.
+   */
+  int INPUT_RESULT_SUCCESS = 1;
+
+  /**
+   * The operation of queueing/registering input was unsuccessful.
+   *
+   * <p>The caller should queue try again later.
+   */
+  int INPUT_RESULT_TRY_AGAIN_LATER = 2;
+
+  /**
+   * The operation of queueing input successful and end of input has been automatically signalled.
+   *
+   * <p>The caller should not {@link #signalEndOfVideoInput() signal end of input} as this has
+   * already been done internally.
+   */
+  int INPUT_RESULT_END_OF_STREAM = 3;
 
   /**
    * Returns a {@link DecoderInputBuffer}, if available.
@@ -80,8 +120,10 @@ public interface SampleConsumer {
    * @param inputBitmap The {@link Bitmap} to queue to the consumer.
    * @param inStreamOffsetsUs The times within the current stream that the bitmap should be
    *     displayed at. The timestamps should be monotonically increasing.
+   * @return The {@link InputResult} describing the result of the operation.
    */
-  default boolean queueInputBitmap(Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs) {
+  default @InputResult int queueInputBitmap(
+      Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs) {
     throw new UnsupportedOperationException();
   }
 
@@ -105,10 +147,9 @@ public interface SampleConsumer {
    *
    * @param texId The ID of the texture to queue to the consumer.
    * @param presentationTimeUs The presentation time for the texture, in microseconds.
-   * @return Whether the texture was successfully queued. If {@code false}, the caller should try
-   *     again later.
+   * @return The {@link InputResult} describing the result of the operation.
    */
-  default boolean queueInputTexture(int texId, long presentationTimeUs) {
+  default @InputResult int queueInputTexture(int texId, long presentationTimeUs) {
     throw new UnsupportedOperationException();
   }
 
