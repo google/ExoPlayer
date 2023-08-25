@@ -125,6 +125,8 @@ import com.google.common.collect.ImmutableList;
               Util.formatInvariant("uOverlayTexSampler%d", texUnitIndex),
               overlay.getTextureId(presentationTimeUs),
               texUnitIndex);
+          OverlaySettings overlaySettings = overlay.getOverlaySettings(presentationTimeUs);
+          Size overlaySize = overlay.getTextureSize(presentationTimeUs);
 
           GlUtil.setToIdentity(aspectRatioMatrix);
           GlUtil.setToIdentity(videoFrameAnchorMatrix);
@@ -139,8 +141,7 @@ import com.google.common.collect.ImmutableList;
           GlUtil.setToIdentity(transformationMatrix);
 
           // Anchor point of overlay within output frame.
-          Pair<Float, Float> videoFrameAnchor =
-              overlay.getOverlaySettings(presentationTimeUs).videoFrameAnchor;
+          Pair<Float, Float> videoFrameAnchor = overlaySettings.videoFrameAnchor;
           Matrix.translateM(
               videoFrameAnchorMatrix,
               MATRIX_OFFSET,
@@ -153,12 +154,12 @@ import com.google.common.collect.ImmutableList;
           Matrix.scaleM(
               aspectRatioMatrix,
               MATRIX_OFFSET,
-              videoWidth / (float) overlay.getTextureSize(presentationTimeUs).getWidth(),
-              videoHeight / (float) overlay.getTextureSize(presentationTimeUs).getHeight(),
+              videoWidth / (float) overlaySize.getWidth(),
+              videoHeight / (float) overlaySize.getHeight(),
               /* z= */ 1f);
 
           // Scale the image.
-          Pair<Float, Float> scale = overlay.getOverlaySettings(presentationTimeUs).scale;
+          Pair<Float, Float> scale = overlaySettings.scale;
           Matrix.scaleM(
               scaleMatrix,
               MATRIX_OFFSET,
@@ -170,8 +171,7 @@ import com.google.common.collect.ImmutableList;
           Matrix.invertM(scaleMatrixInv, MATRIX_OFFSET, scaleMatrix, MATRIX_OFFSET);
 
           // Translate the overlay within its frame.
-          Pair<Float, Float> overlayAnchor =
-              overlay.getOverlaySettings(presentationTimeUs).overlayAnchor;
+          Pair<Float, Float> overlayAnchor = overlaySettings.overlayAnchor;
           Matrix.translateM(
               overlayAnchorMatrix,
               MATRIX_OFFSET,
@@ -186,7 +186,7 @@ import com.google.common.collect.ImmutableList;
               MATRIX_OFFSET,
               rotateMatrix,
               MATRIX_OFFSET,
-              overlay.getOverlaySettings(presentationTimeUs).rotationDegrees,
+              overlaySettings.rotationDegrees,
               /* x= */ 0f,
               /* y= */ 0f,
               /* z= */ 1f);
@@ -196,8 +196,7 @@ import com.google.common.collect.ImmutableList;
           Matrix.scaleM(
               overlayAspectRatioMatrix,
               MATRIX_OFFSET,
-              (float) overlay.getTextureSize(presentationTimeUs).getHeight()
-                  / (float) overlay.getTextureSize(presentationTimeUs).getWidth(),
+              (float) overlaySize.getHeight() / (float) overlaySize.getWidth(),
               /* y= */ 1f,
               /* z= */ 1f);
           Matrix.invertM(
@@ -285,8 +284,7 @@ import com.google.common.collect.ImmutableList;
               Util.formatInvariant("uTransformationMatrix%d", texUnitIndex), transformationMatrix);
 
           glProgram.setFloatUniform(
-              Util.formatInvariant("uOverlayAlpha%d", texUnitIndex),
-              overlay.getOverlaySettings(presentationTimeUs).alpha);
+              Util.formatInvariant("uOverlayAlpha%d", texUnitIndex), overlaySettings.alpha);
         }
       }
       glProgram.setSamplerTexIdUniform("uVideoTexSampler0", inputTexId, /* texUnitIndex= */ 0);
@@ -360,13 +358,13 @@ import com.google.common.collect.ImmutableList;
             .append(
                 "// (https://open.gl/textures) since it's not implemented until OpenGL ES 3.2.\n")
             .append("vec4 getClampToBorderOverlayColor(\n")
-            .append("    sampler2D texSampler, vec2 texSamplingCoord, float alpha){\n")
+            .append("    sampler2D texSampler, vec2 texSamplingCoord, float alphaScale){\n")
             .append("  if (texSamplingCoord.x > 1.0 || texSamplingCoord.x < 0.0\n")
             .append("      || texSamplingCoord.y > 1.0 || texSamplingCoord.y < 0.0) {\n")
             .append("    return vec4(0.0, 0.0, 0.0, 0.0);\n")
             .append("  } else {\n")
             .append("    vec4 overlayColor = vec4(texture2D(texSampler, texSamplingCoord));\n")
-            .append("    overlayColor.a = alpha * overlayColor.a;\n")
+            .append("    overlayColor.a = alphaScale * overlayColor.a;\n")
             .append("    return overlayColor;\n")
             .append("  }\n")
             .append("}\n")
