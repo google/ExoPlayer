@@ -48,7 +48,7 @@ public final class PlaylistPlaybackTest {
       ShadowMediaCodecConfig.forAllSupportedMimeTypes();
 
   @Test
-  public void test_bypassOnThenOn() throws Exception {
+  public void test_bypassOnThenOff() throws Exception {
     Context applicationContext = ApplicationProvider.getApplicationContext();
     CapturingRenderersFactory capturingRenderersFactory =
         new CapturingRenderersFactory(applicationContext);
@@ -81,8 +81,13 @@ public final class PlaylistPlaybackTest {
     PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
 
     player.addMediaItem(MediaItem.fromUri("asset:///media/mka/bear-opus.mka"));
-    player.addMediaItem(MediaItem.fromUri("asset:///media/wav/sample.wav"));
     player.prepare();
+    TestPlayerRunHelper.runUntilIsLoading(player, /* expectedIsLoading= */ true);
+    TestPlayerRunHelper.runUntilIsLoading(player, /* expectedIsLoading= */ false);
+    player.addMediaItem(MediaItem.fromUri("asset:///media/wav/sample.wav"));
+    TestPlayerRunHelper.runUntilIsLoading(player, /* expectedIsLoading= */ true);
+    TestPlayerRunHelper.runUntilIsLoading(player, /* expectedIsLoading= */ false);
+    // Wait until second period has fully loaded to start the playback.
     player.play();
     TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
     player.release();
@@ -109,6 +114,9 @@ public final class PlaylistPlaybackTest {
     PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
 
     player.addMediaItem(MediaItem.fromUri("asset:///media/mp4/preroll-5s.mp4"));
+    player.prepare();
+    TestPlayerRunHelper.runUntilIsLoading(player, /* expectedIsLoading= */ true);
+    TestPlayerRunHelper.runUntilIsLoading(player, /* expectedIsLoading= */ false);
     MediaItem mediaItemWithSubtitle =
         new MediaItem.Builder()
             .setUri("asset:///media/mp4/preroll-5s.mp4")
@@ -122,7 +130,9 @@ public final class PlaylistPlaybackTest {
                         .build()))
             .build();
     player.addMediaItem(mediaItemWithSubtitle);
-    player.prepare();
+    TestPlayerRunHelper.runUntilIsLoading(player, /* expectedIsLoading= */ true);
+    TestPlayerRunHelper.runUntilIsLoading(player, /* expectedIsLoading= */ false);
+    // Wait until second period has fully loaded to start the playback.
     player.play();
     TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
     player.release();
