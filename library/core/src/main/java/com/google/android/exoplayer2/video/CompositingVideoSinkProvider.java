@@ -239,8 +239,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       // Playback thread handler.
       handler = Util.createHandlerForCurrentLooper();
 
-      Pair<ColorInfo, ColorInfo> inputAndOutputColorInfos =
-          experimentalGetVideoFrameProcessorColorConfiguration(sourceFormat.colorInfo);
+      ColorInfo inputColorInfo =
+          sourceFormat.colorInfo != null && ColorInfo.isTransferHdr(sourceFormat.colorInfo)
+              ? sourceFormat.colorInfo
+              : ColorInfo.SDR_BT709_LIMITED;
+      ColorInfo outputColorInfo = inputColorInfo;
+      if (inputColorInfo.colorTransfer == C.COLOR_TRANSFER_HLG) {
+        // SurfaceView only supports BT2020 PQ input. Therefore, convert HLG to PQ.
+        outputColorInfo =
+            inputColorInfo.buildUpon().setColorTransfer(C.COLOR_TRANSFER_ST2084).build();
+      }
 
       @SuppressWarnings("nullness:assignment")
       @Initialized
@@ -249,8 +257,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           videoFrameProcessorFactory.create(
               context,
               DebugViewProvider.NONE,
-              inputAndOutputColorInfos.first,
-              inputAndOutputColorInfos.second,
+              inputColorInfo,
+              outputColorInfo,
               /* renderFramesAutomatically= */ false,
               /* listenerExecutor= */ handler::post,
               thisRef);
@@ -514,29 +522,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           new FrameInfo.Builder(inputFormat.width, inputFormat.height)
               .setPixelWidthHeightRatio(inputFormat.pixelWidthHeightRatio)
               .build());
-    }
-
-    /**
-     * Returns a {@link Pair} of {@linkplain ColorInfo input color} and {@linkplain ColorInfo output
-     * color} to configure the {@code VideoFrameProcessor}.
-     */
-    private static Pair<ColorInfo, ColorInfo> experimentalGetVideoFrameProcessorColorConfiguration(
-        @Nullable ColorInfo inputColorInfo) {
-      // TODO b/279163661 - Remove this method after VideoFrameProcessor supports texture ID
-      //  input/output.
-      // explicit check for nullness
-      if (inputColorInfo == null || !ColorInfo.isTransferHdr(inputColorInfo)) {
-        return Pair.create(ColorInfo.SDR_BT709_LIMITED, ColorInfo.SDR_BT709_LIMITED);
-      }
-
-      if (inputColorInfo.colorTransfer == C.COLOR_TRANSFER_HLG) {
-        // SurfaceView only supports BT2020 PQ input, converting HLG to PQ.
-        return Pair.create(
-            inputColorInfo,
-            inputColorInfo.buildUpon().setColorTransfer(C.COLOR_TRANSFER_ST2084).build());
-      }
-
-      return Pair.create(inputColorInfo, inputColorInfo);
     }
 
     /**
