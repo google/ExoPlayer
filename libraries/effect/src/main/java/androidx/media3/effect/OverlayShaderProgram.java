@@ -17,10 +17,7 @@ package androidx.media3.effect;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
 
-import android.content.Context;
 import android.opengl.GLES20;
-import android.opengl.Matrix;
-import android.util.Pair;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
@@ -31,35 +28,18 @@ import com.google.common.collect.ImmutableList;
 /** Applies zero or more {@link TextureOverlay}s onto each frame. */
 /* package */ final class OverlayShaderProgram extends BaseGlShaderProgram {
 
-  private static final int MATRIX_OFFSET = 0;
-
   private final GlProgram glProgram;
+  private final OverlayMatrixProvider overlayMatrixProvider;
   private final ImmutableList<TextureOverlay> overlays;
-  private final float[] videoFrameAnchorMatrix;
-  private final float[] videoFrameAnchorMatrixInv;
-  private final float[] aspectRatioMatrix;
-  private final float[] scaleMatrix;
-  private final float[] scaleMatrixInv;
-  private final float[] overlayAnchorMatrix;
-  private final float[] overlayAnchorMatrixInv;
-  private final float[] rotateMatrix;
-  private final float[] overlayAspectRatioMatrix;
-  private final float[] overlayAspectRatioMatrixInv;
-  private final float[] transformationMatrix;
-
-  private int videoWidth;
-  private int videoHeight;
 
   /**
    * Creates a new instance.
    *
-   * @param context The {@link Context}.
    * @param useHdr Whether input textures come from an HDR source. If {@code true}, colors will be
    *     in linear RGB BT.2020. If {@code false}, colors will be in linear RGB BT.709.
    * @throws VideoFrameProcessingException If a problem occurs while reading shader files.
    */
-  public OverlayShaderProgram(
-      Context context, boolean useHdr, ImmutableList<TextureOverlay> overlays)
+  public OverlayShaderProgram(boolean useHdr, ImmutableList<TextureOverlay> overlays)
       throws VideoFrameProcessingException {
     super(/* useHighPrecisionColorComponents= */ useHdr, /* texturePoolCapacity= */ 1);
     checkArgument(!useHdr, "OverlayShaderProgram does not support HDR colors yet.");
@@ -69,17 +49,7 @@ import com.google.common.collect.ImmutableList;
         overlays.size() <= 15,
         "OverlayShaderProgram does not support more than 15 overlays in the same instance.");
     this.overlays = overlays;
-    aspectRatioMatrix = GlUtil.create4x4IdentityMatrix();
-    videoFrameAnchorMatrix = GlUtil.create4x4IdentityMatrix();
-    videoFrameAnchorMatrixInv = GlUtil.create4x4IdentityMatrix();
-    overlayAnchorMatrix = GlUtil.create4x4IdentityMatrix();
-    overlayAnchorMatrixInv = GlUtil.create4x4IdentityMatrix();
-    rotateMatrix = GlUtil.create4x4IdentityMatrix();
-    scaleMatrix = GlUtil.create4x4IdentityMatrix();
-    scaleMatrixInv = GlUtil.create4x4IdentityMatrix();
-    overlayAspectRatioMatrix = GlUtil.create4x4IdentityMatrix();
-    overlayAspectRatioMatrixInv = GlUtil.create4x4IdentityMatrix();
-    transformationMatrix = GlUtil.create4x4IdentityMatrix();
+    this.overlayMatrixProvider = new OverlayMatrixProvider();
     try {
       glProgram =
           new GlProgram(createVertexShader(overlays.size()), createFragmentShader(overlays.size()));
@@ -95,9 +65,8 @@ import com.google.common.collect.ImmutableList;
 
   @Override
   public Size configure(int inputWidth, int inputHeight) {
-    videoWidth = inputWidth;
-    videoHeight = inputHeight;
     Size videoSize = new Size(inputWidth, inputHeight);
+    overlayMatrixProvider.configure(/* backgroundSize= */ videoSize);
     for (TextureOverlay overlay : overlays) {
       overlay.configure(videoSize);
     }
@@ -120,160 +89,9 @@ import com.google.common.collect.ImmutableList;
           OverlaySettings overlaySettings = overlay.getOverlaySettings(presentationTimeUs);
           Size overlaySize = overlay.getTextureSize(presentationTimeUs);
 
-          GlUtil.setToIdentity(aspectRatioMatrix);
-          GlUtil.setToIdentity(videoFrameAnchorMatrix);
-          GlUtil.setToIdentity(videoFrameAnchorMatrixInv);
-          GlUtil.setToIdentity(overlayAnchorMatrix);
-          GlUtil.setToIdentity(overlayAnchorMatrixInv);
-          GlUtil.setToIdentity(scaleMatrix);
-          GlUtil.setToIdentity(scaleMatrixInv);
-          GlUtil.setToIdentity(rotateMatrix);
-          GlUtil.setToIdentity(overlayAspectRatioMatrix);
-          GlUtil.setToIdentity(overlayAspectRatioMatrixInv);
-          GlUtil.setToIdentity(transformationMatrix);
-
-          // Anchor point of overlay within output frame.
-          Pair<Float, Float> videoFrameAnchor = overlaySettings.videoFrameAnchor;
-          Matrix.translateM(
-              videoFrameAnchorMatrix,
-              MATRIX_OFFSET,
-              videoFrameAnchor.first,
-              videoFrameAnchor.second,
-              /* z= */ 0f);
-          Matrix.invertM(
-              videoFrameAnchorMatrixInv, MATRIX_OFFSET, videoFrameAnchorMatrix, MATRIX_OFFSET);
-
-          Matrix.scaleM(
-              aspectRatioMatrix,
-              MATRIX_OFFSET,
-              videoWidth / (float) overlaySize.getWidth(),
-              videoHeight / (float) overlaySize.getHeight(),
-              /* z= */ 1f);
-
-          // Scale the image.
-          Pair<Float, Float> scale = overlaySettings.scale;
-          Matrix.scaleM(
-              scaleMatrix,
-              MATRIX_OFFSET,
-              scaleMatrix,
-              MATRIX_OFFSET,
-              scale.first,
-              scale.second,
-              /* z= */ 1f);
-          Matrix.invertM(scaleMatrixInv, MATRIX_OFFSET, scaleMatrix, MATRIX_OFFSET);
-
-          // Translate the overlay within its frame.
-          Pair<Float, Float> overlayAnchor = overlaySettings.overlayAnchor;
-          Matrix.translateM(
-              overlayAnchorMatrix,
-              MATRIX_OFFSET,
-              overlayAnchor.first,
-              overlayAnchor.second,
-              /* z= */ 0f);
-          Matrix.invertM(overlayAnchorMatrixInv, MATRIX_OFFSET, overlayAnchorMatrix, MATRIX_OFFSET);
-
-          // Rotate the image.
-          Matrix.rotateM(
-              rotateMatrix,
-              MATRIX_OFFSET,
-              rotateMatrix,
-              MATRIX_OFFSET,
-              overlaySettings.rotationDegrees,
-              /* x= */ 0f,
-              /* y= */ 0f,
-              /* z= */ 1f);
-          Matrix.invertM(rotateMatrix, MATRIX_OFFSET, rotateMatrix, MATRIX_OFFSET);
-
-          // Rotation matrix needs to account for overlay aspect ratio to prevent stretching.
-          Matrix.scaleM(
-              overlayAspectRatioMatrix,
-              MATRIX_OFFSET,
-              (float) overlaySize.getHeight() / (float) overlaySize.getWidth(),
-              /* y= */ 1f,
-              /* z= */ 1f);
-          Matrix.invertM(
-              overlayAspectRatioMatrixInv, MATRIX_OFFSET, overlayAspectRatioMatrix, MATRIX_OFFSET);
-
-          // Rotation needs to be agnostic of the scaling matrix and the aspect ratios.
-          Matrix.multiplyMM(
-              transformationMatrix,
-              MATRIX_OFFSET,
-              transformationMatrix,
-              MATRIX_OFFSET,
-              scaleMatrixInv,
-              MATRIX_OFFSET);
-
-          Matrix.multiplyMM(
-              transformationMatrix,
-              MATRIX_OFFSET,
-              transformationMatrix,
-              MATRIX_OFFSET,
-              overlayAspectRatioMatrix,
-              MATRIX_OFFSET);
-
-          // Rotation matrix.
-          Matrix.multiplyMM(
-              transformationMatrix,
-              MATRIX_OFFSET,
-              transformationMatrix,
-              MATRIX_OFFSET,
-              rotateMatrix,
-              MATRIX_OFFSET);
-
-          Matrix.multiplyMM(
-              transformationMatrix,
-              MATRIX_OFFSET,
-              transformationMatrix,
-              MATRIX_OFFSET,
-              overlayAspectRatioMatrixInv,
-              MATRIX_OFFSET);
-
-          Matrix.multiplyMM(
-              transformationMatrix,
-              MATRIX_OFFSET,
-              transformationMatrix,
-              MATRIX_OFFSET,
-              scaleMatrix,
-              MATRIX_OFFSET);
-
-          // Translate image.
-          Matrix.multiplyMM(
-              transformationMatrix,
-              MATRIX_OFFSET,
-              transformationMatrix,
-              MATRIX_OFFSET,
-              overlayAnchorMatrixInv,
-              MATRIX_OFFSET);
-
-          // Scale image.
-          Matrix.multiplyMM(
-              transformationMatrix,
-              MATRIX_OFFSET,
-              transformationMatrix,
-              MATRIX_OFFSET,
-              scaleMatrixInv,
-              MATRIX_OFFSET);
-
-          // Correct for aspect ratio of image in output frame.
-          Matrix.multiplyMM(
-              transformationMatrix,
-              MATRIX_OFFSET,
-              transformationMatrix,
-              MATRIX_OFFSET,
-              aspectRatioMatrix,
-              MATRIX_OFFSET);
-
-          // Anchor position in output frame.
-          Matrix.multiplyMM(
-              transformationMatrix,
-              MATRIX_OFFSET,
-              transformationMatrix,
-              MATRIX_OFFSET,
-              videoFrameAnchorMatrixInv,
-              MATRIX_OFFSET);
-
           glProgram.setFloatsUniform(
-              Util.formatInvariant("uTransformationMatrix%d", texUnitIndex), transformationMatrix);
+              Util.formatInvariant("uTransformationMatrix%d", texUnitIndex),
+              overlayMatrixProvider.getTransformationMatrix(overlaySize, overlaySettings));
 
           glProgram.setFloatUniform(
               Util.formatInvariant("uOverlayAlphaScale%d", texUnitIndex),
