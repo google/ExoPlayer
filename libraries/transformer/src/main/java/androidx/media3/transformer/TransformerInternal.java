@@ -50,7 +50,6 @@ import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.ConditionVariable;
 import androidx.media3.common.util.HandlerWrapper;
-import androidx.media3.effect.Presentation;
 import androidx.media3.effect.ScaleAndRotateTransformation;
 import com.google.common.collect.ImmutableList;
 import java.lang.annotation.Documented;
@@ -591,11 +590,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
       } else {
         ImmutableList<Effect> compositionVideoEffects = composition.effects.videoEffects;
-        @Nullable
-        Presentation compositionPresentation =
-            compositionVideoEffects.isEmpty()
-                ? null
-                : (Presentation) compositionVideoEffects.get(0);
         // TODO(b/267301878): Pass firstAssetLoaderOutputFormat once surface creation not in VSP.
         assetLoaderInputTracker.registerSampleExporter(
             C.TRACK_TYPE_VIDEO,
@@ -603,7 +597,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 context,
                 firstAssetLoaderInputFormat,
                 transformationRequest,
-                compositionPresentation,
+                compositionVideoEffects,
                 videoFrameProcessorFactory,
                 encoderFactory,
                 muxerWrapper,

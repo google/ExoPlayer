@@ -36,6 +36,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.media3.common.C;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.DebugViewProvider;
+import androidx.media3.common.Effect;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.SurfaceInfo;
@@ -46,12 +47,12 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.effect.DebugTraceUtil;
-import androidx.media3.effect.Presentation;
 import androidx.media3.exoplayer.mediacodec.MediaCodecUtil;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.nio.ByteBuffer;
 import java.util.List;
+import org.checkerframework.checker.initialization.qual.Initialized;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.dataflow.qual.Pure;
 
@@ -59,7 +60,7 @@ import org.checkerframework.dataflow.qual.Pure;
 /* package */ final class VideoSampleExporter extends SampleExporter {
 
   private static final String TAG = "VideoSampleExporter";
-  private final SingleInputVideoGraph singleInputVideoGraph;
+  private final VideoGraph videoGraph;
   private final EncoderWrapper encoderWrapper;
   private final DecoderInputBuffer encoderOutputBuffer;
 
@@ -75,7 +76,7 @@ import org.checkerframework.dataflow.qual.Pure;
       Context context,
       Format firstInputFormat,
       TransformationRequest transformationRequest,
-      @Nullable Presentation presentation,
+      List<Effect> compositionEffects,
       VideoFrameProcessor.Factory videoFrameProcessorFactory,
       Codec.EncoderFactory encoderFactory,
       MuxerWrapper muxerWrapper,
@@ -86,7 +87,6 @@ import org.checkerframework.dataflow.qual.Pure;
     // TODO(b/278259383) Consider delaying configuration of VideoSampleExporter to use the decoder
     //  output format instead of the extractor output format, to match AudioSampleExporter behavior.
     super(firstInputFormat, muxerWrapper);
-
     finalFramePresentationTimeUs = C.TIME_UNSET;
 
     ColorInfo decoderInputColor;
@@ -111,80 +111,60 @@ import org.checkerframework.dataflow.qual.Pure;
     boolean isMediaCodecToneMapping =
         encoderWrapper.getHdrModeAfterFallback() == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC
             && ColorInfo.isTransferHdr(decoderInputColor);
-    ColorInfo videoFrameProcessorInputColor =
+    ColorInfo videoGraphInputColor =
         isMediaCodecToneMapping ? SDR_BT709_LIMITED : decoderInputColor;
 
     boolean isGlToneMapping =
         ColorInfo.isTransferHdr(decoderInputColor)
             && transformationRequest.hdrMode == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL;
-    ColorInfo videoFrameProcessorOutputColor;
-    if (videoFrameProcessorInputColor.colorTransfer == C.COLOR_TRANSFER_SRGB) {
+    ColorInfo videoGraphOutputColor;
+    if (videoGraphInputColor.colorTransfer == C.COLOR_TRANSFER_SRGB) {
       // The sRGB color transfer is only used for images, so when an image gets transcoded into a
       // video, we use the SMPTE 170M transfer function for the resulting video.
-      videoFrameProcessorOutputColor = SDR_BT709_LIMITED;
+      videoGraphOutputColor = SDR_BT709_LIMITED;
     } else if (isGlToneMapping) {
       // For consistency with the Android platform, OpenGL tone mapping outputs colors with
       // C.COLOR_TRANSFER_GAMMA_2_2 instead of C.COLOR_TRANSFER_SDR, and outputs this as
       // C.COLOR_TRANSFER_SDR to the encoder.
-      videoFrameProcessorOutputColor =
+      videoGraphOutputColor =
           new ColorInfo.Builder()
               .setColorSpace(C.COLOR_SPACE_BT709)
               .setColorRange(C.COLOR_RANGE_LIMITED)
               .setColorTransfer(C.COLOR_TRANSFER_GAMMA_2_2)
               .build();
     } else {
-      videoFrameProcessorOutputColor = videoFrameProcessorInputColor;
+      videoGraphOutputColor = videoGraphInputColor;
     }
 
     try {
-      singleInputVideoGraph =
-          new SingleInputVideoGraph(
+      videoGraph =
+          new VideoGraphWrapper(
               context,
-              videoFrameProcessorFactory,
-              videoFrameProcessorInputColor,
-              videoFrameProcessorOutputColor,
-              new SingleInputVideoGraph.Listener() {
-                @Nullable
-                @Override
-                public SurfaceInfo onOutputSizeChanged(int width, int height) {
-                  @Nullable SurfaceInfo surfaceInfo = null;
-                  try {
-                    surfaceInfo = encoderWrapper.getSurfaceInfo(width, height);
-                  } catch (ExportException e) {
-                    errorConsumer.accept(e);
-                  }
-                  return surfaceInfo;
-                }
-
-                @Override
-                public void onEnded(long finalFramePresentationTimeUs) {
-                  VideoSampleExporter.this.finalFramePresentationTimeUs =
-                      finalFramePresentationTimeUs;
-                  try {
-                    encoderWrapper.signalEndOfInputStream();
-                  } catch (ExportException e) {
-                    errorConsumer.accept(e);
-                  }
-                }
-              },
+              new SingleInputVideoGraph.Factory(videoFrameProcessorFactory),
+              videoGraphInputColor,
+              videoGraphOutputColor,
               errorConsumer,
               debugViewProvider,
-              MoreExecutors.directExecutor(),
-              /* renderFramesAutomatically= */ true,
-              presentation);
+              compositionEffects);
+      videoGraph.initialize();
     } catch (VideoFrameProcessingException e) {
       throw ExportException.createForVideoFrameProcessingException(e);
     }
   }
 
   @Override
-  public GraphInput getInput(EditedMediaItem item, Format format) {
-    return singleInputVideoGraph.getInput();
+  public GraphInput getInput(EditedMediaItem editedMediaItem, Format format)
+      throws ExportException {
+    try {
+      return videoGraph.getInput();
+    } catch (VideoFrameProcessingException e) {
+      throw ExportException.createForVideoFrameProcessingException(e);
+    }
   }
 
   @Override
   public void release() {
-    singleInputVideoGraph.release();
+    videoGraph.release();
     encoderWrapper.release();
   }
 
@@ -206,7 +186,7 @@ import org.checkerframework.dataflow.qual.Pure;
       // Internal ref b/235045165: Some encoder incorrectly set a zero presentation time on the
       // penultimate buffer (before EOS), and sets the actual timestamp on the EOS buffer. Use the
       // last processed frame presentation time instead.
-      if (singleInputVideoGraph.hasProducedFrameWithTimestampZero() == hasMuxedTimestampZero
+      if (videoGraph.hasProducedFrameWithTimestampZero() == hasMuxedTimestampZero
           && finalFramePresentationTimeUs != C.TIME_UNSET
           && bufferInfo.size > 0) {
         bufferInfo.presentationTimeUs = finalFramePresentationTimeUs;
@@ -476,6 +456,81 @@ import org.checkerframework.dataflow.qual.Pure;
         encoder.release();
       }
       releaseEncoder = true;
+    }
+  }
+
+  private final class VideoGraphWrapper implements VideoGraph, VideoGraph.Listener {
+
+    private final VideoGraph videoGraph;
+    private final Consumer<ExportException> errorConsumer;
+
+    public VideoGraphWrapper(
+        Context context,
+        VideoGraph.Factory videoGraphFactory,
+        ColorInfo videoFrameProcessorInputColor,
+        ColorInfo videoFrameProcessorOutputColor,
+        Consumer<ExportException> errorConsumer,
+        DebugViewProvider debugViewProvider,
+        List<Effect> compositionEffects)
+        throws VideoFrameProcessingException {
+      this.errorConsumer = errorConsumer;
+      // To satisfy the nullness checker by declaring an initialized this reference used in the
+      // videoGraphFactory.create method
+      @SuppressWarnings("nullness:assignment")
+      @Initialized
+      VideoGraphWrapper thisRef = this;
+      videoGraph =
+          videoGraphFactory.create(
+              context,
+              videoFrameProcessorInputColor,
+              videoFrameProcessorOutputColor,
+              errorConsumer,
+              debugViewProvider,
+              /* listener= */ thisRef,
+              /* listenerExecutor= */ MoreExecutors.directExecutor(),
+              compositionEffects);
+    }
+
+    @Nullable
+    @Override
+    public SurfaceInfo onOutputSizeChanged(int width, int height) {
+      @Nullable SurfaceInfo surfaceInfo = null;
+      try {
+        surfaceInfo = encoderWrapper.getSurfaceInfo(width, height);
+      } catch (ExportException e) {
+        errorConsumer.accept(e);
+      }
+      return surfaceInfo;
+    }
+
+    @Override
+    public void onEnded(long finalFramePresentationTimeUs) {
+      VideoSampleExporter.this.finalFramePresentationTimeUs = finalFramePresentationTimeUs;
+      try {
+        encoderWrapper.signalEndOfInputStream();
+      } catch (ExportException e) {
+        errorConsumer.accept(e);
+      }
+    }
+
+    @Override
+    public void initialize() throws VideoFrameProcessingException {
+      videoGraph.initialize();
+    }
+
+    @Override
+    public GraphInput getInput() throws VideoFrameProcessingException {
+      return videoGraph.getInput();
+    }
+
+    @Override
+    public boolean hasProducedFrameWithTimestampZero() {
+      return videoGraph.hasProducedFrameWithTimestampZero();
+    }
+
+    @Override
+    public void release() {
+      videoGraph.release();
     }
   }
 }
