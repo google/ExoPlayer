@@ -6,7 +6,11 @@ seekMap:
 numberOfTracks = 1
 track 1024:
   total output bytes = 29063
-  sample count = 0
+  sample count = 1
   format 0:
     containerMimeType = image/png
+  sample 0:
+    time = 0
+    flags = 1
+    data = length 29063, hash 4AC2C4FC
 tracksEnded = true

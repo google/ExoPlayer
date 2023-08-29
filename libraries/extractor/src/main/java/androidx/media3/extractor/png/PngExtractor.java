@@ -15,6 +15,7 @@
  */
 package androidx.media3.extractor.png;
 
+import static androidx.media3.common.C.BUFFER_FLAG_KEY_FRAME;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.extractor.ImageExtractorUtil.IMAGE_TRACK_ID;
 import static java.lang.annotation.ElementType.TYPE_USE;
@@ -37,6 +38,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
 /** Extracts data from the PNG container format. */
 @UnstableApi
@@ -61,6 +63,7 @@ public final class PngExtractor implements Extractor {
 
   private final ParsableByteArray scratch;
 
+  private int size;
   private @State int state;
   private @MonotonicNonNull ExtractorOutput extractorOutput;
 
@@ -102,13 +105,20 @@ public final class PngExtractor implements Extractor {
     int result = trackOutput.sampleData(input, FIXED_READ_LENGTH, /* allowEndOfInput= */ true);
     if (result == C.RESULT_END_OF_INPUT) {
       state = STATE_ENDED;
+      @C.BufferFlags int flags = BUFFER_FLAG_KEY_FRAME;
+      trackOutput.sampleMetadata(
+          /* timeUs= */ 0, flags, size, /* offset= */ 0, /* cryptoData= */ null);
+      size = 0;
+    } else {
+      size += result;
     }
   }
 
+  @RequiresNonNull("this.extractorOutput")
   private void outputImageTrackAndSeekMap() {
-    ExtractorOutput extractorOutput = checkNotNull(this.extractorOutput);
-    TrackOutput imageTrackOutput = extractorOutput.track(IMAGE_TRACK_ID, C.TRACK_TYPE_IMAGE);
-    imageTrackOutput.format(
+    TrackOutput trackOutput =
+        checkNotNull(extractorOutput).track(IMAGE_TRACK_ID, C.TRACK_TYPE_IMAGE);
+    trackOutput.format(
         new Format.Builder()
             .setContainerMimeType(MimeTypes.IMAGE_PNG)
             .setTileCountHorizontal(1)
@@ -124,11 +134,13 @@ public final class PngExtractor implements Extractor {
     if (position == 0) {
       state = STATE_READING_IMAGE;
     }
+    if (state == STATE_READING_IMAGE) {
+      size = 0;
+    }
   }
 
   @Override
   public void release() {
     // Do nothing.
-
   }
 }
