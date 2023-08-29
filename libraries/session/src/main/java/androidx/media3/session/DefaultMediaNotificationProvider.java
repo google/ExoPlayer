@@ -237,6 +237,13 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
   public static final int DEFAULT_CHANNEL_NAME_RESOURCE_ID =
       R.string.default_notification_channel_name;
 
+  /**
+   * The group key used for the {@link NotificationCompat.Builder#setGroup(String)} to avoid the
+   * media notification being auto-grouped with the other notifications. The other notifications
+   * sent from the app shouldn't use this group key.
+   */
+  public static final String GROUP_KEY = "media3_group_key";
+
   private static final String TAG = "NotificationProvider";
 
   private final Context context;
@@ -385,6 +392,7 @@ public class DefaultMediaNotificationProvider implements MediaNotification.Provi
             .setStyle(mediaStyle)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setOngoing(false)
+            .setGroup(GROUP_KEY)
             .build();
     return new MediaNotification(notificationId, notification);
   }
