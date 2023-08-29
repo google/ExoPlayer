@@ -73,9 +73,6 @@ public class MediaSessionCompatCallbackWithMediaControllerTest {
   // The maximum time to wait for an operation.
   private static final long TIMEOUT_MS = 3000L;
 
-  // Timeout used where the test expects no operation.
-  private static final long NOOP_TIMEOUT_MS = 500L;
-
   @ClassRule public static MainLooperTestRule mainLooperTestRule = new MainLooperTestRule();
 
   @Rule public final HandlerThreadTestRule threadTestRule = new HandlerThreadTestRule(TAG);
@@ -171,13 +168,14 @@ public class MediaSessionCompatCallbackWithMediaControllerTest {
     session.setQueue(testQueue);
     session.setFlags(FLAG_HANDLES_QUEUE_COMMANDS);
     RemoteMediaController controller = createControllerAndWaitConnection();
-    controller.prepare();
-    sessionCallback.reset(1);
+    sessionCallback.reset(/* count= */ 2);
 
+    controller.prepare();
     controller.stop();
 
     assertThat(sessionCallback.await(TIMEOUT_MS)).isTrue();
-    assertThat(sessionCallback.onStopCalled).isEqualTo(true);
+    assertThat(sessionCallback.onPrepareCalled).isTrue();
+    assertThat(sessionCallback.onStopCalled).isTrue();
   }
 
   @Test
@@ -188,7 +186,7 @@ public class MediaSessionCompatCallbackWithMediaControllerTest {
     controller.seekToDefaultPosition();
     assertThat(sessionCallback.await(TIMEOUT_MS)).isTrue();
     assertThat(sessionCallback.onSeekToCalled).isTrue();
-    assertThat(sessionCallback.seekPosition).isEqualTo(/* pos= */ 0);
+    assertThat(sessionCallback.seekPosition).isEqualTo(0);
   }
 
   @Test
@@ -208,7 +206,7 @@ public class MediaSessionCompatCallbackWithMediaControllerTest {
     assertThat(sessionCallback.queueItemId)
         .isEqualTo(testQueue.get(testMediaItemIndex).getQueueId());
     assertThat(sessionCallback.onSeekToCalled).isTrue();
-    assertThat(sessionCallback.seekPosition).isEqualTo(/* pos= */ 0);
+    assertThat(sessionCallback.seekPosition).isEqualTo(0);
   }
 
   @Test
