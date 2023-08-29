@@ -43,7 +43,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.effect.Presentation;
 import com.google.android.exoplayer2.effect.ScaleAndRotateTransformation;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.ConditionVariable;
@@ -592,11 +591,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
       } else {
         ImmutableList<Effect> compositionVideoEffects = composition.effects.videoEffects;
-        @Nullable
-        Presentation compositionPresentation =
-            compositionVideoEffects.isEmpty()
-                ? null
-                : (Presentation) compositionVideoEffects.get(0);
         // TODO(b/267301878): Pass firstAssetLoaderOutputFormat once surface creation not in VSP.
         assetLoaderInputTracker.registerSampleExporter(
             C.TRACK_TYPE_VIDEO,
@@ -604,7 +598,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 context,
                 firstAssetLoaderInputFormat,
                 transformationRequest,
-                compositionPresentation,
+                compositionVideoEffects,
                 videoFrameProcessorFactory,
                 encoderFactory,
                 muxerWrapper,
