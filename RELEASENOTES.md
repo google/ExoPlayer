@@ -45,6 +45,9 @@
 *   RTSP Extension:
     *   Fix a race condition that could lead to `IndexOutOfBoundsException` when
         falling back to TCP, or playback hanging in some situations.
+    *   Check state in RTSP setup when returning loading state of
+        `RtspMediaPeriod`
+        ([#577](https://github.com/androidx/media/issues/577)).
 *   Decoder Extensions (FFmpeg, VP9, AV1, etc.):
 *   MIDI extension:
 *   Cast Extension:
