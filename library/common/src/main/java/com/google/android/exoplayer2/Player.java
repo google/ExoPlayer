@@ -2608,15 +2608,15 @@ public interface Player {
    *
    * <ul>
    *   <li>If the timeline is empty or seeking is not possible, does nothing.
-   *   <li>Otherwise, if the current {@link MediaItem} is {@link #isCurrentMediaItemLive()} live}
-   *       and {@link #isCurrentMediaItemSeekable() unseekable}, then:
+   *   <li>Otherwise, if the current {@link MediaItem} is {@linkplain #isCurrentMediaItemLive()
+   *       live} and {@linkplain #isCurrentMediaItemSeekable() unseekable}, then:
    *       <ul>
-   *         <li>If {@link #hasPreviousMediaItem() a previous media item exists}, seeks to the
+   *         <li>If {@linkplain #hasPreviousMediaItem() a previous media item exists}, seeks to the
    *             default position of the previous media item.
    *         <li>Otherwise, does nothing.
    *       </ul>
-   *   <li>Otherwise, if {@link #hasPreviousMediaItem() a previous media item exists} and the {@link
-   *       #getCurrentPosition() current position} is less than {@link
+   *   <li>Otherwise, if {@linkplain #hasPreviousMediaItem() a previous media item exists} and the
+   *       {@linkplain #getCurrentPosition() current position} is less than {@link
    *       #getMaxSeekToPreviousPosition()}, seeks to the default position of the previous {@link
    *       MediaItem}.
    *   <li>Otherwise, seeks to 0 in the current {@link MediaItem}.
@@ -2684,10 +2684,10 @@ public interface Player {
    *
    * <ul>
    *   <li>If the timeline is empty or seeking is not possible, does nothing.
-   *   <li>Otherwise, if {@link #hasNextMediaItem() a next media item exists}, seeks to the default
-   *       position of the next {@link MediaItem}.
-   *   <li>Otherwise, if the current {@link MediaItem} is {@link #isCurrentMediaItemLive() live} and
-   *       has not ended, seeks to the live edge of the current {@link MediaItem}.
+   *   <li>Otherwise, if {@linkplain #hasNextMediaItem() a next media item exists}, seeks to the
+   *       default position of the next {@link MediaItem}.
+   *   <li>Otherwise, if the current {@link MediaItem} is {@linkplain #isCurrentMediaItemLive()
+   *       live} and has not ended, seeks to the live edge of the current {@link MediaItem}.
    *   <li>Otherwise, does nothing.
    * </ul>
    *
@@ -3017,8 +3017,8 @@ public interface Player {
 
   /**
    * Returns the offset of the current playback position from the live edge in milliseconds, or
-   * {@link C#TIME_UNSET} if the current {@link MediaItem} {@link #isCurrentMediaItemLive()} isn't
-   * live} or the offset is unknown.
+   * {@link C#TIME_UNSET} if the current {@link MediaItem} {@linkplain #isCurrentMediaItemLive()
+   * isn't live} or the offset is unknown.
    *
    * <p>The offset is calculated as {@code currentTime - playbackPosition}, so should usually be
    * positive.
