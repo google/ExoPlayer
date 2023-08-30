@@ -1066,7 +1066,11 @@ public final class MediaSessionConnector {
           player.isCurrentMediaItemDynamic() || player.getDuration() == C.TIME_UNSET
               ? -1
               : player.getDuration());
-      long activeQueueItemId = mediaController.getPlaybackState().getActiveQueueItemId();
+      @Nullable PlaybackStateCompat playbackState = mediaController.getPlaybackState();
+      if (playbackState == null) {
+        return builder.build();
+      }
+      long activeQueueItemId = playbackState.getActiveQueueItemId();
       if (activeQueueItemId != MediaSessionCompat.QueueItem.UNKNOWN_ID) {
         List<MediaSessionCompat.QueueItem> queue = mediaController.getQueue();
         for (int i = 0; queue != null && i < queue.size(); i++) {
