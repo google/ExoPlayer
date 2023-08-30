@@ -386,7 +386,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   @Override
   public boolean isLoading() {
-    return !loadingFinished;
+    return !loadingFinished
+        && (rtspClient.getState() == RtspClient.RTSP_STATE_PLAYING
+            || rtspClient.getState() == RtspClient.RTSP_STATE_READY);
   }
 
   @Override
