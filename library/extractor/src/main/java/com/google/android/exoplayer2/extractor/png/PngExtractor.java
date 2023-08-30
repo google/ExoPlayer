@@ -72,6 +72,7 @@ public final class PngExtractor implements Extractor {
   private int size;
   private @State int state;
   private @MonotonicNonNull ExtractorOutput extractorOutput;
+  private @MonotonicNonNull TrackOutput trackOutput;
 
   /** Creates an instance. */
   public PngExtractor() {
@@ -106,9 +107,8 @@ public final class PngExtractor implements Extractor {
   }
 
   private void readSegment(ExtractorInput input) throws IOException {
-    TrackOutput trackOutput =
-        checkNotNull(extractorOutput).track(IMAGE_TRACK_ID, C.TRACK_TYPE_IMAGE);
-    int result = trackOutput.sampleData(input, FIXED_READ_LENGTH, /* allowEndOfInput= */ true);
+    int result =
+        checkNotNull(trackOutput).sampleData(input, FIXED_READ_LENGTH, /* allowEndOfInput= */ true);
     if (result == C.RESULT_END_OF_INPUT) {
       state = STATE_ENDED;
       @C.BufferFlags int flags = BUFFER_FLAG_KEY_FRAME;
@@ -122,8 +122,7 @@ public final class PngExtractor implements Extractor {
 
   @RequiresNonNull("this.extractorOutput")
   private void outputImageTrackAndSeekMap() {
-    TrackOutput trackOutput =
-        checkNotNull(extractorOutput).track(IMAGE_TRACK_ID, C.TRACK_TYPE_IMAGE);
+    trackOutput = extractorOutput.track(IMAGE_TRACK_ID, C.TRACK_TYPE_IMAGE);
     trackOutput.format(
         new Format.Builder()
             .setContainerMimeType(MimeTypes.IMAGE_PNG)
