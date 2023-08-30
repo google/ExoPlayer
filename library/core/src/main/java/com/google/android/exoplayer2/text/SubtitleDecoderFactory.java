@@ -19,6 +19,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.text.cea.Cea608Decoder;
 import com.google.android.exoplayer2.text.cea.Cea708Decoder;
+import com.google.android.exoplayer2.text.ttml.TtmlDecoder;
 import com.google.android.exoplayer2.util.MimeTypes;
 import java.util.Objects;
 
@@ -57,6 +58,7 @@ public interface SubtitleDecoderFactory {
    * <p>Supports formats supported by {@link DefaultSubtitleParserFactory} as well as the following:
    *
    * <ul>
+   *   <li>TTML ({@link TtmlDecoder})
    *   <li>Cea608 ({@link Cea608Decoder})
    *   <li>Cea708 ({@link Cea708Decoder})
    *   <li>Exoplayer Cues ({@link ExoplayerCuesDecoder})
@@ -71,6 +73,7 @@ public interface SubtitleDecoderFactory {
         public boolean supportsFormat(Format format) {
           @Nullable String mimeType = format.sampleMimeType;
           return delegate.supportsFormat(format)
+              || Objects.equals(mimeType, MimeTypes.APPLICATION_TTML)
               || Objects.equals(mimeType, MimeTypes.APPLICATION_CEA608)
               || Objects.equals(mimeType, MimeTypes.APPLICATION_MP4CEA608)
               || Objects.equals(mimeType, MimeTypes.APPLICATION_CEA708)
@@ -87,6 +90,8 @@ public interface SubtitleDecoderFactory {
           @Nullable String mimeType = format.sampleMimeType;
           if (mimeType != null) {
             switch (mimeType) {
+              case MimeTypes.APPLICATION_TTML:
+                return new TtmlDecoder();
               case MimeTypes.APPLICATION_CEA608:
               case MimeTypes.APPLICATION_MP4CEA608:
                 return new Cea608Decoder(

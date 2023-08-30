@@ -15,8 +15,6 @@
  */
 package com.google.android.exoplayer2.text.ttml;
 
-import static com.google.android.exoplayer2.util.Assertions.checkArgument;
-import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -24,10 +22,9 @@ import android.text.Layout;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.text.CuesWithTiming;
 import com.google.android.exoplayer2.text.SimpleSubtitleDecoder;
+import com.google.android.exoplayer2.text.Subtitle;
 import com.google.android.exoplayer2.text.SubtitleDecoderException;
-import com.google.android.exoplayer2.text.SubtitleParser;
 import com.google.android.exoplayer2.text.span.TextAnnotation;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ColorParser;
@@ -35,7 +32,6 @@ import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.XmlPullParserUtil;
 import com.google.common.base.Ascii;
-import com.google.common.collect.ImmutableList;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayDeque;
@@ -76,9 +72,9 @@ import org.xmlpull.v1.XmlPullParserFactory;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-public final class TtmlParser implements SubtitleParser {
+public final class TtmlDecoder extends SimpleSubtitleDecoder {
 
-  private static final String TAG = "TtmlParser";
+  private static final String TAG = "TtmlDecoder";
 
   private static final String TTP = "http://www.w3.org/ns/ttml#parameter";
 
@@ -112,7 +108,8 @@ public final class TtmlParser implements SubtitleParser {
 
   private final XmlPullParserFactory xmlParserFactory;
 
-  public TtmlParser() {
+  public TtmlDecoder() {
+    super("TtmlDecoder");
     try {
       xmlParserFactory = XmlPullParserFactory.newInstance();
       xmlParserFactory.setNamespaceAware(true);
@@ -121,16 +118,16 @@ public final class TtmlParser implements SubtitleParser {
     }
   }
 
-  @Nullable
   @Override
-  public ImmutableList<CuesWithTiming> parse(byte[] data, int offset, int length) {
+  protected Subtitle decode(byte[] data, int length, boolean reset)
+      throws SubtitleDecoderException {
     try {
       XmlPullParser xmlParser = xmlParserFactory.newPullParser();
       Map<String, TtmlStyle> globalStyles = new HashMap<>();
       Map<String, TtmlRegion> regionMap = new HashMap<>();
       Map<String, String> imageMap = new HashMap<>();
       regionMap.put(TtmlNode.ANONYMOUS_REGION_ID, new TtmlRegion(TtmlNode.ANONYMOUS_REGION_ID));
-      ByteArrayInputStream inputStream = new ByteArrayInputStream(data, offset, length);
+      ByteArrayInputStream inputStream = new ByteArrayInputStream(data, 0, length);
       xmlParser.setInput(inputStream, null);
       @Nullable TtmlSubtitle ttmlSubtitle = null;
       ArrayDeque<TtmlNode> nodeStack = new ArrayDeque<>();
@@ -187,15 +184,20 @@ public final class TtmlParser implements SubtitleParser {
         xmlParser.next();
         eventType = xmlParser.getEventType();
       }
-      return checkNotNull(ttmlSubtitle).toCuesWithTimingList();
+      if (ttmlSubtitle != null) {
+        return ttmlSubtitle;
+      } else {
+        throw new SubtitleDecoderException("No TTML subtitles found");
+      }
     } catch (XmlPullParserException xppe) {
-      throw new IllegalStateException("Unable to decode source", xppe);
+      throw new SubtitleDecoderException("Unable to decode source", xppe);
     } catch (IOException e) {
       throw new IllegalStateException("Unexpected error when reading input.", e);
     }
   }
 
-  private static FrameAndTickRate parseFrameAndTickRates(XmlPullParser xmlParser) {
+  private static FrameAndTickRate parseFrameAndTickRates(XmlPullParser xmlParser)
+      throws SubtitleDecoderException {
     int frameRate = DEFAULT_FRAME_RATE;
     String frameRateString = xmlParser.getAttributeValue(TTP, "frameRate");
     if (frameRateString != null) {
@@ -206,7 +208,9 @@ public final class TtmlParser implements SubtitleParser {
     String frameRateMultiplierString = xmlParser.getAttributeValue(TTP, "frameRateMultiplier");
     if (frameRateMultiplierString != null) {
       String[] parts = Util.split(frameRateMultiplierString, " ");
-      checkArgument(parts.length == 2, "frameRateMultiplier doesn't have 2 parts");
+      if (parts.length != 2) {
+        throw new SubtitleDecoderException("frameRateMultiplier doesn't have 2 parts");
+      }
       float numerator = Integer.parseInt(parts[0]);
       float denominator = Integer.parseInt(parts[1]);
       frameRateMultiplier = numerator / denominator;
@@ -227,7 +231,7 @@ public final class TtmlParser implements SubtitleParser {
   }
 
   private static CellResolution parseCellResolution(
-      XmlPullParser xmlParser, CellResolution defaultValue) {
+      XmlPullParser xmlParser, CellResolution defaultValue) throws SubtitleDecoderException {
     String cellResolution = xmlParser.getAttributeValue(TTP, "cellResolution");
     if (cellResolution == null) {
       return defaultValue;
@@ -241,7 +245,9 @@ public final class TtmlParser implements SubtitleParser {
     try {
       int columns = Integer.parseInt(Assertions.checkNotNull(cellResolutionMatcher.group(1)));
       int rows = Integer.parseInt(Assertions.checkNotNull(cellResolutionMatcher.group(2)));
-      checkArgument(columns != 0 && rows != 0, "Invalid cell resolution " + columns + " " + rows);
+      if (columns == 0 || rows == 0) {
+        throw new SubtitleDecoderException("Invalid cell resolution " + columns + " " + rows);
+      }
       return new CellResolution(columns, rows);
     } catch (NumberFormatException e) {
       Log.w(TAG, "Ignoring malformed cell resolution: " + cellResolution);
