@@ -1219,6 +1219,9 @@ public final class Format implements Bundleable {
     if (format.label != null) {
       builder.append(", label=").append(format.label);
     }
+    if (format.subsampleOffsetUs != OFFSET_SAMPLE_RELATIVE) {
+      builder.append(", subsampleOffsetUs=").append(format.subsampleOffsetUs);
+    }
     if (format.selectionFlags != 0) {
       List<String> selectionFlags = new ArrayList<>();
       // LINT.IfChange(selection_flags)
