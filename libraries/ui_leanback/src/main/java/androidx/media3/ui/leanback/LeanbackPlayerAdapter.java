@@ -286,6 +286,11 @@ public final class LeanbackPlayerAdapter extends PlayerAdapter implements Runnab
     @SuppressWarnings("nullness:dereference.of.nullable")
     @Override
     public void onVideoSizeChanged(VideoSize videoSize) {
+      if (videoSize.width == 0 || videoSize.height == 0) {
+        // Do not report unknown or placeholder sizes as Leanback can't handle these cases correctly
+        // (see https://github.com/androidx/media/issues/617).
+        return;
+      }
       // There's no way to pass pixelWidthHeightRatio to leanback, so we scale the width that we
       // pass to take it into account. This is necessary to ensure that leanback uses the correct
       // aspect ratio when playing content with non-square pixels.

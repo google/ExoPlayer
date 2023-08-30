@@ -50,6 +50,9 @@
         ([#577](https://github.com/androidx/media/issues/577)).
 *   Decoder Extensions (FFmpeg, VP9, AV1, etc.):
 *   MIDI extension:
+*   Leanback extension:
+    *   Fix bug where disabling a surface can cause an `ArithmeticException` in
+        Leanback code ([#617](https://github.com/androidx/media/issues/617)).
 *   Cast Extension:
 *   Test Utilities:
 *   Remove deprecated symbols:
