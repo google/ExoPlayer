@@ -837,6 +837,7 @@ public final class Transformer {
     verifyApplicationThread();
     checkState(transformerInternal == null, "There is already an export in progress.");
 
+    MuxerWrapper muxerWrapper = new MuxerWrapper(path, muxerFactory);
     TransformerInternalListener transformerInternalListener =
         new TransformerInternalListener(composition);
     HandlerWrapper applicationHandler = clock.createHandler(looper, /* callback= */ null);
@@ -862,13 +863,12 @@ public final class Transformer {
         new TransformerInternal(
             context,
             composition,
-            path,
             transformationRequest,
             assetLoaderFactory,
             audioMixerFactory,
             videoFrameProcessorFactory,
             encoderFactory,
-            muxerFactory,
+            muxerWrapper,
             transformerInternalListener,
             fallbackListener,
             applicationHandler,

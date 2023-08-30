@@ -128,17 +128,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private volatile boolean released;
 
   // Warning suppression is needed to assign the MuxerWrapper with "this" as listener.
-  @SuppressWarnings("assignment.type.incompatible")
+  @SuppressWarnings({"argument.type.incompatible"})
   public TransformerInternal(
       Context context,
       Composition composition,
-      String outputPath,
       TransformationRequest transformationRequest,
       AssetLoader.Factory assetLoaderFactory,
       AudioMixer.Factory audioMixerFactory,
       VideoFrameProcessor.Factory videoFrameProcessorFactory,
       Codec.EncoderFactory encoderFactory,
-      Muxer.Factory muxerFactory,
+      MuxerWrapper muxerWrapper,
       Listener listener,
       FallbackListener fallbackListener,
       HandlerWrapper applicationHandler,
@@ -150,6 +149,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.listener = listener;
     this.applicationHandler = applicationHandler;
     this.clock = clock;
+    this.muxerWrapper = muxerWrapper;
+    // It's safe to use "this" because we don't mux any data before exiting the constructor.
+    this.muxerWrapper.setListener(this);
     internalHandlerThread = new HandlerThread("Transformer:Internal");
     internalHandlerThread.start();
     sequenceAssetLoaders = new ArrayList<>();
@@ -192,10 +194,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     HandlerWrapper internalHandler =
         clock.createHandler(internalLooper, /* callback= */ this::handleMessage);
     this.internalHandler = internalHandler;
-    // It's safe to use "this" because we don't mux any data before exiting the constructor.
-    @SuppressWarnings("nullness:argument.type.incompatible")
-    MuxerWrapper muxerWrapper = new MuxerWrapper(outputPath, muxerFactory, /* listener= */ this);
-    this.muxerWrapper = muxerWrapper;
   }
 
   public void start() {
