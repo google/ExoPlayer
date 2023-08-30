@@ -61,8 +61,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p>The captured interactions can be used in a test assertion via the {@link Dumper.Dumpable}
  * interface.
  */
-// TODO(internal b/174661563): Add support for capturing subtitles on the output of the
-// SubtitleDecoder. And possibly Metadata too (for consistency).
 public class CapturingRenderersFactory implements RenderersFactory, Dumper.Dumpable {
 
   private final Context context;
