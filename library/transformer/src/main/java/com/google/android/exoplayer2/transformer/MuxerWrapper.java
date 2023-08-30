@@ -77,7 +77,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   private final String outputPath;
   private final Muxer.Factory muxerFactory;
-  private final Listener listener;
   private final SparseArray<TrackInfo> trackTypeToInfo;
   private final ScheduledExecutorService abortScheduledExecutorService;
 
@@ -86,6 +85,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private @C.TrackType int previousTrackType;
   private long minTrackTimeUs;
   private long maxEndedTrackTimeUs;
+  private @MonotonicNonNull Listener listener;
   private @MonotonicNonNull ScheduledFuture<?> abortScheduledFuture;
   private boolean isAborted;
   private @MonotonicNonNull Muxer muxer;
@@ -93,14 +93,23 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private volatile int additionalRotationDegrees;
   private volatile int trackCount;
 
-  public MuxerWrapper(String outputPath, Muxer.Factory muxerFactory, Listener listener) {
+  /** Creates an instance. */
+  public MuxerWrapper(String outputPath, Muxer.Factory muxerFactory) {
     this.outputPath = outputPath;
     this.muxerFactory = muxerFactory;
-    this.listener = listener;
 
     trackTypeToInfo = new SparseArray<>();
     previousTrackType = C.TRACK_TYPE_NONE;
     abortScheduledExecutorService = Util.newSingleThreadScheduledExecutor(TIMER_THREAD_NAME);
+  }
+
+  /**
+   * Sets a {@link MuxerWrapper.Listener}.
+   *
+   * <p>The {@link MuxerWrapper.Listener} must be set before calling any other methods.
+   */
+  public void setListener(Listener listener) {
+    this.listener = listener;
   }
 
   /**
@@ -272,9 +281,9 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
     TrackInfo trackInfo = trackTypeToInfo.get(trackType);
     maxEndedTrackTimeUs = max(maxEndedTrackTimeUs, trackInfo.timeUs);
+    Listener listener = checkNotNull(this.listener);
     listener.onTrackEnded(
         trackType, trackInfo.format, trackInfo.getAverageBitrate(), trackInfo.sampleCount);
-
     if (trackType == C.TRACK_TYPE_VIDEO) {
       DebugTraceUtil.logEvent(DebugTraceUtil.EVENT_MUXER_TRACK_ENDED_VIDEO, trackInfo.timeUs);
     } else if (trackType == C.TRACK_TYPE_AUDIO) {
@@ -351,14 +360,15 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
                 return;
               }
               isAborted = true;
-              listener.onError(
-                  ExportException.createForMuxer(
-                      new IllegalStateException(
-                          Util.formatInvariant(
-                              MUXER_TIMEOUT_ERROR_FORMAT_STRING,
-                              maxDelayBetweenSamplesMs,
-                              DebugTraceUtil.generateTraceSummary())),
-                      ExportException.ERROR_CODE_MUXING_TIMEOUT));
+              checkNotNull(listener)
+                  .onError(
+                      ExportException.createForMuxer(
+                          new IllegalStateException(
+                              Util.formatInvariant(
+                                  MUXER_TIMEOUT_ERROR_FORMAT_STRING,
+                                  maxDelayBetweenSamplesMs,
+                                  DebugTraceUtil.generateTraceSummary())),
+                          ExportException.ERROR_CODE_MUXING_TIMEOUT));
             },
             maxDelayBetweenSamplesMs,
             MILLISECONDS);
