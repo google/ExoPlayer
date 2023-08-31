@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringDef;
 import com.google.android.exoplayer2.C;
@@ -85,6 +86,13 @@ public final class CmcdConfiguration {
   @Target(TYPE_USE)
   public @interface CmcdKey {}
 
+  /** Indicates the mode used for data transmission. */
+  @Retention(RetentionPolicy.SOURCE)
+  @IntDef({MODE_REQUEST_HEADER, MODE_QUERY_PARAMETER})
+  @Documented
+  @Target(TYPE_USE)
+  public @interface DataTransmissionMode {}
+
   /** Maximum length for ID fields. */
   public static final int MAX_ID_LENGTH = 64;
 
@@ -92,6 +100,7 @@ public final class CmcdConfiguration {
   public static final String KEY_CMCD_REQUEST = "CMCD-Request";
   public static final String KEY_CMCD_SESSION = "CMCD-Session";
   public static final String KEY_CMCD_STATUS = "CMCD-Status";
+  public static final String CMCD_QUERY_PARAMETER_KEY = "CMCD";
   public static final String KEY_BITRATE = "br";
   public static final String KEY_BUFFER_LENGTH = "bl";
   public static final String KEY_CONTENT_ID = "cid";
@@ -110,6 +119,8 @@ public final class CmcdConfiguration {
   public static final String KEY_STARTUP = "su";
   public static final String KEY_NEXT_OBJECT_REQUEST = "nor";
   public static final String KEY_NEXT_RANGE_REQUEST = "nrr";
+  public static final int MODE_REQUEST_HEADER = 0;
+  public static final int MODE_QUERY_PARAMETER = 1;
 
   /**
    * Factory for {@link CmcdConfiguration} instances.
@@ -236,15 +247,28 @@ public final class CmcdConfiguration {
   /** Dynamic request specific configuration. */
   public final RequestConfig requestConfig;
 
-  /** Creates an instance. */
+  /** Mode used for data transmission. */
+  public final @DataTransmissionMode int dataTransmissionMode;
+
+  /** Creates an instance with {@link #dataTransmissionMode} set to {@link #MODE_REQUEST_HEADER}. */
   public CmcdConfiguration(
       @Nullable String sessionId, @Nullable String contentId, RequestConfig requestConfig) {
+    this(sessionId, contentId, requestConfig, MODE_REQUEST_HEADER);
+  }
+
+  /** Creates an instance. */
+  public CmcdConfiguration(
+      @Nullable String sessionId,
+      @Nullable String contentId,
+      RequestConfig requestConfig,
+      @DataTransmissionMode int dataTransmissionMode) {
     checkArgument(sessionId == null || sessionId.length() <= MAX_ID_LENGTH);
     checkArgument(contentId == null || contentId.length() <= MAX_ID_LENGTH);
     checkNotNull(requestConfig);
     this.sessionId = sessionId;
     this.contentId = contentId;
     this.requestConfig = requestConfig;
+    this.dataTransmissionMode = dataTransmissionMode;
   }
 
   /**

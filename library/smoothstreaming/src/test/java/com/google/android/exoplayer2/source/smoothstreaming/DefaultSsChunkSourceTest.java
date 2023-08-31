@@ -51,7 +51,7 @@ public class DefaultSsChunkSourceTest {
   private static final String SAMPLE_ISMC_1 = "media/smooth-streaming/sample_ismc_1";
 
   @Test
-  public void getNextChunk_chunkSourceWithDefaultCmcdConfiguration_setsCmcdLoggingHeaders()
+  public void getNextChunk_chunkSourceWithDefaultCmcdConfiguration_setsCmcdHttpRequestHeaders()
       throws Exception {
     CmcdConfiguration.Factory cmcdConfigurationFactory = CmcdConfiguration.Factory.DEFAULT;
     MediaItem mediaItem = new MediaItem.Builder().setMediaId("mediaId").build();
@@ -131,7 +131,7 @@ public class DefaultSsChunkSourceTest {
   }
 
   @Test
-  public void getNextChunk_chunkSourceWithCustomCmcdConfiguration_setsCmcdLoggingHeaders()
+  public void getNextChunk_chunkSourceWithCustomCmcdConfiguration_setsCmcdHttpRequestHeaders()
       throws Exception {
     CmcdConfiguration.Factory cmcdConfigurationFactory =
         mediaItem -> {
@@ -179,7 +179,7 @@ public class DefaultSsChunkSourceTest {
 
   @Test
   public void
-      getNextChunk_chunkSourceWithCustomCmcdConfigurationAndCustomData_setsCmcdLoggingHeaders()
+      getNextChunk_chunkSourceWithCustomCmcdConfigurationAndCustomData_setsCmcdHttpRequestHeaders()
           throws Exception {
     CmcdConfiguration.Factory cmcdConfigurationFactory =
         mediaItem -> {
@@ -223,6 +223,53 @@ public class DefaultSsChunkSourceTest {
             "cid=\"mediaId\",key-3=3,sf=s,sid=\"" + cmcdConfiguration.sessionId + "\",st=v",
             "CMCD-Status",
             "key-4=5.0");
+  }
+
+  @Test
+  public void
+      getNextChunk_chunkSourceWithCustomCmcdConfigurationAndCustomData_setsCmcdHttpQueryParameters()
+          throws Exception {
+    CmcdConfiguration.Factory cmcdConfigurationFactory =
+        mediaItem -> {
+          CmcdConfiguration.RequestConfig cmcdRequestConfig =
+              new CmcdConfiguration.RequestConfig() {
+                @Override
+                public ImmutableListMultimap<@CmcdConfiguration.HeaderKey String, String>
+                    getCustomData() {
+                  return new ImmutableListMultimap.Builder<
+                          @CmcdConfiguration.HeaderKey String, String>()
+                      .put(CmcdConfiguration.KEY_CMCD_OBJECT, "key-1=1")
+                      .put(CmcdConfiguration.KEY_CMCD_REQUEST, "key-2=\"stringValue\"")
+                      .build();
+                }
+              };
+
+          return new CmcdConfiguration(
+              /* sessionId= */ "sessionId",
+              /* contentId= */ mediaItem.mediaId,
+              cmcdRequestConfig,
+              CmcdConfiguration.MODE_QUERY_PARAMETER);
+        };
+    MediaItem mediaItem = new MediaItem.Builder().setMediaId("mediaId").build();
+    CmcdConfiguration cmcdConfiguration =
+        cmcdConfigurationFactory.createCmcdConfiguration(mediaItem);
+    SsChunkSource chunkSource = createSsChunkSource(/* numberOfTracks= */ 2, cmcdConfiguration);
+    ChunkHolder output = new ChunkHolder();
+
+    chunkSource.getNextChunk(
+        new LoadingInfo.Builder().setPlaybackPositionUs(0).setPlaybackSpeed(1.0f).build(),
+        /* loadPositionUs= */ 0,
+        /* queue= */ ImmutableList.of(),
+        output);
+
+    assertThat(
+            Uri.decode(
+                output.chunk.dataSpec.uri.getQueryParameter(
+                    CmcdConfiguration.CMCD_QUERY_PARAMETER_KEY)))
+        .isEqualTo(
+            "bl=0,br=308,cid=\"mediaId\",d=1968,dl=0,key-1=1,key-2=\"stringValue\","
+                + "mtp=1000,nor=\"..%2FFragments(video%3D19680000)\",ot=v,sf=s,sid=\"sessionId\","
+                + "st=v,su,tb=1536");
   }
 
   private SsChunkSource createSsChunkSource(

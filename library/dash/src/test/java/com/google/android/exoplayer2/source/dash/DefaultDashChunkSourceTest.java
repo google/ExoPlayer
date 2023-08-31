@@ -301,7 +301,7 @@ public class DefaultDashChunkSourceTest {
   }
 
   @Test
-  public void getNextChunk_chunkSourceWithDefaultCmcdConfiguration_setsCmcdLoggingHeaders()
+  public void getNextChunk_chunkSourceWithDefaultCmcdConfiguration_setsCmcdHttpRequestHeaders()
       throws Exception {
     CmcdConfiguration.Factory cmcdConfigurationFactory = CmcdConfiguration.Factory.DEFAULT;
     MediaItem mediaItem = new MediaItem.Builder().setMediaId("mediaId").build();
@@ -381,7 +381,7 @@ public class DefaultDashChunkSourceTest {
   }
 
   @Test
-  public void getNextChunk_chunkSourceWithCustomCmcdConfiguration_setsCmcdLoggingHeaders()
+  public void getNextChunk_chunkSourceWithCustomCmcdConfiguration_setsCmcdHttpRequestHeaders()
       throws Exception {
     CmcdConfiguration.Factory cmcdConfigurationFactory =
         mediaItem -> {
@@ -429,7 +429,7 @@ public class DefaultDashChunkSourceTest {
 
   @Test
   public void
-      getNextChunk_chunkSourceWithCustomCmcdConfigurationAndCustomData_setsCmcdLoggingHeaders()
+      getNextChunk_chunkSourceWithCustomCmcdConfigurationAndCustomData_setsCmcdHttpRequestHeaders()
           throws Exception {
     CmcdConfiguration.Factory cmcdConfigurationFactory =
         mediaItem -> {
@@ -473,6 +473,53 @@ public class DefaultDashChunkSourceTest {
             "cid=\"mediaId\",key-3=3,sf=d,sid=\"" + cmcdConfiguration.sessionId + "\",st=v",
             "CMCD-Status",
             "key-4=5.0");
+  }
+
+  @Test
+  public void
+      getNextChunk_chunkSourceWithCustomCmcdConfigurationAndCustomData_setsCmcdHttpQueryParameters()
+          throws Exception {
+    CmcdConfiguration.Factory cmcdConfigurationFactory =
+        mediaItem -> {
+          CmcdConfiguration.RequestConfig cmcdRequestConfig =
+              new CmcdConfiguration.RequestConfig() {
+                @Override
+                public ImmutableListMultimap<@CmcdConfiguration.HeaderKey String, String>
+                    getCustomData() {
+                  return new ImmutableListMultimap.Builder<
+                          @CmcdConfiguration.HeaderKey String, String>()
+                      .put(CmcdConfiguration.KEY_CMCD_OBJECT, "key-1=1")
+                      .put(CmcdConfiguration.KEY_CMCD_REQUEST, "key-2=\"stringValue\"")
+                      .build();
+                }
+              };
+
+          return new CmcdConfiguration(
+              /* sessionId= */ "sessionId",
+              /* contentId= */ mediaItem.mediaId,
+              cmcdRequestConfig,
+              CmcdConfiguration.MODE_QUERY_PARAMETER);
+        };
+    MediaItem mediaItem = new MediaItem.Builder().setMediaId("mediaId").build();
+    CmcdConfiguration cmcdConfiguration =
+        cmcdConfigurationFactory.createCmcdConfiguration(mediaItem);
+    DashChunkSource chunkSource = createDashChunkSource(/* numberOfTracks= */ 2, cmcdConfiguration);
+    ChunkHolder output = new ChunkHolder();
+
+    chunkSource.getNextChunk(
+        new LoadingInfo.Builder().setPlaybackPositionUs(0).setPlaybackSpeed(1.0f).build(),
+        /* loadPositionUs= */ 0,
+        /* queue= */ ImmutableList.of(),
+        output);
+
+    assertThat(
+            Uri.decode(
+                output.chunk.dataSpec.uri.getQueryParameter(
+                    CmcdConfiguration.CMCD_QUERY_PARAMETER_KEY)))
+        .isEqualTo(
+            "bl=0,br=700,cid=\"mediaId\",d=4000,dl=0,key-1=1,key-2=\"stringValue\","
+                + "mtp=1000,nor=\"..%2Fvideo_4000_700000.m4s\",nrr=\"0-\",ot=v,sf=d,"
+                + "sid=\"sessionId\",st=v,su,tb=1300");
   }
 
   @Test
