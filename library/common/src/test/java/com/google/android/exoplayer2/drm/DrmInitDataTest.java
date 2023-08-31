@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.drm;
 import static com.google.android.exoplayer2.C.PLAYREADY_UUID;
 import static com.google.android.exoplayer2.C.UUID_NIL;
 import static com.google.android.exoplayer2.C.WIDEVINE_UUID;
+import static com.google.android.exoplayer2.testutil.TestUtil.buildTestData;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_MP4;
 import static com.google.common.truth.Truth.assertThat;
 
@@ -27,7 +28,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.drm.DrmInitData.SchemeData;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -130,13 +130,5 @@ public class DrmInitDataTest {
       schemeDatas.add(drmInitData.get(i));
     }
     return schemeDatas;
-  }
-
-  /** Generates an array of random bytes with the specified length. */
-  // TODO(internal b/161804035): Use TestUtils when it's available in a dependency we can use here.
-  private static byte[] buildTestData(int length, int seed) {
-    byte[] source = new byte[length];
-    new Random(seed).nextBytes(source);
-    return source;
   }
 }

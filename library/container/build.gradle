@@ -52,6 +52,8 @@ dependencies {
     testImplementation 'com.google.truth:truth:' + truthVersion
     testImplementation 'junit:junit:' + junitVersion
     testImplementation 'org.robolectric:robolectric:' + robolectricVersion
+    testImplementation project(modulePrefix + 'testutils')
+
 }
  apply from: '../../javadoc_library.gradle'
 

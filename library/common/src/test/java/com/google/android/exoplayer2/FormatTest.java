@@ -16,6 +16,7 @@
 package com.google.android.exoplayer2;
 
 import static com.google.android.exoplayer2.C.WIDEVINE_UUID;
+import static com.google.android.exoplayer2.testutil.TestUtil.buildTestData;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_MP4;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_WEBM;
 import static com.google.common.truth.Truth.assertThat;
@@ -29,7 +30,6 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.video.ColorInfo;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -118,13 +118,5 @@ public final class FormatTest {
         .setTileCountHorizontal(20)
         .setTileCountVertical(40)
         .build();
-  }
-
-  /** Generates an array of random bytes with the specified length. */
-  // TODO(internal b/161804035): Use TestUtils when it's available in a dependency we can use here.
-  private static byte[] buildTestData(int length, int seed) {
-    byte[] source = new byte[length];
-    new Random(seed).nextBytes(source);
-    return source;
   }
 }
