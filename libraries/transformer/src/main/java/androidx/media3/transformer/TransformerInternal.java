@@ -105,6 +105,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final Listener listener;
   private final HandlerWrapper applicationHandler;
   private final Clock clock;
+
+  /**
+   * The presentation timestamp offset for all the video samples. It will be set when resuming video
+   * processing after remuxing previously processed samples.
+   */
+  private final long videoSampleTimestampOffsetUs;
+
   private final HandlerThread internalHandlerThread;
   private final HandlerWrapper internalHandler;
   private final List<SequenceAssetLoader> sequenceAssetLoaders;
@@ -142,13 +149,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       FallbackListener fallbackListener,
       HandlerWrapper applicationHandler,
       DebugViewProvider debugViewProvider,
-      Clock clock) {
+      Clock clock,
+      long videoSampleTimestampOffsetUs) {
     this.context = context;
     this.composition = composition;
     this.encoderFactory = new CapturingEncoderFactory(encoderFactory);
     this.listener = listener;
     this.applicationHandler = applicationHandler;
     this.clock = clock;
+    this.videoSampleTimestampOffsetUs = videoSampleTimestampOffsetUs;
     this.muxerWrapper = muxerWrapper;
     // It's safe to use "this" because we don't mux any data before exiting the constructor.
     this.muxerWrapper.setListener(this);
@@ -601,7 +610,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 muxerWrapper,
                 /* errorConsumer= */ this::onError,
                 fallbackListener,
-                debugViewProvider));
+                debugViewProvider,
+                videoSampleTimestampOffsetUs));
       }
     }
 

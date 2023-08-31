@@ -63,6 +63,7 @@ import org.checkerframework.dataflow.qual.Pure;
   private final VideoGraph videoGraph;
   private final EncoderWrapper encoderWrapper;
   private final DecoderInputBuffer encoderOutputBuffer;
+  private final long initialTimestampOffsetUs;
 
   /**
    * The timestamp of the last buffer processed before {@linkplain
@@ -82,11 +83,13 @@ import org.checkerframework.dataflow.qual.Pure;
       MuxerWrapper muxerWrapper,
       Consumer<ExportException> errorConsumer,
       FallbackListener fallbackListener,
-      DebugViewProvider debugViewProvider)
+      DebugViewProvider debugViewProvider,
+      long initialTimestampOffsetUs)
       throws ExportException {
     // TODO(b/278259383) Consider delaying configuration of VideoSampleExporter to use the decoder
     //  output format instead of the extractor output format, to match AudioSampleExporter behavior.
     super(firstInputFormat, muxerWrapper);
+    this.initialTimestampOffsetUs = initialTimestampOffsetUs;
     finalFramePresentationTimeUs = C.TIME_UNSET;
 
     ColorInfo decoderInputColor;
@@ -488,7 +491,8 @@ import org.checkerframework.dataflow.qual.Pure;
               debugViewProvider,
               /* listener= */ thisRef,
               /* listenerExecutor= */ MoreExecutors.directExecutor(),
-              compositionEffects);
+              compositionEffects,
+              initialTimestampOffsetUs);
     }
 
     @Nullable

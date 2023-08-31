@@ -1008,7 +1008,8 @@ public final class Transformer {
             fallbackListener,
             applicationHandler,
             debugViewProvider,
-            clock);
+            clock,
+            /* videoSampleTimestampOffsetUs= */ 0);
     transformerInternal.start();
   }
 

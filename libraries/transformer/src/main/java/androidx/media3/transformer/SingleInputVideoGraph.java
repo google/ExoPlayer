@@ -53,7 +53,8 @@ import java.util.concurrent.Executor;
         DebugViewProvider debugViewProvider,
         Listener listener,
         Executor listenerExecutor,
-        List<Effect> compositionEffects) {
+        List<Effect> compositionEffects,
+        long initialTimestampOffsetUs) {
       @Nullable Presentation presentation = null;
       for (int i = 0; i < compositionEffects.size(); i++) {
         Effect effect = compositionEffects.get(i);
@@ -71,7 +72,8 @@ import java.util.concurrent.Executor;
           debugViewProvider,
           listenerExecutor,
           /* renderFramesAutomatically= */ true,
-          presentation);
+          presentation,
+          initialTimestampOffsetUs);
     }
   }
 
@@ -84,6 +86,7 @@ import java.util.concurrent.Executor;
   private final DebugViewProvider debugViewProvider;
   private final Executor listenerExecutor;
   private final boolean renderFramesAutomatically;
+  private final long initialTimestampOffsetUs;
   @Nullable private final Presentation presentation;
 
   @Nullable private VideoFrameProcessingWrapper videoFrameProcessingWrapper;
@@ -101,7 +104,8 @@ import java.util.concurrent.Executor;
       DebugViewProvider debugViewProvider,
       Executor listenerExecutor,
       boolean renderFramesAutomatically,
-      @Nullable Presentation presentation) {
+      @Nullable Presentation presentation,
+      long initialTimestampOffsetUs) {
     this.context = context;
     this.videoFrameProcessorFactory = videoFrameProcessorFactory;
     this.inputColorInfo = inputColorInfo;
@@ -112,6 +116,7 @@ import java.util.concurrent.Executor;
     this.listenerExecutor = listenerExecutor;
     this.renderFramesAutomatically = renderFramesAutomatically;
     this.presentation = presentation;
+    this.initialTimestampOffsetUs = initialTimestampOffsetUs;
   }
 
   /**
@@ -168,7 +173,8 @@ import java.util.concurrent.Executor;
               }
             },
             renderFramesAutomatically,
-            presentation);
+            presentation,
+            initialTimestampOffsetUs);
   }
 
   /** Returns the {@link GraphInput}. */
