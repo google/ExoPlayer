@@ -50,9 +50,8 @@ import androidx.media3.exoplayer.source.chunk.MediaChunkIterator;
 import androidx.media3.exoplayer.trackselection.BaseTrackSelection;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
 import androidx.media3.exoplayer.upstream.CmcdConfiguration;
-import androidx.media3.exoplayer.upstream.CmcdHeadersFactory;
+import androidx.media3.exoplayer.upstream.CmcdData;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.primitives.Ints;
 import java.io.IOException;
@@ -178,6 +177,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *     an infinite timeout.
    * @param muxedCaptionFormats List of muxed caption {@link Format}s. Null if no closed caption
    *     information is available in the multivariant playlist.
+   * @param playerId The {@link PlayerId} of the player using this chunk source.
+   * @param cmcdConfiguration The {@link CmcdConfiguration} for this chunk source.
    */
   public HlsChunkSource(
       HlsExtractorFactory extractorFactory,
@@ -488,22 +489,22 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     seenExpectedPlaylistError = false;
     expectedPlaylistUrl = null;
 
-    @Nullable CmcdHeadersFactory cmcdHeadersFactory = null;
+    @Nullable CmcdData.Factory cmcdDataFactory = null;
     if (cmcdConfiguration != null) {
-      cmcdHeadersFactory =
-          new CmcdHeadersFactory(
+      cmcdDataFactory =
+          new CmcdData.Factory(
                   cmcdConfiguration,
                   trackSelection,
                   bufferedDurationUs,
                   /* playbackRate= */ loadingInfo.playbackSpeed,
-                  /* streamingFormat= */ CmcdHeadersFactory.STREAMING_FORMAT_HLS,
+                  /* streamingFormat= */ CmcdData.Factory.STREAMING_FORMAT_HLS,
                   /* isLive= */ !playlist.hasEndTag,
                   /* didRebuffer= */ loadingInfo.rebufferedSince(lastChunkRequestRealtimeMs),
                   /* isBufferEmpty= */ queue.isEmpty())
               .setObjectType(
                   getIsMuxedAudioAndVideo()
-                      ? CmcdHeadersFactory.OBJECT_TYPE_MUXED_AUDIO_AND_VIDEO
-                      : CmcdHeadersFactory.getObjectType(trackSelection));
+                      ? CmcdData.Factory.OBJECT_TYPE_MUXED_AUDIO_AND_VIDEO
+                      : CmcdData.Factory.getObjectType(trackSelection));
 
       long nextChunkMediaSequence =
           partIndex == C.LENGTH_UNSET
@@ -515,7 +516,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       if (nextSegmentBaseHolder != null) {
         Uri uri = UriUtil.resolveToUri(playlist.baseUri, segmentBaseHolder.segmentBase.url);
         Uri nextUri = UriUtil.resolveToUri(playlist.baseUri, nextSegmentBaseHolder.segmentBase.url);
-        cmcdHeadersFactory.setNextObjectRequest(UriUtil.getRelativePath(uri, nextUri));
+        cmcdDataFactory.setNextObjectRequest(UriUtil.getRelativePath(uri, nextUri));
 
         String nextRangeRequest = nextSegmentBaseHolder.segmentBase.byteRangeOffset + "-";
         if (nextSegmentBaseHolder.segmentBase.byteRangeLength != C.LENGTH_UNSET) {
@@ -523,7 +524,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               (nextSegmentBaseHolder.segmentBase.byteRangeOffset
                   + nextSegmentBaseHolder.segmentBase.byteRangeLength);
         }
-        cmcdHeadersFactory.setNextRangeRequest(nextRangeRequest);
+        cmcdDataFactory.setNextRangeRequest(nextRangeRequest);
       }
     }
     lastChunkRequestRealtimeMs = SystemClock.elapsedRealtime();
@@ -534,7 +535,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         getFullEncryptionKeyUri(playlist, segmentBaseHolder.segmentBase.initializationSegment);
     out.chunk =
         maybeCreateEncryptionChunkFor(
-            initSegmentKeyUri, selectedTrackIndex, /* isInitSegment= */ true, cmcdHeadersFactory);
+            initSegmentKeyUri, selectedTrackIndex, /* isInitSegment= */ true, cmcdDataFactory);
     if (out.chunk != null) {
       return;
     }
@@ -542,7 +543,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     Uri mediaSegmentKeyUri = getFullEncryptionKeyUri(playlist, segmentBaseHolder.segmentBase);
     out.chunk =
         maybeCreateEncryptionChunkFor(
-            mediaSegmentKeyUri, selectedTrackIndex, /* isInitSegment= */ false, cmcdHeadersFactory);
+            mediaSegmentKeyUri, selectedTrackIndex, /* isInitSegment= */ false, cmcdDataFactory);
     if (out.chunk != null) {
       return;
     }
@@ -578,7 +579,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             /* initSegmentKey= */ keyCache.get(initSegmentKeyUri),
             shouldSpliceIn,
             playerId,
-            cmcdHeadersFactory);
+            cmcdDataFactory);
   }
 
   private boolean getIsMuxedAudioAndVideo() {
@@ -896,7 +897,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       @Nullable Uri keyUri,
       int selectedTrackIndex,
       boolean isInitSegment,
-      @Nullable CmcdHeadersFactory cmcdHeadersFactory) {
+      @Nullable CmcdData.Factory cmcdDataFactory) {
     if (keyUri == null) {
       return null;
     }
@@ -910,20 +911,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return null;
     }
 
-    ImmutableMap<@CmcdConfiguration.HeaderKey String, String> httpRequestHeaders =
-        ImmutableMap.of();
-    if (cmcdHeadersFactory != null) {
-      if (isInitSegment) {
-        cmcdHeadersFactory.setObjectType(CmcdHeadersFactory.OBJECT_TYPE_INIT_SEGMENT);
-      }
-      httpRequestHeaders = cmcdHeadersFactory.createHttpRequestHeaders();
-    }
     DataSpec dataSpec =
-        new DataSpec.Builder()
-            .setUri(keyUri)
-            .setFlags(DataSpec.FLAG_ALLOW_GZIP)
-            .setHttpRequestHeaders(httpRequestHeaders)
-            .build();
+        new DataSpec.Builder().setUri(keyUri).setFlags(DataSpec.FLAG_ALLOW_GZIP).build();
+    if (cmcdDataFactory != null) {
+      if (isInitSegment) {
+        cmcdDataFactory.setObjectType(CmcdData.Factory.OBJECT_TYPE_INIT_SEGMENT);
+      }
+      CmcdData cmcdData = cmcdDataFactory.createCmcdData();
+      dataSpec = cmcdData.addToDataSpec(dataSpec);
+    }
+
     return new EncryptionKeyChunk(
         encryptionDataSource,
         dataSpec,

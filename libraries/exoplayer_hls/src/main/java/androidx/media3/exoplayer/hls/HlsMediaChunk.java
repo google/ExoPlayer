@@ -33,15 +33,13 @@ import androidx.media3.datasource.DataSpec;
 import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.hls.playlist.HlsMediaPlaylist;
 import androidx.media3.exoplayer.source.chunk.MediaChunk;
-import androidx.media3.exoplayer.upstream.CmcdConfiguration;
-import androidx.media3.exoplayer.upstream.CmcdHeadersFactory;
+import androidx.media3.exoplayer.upstream.CmcdData;
 import androidx.media3.extractor.DefaultExtractorInput;
 import androidx.media3.extractor.ExtractorInput;
 import androidx.media3.extractor.metadata.id3.Id3Decoder;
 import androidx.media3.extractor.metadata.id3.PrivFrame;
 import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -82,7 +80,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @param initSegmentKey The initialization segment decryption key, if fully encrypted. Null
    *     otherwise.
    * @param shouldSpliceIn Whether samples for this chunk should be spliced into existing samples.
-   * @param cmcdHeadersFactory The {@link CmcdHeadersFactory} for generating CMCD request headers.
+   * @param cmcdDataFactory The {@link CmcdData.Factory} for generating {@link CmcdData}.
    */
   public static HlsMediaChunk createInstance(
       HlsExtractorFactory extractorFactory,
@@ -103,23 +101,22 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       @Nullable byte[] initSegmentKey,
       boolean shouldSpliceIn,
       PlayerId playerId,
-      @Nullable CmcdHeadersFactory cmcdHeadersFactory) {
+      @Nullable CmcdData.Factory cmcdDataFactory) {
     // Media segment.
     HlsMediaPlaylist.SegmentBase mediaSegment = segmentBaseHolder.segmentBase;
-    ImmutableMap<@CmcdConfiguration.HeaderKey String, String> httpRequestHeaders =
-        cmcdHeadersFactory == null
-            ? ImmutableMap.of()
-            : cmcdHeadersFactory
-                .setChunkDurationUs(mediaSegment.durationUs)
-                .createHttpRequestHeaders();
     DataSpec dataSpec =
         new DataSpec.Builder()
             .setUri(UriUtil.resolveToUri(mediaPlaylist.baseUri, mediaSegment.url))
             .setPosition(mediaSegment.byteRangeOffset)
             .setLength(mediaSegment.byteRangeLength)
             .setFlags(segmentBaseHolder.isPreload ? FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED : 0)
-            .setHttpRequestHeaders(httpRequestHeaders)
             .build();
+    if (cmcdDataFactory != null) {
+      CmcdData cmcdData =
+          cmcdDataFactory.setChunkDurationUs(mediaSegment.durationUs).createCmcdData();
+      dataSpec = cmcdData.addToDataSpec(dataSpec);
+    }
+
     boolean mediaSegmentEncrypted = mediaSegmentKey != null;
     @Nullable
     byte[] mediaSegmentIv =
@@ -141,19 +138,20 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
               ? getEncryptionIvArray(Assertions.checkNotNull(initSegment.encryptionIV))
               : null;
       Uri initSegmentUri = UriUtil.resolveToUri(mediaPlaylist.baseUri, initSegment.url);
-      ImmutableMap<@CmcdConfiguration.HeaderKey String, String> initHttpRequestHeaders =
-          cmcdHeadersFactory == null
-              ? ImmutableMap.of()
-              : cmcdHeadersFactory
-                  .setObjectType(CmcdHeadersFactory.OBJECT_TYPE_INIT_SEGMENT)
-                  .createHttpRequestHeaders();
       initDataSpec =
           new DataSpec.Builder()
               .setUri(initSegmentUri)
               .setPosition(initSegment.byteRangeOffset)
               .setLength(initSegment.byteRangeLength)
-              .setHttpRequestHeaders(initHttpRequestHeaders)
               .build();
+      if (cmcdDataFactory != null) {
+        CmcdData cmcdData =
+            cmcdDataFactory
+                .setObjectType(CmcdData.Factory.OBJECT_TYPE_INIT_SEGMENT)
+                .createCmcdData();
+        initDataSpec = cmcdData.addToDataSpec(dataSpec);
+      }
+
       initDataSource = buildDataSource(dataSource, initSegmentKey, initSegmentIv);
     }
 

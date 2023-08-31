@@ -12,6 +12,8 @@
     *   Add additional fields to Common Media Client Data (CMCD) logging: next
         object request (`nor`) and next range request (`nrr`)
         ([#8699](https://github.com/google/ExoPlayer/issues/8699)).
+    *   Add functionality to transmit Common Media Client Data (CMCD) data using
+        query parameters ([#553](https://github.com/androidx/media/issues/553)).
 *   Transformer:
     *   Changed `frameRate` and `durationUs` parameters of
         `SampleConsumer.queueInputBitmap` to `TimestampIterator`.

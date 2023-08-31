@@ -20,22 +20,23 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import android.net.Uri;
 import androidx.media3.common.Format;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.TrackGroup;
+import androidx.media3.datasource.DataSpec;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Tests for {@link CmcdHeadersFactory}. */
+/** Tests for {@link CmcdData}. */
 @RunWith(AndroidJUnit4.class)
-public class CmcdHeadersFactoryTest {
+public class CmcdDataTest {
 
   @Test
-  public void createInstance_populatesCmcdHeaders() {
+  public void createInstance_populatesCmcdHttRequestHeaders() {
     CmcdConfiguration.Factory cmcdConfigurationFactory =
         mediaItem ->
             new CmcdConfiguration(
@@ -66,21 +67,23 @@ public class CmcdHeadersFactoryTest {
     when(trackSelection.getTrackGroup())
         .thenReturn(new TrackGroup(format, new Format.Builder().setPeakBitrate(1_000_000).build()));
     when(trackSelection.getLatestBitrateEstimate()).thenReturn(500_000L);
-
-    ImmutableMap<@CmcdConfiguration.HeaderKey String, String> requestHeaders =
-        new CmcdHeadersFactory(
+    DataSpec dataSpec = new DataSpec.Builder().setUri(Uri.EMPTY).build();
+    CmcdData cmcdData =
+        new CmcdData.Factory(
                 cmcdConfiguration,
                 trackSelection,
                 /* bufferedDurationUs= */ 1_760_000,
                 /* playbackRate= */ 2.0f,
-                /* streamingFormat= */ CmcdHeadersFactory.STREAMING_FORMAT_DASH,
+                /* streamingFormat= */ CmcdData.Factory.STREAMING_FORMAT_DASH,
                 /* isLive= */ true,
                 /* didRebuffer= */ true,
                 /* isBufferEmpty= */ false)
             .setChunkDurationUs(3_000_000)
-            .createHttpRequestHeaders();
+            .createCmcdData();
 
-    assertThat(requestHeaders)
+    dataSpec = cmcdData.addToDataSpec(dataSpec);
+
+    assertThat(dataSpec.httpRequestHeaders)
         .containsExactly(
             "CMCD-Object",
             "br=840,d=3000,key-1=1,key-2-separated-by-multiple-hyphens=2,tb=1000",
@@ -90,6 +93,62 @@ public class CmcdHeadersFactoryTest {
             "cid=\"mediaId\",pr=2.00,sf=d,sid=\"sessionId\",st=l",
             "CMCD-Status",
             "bs,key-4=\"stringValue3=stringValue4\",rtp=1700");
+  }
+
+  @Test
+  public void createInstance_populatesCmcdHttpQueryParameters() {
+    CmcdConfiguration.Factory cmcdConfigurationFactory =
+        mediaItem ->
+            new CmcdConfiguration(
+                "sessionId",
+                mediaItem.mediaId,
+                new CmcdConfiguration.RequestConfig() {
+                  @Override
+                  public ImmutableListMultimap<@CmcdConfiguration.HeaderKey String, String>
+                      getCustomData() {
+                    return new ImmutableListMultimap.Builder<String, String>()
+                        .put("CMCD-Object", "key-1=1")
+                        .put("CMCD-Request", "key-2=\"stringValue1,stringValue2\"")
+                        .build();
+                  }
+
+                  @Override
+                  public int getRequestedMaximumThroughputKbps(int throughputKbps) {
+                    return 2 * throughputKbps;
+                  }
+                },
+                CmcdConfiguration.MODE_QUERY_PARAMETER);
+    MediaItem mediaItem = new MediaItem.Builder().setMediaId("mediaId").build();
+    CmcdConfiguration cmcdConfiguration =
+        cmcdConfigurationFactory.createCmcdConfiguration(mediaItem);
+    ExoTrackSelection trackSelection = mock(ExoTrackSelection.class);
+    Format format = new Format.Builder().setPeakBitrate(840_000).build();
+    when(trackSelection.getSelectedFormat()).thenReturn(format);
+    when(trackSelection.getTrackGroup())
+        .thenReturn(new TrackGroup(format, new Format.Builder().setPeakBitrate(1_000_000).build()));
+    when(trackSelection.getLatestBitrateEstimate()).thenReturn(500_000L);
+    DataSpec dataSpec = new DataSpec.Builder().setUri(Uri.EMPTY).build();
+    CmcdData cmcdData =
+        new CmcdData.Factory(
+                cmcdConfiguration,
+                trackSelection,
+                /* bufferedDurationUs= */ 1_760_000,
+                /* playbackRate= */ 2.0f,
+                /* streamingFormat= */ CmcdData.Factory.STREAMING_FORMAT_DASH,
+                /* isLive= */ true,
+                /* didRebuffer= */ true,
+                /* isBufferEmpty= */ false)
+            .setChunkDurationUs(3_000_000)
+            .createCmcdData();
+
+    dataSpec = cmcdData.addToDataSpec(dataSpec);
+
+    assertThat(
+            Uri.decode(dataSpec.uri.getQueryParameter(CmcdConfiguration.CMCD_QUERY_PARAMETER_KEY)))
+        .isEqualTo(
+            "bl=1800,br=840,bs,cid=\"mediaId\",d=3000,dl=900,key-1=1,"
+                + "key-2=\"stringValue1,stringValue2\",mtp=500,pr=2.00,rtp=1700,sf=d,"
+                + "sid=\"sessionId\",st=l,su,tb=1000");
   }
 
   @Test
@@ -115,15 +174,15 @@ public class CmcdHeadersFactoryTest {
     assertThrows(
         IllegalStateException.class,
         () ->
-            new CmcdHeadersFactory(
+            new CmcdData.Factory(
                     cmcdConfiguration,
                     trackSelection,
                     /* bufferedDurationUs= */ 0,
                     /* playbackRate= */ 1.0f,
-                    /* streamingFormat= */ CmcdHeadersFactory.STREAMING_FORMAT_DASH,
+                    /* streamingFormat= */ CmcdData.Factory.STREAMING_FORMAT_DASH,
                     /* isLive= */ true,
                     /* didRebuffer= */ true,
                     /* isBufferEmpty= */ false)
-                .createHttpRequestHeaders());
+                .createCmcdData());
   }
 }

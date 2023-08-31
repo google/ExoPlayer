@@ -56,7 +56,7 @@ import androidx.media3.exoplayer.source.chunk.MediaChunkIterator;
 import androidx.media3.exoplayer.source.chunk.SingleSampleMediaChunk;
 import androidx.media3.exoplayer.trackselection.ExoTrackSelection;
 import androidx.media3.exoplayer.upstream.CmcdConfiguration;
-import androidx.media3.exoplayer.upstream.CmcdHeadersFactory;
+import androidx.media3.exoplayer.upstream.CmcdData;
 import androidx.media3.exoplayer.upstream.LoadErrorHandlingPolicy;
 import androidx.media3.exoplayer.upstream.LoaderErrorThrower;
 import androidx.media3.extractor.ChunkIndex;
@@ -387,15 +387,15 @@ public class DefaultDashChunkSource implements DashChunkSource {
     int selectedTrackIndex = trackSelection.getSelectedIndex();
 
     @Nullable
-    CmcdHeadersFactory cmcdHeadersFactory =
+    CmcdData.Factory cmcdDataFactory =
         cmcdConfiguration == null
             ? null
-            : new CmcdHeadersFactory(
+            : new CmcdData.Factory(
                 cmcdConfiguration,
                 trackSelection,
                 bufferedDurationUs,
                 /* playbackRate= */ loadingInfo.playbackSpeed,
-                /* streamingFormat= */ CmcdHeadersFactory.STREAMING_FORMAT_DASH,
+                /* streamingFormat= */ CmcdData.Factory.STREAMING_FORMAT_DASH,
                 /* isLive= */ manifest.dynamic,
                 /* didRebuffer= */ loadingInfo.rebufferedSince(lastChunkRequestRealtimeMs),
                 /* isBufferEmpty= */ queue.isEmpty());
@@ -423,7 +423,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
                 trackSelection.getSelectionData(),
                 pendingInitializationUri,
                 pendingIndexUri,
-                cmcdHeadersFactory);
+                cmcdDataFactory);
         return;
       }
     }
@@ -501,7 +501,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
             maxSegmentCount,
             seekTimeUs,
             nowPeriodTimeUs,
-            cmcdHeadersFactory);
+            cmcdDataFactory);
   }
 
   @Override
@@ -684,7 +684,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
    *     indexUri} is not {@code null}.
    * @param indexUri The URI pointing to index data. Can be {@code null} if {@code
    *     initializationUri} is not {@code null}.
-   * @param cmcdHeadersFactory The {@link CmcdHeadersFactory} for generating CMCD data.
+   * @param cmcdDataFactory The {@link CmcdData.Factory} for generating CMCD data.
    */
   @RequiresNonNull("#1.chunkExtractor")
   protected Chunk newInitializationChunk(
@@ -695,7 +695,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
       @Nullable Object trackSelectionData,
       @Nullable RangedUri initializationUri,
       @Nullable RangedUri indexUri,
-      @Nullable CmcdHeadersFactory cmcdHeadersFactory) {
+      @Nullable CmcdData.Factory cmcdDataFactory) {
     Representation representation = representationHolder.representation;
     RangedUri requestUri;
     if (initializationUri != null) {
@@ -709,19 +709,19 @@ public class DefaultDashChunkSource implements DashChunkSource {
     } else {
       requestUri = checkNotNull(indexUri);
     }
-    ImmutableMap<@CmcdConfiguration.HeaderKey String, String> httpRequestHeaders =
-        cmcdHeadersFactory == null
-            ? ImmutableMap.of()
-            : cmcdHeadersFactory
-                .setObjectType(CmcdHeadersFactory.OBJECT_TYPE_INIT_SEGMENT)
-                .createHttpRequestHeaders();
     DataSpec dataSpec =
         DashUtil.buildDataSpec(
             representation,
             representationHolder.selectedBaseUrl.url,
             requestUri,
             /* flags= */ 0,
-            httpRequestHeaders);
+            /* httpRequestHeaders= */ ImmutableMap.of());
+    if (cmcdDataFactory != null) {
+      CmcdData cmcdData =
+          cmcdDataFactory.setObjectType(CmcdData.Factory.OBJECT_TYPE_INIT_SEGMENT).createCmcdData();
+      dataSpec = cmcdData.addToDataSpec(dataSpec);
+    }
+
     return new InitializationChunk(
         dataSource,
         dataSpec,
@@ -742,7 +742,7 @@ public class DefaultDashChunkSource implements DashChunkSource {
       int maxSegmentCount,
       long seekTimeUs,
       long nowPeriodTimeUs,
-      @Nullable CmcdHeadersFactory cmcdHeadersFactory) {
+      @Nullable CmcdData.Factory cmcdDataFactory) {
     Representation representation = representationHolder.representation;
     long startTimeUs = representationHolder.getSegmentStartTimeUs(firstSegmentNum);
     RangedUri segmentUri = representationHolder.getSegmentUrl(firstSegmentNum);
@@ -753,29 +753,29 @@ public class DefaultDashChunkSource implements DashChunkSource {
                   firstSegmentNum, nowPeriodTimeUs)
               ? 0
               : DataSpec.FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED;
-      ImmutableMap<@CmcdConfiguration.HeaderKey String, String> httpRequestHeaders =
-          ImmutableMap.of();
-      if (cmcdHeadersFactory != null) {
-        cmcdHeadersFactory
-            .setChunkDurationUs(endTimeUs - startTimeUs)
-            .setObjectType(CmcdHeadersFactory.getObjectType(trackSelection));
-        @Nullable
-        Pair<String, String> nextObjectAndRangeRequest =
-            getNextObjectAndRangeRequest(firstSegmentNum, segmentUri, representationHolder);
-        if (nextObjectAndRangeRequest != null) {
-          cmcdHeadersFactory
-              .setNextObjectRequest(nextObjectAndRangeRequest.first)
-              .setNextRangeRequest(nextObjectAndRangeRequest.second);
-        }
-        httpRequestHeaders = cmcdHeadersFactory.createHttpRequestHeaders();
-      }
       DataSpec dataSpec =
           DashUtil.buildDataSpec(
               representation,
               representationHolder.selectedBaseUrl.url,
               segmentUri,
               flags,
-              httpRequestHeaders);
+              /* httpRequestHeaders= */ ImmutableMap.of());
+      if (cmcdDataFactory != null) {
+        cmcdDataFactory
+            .setChunkDurationUs(endTimeUs - startTimeUs)
+            .setObjectType(CmcdData.Factory.getObjectType(trackSelection));
+        @Nullable
+        Pair<String, String> nextObjectAndRangeRequest =
+            getNextObjectAndRangeRequest(firstSegmentNum, segmentUri, representationHolder);
+        if (nextObjectAndRangeRequest != null) {
+          cmcdDataFactory
+              .setNextObjectRequest(nextObjectAndRangeRequest.first)
+              .setNextRangeRequest(nextObjectAndRangeRequest.second);
+        }
+        CmcdData cmcdData = cmcdDataFactory.createCmcdData();
+        dataSpec = cmcdData.addToDataSpec(dataSpec);
+      }
+
       return new SingleSampleMediaChunk(
           dataSource,
           dataSpec,
@@ -812,29 +812,28 @@ public class DefaultDashChunkSource implements DashChunkSource {
           representationHolder.isSegmentAvailableAtFullNetworkSpeed(segmentNum, nowPeriodTimeUs)
               ? 0
               : DataSpec.FLAG_MIGHT_NOT_USE_FULL_NETWORK_SPEED;
-      ImmutableMap<@CmcdConfiguration.HeaderKey String, String> httpRequestHeaders =
-          ImmutableMap.of();
-      if (cmcdHeadersFactory != null) {
-        cmcdHeadersFactory
-            .setChunkDurationUs(endTimeUs - startTimeUs)
-            .setObjectType(CmcdHeadersFactory.getObjectType(trackSelection));
-        @Nullable
-        Pair<String, String> nextObjectAndRangeRequest =
-            getNextObjectAndRangeRequest(firstSegmentNum, segmentUri, representationHolder);
-        if (nextObjectAndRangeRequest != null) {
-          cmcdHeadersFactory
-              .setNextObjectRequest(nextObjectAndRangeRequest.first)
-              .setNextRangeRequest(nextObjectAndRangeRequest.second);
-        }
-        httpRequestHeaders = cmcdHeadersFactory.createHttpRequestHeaders();
-      }
       DataSpec dataSpec =
           DashUtil.buildDataSpec(
               representation,
               representationHolder.selectedBaseUrl.url,
               segmentUri,
               flags,
-              httpRequestHeaders);
+              /* httpRequestHeaders= */ ImmutableMap.of());
+      if (cmcdDataFactory != null) {
+        cmcdDataFactory
+            .setChunkDurationUs(endTimeUs - startTimeUs)
+            .setObjectType(CmcdData.Factory.getObjectType(trackSelection));
+        @Nullable
+        Pair<String, String> nextObjectAndRangeRequest =
+            getNextObjectAndRangeRequest(firstSegmentNum, segmentUri, representationHolder);
+        if (nextObjectAndRangeRequest != null) {
+          cmcdDataFactory
+              .setNextObjectRequest(nextObjectAndRangeRequest.first)
+              .setNextRangeRequest(nextObjectAndRangeRequest.second);
+        }
+        CmcdData cmcdData = cmcdDataFactory.createCmcdData();
+        dataSpec = cmcdData.addToDataSpec(dataSpec);
+      }
       long sampleOffsetUs = -representation.presentationTimeOffsetUs;
       return new ContainerMediaChunk(
           dataSource,
