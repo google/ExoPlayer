@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
 import android.content.ContentProvider;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -58,11 +60,16 @@ public final class AssetContentProvider extends ContentProvider
 
   @Override
   public Cursor query(
-      Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+      Uri uri,
+      @Nullable String[] projection,
+      @Nullable String selection,
+      @Nullable String[] selectionArgs,
+      @Nullable String sortOrder) {
     throw new UnsupportedOperationException();
   }
 
   @Override
+  @Nullable
   public AssetFileDescriptor openAssetFile(Uri uri, String mode) throws FileNotFoundException {
     if (uri.getPath() == null) {
       return null;
@@ -73,14 +80,18 @@ public final class AssetContentProvider extends ContentProvider
       if (pipeMode) {
         ParcelFileDescriptor fileDescriptor =
             openPipeHelper(
-                uri, /* mimeType= */ null, /* opts= */ null, /* args= */ null, /* func= */ this);
+                uri,
+                /* mimeType= */ "application/octet-stream",
+                /* opts= */ null,
+                /* args= */ null,
+                /* func= */ this);
         return new AssetFileDescriptor(
             fileDescriptor, /* startOffset= */ 0, AssetFileDescriptor.UNKNOWN_LENGTH);
       } else {
-        return getContext().getAssets().openFd(fileName);
+        return checkNotNull(getContext()).getAssets().openFd(fileName);
       }
     } catch (IOException e) {
-      FileNotFoundException exception = new FileNotFoundException(e.getMessage());
+      FileNotFoundException exception = new FileNotFoundException(checkNotNull(e.getMessage()));
       exception.initCause(e);
       throw exception;
     }
@@ -97,12 +108,16 @@ public final class AssetContentProvider extends ContentProvider
   }
 
   @Override
-  public int delete(Uri uri, String selection, String[] selectionArgs) {
+  public int delete(Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+  public int update(
+      Uri uri,
+      @Nullable ContentValues values,
+      @Nullable String selection,
+      @Nullable String[] selectionArgs) {
     throw new UnsupportedOperationException();
   }
 
@@ -114,7 +129,7 @@ public final class AssetContentProvider extends ContentProvider
       @Nullable Bundle opts,
       @Nullable Object args) {
     try (FileOutputStream outputStream = new FileOutputStream(output.getFileDescriptor())) {
-      byte[] data = TestUtil.getByteArray(getContext(), getFileName(uri));
+      byte[] data = TestUtil.getByteArray(checkNotNull(getContext()), getFileName(uri));
       outputStream.write(data);
     } catch (IOException e) {
       if (isBrokenPipe(e)) {
@@ -128,7 +143,7 @@ public final class AssetContentProvider extends ContentProvider
   }
 
   private static String getFileName(Uri uri) {
-    return uri.getPath().replaceFirst("/", "");
+    return checkNotNull(uri.getPath()).replaceFirst("/", "");
   }
 
   private static boolean isBrokenPipe(IOException e) {
