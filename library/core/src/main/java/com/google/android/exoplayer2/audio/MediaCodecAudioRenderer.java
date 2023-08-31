@@ -563,6 +563,12 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
               .setPcmEncoding(pcmEncoding)
               .setEncoderDelay(format.encoderDelay)
               .setEncoderPadding(format.encoderPadding)
+              .setMetadata(format.metadata)
+              .setId(format.id)
+              .setLabel(format.label)
+              .setLanguage(format.language)
+              .setSelectionFlags(format.selectionFlags)
+              .setRoleFlags(format.roleFlags)
               .setChannelCount(mediaFormat.getInteger(MediaFormat.KEY_CHANNEL_COUNT))
               .setSampleRate(mediaFormat.getInteger(MediaFormat.KEY_SAMPLE_RATE))
               .build();

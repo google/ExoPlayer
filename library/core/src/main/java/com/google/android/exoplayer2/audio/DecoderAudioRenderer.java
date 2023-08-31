@@ -448,6 +448,12 @@ public abstract class DecoderAudioRenderer<
               .buildUpon()
               .setEncoderDelay(encoderDelay)
               .setEncoderPadding(encoderPadding)
+              .setMetadata(inputFormat.metadata)
+              .setId(inputFormat.id)
+              .setLabel(inputFormat.label)
+              .setLanguage(inputFormat.language)
+              .setSelectionFlags(inputFormat.selectionFlags)
+              .setRoleFlags(inputFormat.roleFlags)
               .build();
       audioSink.configure(outputFormat, /* specifiedBufferSize= */ 0, /* outputChannels= */ null);
       audioTrackNeedsConfigure = false;
