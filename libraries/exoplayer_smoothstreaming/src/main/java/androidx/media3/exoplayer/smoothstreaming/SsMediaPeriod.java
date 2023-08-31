@@ -15,6 +15,8 @@
  */
 package androidx.media3.exoplayer.smoothstreaming;
 
+import static androidx.media3.common.util.Assertions.checkNotNull;
+
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
@@ -98,7 +100,7 @@ import java.util.List;
     for (ChunkSampleStream<SsChunkSource> sampleStream : sampleStreams) {
       sampleStream.getChunkSource().updateManifest(manifest);
     }
-    callback.onContinueLoadingRequested(this);
+    checkNotNull(callback).onContinueLoadingRequested(this);
   }
 
   public void release() {
@@ -142,7 +144,7 @@ import java.util.List;
           stream.release();
           streams[i] = null;
         } else {
-          stream.getChunkSource().updateTrackSelection(selections[i]);
+          stream.getChunkSource().updateTrackSelection(checkNotNull(selections[i]));
           sampleStreamsList.add(stream);
         }
       }
@@ -232,7 +234,7 @@ import java.util.List;
 
   @Override
   public void onContinueLoadingRequested(ChunkSampleStream<SsChunkSource> sampleStream) {
-    callback.onContinueLoadingRequested(this);
+    checkNotNull(callback).onContinueLoadingRequested(this);
   }
 
   // Private methods.
