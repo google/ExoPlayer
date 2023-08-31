@@ -15,9 +15,9 @@
  */
 package androidx.media3.container;
 
+import static androidx.media3.test.utils.TestUtil.createByteArray;
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Util;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.nio.ByteBuffer;
@@ -272,16 +272,5 @@ public final class NalUnitUtilTest {
     buffer.position(buffer.limit());
     NalUnitUtil.discardToSps(buffer);
     assertThat(Arrays.copyOf(buffer.array(), buffer.position())).isEqualTo(expectedOutputBitstream);
-  }
-
-  /** Converts an array of integers in the range [0, 255] into an equivalent byte array. */
-  // TODO(internal b/161804035): Use TestUtils when it's available in a dependency we can use here.
-  private static byte[] createByteArray(int... bytes) {
-    byte[] byteArray = new byte[bytes.length];
-    for (int i = 0; i < byteArray.length; i++) {
-      Assertions.checkState(0x00 <= bytes[i] && bytes[i] <= 0xFF);
-      byteArray[i] = (byte) bytes[i];
-    }
-    return byteArray;
   }
 }

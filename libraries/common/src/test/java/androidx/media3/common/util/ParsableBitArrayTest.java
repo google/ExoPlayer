@@ -15,6 +15,7 @@
  */
 package androidx.media3.common.util;
 
+import static androidx.media3.test.utils.TestUtil.createByteArray;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
@@ -369,16 +370,5 @@ public final class ParsableBitArrayTest {
 
     output.setPosition(0);
     assertThat(output.readBits(32)).isEqualTo(0x80000001);
-  }
-
-  /** Converts an array of integers in the range [0, 255] into an equivalent byte array. */
-  // TODO(internal b/161804035): Use TestUtils when it's available in a dependency we can use here.
-  private static byte[] createByteArray(int... bytes) {
-    byte[] byteArray = new byte[bytes.length];
-    for (int i = 0; i < byteArray.length; i++) {
-      Assertions.checkState(0x00 <= bytes[i] && bytes[i] <= 0xFF);
-      byteArray[i] = (byte) bytes[i];
-    }
-    return byteArray;
   }
 }

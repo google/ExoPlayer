@@ -19,6 +19,7 @@ import static androidx.media3.common.C.PLAYREADY_UUID;
 import static androidx.media3.common.C.UUID_NIL;
 import static androidx.media3.common.C.WIDEVINE_UUID;
 import static androidx.media3.common.MimeTypes.VIDEO_MP4;
+import static androidx.media3.test.utils.TestUtil.buildTestData;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Parcel;
@@ -26,7 +27,6 @@ import androidx.media3.common.DrmInitData.SchemeData;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -129,13 +129,5 @@ public class DrmInitDataTest {
       schemeDatas.add(drmInitData.get(i));
     }
     return schemeDatas;
-  }
-
-  /** Generates an array of random bytes with the specified length. */
-  // TODO(internal b/161804035): Use TestUtils when it's available in a dependency we can use here.
-  private static byte[] buildTestData(int length, int seed) {
-    byte[] source = new byte[length];
-    new Random(seed).nextBytes(source);
-    return source;
   }
 }

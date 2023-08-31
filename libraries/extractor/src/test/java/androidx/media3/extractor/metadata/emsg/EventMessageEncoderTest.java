@@ -15,17 +15,17 @@
  */
 package androidx.media3.extractor.metadata.emsg;
 
+import static androidx.media3.test.utils.TestUtil.createByteArray;
+import static androidx.media3.test.utils.TestUtil.createMetadataInputBuffer;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.media3.common.C;
 import androidx.media3.common.Metadata;
-import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.extractor.metadata.MetadataInputBuffer;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.primitives.Bytes;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -90,28 +90,5 @@ public final class EventMessageEncoderTest {
         new EventMessageDecoder().decode(new ParsableByteArray(encodedMessage));
 
     assertThat(decodedMessage).isEqualTo(originalMessage);
-  }
-
-  /** Converts an array of integers in the range [0, 255] into an equivalent byte array. */
-  // TODO(internal b/161804035): Move to a single file.
-  private static byte[] createByteArray(int... bytes) {
-    byte[] byteArray = new byte[bytes.length];
-    for (int i = 0; i < byteArray.length; i++) {
-      Assertions.checkState(0x00 <= bytes[i] && bytes[i] <= 0xFF);
-      byteArray[i] = (byte) bytes[i];
-    }
-    return byteArray;
-  }
-
-  /**
-   * Create a new {@link MetadataInputBuffer} and copy {@code data} into the backing {@link
-   * ByteBuffer}.
-   */
-  // TODO(internal b/161804035): Use TestUtils when it's available in a dependency we can use here.
-  private static MetadataInputBuffer createMetadataInputBuffer(byte[] data) {
-    MetadataInputBuffer buffer = new MetadataInputBuffer();
-    buffer.data = ByteBuffer.allocate(data.length).put(data);
-    buffer.data.flip();
-    return buffer;
   }
 }

@@ -26,6 +26,9 @@ import static androidx.media3.common.util.Util.minValue;
 import static androidx.media3.common.util.Util.parseXsDateTime;
 import static androidx.media3.common.util.Util.parseXsDuration;
 import static androidx.media3.common.util.Util.unescapeFileName;
+import static androidx.media3.test.utils.TestUtil.buildTestData;
+import static androidx.media3.test.utils.TestUtil.buildTestString;
+import static androidx.media3.test.utils.TestUtil.createByteArray;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.assertThrows;
@@ -41,7 +44,6 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.util.SparseLongArray;
 import androidx.media3.common.C;
-import androidx.media3.test.utils.TestUtil;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.io.ByteStreams;
 import com.google.common.util.concurrent.Futures;
@@ -996,7 +998,7 @@ public class UtilTest {
 
   @Test
   public void gzip_resultInflatesBackToOriginalValue() throws Exception {
-    byte[] input = TestUtil.buildTestData(20);
+    byte[] input = buildTestData(20);
 
     byte[] deflated = gzip(input);
 
@@ -1513,40 +1515,5 @@ public class UtilTest {
       @Override
       public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {}
     };
-  }
-
-  /** Generates an array of random bytes with the specified length. */
-  private static byte[] buildTestData(int length, int seed) {
-    byte[] source = new byte[length];
-    new Random(seed).nextBytes(source);
-    return source;
-  }
-
-  /** Equivalent to {@code buildTestData(length, length)}. */
-  // TODO(internal b/161804035): Use TestUtils when it's available in a dependency we can use here.
-  private static byte[] buildTestData(int length) {
-    return buildTestData(length, length);
-  }
-
-  /** Generates a random string with the specified maximum length. */
-  // TODO(internal b/161804035): Use TestUtils when it's available in a dependency we can use here.
-  private static String buildTestString(int maximumLength, Random random) {
-    int length = random.nextInt(maximumLength);
-    StringBuilder builder = new StringBuilder(length);
-    for (int i = 0; i < length; i++) {
-      builder.append((char) random.nextInt());
-    }
-    return builder.toString();
-  }
-
-  /** Converts an array of integers in the range [0, 255] into an equivalent byte array. */
-  // TODO(internal b/161804035): Use TestUtils when it's available in a dependency we can use here.
-  private static byte[] createByteArray(int... bytes) {
-    byte[] byteArray = new byte[bytes.length];
-    for (int i = 0; i < byteArray.length; i++) {
-      Assertions.checkState(0x00 <= bytes[i] && bytes[i] <= 0xFF);
-      byteArray[i] = (byte) bytes[i];
-    }
-    return byteArray;
   }
 }
