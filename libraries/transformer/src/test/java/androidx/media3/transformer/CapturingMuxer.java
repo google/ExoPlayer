@@ -17,6 +17,7 @@ package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 
+import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
@@ -28,9 +29,7 @@ import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A {@link Dumpable} {@link Muxer} implementation that supports dumping information about all
@@ -73,14 +72,14 @@ public final class CapturingMuxer implements Muxer, Dumpable {
   }
 
   private final Muxer wrappedMuxer;
-  private final Map<Integer, List<DumpableSample>> trackIndexToSampleDumpables;
+  private final SparseArray<ArrayList<DumpableSample>> dumpableSamplesByTrackIndex;
   private final List<Dumpable> dumpables;
 
   /** Creates a new test muxer. */
   private CapturingMuxer(Muxer wrappedMuxer) {
     this.wrappedMuxer = wrappedMuxer;
+    dumpableSamplesByTrackIndex = new SparseArray<>();
     dumpables = new ArrayList<>();
-    trackIndexToSampleDumpables = new HashMap<>();
   }
 
   // Muxer implementation.
@@ -89,7 +88,7 @@ public final class CapturingMuxer implements Muxer, Dumpable {
   public int addTrack(Format format) throws MuxerException {
     int trackIndex = wrappedMuxer.addTrack(format);
     dumpables.add(new DumpableFormat(format, trackIndex));
-    trackIndexToSampleDumpables.put(trackIndex, new ArrayList<>());
+    dumpableSamplesByTrackIndex.append(trackIndex, new ArrayList<>());
     return trackIndex;
   }
 
@@ -97,7 +96,7 @@ public final class CapturingMuxer implements Muxer, Dumpable {
   public void writeSampleData(
       int trackIndex, ByteBuffer data, long presentationTimeUs, @C.BufferFlags int flags)
       throws MuxerException {
-    trackIndexToSampleDumpables
+    dumpableSamplesByTrackIndex
         .get(trackIndex)
         .add(
             new DumpableSample(
@@ -116,8 +115,8 @@ public final class CapturingMuxer implements Muxer, Dumpable {
 
   @Override
   public void release(boolean forCancellation) throws MuxerException {
-    for (List<DumpableSample> value : trackIndexToSampleDumpables.values()) {
-      dumpables.addAll(value);
+    for (int i = 0; i < dumpableSamplesByTrackIndex.size(); i++) {
+      dumpables.addAll(dumpableSamplesByTrackIndex.valueAt(i));
     }
     dumpables.add(dumper -> dumper.add("released", true));
     wrappedMuxer.release(forCancellation);
