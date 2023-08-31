@@ -56,6 +56,7 @@ import java.util.concurrent.atomic.AtomicLong;
   private final VideoFrameProcessor videoFrameProcessor;
   private final AtomicLong mediaItemOffsetUs;
   private final ColorInfo inputColorInfo;
+  private final long initialTimestampOffsetUs;
   @Nullable final Presentation presentation;
 
   public VideoFrameProcessingWrapper(
@@ -67,10 +68,12 @@ import java.util.concurrent.atomic.AtomicLong;
       Executor listenerExecutor,
       VideoFrameProcessor.Listener listener,
       boolean renderFramesAutomatically,
-      @Nullable Presentation presentation)
+      @Nullable Presentation presentation,
+      long initialTimestampOffsetUs)
       throws VideoFrameProcessingException {
     this.mediaItemOffsetUs = new AtomicLong();
     this.inputColorInfo = inputColorInfo;
+    this.initialTimestampOffsetUs = initialTimestampOffsetUs;
     this.presentation = presentation;
 
     videoFrameProcessor =
@@ -97,7 +100,7 @@ import java.util.concurrent.atomic.AtomicLong;
           createEffectListWithPresentation(editedMediaItem.effects.videoEffects, presentation),
           new FrameInfo.Builder(decodedSize.getWidth(), decodedSize.getHeight())
               .setPixelWidthHeightRatio(trackFormat.pixelWidthHeightRatio)
-              .setOffsetToAddUs(mediaItemOffsetUs.get())
+              .setOffsetToAddUs(initialTimestampOffsetUs + mediaItemOffsetUs.get())
               .build());
     }
     mediaItemOffsetUs.addAndGet(durationUs);

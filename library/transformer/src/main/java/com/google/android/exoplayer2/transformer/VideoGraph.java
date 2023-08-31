@@ -64,7 +64,8 @@ import java.util.concurrent.Executor;
         DebugViewProvider debugViewProvider,
         Listener listener,
         Executor listenerExecutor,
-        List<Effect> compositionEffects)
+        List<Effect> compositionEffects,
+        long initialTimestampOffsetUs)
         throws VideoFrameProcessingException;
   }
 
