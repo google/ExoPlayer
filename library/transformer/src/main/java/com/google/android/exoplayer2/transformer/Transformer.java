@@ -832,53 +832,7 @@ public final class Transformer {
    * @throws IllegalStateException If an export is already in progress.
    */
   public void start(Composition composition, String path) {
-    checkArgument(composition.effects.audioProcessors.isEmpty());
-    // Only supports Presentation in video effects.
-    ImmutableList<Effect> videoEffects = composition.effects.videoEffects;
-    checkArgument(
-        videoEffects.isEmpty()
-            || (videoEffects.size() == 1 && videoEffects.get(0) instanceof Presentation));
-    verifyApplicationThread();
-    checkState(transformerInternal == null, "There is already an export in progress.");
-
-    MuxerWrapper muxerWrapper = new MuxerWrapper(path, muxerFactory);
-    TransformerInternalListener transformerInternalListener =
-        new TransformerInternalListener(composition);
-    HandlerWrapper applicationHandler = clock.createHandler(looper, /* callback= */ null);
-    TransformationRequest transformationRequest = this.transformationRequest;
-    if (composition.hdrMode != Composition.HDR_MODE_KEEP_HDR) {
-      transformationRequest =
-          transformationRequest.buildUpon().setHdrMode(composition.hdrMode).build();
-    }
-    FallbackListener fallbackListener =
-        new FallbackListener(composition, listeners, applicationHandler, transformationRequest);
-    AssetLoader.Factory assetLoaderFactory = this.assetLoaderFactory;
-    if (assetLoaderFactory == null) {
-      assetLoaderFactory =
-          new DefaultAssetLoaderFactory(
-              context,
-              new DefaultDecoderFactory(context),
-              /* forceInterpretHdrAsSdr= */ transformationRequest.hdrMode
-                  == HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR,
-              clock);
-    }
-    DebugTraceUtil.reset();
-    transformerInternal =
-        new TransformerInternal(
-            context,
-            composition,
-            transformationRequest,
-            assetLoaderFactory,
-            audioMixerFactory,
-            videoFrameProcessorFactory,
-            encoderFactory,
-            muxerWrapper,
-            transformerInternalListener,
-            fallbackListener,
-            applicationHandler,
-            debugViewProvider,
-            clock);
-    transformerInternal.start();
+    startInternal(composition, new MuxerWrapper(path, muxerFactory));
   }
 
   /**
@@ -1011,6 +965,55 @@ public final class Transformer {
     if (Looper.myLooper() != looper) {
       throw new IllegalStateException("Transformer is accessed on the wrong thread.");
     }
+  }
+
+  private void startInternal(Composition composition, MuxerWrapper muxerWrapper) {
+    checkArgument(composition.effects.audioProcessors.isEmpty());
+    // Only supports Presentation in video effects.
+    ImmutableList<Effect> videoEffects = composition.effects.videoEffects;
+    checkArgument(
+        videoEffects.isEmpty()
+            || (videoEffects.size() == 1 && videoEffects.get(0) instanceof Presentation));
+    verifyApplicationThread();
+    checkState(transformerInternal == null, "There is already an export in progress.");
+
+    TransformerInternalListener transformerInternalListener =
+        new TransformerInternalListener(composition);
+    HandlerWrapper applicationHandler = clock.createHandler(looper, /* callback= */ null);
+    TransformationRequest transformationRequest = this.transformationRequest;
+    if (composition.hdrMode != Composition.HDR_MODE_KEEP_HDR) {
+      transformationRequest =
+          transformationRequest.buildUpon().setHdrMode(composition.hdrMode).build();
+    }
+    FallbackListener fallbackListener =
+        new FallbackListener(composition, listeners, applicationHandler, transformationRequest);
+    AssetLoader.Factory assetLoaderFactory = this.assetLoaderFactory;
+    if (assetLoaderFactory == null) {
+      assetLoaderFactory =
+          new DefaultAssetLoaderFactory(
+              context,
+              new DefaultDecoderFactory(context),
+              /* forceInterpretHdrAsSdr= */ transformationRequest.hdrMode
+                  == HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR,
+              clock);
+    }
+    DebugTraceUtil.reset();
+    transformerInternal =
+        new TransformerInternal(
+            context,
+            composition,
+            transformationRequest,
+            assetLoaderFactory,
+            audioMixerFactory,
+            videoFrameProcessorFactory,
+            encoderFactory,
+            muxerWrapper,
+            transformerInternalListener,
+            fallbackListener,
+            applicationHandler,
+            debugViewProvider,
+            clock);
+    transformerInternal.start();
   }
 
   private final class TransformerInternalListener implements TransformerInternal.Listener {
