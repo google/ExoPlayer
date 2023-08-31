@@ -33,6 +33,7 @@
     *   Fix bug where a multi-period DASH live stream that is not the first item
         in a playlist can throw an exception
         ([#571](https://github.com/androidx/media/issues/571)).
+    *   Release StreamManager before calling `AdsLoader.destroy()`
 *   Session:
     *   Set the notifications foreground service behavior to
         `FOREGROUND_SERVICE_IMMEDIATE` in `DefaultMediaNotificationProvider`

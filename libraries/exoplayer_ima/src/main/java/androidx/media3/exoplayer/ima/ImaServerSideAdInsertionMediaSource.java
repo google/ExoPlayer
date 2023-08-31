@@ -453,9 +453,9 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
     public State release() {
       for (MediaSourceResourceHolder resourceHolder : mediaSourceResources.values()) {
         resourceHolder.streamPlayer.release();
-        resourceHolder.adsLoader.release();
         resourceHolder.imaServerSideAdInsertionMediaSource.setStreamManager(
             /* streamManager= */ null);
+        resourceHolder.adsLoader.release();
       }
       State state = new State(ImmutableMap.copyOf(adPlaybackStateMap));
       adPlaybackStateMap.clear();
