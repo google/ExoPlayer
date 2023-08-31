@@ -121,6 +121,21 @@ import java.util.Objects;
 @Deprecated
 public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSource<Void> {
 
+  /** A listener to be notified of stream events. */
+  public interface StreamEventListener {
+
+    /**
+     * Called when the {@linkplain StreamManager#getStreamId() stream ID} provided by the IMA SDK
+     * changed.
+     *
+     * <p>This method is called on the main thread.
+     *
+     * @param mediaItem The media item that the source resolved to the given stream ID.
+     * @param streamId The stream ID.
+     */
+    void onStreamIdChanged(MediaItem mediaItem, String streamId);
+  }
+
   /**
    * Factory for creating {@link ImaServerSideAdInsertionMediaSource
    * ImaServerSideAdInsertionMediaSources}.
@@ -188,9 +203,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
               adsLoader,
               imaAdsLoader,
               streamPlayer,
-              contentMediaSourceFactory,
-              adsLoader.configuration.applicationAdEventListener,
-              adsLoader.configuration.applicationAdErrorListener);
+              contentMediaSourceFactory);
       adsLoader.addMediaSourceResources(mediaSource, streamPlayer, imaAdsLoader);
       return mediaSource;
     }
@@ -206,6 +219,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
       private final AdViewProvider adViewProvider;
 
       @Nullable private ImaSdkSettings imaSdkSettings;
+      private StreamEventListener streamEventListener;
       @Nullable private AdEventListener adEventListener;
       @Nullable private AdErrorEvent.AdErrorListener adErrorListener;
       private State state;
@@ -224,6 +238,10 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
         companionAdSlots = ImmutableList.of();
         state = new State(ImmutableMap.of());
         focusSkipButtonWhenAvailable = true;
+        streamEventListener =
+            (mediaItem, streamId) -> {
+              // Do nothing.
+            };
       }
 
       /**
@@ -239,6 +257,18 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
       @CanIgnoreReturnValue
       public AdsLoader.Builder setImaSdkSettings(ImaSdkSettings imaSdkSettings) {
         this.imaSdkSettings = imaSdkSettings;
+        return this;
+      }
+
+      /**
+       * Sets the optional {@link StreamEventListener} that will be called for stream events.
+       *
+       * @param streamEventListener The stream event listener.
+       * @return This builder, for convenience.
+       */
+      @CanIgnoreReturnValue
+      public AdsLoader.Builder setStreamEventListener(StreamEventListener streamEventListener) {
+        this.streamEventListener = streamEventListener;
         return this;
       }
 
@@ -324,6 +354,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
             new ServerSideAdInsertionConfiguration(
                 adViewProvider,
                 imaSdkSettings,
+                streamEventListener,
                 adEventListener,
                 adErrorListener,
                 companionAdSlots,
@@ -511,6 +542,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
   private final MediaSource.Factory contentMediaSourceFactory;
   private final AdsLoader adsLoader;
   private final com.google.ads.interactivemedia.v3.api.AdsLoader sdkAdsLoader;
+  private final StreamEventListener streamEventListener;
   @Nullable private final AdEventListener applicationAdEventListener;
   @Nullable private final AdErrorListener applicationAdErrorListener;
   private final boolean isLiveStream;
@@ -523,6 +555,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
 
   @Nullable private Loader loader;
   @Nullable private StreamManager streamManager;
+  @Nullable private String streamId;
   @Nullable private ServerSideAdInsertionMediaSource serverSideAdInsertionMediaSource;
   @Nullable private IOException loadError;
   @Nullable private Timeline contentTimeline;
@@ -538,9 +571,7 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
       AdsLoader adsLoader,
       com.google.ads.interactivemedia.v3.api.AdsLoader sdkAdsLoader,
       StreamPlayer streamPlayer,
-      MediaSource.Factory contentMediaSourceFactory,
-      @Nullable AdEventListener applicationAdEventListener,
-      @Nullable AdErrorListener applicationAdErrorListener) {
+      MediaSource.Factory contentMediaSourceFactory) {
     this.player = player;
     this.mediaItem = mediaItem;
     this.streamRequest = streamRequest;
@@ -548,8 +579,9 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
     this.sdkAdsLoader = sdkAdsLoader;
     this.streamPlayer = streamPlayer;
     this.contentMediaSourceFactory = contentMediaSourceFactory;
-    this.applicationAdEventListener = applicationAdEventListener;
-    this.applicationAdErrorListener = applicationAdErrorListener;
+    this.streamEventListener = adsLoader.configuration.streamEventListener;
+    this.applicationAdEventListener = adsLoader.configuration.applicationAdEventListener;
+    this.applicationAdErrorListener = adsLoader.configuration.applicationAdErrorListener;
     Assertions.checkArgument(player.getApplicationLooper() == Looper.getMainLooper());
     mainHandler = new Handler(Looper.getMainLooper());
     Uri streamRequestUri = checkNotNull(mediaItem.localConfiguration).uri;
@@ -683,9 +715,15 @@ public final class ImaServerSideAdInsertionMediaSource extends CompositeMediaSou
       }
       this.streamManager.removeAdEventListener(componentListener);
       this.streamManager.destroy();
+      streamId = null;
     }
     this.streamManager = streamManager;
     if (streamManager != null) {
+      String newStreamId = streamManager.getStreamId();
+      if (!Objects.equals(streamId, newStreamId)) {
+        streamId = newStreamId;
+        streamEventListener.onStreamIdChanged(getMediaItem(), newStreamId);
+      }
       streamManager.addAdEventListener(componentListener);
       if (applicationAdEventListener != null) {
         streamManager.addAdEventListener(applicationAdEventListener);

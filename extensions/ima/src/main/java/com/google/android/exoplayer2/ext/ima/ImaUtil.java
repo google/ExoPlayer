@@ -182,6 +182,7 @@ import java.util.Set;
 
     public final AdViewProvider adViewProvider;
     public final ImaSdkSettings imaSdkSettings;
+    public final ImaServerSideAdInsertionMediaSource.StreamEventListener streamEventListener;
     @Nullable public final AdEvent.AdEventListener applicationAdEventListener;
     @Nullable public final AdErrorEvent.AdErrorListener applicationAdErrorListener;
     public final ImmutableList<CompanionAdSlot> companionAdSlots;
@@ -191,6 +192,7 @@ import java.util.Set;
     public ServerSideAdInsertionConfiguration(
         AdViewProvider adViewProvider,
         ImaSdkSettings imaSdkSettings,
+        ImaServerSideAdInsertionMediaSource.StreamEventListener streamEventListener,
         @Nullable AdEvent.AdEventListener applicationAdEventListener,
         @Nullable AdErrorEvent.AdErrorListener applicationAdErrorListener,
         List<CompanionAdSlot> companionAdSlots,
@@ -198,6 +200,7 @@ import java.util.Set;
         boolean debugModeEnabled) {
       this.imaSdkSettings = imaSdkSettings;
       this.adViewProvider = adViewProvider;
+      this.streamEventListener = streamEventListener;
       this.applicationAdEventListener = applicationAdEventListener;
       this.applicationAdErrorListener = applicationAdErrorListener;
       this.companionAdSlots = ImmutableList.copyOf(companionAdSlots);
