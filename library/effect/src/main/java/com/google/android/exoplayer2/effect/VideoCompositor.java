@@ -16,10 +16,12 @@
 package com.google.android.exoplayer2.effect;
 
 import com.google.android.exoplayer2.util.GlTextureInfo;
+import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
+import java.util.List;
 
 /**
- * Interface for a video compositor that combines frames from mutliple input sources to produce
+ * Interface for a video compositor that combines frames from multiple input sources to produce
  * output frames.
  *
  * <p>Input and output are provided via OpenGL textures.
@@ -43,6 +45,23 @@ public interface VideoCompositor extends GlTextureProducer {
 
     /** Called after {@link VideoCompositor} has output its final output frame. */
     void onEnded();
+  }
+
+  /** Settings for the {@link VideoCompositor}. */
+  interface Settings {
+    // TODO: b/262694346 - Consider adding more features, like selecting a:
+    //  * custom order for drawing (instead of primary stream on top), and
+    //  * different primary source.
+
+    /**
+     * Returns an output texture {@link Size}, based on {@code inputSizes}.
+     *
+     * @param inputSizes The {@link Size} of each input frame, ordered by {@code inputId}.
+     */
+    Size getOutputSize(List<Size> inputSizes);
+
+    /** Returns {@link OverlaySettings} for {@code inputId} at time {@code presentationTimeUs}. */
+    OverlaySettings getOverlaySettings(int inputId, long presentationTimeUs);
   }
 
   /**

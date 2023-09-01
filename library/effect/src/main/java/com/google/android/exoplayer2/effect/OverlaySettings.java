@@ -22,7 +22,8 @@ import androidx.annotation.FloatRange;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 /**
- * Contains information to control how a {@link TextureOverlay} is displayed on the screen.
+ * Contains information to control how an input texture (for example, a {@link VideoCompositor} or
+ * {@link TextureOverlay}) is displayed on a background.
  *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
  *     contains the same ExoPlayer code). See <a
@@ -53,6 +54,11 @@ public final class OverlaySettings {
     this.rotationDegrees = rotationDegrees;
   }
 
+  /** Returns a new {@link Builder} initialized with the values of this instance. */
+  /* package */ Builder buildUpon() {
+    return new Builder(this);
+  }
+
   /** A builder for {@link OverlaySettings} instances. */
   public static final class Builder {
     private boolean useHdr;
@@ -69,6 +75,15 @@ public final class OverlaySettings {
       overlayAnchor = Pair.create(0f, 0f);
       scale = Pair.create(1f, 1f);
       rotationDegrees = 0f;
+    }
+
+    private Builder(OverlaySettings overlaySettings) {
+      this.useHdr = overlaySettings.useHdr;
+      this.alphaScale = overlaySettings.alphaScale;
+      this.videoFrameAnchor = overlaySettings.videoFrameAnchor;
+      this.overlayAnchor = overlaySettings.overlayAnchor;
+      this.scale = overlaySettings.scale;
+      this.rotationDegrees = overlaySettings.rotationDegrees;
     }
 
     /**
@@ -98,6 +113,7 @@ public final class OverlaySettings {
       return this;
     }
 
+    // TODO: b/262694346 - Rename this method to setBackgroundAnchor in a follow-up CL.
     /**
      * Sets the coordinates for the anchor point of the overlay within the video frame.
      *
