@@ -24,6 +24,7 @@ import static androidx.media3.test.utils.VideoFrameProcessorTestRunner.createTim
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
+import static java.lang.Math.max;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.graphics.Bitmap;
@@ -44,6 +45,7 @@ import androidx.media3.common.Effect;
 import androidx.media3.common.GlObjectsProvider;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.util.GlUtil;
+import androidx.media3.common.util.Size;
 import androidx.media3.common.util.Util;
 import androidx.media3.effect.AlphaScale;
 import androidx.media3.effect.DefaultGlObjectsProvider;
@@ -51,6 +53,7 @@ import androidx.media3.effect.DefaultVideoCompositor;
 import androidx.media3.effect.DefaultVideoFrameProcessor;
 import androidx.media3.effect.OverlayEffect;
 import androidx.media3.effect.OverlaySettings;
+import androidx.media3.effect.Presentation;
 import androidx.media3.effect.RgbFilter;
 import androidx.media3.effect.ScaleAndRotateTransformation;
 import androidx.media3.effect.TextOverlay;
@@ -60,6 +63,7 @@ import androidx.media3.test.utils.TextureBitmapReader;
 import androidx.media3.test.utils.VideoFrameProcessorTestRunner;
 import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -103,14 +107,14 @@ public final class DefaultVideoCompositorPixelTest {
   private static final String ORIGINAL_PNG_ASSET_PATH =
       "media/bitmap/input_images/media3test_srgb.png";
   private static final String TEST_DIRECTORY = "media/bitmap/CompositorTestTimestamps/";
-
-  private @MonotonicNonNull String testId;
-  private @MonotonicNonNull VideoCompositorTestRunner compositorTestRunner;
   private static final ImmutableList<ImmutableList<Effect>> TWO_INPUT_COMPOSITOR_EFFECT_LISTS =
       ImmutableList.of(
           ImmutableList.of(RgbFilter.createGrayscaleFilter(), new AlphaScale(0.7f)),
           ImmutableList.of(
               new ScaleAndRotateTransformation.Builder().setRotationDegrees(180).build()));
+
+  private @MonotonicNonNull String testId;
+  private @MonotonicNonNull VideoCompositorTestRunner compositorTestRunner;
 
   @Before
   @EnsuresNonNull("testId")
@@ -124,6 +128,8 @@ public final class DefaultVideoCompositorPixelTest {
       compositorTestRunner.release();
     }
   }
+
+  // Tests for alpha and frame alpha/occlusion.
 
   @Test
   @RequiresNonNull("testId")
@@ -155,12 +161,13 @@ public final class DefaultVideoCompositorPixelTest {
   @RequiresNonNull("testId")
   public void compositeTwoInputs_withPrimaryTransparent_differentTimestamp_matchesExpectedBitmap()
       throws Exception {
-    ImmutableList<ImmutableList<Effect>> inputEffects =
+    ImmutableList<ImmutableList<Effect>> inputEffectLists =
         ImmutableList.of(
             ImmutableList.of(new AlphaScale(0f)),
             ImmutableList.of(
                 new ScaleAndRotateTransformation.Builder().setRotationDegrees(180).build()));
-    compositorTestRunner = new VideoCompositorTestRunner(testId, useSharedExecutor, inputEffects);
+    compositorTestRunner =
+        new VideoCompositorTestRunner(testId, useSharedExecutor, inputEffectLists);
 
     compositorTestRunner.queueBitmapToInput(
         /* inputId= */ 0, /* timestamps= */ ImmutableList.of(0L));
@@ -186,12 +193,13 @@ public final class DefaultVideoCompositorPixelTest {
   @RequiresNonNull("testId")
   public void compositeTwoInputs_withPrimaryOpaque_differentTimestamp_matchesExpectedBitmap()
       throws Exception {
-    ImmutableList<ImmutableList<Effect>> inputEffects =
+    ImmutableList<ImmutableList<Effect>> inputEffectLists =
         ImmutableList.of(
             ImmutableList.of(RgbFilter.createGrayscaleFilter(), new AlphaScale(100f)),
             ImmutableList.of(
                 new ScaleAndRotateTransformation.Builder().setRotationDegrees(180).build()));
-    compositorTestRunner = new VideoCompositorTestRunner(testId, useSharedExecutor, inputEffects);
+    compositorTestRunner =
+        new VideoCompositorTestRunner(testId, useSharedExecutor, inputEffectLists);
 
     compositorTestRunner.queueBitmapToInput(
         /* inputId= */ 0, /* timestamps= */ ImmutableList.of(0L));
@@ -217,11 +225,12 @@ public final class DefaultVideoCompositorPixelTest {
   @RequiresNonNull("testId")
   public void compositeTwoInputs_withSecondaryTransparent_differentTimestamp_matchesExpectedBitmap()
       throws Exception {
-    ImmutableList<ImmutableList<Effect>> inputEffects =
+    ImmutableList<ImmutableList<Effect>> inputEffectLists =
         ImmutableList.of(
             ImmutableList.of(RgbFilter.createGrayscaleFilter(), new AlphaScale(0.7f)),
             ImmutableList.of(new AlphaScale(0f)));
-    compositorTestRunner = new VideoCompositorTestRunner(testId, useSharedExecutor, inputEffects);
+    compositorTestRunner =
+        new VideoCompositorTestRunner(testId, useSharedExecutor, inputEffectLists);
 
     compositorTestRunner.queueBitmapToInput(
         /* inputId= */ 0, /* timestamps= */ ImmutableList.of(0L));
@@ -242,6 +251,8 @@ public final class DefaultVideoCompositorPixelTest {
     compositorTestRunner.saveAndAssertCompositedBitmapsMatchExpected(
         ImmutableList.of("0s_1s_transparent"));
   }
+
+  // Tests for mixing different frame rates and timestamps.
 
   @Test
   @RequiresNonNull("testId")
@@ -428,6 +439,8 @@ public final class DefaultVideoCompositorPixelTest {
         ImmutableList.of("0s_1s", "1s_1s", "2s_1s", "3s_3s", "4s_4s"));
   }
 
+  // Tests for "many" inputs/frames.
+
   @Test
   @RequiresNonNull("testId")
   public void compositeTwoInputs_withTenFramesFromEach_matchesExpectedFrameCount()
@@ -467,6 +480,8 @@ public final class DefaultVideoCompositorPixelTest {
 
     assertThat(compositorTestRunner.getCompositedTimestamps()).hasSize(numberOfFramesToQueue);
   }
+
+  // Tests for different amounts of inputs.
 
   @Test
   @RequiresNonNull("testId")
@@ -526,6 +541,120 @@ public final class DefaultVideoCompositorPixelTest {
         ImmutableList.of("0s_1s_0s", "1s_1s_0s", "2s_1s_2s"));
   }
 
+  // Tests for different layouts.
+
+  @Test
+  @RequiresNonNull("testId")
+  public void compositeTwoInputs_pictureInPicture_matchesExpectedBitmap() throws Exception {
+    ImmutableList<ImmutableList<Effect>> inputEffectLists =
+        ImmutableList.of(ImmutableList.of(), ImmutableList.of(RgbFilter.createGrayscaleFilter()));
+    VideoCompositor.Settings pictureInPictureSettings =
+        new VideoCompositor.Settings() {
+          @Override
+          public Size getOutputSize(List<Size> inputSizes) {
+            return inputSizes.get(0);
+          }
+
+          @Override
+          public OverlaySettings getOverlaySettings(int inputId, long presentationTimeUs) {
+            if (inputId == 0) {
+              // This tests all OverlaySettings builder variables.
+              return new OverlaySettings.Builder()
+                  .setScale(.25f, .5f)
+                  .setOverlayAnchor(1, -1)
+                  .setVideoFrameAnchor(.9f, -.7f)
+                  .setRotationDegrees(20)
+                  .setAlphaScale(.5f)
+                  .build();
+            } else {
+              return new OverlaySettings.Builder().build();
+            }
+          }
+        };
+    compositorTestRunner =
+        new VideoCompositorTestRunner(
+            testId, useSharedExecutor, inputEffectLists, pictureInPictureSettings);
+
+    compositorTestRunner.queueBitmapToAllInputs(1);
+    compositorTestRunner.endCompositing();
+
+    compositorTestRunner.saveAndAssertCompositedBitmapsMatchExpected(
+        ImmutableList.of("picture_in_picture"));
+  }
+
+  @Test
+  @RequiresNonNull("testId")
+  public void compositeTwoInputs_differentDimensions_matchesExpectedBitmap() throws Exception {
+    ImmutableList<ImmutableList<Effect>> inputEffectLists =
+        ImmutableList.of(
+            ImmutableList.of(
+                Presentation.createForWidthAndHeight(100, 100, Presentation.LAYOUT_STRETCH_TO_FIT)),
+            ImmutableList.of(RgbFilter.createGrayscaleFilter()));
+    VideoCompositor.Settings secondStreamAsOutputSizeSettings =
+        new VideoCompositor.Settings() {
+          @Override
+          public Size getOutputSize(List<Size> inputSizes) {
+            return Iterables.getLast(inputSizes);
+          }
+
+          @Override
+          public OverlaySettings getOverlaySettings(int inputId, long presentationTimeUs) {
+            return new OverlaySettings.Builder().build();
+          }
+        };
+    compositorTestRunner =
+        new VideoCompositorTestRunner(
+            testId, useSharedExecutor, inputEffectLists, secondStreamAsOutputSizeSettings);
+
+    compositorTestRunner.queueBitmapToAllInputs(1);
+    compositorTestRunner.endCompositing();
+
+    compositorTestRunner.saveAndAssertCompositedBitmapsMatchExpected(
+        ImmutableList.of("different_dimensions"));
+  }
+
+  @Test
+  @RequiresNonNull("testId")
+  public void compositeTwoInputs_stacked_matchesExpectedBitmap() throws Exception {
+    ImmutableList<ImmutableList<Effect>> inputEffectLists =
+        ImmutableList.of(
+            ImmutableList.of(RgbFilter.createGrayscaleFilter()),
+            ImmutableList.of(),
+            ImmutableList.of(RgbFilter.createInvertedFilter()));
+    VideoCompositor.Settings stackedFrameSettings =
+        new VideoCompositor.Settings() {
+          private static final int NUMBER_OF_INPUT_STREAMS = 3;
+
+          @Override
+          public Size getOutputSize(List<Size> inputSizes) {
+            // Return the maximum width and sum of all heights.
+            int width = 0;
+            int height = 0;
+            for (int i = 0; i < inputSizes.size(); i++) {
+              width = max(width, inputSizes.get(i).getWidth());
+              height += inputSizes.get(i).getHeight();
+            }
+            return new Size(width, height);
+          }
+
+          @Override
+          public OverlaySettings getOverlaySettings(int inputId, long presentationTimeUs) {
+            return new OverlaySettings.Builder()
+                .setOverlayAnchor(-1, -1)
+                .setVideoFrameAnchor(-1, -1 + 2f * inputId / NUMBER_OF_INPUT_STREAMS)
+                .build();
+          }
+        };
+    compositorTestRunner =
+        new VideoCompositorTestRunner(
+            testId, useSharedExecutor, inputEffectLists, stackedFrameSettings);
+
+    compositorTestRunner.queueBitmapToAllInputs(1);
+    compositorTestRunner.endCompositing();
+
+    compositorTestRunner.saveAndAssertCompositedBitmapsMatchExpected(ImmutableList.of("stacked"));
+  }
+
   /**
    * A test runner for {@link DefaultVideoCompositor} tests.
    *
@@ -544,7 +673,7 @@ public final class DefaultVideoCompositorPixelTest {
     private final String testId;
 
     /**
-     * Creates an instance.
+     * Creates an instance using {@link DefaultVideoCompositor.Settings}.
      *
      * @param testId The {@link String} identifier for the test, used to name output files.
      * @param useSharedExecutor Whether to use a shared executor for {@link
@@ -558,6 +687,27 @@ public final class DefaultVideoCompositorPixelTest {
         String testId,
         boolean useSharedExecutor,
         ImmutableList<ImmutableList<Effect>> inputEffectLists)
+        throws GlUtil.GlException, VideoFrameProcessingException {
+      this(testId, useSharedExecutor, inputEffectLists, new DefaultVideoCompositor.Settings());
+    }
+
+    /**
+     * Creates an instance.
+     *
+     * @param testId The {@link String} identifier for the test, used to name output files.
+     * @param useSharedExecutor Whether to use a shared executor for {@link
+     *     VideoFrameProcessorTestRunner} and {@link VideoCompositor} instances.
+     * @param inputEffectLists {@link Effect}s to apply for {@link VideoCompositor} input sources.
+     *     The size of this outer {@link List} is the amount of inputs. One inner list of {@link
+     *     Effect}s is used for each input. For each input, the frame timestamp and {@code inputId}
+     *     are overlaid via {@link TextOverlay} prior to its effects being applied.
+     * @param settings The {@link VideoCompositor.Settings}.
+     */
+    public VideoCompositorTestRunner(
+        String testId,
+        boolean useSharedExecutor,
+        ImmutableList<ImmutableList<Effect>> inputEffectLists,
+        VideoCompositor.Settings settings)
         throws GlUtil.GlException, VideoFrameProcessingException {
       this.testId = testId;
       timeoutMs = inputEffectLists.size() * VIDEO_FRAME_PROCESSING_WAIT_MS;
@@ -575,6 +725,7 @@ public final class DefaultVideoCompositorPixelTest {
           new DefaultVideoCompositor(
               getApplicationContext(),
               glObjectsProvider,
+              settings,
               sharedExecutorService,
               new VideoCompositor.Listener() {
                 @Override

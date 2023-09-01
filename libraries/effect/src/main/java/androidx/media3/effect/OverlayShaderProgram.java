@@ -29,7 +29,7 @@ import com.google.common.collect.ImmutableList;
 /* package */ final class OverlayShaderProgram extends BaseGlShaderProgram {
 
   private final GlProgram glProgram;
-  private final OverlayMatrixProvider overlayMatrixProvider;
+  private final SamplerOverlayMatrixProvider samplerOverlayMatrixProvider;
   private final ImmutableList<TextureOverlay> overlays;
 
   /**
@@ -49,7 +49,7 @@ import com.google.common.collect.ImmutableList;
         overlays.size() <= 15,
         "OverlayShaderProgram does not support more than 15 overlays in the same instance.");
     this.overlays = overlays;
-    this.overlayMatrixProvider = new OverlayMatrixProvider();
+    this.samplerOverlayMatrixProvider = new SamplerOverlayMatrixProvider();
     try {
       glProgram =
           new GlProgram(createVertexShader(overlays.size()), createFragmentShader(overlays.size()));
@@ -66,7 +66,7 @@ import com.google.common.collect.ImmutableList;
   @Override
   public Size configure(int inputWidth, int inputHeight) {
     Size videoSize = new Size(inputWidth, inputHeight);
-    overlayMatrixProvider.configure(/* backgroundSize= */ videoSize);
+    samplerOverlayMatrixProvider.configure(/* backgroundSize= */ videoSize);
     for (TextureOverlay overlay : overlays) {
       overlay.configure(videoSize);
     }
@@ -91,7 +91,7 @@ import com.google.common.collect.ImmutableList;
 
           glProgram.setFloatsUniform(
               Util.formatInvariant("uTransformationMatrix%d", texUnitIndex),
-              overlayMatrixProvider.getTransformationMatrix(overlaySize, overlaySettings));
+              samplerOverlayMatrixProvider.getTransformationMatrix(overlaySize, overlaySettings));
 
           glProgram.setFloatUniform(
               Util.formatInvariant("uOverlayAlphaScale%d", texUnitIndex),

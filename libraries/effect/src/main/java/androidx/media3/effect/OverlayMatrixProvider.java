@@ -15,7 +15,7 @@
  */
 package androidx.media3.effect;
 
-import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import android.opengl.Matrix;
 import android.util.Pair;
@@ -23,15 +23,14 @@ import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Size;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/* package */ final class OverlayMatrixProvider {
-  private static final int MATRIX_OFFSET = 0;
+/** Provides a matrix for {@link OverlaySettings}, to be applied on a vertex. */
+/* package */ class OverlayMatrixProvider {
+  protected static final int MATRIX_OFFSET = 0;
   private final float[] videoFrameAnchorMatrix;
-  private final float[] videoFrameAnchorMatrixInv;
   private final float[] aspectRatioMatrix;
   private final float[] scaleMatrix;
   private final float[] scaleMatrixInv;
   private final float[] overlayAnchorMatrix;
-  private final float[] overlayAnchorMatrixInv;
   private final float[] rotateMatrix;
   private final float[] overlayAspectRatioMatrix;
   private final float[] overlayAspectRatioMatrixInv;
@@ -41,9 +40,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public OverlayMatrixProvider() {
     aspectRatioMatrix = GlUtil.create4x4IdentityMatrix();
     videoFrameAnchorMatrix = GlUtil.create4x4IdentityMatrix();
-    videoFrameAnchorMatrixInv = GlUtil.create4x4IdentityMatrix();
     overlayAnchorMatrix = GlUtil.create4x4IdentityMatrix();
-    overlayAnchorMatrixInv = GlUtil.create4x4IdentityMatrix();
     rotateMatrix = GlUtil.create4x4IdentityMatrix();
     scaleMatrix = GlUtil.create4x4IdentityMatrix();
     scaleMatrixInv = GlUtil.create4x4IdentityMatrix();
@@ -56,6 +53,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.backgroundSize = backgroundSize;
   }
 
+  /**
+   * Returns the transformation matrix.
+   *
+   * <p>This instance must be {@linkplain #configure configured} before this method is called.
+   */
   public float[] getTransformationMatrix(Size overlaySize, OverlaySettings overlaySettings) {
     reset();
 
@@ -67,44 +69,38 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         videoFrameAnchor.first,
         videoFrameAnchor.second,
         /* z= */ 0f);
-    Matrix.invertM(videoFrameAnchorMatrixInv, MATRIX_OFFSET, videoFrameAnchorMatrix, MATRIX_OFFSET);
 
+    checkStateNotNull(backgroundSize);
     Matrix.scaleM(
         aspectRatioMatrix,
         MATRIX_OFFSET,
-        checkNotNull(backgroundSize).getWidth() / (float) overlaySize.getWidth(),
-        checkNotNull(backgroundSize).getHeight() / (float) overlaySize.getHeight(),
+        (float) overlaySize.getWidth() / backgroundSize.getWidth(),
+        (float) overlaySize.getHeight() / backgroundSize.getHeight(),
         /* z= */ 1f);
 
     // Scale the image.
     Pair<Float, Float> scale = overlaySettings.scale;
-    Matrix.scaleM(
-        scaleMatrix,
-        MATRIX_OFFSET,
-        scaleMatrix,
-        MATRIX_OFFSET,
-        scale.first,
-        scale.second,
-        /* z= */ 1f);
+    Matrix.scaleM(scaleMatrix, MATRIX_OFFSET, scale.first, scale.second, /* z= */ 1f);
     Matrix.invertM(scaleMatrixInv, MATRIX_OFFSET, scaleMatrix, MATRIX_OFFSET);
 
-    // Translate the overlay within its frame.
+    // Translate the overlay within its frame. To position the overlay's anchor at the correct
+    // position, it must be translated the opposite direction by the same magnitude.
     Pair<Float, Float> overlayAnchor = overlaySettings.overlayAnchor;
     Matrix.translateM(
-        overlayAnchorMatrix, MATRIX_OFFSET, overlayAnchor.first, overlayAnchor.second, /* z= */ 0f);
-    Matrix.invertM(overlayAnchorMatrixInv, MATRIX_OFFSET, overlayAnchorMatrix, MATRIX_OFFSET);
+        overlayAnchorMatrix,
+        MATRIX_OFFSET,
+        -1 * overlayAnchor.first,
+        -1 * overlayAnchor.second,
+        /* z= */ 0f);
 
     // Rotate the image.
     Matrix.rotateM(
-        rotateMatrix,
-        MATRIX_OFFSET,
         rotateMatrix,
         MATRIX_OFFSET,
         overlaySettings.rotationDegrees,
         /* x= */ 0f,
         /* y= */ 0f,
         /* z= */ 1f);
-    Matrix.invertM(rotateMatrix, MATRIX_OFFSET, rotateMatrix, MATRIX_OFFSET);
 
     // Rotation matrix needs to account for overlay aspect ratio to prevent stretching.
     Matrix.scaleM(
@@ -116,67 +112,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     Matrix.invertM(
         overlayAspectRatioMatrixInv, MATRIX_OFFSET, overlayAspectRatioMatrix, MATRIX_OFFSET);
 
-    // Rotation needs to be agnostic of the scaling matrix and the aspect ratios.
-    // transformationMatrix = scaleMatrixInv * overlayAspectRatioMatrix * rotateMatrix *
-    //   overlayAspectRatioInv * scaleMatrix * overlayAnchorMatrixInv * scaleMatrixInv *
-    //   aspectRatioMatrix * videoFrameAnchorMatrixInv
-    Matrix.multiplyMM(
-        transformationMatrix,
-        MATRIX_OFFSET,
-        transformationMatrix,
-        MATRIX_OFFSET,
-        scaleMatrixInv,
-        MATRIX_OFFSET);
+    // transformationMatrix = videoFrameAnchorMatrix * aspectRatioMatrix
+    //   * scaleMatrix * overlayAnchorMatrix * scaleMatrixInv
+    //   * overlayAspectRatioMatrix * rotateMatrix * overlayAspectRatioMatrixInv
+    //   * scaleMatrix.
 
+    // Anchor position in output frame.
     Matrix.multiplyMM(
         transformationMatrix,
         MATRIX_OFFSET,
         transformationMatrix,
         MATRIX_OFFSET,
-        overlayAspectRatioMatrix,
-        MATRIX_OFFSET);
-
-    // Rotation matrix.
-    Matrix.multiplyMM(
-        transformationMatrix,
-        MATRIX_OFFSET,
-        transformationMatrix,
-        MATRIX_OFFSET,
-        rotateMatrix,
-        MATRIX_OFFSET);
-
-    Matrix.multiplyMM(
-        transformationMatrix,
-        MATRIX_OFFSET,
-        transformationMatrix,
-        MATRIX_OFFSET,
-        overlayAspectRatioMatrixInv,
-        MATRIX_OFFSET);
-
-    Matrix.multiplyMM(
-        transformationMatrix,
-        MATRIX_OFFSET,
-        transformationMatrix,
-        MATRIX_OFFSET,
-        scaleMatrix,
-        MATRIX_OFFSET);
-
-    // Translate image.
-    Matrix.multiplyMM(
-        transformationMatrix,
-        MATRIX_OFFSET,
-        transformationMatrix,
-        MATRIX_OFFSET,
-        overlayAnchorMatrixInv,
-        MATRIX_OFFSET);
-
-    // Scale image.
-    Matrix.multiplyMM(
-        transformationMatrix,
-        MATRIX_OFFSET,
-        transformationMatrix,
-        MATRIX_OFFSET,
-        scaleMatrixInv,
+        videoFrameAnchorMatrix,
         MATRIX_OFFSET);
 
     // Correct for aspect ratio of image in output frame.
@@ -188,23 +135,67 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         aspectRatioMatrix,
         MATRIX_OFFSET);
 
-    // Anchor position in output frame.
     Matrix.multiplyMM(
         transformationMatrix,
         MATRIX_OFFSET,
         transformationMatrix,
         MATRIX_OFFSET,
-        videoFrameAnchorMatrixInv,
+        scaleMatrix,
         MATRIX_OFFSET);
+    Matrix.multiplyMM(
+        transformationMatrix,
+        MATRIX_OFFSET,
+        transformationMatrix,
+        MATRIX_OFFSET,
+        overlayAnchorMatrix,
+        MATRIX_OFFSET);
+    Matrix.multiplyMM(
+        transformationMatrix,
+        MATRIX_OFFSET,
+        transformationMatrix,
+        MATRIX_OFFSET,
+        scaleMatrixInv,
+        MATRIX_OFFSET);
+
+    // Rotation needs to be agnostic of the scaling matrix and the aspect ratios.
+    Matrix.multiplyMM(
+        transformationMatrix,
+        MATRIX_OFFSET,
+        transformationMatrix,
+        MATRIX_OFFSET,
+        overlayAspectRatioMatrix,
+        MATRIX_OFFSET);
+    Matrix.multiplyMM(
+        transformationMatrix,
+        MATRIX_OFFSET,
+        transformationMatrix,
+        MATRIX_OFFSET,
+        rotateMatrix,
+        MATRIX_OFFSET);
+    Matrix.multiplyMM(
+        transformationMatrix,
+        MATRIX_OFFSET,
+        transformationMatrix,
+        MATRIX_OFFSET,
+        overlayAspectRatioMatrixInv,
+        MATRIX_OFFSET);
+
+    // Scale image.
+    Matrix.multiplyMM(
+        transformationMatrix,
+        MATRIX_OFFSET,
+        transformationMatrix,
+        MATRIX_OFFSET,
+        scaleMatrix,
+        MATRIX_OFFSET);
+
     return transformationMatrix;
   }
 
   private void reset() {
     GlUtil.setToIdentity(aspectRatioMatrix);
     GlUtil.setToIdentity(videoFrameAnchorMatrix);
-    GlUtil.setToIdentity(videoFrameAnchorMatrixInv);
     GlUtil.setToIdentity(overlayAnchorMatrix);
-    GlUtil.setToIdentity(overlayAnchorMatrixInv);
     GlUtil.setToIdentity(scaleMatrix);
     GlUtil.setToIdentity(scaleMatrixInv);
     GlUtil.setToIdentity(rotateMatrix);

@@ -36,6 +36,7 @@ import androidx.media3.common.util.GlProgram;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.LongArrayQueue;
+import androidx.media3.common.util.Size;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import com.google.common.collect.ImmutableList;
@@ -50,8 +51,8 @@ import java.util.concurrent.ExecutorService;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * A basic {@link VideoCompositor} implementation that takes in frames from exactly 2 input sources'
- * streams and combines them into one output stream.
+ * A basic {@link VideoCompositor} implementation that takes in frames from exactly 2 SDR input
+ * sources' streams and combines them into one output stream.
  *
  * <p>The first {@linkplain #registerInputSource registered source} will be the primary stream,
  * which is used to determine the output frames' timestamps and dimensions.
@@ -62,17 +63,33 @@ public final class DefaultVideoCompositor implements VideoCompositor {
   //  * Use a lock to synchronize inputFrameInfos more narrowly, to reduce blocking.
   //  * If the primary stream ends, consider setting the secondary stream as the new primary stream,
   //    so that secondary stream frames aren't dropped.
+  //  * Add support for HDR input.
+
+  /** A default implementation of {@link VideoCompositor.Settings}. */
+  public static final class Settings implements VideoCompositor.Settings {
+    @Override
+    public Size getOutputSize(List<Size> inputSizes) {
+      return inputSizes.get(PRIMARY_INPUT_ID);
+    }
+
+    @Override
+    public OverlaySettings getOverlaySettings(int inputId, long presentationTimeUs) {
+      return new OverlaySettings.Builder().build();
+    }
+  }
 
   private static final String THREAD_NAME = "Effect:DefaultVideoCompositor:GlThread";
   private static final String TAG = "DefaultVideoCompositor";
   private static final String VERTEX_SHADER_PATH = "shaders/vertex_shader_transformation_es2.glsl";
-  private static final String FRAGMENT_SHADER_PATH = "shaders/fragment_shader_copy_es2.glsl";
+  private static final String FRAGMENT_SHADER_PATH = "shaders/fragment_shader_alpha_scale_es2.glsl";
   private static final int PRIMARY_INPUT_ID = 0;
 
   private final Context context;
   private final VideoCompositor.Listener listener;
   private final GlTextureProducer.Listener textureOutputListener;
   private final GlObjectsProvider glObjectsProvider;
+  private final VideoCompositor.Settings settings;
+  private final OverlayMatrixProvider overlayMatrixProvider;
   private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
 
   @GuardedBy("this")
@@ -100,6 +117,7 @@ public final class DefaultVideoCompositor implements VideoCompositor {
   public DefaultVideoCompositor(
       Context context,
       GlObjectsProvider glObjectsProvider,
+      VideoCompositor.Settings settings,
       @Nullable ExecutorService executorService,
       VideoCompositor.Listener listener,
       GlTextureProducer.Listener textureOutputListener,
@@ -108,6 +126,8 @@ public final class DefaultVideoCompositor implements VideoCompositor {
     this.listener = listener;
     this.textureOutputListener = textureOutputListener;
     this.glObjectsProvider = glObjectsProvider;
+    this.settings = settings;
+    this.overlayMatrixProvider = new OverlayMatrixProvider();
 
     inputSources = new ArrayList<>();
     outputTexturePool =
@@ -180,7 +200,11 @@ public final class DefaultVideoCompositor implements VideoCompositor {
     checkState(!inputSource.isInputEnded);
 
     InputFrameInfo inputFrameInfo =
-        new InputFrameInfo(textureProducer, inputTexture, presentationTimeUs);
+        new InputFrameInfo(
+            textureProducer,
+            inputTexture,
+            presentationTimeUs,
+            settings.getOverlaySettings(inputId, presentationTimeUs));
     inputSource.frameInfos.add(inputFrameInfo);
 
     if (inputId == PRIMARY_INPUT_ID) {
@@ -277,17 +301,17 @@ public final class DefaultVideoCompositor implements VideoCompositor {
 
     ensureGlProgramConfigured();
 
-    // TODO: b/262694346 - Allow different input frame dimensions.
     InputFrameInfo primaryInputFrame = framesToComposite.get(PRIMARY_INPUT_ID);
-    GlTextureInfo primaryInputTexture = primaryInputFrame.texture;
-    outputTexturePool.ensureConfigured(
-        glObjectsProvider, primaryInputTexture.width, primaryInputTexture.height);
 
-    for (int i = 1; i < framesToComposite.size(); i++) {
-      GlTextureInfo textureToComposite = framesToComposite.get(i).texture;
-      checkState(primaryInputTexture.width == textureToComposite.width);
-      checkState(primaryInputTexture.height == textureToComposite.height);
+    ImmutableList.Builder<Size> inputSizes = new ImmutableList.Builder<>();
+    for (int i = 0; i < framesToComposite.size(); i++) {
+      GlTextureInfo texture = framesToComposite.get(i).texture;
+      inputSizes.add(new Size(texture.width, texture.height));
     }
+    Size outputSize = settings.getOutputSize(inputSizes.build());
+    outputTexturePool.ensureConfigured(
+        glObjectsProvider, outputSize.getWidth(), outputSize.getHeight());
+
     GlTextureInfo outputTexture = outputTexturePool.useTexture();
     long outputPresentationTimestampUs = primaryInputFrame.presentationTimeUs;
     outputTextureTimestamps.add(outputPresentationTimestampUs);
@@ -394,16 +418,18 @@ public final class DefaultVideoCompositor implements VideoCompositor {
           GlUtil.getNormalizedCoordinateBounds(),
           GlUtil.HOMOGENEOUS_COORDINATE_VECTOR_SIZE);
       glProgram.setFloatsUniform("uTexTransformationMatrix", GlUtil.create4x4IdentityMatrix());
-      glProgram.setFloatsUniform("uTransformationMatrix", GlUtil.create4x4IdentityMatrix());
     } catch (IOException e) {
       throw new VideoFrameProcessingException(e);
     }
   }
 
+  // Enhanced for-loops are discouraged in media3.effect due to short-lived allocations.
+  @SuppressWarnings("ListReverse")
   private void drawFrame(List<InputFrameInfo> framesToComposite, GlTextureInfo outputTexture)
       throws GlUtil.GlException {
     GlUtil.focusFramebufferUsingCurrentContext(
         outputTexture.fboId, outputTexture.width, outputTexture.height);
+    overlayMatrixProvider.configure(new Size(outputTexture.width, outputTexture.height));
     GlUtil.clearFocusedBuffers();
 
     GlProgram glProgram = checkNotNull(this.glProgram);
@@ -423,7 +449,7 @@ public final class DefaultVideoCompositor implements VideoCompositor {
 
     // Draw textures from back to front.
     for (int i = framesToComposite.size() - 1; i >= 0; i--) {
-      blendOntoFocusedTexture(framesToComposite.get(i).texture.texId);
+      blendOntoFocusedTexture(framesToComposite.get(i));
     }
 
     GLES20.glDisable(GLES20.GL_BLEND);
@@ -431,9 +457,16 @@ public final class DefaultVideoCompositor implements VideoCompositor {
     GlUtil.checkGlError();
   }
 
-  private void blendOntoFocusedTexture(int texId) throws GlUtil.GlException {
+  private void blendOntoFocusedTexture(InputFrameInfo inputFrameInfo) throws GlUtil.GlException {
     GlProgram glProgram = checkNotNull(this.glProgram);
-    glProgram.setSamplerTexIdUniform("uTexSampler", texId, /* texUnitIndex= */ 0);
+    GlTextureInfo inputTexture = inputFrameInfo.texture;
+    glProgram.setSamplerTexIdUniform("uTexSampler", inputTexture.texId, /* texUnitIndex= */ 0);
+    float[] transformationMatrix =
+        overlayMatrixProvider.getTransformationMatrix(
+            /* overlaySize= */ new Size(inputTexture.width, inputTexture.height),
+            inputFrameInfo.overlaySettings);
+    glProgram.setFloatsUniform("uTransformationMatrix", transformationMatrix);
+    glProgram.setFloatUniform("uAlphaScale", inputFrameInfo.overlaySettings.alphaScale);
     glProgram.bindAttributesAndUniforms();
 
     // The four-vertex triangle strip forms a quad.
@@ -480,12 +513,17 @@ public final class DefaultVideoCompositor implements VideoCompositor {
     public final GlTextureProducer textureProducer;
     public final GlTextureInfo texture;
     public final long presentationTimeUs;
+    public final OverlaySettings overlaySettings;
 
     public InputFrameInfo(
-        GlTextureProducer textureProducer, GlTextureInfo texture, long presentationTimeUs) {
+        GlTextureProducer textureProducer,
+        GlTextureInfo texture,
+        long presentationTimeUs,
+        OverlaySettings overlaySettings) {
       this.textureProducer = textureProducer;
       this.texture = texture;
       this.presentationTimeUs = presentationTimeUs;
+      this.overlaySettings = overlaySettings;
     }
   }
 }
