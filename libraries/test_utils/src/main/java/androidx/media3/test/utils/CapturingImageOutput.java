@@ -20,6 +20,7 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.image.ImageOutput;
 import androidx.media3.test.utils.Dumper.Dumpable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /** A {@link ImageOutput} that captures image availability events. */
@@ -37,10 +38,21 @@ public final class CapturingImageOutput implements Dumpable, ImageOutput {
   @Override
   public void onImageAvailable(long presentationTimeUs, Bitmap bitmap) {
     imageCount++;
+    int currentImageCount = imageCount;
+    int[] bitmapPixels = new int[bitmap.getWidth() * bitmap.getHeight()];
+    bitmap.getPixels(
+        bitmapPixels,
+        /* offset= */ 0,
+        /* stride= */ bitmap.getWidth(),
+        /* x= */ 0,
+        /* y= */ 0,
+        bitmap.getWidth(),
+        bitmap.getHeight());
     renderedBitmaps.add(
         dumper -> {
-          dumper.startBlock("image output #" + imageCount);
+          dumper.startBlock("image output #" + currentImageCount);
           dumper.add("presentationTimeUs", presentationTimeUs);
+          dumper.add("bitmap hash", Arrays.hashCode(bitmapPixels));
           dumper.endBlock();
         });
   }

@@ -16,7 +16,7 @@
 package androidx.media3.exoplayer.e2etest;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.robolectric.annotation.GraphicsMode.Mode.LEGACY;
+import static org.robolectric.annotation.GraphicsMode.Mode.NATIVE;
 
 import android.content.Context;
 import androidx.media3.common.C;
@@ -40,7 +40,7 @@ import org.robolectric.annotation.GraphicsMode;
 
 /** End-to-end tests using image samples. */
 @RunWith(ParameterizedRobolectricTestRunner.class)
-@GraphicsMode(value = LEGACY)
+@GraphicsMode(value = NATIVE)
 public class ImagePlaybackTest {
 
   @Parameter public String inputFile;

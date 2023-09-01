@@ -169,12 +169,16 @@ public final class DefaultImageDecoder
     @Nullable Bitmap bitmap = BitmapFactory.decodeByteArray(data, /* offset= */ 0, length);
     if (bitmap == null) {
       throw new ImageDecoderException(
-          "Could not decode image data with BitmapFactory. (data length = " + data.length + ")");
+          "Could not decode image data with BitmapFactory. (data.length = "
+              + data.length
+              + ", input length = "
+              + length
+              + ")");
     }
     // BitmapFactory doesn't read the exif header, so we use the ExifInterface to this do ensure the
     // bitmap is correctly orientated.
     ExifInterface exifInterface;
-    try (InputStream inputStream = new ByteArrayInputStream(data)) {
+    try (InputStream inputStream = new ByteArrayInputStream(data, /* offset= */ 0, length)) {
       exifInterface = new ExifInterface(inputStream);
     } catch (IOException e) {
       throw new ImageDecoderException(e);
