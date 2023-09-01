@@ -20,7 +20,7 @@ package com.google.android.exoplayer2.effect;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
-import static com.google.android.exoplayer2.util.Util.containsKey;
+import static com.google.android.exoplayer2.util.Util.contains;
 import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_BITMAP;
 import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_SURFACE;
 import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_TEXTURE_ID;
@@ -175,7 +175,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public void switchToInput(
       @VideoFrameProcessor.InputType int newInputType, FrameInfo inputFrameInfo) {
     checkStateNotNull(downstreamShaderProgram);
-    checkState(containsKey(inputs, newInputType), "Input type not registered: " + newInputType);
+    checkState(contains(inputs, newInputType), "Input type not registered: " + newInputType);
 
     for (int i = 0; i < inputs.size(); i++) {
       @VideoFrameProcessor.InputType int inputType = inputs.keyAt(i);
@@ -229,7 +229,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *     {@linkplain #registerInput registered}.
    */
   public Surface getInputSurface() {
-    checkState(containsKey(inputs, INPUT_TYPE_SURFACE));
+    checkState(contains(inputs, INPUT_TYPE_SURFACE));
     return inputs.get(INPUT_TYPE_SURFACE).textureManager.getInputSurface();
   }
 
@@ -240,7 +240,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *     {@linkplain #registerInput registered}.
    */
   public void setInputDefaultBufferSize(int width, int height) {
-    checkState(containsKey(inputs, INPUT_TYPE_SURFACE));
+    checkState(contains(inputs, INPUT_TYPE_SURFACE));
     inputs.get(INPUT_TYPE_SURFACE).textureManager.setDefaultBufferSize(width, height);
   }
 
@@ -251,7 +251,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *     {@linkplain #registerInput registered}.
    */
   public void setOnInputFrameProcessedListener(OnInputFrameProcessedListener listener) {
-    checkState(containsKey(inputs, INPUT_TYPE_TEXTURE_ID));
+    checkState(contains(inputs, INPUT_TYPE_TEXTURE_ID));
     inputs.get(INPUT_TYPE_TEXTURE_ID).textureManager.setOnInputFrameProcessedListener(listener);
   }
 

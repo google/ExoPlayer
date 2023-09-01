@@ -28,7 +28,7 @@ import static com.google.android.exoplayer2.transformer.TransformerUtil.contains
 import static com.google.android.exoplayer2.transformer.TransformerUtil.getProcessedTrackType;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
-import static com.google.android.exoplayer2.util.Util.containsKey;
+import static com.google.android.exoplayer2.util.Util.contains;
 import static java.lang.Math.max;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
@@ -802,7 +802,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     public Format getAssetLoaderInputFormat(int sequenceIndex, @C.TrackType int trackType) {
       SparseArray<Format> trackTypeToFirstAssetLoaderInputFormat =
           sequencesMetadata.get(sequenceIndex).trackTypeToFirstAssetLoaderInputFormat;
-      checkState(containsKey(trackTypeToFirstAssetLoaderInputFormat, trackType));
+      checkState(contains(trackTypeToFirstAssetLoaderInputFormat, trackType));
       return trackTypeToFirstAssetLoaderInputFormat.get(trackType);
     }
 
@@ -843,7 +843,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       @C.TrackType int trackType = getProcessedTrackType(assetLoaderInputFormat.sampleMimeType);
       SparseArray<Format> trackTypeToFirstAssetLoaderInputFormat =
           sequencesMetadata.get(sequenceIndex).trackTypeToFirstAssetLoaderInputFormat;
-      checkState(!containsKey(trackTypeToFirstAssetLoaderInputFormat, trackType));
+      checkState(!contains(trackTypeToFirstAssetLoaderInputFormat, trackType));
       trackTypeToFirstAssetLoaderInputFormat.put(trackType, assetLoaderInputFormat);
     }
 
@@ -851,7 +851,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
      * Returns the index of the primary sequence for a given {@link C.TrackType trackType}.
      *
      * <p>A primary sequence for a {@link C.TrackType trackType} is defined as the lowest indexed
-     * sequence that containsKey a track of the given {@code trackType}.
+     * sequence that contains a track of the given {@code trackType}.
      */
     public int getIndexForPrimarySequence(@C.TrackType int trackType) {
       checkState(
@@ -860,7 +860,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       for (int i = 0; i < sequencesMetadata.size(); i++) {
         SparseArray<Format> trackTypeToFirstAssetLoaderInputFormat =
             sequencesMetadata.get(i).trackTypeToFirstAssetLoaderInputFormat;
-        if (containsKey(trackTypeToFirstAssetLoaderInputFormat, trackType)) {
+        if (contains(trackTypeToFirstAssetLoaderInputFormat, trackType)) {
           return i;
         }
       }
@@ -891,7 +891,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
      */
     public void registerGraphInput(@C.TrackType int trackType) {
       int numberOfGraphInputForTrackType = 1;
-      if (containsKey(trackTypeToNumberOfRegisteredGraphInput, trackType)) {
+      if (contains(trackTypeToNumberOfRegisteredGraphInput, trackType)) {
         numberOfGraphInputForTrackType += trackTypeToNumberOfRegisteredGraphInput.get(trackType);
       }
       trackTypeToNumberOfRegisteredGraphInput.put(trackType, numberOfGraphInputForTrackType);
@@ -904,8 +904,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     public boolean hasAssociatedAllTracksWithGraphInput(@C.TrackType int trackType) {
       int numberOfTracksForTrackType = 0;
       for (int i = 0; i < sequencesMetadata.size(); i++) {
-        if (containsKey(
-            sequencesMetadata.get(i).trackTypeToFirstAssetLoaderInputFormat, trackType)) {
+        if (contains(sequencesMetadata.get(i).trackTypeToFirstAssetLoaderInputFormat, trackType)) {
           numberOfTracksForTrackType++;
         }
       }
@@ -919,10 +918,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       for (int i = 0; i < sequencesMetadata.size(); i++) {
         SparseArray<Format> trackTypeToFirstAssetLoaderInputFormat =
             sequencesMetadata.get(i).trackTypeToFirstAssetLoaderInputFormat;
-        if (containsKey(trackTypeToFirstAssetLoaderInputFormat, C.TRACK_TYPE_AUDIO)) {
+        if (contains(trackTypeToFirstAssetLoaderInputFormat, C.TRACK_TYPE_AUDIO)) {
           outputHasAudio = true;
         }
-        if (containsKey(trackTypeToFirstAssetLoaderInputFormat, C.TRACK_TYPE_VIDEO)) {
+        if (contains(trackTypeToFirstAssetLoaderInputFormat, C.TRACK_TYPE_VIDEO)) {
           outputHasVideo = true;
         }
       }
@@ -932,14 +931,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     /** Registers a {@link SampleExporter} for the given {@link C.TrackType trackType}. */
     public void registerSampleExporter(int trackType, SampleExporter sampleExporter) {
       checkState(
-          !containsKey(trackTypeToSampleExporter, trackType),
+          !contains(trackTypeToSampleExporter, trackType),
           "Exactly one SampleExporter can be added for each track type.");
       trackTypeToSampleExporter.put(trackType, sampleExporter);
     }
 
     /** Sets whether a track should be transcoded. */
     public void setShouldTranscode(@C.TrackType int trackType, boolean shouldTranscode) {
-      if (containsKey(trackTypeToShouldTranscode, trackType)) {
+      if (contains(trackTypeToShouldTranscode, trackType)) {
         checkState(shouldTranscode == trackTypeToShouldTranscode.get(trackType));
         return;
       }
@@ -948,7 +947,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     /** Returns whether a track should be transcoded. */
     public boolean shouldTranscode(@C.TrackType int trackType) {
-      checkState(containsKey(trackTypeToShouldTranscode, trackType));
+      checkState(contains(trackTypeToShouldTranscode, trackType));
       return trackTypeToShouldTranscode.get(trackType);
     }
 

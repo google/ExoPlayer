@@ -516,7 +516,7 @@ public final class Util {
    *
    * <p>This implements {@code SparseArray#contains} for lower API versions.
    */
-  public static <T> boolean containsKey(SparseArray<T> sparseArray, int key) {
+  public static <T> boolean contains(SparseArray<T> sparseArray, int key) {
     return sparseArray.indexOfKey(key) >= 0;
   }
 
