@@ -34,22 +34,22 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
 public final class OverlaySettings {
   public final boolean useHdr;
   public final float alphaScale;
-  public final Pair<Float, Float> videoFrameAnchor;
-  public final Pair<Float, Float> overlayAnchor;
+  public final Pair<Float, Float> backgroundFrameAnchor;
+  public final Pair<Float, Float> overlayFrameAnchor;
   public final Pair<Float, Float> scale;
   public final float rotationDegrees;
 
   private OverlaySettings(
       boolean useHdr,
       float alphaScale,
-      Pair<Float, Float> videoFrameAnchor,
-      Pair<Float, Float> overlayAnchor,
+      Pair<Float, Float> backgroundFrameAnchor,
+      Pair<Float, Float> overlayFrameAnchor,
       Pair<Float, Float> scale,
       float rotationDegrees) {
     this.useHdr = useHdr;
     this.alphaScale = alphaScale;
-    this.videoFrameAnchor = videoFrameAnchor;
-    this.overlayAnchor = overlayAnchor;
+    this.backgroundFrameAnchor = backgroundFrameAnchor;
+    this.overlayFrameAnchor = overlayFrameAnchor;
     this.scale = scale;
     this.rotationDegrees = rotationDegrees;
   }
@@ -63,16 +63,16 @@ public final class OverlaySettings {
   public static final class Builder {
     private boolean useHdr;
     private float alphaScale;
-    private Pair<Float, Float> videoFrameAnchor;
-    private Pair<Float, Float> overlayAnchor;
+    private Pair<Float, Float> backgroundFrameAnchor;
+    private Pair<Float, Float> overlayFrameAnchor;
     private Pair<Float, Float> scale;
     private float rotationDegrees;
 
     /** Creates a new {@link Builder}. */
     public Builder() {
       alphaScale = 1f;
-      videoFrameAnchor = Pair.create(0f, 0f);
-      overlayAnchor = Pair.create(0f, 0f);
+      backgroundFrameAnchor = Pair.create(0f, 0f);
+      overlayFrameAnchor = Pair.create(0f, 0f);
       scale = Pair.create(1f, 1f);
       rotationDegrees = 0f;
     }
@@ -80,8 +80,8 @@ public final class OverlaySettings {
     private Builder(OverlaySettings overlaySettings) {
       this.useHdr = overlaySettings.useHdr;
       this.alphaScale = overlaySettings.alphaScale;
-      this.videoFrameAnchor = overlaySettings.videoFrameAnchor;
-      this.overlayAnchor = overlaySettings.overlayAnchor;
+      this.backgroundFrameAnchor = overlaySettings.backgroundFrameAnchor;
+      this.overlayFrameAnchor = overlaySettings.overlayFrameAnchor;
       this.scale = overlaySettings.scale;
       this.rotationDegrees = overlaySettings.rotationDegrees;
     }
@@ -113,49 +113,49 @@ public final class OverlaySettings {
       return this;
     }
 
-    // TODO: b/262694346 - Rename this method to setBackgroundAnchor in a follow-up CL.
     /**
-     * Sets the coordinates for the anchor point of the overlay within the video frame.
+     * Sets the coordinates for the anchor point of the overlay within the background frame.
      *
      * <p>The coordinates are specified in Normalised Device Coordinates (NDCs) relative to the
-     * video frame. Set to always return {@code (0,0)} (the center of the video frame) by default.
+     * background frame. Set to always return {@code (0,0)} (the center of the background frame) by
+     * default.
      *
-     * <p>For example, a value of {@code (+1,+1)} will move the overlay's {@linkplain
-     * #setOverlayAnchor anchor point} to the top right corner of the video frame.
+     * <p>For example, a value of {@code (+1,+1)} will move the overlay frames's {@linkplain
+     * #setOverlayFrameAnchor anchor point} to the top right corner of the background frame.
      *
      * @param x The NDC x-coordinate in the range [-1, 1].
      * @param y The NDC y-coordinate in the range [-1, 1].
      */
     @CanIgnoreReturnValue
-    public Builder setVideoFrameAnchor(
+    public Builder setBackgroundFrameAnchor(
         @FloatRange(from = -1, to = 1) float x, @FloatRange(from = -1, to = 1) float y) {
       checkArgument(-1 <= x && x <= 1);
       checkArgument(-1 <= y && y <= 1);
-      this.videoFrameAnchor = Pair.create(x, y);
+      this.backgroundFrameAnchor = Pair.create(x, y);
       return this;
     }
 
     /**
-     * Sets the coordinates for the anchor point of the overlay.
+     * Sets the coordinates for the anchor point of the overlay frame.
      *
-     * <p>The anchor point is the point inside the overlay that is placed on the {@linkplain
-     * #setVideoFrameAnchor video frame anchor}
+     * <p>The anchor point is the point inside the overlay frame that is placed on the {@linkplain
+     * #setBackgroundFrameAnchor background frame anchor}
      *
      * <p>The coordinates are specified in Normalised Device Coordinates (NDCs) relative to the
-     * overlay frame. Set to return {@code (0,0)} (the center of the overlay) by default.
+     * overlay frame. Set to return {@code (0,0)} (the center of the overlay frame) by default.
      *
-     * <p>For example, a value of {@code (+1,-1)} will result in the overlay being positioned from
-     * the bottom right corner of its frame.
+     * <p>For example, a value of {@code (+1,-1)} will result in the overlay frame being positioned
+     * with its bottom right corner positioned at the background frame anchor.
      *
      * @param x The NDC x-coordinate in the range [-1, 1].
      * @param y The NDC y-coordinate in the range [-1, 1].
      */
     @CanIgnoreReturnValue
-    public Builder setOverlayAnchor(
+    public Builder setOverlayFrameAnchor(
         @FloatRange(from = -1, to = 1) float x, @FloatRange(from = -1, to = 1) float y) {
       checkArgument(-1 <= x && x <= 1);
       checkArgument(-1 <= y && y <= 1);
-      this.overlayAnchor = Pair.create(x, y);
+      this.overlayFrameAnchor = Pair.create(x, y);
       return this;
     }
 
@@ -187,7 +187,7 @@ public final class OverlaySettings {
     /** Creates an instance of {@link OverlaySettings}, using defaults if values are unset. */
     public OverlaySettings build() {
       return new OverlaySettings(
-          useHdr, alphaScale, videoFrameAnchor, overlayAnchor, scale, rotationDegrees);
+          useHdr, alphaScale, backgroundFrameAnchor, overlayFrameAnchor, scale, rotationDegrees);
     }
   }
 }

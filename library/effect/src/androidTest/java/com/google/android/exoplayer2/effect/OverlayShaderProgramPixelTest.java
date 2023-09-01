@@ -177,8 +177,8 @@ public class OverlayShaderProgramPixelTest {
     Bitmap overlayBitmap = readBitmap(OVERLAY_PNG_ASSET_PATH);
     OverlaySettings overlaySettings =
         new OverlaySettings.Builder()
-            .setOverlayAnchor(/* x= */ 1f, /* y= */ -1f)
-            .setVideoFrameAnchor(/* x= */ -1f, /* y= */ 1f)
+            .setOverlayFrameAnchor(/* x= */ 1f, /* y= */ -1f)
+            .setBackgroundFrameAnchor(/* x= */ -1f, /* y= */ 1f)
             .build();
     BitmapOverlay staticBitmapOverlay =
         BitmapOverlay.createStaticBitmapOverlay(overlayBitmap, overlaySettings);
@@ -201,11 +201,12 @@ public class OverlayShaderProgramPixelTest {
 
   @Test
   @RequiresNonNull("testId")
-  public void drawFrame_overlayAnchoredOnlyBitmapOverlay_anchorsOverlayFromTopLeftCornerOfFrame()
-      throws Exception {
+  public void
+      drawFrame_overlayFrameAnchoredOnlyBitmapOverlay_anchorsOverlayFromTopLeftCornerOfFrame()
+          throws Exception {
     Bitmap overlayBitmap = readBitmap(OVERLAY_PNG_ASSET_PATH);
     OverlaySettings overlaySettings =
-        new OverlaySettings.Builder().setOverlayAnchor(/* x= */ 1f, /* y= */ -1f).build();
+        new OverlaySettings.Builder().setOverlayFrameAnchor(/* x= */ 1f, /* y= */ -1f).build();
     BitmapOverlay staticBitmapOverlay =
         BitmapOverlay.createStaticBitmapOverlay(overlayBitmap, overlaySettings);
     overlayShaderProgram =
@@ -367,7 +368,7 @@ public class OverlayShaderProgramPixelTest {
         /* end= */ 4,
         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     OverlaySettings overlaySettings =
-        new OverlaySettings.Builder().setVideoFrameAnchor(0.5f, 0.5f).build();
+        new OverlaySettings.Builder().setBackgroundFrameAnchor(0.5f, 0.5f).build();
     TextOverlay staticTextOverlay =
         TextOverlay.createStaticTextOverlay(overlayText, overlaySettings);
     overlayShaderProgram =
@@ -397,7 +398,7 @@ public class OverlayShaderProgramPixelTest {
         /* end= */ 4,
         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     OverlaySettings overlaySettings1 =
-        new OverlaySettings.Builder().setVideoFrameAnchor(0.5f, 0.5f).build();
+        new OverlaySettings.Builder().setBackgroundFrameAnchor(0.5f, 0.5f).build();
     TextOverlay textOverlay = TextOverlay.createStaticTextOverlay(overlayText, overlaySettings1);
     Bitmap bitmap = readBitmap(OVERLAY_PNG_ASSET_PATH);
     OverlaySettings overlaySettings2 = new OverlaySettings.Builder().setAlphaScale(0.5f).build();

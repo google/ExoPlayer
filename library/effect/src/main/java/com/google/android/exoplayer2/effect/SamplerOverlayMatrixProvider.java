@@ -44,9 +44,9 @@ import com.google.android.exoplayer2.util.Size;
     OverlaySettings samplerOverlaySettings =
         overlaySettings
             .buildUpon()
-            .setOverlayAnchor(
-                /* x= */ -1 * overlaySettings.overlayAnchor.first,
-                /* y= */ -1 * overlaySettings.overlayAnchor.second)
+            .setOverlayFrameAnchor(
+                /* x= */ -1 * overlaySettings.overlayFrameAnchor.first,
+                /* y= */ -1 * overlaySettings.overlayFrameAnchor.second)
             .build();
 
     // When sampling from a (for example, texture) sampler, the transformation matrix applied to a
