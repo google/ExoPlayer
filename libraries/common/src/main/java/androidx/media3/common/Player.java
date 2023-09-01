@@ -2146,7 +2146,8 @@ public interface Player {
    * #getAvailableCommands() available}.
    *
    * @param mediaItem The new {@link MediaItem}.
-   * @param startPositionMs The position in milliseconds to start playback from.
+   * @param startPositionMs The position in milliseconds to start playback from. If {@link
+   *     C#TIME_UNSET} is passed, the default position of the given {@link MediaItem} is used.
    */
   void setMediaItem(MediaItem mediaItem, long startPositionMs);
 

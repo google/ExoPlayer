@@ -1423,9 +1423,9 @@ public interface ExoPlayer extends Player {
    * @param startMediaItemIndex The media item index to start playback from. If {@link
    *     C#INDEX_UNSET} is passed, the current position is not reset.
    * @param startPositionMs The position in milliseconds to start playback from. If {@link
-   *     C#TIME_UNSET} is passed, the default position of the given media item is used. In any case,
-   *     if {@code startMediaItemIndex} is set to {@link C#INDEX_UNSET}, this parameter is ignored
-   *     and the position is not reset at all.
+   *     C#TIME_UNSET} is passed, the default position of the given media source is used. In any
+   *     case, if {@code startMediaItemIndex} is set to {@link C#INDEX_UNSET}, this parameter is
+   *     ignored and the position is not reset at all.
    */
   @UnstableApi
   void setMediaSources(
@@ -1444,7 +1444,8 @@ public interface ExoPlayer extends Player {
    * Clears the playlist and adds the specified {@link MediaSource}.
    *
    * @param mediaSource The new {@link MediaSource}.
-   * @param startPositionMs The position in milliseconds to start playback from.
+   * @param startPositionMs The position in milliseconds to start playback from. If {@link
+   *     C#TIME_UNSET} is passed, the default position of the given media source is used.
    */
   @UnstableApi
   void setMediaSource(MediaSource mediaSource, long startPositionMs);
