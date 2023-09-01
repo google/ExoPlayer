@@ -325,10 +325,14 @@ public final class ColorInfo implements Bundleable {
     }
 
     String bitdepthsString = isBitdepthValid() ? lumaBitdepth + "/" + chromaBitdepth : "NA";
-    String dataspaceString = isDataSpaceValid() ? Util.formatInvariant("%s/%s/%s",
-        colorSpaceToString(colorSpace),
-        colorRangeToString(colorRange),
-        colorTransferToString(colorTransfer)) : "NA";
+    String dataspaceString =
+        isDataSpaceValid()
+            ? Util.formatInvariant(
+                "%s/%s/%s",
+                colorSpaceToString(colorSpace),
+                colorRangeToString(colorRange),
+                colorTransferToString(colorTransfer))
+            : "NA";
     return bitdepthsString + "/" + dataspaceString;
   }
 
