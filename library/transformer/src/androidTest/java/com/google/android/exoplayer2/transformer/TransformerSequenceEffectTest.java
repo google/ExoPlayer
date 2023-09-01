@@ -27,6 +27,7 @@ import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSE
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_PORTRAIT_ASSET_URI_STRING;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assume.assumeFalse;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -44,6 +45,7 @@ import com.google.android.exoplayer2.testutil.BitmapPixelTestUtil;
 import com.google.android.exoplayer2.testutil.VideoDecodingWrapper;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.Util;
+import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.List;
@@ -257,6 +259,9 @@ public final class TransformerSequenceEffectTest {
 
   private static ImmutableList<Bitmap> extractBitmapsFromVideo(Context context, String filePath)
       throws IOException, InterruptedException {
+    // b/298599172 - runUntilComparisonFrameOrEnded fails on this device because reading decoder
+    // output as a bitmap doesn't work.
+    assumeFalse(Util.SDK_INT == 21 && Ascii.toLowerCase(Util.MODEL).contains("nexus"));
     ImmutableList.Builder<Bitmap> bitmaps = new ImmutableList.Builder<>();
     try (VideoDecodingWrapper decodingWrapper =
         new VideoDecodingWrapper(
