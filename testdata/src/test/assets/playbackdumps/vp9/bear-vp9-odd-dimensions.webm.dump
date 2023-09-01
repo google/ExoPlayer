@@ -217,5 +217,3 @@ MediaCodecAdapter (exotest.video.vp9):
       timeUs = 1000000968000
       size = 547
       rendered = true
-AudioSink:
-  buffer count = 0

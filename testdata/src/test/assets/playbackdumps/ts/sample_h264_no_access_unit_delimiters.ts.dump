@@ -28,5 +28,3 @@ MediaCodecAdapter (exotest.video.avc):
       timeUs = 1000000100100
       size = 254
       rendered = true
-AudioSink:
-  buffer count = 0
