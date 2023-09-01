@@ -599,8 +599,8 @@ public final class TransformerActivity extends AppCompatActivity {
           new OverlaySettings.Builder()
               // Place the logo in the bottom left corner of the screen with some padding from the
               // edges.
-              .setOverlayAnchor(/* x= */ 1f, /* y= */ 1f)
-              .setVideoFrameAnchor(/* x= */ -0.95f, /* y= */ -0.95f)
+              .setOverlayFrameAnchor(/* x= */ 1f, /* y= */ 1f)
+              .setBackgroundFrameAnchor(/* x= */ -0.95f, /* y= */ -0.95f)
               .build();
       Drawable logo;
       try {

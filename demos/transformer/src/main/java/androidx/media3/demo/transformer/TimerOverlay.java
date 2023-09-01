@@ -38,8 +38,8 @@ import java.util.Locale;
         new OverlaySettings.Builder()
             // Place the timer in the bottom left corner of the screen with some padding from the
             // edges.
-            .setOverlayAnchor(/* x= */ 1f, /* y= */ 1f)
-            .setVideoFrameAnchor(/* x= */ -0.7f, /* y= */ -0.95f)
+            .setOverlayFrameAnchor(/* x= */ 1f, /* y= */ 1f)
+            .setBackgroundFrameAnchor(/* x= */ -0.7f, /* y= */ -0.95f)
             .build();
   }
 

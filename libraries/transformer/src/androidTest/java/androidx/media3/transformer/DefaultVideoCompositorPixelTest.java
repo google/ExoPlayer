@@ -561,8 +561,8 @@ public final class DefaultVideoCompositorPixelTest {
               // This tests all OverlaySettings builder variables.
               return new OverlaySettings.Builder()
                   .setScale(.25f, .5f)
-                  .setOverlayAnchor(1, -1)
-                  .setVideoFrameAnchor(.9f, -.7f)
+                  .setOverlayFrameAnchor(1, -1)
+                  .setBackgroundFrameAnchor(.9f, -.7f)
                   .setRotationDegrees(20)
                   .setAlphaScale(.5f)
                   .build();
@@ -640,8 +640,8 @@ public final class DefaultVideoCompositorPixelTest {
           @Override
           public OverlaySettings getOverlaySettings(int inputId, long presentationTimeUs) {
             return new OverlaySettings.Builder()
-                .setOverlayAnchor(-1, -1)
-                .setVideoFrameAnchor(-1, -1 + 2f * inputId / NUMBER_OF_INPUT_STREAMS)
+                .setOverlayFrameAnchor(-1, -1)
+                .setBackgroundFrameAnchor(-1, -1 + 2f * inputId / NUMBER_OF_INPUT_STREAMS)
                 .build();
           }
         };
@@ -966,7 +966,7 @@ public final class DefaultVideoCompositorPixelTest {
               @Override
               public OverlaySettings getOverlaySettings(long presentationTimeUs) {
                 return new OverlaySettings.Builder()
-                    .setVideoFrameAnchor(/* x= */ 0f, /* y= */ 0.5f)
+                    .setBackgroundFrameAnchor(/* x= */ 0f, /* y= */ 0.5f)
                     .build();
               }
             }));

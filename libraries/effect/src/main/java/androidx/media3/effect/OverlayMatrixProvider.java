@@ -26,11 +26,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /** Provides a matrix for {@link OverlaySettings}, to be applied on a vertex. */
 /* package */ class OverlayMatrixProvider {
   protected static final int MATRIX_OFFSET = 0;
-  private final float[] videoFrameAnchorMatrix;
+  private final float[] backgroundFrameAnchorMatrix;
   private final float[] aspectRatioMatrix;
   private final float[] scaleMatrix;
   private final float[] scaleMatrixInv;
-  private final float[] overlayAnchorMatrix;
+  private final float[] overlayFrameAnchorMatrix;
   private final float[] rotateMatrix;
   private final float[] overlayAspectRatioMatrix;
   private final float[] overlayAspectRatioMatrixInv;
@@ -39,8 +39,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   public OverlayMatrixProvider() {
     aspectRatioMatrix = GlUtil.create4x4IdentityMatrix();
-    videoFrameAnchorMatrix = GlUtil.create4x4IdentityMatrix();
-    overlayAnchorMatrix = GlUtil.create4x4IdentityMatrix();
+    backgroundFrameAnchorMatrix = GlUtil.create4x4IdentityMatrix();
+    overlayFrameAnchorMatrix = GlUtil.create4x4IdentityMatrix();
     rotateMatrix = GlUtil.create4x4IdentityMatrix();
     scaleMatrix = GlUtil.create4x4IdentityMatrix();
     scaleMatrixInv = GlUtil.create4x4IdentityMatrix();
@@ -62,12 +62,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     reset();
 
     // Anchor point of overlay within output frame.
-    Pair<Float, Float> videoFrameAnchor = overlaySettings.videoFrameAnchor;
+    Pair<Float, Float> backgroundFrameAnchor = overlaySettings.backgroundFrameAnchor;
     Matrix.translateM(
-        videoFrameAnchorMatrix,
+        backgroundFrameAnchorMatrix,
         MATRIX_OFFSET,
-        videoFrameAnchor.first,
-        videoFrameAnchor.second,
+        backgroundFrameAnchor.first,
+        backgroundFrameAnchor.second,
         /* z= */ 0f);
 
     checkStateNotNull(backgroundSize);
@@ -83,14 +83,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     Matrix.scaleM(scaleMatrix, MATRIX_OFFSET, scale.first, scale.second, /* z= */ 1f);
     Matrix.invertM(scaleMatrixInv, MATRIX_OFFSET, scaleMatrix, MATRIX_OFFSET);
 
-    // Translate the overlay within its frame. To position the overlay's anchor at the correct
+    // Translate the overlay within its frame. To position the overlay frame's anchor at the correct
     // position, it must be translated the opposite direction by the same magnitude.
-    Pair<Float, Float> overlayAnchor = overlaySettings.overlayAnchor;
+    Pair<Float, Float> overlayFrameAnchor = overlaySettings.overlayFrameAnchor;
     Matrix.translateM(
-        overlayAnchorMatrix,
+        overlayFrameAnchorMatrix,
         MATRIX_OFFSET,
-        -1 * overlayAnchor.first,
-        -1 * overlayAnchor.second,
+        -1 * overlayFrameAnchor.first,
+        -1 * overlayFrameAnchor.second,
         /* z= */ 0f);
 
     // Rotate the image.
@@ -112,8 +112,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     Matrix.invertM(
         overlayAspectRatioMatrixInv, MATRIX_OFFSET, overlayAspectRatioMatrix, MATRIX_OFFSET);
 
-    // transformationMatrix = videoFrameAnchorMatrix * aspectRatioMatrix
-    //   * scaleMatrix * overlayAnchorMatrix * scaleMatrixInv
+    // transformationMatrix = backgroundFrameAnchorMatrix * aspectRatioMatrix
+    //   * scaleMatrix * overlayFrameAnchorMatrix * scaleMatrixInv
     //   * overlayAspectRatioMatrix * rotateMatrix * overlayAspectRatioMatrixInv
     //   * scaleMatrix.
 
@@ -123,7 +123,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         MATRIX_OFFSET,
         transformationMatrix,
         MATRIX_OFFSET,
-        videoFrameAnchorMatrix,
+        backgroundFrameAnchorMatrix,
         MATRIX_OFFSET);
 
     // Correct for aspect ratio of image in output frame.
@@ -147,7 +147,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         MATRIX_OFFSET,
         transformationMatrix,
         MATRIX_OFFSET,
-        overlayAnchorMatrix,
+        overlayFrameAnchorMatrix,
         MATRIX_OFFSET);
     Matrix.multiplyMM(
         transformationMatrix,
@@ -194,8 +194,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private void reset() {
     GlUtil.setToIdentity(aspectRatioMatrix);
-    GlUtil.setToIdentity(videoFrameAnchorMatrix);
-    GlUtil.setToIdentity(overlayAnchorMatrix);
+    GlUtil.setToIdentity(backgroundFrameAnchorMatrix);
+    GlUtil.setToIdentity(overlayFrameAnchorMatrix);
     GlUtil.setToIdentity(scaleMatrix);
     GlUtil.setToIdentity(scaleMatrixInv);
     GlUtil.setToIdentity(rotateMatrix);
