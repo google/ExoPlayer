@@ -236,6 +236,7 @@ public final class ImageRenderer extends BaseRenderer {
       case C.RESULT_NOTHING_READ:
         return false;
       case C.RESULT_BUFFER_READ:
+        inputBuffer.flip();
         checkNotNull(decoder).queueInputBuffer(inputBuffer);
         if (inputBuffer.isEndOfStream()) {
           inputStreamEnded = true;
