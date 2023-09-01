@@ -36,6 +36,9 @@ import androidx.media3.exoplayer.RenderersFactory;
 import androidx.media3.exoplayer.audio.AudioRendererEventListener;
 import androidx.media3.exoplayer.audio.DefaultAudioSink;
 import androidx.media3.exoplayer.audio.MediaCodecAudioRenderer;
+import androidx.media3.exoplayer.image.ImageDecoder;
+import androidx.media3.exoplayer.image.ImageOutput;
+import androidx.media3.exoplayer.image.ImageRenderer;
 import androidx.media3.exoplayer.mediacodec.MediaCodecAdapter;
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector;
 import androidx.media3.exoplayer.metadata.MetadataOutput;
@@ -57,7 +60,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A {@link RenderersFactory} that captures interactions with the audio and video {@link
- * MediaCodecAdapter} instances.
+ * MediaCodecAdapter} instances and {@link ImageOutput} instances.
  *
  * <p>The captured interactions can be used in a test assertion via the {@link Dumper.Dumpable}
  * interface.
@@ -66,13 +69,33 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class CapturingRenderersFactory implements RenderersFactory, Dumper.Dumpable {
 
   private final Context context;
+  private final boolean addImageRenderer;
   private final CapturingMediaCodecAdapter.Factory mediaCodecAdapterFactory;
   private final CapturingAudioSink audioSink;
+  private final CapturingImageOutput imageOutput;
 
+  /**
+   * Creates an instance.
+   *
+   * <p>The factory will not include an {@link ImageRenderer}.
+   */
   public CapturingRenderersFactory(Context context) {
+    this(context, /* addImageRenderer= */ false);
+  }
+
+  /**
+   * Creates an instance.
+   *
+   * @param context The {@link Context}.
+   * @param addImageRenderer Whether to add the image renderer to the list of renderers created in
+   *     {@link #createRenderers}.
+   */
+  public CapturingRenderersFactory(Context context, boolean addImageRenderer) {
     this.context = context;
     this.mediaCodecAdapterFactory = new CapturingMediaCodecAdapter.Factory();
     this.audioSink = new CapturingAudioSink(new DefaultAudioSink.Builder(context).build());
+    this.imageOutput = new CapturingImageOutput();
+    this.addImageRenderer = addImageRenderer;
   }
 
   @Override
@@ -82,47 +105,53 @@ public class CapturingRenderersFactory implements RenderersFactory, Dumper.Dumpa
       AudioRendererEventListener audioRendererEventListener,
       TextOutput textRendererOutput,
       MetadataOutput metadataRendererOutput) {
-    return new Renderer[] {
-      new MediaCodecVideoRenderer(
-          context,
-          mediaCodecAdapterFactory,
-          MediaCodecSelector.DEFAULT,
-          DefaultRenderersFactory.DEFAULT_ALLOWED_VIDEO_JOINING_TIME_MS,
-          /* enableDecoderFallback= */ false,
-          eventHandler,
-          videoRendererEventListener,
-          DefaultRenderersFactory.MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY) {
-        @Override
-        protected boolean shouldDropOutputBuffer(
-            long earlyUs, long elapsedRealtimeUs, boolean isLastBuffer) {
-          // Do not drop output buffers due to slow processing.
-          return false;
-        }
+    ArrayList<Renderer> temp = new ArrayList<>();
+    temp.add(
+        new MediaCodecVideoRenderer(
+            context,
+            mediaCodecAdapterFactory,
+            MediaCodecSelector.DEFAULT,
+            DefaultRenderersFactory.DEFAULT_ALLOWED_VIDEO_JOINING_TIME_MS,
+            /* enableDecoderFallback= */ false,
+            eventHandler,
+            videoRendererEventListener,
+            DefaultRenderersFactory.MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY) {
+          @Override
+          protected boolean shouldDropOutputBuffer(
+              long earlyUs, long elapsedRealtimeUs, boolean isLastBuffer) {
+            // Do not drop output buffers due to slow processing.
+            return false;
+          }
 
-        @Override
-        protected boolean shouldDropBuffersToKeyframe(
-            long earlyUs, long elapsedRealtimeUs, boolean isLastBuffer) {
-          // Do not drop output buffers due to slow processing.
-          return false;
-        }
+          @Override
+          protected boolean shouldDropBuffersToKeyframe(
+              long earlyUs, long elapsedRealtimeUs, boolean isLastBuffer) {
+            // Do not drop output buffers due to slow processing.
+            return false;
+          }
 
-        @Override
-        protected boolean shouldSkipBuffersWithIdenticalReleaseTime() {
-          // Do not skip buffers with identical vsync times as we can't control this from tests.
-          return false;
-        }
-      },
-      new MediaCodecAudioRenderer(
-          context,
-          mediaCodecAdapterFactory,
-          MediaCodecSelector.DEFAULT,
-          /* enableDecoderFallback= */ false,
-          eventHandler,
-          audioRendererEventListener,
-          audioSink),
-      new TextRenderer(textRendererOutput, eventHandler.getLooper()),
-      new MetadataRenderer(metadataRendererOutput, eventHandler.getLooper())
-    };
+          @Override
+          protected boolean shouldSkipBuffersWithIdenticalReleaseTime() {
+            // Do not skip buffers with identical vsync times as we can't control this from tests.
+            return false;
+          }
+        });
+    temp.add(
+        new MediaCodecAudioRenderer(
+            context,
+            mediaCodecAdapterFactory,
+            MediaCodecSelector.DEFAULT,
+            /* enableDecoderFallback= */ false,
+            eventHandler,
+            audioRendererEventListener,
+            audioSink));
+    temp.add(new TextRenderer(textRendererOutput, eventHandler.getLooper()));
+    temp.add(new MetadataRenderer(metadataRendererOutput, eventHandler.getLooper()));
+
+    if (addImageRenderer) {
+      temp.add(new ImageRenderer(ImageDecoder.Factory.DEFAULT, imageOutput));
+    }
+    return temp.toArray(new Renderer[] {});
   }
 
   @Override
@@ -131,6 +160,11 @@ public class CapturingRenderersFactory implements RenderersFactory, Dumper.Dumpa
     dumper.startBlock("AudioSink");
     audioSink.dump(dumper);
     dumper.endBlock();
+    if (addImageRenderer) {
+      dumper.startBlock("ImageOutput");
+      imageOutput.dump(dumper);
+      dumper.endBlock();
+    }
   }
 
   /**
