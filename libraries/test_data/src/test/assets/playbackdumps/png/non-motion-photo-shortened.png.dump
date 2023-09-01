@@ -1,5 +1,3 @@
-AudioSink:
-  buffer count = 0
 ImageOutput:
   rendered image count = 1
   image output #1:

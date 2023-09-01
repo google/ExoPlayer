@@ -88,10 +88,14 @@ public final class CapturingAudioSink extends ForwardingAudioSink implements Dum
 
   @Override
   public void dump(Dumper dumper) {
-    dumper.add("buffer count", bufferCount);
+    if (interceptedData.isEmpty()) {
+      return;
+    }
+    dumper.startBlock("AudioSink").add("buffer count", bufferCount);
     for (int i = 0; i < interceptedData.size(); i++) {
       interceptedData.get(i).dump(dumper);
     }
+    dumper.endBlock();
   }
 
   private static final class DumpableConfiguration implements Dumper.Dumpable {

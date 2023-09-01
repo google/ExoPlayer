@@ -157,13 +157,9 @@ public class CapturingRenderersFactory implements RenderersFactory, Dumper.Dumpa
   @Override
   public void dump(Dumper dumper) {
     mediaCodecAdapterFactory.dump(dumper);
-    dumper.startBlock("AudioSink");
     audioSink.dump(dumper);
-    dumper.endBlock();
     if (addImageRenderer) {
-      dumper.startBlock("ImageOutput");
       imageOutput.dump(dumper);
-      dumper.endBlock();
     }
   }
 

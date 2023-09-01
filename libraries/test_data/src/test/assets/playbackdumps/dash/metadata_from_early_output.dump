@@ -1,5 +1,3 @@
-AudioSink:
-  buffer count = 0
 MetadataOutput:
   Metadata[0]:
     presentationTimeUs = 100000
