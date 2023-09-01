@@ -18,7 +18,7 @@ package androidx.media3.transformer;
 import static androidx.media3.common.audio.AudioProcessor.EMPTY_BUFFER;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkState;
-import static androidx.media3.common.util.Util.containsKey;
+import static androidx.media3.common.util.Util.contains;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -174,7 +174,7 @@ public final class DefaultAudioMixer implements AudioMixer {
   @Override
   public boolean hasSource(int sourceId) {
     checkStateIsConfigured();
-    return containsKey(sources, sourceId);
+    return contains(sources, sourceId);
   }
 
   @Override
@@ -319,7 +319,7 @@ public final class DefaultAudioMixer implements AudioMixer {
   }
 
   private SourceInfo getSourceById(int sourceId) {
-    checkState(containsKey(sources, sourceId), "Source not found.");
+    checkState(contains(sources, sourceId), "Source not found.");
     return sources.get(sourceId);
   }
 

@@ -19,7 +19,7 @@ package androidx.media3.transformer;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
-import static androidx.media3.common.util.Util.containsKey;
+import static androidx.media3.common.util.Util.contains;
 import static java.lang.Math.max;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
@@ -185,7 +185,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
         "Unsupported track format: " + sampleMimeType);
 
     checkState(
-        !containsKey(trackTypeToInfo, trackType), "There is already a track of type " + trackType);
+        !contains(trackTypeToInfo, trackType), "There is already a track of type " + trackType);
 
     ensureMuxerInitialized();
 
@@ -227,7 +227,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   public boolean writeSample(
       @C.TrackType int trackType, ByteBuffer data, boolean isKeyFrame, long presentationTimeUs)
       throws Muxer.MuxerException {
-    checkArgument(containsKey(trackTypeToInfo, trackType));
+    checkArgument(contains(trackTypeToInfo, trackType));
     TrackInfo trackInfo = trackTypeToInfo.get(trackType);
     boolean canWriteSample = canWriteSample(trackType, presentationTimeUs);
     if (trackType == C.TRACK_TYPE_VIDEO) {
@@ -269,7 +269,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
    * @param trackType The {@link C.TrackType}.
    */
   public void endTrack(@C.TrackType int trackType) {
-    if (!containsKey(trackTypeToInfo, trackType)) {
+    if (!contains(trackTypeToInfo, trackType)) {
       return;
     }
 

@@ -23,7 +23,7 @@ import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_TEXTURE_ID;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
-import static androidx.media3.common.util.Util.containsKey;
+import static androidx.media3.common.util.Util.contains;
 
 import android.content.Context;
 import android.util.SparseArray;
@@ -169,7 +169,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public void switchToInput(
       @VideoFrameProcessor.InputType int newInputType, FrameInfo inputFrameInfo) {
     checkStateNotNull(downstreamShaderProgram);
-    checkState(containsKey(inputs, newInputType), "Input type not registered: " + newInputType);
+    checkState(contains(inputs, newInputType), "Input type not registered: " + newInputType);
 
     for (int i = 0; i < inputs.size(); i++) {
       @VideoFrameProcessor.InputType int inputType = inputs.keyAt(i);
@@ -223,7 +223,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *     {@linkplain #registerInput registered}.
    */
   public Surface getInputSurface() {
-    checkState(containsKey(inputs, INPUT_TYPE_SURFACE));
+    checkState(contains(inputs, INPUT_TYPE_SURFACE));
     return inputs.get(INPUT_TYPE_SURFACE).textureManager.getInputSurface();
   }
 
@@ -234,7 +234,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *     {@linkplain #registerInput registered}.
    */
   public void setInputDefaultBufferSize(int width, int height) {
-    checkState(containsKey(inputs, INPUT_TYPE_SURFACE));
+    checkState(contains(inputs, INPUT_TYPE_SURFACE));
     inputs.get(INPUT_TYPE_SURFACE).textureManager.setDefaultBufferSize(width, height);
   }
 
@@ -245,7 +245,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    *     {@linkplain #registerInput registered}.
    */
   public void setOnInputFrameProcessedListener(OnInputFrameProcessedListener listener) {
-    checkState(containsKey(inputs, INPUT_TYPE_TEXTURE_ID));
+    checkState(contains(inputs, INPUT_TYPE_TEXTURE_ID));
     inputs.get(INPUT_TYPE_TEXTURE_ID).textureManager.setOnInputFrameProcessedListener(listener);
   }
 
