@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.jpeg;
 
-import static com.google.android.exoplayer2.extractor.ImageExtractorUtil.IMAGE_TRACK_ID;
+import static com.google.android.exoplayer2.extractor.SingleSampleExtractorHelper.IMAGE_TRACK_ID;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static java.lang.annotation.ElementType.TYPE_USE;
 

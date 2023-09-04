@@ -1,0 +1,16 @@
+seekMap:
+  isSeekable = true
+  duration = UNSET TIME
+  getPosition(0) = [[timeUs=0, position=0]]
+  getPosition(1) = [[timeUs=1, position=0]]
+numberOfTracks = 1
+track 1024:
+  total output bytes = 69130
+  sample count = 1
+  format 0:
+    containerMimeType = image/bmp
+  sample 0:
+    time = 0
+    flags = 1
+    data = length 69130, hash D9768D79
+tracksEnded = true
