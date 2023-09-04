@@ -523,10 +523,17 @@ public interface AudioSink {
   /**
    * Sets audio offload mode, if possible. Enabling offload is only possible if the sink is based on
    * a platform {@link AudioTrack}, and requires platform API version 29 onwards.
-   *
-   * @throws IllegalStateException Thrown if enabling offload on platform API version &lt; 29.
    */
+  @RequiresApi(29)
   default void setOffloadMode(@OffloadMode int offloadMode) {}
+
+  /**
+   * Sets offload delay padding on the {@link AudioTrack}, if possible. Setting the offload delay
+   * padding is only possible if the sink is based on a platform {@link AudioTrack} in offload mode.
+   * Also requires platform API version 29 onwards.
+   */
+  @RequiresApi(29)
+  default void setOffloadDelayPadding(int delayInFrames, int paddingInFrames) {}
 
   /**
    * Sets the playback volume.

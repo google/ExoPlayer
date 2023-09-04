@@ -77,6 +77,7 @@ import androidx.media3.exoplayer.source.MediaPeriod;
 import androidx.media3.exoplayer.source.SampleStream;
 import androidx.media3.exoplayer.source.SampleStream.ReadDataResult;
 import androidx.media3.exoplayer.source.SampleStream.ReadFlags;
+import androidx.media3.extractor.OpusUtil;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -85,6 +86,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayDeque;
 import java.util.List;
+import java.util.Objects;
 
 /** An abstract renderer that uses {@link MediaCodec} to decode samples for rendering. */
 //
@@ -2334,16 +2336,28 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
           if (waitingForFirstSampleInFormat) {
             // This is the first buffer in a new format, the output format must be updated.
             outputFormat = checkNotNull(inputFormat);
+            if (Objects.equals(outputFormat.sampleMimeType, MimeTypes.AUDIO_OPUS)
+                && !outputFormat.initializationData.isEmpty()) {
+              // Format mimetype is Opus so format should be updated with preSkip data.
+              // TODO(b/298634018): Adjust encoderDelay value based on starting position.
+              int numberPreSkipSamples =
+                  OpusUtil.getPreSkipSamples(outputFormat.initializationData.get(0));
+              outputFormat = outputFormat.buildUpon().setEncoderDelay(numberPreSkipSamples).build();
+            }
             onOutputFormatChanged(outputFormat, /* mediaFormat= */ null);
             waitingForFirstSampleInFormat = false;
           }
           // Try to append the buffer to the batch buffer.
           bypassSampleBuffer.flip();
 
-          if (inputFormat != null
-              && inputFormat.sampleMimeType != null
-              && inputFormat.sampleMimeType.equals(MimeTypes.AUDIO_OPUS)) {
-            oggOpusAudioPacketizer.packetize(bypassSampleBuffer, inputFormat.initializationData);
+          if (outputFormat != null
+              && Objects.equals(outputFormat.sampleMimeType, MimeTypes.AUDIO_OPUS)) {
+            if (bypassSampleBuffer.hasSupplementalData()) {
+              // Set format on sample buffer so that it contains the mimetype and encodingDelay.
+              bypassSampleBuffer.format = outputFormat;
+              handleInputBufferSupplementalData(bypassSampleBuffer);
+            }
+            oggOpusAudioPacketizer.packetize(bypassSampleBuffer, outputFormat.initializationData);
           }
           if (!haveBypassBatchBufferAndNewSampleSameDecodeOnlyState()
               || !bypassBatchBuffer.append(bypassSampleBuffer)) {

@@ -1356,10 +1356,22 @@ public final class DefaultAudioSink implements AudioSink {
     }
   }
 
+  @RequiresApi(29)
   @Override
   public void setOffloadMode(@OffloadMode int offloadMode) {
     Assertions.checkState(Util.SDK_INT >= 29);
     this.offloadMode = offloadMode;
+  }
+
+  @RequiresApi(29)
+  @Override
+  public void setOffloadDelayPadding(int delayInFrames, int paddingInFrames) {
+    if (audioTrack != null
+        && isOffloadedPlayback(audioTrack)
+        && configuration != null
+        && configuration.enableOffloadGapless) {
+      audioTrack.setOffloadDelayPadding(delayInFrames, paddingInFrames);
+    }
   }
 
   @Override

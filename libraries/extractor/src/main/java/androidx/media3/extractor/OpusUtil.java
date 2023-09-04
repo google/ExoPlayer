@@ -139,6 +139,16 @@ public class OpusUtil {
     return getPacketDurationUs(buffer[0], buffer.length > 1 ? buffer[1] : 0);
   }
 
+  /**
+   * Returns the number of pre-skip samples specified by the given Opus codec initialization data.
+   *
+   * @param header The Opus Identification header.
+   * @return The number of pre-skip samples.
+   */
+  public static int getPreSkipSamples(byte[] header) {
+    return ((header[11] & 0xFF) << 8) | (header[10] & 0xFF);
+  }
+
   private static long getPacketDurationUs(byte packetByte0, byte packetByte1) {
     // See RFC6716, Sections 3.1 and 3.2.
     int toc = packetByte0 & 0xFF;
@@ -169,10 +179,6 @@ public class OpusUtil {
       frameDurationUs = 10000 << length;
     }
     return (long) frames * frameDurationUs;
-  }
-
-  private static int getPreSkipSamples(byte[] header) {
-    return ((header[11] & 0xFF) << 8) | (header[10] & 0xFF);
   }
 
   private static byte[] buildNativeOrderByteArray(long value) {

@@ -20,7 +20,7 @@
 *   Track Selection:
 *   Extractors:
 *   Audio:
-*   Audio Offload:
+    *   Add support for Opus gapless metadata during offload playback.
 *   Video:
 *   Text:
 *   Metadata:

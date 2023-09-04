@@ -45,6 +45,7 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.MediaFormatUtil;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
+import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.exoplayer.DecoderReuseEvaluation;
 import androidx.media3.exoplayer.DecoderReuseEvaluation.DecoderDiscardReasons;
 import androidx.media3.exoplayer.ExoPlaybackException;
@@ -64,7 +65,9 @@ import androidx.media3.exoplayer.mediacodec.MediaCodecUtil;
 import androidx.media3.exoplayer.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Decodes and renders audio using {@link MediaCodec} and an {@link AudioSink}.
@@ -817,6 +820,22 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       default:
         super.handleMessage(messageType, message);
         break;
+    }
+  }
+
+  @Override
+  protected void handleInputBufferSupplementalData(DecoderInputBuffer buffer) {
+    if (Util.SDK_INT >= 29
+        && buffer.format != null
+        && Objects.equals(buffer.format.sampleMimeType, MimeTypes.AUDIO_OPUS)
+        && isBypassEnabled()) {
+      ByteBuffer data = checkNotNull(buffer.supplementalData);
+      int preSkip = checkNotNull(buffer.format).encoderDelay;
+      if (data.remaining() == 8) {
+        int discardSamples =
+            (int) ((data.order(ByteOrder.LITTLE_ENDIAN).getLong() * 48_000L) / C.NANOS_PER_SECOND);
+        audioSink.setOffloadDelayPadding(preSkip, discardSamples);
+      }
     }
   }
 

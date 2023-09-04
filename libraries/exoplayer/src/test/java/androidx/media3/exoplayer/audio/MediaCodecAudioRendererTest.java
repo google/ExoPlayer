@@ -18,6 +18,7 @@ package androidx.media3.exoplayer.audio;
 import static androidx.media3.test.utils.FakeSampleStream.FakeSampleStreamItem.END_OF_STREAM_ITEM;
 import static androidx.media3.test.utils.FakeSampleStream.FakeSampleStreamItem.format;
 import static androidx.media3.test.utils.FakeSampleStream.FakeSampleStreamItem.oneByteSample;
+import static androidx.media3.test.utils.FakeSampleStream.FakeSampleStreamItem.sample;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -50,6 +51,7 @@ import androidx.media3.exoplayer.mediacodec.MediaCodecInfo;
 import androidx.media3.exoplayer.mediacodec.MediaCodecSelector;
 import androidx.media3.exoplayer.upstream.DefaultAllocator;
 import androidx.media3.test.utils.FakeSampleStream;
+import androidx.media3.test.utils.TestUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
@@ -63,12 +65,21 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
+import org.robolectric.annotation.Config;
 
 /** Unit tests for {@link MediaCodecAudioRenderer} */
 @RunWith(AndroidJUnit4.class)
 public class MediaCodecAudioRendererTest {
   @Rule public final MockitoRule mockito = MockitoJUnit.rule();
 
+  /** Payload for Ogg ID Header Page in accordance with RFC 7845. */
+  private static final byte[] OGG_OPUS_ID_HEADER_PAYLOAD =
+      TestUtil.createByteArray(
+          0x4F, 0x70, 0x75, 0x73, 0x48, 0x65, 0x61, 0x64, 0x1, 0x2, 0x38, 0x1, 0x80, 0xBB, 0x0, 0x0,
+          0x0, 0x0, 0x0);
+
+  private static final byte[] SAMPLE_ONE_BYTE_WITH_SUPPLEMENTAL_DATA =
+      TestUtil.createByteArray(0x0, 0x0, 0x0, 0x1, 0x64, 0xA, 0x2C, 0x2A, 0x0, 0x0, 0x0, 0x0, 0x0);
   private static final Format AUDIO_AAC =
       new Format.Builder()
           .setSampleMimeType(MimeTypes.AUDIO_AAC)
@@ -78,10 +89,22 @@ public class MediaCodecAudioRendererTest {
           .setEncoderDelay(100)
           .setEncoderPadding(150)
           .build();
+  private static final Format AUDIO_OPUS =
+      new Format.Builder()
+          .setSampleMimeType(MimeTypes.AUDIO_OPUS)
+          .setChannelCount(2)
+          .setSampleRate(48000)
+          .setInitializationData(ImmutableList.of(OGG_OPUS_ID_HEADER_PAYLOAD))
+          .build();
   private static final AudioOffloadSupport AUDIO_OFFLOAD_SUPPORTED_GAPLESS_NOT_SUPPORTED =
       new AudioOffloadSupport.Builder()
           .setIsFormatSupported(true)
           .setIsGaplessSupported(false)
+          .build();
+  private static final AudioOffloadSupport AUDIO_OFFLOAD_SUPPORTED_GAPLESS_SUPPORTED =
+      new AudioOffloadSupport.Builder()
+          .setIsFormatSupported(true)
+          .setIsGaplessSupported(true)
           .build();
   private static final RendererConfiguration
       RENDERER_CONFIGURATION_OFFLOAD_ENABLED_GAPLESS_REQUIRED =
@@ -637,6 +660,46 @@ public class MediaCodecAudioRendererTest {
     }
 
     verify(audioSink).setOffloadMode(AudioSink.OFFLOAD_MODE_DISABLED);
+  }
+
+  @Test
+  @Config(minSdk = 30)
+  public void render_offloadedOpusWithPadding_callsSetOffloadDelayPadding() throws Exception {
+    when(audioSink.getFormatOffloadSupport(any()))
+        .thenReturn(AUDIO_OFFLOAD_SUPPORTED_GAPLESS_SUPPORTED);
+    FakeSampleStream fakeSampleStream =
+        new FakeSampleStream(
+            new DefaultAllocator(/* trimOnReset= */ true, /* individualAllocationSize= */ 1024),
+            /* mediaSourceEventDispatcher= */ null,
+            DrmSessionManager.DRM_UNSUPPORTED,
+            new DrmSessionEventListener.EventDispatcher(),
+            /* initialFormat= */ AUDIO_OPUS,
+            ImmutableList.of(
+                oneByteSample(/* timeUs= */ 0, C.BUFFER_FLAG_KEY_FRAME),
+                oneByteSample(/* timeUs= */ 50, C.BUFFER_FLAG_KEY_FRAME),
+                oneByteSample(/* timeUs= */ 100, C.BUFFER_FLAG_KEY_FRAME),
+                sample(
+                    /* timeUs= */ 150,
+                    C.BUFFER_FLAG_HAS_SUPPLEMENTAL_DATA,
+                    SAMPLE_ONE_BYTE_WITH_SUPPLEMENTAL_DATA),
+                END_OF_STREAM_ITEM));
+    fakeSampleStream.writeData(/* startPositionUs= */ 0);
+
+    mediaCodecAudioRenderer.enable(
+        RENDERER_CONFIGURATION_OFFLOAD_ENABLED_GAPLESS_REQUIRED,
+        new Format[] {AUDIO_OPUS},
+        fakeSampleStream,
+        /* positionUs= */ 0,
+        /* joining= */ false,
+        /* mayRenderStartOfStream= */ false,
+        /* startPositionUs= */ 0,
+        /* offsetUs= */ 0);
+    mediaCodecAudioRenderer.setCurrentStreamFinal();
+    while (!mediaCodecAudioRenderer.isEnded()) {
+      mediaCodecAudioRenderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0);
+    }
+
+    verify(audioSink).setOffloadDelayPadding(/* delayInFrames= */ 312, /* paddingInFrames= */ 132);
   }
 
   private static Format getAudioSinkFormat(Format inputFormat) {
