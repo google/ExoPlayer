@@ -1165,7 +1165,7 @@ public final class DefaultAudioSink implements AudioSink {
       // Treat a write error on a previously successful offload channel as recoverable
       // without disabling offload. Offload will be disabled when a new AudioTrack is created,
       // if no longer supported.
-      boolean isRecoverable = isAudioTrackDeadObject(error) && writtenEncodedFrames > 0;
+      boolean isRecoverable = isAudioTrackDeadObject(error) && getWrittenFrames() > 0;
 
       WriteException e = new WriteException(error, configuration.inputFormat, isRecoverable);
       if (listener != null) {
@@ -1680,7 +1680,7 @@ public final class DefaultAudioSink implements AudioSink {
 
   private long getWrittenFrames() {
     return configuration.outputMode == OUTPUT_MODE_PCM
-        ? (writtenPcmBytes / configuration.outputPcmFrameSize)
+        ? Util.ceilDivide(writtenPcmBytes, configuration.outputPcmFrameSize)
         : writtenEncodedFrames;
   }
 
