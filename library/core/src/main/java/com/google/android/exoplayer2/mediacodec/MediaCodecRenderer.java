@@ -67,7 +67,6 @@ import com.google.android.exoplayer2.drm.DrmSession.DrmSessionException;
 import com.google.android.exoplayer2.drm.FrameworkCryptoConfig;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.source.MediaPeriod;
-import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
 import com.google.android.exoplayer2.source.SampleStream.ReadFlags;
@@ -715,11 +714,7 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
   }
 
   @Override
-  protected void onStreamChanged(
-      Format[] formats,
-      long startPositionUs,
-      long offsetUs,
-      MediaSource.MediaPeriodId mediaPeriodId)
+  protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs)
       throws ExoPlaybackException {
     if (outputStreamInfo.streamOffsetUs == C.TIME_UNSET) {
       // This is the first stream.

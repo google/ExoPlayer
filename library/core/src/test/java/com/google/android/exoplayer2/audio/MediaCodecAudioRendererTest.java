@@ -49,7 +49,6 @@ import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
-import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.testutil.FakeSampleStream;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
@@ -192,8 +191,7 @@ public class MediaCodecAudioRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ false,
         /* startPositionUs= */ 0,
-        /* offsetUs= */ 0,
-        new MediaSource.MediaPeriodId(new Object()));
+        /* offsetUs= */ 0);
 
     mediaCodecAudioRenderer.start();
     mediaCodecAudioRenderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
@@ -250,8 +248,7 @@ public class MediaCodecAudioRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ false,
         /* startPositionUs= */ 0,
-        /* offsetUs= */ 0,
-        new MediaSource.MediaPeriodId(new Object()));
+        /* offsetUs= */ 0);
 
     mediaCodecAudioRenderer.start();
     mediaCodecAudioRenderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
@@ -315,6 +312,7 @@ public class MediaCodecAudioRendererTest {
             ImmutableList.of(
                 oneByteSample(/* timeUs= */ 0, C.BUFFER_FLAG_KEY_FRAME), END_OF_STREAM_ITEM));
     fakeSampleStream.writeData(/* startPositionUs= */ 0);
+
     exceptionThrowingRenderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
     exceptionThrowingRenderer.enable(
         RendererConfiguration.DEFAULT,
@@ -324,8 +322,7 @@ public class MediaCodecAudioRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ false,
         /* startPositionUs= */ 0,
-        /* offsetUs= */ 0,
-        new MediaSource.MediaPeriodId(new Object()));
+        /* offsetUs= */ 0);
 
     exceptionThrowingRenderer.start();
     exceptionThrowingRenderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
@@ -406,7 +403,6 @@ public class MediaCodecAudioRendererTest {
                 oneByteSample(/* timeUs= */ 1_001_000),
                 END_OF_STREAM_ITEM));
     fakeSampleStream2.writeData(/* startPositionUs= */ 0);
-    MediaSource.MediaPeriodId mediaPeriodId = new MediaSource.MediaPeriodId(new Object());
     mediaCodecAudioRenderer.enable(
         RendererConfiguration.DEFAULT,
         new Format[] {AUDIO_AAC},
@@ -415,8 +411,7 @@ public class MediaCodecAudioRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 0,
-        /* offsetUs= */ 0,
-        mediaPeriodId);
+        /* offsetUs= */ 0);
 
     mediaCodecAudioRenderer.start();
     while (!mediaCodecAudioRenderer.hasReadStreamToEnd()) {
@@ -426,8 +421,7 @@ public class MediaCodecAudioRendererTest {
         new Format[] {AUDIO_AAC},
         fakeSampleStream2,
         /* startPositionUs= */ 1_000_000,
-        /* offsetUs= */ 1_000_000,
-        mediaPeriodId);
+        /* offsetUs= */ 1_000_000);
     mediaCodecAudioRenderer.setCurrentStreamFinal();
     while (!mediaCodecAudioRenderer.isEnded()) {
       mediaCodecAudioRenderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0);
@@ -493,6 +487,7 @@ public class MediaCodecAudioRendererTest {
                 oneByteSample(/* timeUs= */ 1_000),
                 END_OF_STREAM_ITEM));
     fakeSampleStream.writeData(/* startPositionUs= */ 0);
+
     mediaCodecAudioRenderer.enable(
         RENDERER_CONFIGURATION_OFFLOAD_ENABLED_GAPLESS_REQUIRED,
         new Format[] {format},
@@ -501,8 +496,7 @@ public class MediaCodecAudioRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 0,
-        /* offsetUs= */ 0,
-        new MediaSource.MediaPeriodId(new Object()));
+        /* offsetUs= */ 0);
     mediaCodecAudioRenderer.start();
     mediaCodecAudioRenderer.setCurrentStreamFinal();
 
@@ -531,6 +525,7 @@ public class MediaCodecAudioRendererTest {
                 oneByteSample(/* timeUs= */ 1_000),
                 END_OF_STREAM_ITEM));
     fakeSampleStream.writeData(/* startPositionUs= */ 0);
+
     mediaCodecAudioRenderer.enable(
         RENDERER_CONFIGURATION_OFFLOAD_ENABLED_GAPLESS_REQUIRED,
         new Format[] {format},
@@ -539,8 +534,7 @@ public class MediaCodecAudioRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 0,
-        /* offsetUs= */ 0,
-        new MediaSource.MediaPeriodId(new Object()));
+        /* offsetUs= */ 0);
     mediaCodecAudioRenderer.start();
     mediaCodecAudioRenderer.setCurrentStreamFinal();
 
@@ -581,7 +575,6 @@ public class MediaCodecAudioRendererTest {
                 oneByteSample(/* timeUs= */ 1_001_000),
                 END_OF_STREAM_ITEM));
     fakeSampleStream2.writeData(/* startPositionUs= */ 0);
-    MediaSource.MediaPeriodId mediaPeriodId = new MediaSource.MediaPeriodId(new Object());
     mediaCodecAudioRenderer.enable(
         RENDERER_CONFIGURATION_OFFLOAD_ENABLED_GAPLESS_REQUIRED,
         new Format[] {format1},
@@ -590,8 +583,7 @@ public class MediaCodecAudioRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 0,
-        /* offsetUs= */ 0,
-        mediaPeriodId);
+        /* offsetUs= */ 0);
     mediaCodecAudioRenderer.start();
     while (!mediaCodecAudioRenderer.hasReadStreamToEnd()) {
       mediaCodecAudioRenderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0);
@@ -601,8 +593,7 @@ public class MediaCodecAudioRendererTest {
         new Format[] {format2},
         fakeSampleStream2,
         /* startPositionUs= */ 1_000_000,
-        /* offsetUs= */ 1_000_000,
-        mediaPeriodId);
+        /* offsetUs= */ 1_000_000);
     mediaCodecAudioRenderer.setCurrentStreamFinal();
     while (!mediaCodecAudioRenderer.isEnded()) {
       mediaCodecAudioRenderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0);
@@ -643,9 +634,6 @@ public class MediaCodecAudioRendererTest {
                 oneByteSample(/* timeUs= */ 1_001_000),
                 END_OF_STREAM_ITEM));
     fakeSampleStream2.writeData(/* startPositionUs= */ 0);
-    MediaSource.MediaPeriodId mediaPeriodId1 = new MediaSource.MediaPeriodId(new Object());
-    MediaSource.MediaPeriodId mediaPeriodId2 = new MediaSource.MediaPeriodId(new Object());
-
     mediaCodecAudioRenderer.enable(
         RENDERER_CONFIGURATION_OFFLOAD_ENABLED_GAPLESS_REQUIRED,
         new Format[] {format1},
@@ -654,8 +642,7 @@ public class MediaCodecAudioRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 0,
-        /* offsetUs= */ 0,
-        mediaPeriodId1);
+        /* offsetUs= */ 0);
     mediaCodecAudioRenderer.start();
     while (!mediaCodecAudioRenderer.hasReadStreamToEnd()) {
       mediaCodecAudioRenderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0);
@@ -666,8 +653,7 @@ public class MediaCodecAudioRendererTest {
         new Format[] {format2},
         fakeSampleStream2,
         /* startPositionUs= */ 1_000_000,
-        /* offsetUs= */ 1_000_000,
-        mediaPeriodId2);
+        /* offsetUs= */ 1_000_000);
     mediaCodecAudioRenderer.setCurrentStreamFinal();
     while (!mediaCodecAudioRenderer.isEnded()) {
       mediaCodecAudioRenderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0);
@@ -707,8 +693,7 @@ public class MediaCodecAudioRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ false,
         /* startPositionUs= */ 0,
-        /* offsetUs= */ 0,
-        new MediaSource.MediaPeriodId(new Object()));
+        /* offsetUs= */ 0);
     mediaCodecAudioRenderer.setCurrentStreamFinal();
     while (!mediaCodecAudioRenderer.isEnded()) {
       mediaCodecAudioRenderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0);

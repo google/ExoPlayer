@@ -17,7 +17,6 @@ package com.google.android.exoplayer2;
 
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.analytics.PlayerId;
-import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
@@ -78,14 +77,13 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
       boolean joining,
       boolean mayRenderStartOfStream,
       long startPositionUs,
-      long offsetUs,
-      MediaSource.MediaPeriodId mediaPeriodId)
+      long offsetUs)
       throws ExoPlaybackException {
     Assertions.checkState(state == STATE_DISABLED);
     this.configuration = configuration;
     state = STATE_ENABLED;
     onEnabled(joining);
-    replaceStream(formats, stream, startPositionUs, offsetUs, mediaPeriodId);
+    replaceStream(formats, stream, startPositionUs, offsetUs);
     onPositionReset(positionUs, joining);
   }
 
@@ -98,11 +96,7 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
 
   @Override
   public final void replaceStream(
-      Format[] formats,
-      SampleStream stream,
-      long startPositionUs,
-      long offsetUs,
-      MediaSource.MediaPeriodId mediaPeriodId)
+      Format[] formats, SampleStream stream, long startPositionUs, long offsetUs)
       throws ExoPlaybackException {
     Assertions.checkState(!streamIsFinal);
     this.stream = stream;
@@ -193,11 +187,6 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
   @Override
   public void handleMessage(@MessageType int messageType, @Nullable Object message)
       throws ExoPlaybackException {
-    // Do nothing.
-  }
-
-  @Override
-  public void setTimeline(Timeline timeline) {
     // Do nothing.
   }
 

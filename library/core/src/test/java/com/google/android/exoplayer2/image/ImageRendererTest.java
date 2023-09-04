@@ -27,7 +27,6 @@ import com.google.android.exoplayer2.RendererConfiguration;
 import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
-import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.testutil.FakeSampleStream;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.util.Clock;
@@ -94,8 +93,7 @@ public class ImageRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 0,
-        /* offsetUs= */ 0,
-        new MediaSource.MediaPeriodId(new Object()));
+        /* offsetUs= */ 0);
     renderer.setCurrentStreamFinal();
 
     while (!renderer.isReady()) {

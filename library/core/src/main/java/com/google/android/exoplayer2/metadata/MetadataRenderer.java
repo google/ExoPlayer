@@ -28,7 +28,6 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.RendererCapabilities;
-import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Util;
@@ -142,11 +141,7 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
   }
 
   @Override
-  protected void onStreamChanged(
-      Format[] formats,
-      long startPositionUs,
-      long offsetUs,
-      MediaSource.MediaPeriodId mediaPeriodId) {
+  protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs) {
     decoder = decoderFactory.createDecoder(formats[0]);
     if (pendingMetadata != null) {
       pendingMetadata =

@@ -24,7 +24,6 @@ import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.Renderer;
 import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
-import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
@@ -82,11 +81,7 @@ public final class CameraMotionRenderer extends BaseRenderer {
   }
 
   @Override
-  protected void onStreamChanged(
-      Format[] formats,
-      long startPositionUs,
-      long offsetUs,
-      MediaSource.MediaPeriodId mediaPeriodId) {
+  protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs) {
     this.offsetUs = offsetUs;
   }
 
