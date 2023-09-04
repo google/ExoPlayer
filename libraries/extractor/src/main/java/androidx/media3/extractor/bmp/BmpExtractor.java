@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.media3.extractor.png;
+package androidx.media3.extractor.bmp;
 
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.UnstableApi;
@@ -24,29 +24,27 @@ import androidx.media3.extractor.PositionHolder;
 import androidx.media3.extractor.SingleSampleExtractorHelper;
 import java.io.IOException;
 
-/** Extracts data from the PNG container format. */
+/** Extracts data from the BMP container format. */
 @UnstableApi
-public final class PngExtractor implements Extractor {
-
-  // See PNG (Portable Network Graphics) Specification, Version 1.2, Section 12.12 and Section 3.1.
-  private static final int PNG_FILE_SIGNATURE = 0x8950;
-  private static final int PNG_FILE_SIGNATURE_LENGTH = 2;
+public final class BmpExtractor implements Extractor {
+  private static final int BMP_FILE_SIGNATURE_LENGTH = 2;
+  private static final int BMP_FILE_SIGNATURE = 0x424D;
 
   private final SingleSampleExtractorHelper imageExtractor;
 
   /** Creates an instance. */
-  public PngExtractor() {
+  public BmpExtractor() {
     imageExtractor = new SingleSampleExtractorHelper();
   }
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException {
-    return imageExtractor.sniff(input, PNG_FILE_SIGNATURE, PNG_FILE_SIGNATURE_LENGTH);
+    return imageExtractor.sniff(input, BMP_FILE_SIGNATURE, BMP_FILE_SIGNATURE_LENGTH);
   }
 
   @Override
   public void init(ExtractorOutput output) {
-    imageExtractor.init(output, MimeTypes.IMAGE_PNG);
+    imageExtractor.init(output, MimeTypes.IMAGE_BMP);
   }
 
   @Override

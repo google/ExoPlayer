@@ -19,6 +19,7 @@
         `SampleConsumer.queueInputBitmap` to `TimestampIterator`.
 *   Track Selection:
 *   Extractors:
+    *   Add `BmpExtractor`.
 *   Audio:
     *   Add support for Opus gapless metadata during offload playback.
 *   Video:

@@ -13,20 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.media3.extractor;
+@NonNullApi
+package androidx.media3.extractor.bmp;
 
-import androidx.media3.common.util.UnstableApi;
-import androidx.media3.extractor.mp4.Mp4Extractor;
-
-/** Utilities for image extractors. */
-@UnstableApi
-public class ImageExtractorUtil {
-
-  /**
-   * The identifier to use for the image track. Chosen to avoid colliding with track IDs used by
-   * {@link Mp4Extractor} for motion photos.
-   */
-  public static final int IMAGE_TRACK_ID = 1024;
-
-  private ImageExtractorUtil() {}
-}
+import androidx.media3.common.util.NonNullApi;

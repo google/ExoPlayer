@@ -16,7 +16,7 @@
 package androidx.media3.extractor.jpeg;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
-import static androidx.media3.extractor.ImageExtractorUtil.IMAGE_TRACK_ID;
+import static androidx.media3.extractor.SingleSampleExtractorHelper.IMAGE_TRACK_ID;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import androidx.annotation.IntDef;
