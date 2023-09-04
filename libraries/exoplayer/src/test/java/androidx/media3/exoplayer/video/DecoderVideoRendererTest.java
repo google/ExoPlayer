@@ -41,6 +41,7 @@ import androidx.media3.exoplayer.RendererCapabilities;
 import androidx.media3.exoplayer.RendererConfiguration;
 import androidx.media3.exoplayer.drm.DrmSessionEventListener;
 import androidx.media3.exoplayer.drm.DrmSessionManager;
+import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.upstream.DefaultAllocator;
 import androidx.media3.test.utils.FakeSampleStream;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -204,7 +205,8 @@ public final class DecoderVideoRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 0L,
-        /* offsetUs */ 0);
+        /* offsetUs */ 0,
+        new MediaSource.MediaPeriodId(new Object()));
     for (int i = 0; i < 10; i++) {
       renderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
       // Ensure pending messages are delivered.
@@ -235,7 +237,8 @@ public final class DecoderVideoRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ false,
         /* startPositionUs= */ 0,
-        /* offsetUs */ 0);
+        /* offsetUs */ 0,
+        new MediaSource.MediaPeriodId(new Object()));
     for (int i = 0; i < 10; i++) {
       renderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
       // Ensure pending messages are delivered.
@@ -265,7 +268,8 @@ public final class DecoderVideoRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ false,
         /* startPositionUs= */ 0,
-        /* offsetUs */ 0);
+        /* offsetUs */ 0,
+        new MediaSource.MediaPeriodId(new Object()));
     renderer.start();
     for (int i = 0; i < 10; i++) {
       renderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
@@ -299,6 +303,8 @@ public final class DecoderVideoRendererTest {
             /* initialFormat= */ H264_FORMAT,
             ImmutableList.of(oneByteSample(/* timeUs= */ 0), END_OF_STREAM_ITEM));
     fakeSampleStream2.writeData(/* startPositionUs= */ 0);
+    MediaSource.MediaPeriodId mediaPeriodId1 = new MediaSource.MediaPeriodId(new Object());
+    MediaSource.MediaPeriodId mediaPeriodId2 = new MediaSource.MediaPeriodId(new Object());
     renderer.enable(
         RendererConfiguration.DEFAULT,
         new Format[] {H264_FORMAT},
@@ -307,7 +313,8 @@ public final class DecoderVideoRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 0,
-        /* offsetUs */ 0);
+        /* offsetUs */ 0,
+        mediaPeriodId1);
     renderer.start();
 
     boolean replacedStream = false;
@@ -318,7 +325,8 @@ public final class DecoderVideoRendererTest {
             new Format[] {H264_FORMAT},
             fakeSampleStream2,
             /* startPositionUs= */ 100,
-            /* offsetUs= */ 100);
+            /* offsetUs= */ 100,
+            mediaPeriodId2);
         replacedStream = true;
       }
       // Ensure pending messages are delivered.
@@ -352,6 +360,8 @@ public final class DecoderVideoRendererTest {
             /* initialFormat= */ H264_FORMAT,
             ImmutableList.of(oneByteSample(/* timeUs= */ 0), END_OF_STREAM_ITEM));
     fakeSampleStream2.writeData(/* startPositionUs= */ 0);
+    MediaSource.MediaPeriodId mediaPeriodId1 = new MediaSource.MediaPeriodId(new Object());
+    MediaSource.MediaPeriodId mediaPeriodId2 = new MediaSource.MediaPeriodId(new Object());
     renderer.enable(
         RendererConfiguration.DEFAULT,
         new Format[] {H264_FORMAT},
@@ -360,7 +370,8 @@ public final class DecoderVideoRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 0,
-        /* offsetUs */ 0);
+        /* offsetUs */ 0,
+        mediaPeriodId1);
 
     boolean replacedStream = false;
     for (int i = 0; i < 10; i++) {
@@ -370,7 +381,8 @@ public final class DecoderVideoRendererTest {
             new Format[] {H264_FORMAT},
             fakeSampleStream2,
             /* startPositionUs= */ 100,
-            /* offsetUs= */ 100);
+            /* offsetUs= */ 100,
+            mediaPeriodId2);
         replacedStream = true;
       }
       // Ensure pending messages are delivered.

@@ -221,7 +221,8 @@ public class MediaCodecVideoRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 0,
-        /* offsetUs= */ 0);
+        /* offsetUs= */ 0,
+        /* mediaPeriodId= */ new MediaSource.MediaPeriodId(new Object()));
 
     mediaCodecVideoRenderer.start();
     mediaCodecVideoRenderer.render(0, SystemClock.elapsedRealtime() * 1000);
@@ -277,7 +278,8 @@ public class MediaCodecVideoRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 30_000,
-        /* offsetUs= */ 0);
+        /* offsetUs= */ 0,
+        new MediaSource.MediaPeriodId(new Object()));
 
     mediaCodecVideoRenderer.start();
     mediaCodecVideoRenderer.setCurrentStreamFinal();
@@ -304,15 +306,14 @@ public class MediaCodecVideoRendererTest {
     ArgumentCaptor<DecoderCounters> argumentDecoderCounters =
         ArgumentCaptor.forClass(DecoderCounters.class);
     // Set up MediaPeriod with samples.
+    MediaSource.MediaPeriodId fakeMediaPeriodId = new MediaSource.MediaPeriodId(new Object());
     FakeMediaPeriod mediaPeriod =
         new FakeMediaPeriod(
             new TrackGroupArray(TRACK_GROUP_H264),
             new DefaultAllocator(/* trimOnReset= */ true, /* individualAllocationSize= */ 1024),
             /* trackDataFactory= */ (format, mediaPeriodId) -> ImmutableList.of(),
             new MediaSourceEventListener.EventDispatcher()
-                .withParameters(
-                    /* windowIndex= */ 0,
-                    new MediaSource.MediaPeriodId(/* periodUid= */ new Object())),
+                .withParameters(/* windowIndex= */ 0, fakeMediaPeriodId),
             DrmSessionManager.DRM_UNSUPPORTED,
             new DrmSessionEventListener.EventDispatcher(),
             /* deferOnPrepared= */ false) {
@@ -388,7 +389,8 @@ public class MediaCodecVideoRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 100,
-        /* offsetUs= */ 0);
+        /* offsetUs= */ 0,
+        fakeMediaPeriodId);
 
     mediaCodecVideoRenderer.start();
     // Call to render should have read all samples up before endUs.
@@ -409,15 +411,14 @@ public class MediaCodecVideoRendererTest {
     ArgumentCaptor<DecoderCounters> argumentDecoderCounters =
         ArgumentCaptor.forClass(DecoderCounters.class);
     // Set up MediaPeriod with samples.
+    MediaSource.MediaPeriodId fakeMediaPeriodId = new MediaSource.MediaPeriodId(new Object());
     FakeMediaPeriod mediaPeriod =
         new FakeMediaPeriod(
             new TrackGroupArray(TRACK_GROUP_H264),
             new DefaultAllocator(/* trimOnReset= */ true, /* individualAllocationSize= */ 1024),
             /* trackDataFactory= */ (format, mediaPeriodId) -> ImmutableList.of(),
             new MediaSourceEventListener.EventDispatcher()
-                .withParameters(
-                    /* windowIndex= */ 0,
-                    new MediaSource.MediaPeriodId(/* periodUid= */ new Object())),
+                .withParameters(/* windowIndex= */ 0, fakeMediaPeriodId),
             DrmSessionManager.DRM_UNSUPPORTED,
             new DrmSessionEventListener.EventDispatcher(),
             /* deferOnPrepared= */ false) {
@@ -493,7 +494,8 @@ public class MediaCodecVideoRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 100,
-        /* offsetUs= */ 0);
+        /* offsetUs= */ 0,
+        fakeMediaPeriodId);
 
     mediaCodecVideoRenderer.start();
     mediaCodecVideoRenderer.setCurrentStreamFinal();
@@ -529,7 +531,8 @@ public class MediaCodecVideoRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 0,
-        /* offsetUs= */ 0);
+        /* offsetUs= */ 0,
+        new MediaSource.MediaPeriodId(new Object()));
     mediaCodecVideoRenderer.setCurrentStreamFinal();
     mediaCodecVideoRenderer.start();
 
@@ -575,7 +578,8 @@ public class MediaCodecVideoRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ false,
         /* startPositionUs= */ 0,
-        /* offsetUs= */ 0);
+        /* offsetUs= */ 0,
+        new MediaSource.MediaPeriodId(new Object()));
     mediaCodecVideoRenderer.start();
     mediaCodecVideoRenderer.render(/* positionUs= */ 0, msToUs(SystemClock.elapsedRealtime()));
     ShadowSystemClock.advanceBy(10, TimeUnit.MILLISECONDS);
@@ -630,7 +634,8 @@ public class MediaCodecVideoRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 0,
-        /* offsetUs= */ 0);
+        /* offsetUs= */ 0,
+        new MediaSource.MediaPeriodId(new Object()));
 
     mediaCodecVideoRenderer.start();
     mediaCodecVideoRenderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
@@ -670,7 +675,8 @@ public class MediaCodecVideoRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 0,
-        /* offsetUs= */ 0);
+        /* offsetUs= */ 0,
+        new MediaSource.MediaPeriodId(new Object()));
     for (int i = 0; i < 10; i++) {
       mediaCodecVideoRenderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
     }
@@ -700,7 +706,8 @@ public class MediaCodecVideoRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ false,
         /* startPositionUs= */ 0,
-        /* offsetUs= */ 0);
+        /* offsetUs= */ 0,
+        new MediaSource.MediaPeriodId(new Object()));
     for (int i = 0; i < 10; i++) {
       mediaCodecVideoRenderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
     }
@@ -729,7 +736,8 @@ public class MediaCodecVideoRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ false,
         /* startPositionUs= */ 0,
-        /* offsetUs= */ 0);
+        /* offsetUs= */ 0,
+        new MediaSource.MediaPeriodId(new Object()));
     mediaCodecVideoRenderer.start();
     for (int i = 0; i < 10; i++) {
       mediaCodecVideoRenderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
@@ -762,7 +770,8 @@ public class MediaCodecVideoRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 2000,
-        /* offsetUs= */ 1000);
+        /* offsetUs= */ 1000,
+        new MediaSource.MediaPeriodId(new Object()));
     for (int i = 0; i < 10; i++) {
       mediaCodecVideoRenderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
     }
@@ -795,6 +804,8 @@ public class MediaCodecVideoRendererTest {
                 oneByteSample(/* timeUs= */ 1_000_000, C.BUFFER_FLAG_KEY_FRAME),
                 END_OF_STREAM_ITEM));
     fakeSampleStream2.writeData(/* startPositionUs= */ 0);
+    MediaSource.MediaPeriodId mediaPeriodId1 = new MediaSource.MediaPeriodId(new Object());
+    MediaSource.MediaPeriodId mediaPeriodId2 = new MediaSource.MediaPeriodId(new Object());
     mediaCodecVideoRenderer.enable(
         RendererConfiguration.DEFAULT,
         new Format[] {VIDEO_H264},
@@ -803,7 +814,8 @@ public class MediaCodecVideoRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 0,
-        /* offsetUs= */ 0);
+        /* offsetUs= */ 0,
+        mediaPeriodId1);
     mediaCodecVideoRenderer.start();
 
     boolean replacedStream = false;
@@ -816,7 +828,8 @@ public class MediaCodecVideoRendererTest {
             new Format[] {VIDEO_H264},
             fakeSampleStream2,
             /* startPositionUs= */ 100,
-            /* offsetUs= */ 50);
+            /* offsetUs= */ 50,
+            mediaPeriodId2);
         replacedStream = true;
       }
     }
@@ -857,6 +870,8 @@ public class MediaCodecVideoRendererTest {
             ImmutableList.of(
                 oneByteSample(/* timeUs= */ 0, C.BUFFER_FLAG_KEY_FRAME), END_OF_STREAM_ITEM));
     fakeSampleStream2.writeData(/* startPositionUs= */ 0);
+    MediaSource.MediaPeriodId mediaPeriodId1 = new MediaSource.MediaPeriodId(new Object());
+    MediaSource.MediaPeriodId mediaPeriodId2 = new MediaSource.MediaPeriodId(new Object());
     mediaCodecVideoRenderer.enable(
         RendererConfiguration.DEFAULT,
         new Format[] {VIDEO_H264},
@@ -865,7 +880,8 @@ public class MediaCodecVideoRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 0,
-        /* offsetUs= */ 0);
+        /* offsetUs= */ 0,
+        mediaPeriodId1);
 
     boolean replacedStream = false;
     for (int i = 0; i < 10; i++) {
@@ -876,7 +892,8 @@ public class MediaCodecVideoRendererTest {
             new Format[] {VIDEO_H264},
             fakeSampleStream2,
             /* startPositionUs= */ 100,
-            /* offsetUs= */ 100);
+            /* offsetUs= */ 100,
+            mediaPeriodId2);
         replacedStream = true;
       }
     }
@@ -912,7 +929,8 @@ public class MediaCodecVideoRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 1000,
-        /* offsetUs= */ 0);
+        /* offsetUs= */ 0,
+        new MediaSource.MediaPeriodId(new Object()));
     mediaCodecVideoRenderer.start();
     // Render at the original start position.
     for (int i = 0; i < 10; i++) {
@@ -1267,7 +1285,8 @@ public class MediaCodecVideoRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 0,
-        /* offsetUs= */ 0);
+        /* offsetUs= */ 0,
+        new MediaSource.MediaPeriodId(new Object()));
     mediaCodecVideoRenderer.start();
     mediaCodecVideoRenderer.render(/* positionUs= */ 0, SystemClock.elapsedRealtime() * 1000);
 

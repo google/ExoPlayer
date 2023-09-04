@@ -18,10 +18,12 @@ package androidx.media3.exoplayer;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
+import androidx.media3.common.Timeline;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.analytics.PlayerId;
+import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.SampleStream;
 import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -74,13 +76,14 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
       boolean joining,
       boolean mayRenderStartOfStream,
       long startPositionUs,
-      long offsetUs)
+      long offsetUs,
+      MediaSource.MediaPeriodId mediaPeriodId)
       throws ExoPlaybackException {
     Assertions.checkState(state == STATE_DISABLED);
     this.configuration = configuration;
     state = STATE_ENABLED;
     onEnabled(joining);
-    replaceStream(formats, stream, startPositionUs, offsetUs);
+    replaceStream(formats, stream, startPositionUs, offsetUs, mediaPeriodId);
     onPositionReset(positionUs, joining);
   }
 
@@ -93,7 +96,11 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
 
   @Override
   public final void replaceStream(
-      Format[] formats, SampleStream stream, long startPositionUs, long offsetUs)
+      Format[] formats,
+      SampleStream stream,
+      long startPositionUs,
+      long offsetUs,
+      MediaSource.MediaPeriodId mediaPeriodId)
       throws ExoPlaybackException {
     Assertions.checkState(!streamIsFinal);
     this.stream = stream;
@@ -184,6 +191,11 @@ public abstract class NoSampleRenderer implements Renderer, RendererCapabilities
   @Override
   public void handleMessage(@MessageType int messageType, @Nullable Object message)
       throws ExoPlaybackException {
+    // Do nothing.
+  }
+
+  @Override
+  public void setTimeline(Timeline timeline) {
     // Do nothing.
   }
 

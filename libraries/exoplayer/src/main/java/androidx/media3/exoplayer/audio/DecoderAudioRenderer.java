@@ -62,6 +62,7 @@ import androidx.media3.exoplayer.audio.AudioRendererEventListener.EventDispatche
 import androidx.media3.exoplayer.audio.AudioSink.SinkFormatSupport;
 import androidx.media3.exoplayer.drm.DrmSession;
 import androidx.media3.exoplayer.drm.DrmSession.DrmSessionException;
+import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.SampleStream.ReadDataResult;
 import com.google.errorprone.annotations.ForOverride;
 import java.lang.annotation.Documented;
@@ -649,9 +650,13 @@ public abstract class DecoderAudioRenderer<
   }
 
   @Override
-  protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs)
+  protected void onStreamChanged(
+      Format[] formats,
+      long startPositionUs,
+      long offsetUs,
+      MediaSource.MediaPeriodId mediaPeriodId)
       throws ExoPlaybackException {
-    super.onStreamChanged(formats, startPositionUs, offsetUs);
+    super.onStreamChanged(formats, startPositionUs, offsetUs, mediaPeriodId);
     firstStreamSampleRead = false;
     if (outputStreamOffsetUs == C.TIME_UNSET) {
       setOutputStreamOffsetUs(offsetUs);
