@@ -28,7 +28,6 @@ import androidx.media3.exoplayer.ExoPlaybackException;
 import androidx.media3.exoplayer.FormatHolder;
 import androidx.media3.exoplayer.Renderer;
 import androidx.media3.exoplayer.RendererCapabilities;
-import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.SampleStream.ReadDataResult;
 import java.nio.ByteBuffer;
 
@@ -76,11 +75,7 @@ public final class CameraMotionRenderer extends BaseRenderer {
   }
 
   @Override
-  protected void onStreamChanged(
-      Format[] formats,
-      long startPositionUs,
-      long offsetUs,
-      MediaSource.MediaPeriodId mediaPeriodId) {
+  protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs) {
     this.offsetUs = offsetUs;
   }
 

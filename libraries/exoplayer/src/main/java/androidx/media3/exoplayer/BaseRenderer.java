@@ -23,16 +23,12 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.PlaybackException;
-import androidx.media3.common.Timeline;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.UnstableApi;
-import androidx.media3.common.util.Util;
 import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.decoder.DecoderInputBuffer.InsufficientCapacityException;
 import androidx.media3.exoplayer.analytics.PlayerId;
-import androidx.media3.exoplayer.source.MediaPeriod;
-import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.SampleStream;
 import androidx.media3.exoplayer.source.SampleStream.ReadDataResult;
 import androidx.media3.exoplayer.source.SampleStream.ReadFlags;
@@ -59,7 +55,6 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   private long readingPositionUs;
   private boolean streamIsFinal;
   private boolean throwRendererExceptionIsExecuting;
-  private Timeline timeline;
 
   @GuardedBy("lock")
   @Nullable
@@ -74,7 +69,6 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     this.trackType = trackType;
     formatHolder = new FormatHolder();
     readingPositionUs = C.TIME_END_OF_SOURCE;
-    timeline = Timeline.EMPTY;
   }
 
   @Override
@@ -114,14 +108,13 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
       boolean joining,
       boolean mayRenderStartOfStream,
       long startPositionUs,
-      long offsetUs,
-      MediaSource.MediaPeriodId mediaPeriodId)
+      long offsetUs)
       throws ExoPlaybackException {
     Assertions.checkState(state == STATE_DISABLED);
     this.configuration = configuration;
     state = STATE_ENABLED;
     onEnabled(joining, mayRenderStartOfStream);
-    replaceStream(formats, stream, startPositionUs, offsetUs, mediaPeriodId);
+    replaceStream(formats, stream, startPositionUs, offsetUs);
     resetPosition(startPositionUs, joining);
   }
 
@@ -133,13 +126,8 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   }
 
   @Override
-  @SuppressWarnings("deprecation") // Calling deprecated method.
   public final void replaceStream(
-      Format[] formats,
-      SampleStream stream,
-      long startPositionUs,
-      long offsetUs,
-      MediaSource.MediaPeriodId mediaPeriodId)
+      Format[] formats, SampleStream stream, long startPositionUs, long offsetUs)
       throws ExoPlaybackException {
     Assertions.checkState(!streamIsFinal);
     this.stream = stream;
@@ -148,9 +136,6 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     }
     streamFormats = formats;
     streamOffsetUs = offsetUs;
-    onStreamChanged(formats, startPositionUs, offsetUs, mediaPeriodId);
-    // Call the deprecated method after the new method, so that classes that migrate to the new
-    // method do not impact their subclasses that still override the deprecated method.
     onStreamChanged(formats, startPositionUs, offsetUs);
   }
 
@@ -183,14 +168,6 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   @Override
   public final void maybeThrowStreamError() throws IOException {
     Assertions.checkNotNull(stream).maybeThrowError();
-  }
-
-  @Override
-  public final void setTimeline(Timeline timeline) {
-    if (!Util.areEqual(this.timeline, timeline)) {
-      this.timeline = timeline;
-      onTimelineChanged(this.timeline);
-    }
   }
 
   @Override
@@ -283,16 +260,6 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   }
 
   /**
-   * @deprecated Use {@link #onStreamChanged(Format[], long, long, MediaSource.MediaPeriodId)}
-   *     instead.
-   */
-  @Deprecated
-  protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs)
-      throws ExoPlaybackException {
-    // Do nothing.
-  }
-
-  /**
    * Called when the renderer's stream has changed. This occurs when the renderer is enabled after
    * {@link #onEnabled(boolean, boolean)} has been called, and also when the stream has been
    * replaced whilst the renderer is enabled or started.
@@ -303,23 +270,17 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    * @param startPositionUs The start position of the new stream in renderer time (microseconds).
    * @param offsetUs The offset that will be added to the timestamps of buffers read via {@link
    *     #readSource} so that decoder input buffers have monotonically increasing timestamps.
-   * @param mediaPeriodId The {@link MediaSource.MediaPeriodId} of the {@link MediaPeriod} that
-   *     produces the stream.
    * @throws ExoPlaybackException If an error occurs.
    */
-  protected void onStreamChanged(
-      Format[] formats,
-      long startPositionUs,
-      long offsetUs,
-      MediaSource.MediaPeriodId mediaPeriodId)
+  protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs)
       throws ExoPlaybackException {
     // Do nothing.
   }
 
   /**
    * Called when the position is reset. This occurs when the renderer is enabled after {@link
-   * #onStreamChanged(Format[], long, long, MediaSource.MediaPeriodId)} has been called, and also
-   * when a position discontinuity is encountered.
+   * #onStreamChanged(Format[], long, long)} has been called, and also when a position discontinuity
+   * is encountered.
    *
    * <p>After a position reset, the renderer's {@link SampleStream} is guaranteed to provide samples
    * starting from a key frame.
@@ -379,17 +340,6 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    */
   protected void onRelease() {
     // Do nothing.
-  }
-
-  /**
-   * Called when a new timeline is {@linkplain #setTimeline(Timeline) set}.
-   *
-   * <p>The default implementation is a no-op.
-   *
-   * @param timeline The new timeline, which can also be obtained from {@link #getTimeline()}.
-   */
-  protected void onTimelineChanged(Timeline timeline) {
-    // Do nothing
   }
 
   // Methods to be called by subclasses.
@@ -453,11 +403,6 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    */
   protected final Clock getClock() {
     return checkNotNull(clock);
-  }
-
-  /** Returns the current {@link Timeline} containing the rendered stream. */
-  protected final Timeline getTimeline() {
-    return timeline;
   }
 
   /**

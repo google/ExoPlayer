@@ -29,7 +29,6 @@ import androidx.media3.common.util.Assertions;
 import androidx.media3.exoplayer.ExoPlaybackException;
 import androidx.media3.exoplayer.drm.DrmSessionEventListener;
 import androidx.media3.exoplayer.drm.DrmSessionManager;
-import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.upstream.DefaultAllocator;
 import androidx.media3.extractor.metadata.emsg.EventMessage;
 import androidx.media3.extractor.metadata.emsg.EventMessageEncoder;
@@ -170,8 +169,7 @@ public class MetadataRendererTest {
         new Format[] {EMSG_FORMAT},
         fakeSampleStream,
         /* startPositionUs= */ 0L,
-        /* offsetUs= */ 0L,
-        new MediaSource.MediaPeriodId(new Object()));
+        /* offsetUs= */ 0L);
 
     // Call render() twice, the first call is to read the format and the second call will read the
     // metadata.
@@ -210,8 +208,7 @@ public class MetadataRendererTest {
         new Format[] {EMSG_FORMAT},
         fakeSampleStream,
         /* startPositionUs= */ 0L,
-        /* offsetUs= */ 0L,
-        new MediaSource.MediaPeriodId(new Object()));
+        /* offsetUs= */ 0L);
 
     // Call render() twice, the first call is to read the format and the second call will read the
     // metadata.
@@ -249,14 +246,12 @@ public class MetadataRendererTest {
                 sample(/* timeUs= */ 200_000, C.BUFFER_FLAG_KEY_FRAME, encodedEmsg),
                 END_OF_STREAM_ITEM));
     fakeSampleStream.writeData(/* startPositionUs= */ 0);
-    MediaSource.MediaPeriodId mediaPeriodId = new MediaSource.MediaPeriodId(new Object());
     // Start of the first reading period.
     renderer.replaceStream(
         new Format[] {EMSG_FORMAT},
         fakeSampleStream,
         /* startPositionUs= */ 0L,
-        /* offsetUs= */ 0L,
-        mediaPeriodId);
+        /* offsetUs= */ 0L);
     // Read the format
     renderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0);
 
@@ -273,8 +268,7 @@ public class MetadataRendererTest {
         new Format[] {EMSG_FORMAT},
         fakeSampleStream,
         /* startPositionUs= */ 0L,
-        /* offsetUs= */ 100_000L,
-        mediaPeriodId);
+        /* offsetUs= */ 100_000L);
     renderer.render(/* positionUs= */ 199_999, /* elapsedRealtimeUs= */ 0);
     assertThat(metadataOutput).hasSize(1);
 
@@ -310,14 +304,12 @@ public class MetadataRendererTest {
                 sample(/* timeUs= */ 200_000, C.BUFFER_FLAG_KEY_FRAME, encodedEmsg),
                 END_OF_STREAM_ITEM));
     fakeSampleStream.writeData(/* startPositionUs= */ 0);
-    MediaSource.MediaPeriodId mediaPeriodId = new MediaSource.MediaPeriodId(new Object());
     // Start of the first reading period.
     renderer.replaceStream(
         new Format[] {EMSG_FORMAT},
         fakeSampleStream,
         /* startPositionUs= */ 0L,
-        /* offsetUs= */ 100_000L,
-        mediaPeriodId);
+        /* offsetUs= */ 100_000L);
     // Read the format
     renderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0);
 
@@ -334,8 +326,7 @@ public class MetadataRendererTest {
         new Format[] {EMSG_FORMAT},
         fakeSampleStream,
         /* startPositionUs= */ 0L,
-        /* offsetUs= */ 0L,
-        mediaPeriodId);
+        /* offsetUs= */ 0L);
     renderer.render(/* positionUs= */ 299_999, /* elapsedRealtimeUs= */ 0);
     assertThat(metadataOutput).hasSize(1);
 
@@ -358,8 +349,7 @@ public class MetadataRendererTest {
         new Format[] {EMSG_FORMAT},
         fakeSampleStream,
         /* startPositionUs= */ 0L,
-        /* offsetUs= */ 0L,
-        new MediaSource.MediaPeriodId(new Object()));
+        /* offsetUs= */ 0L);
     renderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0); // Read the format
     renderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0); // Read the data
 

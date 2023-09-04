@@ -1949,9 +1949,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
             /* releaseMediaSourceList= */ false,
             /* resetError= */ true);
       }
-      for (Renderer renderer : renderers) {
-        renderer.setTimeline(timeline);
-      }
       if (!periodPositionChanged) {
         // We can keep the current playing period. Update the rest of the queued periods.
         if (!queue.updateQueuedPeriods(
@@ -2249,8 +2246,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
             formats,
             readingPeriodHolder.sampleStreams[i],
             readingPeriodHolder.getStartPositionRendererTime(),
-            readingPeriodHolder.getRendererOffset(),
-            readingPeriodHolder.info.id);
+            readingPeriodHolder.getRendererOffset());
       } else if (renderer.isEnded()) {
         // The renderer has finished playback, so we can disable it now.
         disableRenderer(renderer);
@@ -2628,8 +2624,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         joining,
         mayRenderStartOfStream,
         startPositionUs,
-        periodHolder.getRendererOffset(),
-        periodHolder.info.id);
+        periodHolder.getRendererOffset());
     renderer.handleMessage(
         Renderer.MSG_SET_WAKEUP_LISTENER,
         new Renderer.WakeupListener() {

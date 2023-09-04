@@ -27,14 +27,11 @@ import androidx.media3.common.C;
 import androidx.media3.common.Effect;
 import androidx.media3.common.Format;
 import androidx.media3.common.Player;
-import androidx.media3.common.Timeline;
 import androidx.media3.common.util.Clock;
 import androidx.media3.common.util.Size;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.analytics.PlayerId;
-import androidx.media3.exoplayer.source.MediaPeriod;
-import androidx.media3.exoplayer.source.MediaSource.MediaPeriodId;
 import androidx.media3.exoplayer.source.SampleStream;
 import androidx.media3.exoplayer.video.VideoDecoderOutputBufferRenderer;
 import androidx.media3.exoplayer.video.VideoFrameMetadataListener;
@@ -349,8 +346,6 @@ public interface Renderer extends PlayerMessage.Target {
    * @param startPositionUs The start position of the stream in renderer time (microseconds).
    * @param offsetUs The offset to be added to timestamps of buffers read from {@code stream} before
    *     they are rendered.
-   * @param mediaPeriodId The {@link MediaPeriodId} of the {@link MediaPeriod} producing the {@code
-   *     stream}.
    * @throws ExoPlaybackException If an error occurs.
    */
   void enable(
@@ -361,8 +356,7 @@ public interface Renderer extends PlayerMessage.Target {
       boolean joining,
       boolean mayRenderStartOfStream,
       long startPositionUs,
-      long offsetUs,
-      MediaPeriodId mediaPeriodId)
+      long offsetUs)
       throws ExoPlaybackException;
 
   /**
@@ -387,16 +381,9 @@ public interface Renderer extends PlayerMessage.Target {
    * @param startPositionUs The start position of the new stream in renderer time (microseconds).
    * @param offsetUs The offset to be added to timestamps of buffers read from {@code stream} before
    *     they are rendered.
-   * @param mediaPeriodId The {@link MediaPeriodId} of the {@link MediaPeriod} producing the {@code
-   *     stream}.
    * @throws ExoPlaybackException If an error occurs.
    */
-  void replaceStream(
-      Format[] formats,
-      SampleStream stream,
-      long startPositionUs,
-      long offsetUs,
-      MediaPeriodId mediaPeriodId)
+  void replaceStream(Format[] formats, SampleStream stream, long startPositionUs, long offsetUs)
       throws ExoPlaybackException;
 
   /** Returns the {@link SampleStream} being consumed, or null if the renderer is disabled. */
@@ -484,9 +471,6 @@ public interface Renderer extends PlayerMessage.Target {
    */
   default void enableMayRenderStartOfStream() {}
 
-  /** Sets the timeline that is currently being played. */
-  void setTimeline(Timeline timeline);
-
   /**
    * Incrementally renders the {@link SampleStream}.
    *
@@ -498,8 +482,8 @@ public interface Renderer extends PlayerMessage.Target {
    * <p>The renderer may also render the very start of the media at the current position (e.g. the
    * first frame of a video stream) while still in the {@link #STATE_ENABLED} state, unless it's the
    * initial start of the media after calling {@link #enable(RendererConfiguration, Format[],
-   * SampleStream, long, boolean, boolean, long, long, MediaPeriodId)} with {@code
-   * mayRenderStartOfStream} set to {@code false}.
+   * SampleStream, long, boolean, boolean, long, long)} with {@code mayRenderStartOfStream} set to
+   * {@code false}.
    *
    * <p>This method should return quickly, and should not block if the renderer is unable to make
    * useful progress.
