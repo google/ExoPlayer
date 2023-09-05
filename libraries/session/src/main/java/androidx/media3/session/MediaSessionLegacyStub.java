@@ -66,7 +66,9 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.ViewConfiguration;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.util.ObjectsCompat;
 import androidx.media.MediaSessionManager;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
@@ -128,7 +130,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   private final MediaSessionCompat sessionCompat;
   private final String appPackageName;
   @Nullable private final MediaButtonReceiver runtimeBroadcastReceiver;
-  private final boolean canResumePlaybackOnStart;
+  @Nullable private final ComponentName broadcastReceiverComponentName;
   @Nullable private VolumeProviderCompat volumeProviderCompat;
 
   private volatile long connectionTimeoutMs;
@@ -150,20 +152,24 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         new ConnectionTimeoutHandler(
             session.getApplicationHandler().getLooper(), connectedControllersManager);
 
-    // Select a media button receiver component.
-    ComponentName receiverComponentName = queryPackageManagerForMediaButtonReceiver(context);
     // Assume an app that intentionally puts a `MediaButtonReceiver` into the manifest has
     // implemented some kind of resumption of the last recently played media item.
-    canResumePlaybackOnStart = receiverComponentName != null;
+    broadcastReceiverComponentName = queryPackageManagerForMediaButtonReceiver(context);
+    @Nullable ComponentName receiverComponentName = broadcastReceiverComponentName;
     boolean isReceiverComponentAService = false;
-    if (receiverComponentName == null) {
+    if (receiverComponentName == null || Util.SDK_INT < 31) {
+      // Below API 26, media button events are sent to the receiver at runtime also. We always want
+      // these to arrive at the service at runtime. release() then set the receiver for restart if
+      // available.
       receiverComponentName =
           getServiceComponentByAction(context, MediaLibraryService.SERVICE_INTERFACE);
       if (receiverComponentName == null) {
         receiverComponentName =
             getServiceComponentByAction(context, MediaSessionService.SERVICE_INTERFACE);
       }
-      isReceiverComponentAService = receiverComponentName != null;
+      isReceiverComponentAService =
+          receiverComponentName != null
+              && !Objects.equals(receiverComponentName, broadcastReceiverComponentName);
     }
     Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON, sessionUri);
     PendingIntent mediaButtonIntent;
@@ -179,7 +185,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
       mediaButtonIntent =
           PendingIntent.getBroadcast(
               context, /* requestCode= */ 0, intent, PENDING_INTENT_FLAG_MUTABLE);
-      // Creates a fake ComponentName for MediaSessionCompat in pre-L.
+      // Creates a fake ComponentName for MediaSessionCompat in pre-L or without a service.
       receiverComponentName = new ComponentName(context, context.getClass());
     } else {
       intent.setComponent(receiverComponentName);
@@ -203,9 +209,12 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         new MediaSessionCompat(
             context,
             sessionCompatId,
-            receiverComponentName,
-            mediaButtonIntent,
+            Util.SDK_INT < 31 ? receiverComponentName : null,
+            Util.SDK_INT < 31 ? mediaButtonIntent : null,
             session.getToken().getExtras());
+    if (Util.SDK_INT >= 31 && broadcastReceiverComponentName != null) {
+      Api31.setMediaButtonBroadcastReceiver(sessionCompat, broadcastReceiverComponentName);
+    }
 
     @Nullable PendingIntent sessionActivity = session.getSessionActivity();
     if (sessionActivity != null) {
@@ -244,9 +253,24 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     sessionCompat.setActive(true);
   }
 
+  @SuppressWarnings("PendingIntentMutability") // We can't use SaferPendingIntent.
   public void release() {
-    if (!canResumePlaybackOnStart) {
-      setMediaButtonReceiver(sessionCompat, /* mediaButtonReceiverIntent= */ null);
+    if (Util.SDK_INT < 31) {
+      if (broadcastReceiverComponentName == null) {
+        // No broadcast receiver available. Playback resumption not supported.
+        setMediaButtonReceiver(sessionCompat, /* mediaButtonReceiverIntent= */ null);
+      } else {
+        // Override the runtime receiver with the broadcast receiver for playback resumption.
+        Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON, sessionImpl.getUri());
+        intent.setComponent(broadcastReceiverComponentName);
+        PendingIntent mediaButtonReceiverIntent =
+            PendingIntent.getBroadcast(
+                sessionImpl.getContext(),
+                /* requestCode= */ 0,
+                intent,
+                PENDING_INTENT_FLAG_MUTABLE);
+        setMediaButtonReceiver(sessionCompat, mediaButtonReceiverIntent);
+      }
     }
     if (runtimeBroadcastReceiver != null) {
       sessionImpl.getContext().unregisterReceiver(runtimeBroadcastReceiver);
@@ -633,7 +657,7 @@ import org.checkerframework.checker.initialization.qual.Initialized;
   }
 
   /* package */ boolean canResumePlaybackOnStart() {
-    return canResumePlaybackOnStart;
+    return broadcastReceiverComponentName != null;
   }
 
   private void dispatchSessionTaskWithPlayerCommand(
@@ -1459,7 +1483,6 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     return new ComponentName(resolveInfo.serviceInfo.packageName, resolveInfo.serviceInfo.name);
   }
 
-  // TODO(b/193193462): Replace this with androidx.media.session.MediaButtonReceiver
   private final class MediaButtonReceiver extends BroadcastReceiver {
 
     @Override
@@ -1476,6 +1499,16 @@ import org.checkerframework.checker.initialization.qual.Initialized;
         return;
       }
       getSessionCompat().getController().dispatchMediaButtonEvent(keyEvent);
+    }
+  }
+
+  @RequiresApi(31)
+  private static final class Api31 {
+    @DoNotInline
+    public static void setMediaButtonBroadcastReceiver(
+        MediaSessionCompat mediaSessionCompat, ComponentName broadcastReceiver) {
+      ((android.media.session.MediaSession) mediaSessionCompat.getMediaSession())
+          .setMediaButtonBroadcastReceiver(broadcastReceiver);
     }
   }
 }

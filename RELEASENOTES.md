@@ -40,6 +40,10 @@
     *   Set the notifications foreground service behavior to
         `FOREGROUND_SERVICE_IMMEDIATE` in `DefaultMediaNotificationProvider`
         ([#167](https://github.com/androidx/media/issues/167)).
+    *   Use only
+        `android.media.session.MediaSession.setMediaButtonBroadcastReceiver()`
+        above API 31 to avoid problems with deprecated API on Samsung devices
+        ([#167](https://github.com/androidx/media/issues/167)).
 *   UI:
 *   Downloads:
 *   OkHttp Extension:
