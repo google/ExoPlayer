@@ -228,14 +228,12 @@ public class Mp4MuxerMetadataTest {
       muxer.close();
     }
 
-    // TODO(b/270956881): Use FakeExtractorOutput once it starts dumping custom metadata from the
-    //  meta box.
-    DumpableMp4Box dumpableBox =
-        new DumpableMp4Box(ByteBuffer.wrap(TestUtil.getByteArrayFromFilePath(outputFilePath)));
-    // The meta box should be present in the output MP4.
+    FakeExtractorOutput fakeExtractorOutput =
+        TestUtil.extractAllSamplesFromFilePath(new Mp4Extractor(), outputFilePath);
+    // Added string metadata should be present in the track metadata dump.
     DumpFileAsserts.assertOutput(
         context,
-        dumpableBox,
+        fakeExtractorOutput,
         MuxerTestUtil.getExpectedDumpFilePath("mp4_with_string_metadata.mp4"));
   }
 
@@ -252,13 +250,13 @@ public class Mp4MuxerMetadataTest {
       muxer.close();
     }
 
-    // TODO(b/270956881): Use FakeExtractorOutput once it starts dumping custom metadata from the
-    //  meta box.
-    DumpableMp4Box dumpableBox =
-        new DumpableMp4Box(ByteBuffer.wrap(TestUtil.getByteArrayFromFilePath(outputFilePath)));
-    // The meta box should be present in the output MP4.
+    FakeExtractorOutput fakeExtractorOutput =
+        TestUtil.extractAllSamplesFromFilePath(new Mp4Extractor(), outputFilePath);
+    // Added float metadata should be present in the track metadata dump.
     DumpFileAsserts.assertOutput(
-        context, dumpableBox, MuxerTestUtil.getExpectedDumpFilePath("mp4_with_float_metadata.mp4"));
+        context,
+        fakeExtractorOutput,
+        MuxerTestUtil.getExpectedDumpFilePath("mp4_with_float_metadata.mp4"));
   }
 
   @Test
@@ -278,7 +276,7 @@ public class Mp4MuxerMetadataTest {
       muxer.close();
     }
 
-    // TODO(b/270956881): Use FakeExtractorOutput once it starts dumping uuid box.
+    // TODO: b/288544833 - Use FakeExtractorOutput once it starts dumping uuid box.
     DumpableMp4Box dumpableBox =
         new DumpableMp4Box(ByteBuffer.wrap(TestUtil.getByteArrayFromFilePath(outputFilePath)));
     // The uuid box should be present in the output MP4.

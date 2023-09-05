@@ -104,7 +104,7 @@ public class TransformerWithInAppMuxerEndToEndTest {
     transformer.start(mediaItem, outputPath);
     ExportResult exportResult = TransformerTestRunner.runLooper(transformer);
 
-    // TODO(b/270956881): Use FakeExtractorOutput once it starts dumping uuid box.
+    // TODO: b/288544833 - Use FakeExtractorOutput once it starts dumping uuid box.
     assertThat(exportResult.exportException).isNull();
   }
 
