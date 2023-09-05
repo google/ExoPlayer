@@ -85,6 +85,8 @@ import com.google.common.util.concurrent.MoreExecutors;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.Executor;
+import org.checkerframework.checker.initialization.qual.Initialized;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * Decodes and renders video using {@link MediaCodec}.
@@ -153,7 +155,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
   private final int maxDroppedFramesToNotify;
   private final boolean deviceNeedsNoPostProcessWorkaround;
 
-  private CodecMaxValues codecMaxValues;
+  private @MonotonicNonNull CodecMaxValues codecMaxValues;
   private boolean codecNeedsSetOutputSurfaceWorkaround;
   private boolean codecHandlesHdr10PlusOutOfBandMetadata;
   @Nullable private Surface displaySurface;
@@ -398,16 +400,17 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
     this.context = context.getApplicationContext();
     frameReleaseHelper = new VideoFrameReleaseHelper(this.context);
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
+    @SuppressWarnings("nullness:assignment")
+    VideoSink.@Initialized RenderControl renderControl = this;
     videoSinkProvider =
-        new CompositingVideoSinkProvider(
-            context, videoFrameProcessorFactory, /* renderControl= */ this);
+        new CompositingVideoSinkProvider(context, videoFrameProcessorFactory, renderControl);
     deviceNeedsNoPostProcessWorkaround = deviceNeedsNoPostProcessWorkaround();
     joiningDeadlineMs = C.TIME_UNSET;
     scalingMode = C.VIDEO_SCALING_MODE_DEFAULT;
     decodedVideoSize = VideoSize.UNKNOWN;
     tunnelingAudioSessionId = C.AUDIO_SESSION_ID_UNSET;
     firstFrameState = C.FIRST_FRAME_NOT_RENDERED_ONLY_ALLOWED_IF_STARTED;
-    clearReportedVideoSize();
+    reportedVideoSize = null;
   }
 
   @Override
@@ -727,7 +730,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
 
   @Override
   protected void onDisabled() {
-    clearReportedVideoSize();
+    reportedVideoSize = null;
     lowerFirstFrameState(C.FIRST_FRAME_NOT_RENDERED_ONLY_ALLOWED_IF_STARTED);
     haveReportedFirstFrameRenderedForCurrentSurface = false;
     tunnelingOnFrameRenderedListener = null;
@@ -768,21 +771,21 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
         setOutput(message);
         break;
       case MSG_SET_SCALING_MODE:
-        scalingMode = (Integer) message;
+        scalingMode = (int) checkNotNull(message);
         @Nullable MediaCodecAdapter codec = getCodec();
         if (codec != null) {
           codec.setVideoScalingMode(scalingMode);
         }
         break;
       case MSG_SET_CHANGE_FRAME_RATE_STRATEGY:
-        frameReleaseHelper.setChangeFrameRateStrategy((int) message);
+        frameReleaseHelper.setChangeFrameRateStrategy((int) checkNotNull(message));
         break;
       case MSG_SET_VIDEO_FRAME_METADATA_LISTENER:
-        frameMetadataListener = (VideoFrameMetadataListener) message;
+        frameMetadataListener = (VideoFrameMetadataListener) checkNotNull(message);
         videoSinkProvider.setVideoFrameMetadataListener(frameMetadataListener);
         break;
       case MSG_SET_AUDIO_SESSION_ID:
-        int tunnelingAudioSessionId = (int) message;
+        int tunnelingAudioSessionId = (int) checkNotNull(message);
         if (this.tunnelingAudioSessionId != tunnelingAudioSessionId) {
           this.tunnelingAudioSessionId = tunnelingAudioSessionId;
           if (tunneling) {
@@ -867,7 +870,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
         }
       } else {
         // The display surface has been removed.
-        clearReportedVideoSize();
+        reportedVideoSize = null;
         lowerFirstFrameState(C.FIRST_FRAME_NOT_RENDERED);
         if (videoSinkProvider.isInitialized()) {
           videoSinkProvider.clearOutputSurfaceInfo();
@@ -944,6 +947,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
     DecoderReuseEvaluation evaluation = codecInfo.canReuseCodec(oldFormat, newFormat);
 
     @DecoderDiscardReasons int discardReasons = evaluation.discardReasons;
+    CodecMaxValues codecMaxValues = checkNotNull(this.codecMaxValues);
     if (newFormat.width > codecMaxValues.width || newFormat.height > codecMaxValues.height) {
       discardReasons |= DISCARD_REASON_VIDEO_MAX_RESOLUTION_EXCEEDED;
     }
@@ -1001,7 +1005,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
       return Format.NO_VALUE;
     }
 
-    String sampleMimeType = format.sampleMimeType;
+    String sampleMimeType = checkNotNull(format.sampleMimeType);
     if (MimeTypes.VIDEO_DOLBY_VISION.equals(sampleMimeType)) {
       // Dolby vision can be a wrapper around H264 or H265. We assume it's wrapping H265 by default
       // because it's the common case, and because some devices may fail to allocate the codec when
@@ -1152,7 +1156,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
   protected DecoderReuseEvaluation onInputFormatChanged(FormatHolder formatHolder)
       throws ExoPlaybackException {
     @Nullable DecoderReuseEvaluation evaluation = super.onInputFormatChanged(formatHolder);
-    eventDispatcher.inputFormatChanged(formatHolder.format, evaluation);
+    eventDispatcher.inputFormatChanged(checkNotNull(formatHolder.format), evaluation);
     return evaluation;
   }
 
@@ -1268,7 +1272,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
         byte[] hdr10PlusInfo = new byte[data.remaining()];
         data.get(hdr10PlusInfo);
         data.position(0);
-        setHdr10PlusInfoV29(getCodec(), hdr10PlusInfo);
+        setHdr10PlusInfoV29(checkNotNull(getCodec()), hdr10PlusInfo);
       }
     }
   }
@@ -1733,8 +1737,10 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
     if (displaySurface == placeholderSurface) {
       displaySurface = null;
     }
-    placeholderSurface.release();
-    placeholderSurface = null;
+    if (placeholderSurface != null) {
+      placeholderSurface.release();
+      placeholderSurface = null;
+    }
   }
 
   private void setJoiningDeadlineMs() {
@@ -1760,7 +1766,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
   }
 
   private void maybeNotifyRenderedFirstFrame() {
-    if (firstFrameState != C.FIRST_FRAME_RENDERED) {
+    if (displaySurface != null && firstFrameState != C.FIRST_FRAME_RENDERED) {
       firstFrameState = C.FIRST_FRAME_RENDERED;
       eventDispatcher.renderedFirstFrame(displaySurface);
       haveReportedFirstFrameRenderedForCurrentSurface = true;
@@ -1768,13 +1774,9 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
   }
 
   private void maybeRenotifyRenderedFirstFrame() {
-    if (haveReportedFirstFrameRenderedForCurrentSurface) {
+    if (displaySurface != null && haveReportedFirstFrameRenderedForCurrentSurface) {
       eventDispatcher.renderedFirstFrame(displaySurface);
     }
-  }
-
-  private void clearReportedVideoSize() {
-    reportedVideoSize = null;
   }
 
   /** Notifies the new video size. */
@@ -2050,7 +2052,8 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
                 isVerticalVideo ? shortEdgePx : longEdgePx,
                 isVerticalVideo ? longEdgePx : shortEdgePx);
         float frameRate = format.frameRate;
-        if (codecInfo.isVideoSizeAndRateSupportedV21(alignedSize.x, alignedSize.y, frameRate)) {
+        if (alignedSize != null
+            && codecInfo.isVideoSizeAndRateSupportedV21(alignedSize.x, alignedSize.y, frameRate)) {
           return alignedSize;
         }
       } else {
