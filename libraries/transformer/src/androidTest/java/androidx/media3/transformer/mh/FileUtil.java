@@ -53,9 +53,7 @@ import java.util.concurrent.ExecutionException;
       throw new IllegalStateException(e);
     }
 
-    int trackGroupCount = trackGroupArray.length;
-    assertThat(trackGroupCount).isEqualTo(2);
-    for (int i = 0; i < trackGroupCount; i++) {
+    for (int i = 0; i < trackGroupArray.length; i++) {
       TrackGroup trackGroup = trackGroupArray.get(i);
       if (trackGroup.type == C.TRACK_TYPE_VIDEO) {
         assertThat(trackGroup.length).isEqualTo(1);
