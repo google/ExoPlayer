@@ -1,0 +1,88 @@
+/*
+ * Copyright 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.google.android.exoplayer2.extractor.webp;
+
+import com.google.android.exoplayer2.extractor.Extractor;
+import com.google.android.exoplayer2.extractor.ExtractorInput;
+import com.google.android.exoplayer2.extractor.ExtractorOutput;
+import com.google.android.exoplayer2.extractor.PositionHolder;
+import com.google.android.exoplayer2.extractor.SingleSampleExtractorHelper;
+import com.google.android.exoplayer2.util.MimeTypes;
+import com.google.android.exoplayer2.util.ParsableByteArray;
+import java.io.IOException;
+
+/**
+ * Extracts data from the WEBP container format.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
+public final class WebpExtractor implements Extractor {
+
+  // Documentation Reference:
+  // https://developers.google.com/speed/webp/docs/riff_container#webp_file_header
+  private static final int FILE_SIGNATURE_SEGMENT_LENGTH = 4;
+  private static final int RIFF_FILE_SIGNATURE = 0x52494646;
+  private static final int WEBP_FILE_SIGNATURE = 0x57454250;
+
+  private final SingleSampleExtractorHelper imageExtractor;
+
+  /** Creates an instance. */
+  public WebpExtractor() {
+    imageExtractor = new SingleSampleExtractorHelper();
+  }
+
+  @Override
+  public boolean sniff(ExtractorInput input) throws IOException {
+    // The full file signature for the format webp is RIFF????WEBP.
+    ParsableByteArray scratch = new ParsableByteArray(FILE_SIGNATURE_SEGMENT_LENGTH);
+
+    input.peekFully(scratch.getData(), /* offset= */ 0, FILE_SIGNATURE_SEGMENT_LENGTH);
+    if (scratch.readUnsignedInt() != RIFF_FILE_SIGNATURE) {
+      return false;
+    }
+
+    input.advancePeekPosition(FILE_SIGNATURE_SEGMENT_LENGTH);
+    scratch.reset(/* limit= */ FILE_SIGNATURE_SEGMENT_LENGTH);
+
+    input.peekFully(scratch.getData(), /* offset= */ 0, FILE_SIGNATURE_SEGMENT_LENGTH);
+    return scratch.readUnsignedInt() == WEBP_FILE_SIGNATURE;
+  }
+
+  @Override
+  public void init(ExtractorOutput output) {
+    imageExtractor.init(output, MimeTypes.IMAGE_WEBP);
+  }
+
+  @Override
+  public @ReadResult int read(ExtractorInput input, PositionHolder seekPosition)
+      throws IOException {
+    return imageExtractor.read(input, seekPosition);
+  }
+
+  @Override
+  public void seek(long position, long timeUs) {
+    imageExtractor.seek(position);
+  }
+
+  @Override
+  public void release() {
+    // Do nothing.
+  }
+}
