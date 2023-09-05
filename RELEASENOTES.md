@@ -20,6 +20,7 @@
 *   Track Selection:
 *   Extractors:
     *   Add `BmpExtractor`.
+    *   Add `WebpExtractor`.
 *   Audio:
     *   Add support for Opus gapless metadata during offload playback.
 *   Video:
