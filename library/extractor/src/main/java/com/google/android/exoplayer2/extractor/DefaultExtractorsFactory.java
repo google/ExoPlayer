@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.extractor.amr.AmrExtractor;
 import com.google.android.exoplayer2.extractor.avi.AviExtractor;
+import com.google.android.exoplayer2.extractor.bmp.BmpExtractor;
 import com.google.android.exoplayer2.extractor.flac.FlacExtractor;
 import com.google.android.exoplayer2.extractor.flv.FlvExtractor;
 import com.google.android.exoplayer2.extractor.jpeg.JpegExtractor;
@@ -88,6 +89,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *   <li>JPEG ({@link JpegExtractor})
  *   <li>PNG ({@link PngExtractor})
  *   <li>WEBP ({@link WebpExtractor})
+ *   <li>BMP ({@link BmpExtractor})
  *   <li>MIDI, if available, the MIDI extension's {@code
  *       com.google.android.exoplayer2.decoder.midi.MidiExtractor} is used.
  * </ul>
@@ -125,7 +127,8 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
         FileTypes.MIDI,
         FileTypes.JPEG,
         FileTypes.PNG,
-        FileTypes.WEBP
+        FileTypes.WEBP,
+        FileTypes.BMP
       };
 
   private static final ExtensionLoader FLAC_EXTENSION_LOADER =
@@ -521,6 +524,9 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
         break;
       case FileTypes.WEBP:
         extractors.add(new WebpExtractor());
+        break;
+      case FileTypes.BMP:
+        extractors.add(new BmpExtractor());
         break;
       case FileTypes.WEBVTT:
       case FileTypes.UNKNOWN:
