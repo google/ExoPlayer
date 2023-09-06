@@ -44,7 +44,8 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
  *     migration guide</a> for more details, including a script to help with the migration.
  */
-/* package */ public final class SingleSampleExtractorHelper {
+@Deprecated
+public final class SingleSampleExtractorHelper {
 
   /** Parser states. */
   @Documented
@@ -69,6 +70,11 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
   private @MonotonicNonNull ExtractorOutput extractorOutput;
   private @MonotonicNonNull TrackOutput trackOutput;
 
+  /**
+   * Returns whether the {@link ExtractorInput} has the given {@code fileSignature}.
+   *
+   * <p>@see Extractor#sniff(ExtractorInput)
+   */
   public boolean sniff(ExtractorInput input, int fileSignature, int fileSignatureLength)
       throws IOException {
     ParsableByteArray scratch = new ParsableByteArray(fileSignatureLength);
@@ -76,11 +82,25 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
     return scratch.readUnsignedShort() == fileSignature;
   }
 
+  /**
+   * See {@link Extractor#init(ExtractorOutput)}.
+   *
+   * <p>Outputs format with {@code containerMimeType}.
+   */
   public void init(ExtractorOutput output, String containerMimeType) {
     extractorOutput = output;
     outputImageTrackAndSeekMap(containerMimeType);
   }
 
+  /** See {@link Extractor#seek(long, long)}. */
+  public void seek(long position) {
+    if (position == 0 || state == STATE_READING) {
+      state = STATE_READING;
+      size = 0;
+    }
+  }
+
+  /** See {@link Extractor#read(ExtractorInput, PositionHolder)}. */
   public @Extractor.ReadResult int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException {
     switch (state) {
@@ -105,13 +125,6 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       size = 0;
     } else {
       size += result;
-    }
-  }
-
-  public void seek(long position) {
-    if (position == 0 || state == STATE_READING) {
-      state = STATE_READING;
-      size = 0;
     }
   }
 
