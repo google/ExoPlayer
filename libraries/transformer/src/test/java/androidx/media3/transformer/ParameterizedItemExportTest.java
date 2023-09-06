@@ -65,6 +65,7 @@ public final class ParameterizedItemExportTest {
         FILE_AUDIO_RAW_STEREO_48000KHZ,
         "wav/sample_ima_adpcm.wav",
         FILE_AUDIO_RAW_VIDEO,
+        "mp4/sample_twos_pcm.mp4",
         FILE_AUDIO_AMR_NB,
         FILE_AUDIO_VIDEO,
         FILE_VIDEO_ONLY);
