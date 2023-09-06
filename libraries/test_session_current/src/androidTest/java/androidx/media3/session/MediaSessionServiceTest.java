@@ -365,7 +365,7 @@ public class MediaSessionServiceTest {
     controllerTestRule.createRemoteController(
         token, /* waitForConnection= */ true, /* connectionHints= */ null);
     MediaSessionService service = TestServiceRegistry.getInstance().getServiceInstance();
-    MediaSession session = createMediaSession("testAddSessions_removedWhenClose");
+    MediaSession session = createMediaSession("testAddSessions_removedWhenReleased");
     service.addSession(session);
     List<MediaSession> sessions = service.getSessions();
     assertThat(sessions.contains(session)).isTrue();
