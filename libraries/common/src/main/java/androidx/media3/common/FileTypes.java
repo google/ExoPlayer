@@ -56,6 +56,7 @@ public final class FileTypes {
    *   <li>{@link #AVI}
    *   <li>{@link #PNG}
    *   <li>{@link #WEBP}
+   *   <li>{@link #BMP}
    * </ul>
    */
   @Documented
@@ -63,7 +64,7 @@ public final class FileTypes {
   @Target(TYPE_USE)
   @IntDef({
     UNKNOWN, AC3, AC4, ADTS, AMR, FLAC, FLV, MATROSKA, MP3, MP4, OGG, PS, TS, WAV, WEBVTT, JPEG,
-    MIDI, AVI, PNG, WEBP
+    MIDI, AVI, PNG, WEBP, BMP
   })
   public @interface Type {}
 
@@ -127,6 +128,9 @@ public final class FileTypes {
   /** File type for the WEBP format. */
   public static final int WEBP = 18;
 
+  /** File type for the BMP format. */
+  public static final int BMP = 19;
+
   @VisibleForTesting /* package */ static final String HEADER_CONTENT_TYPE = "Content-Type";
 
   private static final String EXTENSION_AC3 = ".ac3";
@@ -164,6 +168,8 @@ public final class FileTypes {
   private static final String EXTENSION_AVI = ".avi";
   private static final String EXTENSION_PNG = ".png";
   private static final String EXTENSION_WEBP = ".webp";
+  private static final String EXTENSION_BMP = ".bmp";
+  private static final String EXTENSION_DIB = ".dib";
 
   private FileTypes() {}
 
@@ -233,6 +239,8 @@ public final class FileTypes {
         return FileTypes.PNG;
       case MimeTypes.IMAGE_WEBP:
         return FileTypes.WEBP;
+      case MimeTypes.IMAGE_BMP:
+        return FileTypes.BMP;
       default:
         return FileTypes.UNKNOWN;
     }
@@ -304,6 +312,8 @@ public final class FileTypes {
       return FileTypes.PNG;
     } else if (filename.endsWith(EXTENSION_WEBP)) {
       return FileTypes.WEBP;
+    } else if (filename.endsWith(EXTENSION_BMP) || filename.endsWith(EXTENSION_DIB)) {
+      return FileTypes.BMP;
     } else {
       return FileTypes.UNKNOWN;
     }

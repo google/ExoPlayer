@@ -22,6 +22,7 @@ import android.net.Uri;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.extractor.amr.AmrExtractor;
 import androidx.media3.extractor.avi.AviExtractor;
+import androidx.media3.extractor.bmp.BmpExtractor;
 import androidx.media3.extractor.flac.FlacExtractor;
 import androidx.media3.extractor.flv.FlvExtractor;
 import androidx.media3.extractor.jpeg.JpegExtractor;
@@ -78,7 +79,8 @@ public final class DefaultExtractorsFactoryTest {
             AviExtractor.class,
             JpegExtractor.class,
             PngExtractor.class,
-            WebpExtractor.class)
+            WebpExtractor.class,
+            BmpExtractor.class)
         .inOrder();
   }
 
@@ -123,7 +125,8 @@ public final class DefaultExtractorsFactoryTest {
             AviExtractor.class,
             JpegExtractor.class,
             PngExtractor.class,
-            WebpExtractor.class)
+            WebpExtractor.class,
+            BmpExtractor.class)
         .inOrder();
   }
 
