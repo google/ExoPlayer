@@ -14,6 +14,17 @@
      limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="androidx.media3.test.session.test">
-  <uses-sdk android:minSdkVersion="16"/>
+  <uses-sdk />
+
+  <application
+      android:name="androidx.multidex.MultiDexApplication"
+      android:allowBackup="false"
+      tools:ignore="MissingApplicationIcon,HardcodedDebugMode"
+      android:usesCleartextTraffic="true" >
+
+  <activity android:name="androidx.media3.test.session.common.SurfaceActivity"
+    android:configChanges="keyboardHidden|orientation|screenSize"/>
+  </application>
 </manifest>
