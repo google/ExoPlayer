@@ -38,6 +38,7 @@ import androidx.media3.extractor.ts.AdtsExtractor;
 import androidx.media3.extractor.ts.PsExtractor;
 import androidx.media3.extractor.ts.TsExtractor;
 import androidx.media3.extractor.wav.WavExtractor;
+import androidx.media3.extractor.webp.WebpExtractor;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -76,7 +77,8 @@ public final class DefaultExtractorsFactoryTest {
             Mp3Extractor.class,
             AviExtractor.class,
             JpegExtractor.class,
-            PngExtractor.class)
+            PngExtractor.class,
+            WebpExtractor.class)
         .inOrder();
   }
 
@@ -120,7 +122,8 @@ public final class DefaultExtractorsFactoryTest {
             Ac4Extractor.class,
             AviExtractor.class,
             JpegExtractor.class,
-            PngExtractor.class)
+            PngExtractor.class,
+            WebpExtractor.class)
         .inOrder();
   }
 

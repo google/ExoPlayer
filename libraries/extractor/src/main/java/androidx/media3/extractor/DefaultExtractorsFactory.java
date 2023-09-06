@@ -50,6 +50,7 @@ import androidx.media3.extractor.ts.PsExtractor;
 import androidx.media3.extractor.ts.TsExtractor;
 import androidx.media3.extractor.ts.TsPayloadReader;
 import androidx.media3.extractor.wav.WavExtractor;
+import androidx.media3.extractor.webp.WebpExtractor;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.reflect.Constructor;
@@ -87,6 +88,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *       </ul>
  *   <li>JPEG ({@link JpegExtractor})
  *   <li>PNG ({@link PngExtractor})
+ *   <li>WEBP ({@link WebpExtractor})
  *   <li>MIDI, if available, the MIDI extension's {@code androidx.media3.decoder.midi.MidiExtractor}
  *       is used.
  * </ul>
@@ -119,6 +121,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
         FileTypes.MIDI,
         FileTypes.JPEG,
         FileTypes.PNG,
+        FileTypes.WEBP
       };
 
   private static final ExtensionLoader FLAC_EXTENSION_LOADER =
@@ -511,6 +514,9 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
         break;
       case FileTypes.PNG:
         extractors.add(new PngExtractor());
+        break;
+      case FileTypes.WEBP:
+        extractors.add(new WebpExtractor());
         break;
       case FileTypes.WEBVTT:
       case FileTypes.UNKNOWN:

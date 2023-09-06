@@ -35,18 +35,19 @@ public final class WebpExtractor implements Extractor {
   private static final int RIFF_FILE_SIGNATURE = 0x52494646;
   private static final int WEBP_FILE_SIGNATURE = 0x57454250;
 
+  private final ParsableByteArray scratch;
   private final SingleSampleExtractorHelper imageExtractor;
 
   /** Creates an instance. */
   public WebpExtractor() {
+    scratch = new ParsableByteArray(FILE_SIGNATURE_SEGMENT_LENGTH);
     imageExtractor = new SingleSampleExtractorHelper();
   }
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException {
     // The full file signature for the format webp is RIFF????WEBP.
-    ParsableByteArray scratch = new ParsableByteArray(FILE_SIGNATURE_SEGMENT_LENGTH);
-
+    scratch.reset(/* limit= */ FILE_SIGNATURE_SEGMENT_LENGTH);
     input.peekFully(scratch.getData(), /* offset= */ 0, FILE_SIGNATURE_SEGMENT_LENGTH);
     if (scratch.readUnsignedInt() != RIFF_FILE_SIGNATURE) {
       return false;
@@ -57,6 +58,8 @@ public final class WebpExtractor implements Extractor {
 
     input.peekFully(scratch.getData(), /* offset= */ 0, FILE_SIGNATURE_SEGMENT_LENGTH);
     return scratch.readUnsignedInt() == WEBP_FILE_SIGNATURE;
+    //    return imageExtractor.sniff(input, RIFF_FILE_SIGNATURE, FILE_SIGNATURE_SEGMENT_LENGTH);
+
   }
 
   @Override
