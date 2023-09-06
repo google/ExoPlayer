@@ -28,6 +28,7 @@ import static com.google.android.exoplayer2.transformer.TestUtil.addAudioEncoder
 import static com.google.android.exoplayer2.transformer.TestUtil.createTransformerBuilder;
 import static com.google.android.exoplayer2.transformer.TestUtil.getDumpFileName;
 import static com.google.android.exoplayer2.transformer.TestUtil.removeEncodersAndDecoders;
+import static org.junit.Assume.assumeFalse;
 
 import androidx.test.core.app.ApplicationProvider;
 import com.google.android.exoplayer2.MediaItem;
@@ -58,17 +59,25 @@ import org.robolectric.ParameterizedRobolectricTestRunner.Parameters;
 @RunWith(ParameterizedRobolectricTestRunner.class)
 public final class ParameterizedItemExportTest {
 
+  private static final ImmutableList<String> AUDIO_ONLY_ASSETS =
+      ImmutableList.of(
+          FILE_AUDIO_RAW,
+          FILE_AUDIO_RAW_STEREO_48000KHZ,
+          "wav/sample_ima_adpcm.wav",
+          FILE_AUDIO_AMR_NB);
+
+  private static final ImmutableList<String> AUDIO_VIDEO_ASSETS =
+      ImmutableList.of(FILE_AUDIO_RAW_VIDEO, "mp4/sample_twos_pcm.mp4", FILE_AUDIO_VIDEO);
+
+  private static final ImmutableList<String> VIDEO_ONLY_ASSETS = ImmutableList.of(FILE_VIDEO_ONLY);
+
   @Parameters(name = "{0}")
   public static ImmutableList<String> params() {
-    return ImmutableList.of(
-        FILE_AUDIO_RAW,
-        FILE_AUDIO_RAW_STEREO_48000KHZ,
-        "wav/sample_ima_adpcm.wav",
-        FILE_AUDIO_RAW_VIDEO,
-        "mp4/sample_twos_pcm.mp4",
-        FILE_AUDIO_AMR_NB,
-        FILE_AUDIO_VIDEO,
-        FILE_VIDEO_ONLY);
+    return new ImmutableList.Builder<String>()
+        .addAll(AUDIO_ONLY_ASSETS)
+        .addAll(VIDEO_ONLY_ASSETS)
+        .addAll(AUDIO_VIDEO_ASSETS)
+        .build();
   }
 
   @Rule public final TemporaryFolder outputDir = new TemporaryFolder();
@@ -81,7 +90,7 @@ public final class ParameterizedItemExportTest {
   public void setUp() {
     // Only add RAW decoder, so non-RAW audio has no options for decoding.
     addAudioDecoders(MimeTypes.AUDIO_RAW);
-    // Use an AAC encoder because Muxer supports AAC.
+    // Use an AAC encoder because muxer supports AAC.
     addAudioEncoders(MimeTypes.AUDIO_AAC);
   }
 
@@ -103,5 +112,29 @@ public final class ParameterizedItemExportTest {
         ApplicationProvider.getApplicationContext(),
         muxerFactory.getCreatedMuxer(),
         getDumpFileName(assetFile));
+  }
+
+  @Test
+  public void generateSilence() throws Exception {
+    assumeFalse(AUDIO_ONLY_ASSETS.contains(assetFile));
+    Transformer transformer =
+        createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
+
+    EditedMediaItem item =
+        new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + assetFile))
+            .setRemoveAudio(true)
+            .build();
+    Composition composition =
+        new Composition.Builder(new EditedMediaItemSequence(item))
+            .experimentalSetForceAudioTrack(true)
+            .build();
+
+    transformer.start(composition, outputDir.newFile().getPath());
+    TransformerTestRunner.runLooper(transformer);
+
+    DumpFileAsserts.assertOutput(
+        ApplicationProvider.getApplicationContext(),
+        muxerFactory.getCreatedMuxer(),
+        getDumpFileName(assetFile, /* modifications...= */ "silence"));
   }
 }

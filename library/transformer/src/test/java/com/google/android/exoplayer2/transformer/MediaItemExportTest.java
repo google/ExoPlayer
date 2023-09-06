@@ -104,6 +104,8 @@ import org.robolectric.shadows.ShadowMediaCodec;
 /**
  * End-to-end test for exporting a single {@link MediaItem} or {@link EditedMediaItem} with {@link
  * Transformer}.
+ *
+ * <p>See {@link ParameterizedItemExportTest} for parameterized cases.
  */
 @RunWith(AndroidJUnit4.class)
 public final class MediaItemExportTest {
@@ -274,29 +276,6 @@ public final class MediaItemExportTest {
 
     DumpFileAsserts.assertOutput(
         context, muxerFactory.getCreatedMuxer(), getDumpFileName(FILE_AUDIO_VIDEO));
-  }
-
-  @Test
-  public void start_forceAudioTrackAndRemoveAudio_generatesSilentAudio() throws Exception {
-    Transformer transformer =
-        createTransformerBuilder(muxerFactory, /* enableFallback= */ false).build();
-    EditedMediaItem editedMediaItem =
-        new EditedMediaItem.Builder(MediaItem.fromUri(ASSET_URI_PREFIX + FILE_AUDIO_VIDEO))
-            .setRemoveAudio(true)
-            .build();
-    Composition composition =
-        new Composition.Builder(new EditedMediaItemSequence(editedMediaItem))
-            .experimentalSetForceAudioTrack(true)
-            .build();
-
-    transformer.start(composition, outputDir.newFile().getPath());
-    TransformerTestRunner.runLooper(transformer);
-
-    DumpFileAsserts.assertOutput(
-        context,
-        muxerFactory.getCreatedMuxer(),
-        getDumpFileName(
-            /* originalFileName= */ FILE_AUDIO_VIDEO, /* modifications...= */ "silence"));
   }
 
   @Test
