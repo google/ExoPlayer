@@ -28,6 +28,10 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+// copybara:exo-only import com.google.android.exoplayer2.drm.DrmInitData;
+// copybara:exo-only import com.google.android.exoplayer2.util.MimeTypes;
+// copybara:exo-only import com.google.android.exoplayer2.video.ColorInfo;
+// copybara:exo-only import com.google.android.exoplayer2.metadata.Metadata;
 
 /** Unit test for {@link Format}. */
 @RunWith(AndroidJUnit4.class)

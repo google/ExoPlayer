@@ -25,6 +25,7 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.container.NalUnitUtil;
 import java.util.Collections;
 import java.util.List;
+// copybara:exo-only  import com.google.android.exoplayer2.util.NalUnitUtil;
 
 /** HEVC configuration data. */
 @UnstableApi

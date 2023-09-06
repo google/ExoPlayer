@@ -26,6 +26,7 @@ import androidx.media3.container.NalUnitUtil;
 import androidx.media3.container.NalUnitUtil.SpsData;
 import java.util.ArrayList;
 import java.util.List;
+// copybara:exo-only  import com.google.android.exoplayer2.util.NalUnitUtil;
 
 /** AVC configuration data. */
 @UnstableApi

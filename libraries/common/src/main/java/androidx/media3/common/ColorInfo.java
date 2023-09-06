@@ -22,6 +22,9 @@ import androidx.media3.common.util.Util;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.Arrays;
 import org.checkerframework.dataflow.qual.Pure;
+// copybara:exo-only import com.google.android.exoplayer2.Bundleable;
+// copybara:exo-only import com.google.android.exoplayer2.C;
+// copybara:exo-only import com.google.android.exoplayer2.Format;
 
 /**
  * Stores color info.
@@ -320,11 +323,6 @@ public final class ColorInfo implements Bundleable {
    * @see Format#toLogString(Format)
    */
   public String toLogString() {
-    if (!isValid()) {
-      return "NA";
-    }
-
-    String bitdepthsString = isBitdepthValid() ? lumaBitdepth + "/" + chromaBitdepth : "NA";
     String dataspaceString =
         isDataSpaceValid()
             ? Util.formatInvariant(
@@ -332,8 +330,9 @@ public final class ColorInfo implements Bundleable {
                 colorSpaceToString(colorSpace),
                 colorRangeToString(colorRange),
                 colorTransferToString(colorTransfer))
-            : "NA";
-    return bitdepthsString + "/" + dataspaceString;
+            : "NA/NA/NA";
+    String bitdepthsString = isBitdepthValid() ? lumaBitdepth + "/" + chromaBitdepth : "NA/NA";
+    return dataspaceString + "/" + bitdepthsString;
   }
 
   @Override
@@ -354,12 +353,23 @@ public final class ColorInfo implements Bundleable {
   }
 
   @Override
+  public int hashCode() {
+    if (hashCode == 0) {
+      int result = 17;
+      result = 31 * result + colorSpace;
+      result = 31 * result + colorRange;
+      result = 31 * result + colorTransfer;
+      result = 31 * result + Arrays.hashCode(hdrStaticInfo);
+      result = 31 * result + lumaBitdepth;
+      result = 31 * result + chromaBitdepth;
+      hashCode = result;
+    }
+    return hashCode;
+  }
+
+  @Override
   public String toString() {
     return "ColorInfo("
-        + lumaBitdepthToString(lumaBitdepth)
-        + ", "
-        + chromaBitdepthToString(chromaBitdepth)
-        + ", "
         + colorSpaceToString(colorSpace)
         + ", "
         + colorRangeToString(colorRange)
@@ -367,6 +377,10 @@ public final class ColorInfo implements Bundleable {
         + colorTransferToString(colorTransfer)
         + ", "
         + (hdrStaticInfo != null)
+        + ", "
+        + lumaBitdepthToString(lumaBitdepth)
+        + ", "
+        + chromaBitdepthToString(chromaBitdepth)
         + ")";
   }
 
@@ -392,6 +406,7 @@ public final class ColorInfo implements Bundleable {
       default:
         return "Undefined color space";
     }
+    // LINT.ThenChange(C.java:color_space)
   }
 
   private static String colorTransferToString(@C.ColorTransfer int colorTransfer) {
@@ -414,6 +429,7 @@ public final class ColorInfo implements Bundleable {
       default:
         return "Undefined color transfer";
     }
+    // LINT.ThenChange(C.java:color_transfer)
   }
 
   private static String colorRangeToString(@C.ColorRange int colorRange) {
@@ -428,21 +444,7 @@ public final class ColorInfo implements Bundleable {
       default:
         return "Undefined color range";
     }
-  }
-
-  @Override
-  public int hashCode() {
-    if (hashCode == 0) {
-      int result = 17;
-      result = 31 * result + colorSpace;
-      result = 31 * result + colorRange;
-      result = 31 * result + colorTransfer;
-      result = 31 * result + Arrays.hashCode(hdrStaticInfo);
-      result = 31 * result + lumaBitdepth;
-      result = 31 * result + chromaBitdepth;
-      hashCode = result;
-    }
-    return hashCode;
+    // LINT.ThenChange(C.java:color_range)
   }
 
   // Bundleable implementation

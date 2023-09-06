@@ -33,28 +33,21 @@ import java.util.Arrays;
 public final class NalUnitUtil {
 
   private static final String TAG = "NalUnitUtil";
-
   /** Coded slice of a non-IDR picture. */
   public static final int NAL_UNIT_TYPE_NON_IDR = 1;
-
   /** Coded slice data partition A. */
   public static final int NAL_UNIT_TYPE_PARTITION_A = 2;
-
   /** Coded slice of an IDR picture. */
   public static final int NAL_UNIT_TYPE_IDR = 5;
-
   /** Supplemental enhancement information. */
   public static final int NAL_UNIT_TYPE_SEI = 6;
-
   /** Sequence parameter set. */
   public static final int NAL_UNIT_TYPE_SPS = 7;
-
   /** Picture parameter set. */
   public static final int NAL_UNIT_TYPE_PPS = 8;
-
   /** Access unit delimiter. */
   public static final int NAL_UNIT_TYPE_AUD = 9;
-
+  
   /** Holds data parsed from a H.264 sequence parameter set NAL unit. */
   public static final class SpsData {
 

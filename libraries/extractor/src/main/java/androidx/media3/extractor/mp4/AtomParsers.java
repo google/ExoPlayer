@@ -1225,7 +1225,6 @@ import java.util.List;
         mimeType = MimeTypes.VIDEO_AV1;
         parent.setPosition(childStartPosition + Atom.HEADER_SIZE);
         parent.skipBytes(1);
-        ; // marker(1), version(7)
         int byte2 = parent.readUnsignedByte();
         int seqProfile = byte2 >> 5;
         int byte3 = parent.readUnsignedByte();
@@ -1368,13 +1367,14 @@ import java.util.List;
             // Note that if either mdcv or clli are missing, we leave the corresponding HDR static
             // metadata bytes with value zero. See [Internal ref: b/194535665].
             .setColorInfo(
-                new ColorInfo(
-                    colorSpace,
-                    colorRange,
-                    colorTransfer,
-                    hdrStaticInfo != null ? hdrStaticInfo.array() : null,
-                    bitdepthLuma,
-                    bitdepthChroma));
+                new ColorInfo.Builder()
+                    .setColorSpace(colorSpace)
+                    .setColorRange(colorRange)
+                    .setColorTransfer(colorTransfer)
+                    .setHdrStaticInfo(hdrStaticInfo != null ? hdrStaticInfo.array() : null)
+                    .setLumaBitdepth(bitdepthLuma)
+                    .setChromaBitdepth(bitdepthChroma)
+                    .build());
 
     if (esdsData != null) {
       formatBuilder
