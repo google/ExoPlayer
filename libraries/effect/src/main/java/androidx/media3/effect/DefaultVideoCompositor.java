@@ -17,6 +17,7 @@ package androidx.media3.effect;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
+import static androidx.media3.common.util.Assertions.checkStateNotNull;
 import static java.lang.Math.abs;
 import static java.lang.Math.max;
 
@@ -29,6 +30,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
+import androidx.media3.common.ColorInfo;
 import androidx.media3.common.GlObjectsProvider;
 import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.VideoFrameProcessingException;
@@ -51,11 +53,13 @@ import java.util.concurrent.ExecutorService;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
- * A basic {@link VideoCompositor} implementation that takes in frames from exactly 2 SDR input
- * sources' streams and combines them into one output stream.
+ * A basic {@link VideoCompositor} implementation that takes in frames from input sources' streams
+ * and combines them into one output stream.
  *
  * <p>The first {@linkplain #registerInputSource registered source} will be the primary stream,
  * which is used to determine the output frames' timestamps and dimensions.
+ *
+ * <p>Only SDR input with the same {@link ColorInfo} are supported.
  */
 @UnstableApi
 public final class DefaultVideoCompositor implements VideoCompositor {
@@ -63,6 +67,7 @@ public final class DefaultVideoCompositor implements VideoCompositor {
   //  * Use a lock to synchronize inputFrameInfos more narrowly, to reduce blocking.
   //  * If the primary stream ends, consider setting the secondary stream as the new primary stream,
   //    so that secondary stream frames aren't dropped.
+  //  * Add support for mixing SDR streams with different ColorInfo.
   //  * Add support for HDR input.
 
   /** A default implementation of {@link VideoCompositor.Settings}. */
@@ -101,6 +106,8 @@ public final class DefaultVideoCompositor implements VideoCompositor {
   private final TexturePool outputTexturePool;
   private final LongArrayQueue outputTextureTimestamps; // Synchronized with outputTexturePool.
   private final LongArrayQueue syncObjects; // Synchronized with outputTexturePool.
+
+  private @MonotonicNonNull ColorInfo configuredColorInfo;
 
   // Only used on the GL Thread.
   private @MonotonicNonNull EGLContext eglContext;
@@ -195,9 +202,16 @@ public final class DefaultVideoCompositor implements VideoCompositor {
       int inputId,
       GlTextureProducer textureProducer,
       GlTextureInfo inputTexture,
+      ColorInfo colorInfo,
       long presentationTimeUs) {
     InputSource inputSource = inputSources.get(inputId);
     checkState(!inputSource.isInputEnded);
+    checkStateNotNull(!ColorInfo.isTransferHdr(colorInfo), "HDR input is not supported.");
+    if (configuredColorInfo == null) {
+      configuredColorInfo = colorInfo;
+    }
+    checkState(
+        configuredColorInfo.equals(colorInfo), "Mixing different ColorInfos is not supported.");
 
     InputFrameInfo inputFrameInfo =
         new InputFrameInfo(

@@ -890,7 +890,11 @@ public final class DefaultVideoCompositorPixelTest {
                     textureBitmapReader.readBitmapUnpremultipliedAlpha(
                         outputTexture, presentationTimeUs);
                     videoCompositor.queueInputTexture(
-                        inputId, outputTextureProducer, outputTexture, presentationTimeUs);
+                        inputId,
+                        outputTextureProducer,
+                        outputTexture,
+                        ColorInfo.SRGB_BT709_FULL,
+                        presentationTimeUs);
                   },
                   /* textureOutputCapacity= */ 2);
       if (executorService != null) {
