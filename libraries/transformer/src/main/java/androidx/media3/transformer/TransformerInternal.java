@@ -60,13 +60,20 @@ import java.util.ArrayList;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/* package */ final class TransformerInternal implements MuxerWrapper.Listener {
+/* package */ final class TransformerInternal {
 
   public interface Listener {
 
-    void onCompleted(ExportResult exportResult);
+    void onCompleted(
+        ImmutableList<ExportResult.ProcessedInput> processedInputs,
+        @Nullable String audioEncoderName,
+        @Nullable String videoEncoderName);
 
-    void onError(ExportResult exportResult, ExportException exportException);
+    void onError(
+        ImmutableList<ExportResult.ProcessedInput> processedInputs,
+        @Nullable String audioEncoderName,
+        @Nullable String videoEncoderName,
+        ExportException exportException);
   }
 
   /**
@@ -124,7 +131,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final Object setMaxSequenceDurationUsLock;
   private final MuxerWrapper muxerWrapper;
   private final ConditionVariable transformerConditionVariable;
-  private final ExportResult.Builder exportResultBuilder;
 
   private boolean isDrainingExporters;
   private long currentMaxSequenceDurationUs;
@@ -134,8 +140,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private volatile boolean released;
 
-  // Warning suppression is needed to assign the MuxerWrapper with "this" as listener.
-  @SuppressWarnings({"argument.type.incompatible"})
   public TransformerInternal(
       Context context,
       Composition composition,
@@ -159,8 +163,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.clock = clock;
     this.videoSampleTimestampOffsetUs = videoSampleTimestampOffsetUs;
     this.muxerWrapper = muxerWrapper;
-    // It's safe to use "this" because we don't mux any data before exiting the constructor.
-    this.muxerWrapper.setListener(this);
     internalHandlerThread = new HandlerThread("Transformer:Internal");
     internalHandlerThread.start();
     sequenceAssetLoaders = new ArrayList<>();
@@ -197,7 +199,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     sampleExporters = new ArrayList<>();
     setMaxSequenceDurationUsLock = new Object();
     transformerConditionVariable = new ConditionVariable();
-    exportResultBuilder = new ExportResult.Builder();
     // It's safe to use "this" because we don't send a message before exiting the constructor.
     @SuppressWarnings("nullness:methodref.receiver.bound")
     HandlerWrapper internalHandler =
@@ -235,44 +236,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
-  // MuxerWrapper.Listener implementation
-
-  @Override
-  public void onTrackEnded(
-      @C.TrackType int trackType, Format format, int averageBitrate, int sampleCount) {
-    if (trackType == C.TRACK_TYPE_AUDIO) {
-      exportResultBuilder.setAverageAudioBitrate(averageBitrate);
-      if (format.channelCount != Format.NO_VALUE) {
-        exportResultBuilder.setChannelCount(format.channelCount);
-      }
-      if (format.sampleRate != Format.NO_VALUE) {
-        exportResultBuilder.setSampleRate(format.sampleRate);
-      }
-    } else if (trackType == C.TRACK_TYPE_VIDEO) {
-      exportResultBuilder
-          .setAverageVideoBitrate(averageBitrate)
-          .setColorInfo(format.colorInfo)
-          .setVideoFrameCount(sampleCount);
-      if (format.height != Format.NO_VALUE) {
-        exportResultBuilder.setHeight(format.height);
-      }
-      if (format.width != Format.NO_VALUE) {
-        exportResultBuilder.setWidth(format.width);
-      }
-    }
-  }
-
-  @Override
-  public void onEnded(long durationMs, long fileSizeBytes) {
-    exportResultBuilder.setDurationMs(durationMs).setFileSizeBytes(fileSizeBytes);
-
+  public void endWithCompletion() {
     internalHandler
         .obtainMessage(MSG_END, END_REASON_COMPLETED, /* unused */ 0, /* exportException */ null)
         .sendToTarget();
   }
 
-  @Override
-  public void onError(ExportException exportException) {
+  public void endWithException(ExportException exportException) {
     internalHandler
         .obtainMessage(MSG_END, END_REASON_ERROR, /* unused */ 0, exportException)
         .sendToTarget();
@@ -346,10 +316,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     for (int i = 0; i < sequenceAssetLoaders.size(); i++) {
       processedInputsBuilder.addAll(sequenceAssetLoaders.get(i).getProcessedInputs());
     }
-    exportResultBuilder
-        .setProcessedInputs(processedInputsBuilder.build())
-        .setAudioEncoderName(encoderFactory.getAudioEncoderName())
-        .setVideoEncoderName(encoderFactory.getVideoEncoderName());
 
     boolean forCancellation = endReason == END_REASON_CANCELLED;
     @Nullable ExportException releaseExportException = null;
@@ -421,12 +387,20 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       applicationHandler.post(
           () ->
               listener.onError(
-                  exportResultBuilder.setExportException(finalException).build(), finalException));
+                  processedInputsBuilder.build(),
+                  encoderFactory.getAudioEncoderName(),
+                  encoderFactory.getVideoEncoderName(),
+                  finalException));
     } else {
       if (releasedPreviously) {
         return;
       }
-      applicationHandler.post(() -> listener.onCompleted(exportResultBuilder.build()));
+      applicationHandler.post(
+          () ->
+              listener.onCompleted(
+                  processedInputsBuilder.build(),
+                  encoderFactory.getAudioEncoderName(),
+                  encoderFactory.getVideoEncoderName()));
     }
   }
 
@@ -570,7 +544,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     @Override
     public void onError(ExportException exportException) {
-      TransformerInternal.this.onError(exportException);
+      TransformerInternal.this.endWithException(exportException);
     }
 
     // Private methods.
