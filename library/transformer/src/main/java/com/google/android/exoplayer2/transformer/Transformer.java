@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.transformer.Composition.HDR_MODE_EXPERIMENTAL_FORCE_INTERPRET_HDR_AS_SDR;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
@@ -28,6 +29,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
+import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.audio.AudioProcessor;
 import com.google.android.exoplayer2.audio.AudioProcessor.AudioFormat;
@@ -832,7 +834,9 @@ public final class Transformer {
    * @throws IllegalStateException If an export is already in progress.
    */
   public void start(Composition composition, String path) {
-    startInternal(composition, new MuxerWrapper(path, muxerFactory));
+    ComponentListener componentListener = new ComponentListener(composition);
+    startInternal(
+        composition, new MuxerWrapper(path, muxerFactory, componentListener), componentListener);
   }
 
   /**
@@ -967,7 +971,8 @@ public final class Transformer {
     }
   }
 
-  private void startInternal(Composition composition, MuxerWrapper muxerWrapper) {
+  private void startInternal(
+      Composition composition, MuxerWrapper muxerWrapper, ComponentListener componentListener) {
     checkArgument(composition.effects.audioProcessors.isEmpty());
     // Only supports Presentation in video effects.
     ImmutableList<Effect> videoEffects = composition.effects.videoEffects;
@@ -976,9 +981,6 @@ public final class Transformer {
             || (videoEffects.size() == 1 && videoEffects.get(0) instanceof Presentation));
     verifyApplicationThread();
     checkState(transformerInternal == null, "There is already an export in progress.");
-
-    TransformerInternalListener transformerInternalListener =
-        new TransformerInternalListener(composition);
     HandlerWrapper applicationHandler = clock.createHandler(looper, /* callback= */ null);
     TransformationRequest transformationRequest = this.transformationRequest;
     if (composition.hdrMode != Composition.HDR_MODE_KEEP_HDR) {
@@ -1008,7 +1010,7 @@ public final class Transformer {
             videoFrameProcessorFactory,
             encoderFactory,
             muxerWrapper,
-            transformerInternalListener,
+            componentListener,
             fallbackListener,
             applicationHandler,
             debugViewProvider,
@@ -1017,31 +1019,94 @@ public final class Transformer {
     transformerInternal.start();
   }
 
-  private final class TransformerInternalListener implements TransformerInternal.Listener {
+  private final class ComponentListener
+      implements TransformerInternal.Listener, MuxerWrapper.Listener {
 
     private final Composition composition;
+    private final ExportResult.Builder exportResultBuilder;
 
-    public TransformerInternalListener(Composition composition) {
+    public ComponentListener(Composition composition) {
       this.composition = composition;
+      this.exportResultBuilder = new ExportResult.Builder();
     }
 
+    // TransformerInternal.Listener implementation
+
     @Override
-    public void onCompleted(ExportResult exportResult) {
+    public void onCompleted(
+        ImmutableList<ExportResult.ProcessedInput> processedInputs,
+        @Nullable String audioEncoderName,
+        @Nullable String videoEncoderName) {
+      exportResultBuilder
+          .setProcessedInputs(processedInputs)
+          .setAudioEncoderName(audioEncoderName)
+          .setVideoEncoderName(videoEncoderName);
+
       // TODO(b/213341814): Add event flags for Transformer events.
       transformerInternal = null;
       listeners.queueEvent(
           /* eventFlag= */ C.INDEX_UNSET,
-          listener -> listener.onCompleted(composition, exportResult));
+          listener -> listener.onCompleted(composition, exportResultBuilder.build()));
       listeners.flushEvents();
     }
 
     @Override
-    public void onError(ExportResult exportResult, ExportException exportException) {
+    @SuppressWarnings("UngroupedOverloads") // Grouped by interface.
+    public void onError(
+        ImmutableList<ExportResult.ProcessedInput> processedInputs,
+        @Nullable String audioEncoderName,
+        @Nullable String videoEncoderName,
+        ExportException exportException) {
+      exportResultBuilder
+          .setProcessedInputs(processedInputs)
+          .setAudioEncoderName(audioEncoderName)
+          .setVideoEncoderName(videoEncoderName)
+          .setExportException(exportException);
+
       transformerInternal = null;
       listeners.queueEvent(
           /* eventFlag= */ C.INDEX_UNSET,
-          listener -> listener.onError(composition, exportResult, exportException));
+          listener -> listener.onError(composition, exportResultBuilder.build(), exportException));
       listeners.flushEvents();
+    }
+
+    // MuxerWrapper.Listener implementation
+
+    @Override
+    public void onTrackEnded(
+        @C.TrackType int trackType, Format format, int averageBitrate, int sampleCount) {
+      if (trackType == C.TRACK_TYPE_AUDIO) {
+        exportResultBuilder.setAverageAudioBitrate(averageBitrate);
+        if (format.channelCount != Format.NO_VALUE) {
+          exportResultBuilder.setChannelCount(format.channelCount);
+        }
+        if (format.sampleRate != Format.NO_VALUE) {
+          exportResultBuilder.setSampleRate(format.sampleRate);
+        }
+      } else if (trackType == C.TRACK_TYPE_VIDEO) {
+        exportResultBuilder
+            .setAverageVideoBitrate(averageBitrate)
+            .setColorInfo(format.colorInfo)
+            .setVideoFrameCount(sampleCount);
+        if (format.height != Format.NO_VALUE) {
+          exportResultBuilder.setHeight(format.height);
+        }
+        if (format.width != Format.NO_VALUE) {
+          exportResultBuilder.setWidth(format.width);
+        }
+      }
+    }
+
+    @Override
+    public void onEnded(long durationMs, long fileSizeBytes) {
+      exportResultBuilder.setDurationMs(durationMs).setFileSizeBytes(fileSizeBytes);
+      checkNotNull(transformerInternal).endWithCompletion();
+    }
+
+    @Override
+    @SuppressWarnings("UngroupedOverloads") // Grouped by interface.
+    public void onError(ExportException exportException) {
+      checkNotNull(transformerInternal).endWithException(exportException);
     }
   }
 }
