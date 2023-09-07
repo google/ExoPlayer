@@ -367,6 +367,8 @@ public class MediaSessionServiceTest {
     MediaSessionService service = TestServiceRegistry.getInstance().getServiceInstance();
     MediaSession session = createMediaSession("testAddSessions_removedWhenReleased");
     service.addSession(session);
+    // Wait until connection of session is propagated.
+    MainLooperTestRule.runOnMainSync(() -> {});
     List<MediaSession> sessions = service.getSessions();
     assertThat(sessions.contains(session)).isTrue();
     assertThat(sessions.size()).isEqualTo(2);
