@@ -21,6 +21,7 @@
 *   Extractors:
     *   Add `BmpExtractor`.
     *   Add `WebpExtractor`.
+    *   Add `media3.extractor.heif.HeifExtractor`.
 *   Audio:
     *   Add support for Opus gapless metadata during offload playback.
 *   Video:
