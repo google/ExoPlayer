@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.effect;
 import com.google.android.exoplayer2.util.GlTextureInfo;
 import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
+import com.google.android.exoplayer2.video.ColorInfo;
 import java.util.List;
 
 /**
@@ -74,22 +75,24 @@ public interface VideoCompositor extends GlTextureProducer {
   /**
    * Signals that no more frames will come from the upstream {@link GlTextureProducer.Listener}.
    *
-   * <p>Each input source must have a unique {@code inputId} returned from {@link
-   * #registerInputSource}.
+   * @param inputId The identifier for an input source, returned from {@link #registerInputSource}.
    */
   void signalEndOfInputSource(int inputId);
 
   /**
-   * Queues an input texture to be composited, for example from an upstream {@link
-   * GlTextureProducer.Listener}.
+   * Queues an input texture to be composited.
    *
-   * <p>Each input source must have a unique {@code inputId} returned from {@link
-   * #registerInputSource}.
+   * @param inputId The identifier for an input source, returned from {@link #registerInputSource}.
+   * @param textureProducer The source from where the {@code inputTexture} is produced.
+   * @param inputTexture The {@link GlTextureInfo} to composite.
+   * @param colorInfo The {@link ColorInfo} of {@code inputTexture}.
+   * @param presentationTimeUs The presentation time of {@code inputTexture}, in microseconds.
    */
   void queueInputTexture(
       int inputId,
       GlTextureProducer textureProducer,
       GlTextureInfo inputTexture,
+      ColorInfo colorInfo,
       long presentationTimeUs);
 
   /**
