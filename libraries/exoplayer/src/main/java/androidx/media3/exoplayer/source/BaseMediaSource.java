@@ -179,10 +179,27 @@ public abstract class BaseMediaSource implements MediaSource {
    * Returns the {@link PlayerId} of the player using this media source.
    *
    * <p>Must only be used when the media source is {@link #prepareSourceInternal(TransferListener)
-   * prepared}.
+   * prepared} or has {@linkplain #setPlayerId a player ID set}.
    */
   protected final PlayerId getPlayerId() {
     return checkStateNotNull(playerId);
+  }
+
+  /**
+   * Sets the {@link PlayerId} of the player using this media source.
+   *
+   * @param playerId The player ID to be set.
+   */
+  protected final void setPlayerId(PlayerId playerId) {
+    this.playerId = playerId;
+  }
+
+  /**
+   * Returns whether the source has {@link MediaSource#prepareSource(MediaSourceCaller,
+   * TransferListener, PlayerId)} called.
+   */
+  protected final boolean prepareSourceCalled() {
+    return !mediaSourceCallers.isEmpty();
   }
 
   @Override
