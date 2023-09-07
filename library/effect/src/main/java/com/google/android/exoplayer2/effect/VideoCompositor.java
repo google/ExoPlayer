@@ -39,7 +39,8 @@ public interface VideoCompositor extends GlTextureProducer {
     /**
      * Called when an exception occurs during asynchronous frame compositing.
      *
-     * <p>Using {@link VideoCompositor} after an error happens is undefined behavior.
+     * <p>If this is called, the calling {@link VideoCompositor} must immediately be {@linkplain
+     * VideoCompositor#release() released}.
      */
     void onError(VideoFrameProcessingException exception);
 
@@ -91,6 +92,10 @@ public interface VideoCompositor extends GlTextureProducer {
       GlTextureInfo inputTexture,
       long presentationTimeUs);
 
-  /** Releases all resources. */
+  /**
+   * Releases all resources.
+   *
+   * <p>This {@link VideoCompositor} instance must not be used after this method is called.
+   */
   void release();
 }

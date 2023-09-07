@@ -154,7 +154,8 @@ public interface VideoFrameProcessor {
     /**
      * Called when an exception occurs during asynchronous video frame processing.
      *
-     * <p>Using {@code VideoFrameProcessor} after an error happens is undefined behavior.
+     * <p>If this is called, the calling {@link VideoFrameProcessor} must immediately be {@linkplain
+     * VideoFrameProcessor#release() released}.
      */
     void onError(VideoFrameProcessingException exception);
 
@@ -350,6 +351,8 @@ public interface VideoFrameProcessor {
    * <p>This method blocks until all resources are released or releasing times out.
    *
    * <p>Can be called on any thread.
+   *
+   * <p>This {@link VideoFrameProcessor} instance must not be used after this method is called.
    */
   void release();
 }
