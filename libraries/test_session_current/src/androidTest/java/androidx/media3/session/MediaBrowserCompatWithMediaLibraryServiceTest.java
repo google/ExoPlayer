@@ -383,7 +383,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
     String testParentId = PARENT_ID_AUTH_EXPIRED_ERROR;
     connectAndWait(/* connectionHints= */ Bundle.EMPTY);
     CountDownLatch errorLatch = new CountDownLatch(1);
-    AtomicReference parentIdRefOnError = new AtomicReference<>();
+    AtomicReference<String> parentIdRefOnError = new AtomicReference<>();
 
     browserCompat.subscribe(
         testParentId,
@@ -406,7 +406,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
         .isEqualTo(PARENT_ID_AUTH_EXPIRED_ERROR_KEY_ERROR_RESOLUTION_ACTION_LABEL);
 
     CountDownLatch successLatch = new CountDownLatch(1);
-    AtomicReference parentIdRefOnChildrenLoaded = new AtomicReference<>();
+    AtomicReference<String> parentIdRefOnChildrenLoaded = new AtomicReference<>();
 
     browserCompat.subscribe(
         PARENT_ID,
