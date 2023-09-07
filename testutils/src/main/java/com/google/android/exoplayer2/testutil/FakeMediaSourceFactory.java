@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.drm.DrmSessionManagerProvider;
@@ -25,6 +27,7 @@ import com.google.android.exoplayer2.testutil.FakeTimeline.TimelineWindowDefinit
 import com.google.android.exoplayer2.upstream.LoadErrorHandlingPolicy;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** Fake {@link MediaSourceFactory} that creates a {@link FakeMediaSource}. */
 // Implement and return deprecated type for backwards compatibility.
@@ -33,6 +36,18 @@ public final class FakeMediaSourceFactory implements MediaSourceFactory {
 
   /** The window UID used by media sources that are created by the factory. */
   public static final Object DEFAULT_WINDOW_UID = new Object();
+
+  private @MonotonicNonNull FakeMediaSource lastCreatedSource;
+
+  /**
+   * Returns the last created {@link FakeMediaSource}.
+   *
+   * <p>Must be called after at least one {@link FakeMediaSource} is {@link
+   * FakeMediaSourceFactory#createMediaSource(MediaItem) created}.
+   */
+  public FakeMediaSource getLastCreatedSource() {
+    return checkNotNull(lastCreatedSource);
+  }
 
   @Override
   public MediaSourceFactory setDrmSessionManagerProvider(
@@ -66,6 +81,7 @@ public final class FakeMediaSourceFactory implements MediaSourceFactory {
             /* windowOffsetInFirstPeriodUs= */ Util.msToUs(123456789),
             ImmutableList.of(AdPlaybackState.NONE),
             mediaItem);
-    return new FakeMediaSource(new FakeTimeline(timelineWindowDefinition));
+    lastCreatedSource = new FakeMediaSource(new FakeTimeline(timelineWindowDefinition));
+    return lastCreatedSource;
   }
 }
