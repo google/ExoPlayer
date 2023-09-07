@@ -2295,14 +2295,15 @@ public class MatroskaExtractor implements Extractor {
         @Nullable ColorInfo colorInfo = null;
         if (hasColorInfo) {
           @Nullable byte[] hdrStaticInfo = getHdrStaticInfo();
-          colorInfo = new ColorInfo.Builder()
-              .setColorSpace(colorSpace)
-              .setColorRange(colorRange)
-              .setColorTransfer(colorTransfer)
-              .setHdrStaticInfo(hdrStaticInfo)
-              .setLumaBitdepth(bitsPerChannel)
-              .setChromaBitdepth(bitsPerChannel)
-              .build();
+          colorInfo =
+              new ColorInfo.Builder()
+                  .setColorSpace(colorSpace)
+                  .setColorRange(colorRange)
+                  .setColorTransfer(colorTransfer)
+                  .setHdrStaticInfo(hdrStaticInfo)
+                  .setLumaBitdepth(bitsPerChannel)
+                  .setChromaBitdepth(bitsPerChannel)
+                  .build();
         }
         int rotationDegrees = Format.NO_VALUE;
 

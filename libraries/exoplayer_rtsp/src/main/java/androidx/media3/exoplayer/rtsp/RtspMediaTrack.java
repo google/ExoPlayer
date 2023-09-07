@@ -413,13 +413,14 @@ import com.google.common.collect.ImmutableMap;
     formatBuilder.setPixelWidthHeightRatio(spsData.pixelWidthHeightRatio);
     formatBuilder.setHeight(spsData.height);
     formatBuilder.setWidth(spsData.width);
-    formatBuilder.setColorInfo(new ColorInfo.Builder()
-        .setColorSpace(spsData.colorSpace)
+    formatBuilder.setColorInfo(
+        new ColorInfo.Builder()
+            .setColorSpace(spsData.colorSpace)
             .setColorRange(spsData.colorRange)
             .setColorTransfer(spsData.colorTransfer)
             .setLumaBitdepth(spsData.bitDepthLumaMinus8 + 8)
             .setChromaBitdepth(spsData.bitDepthChromaMinus8 + 8)
-        .build());
+            .build());
 
     @Nullable String profileLevel = fmtpAttributes.get(PARAMETER_PROFILE_LEVEL_ID);
     if (profileLevel != null) {
@@ -463,13 +464,14 @@ import com.google.common.collect.ImmutableMap;
             spsNalDataWithStartCode, NAL_START_CODE.length, spsNalDataWithStartCode.length);
     formatBuilder.setPixelWidthHeightRatio(spsData.pixelWidthHeightRatio);
     formatBuilder.setHeight(spsData.height).setWidth(spsData.width);
-    formatBuilder.setColorInfo(new ColorInfo.Builder()
-        .setColorSpace(spsData.colorSpace)
-        .setColorRange(spsData.colorRange)
-        .setColorTransfer(spsData.colorTransfer)
-        .setLumaBitdepth(spsData.bitDepthLumaMinus8 + 8)
-        .setChromaBitdepth(spsData.bitDepthChromaMinus8 + 8)
-        .build());
+    formatBuilder.setColorInfo(
+        new ColorInfo.Builder()
+            .setColorSpace(spsData.colorSpace)
+            .setColorRange(spsData.colorRange)
+            .setColorTransfer(spsData.colorTransfer)
+            .setLumaBitdepth(spsData.bitDepthLumaMinus8 + 8)
+            .setChromaBitdepth(spsData.bitDepthChromaMinus8 + 8)
+            .build());
 
     formatBuilder.setCodecs(
         CodecSpecificDataUtil.buildHevcCodecString(
