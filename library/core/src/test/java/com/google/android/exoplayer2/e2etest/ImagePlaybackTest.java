@@ -49,6 +49,8 @@ public class ImagePlaybackTest {
   public static ImmutableList<String> mediaSamples() {
     // TODO(b/289989736): When extraction for other types of images is implemented, add those image
     //   types to this list.
+    // Robolectric's NativeShadowBitmapFactory doesn't support decoding HEIF format, so we don't
+    // test that here.
     return ImmutableList.of("png/non-motion-photo-shortened.png");
   }
 

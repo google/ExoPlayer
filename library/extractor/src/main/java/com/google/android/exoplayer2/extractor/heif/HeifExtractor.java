@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.extractor.webp;
+package com.google.android.exoplayer2.extractor.heif;
 
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
@@ -25,7 +25,7 @@ import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
 
 /**
- * Extracts data from the WEBP container format.
+ * Extracts data from the HEIF (.heic) container format.
  *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
  *     contains the same ExoPlayer code). See <a
@@ -33,42 +33,32 @@ import java.io.IOException;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-public final class WebpExtractor implements Extractor {
+public final class HeifExtractor implements Extractor {
 
-  // Documentation Reference:
-  // https://developers.google.com/speed/webp/docs/riff_container#webp_file_header
+  // Specification reference: ISO/IEC 23008-12:2022
+  private static final int HEIF_FILE_SIGNATURE_PART_1 = 0x66747970;
+  private static final int HEIF_FILE_SIGNATURE_PART_2 = 0x68656963;
   private static final int FILE_SIGNATURE_SEGMENT_LENGTH = 4;
-  private static final int RIFF_FILE_SIGNATURE = 0x52494646;
-  private static final int WEBP_FILE_SIGNATURE = 0x57454250;
 
   private final ParsableByteArray scratch;
   private final SingleSampleExtractorHelper imageExtractor;
 
   /** Creates an instance. */
-  public WebpExtractor() {
+  public HeifExtractor() {
     scratch = new ParsableByteArray(FILE_SIGNATURE_SEGMENT_LENGTH);
     imageExtractor = new SingleSampleExtractorHelper();
   }
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException {
-    // The full file signature for the format webp is RIFF????WEBP.
-    scratch.reset(/* limit= */ FILE_SIGNATURE_SEGMENT_LENGTH);
-    input.peekFully(scratch.getData(), /* offset= */ 0, FILE_SIGNATURE_SEGMENT_LENGTH);
-    if (scratch.readUnsignedInt() != RIFF_FILE_SIGNATURE) {
-      return false;
-    }
-
-    input.advancePeekPosition(FILE_SIGNATURE_SEGMENT_LENGTH);
-    scratch.reset(/* limit= */ FILE_SIGNATURE_SEGMENT_LENGTH);
-
-    input.peekFully(scratch.getData(), /* offset= */ 0, FILE_SIGNATURE_SEGMENT_LENGTH);
-    return scratch.readUnsignedInt() == WEBP_FILE_SIGNATURE;
+    input.advancePeekPosition(4);
+    return readAndCompareFourBytes(input, HEIF_FILE_SIGNATURE_PART_1)
+        && readAndCompareFourBytes(input, HEIF_FILE_SIGNATURE_PART_2);
   }
 
   @Override
   public void init(ExtractorOutput output) {
-    imageExtractor.init(output, MimeTypes.IMAGE_WEBP);
+    imageExtractor.init(output, MimeTypes.IMAGE_HEIF);
   }
 
   @Override
@@ -85,5 +75,12 @@ public final class WebpExtractor implements Extractor {
   @Override
   public void release() {
     // Do nothing.
+  }
+
+  private boolean readAndCompareFourBytes(ExtractorInput input, int bytesToCompare)
+      throws IOException {
+    scratch.reset(/* limit= */ FILE_SIGNATURE_SEGMENT_LENGTH);
+    input.peekFully(scratch.getData(), /* offset= */ 0, FILE_SIGNATURE_SEGMENT_LENGTH);
+    return scratch.readUnsignedInt() == bytesToCompare;
   }
 }

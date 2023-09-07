@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.extractor;
 
+import static com.google.android.exoplayer2.extractor.mp4.Mp4Extractor.FLAG_READ_MOTION_PHOTO_METADATA;
+import static com.google.android.exoplayer2.extractor.mp4.Mp4Extractor.FLAG_READ_SEF_DATA;
 import static com.google.android.exoplayer2.util.FileTypes.inferFileTypeFromResponseHeaders;
 import static com.google.android.exoplayer2.util.FileTypes.inferFileTypeFromUri;
 
@@ -29,6 +31,7 @@ import com.google.android.exoplayer2.extractor.avi.AviExtractor;
 import com.google.android.exoplayer2.extractor.bmp.BmpExtractor;
 import com.google.android.exoplayer2.extractor.flac.FlacExtractor;
 import com.google.android.exoplayer2.extractor.flv.FlvExtractor;
+import com.google.android.exoplayer2.extractor.heif.HeifExtractor;
 import com.google.android.exoplayer2.extractor.jpeg.JpegExtractor;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor;
@@ -90,6 +93,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *   <li>PNG ({@link PngExtractor})
  *   <li>WEBP ({@link WebpExtractor})
  *   <li>BMP ({@link BmpExtractor})
+ *   <li>HEIF ({@link HeifExtractor})
  *   <li>MIDI, if available, the MIDI extension's {@code
  *       com.google.android.exoplayer2.decoder.midi.MidiExtractor} is used.
  * </ul>
@@ -128,7 +132,8 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
         FileTypes.JPEG,
         FileTypes.PNG,
         FileTypes.WEBP,
-        FileTypes.BMP
+        FileTypes.BMP,
+        FileTypes.HEIF
       };
 
   private static final ExtensionLoader FLAC_EXTENSION_LOADER =
@@ -527,6 +532,12 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
         break;
       case FileTypes.BMP:
         extractors.add(new BmpExtractor());
+        break;
+      case FileTypes.HEIF:
+        if ((mp4Flags & FLAG_READ_MOTION_PHOTO_METADATA) == 0
+            && (mp4Flags & FLAG_READ_SEF_DATA) == 0) {
+          extractors.add(new HeifExtractor());
+        }
         break;
       case FileTypes.WEBVTT:
       case FileTypes.UNKNOWN:

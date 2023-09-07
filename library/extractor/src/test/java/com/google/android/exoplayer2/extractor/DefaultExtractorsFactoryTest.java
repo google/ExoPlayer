@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.extractor.avi.AviExtractor;
 import com.google.android.exoplayer2.extractor.bmp.BmpExtractor;
 import com.google.android.exoplayer2.extractor.flac.FlacExtractor;
 import com.google.android.exoplayer2.extractor.flv.FlvExtractor;
+import com.google.android.exoplayer2.extractor.heif.HeifExtractor;
 import com.google.android.exoplayer2.extractor.jpeg.JpegExtractor;
 import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer2.extractor.mp3.Mp3Extractor;
@@ -80,7 +81,8 @@ public final class DefaultExtractorsFactoryTest {
             JpegExtractor.class,
             PngExtractor.class,
             WebpExtractor.class,
-            BmpExtractor.class)
+            BmpExtractor.class,
+            HeifExtractor.class)
         .inOrder();
   }
 
@@ -126,7 +128,8 @@ public final class DefaultExtractorsFactoryTest {
             JpegExtractor.class,
             PngExtractor.class,
             WebpExtractor.class,
-            BmpExtractor.class)
+            BmpExtractor.class,
+            HeifExtractor.class)
         .inOrder();
   }
 
