@@ -16,6 +16,8 @@
         query parameters ([#553](https://github.com/androidx/media/issues/553)).
     *   Fix `ConcurrentModificationException` in `ExperimentalBandwidthMeter`
         ([#612](https://github.com/androidx/media/issues/612)).
+    *   Add `MediaPeriodId` parameter to
+        `CompositeMediaSource.getMediaTimeForChildMediaTime`.
 *   Transformer:
     *   Changed `frameRate` and `durationUs` parameters of
         `SampleConsumer.queueInputBitmap` to `TimestampIterator`.

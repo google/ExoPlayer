@@ -205,8 +205,9 @@ public abstract class WrappingMediaSource extends CompositeMediaSource<Void> {
   }
 
   @Override
-  protected final long getMediaTimeForChildMediaTime(Void childSourceId, long mediaTimeMs) {
-    return getMediaTimeForChildMediaTime(mediaTimeMs);
+  protected final long getMediaTimeForChildMediaTime(
+      Void childSourceId, long mediaTimeMs, @Nullable MediaPeriodId mediaPeriodId) {
+    return getMediaTimeForChildMediaTime(mediaTimeMs, mediaPeriodId);
   }
 
   /**
@@ -216,10 +217,13 @@ public abstract class WrappingMediaSource extends CompositeMediaSource<Void> {
    *
    * @param mediaTimeMs A media time in the {@link MediaPeriod} of the child source, in
    *     milliseconds.
+   * @param mediaPeriodId The {@link MediaPeriodId} of the {@link MediaPeriod} of the child source,
+   *     or null if the time does not relate to a specific {@link MediaPeriod}.
    * @return The corresponding media time in the {@link MediaPeriod} of the wrapping source, in
    *     milliseconds.
    */
-  protected long getMediaTimeForChildMediaTime(long mediaTimeMs) {
+  protected long getMediaTimeForChildMediaTime(
+      long mediaTimeMs, @Nullable MediaPeriodId mediaPeriodId) {
     return mediaTimeMs;
   }
 
