@@ -21,7 +21,7 @@ import androidx.media3.extractor.Extractor;
 import androidx.media3.extractor.ExtractorInput;
 import androidx.media3.extractor.ExtractorOutput;
 import androidx.media3.extractor.PositionHolder;
-import androidx.media3.extractor.SingleSampleExtractorHelper;
+import androidx.media3.extractor.SingleSampleExtractor;
 import java.io.IOException;
 
 /** Extracts data from the BMP container format. */
@@ -30,21 +30,23 @@ public final class BmpExtractor implements Extractor {
   private static final int BMP_FILE_SIGNATURE_LENGTH = 2;
   private static final int BMP_FILE_SIGNATURE = 0x424D;
 
-  private final SingleSampleExtractorHelper imageExtractor;
+  private final SingleSampleExtractor imageExtractor;
 
   /** Creates an instance. */
   public BmpExtractor() {
-    imageExtractor = new SingleSampleExtractorHelper();
+    imageExtractor =
+        new SingleSampleExtractor(
+            BMP_FILE_SIGNATURE, BMP_FILE_SIGNATURE_LENGTH, MimeTypes.IMAGE_BMP);
   }
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException {
-    return imageExtractor.sniff(input, BMP_FILE_SIGNATURE, BMP_FILE_SIGNATURE_LENGTH);
+    return imageExtractor.sniff(input);
   }
 
   @Override
   public void init(ExtractorOutput output) {
-    imageExtractor.init(output, MimeTypes.IMAGE_BMP);
+    imageExtractor.init(output);
   }
 
   @Override
@@ -55,7 +57,7 @@ public final class BmpExtractor implements Extractor {
 
   @Override
   public void seek(long position, long timeUs) {
-    imageExtractor.seek(position);
+    imageExtractor.seek(position, timeUs);
   }
 
   @Override

@@ -15,6 +15,7 @@
  */
 package androidx.media3.extractor.heif;
 
+import androidx.media3.common.C;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.UnstableApi;
@@ -22,7 +23,7 @@ import androidx.media3.extractor.Extractor;
 import androidx.media3.extractor.ExtractorInput;
 import androidx.media3.extractor.ExtractorOutput;
 import androidx.media3.extractor.PositionHolder;
-import androidx.media3.extractor.SingleSampleExtractorHelper;
+import androidx.media3.extractor.SingleSampleExtractor;
 import java.io.IOException;
 
 /** Extracts data from the HEIF (.heic) container format. */
@@ -35,12 +36,12 @@ public final class HeifExtractor implements Extractor {
   private static final int FILE_SIGNATURE_SEGMENT_LENGTH = 4;
 
   private final ParsableByteArray scratch;
-  private final SingleSampleExtractorHelper imageExtractor;
+  private final SingleSampleExtractor imageExtractor;
 
   /** Creates an instance. */
   public HeifExtractor() {
     scratch = new ParsableByteArray(FILE_SIGNATURE_SEGMENT_LENGTH);
-    imageExtractor = new SingleSampleExtractorHelper();
+    imageExtractor = new SingleSampleExtractor(C.INDEX_UNSET, C.LENGTH_UNSET, MimeTypes.IMAGE_HEIF);
   }
 
   @Override
@@ -52,7 +53,7 @@ public final class HeifExtractor implements Extractor {
 
   @Override
   public void init(ExtractorOutput output) {
-    imageExtractor.init(output, MimeTypes.IMAGE_HEIF);
+    imageExtractor.init(output);
   }
 
   @Override
@@ -63,7 +64,7 @@ public final class HeifExtractor implements Extractor {
 
   @Override
   public void seek(long position, long timeUs) {
-    imageExtractor.seek(position);
+    imageExtractor.seek(position, timeUs);
   }
 
   @Override

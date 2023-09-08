@@ -15,6 +15,7 @@
  */
 package androidx.media3.extractor.webp;
 
+import androidx.media3.common.C;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.UnstableApi;
@@ -22,26 +23,26 @@ import androidx.media3.extractor.Extractor;
 import androidx.media3.extractor.ExtractorInput;
 import androidx.media3.extractor.ExtractorOutput;
 import androidx.media3.extractor.PositionHolder;
-import androidx.media3.extractor.SingleSampleExtractorHelper;
+import androidx.media3.extractor.SingleSampleExtractor;
 import java.io.IOException;
 
 /** Extracts data from the WEBP container format. */
 @UnstableApi
 public final class WebpExtractor implements Extractor {
 
-  // Documentation Reference:
+  // Documentation reference:
   // https://developers.google.com/speed/webp/docs/riff_container#webp_file_header
   private static final int FILE_SIGNATURE_SEGMENT_LENGTH = 4;
   private static final int RIFF_FILE_SIGNATURE = 0x52494646;
   private static final int WEBP_FILE_SIGNATURE = 0x57454250;
 
   private final ParsableByteArray scratch;
-  private final SingleSampleExtractorHelper imageExtractor;
+  private final SingleSampleExtractor imageExtractor;
 
   /** Creates an instance. */
   public WebpExtractor() {
     scratch = new ParsableByteArray(FILE_SIGNATURE_SEGMENT_LENGTH);
-    imageExtractor = new SingleSampleExtractorHelper();
+    imageExtractor = new SingleSampleExtractor(C.INDEX_UNSET, C.LENGTH_UNSET, MimeTypes.IMAGE_WEBP);
   }
 
   @Override
@@ -62,7 +63,7 @@ public final class WebpExtractor implements Extractor {
 
   @Override
   public void init(ExtractorOutput output) {
-    imageExtractor.init(output, MimeTypes.IMAGE_WEBP);
+    imageExtractor.init(output);
   }
 
   @Override
@@ -73,7 +74,7 @@ public final class WebpExtractor implements Extractor {
 
   @Override
   public void seek(long position, long timeUs) {
-    imageExtractor.seek(position);
+    imageExtractor.seek(position, timeUs);
   }
 
   @Override

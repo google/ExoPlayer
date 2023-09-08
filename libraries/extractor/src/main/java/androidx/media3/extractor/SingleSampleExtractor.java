@@ -17,8 +17,7 @@ package androidx.media3.extractor;
 
 import static androidx.media3.common.C.BUFFER_FLAG_KEY_FRAME;
 import static androidx.media3.common.util.Assertions.checkNotNull;
-import static androidx.media3.extractor.Extractor.RESULT_CONTINUE;
-import static androidx.media3.extractor.Extractor.RESULT_END_OF_INPUT;
+import static androidx.media3.common.util.Assertions.checkState;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
 import androidx.annotation.IntDef;
@@ -35,13 +34,13 @@ import java.lang.annotation.Target;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-/**
- * Extracts data by loading all the bytes into one sample.
- *
- * <p>Used as a component in other extractors.
- */
+/** Extracts data by loading all the bytes into one sample. */
 @UnstableApi
-public final class SingleSampleExtractorHelper {
+public final class SingleSampleExtractor implements Extractor {
+
+  private final int fileSignature;
+  private final int fileSignatureLength;
+  private final String containerMimeType;
 
   /** Parser states. */
   @Documented
@@ -67,36 +66,36 @@ public final class SingleSampleExtractorHelper {
   private @MonotonicNonNull TrackOutput trackOutput;
 
   /**
-   * Returns whether the {@link ExtractorInput} has the given {@code fileSignature}.
+   * Creates an instance.
    *
-   * <p>@see Extractor#sniff(ExtractorInput)
+   * @param fileSignature The file signature used to {@link #sniff}, or {@link C#INDEX_UNSET} if the
+   *     method won't be used.
+   * @param fileSignatureLength The length of file signature, or {@link C#LENGTH_UNSET} if the
+   *     {@link #sniff} method won't be used.
+   * @param containerMimeType The mime type of the format being extracted.
    */
-  public boolean sniff(ExtractorInput input, int fileSignature, int fileSignatureLength)
-      throws IOException {
+  public SingleSampleExtractor(
+      int fileSignature, int fileSignatureLength, String containerMimeType) {
+    this.fileSignature = fileSignature;
+    this.fileSignatureLength = fileSignatureLength;
+    this.containerMimeType = containerMimeType;
+  }
+
+  @Override
+  public boolean sniff(ExtractorInput input) throws IOException {
+    checkState(fileSignature != C.INDEX_UNSET && fileSignatureLength != C.LENGTH_UNSET);
     ParsableByteArray scratch = new ParsableByteArray(fileSignatureLength);
     input.peekFully(scratch.getData(), /* offset= */ 0, fileSignatureLength);
     return scratch.readUnsignedShort() == fileSignature;
   }
 
-  /**
-   * See {@link Extractor#init(ExtractorOutput)}.
-   *
-   * <p>Outputs format with {@code containerMimeType}.
-   */
-  public void init(ExtractorOutput output, String containerMimeType) {
+  @Override
+  public void init(ExtractorOutput output) {
     extractorOutput = output;
     outputImageTrackAndSeekMap(containerMimeType);
   }
 
-  /** See {@link Extractor#seek(long, long)}. */
-  public void seek(long position) {
-    if (position == 0 || state == STATE_READING) {
-      state = STATE_READING;
-      size = 0;
-    }
-  }
-
-  /** See {@link Extractor#read(ExtractorInput, PositionHolder)}. */
+  @Override
   public @Extractor.ReadResult int read(ExtractorInput input, PositionHolder seekPosition)
       throws IOException {
     switch (state) {
@@ -108,6 +107,19 @@ public final class SingleSampleExtractorHelper {
       default:
         throw new IllegalStateException();
     }
+  }
+
+  @Override
+  public void seek(long position, long timeUs) {
+    if (position == 0 || state == STATE_READING) {
+      state = STATE_READING;
+      size = 0;
+    }
+  }
+
+  @Override
+  public void release() {
+    // Do Nothing
   }
 
   private void readSegment(ExtractorInput input) throws IOException {

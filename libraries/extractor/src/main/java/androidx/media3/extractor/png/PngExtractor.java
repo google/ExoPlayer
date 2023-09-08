@@ -21,7 +21,7 @@ import androidx.media3.extractor.Extractor;
 import androidx.media3.extractor.ExtractorInput;
 import androidx.media3.extractor.ExtractorOutput;
 import androidx.media3.extractor.PositionHolder;
-import androidx.media3.extractor.SingleSampleExtractorHelper;
+import androidx.media3.extractor.SingleSampleExtractor;
 import java.io.IOException;
 
 /** Extracts data from the PNG container format. */
@@ -32,21 +32,23 @@ public final class PngExtractor implements Extractor {
   private static final int PNG_FILE_SIGNATURE = 0x8950;
   private static final int PNG_FILE_SIGNATURE_LENGTH = 2;
 
-  private final SingleSampleExtractorHelper imageExtractor;
+  private final SingleSampleExtractor imageExtractor;
 
   /** Creates an instance. */
   public PngExtractor() {
-    imageExtractor = new SingleSampleExtractorHelper();
+    imageExtractor =
+        new SingleSampleExtractor(
+            PNG_FILE_SIGNATURE, PNG_FILE_SIGNATURE_LENGTH, MimeTypes.IMAGE_PNG);
   }
 
   @Override
   public boolean sniff(ExtractorInput input) throws IOException {
-    return imageExtractor.sniff(input, PNG_FILE_SIGNATURE, PNG_FILE_SIGNATURE_LENGTH);
+    return imageExtractor.sniff(input);
   }
 
   @Override
   public void init(ExtractorOutput output) {
-    imageExtractor.init(output, MimeTypes.IMAGE_PNG);
+    imageExtractor.init(output);
   }
 
   @Override
@@ -57,7 +59,7 @@ public final class PngExtractor implements Extractor {
 
   @Override
   public void seek(long position, long timeUs) {
-    imageExtractor.seek(position);
+    imageExtractor.seek(position, timeUs);
   }
 
   @Override
