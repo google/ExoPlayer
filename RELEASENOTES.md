@@ -14,6 +14,8 @@
         ([#8699](https://github.com/google/ExoPlayer/issues/8699)).
     *   Add functionality to transmit Common Media Client Data (CMCD) data using
         query parameters ([#553](https://github.com/androidx/media/issues/553)).
+    *   Fix `ConcurrentModificationException` in `ExperimentalBandwidthMeter`
+        ([#612](https://github.com/androidx/media/issues/612)).
 *   Transformer:
     *   Changed `frameRate` and `durationUs` parameters of
         `SampleConsumer.queueInputBitmap` to `TimestampIterator`.

@@ -19,6 +19,7 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 
 import android.content.Context;
 import android.os.Handler;
+import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.util.NetworkTypeObserver;
@@ -275,9 +276,13 @@ public final class ExperimentalBandwidthMeter implements BandwidthMeter, Transfe
   }
 
   private final ImmutableMap<Integer, Long> initialBitrateEstimates;
-  private final TimeToFirstByteEstimator timeToFirstByteEstimator;
-  private final BandwidthEstimator bandwidthEstimator;
   private final boolean resetOnNetworkTypeChange;
+
+  @GuardedBy("this") // Used in TransferListener methods that are called on a background thread.
+  private final TimeToFirstByteEstimator timeToFirstByteEstimator;
+
+  @GuardedBy("this") // Used in TransferListener methods that are called on a background thread.
+  private final BandwidthEstimator bandwidthEstimator;
 
   private @C.NetworkType int networkType;
   private long initialBitrateEstimate;
@@ -323,7 +328,7 @@ public final class ExperimentalBandwidthMeter implements BandwidthMeter, Transfe
   }
 
   @Override
-  public long getTimeToFirstByteEstimateUs() {
+  public synchronized long getTimeToFirstByteEstimateUs() {
     return timeToFirstByteEstimator.getTimeToFirstByteEstimateUs();
   }
 
@@ -333,19 +338,20 @@ public final class ExperimentalBandwidthMeter implements BandwidthMeter, Transfe
   }
 
   @Override
-  public void addEventListener(Handler eventHandler, EventListener eventListener) {
+  public synchronized void addEventListener(Handler eventHandler, EventListener eventListener) {
     checkNotNull(eventHandler);
     checkNotNull(eventListener);
     bandwidthEstimator.addEventListener(eventHandler, eventListener);
   }
 
   @Override
-  public void removeEventListener(EventListener eventListener) {
+  public synchronized void removeEventListener(EventListener eventListener) {
     bandwidthEstimator.removeEventListener(eventListener);
   }
 
   @Override
-  public void onTransferInitializing(DataSource source, DataSpec dataSpec, boolean isNetwork) {
+  public synchronized void onTransferInitializing(
+      DataSource source, DataSpec dataSpec, boolean isNetwork) {
     if (!isTransferAtFullNetworkSpeed(dataSpec, isNetwork)) {
       return;
     }

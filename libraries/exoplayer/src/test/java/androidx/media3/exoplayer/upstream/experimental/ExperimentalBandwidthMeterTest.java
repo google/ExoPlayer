@@ -53,7 +53,6 @@ import org.robolectric.shadows.ShadowTelephonyManager;
 @Config(sdk = Config.ALL_SDKS) // Test all SDKs because network detection logic changed over time.
 public final class ExperimentalBandwidthMeterTest {
 
-  private static final int SIMULATED_TRANSFER_COUNT = 100;
   private static final String FAST_COUNTRY_ISO = "TW";
   private static final String SLOW_COUNTRY_ISO = "PG";
 
@@ -666,21 +665,77 @@ public final class ExperimentalBandwidthMeterTest {
     setActiveNetworkInfo(networkInfoEthernet);
     ExperimentalBandwidthMeter bandwidthMeter =
         new ExperimentalBandwidthMeter.Builder(ApplicationProvider.getApplicationContext()).build();
-    long[] bitrateEstimatesWithNewInstance = simulateTransfers(bandwidthMeter);
+    long[] bitrateEstimatesWithNewInstance =
+        simulateTransfers(bandwidthMeter, /* simulatedTransferCount= */ 100);
 
     // Create a new instance and seed with some transfers.
     setActiveNetworkInfo(networkInfo2g);
     bandwidthMeter =
         new ExperimentalBandwidthMeter.Builder(ApplicationProvider.getApplicationContext()).build();
-    simulateTransfers(bandwidthMeter);
+    simulateTransfers(bandwidthMeter, /* simulatedTransferCount= */ 100);
 
     // Override the network type to ethernet and simulate transfers again.
     bandwidthMeter.setNetworkTypeOverride(C.NETWORK_TYPE_ETHERNET);
-    long[] bitrateEstimatesAfterReset = simulateTransfers(bandwidthMeter);
+    long[] bitrateEstimatesAfterReset =
+        simulateTransfers(bandwidthMeter, /* simulatedTransferCount= */ 100);
 
     // If overriding the network type fully reset the bandwidth meter, we expect the bitrate
     // estimates generated during simulation to be the same.
     assertThat(bitrateEstimatesAfterReset).isEqualTo(bitrateEstimatesWithNewInstance);
+  }
+
+  @Test
+  public void getTimeToFirstByteEstimateUs_withSimultaneousTransferEvents_receivesUpdatedValues() {
+    ExperimentalBandwidthMeter bandwidthMeter =
+        new ExperimentalBandwidthMeter.Builder(ApplicationProvider.getApplicationContext()).build();
+
+    Thread thread =
+        new Thread("backgroundTransfers") {
+          @Override
+          public void run() {
+            simulateTransfers(bandwidthMeter, /* simulatedTransferCount= */ 10000);
+          }
+        };
+    thread.start();
+
+    long currentTimeToFirstByteEstimateUs = bandwidthMeter.getTimeToFirstByteEstimateUs();
+    boolean timeToFirstByteEstimateUpdated = false;
+    while (thread.isAlive()) {
+      long newTimeToFirstByteEstimateUs = bandwidthMeter.getTimeToFirstByteEstimateUs();
+      if (newTimeToFirstByteEstimateUs != currentTimeToFirstByteEstimateUs) {
+        currentTimeToFirstByteEstimateUs = newTimeToFirstByteEstimateUs;
+        timeToFirstByteEstimateUpdated = true;
+      }
+    }
+
+    assertThat(timeToFirstByteEstimateUpdated).isTrue();
+  }
+
+  @Test
+  public void getBitrateEstimate_withSimultaneousTransferEvents_receivesUpdatedValues() {
+    ExperimentalBandwidthMeter bandwidthMeter =
+        new ExperimentalBandwidthMeter.Builder(ApplicationProvider.getApplicationContext()).build();
+
+    Thread thread =
+        new Thread("backgroundTransfers") {
+          @Override
+          public void run() {
+            simulateTransfers(bandwidthMeter, /* simulatedTransferCount= */ 10000);
+          }
+        };
+    thread.start();
+
+    long currentBitrateEstimate = bandwidthMeter.getBitrateEstimate();
+    boolean bitrateEstimateUpdated = false;
+    while (thread.isAlive()) {
+      long newBitrateEstimate = bandwidthMeter.getBitrateEstimate();
+      if (newBitrateEstimate != currentBitrateEstimate) {
+        currentBitrateEstimate = newBitrateEstimate;
+        bitrateEstimateUpdated = true;
+      }
+    }
+
+    assertThat(bitrateEstimateUpdated).isTrue();
   }
 
   private void setActiveNetworkInfo(NetworkInfo networkInfo) {
@@ -711,12 +766,13 @@ public final class ExperimentalBandwidthMeterTest {
     Shadows.shadowOf(telephonyManager).setNetworkCountryIso(countryIso);
   }
 
-  private static long[] simulateTransfers(ExperimentalBandwidthMeter bandwidthMeter) {
-    long[] bitrateEstimates = new long[SIMULATED_TRANSFER_COUNT];
+  private static long[] simulateTransfers(
+      ExperimentalBandwidthMeter bandwidthMeter, int simulatedTransferCount) {
+    long[] bitrateEstimates = new long[simulatedTransferCount];
     Random random = new Random(/* seed= */ 0);
     DataSource dataSource = new FakeDataSource();
     DataSpec dataSpec = new DataSpec(Uri.parse("https://test.com"));
-    for (int i = 0; i < SIMULATED_TRANSFER_COUNT; i++) {
+    for (int i = 0; i < simulatedTransferCount; i++) {
       bandwidthMeter.onTransferInitializing(dataSource, dataSpec, /* isNetwork= */ true);
       ShadowSystemClock.advanceBy(Duration.ofMillis(random.nextInt(50)));
       bandwidthMeter.onTransferStart(dataSource, dataSpec, /* isNetwork= */ true);
