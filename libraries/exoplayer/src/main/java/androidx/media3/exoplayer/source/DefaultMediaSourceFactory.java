@@ -48,6 +48,7 @@ import androidx.media3.extractor.ExtractorsFactory;
 import androidx.media3.extractor.PositionHolder;
 import androidx.media3.extractor.SeekMap;
 import androidx.media3.extractor.TrackOutput;
+import androidx.media3.extractor.jpeg.JpegExtractor;
 import androidx.media3.extractor.text.DefaultSubtitleParserFactory;
 import androidx.media3.extractor.text.SubtitleExtractor;
 import com.google.common.base.Supplier;
@@ -438,6 +439,9 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     int type =
         Util.inferContentTypeForUriAndMimeType(
             mediaItem.localConfiguration.uri, mediaItem.localConfiguration.mimeType);
+    if (mediaItem.localConfiguration.imageDurationMs != C.TIME_UNSET) {
+      delegateFactoryLoader.setJpegExtractorFlags(JpegExtractor.FLAG_READ_IMAGE);
+    }
     @Nullable
     MediaSource.Factory mediaSourceFactory = delegateFactoryLoader.getMediaSourceFactory(type);
     checkStateNotNull(
@@ -647,6 +651,12 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
       this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
       for (MediaSource.Factory mediaSourceFactory : mediaSourceFactories.values()) {
         mediaSourceFactory.setLoadErrorHandlingPolicy(loadErrorHandlingPolicy);
+      }
+    }
+
+    public void setJpegExtractorFlags(@JpegExtractor.Flags int flags) {
+      if (this.extractorsFactory instanceof DefaultExtractorsFactory) {
+        ((DefaultExtractorsFactory) this.extractorsFactory).setJpegExtractorFlags(flags);
       }
     }
 
