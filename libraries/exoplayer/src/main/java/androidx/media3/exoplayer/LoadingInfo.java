@@ -18,8 +18,10 @@ package androidx.media3.exoplayer;
 import static androidx.media3.common.util.Assertions.checkArgument;
 
 import android.os.SystemClock;
+import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.util.UnstableApi;
+import com.google.common.base.Objects;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 /** Information about the player state when loading is started or continued. */
@@ -132,5 +134,24 @@ public final class LoadingInfo {
     return lastRebufferRealtimeMs != C.TIME_UNSET
         && realtimeMs != C.TIME_UNSET
         && lastRebufferRealtimeMs >= realtimeMs;
+  }
+
+  @Override
+  public boolean equals(@Nullable Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof LoadingInfo)) {
+      return false;
+    }
+    LoadingInfo that = (LoadingInfo) o;
+    return playbackPositionUs == that.playbackPositionUs
+        && playbackSpeed == that.playbackSpeed
+        && lastRebufferRealtimeMs == that.lastRebufferRealtimeMs;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(playbackPositionUs, playbackSpeed, lastRebufferRealtimeMs);
   }
 }
