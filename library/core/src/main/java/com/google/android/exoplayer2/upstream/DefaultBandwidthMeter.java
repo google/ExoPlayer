@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.upstream;
 
 import android.content.Context;
 import android.os.Handler;
+import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.BandwidthMeter.EventListener.EventDispatcher;
@@ -286,20 +287,34 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
 
   private final ImmutableMap<Integer, Long> initialBitrateEstimates;
   private final EventDispatcher eventDispatcher;
-  private final SlidingPercentile slidingPercentile;
   private final Clock clock;
   private final boolean resetOnNetworkTypeChange;
 
+  @GuardedBy("this") // Used in TransferListener methods that are called on a background thread.
+  private final SlidingPercentile slidingPercentile;
+
+  @GuardedBy("this") // Used in TransferListener methods that are called on a background thread.
   private int streamCount;
+
+  @GuardedBy("this") // Used in TransferListener methods that are called on a background thread.
   private long sampleStartTimeMs;
+
+  @GuardedBy("this") // Used in TransferListener methods that are called on a background thread.
   private long sampleBytesTransferred;
 
-  private @C.NetworkType int networkType;
+  @GuardedBy("this") // Used in TransferListener methods that are called on a background thread.
   private long totalElapsedTimeMs;
+
+  @GuardedBy("this") // Used in TransferListener methods that are called on a background thread.
   private long totalBytesTransferred;
+
+  @GuardedBy("this") // Used in TransferListener methods that are called on a background thread.
   private long bitrateEstimate;
+
+  @GuardedBy("this") // Used in TransferListener methods that are called on a background thread.
   private long lastReportedBitrateEstimate;
 
+  private @C.NetworkType int networkType;
   private boolean networkTypeOverrideSet;
   private @C.NetworkType int networkTypeOverride;
 
@@ -446,6 +461,7 @@ public final class DefaultBandwidthMeter implements BandwidthMeter, TransferList
     slidingPercentile.reset();
   }
 
+  @GuardedBy("this")
   private void maybeNotifyBandwidthSample(
       int elapsedMs, long bytesTransferred, long bitrateEstimate) {
     if (elapsedMs == 0 && bytesTransferred == 0 && bitrateEstimate == lastReportedBitrateEstimate) {
