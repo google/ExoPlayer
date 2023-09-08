@@ -54,6 +54,7 @@ import androidx.media3.exoplayer.FormatHolder;
 import androidx.media3.exoplayer.PlayerMessage;
 import androidx.media3.exoplayer.drm.DrmSession;
 import androidx.media3.exoplayer.drm.DrmSession.DrmSessionException;
+import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.SampleStream.ReadDataResult;
 import androidx.media3.exoplayer.video.VideoRendererEventListener.EventDispatcher;
 import java.lang.annotation.Documented;
@@ -334,13 +335,17 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
   }
 
   @Override
-  protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs)
+  protected void onStreamChanged(
+      Format[] formats,
+      long startPositionUs,
+      long offsetUs,
+      MediaSource.MediaPeriodId mediaPeriodId)
       throws ExoPlaybackException {
     // TODO: This shouldn't just update the output stream offset as long as there are still buffers
     // of the previous stream in the decoder. It should also make sure to render the first frame of
     // the next stream if the playback position reached the new stream.
     outputStreamOffsetUs = offsetUs;
-    super.onStreamChanged(formats, startPositionUs, offsetUs);
+    super.onStreamChanged(formats, startPositionUs, offsetUs, mediaPeriodId);
   }
 
   /**

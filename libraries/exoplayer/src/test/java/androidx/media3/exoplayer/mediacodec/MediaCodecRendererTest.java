@@ -41,6 +41,7 @@ import androidx.media3.exoplayer.RendererConfiguration;
 import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.drm.DrmSessionEventListener;
 import androidx.media3.exoplayer.drm.DrmSessionManager;
+import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.upstream.DefaultAllocator;
 import androidx.media3.test.utils.FakeSampleStream;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -66,6 +67,8 @@ public class MediaCodecRendererTest {
         createFakeSampleStream(format1, /* sampleTimesUs...= */ 0, 100, 200, 300);
     FakeSampleStream fakeSampleStream2 =
         createFakeSampleStream(format2, /* sampleTimesUs...= */ 0, 100, 200);
+    MediaSource.MediaPeriodId mediaPeriodId1 = new MediaSource.MediaPeriodId(new Object());
+    MediaSource.MediaPeriodId mediaPeriodId2 = new MediaSource.MediaPeriodId(new Object());
     MediaCodecRenderer renderer = spy(new TestRenderer());
     renderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
 
@@ -77,7 +80,8 @@ public class MediaCodecRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 0,
-        /* offsetUs= */ 0);
+        /* offsetUs= */ 0,
+        mediaPeriodId1);
     renderer.start();
     long positionUs = 0;
     while (!renderer.hasReadStreamToEnd()) {
@@ -85,7 +89,11 @@ public class MediaCodecRendererTest {
       positionUs += 100;
     }
     renderer.replaceStream(
-        new Format[] {format2}, fakeSampleStream2, /* startPositionUs= */ 400, /* offsetUs= */ 400);
+        new Format[] {format2},
+        fakeSampleStream2,
+        /* startPositionUs= */ 400,
+        /* offsetUs= */ 400,
+        mediaPeriodId2);
     renderer.setCurrentStreamFinal();
     while (!renderer.isEnded()) {
       renderer.render(positionUs, SystemClock.elapsedRealtime());
@@ -119,6 +127,8 @@ public class MediaCodecRendererTest {
         createFakeSampleStream(format1, /* sampleTimesUs...= */ 0, 100, 200, 300, 400, 500, 600);
     FakeSampleStream fakeSampleStream2 =
         createFakeSampleStream(format2, /* sampleTimesUs...= */ 0, 100, 200);
+    MediaSource.MediaPeriodId mediaPeriodId1 = new MediaSource.MediaPeriodId(new Object());
+    MediaSource.MediaPeriodId mediaPeriodId2 = new MediaSource.MediaPeriodId(new Object());
     MediaCodecRenderer renderer = spy(new TestRenderer());
     renderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
 
@@ -130,7 +140,8 @@ public class MediaCodecRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 0,
-        /* offsetUs= */ 0);
+        /* offsetUs= */ 0,
+        mediaPeriodId1);
     renderer.start();
     long positionUs = 0;
     while (!renderer.hasReadStreamToEnd()) {
@@ -138,7 +149,11 @@ public class MediaCodecRendererTest {
       positionUs += 100;
     }
     renderer.replaceStream(
-        new Format[] {format2}, fakeSampleStream2, /* startPositionUs= */ 400, /* offsetUs= */ 400);
+        new Format[] {format2},
+        fakeSampleStream2,
+        /* startPositionUs= */ 400,
+        /* offsetUs= */ 400,
+        mediaPeriodId2);
     renderer.setCurrentStreamFinal();
     while (!renderer.isEnded()) {
       renderer.render(positionUs, SystemClock.elapsedRealtime());
@@ -175,6 +190,8 @@ public class MediaCodecRendererTest {
         createFakeSampleStream(format1, /* sampleTimesUs...= */ 0, 100, 200, 300);
     FakeSampleStream fakeSampleStream2 =
         createFakeSampleStream(format2, /* sampleTimesUs...= */ 0, 100, 200, 300, 400);
+    MediaSource.MediaPeriodId mediaPeriodId1 = new MediaSource.MediaPeriodId(new Object());
+    MediaSource.MediaPeriodId mediaPeriodId2 = new MediaSource.MediaPeriodId(new Object());
     MediaCodecRenderer renderer = spy(new TestRenderer());
     renderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
 
@@ -186,7 +203,8 @@ public class MediaCodecRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 0,
-        /* offsetUs= */ 0);
+        /* offsetUs= */ 0,
+        mediaPeriodId1);
     renderer.start();
     long positionUs = 0;
     while (!renderer.hasReadStreamToEnd()) {
@@ -194,7 +212,11 @@ public class MediaCodecRendererTest {
       positionUs += 100;
     }
     renderer.replaceStream(
-        new Format[] {format2}, fakeSampleStream2, /* startPositionUs= */ 400, /* offsetUs= */ 200);
+        new Format[] {format2},
+        fakeSampleStream2,
+        /* startPositionUs= */ 400,
+        /* offsetUs= */ 200,
+        mediaPeriodId2);
     renderer.setCurrentStreamFinal();
     while (!renderer.isEnded()) {
       renderer.render(positionUs, SystemClock.elapsedRealtime());
@@ -229,6 +251,8 @@ public class MediaCodecRendererTest {
     FakeSampleStream fakeSampleStream1 = createFakeSampleStream(format1 /* no samples */);
     FakeSampleStream fakeSampleStream2 =
         createFakeSampleStream(format2, /* sampleTimesUs...= */ 0, 100, 200);
+    MediaSource.MediaPeriodId mediaPeriodId1 = new MediaSource.MediaPeriodId(new Object());
+    MediaSource.MediaPeriodId mediaPeriodId2 = new MediaSource.MediaPeriodId(new Object());
     MediaCodecRenderer renderer = spy(new TestRenderer());
     renderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
 
@@ -240,7 +264,8 @@ public class MediaCodecRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 0,
-        /* offsetUs= */ 0);
+        /* offsetUs= */ 0,
+        mediaPeriodId1);
     renderer.start();
     long positionUs = 0;
     while (!renderer.hasReadStreamToEnd()) {
@@ -248,7 +273,11 @@ public class MediaCodecRendererTest {
       positionUs += 100;
     }
     renderer.replaceStream(
-        new Format[] {format2}, fakeSampleStream2, /* startPositionUs= */ 0, /* offsetUs= */ 0);
+        new Format[] {format2},
+        fakeSampleStream2,
+        /* startPositionUs= */ 0,
+        /* offsetUs= */ 0,
+        mediaPeriodId2);
     renderer.setCurrentStreamFinal();
     while (!renderer.isEnded()) {
       renderer.render(positionUs, SystemClock.elapsedRealtime());
@@ -280,6 +309,9 @@ public class MediaCodecRendererTest {
     FakeSampleStream fakeSampleStream2 = createFakeSampleStream(format2 /* no samples */);
     FakeSampleStream fakeSampleStream3 =
         createFakeSampleStream(format3, /* sampleTimesUs...= */ 0, 100, 200);
+    MediaSource.MediaPeriodId mediaPeriodId1 = new MediaSource.MediaPeriodId(new Object());
+    MediaSource.MediaPeriodId mediaPeriodId2 = new MediaSource.MediaPeriodId(new Object());
+    MediaSource.MediaPeriodId mediaPeriodId3 = new MediaSource.MediaPeriodId(new Object());
     MediaCodecRenderer renderer = spy(new TestRenderer());
     renderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
 
@@ -291,7 +323,8 @@ public class MediaCodecRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 0,
-        /* offsetUs= */ 0);
+        /* offsetUs= */ 0,
+        mediaPeriodId1);
     renderer.start();
     long positionUs = 0;
     while (!renderer.hasReadStreamToEnd()) {
@@ -299,13 +332,21 @@ public class MediaCodecRendererTest {
       positionUs += 100;
     }
     renderer.replaceStream(
-        new Format[] {format2}, fakeSampleStream2, /* startPositionUs= */ 200, /* offsetUs= */ 200);
+        new Format[] {format2},
+        fakeSampleStream2,
+        /* startPositionUs= */ 200,
+        /* offsetUs= */ 200,
+        mediaPeriodId2);
     while (!renderer.hasReadStreamToEnd()) {
       renderer.render(positionUs, SystemClock.elapsedRealtime());
       positionUs += 100;
     }
     renderer.replaceStream(
-        new Format[] {format3}, fakeSampleStream3, /* startPositionUs= */ 200, /* offsetUs= */ 200);
+        new Format[] {format3},
+        fakeSampleStream3,
+        /* startPositionUs= */ 200,
+        /* offsetUs= */ 200,
+        mediaPeriodId3);
     renderer.setCurrentStreamFinal();
     while (!renderer.isEnded()) {
       renderer.render(positionUs, SystemClock.elapsedRealtime());
@@ -334,6 +375,7 @@ public class MediaCodecRendererTest {
         new Format.Builder().setSampleMimeType(MimeTypes.AUDIO_AAC).setAverageBitrate(1000).build();
     FakeSampleStream fakeSampleStream =
         createFakeSampleStream(format, /* sampleTimesUs...= */ 0, 100, 200, 300, 400, 500);
+    MediaSource.MediaPeriodId mediaPeriodId = new MediaSource.MediaPeriodId(new Object());
     MediaCodecRenderer renderer = spy(new TestRenderer());
     renderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
 
@@ -345,7 +387,8 @@ public class MediaCodecRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 300,
-        /* offsetUs= */ 0);
+        /* offsetUs= */ 0,
+        mediaPeriodId);
     renderer.start();
     renderer.setCurrentStreamFinal();
     long positionUs = 0;
@@ -375,6 +418,7 @@ public class MediaCodecRendererTest {
         new Format.Builder().setSampleMimeType(MimeTypes.AUDIO_AAC).setAverageBitrate(1000).build();
     FakeSampleStream fakeSampleStream =
         createFakeSampleStream(format, /* sampleTimesUs...= */ 0, 100, 200, 300, 400, 500);
+    MediaSource.MediaPeriodId mediaPeriodId = new MediaSource.MediaPeriodId(new Object());
     MediaCodecRenderer renderer = spy(new TestRenderer());
     renderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
     renderer.enable(
@@ -385,7 +429,8 @@ public class MediaCodecRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 400,
-        /* offsetUs= */ 0);
+        /* offsetUs= */ 0,
+        mediaPeriodId);
     renderer.start();
 
     renderer.resetPosition(/* positionUs= */ 200);

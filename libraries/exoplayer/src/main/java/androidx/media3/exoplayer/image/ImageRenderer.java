@@ -33,6 +33,7 @@ import androidx.media3.exoplayer.ExoPlaybackException;
 import androidx.media3.exoplayer.FormatHolder;
 import androidx.media3.exoplayer.Renderer;
 import androidx.media3.exoplayer.RendererCapabilities;
+import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.source.SampleStream;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -138,13 +139,17 @@ public final class ImageRenderer extends BaseRenderer {
   }
 
   @Override
-  protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs)
+  protected void onStreamChanged(
+      Format[] formats,
+      long startPositionUs,
+      long offsetUs,
+      MediaSource.MediaPeriodId mediaPeriodId)
       throws ExoPlaybackException {
     // TODO(b/289989736): when the mediaPeriodId is signalled to the renders, collect and set
     //   durationUs here.
     durationUs = 2 * C.MICROS_PER_SECOND;
     this.offsetUs = offsetUs;
-    super.onStreamChanged(formats, startPositionUs, offsetUs);
+    super.onStreamChanged(formats, startPositionUs, offsetUs, mediaPeriodId);
   }
 
   @Override

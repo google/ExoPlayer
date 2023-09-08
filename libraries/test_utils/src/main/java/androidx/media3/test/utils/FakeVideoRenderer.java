@@ -27,6 +27,7 @@ import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.DecoderCounters;
 import androidx.media3.exoplayer.ExoPlaybackException;
 import androidx.media3.exoplayer.Renderer;
+import androidx.media3.exoplayer.source.MediaSource;
 import androidx.media3.exoplayer.video.VideoRendererEventListener;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
@@ -65,9 +66,13 @@ public class FakeVideoRenderer extends FakeRenderer {
   }
 
   @Override
-  protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs)
+  protected void onStreamChanged(
+      Format[] formats,
+      long startPositionUs,
+      long offsetUs,
+      MediaSource.MediaPeriodId mediaPeriodId)
       throws ExoPlaybackException {
-    super.onStreamChanged(formats, startPositionUs, offsetUs);
+    super.onStreamChanged(formats, startPositionUs, offsetUs, mediaPeriodId);
     streamOffsetUs = offsetUs;
     renderedFirstFrameAfterReset = false;
   }

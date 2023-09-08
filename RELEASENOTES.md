@@ -21,6 +21,8 @@
     *   Support `ClippingMediaSource` (and other sources with period/window time
         offsets) in `ConcatenatingMediaSource2`
         ([#11226](https://github.com/google/ExoPlayer/issues/11226)).
+    *   Change `BaseRenderer.onStreamChanged()` to also receive a
+        `MediaPeriodId` argument.
 *   Transformer:
     *   Changed `frameRate` and `durationUs` parameters of
         `SampleConsumer.queueInputBitmap` to `TimestampIterator`.
