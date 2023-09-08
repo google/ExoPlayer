@@ -34,6 +34,7 @@ import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.extractor.PositionHolder;
 import com.google.android.exoplayer2.extractor.SeekMap;
 import com.google.android.exoplayer2.extractor.TrackOutput;
+import com.google.android.exoplayer2.extractor.jpeg.JpegExtractor;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.text.DefaultSubtitleParserFactory;
@@ -425,6 +426,9 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
     int type =
         Util.inferContentTypeForUriAndMimeType(
             mediaItem.localConfiguration.uri, mediaItem.localConfiguration.mimeType);
+    if (mediaItem.localConfiguration.imageDurationMs != C.TIME_UNSET) {
+      delegateFactoryLoader.setJpegExtractorFlags(JpegExtractor.FLAG_READ_IMAGE);
+    }
     @Nullable
     MediaSource.Factory mediaSourceFactory = delegateFactoryLoader.getMediaSourceFactory(type);
     checkStateNotNull(
@@ -634,6 +638,12 @@ public final class DefaultMediaSourceFactory implements MediaSourceFactory {
       this.loadErrorHandlingPolicy = loadErrorHandlingPolicy;
       for (MediaSource.Factory mediaSourceFactory : mediaSourceFactories.values()) {
         mediaSourceFactory.setLoadErrorHandlingPolicy(loadErrorHandlingPolicy);
+      }
+    }
+
+    public void setJpegExtractorFlags(@JpegExtractor.Flags int flags) {
+      if (this.extractorsFactory instanceof DefaultExtractorsFactory) {
+        ((DefaultExtractorsFactory) this.extractorsFactory).setJpegExtractorFlags(flags);
       }
     }
 

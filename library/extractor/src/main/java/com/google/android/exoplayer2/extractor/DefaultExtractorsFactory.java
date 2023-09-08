@@ -157,6 +157,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
   private int tsTimestampSearchBytes;
   private boolean textTrackTranscodingEnabled;
   private SubtitleParser.Factory subtitleParserFactory;
+  private @JpegExtractor.Flags int jpegFlags;
 
   public DefaultExtractorsFactory() {
     tsMode = TsExtractor.MODE_SINGLE_PMT;
@@ -395,6 +396,20 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
     return this;
   }
 
+  /**
+   * Sets flags for {@link JpegExtractor} instances created by the factory.
+   *
+   * @see JpegExtractor#JpegExtractor(int)
+   * @param flags The flags to use.
+   * @return The factory, for convenience.
+   */
+  @CanIgnoreReturnValue
+  public synchronized DefaultExtractorsFactory setJpegExtractorFlags(
+      @JpegExtractor.Flags int flags) {
+    this.jpegFlags = flags;
+    return this;
+  }
+
   @Override
   public synchronized Extractor[] createExtractors() {
     return createExtractors(Uri.EMPTY, new HashMap<>());
@@ -513,7 +528,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
         extractors.add(new WavExtractor());
         break;
       case FileTypes.JPEG:
-        extractors.add(new JpegExtractor());
+        extractors.add(new JpegExtractor(jpegFlags));
         break;
       case FileTypes.MIDI:
         @Nullable Extractor midiExtractor = MIDI_EXTENSION_LOADER.getExtractor();
