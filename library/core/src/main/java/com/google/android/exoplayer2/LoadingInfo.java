@@ -18,6 +18,8 @@ package com.google.android.exoplayer2;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 
 import android.os.SystemClock;
+import androidx.annotation.Nullable;
+import com.google.common.base.Objects;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 /**
@@ -137,5 +139,24 @@ public final class LoadingInfo {
     return lastRebufferRealtimeMs != C.TIME_UNSET
         && realtimeMs != C.TIME_UNSET
         && lastRebufferRealtimeMs >= realtimeMs;
+  }
+
+  @Override
+  public boolean equals(@Nullable Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof LoadingInfo)) {
+      return false;
+    }
+    LoadingInfo that = (LoadingInfo) o;
+    return playbackPositionUs == that.playbackPositionUs
+        && playbackSpeed == that.playbackSpeed
+        && lastRebufferRealtimeMs == that.lastRebufferRealtimeMs;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(playbackPositionUs, playbackSpeed, lastRebufferRealtimeMs);
   }
 }
