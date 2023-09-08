@@ -123,6 +123,68 @@ public final class ConcatenatingMediaSource2Test {
                     /* manifest= */ null)
                 .withAdPlaybackState(/* periodIndex= */ 4, adPlaybackState)));
 
+    // Second full example with additional offsets in all other windows (including multiple windows
+    // per source and a single last period with an offset).
+    builder.add(
+        new TestConfig(
+            "offset_in_multiple_windows_and_ads",
+            buildConcatenatingMediaSource(
+                buildMediaSource(
+                    buildWindow(
+                        /* periodCount= */ 2,
+                        /* isSeekable= */ true,
+                        /* isDynamic= */ false,
+                        /* durationMs= */ 1000,
+                        /* defaultPositionMs= */ 123,
+                        /* windowOffsetInFirstPeriodMs= */ 50),
+                    buildWindow(
+                        /* periodCount= */ 2,
+                        /* isSeekable= */ false,
+                        /* isDynamic= */ false,
+                        /* durationMs= */ 2500,
+                        /* defaultPositionMs= */ 234,
+                        /* windowOffsetInFirstPeriodMs= */ 300)),
+                buildMediaSource(
+                    buildWindow(
+                        /* periodCount= */ 1,
+                        /* isSeekable= */ true,
+                        /* isDynamic= */ false,
+                        /* durationMs= */ 500,
+                        /* defaultPositionMs= */ 234,
+                        /* windowOffsetInFirstPeriodMs= */ 100,
+                        adPlaybackState)),
+                buildMediaSource(
+                    buildWindow(
+                        /* periodCount= */ 2,
+                        /* isSeekable= */ true,
+                        /* isDynamic= */ false,
+                        /* durationMs= */ 1200,
+                        /* defaultPositionMs= */ 234,
+                        /* windowOffsetInFirstPeriodMs= */ 250)),
+                buildMediaSource(
+                    buildWindow(
+                        /* periodCount= */ 1,
+                        /* isSeekable= */ true,
+                        /* isDynamic= */ false,
+                        /* durationMs= */ 600,
+                        /* defaultPositionMs= */ 234,
+                        /* windowOffsetInFirstPeriodMs= */ 200))),
+            /* expectedAdDiscontinuities= */ 3,
+            new ExpectedTimelineData(
+                    /* isSeekable= */ false,
+                    /* isDynamic= */ false,
+                    /* defaultPositionMs= */ 123,
+                    /* periodDurationsMs= */ new long[] {550, 500, 1250, 1250, 500, 600, 600, 600},
+                    /* periodOffsetsInWindowMs= */ new long[] {
+                      -50, 500, 1000, 2250, 3500, 4000, 4600, 5200
+                    },
+                    /* periodIsPlaceholder= */ new boolean[] {
+                      false, false, false, false, false, false, false, false
+                    },
+                    /* windowDurationMs= */ 5800,
+                    /* manifest= */ null)
+                .withAdPlaybackState(/* periodIndex= */ 4, adPlaybackState)));
+
     builder.add(
         new TestConfig(
             "multipleMediaSource_sameManifest",

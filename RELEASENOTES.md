@@ -18,6 +18,9 @@
         ([#612](https://github.com/androidx/media/issues/612)).
     *   Add `MediaPeriodId` parameter to
         `CompositeMediaSource.getMediaTimeForChildMediaTime`.
+    *   Support `ClippingMediaSource` (and other sources with period/window time
+        offsets) in `ConcatenatingMediaSource2`
+        ([#11226](https://github.com/google/ExoPlayer/issues/11226)).
 *   Transformer:
     *   Changed `frameRate` and `durationUs` parameters of
         `SampleConsumer.queueInputBitmap` to `TimestampIterator`.

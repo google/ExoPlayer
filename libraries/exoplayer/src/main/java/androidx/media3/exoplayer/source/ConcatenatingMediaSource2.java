@@ -37,19 +37,21 @@ import androidx.media3.datasource.TransferListener;
 import androidx.media3.exoplayer.upstream.Allocator;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 
 /**
  * Concatenates multiple {@link MediaSource MediaSources}, combining everything in one single {@link
  * Timeline.Window}.
  *
- * <p>This class can only be used under the following conditions:
+ * <p>This class can be used under the following conditions:
  *
  * <ul>
  *   <li>All sources must be non-empty.
- *   <li>All {@link Timeline.Window Windows} defined by the sources, except the first, must have an
- *       {@link Timeline.Window#getPositionInFirstPeriodUs() period offset} of zero. This excludes,
- *       for example, live streams or {@link ClippingMediaSource} with a non-zero start position.
+ *   <li>The {@link Timeline.Window#getPositionInFirstPeriodUs() period offset} in all windows
+ *       (except for the first one) must not change during the lifetime of this media source. This
+ *       excludes, for example, live streams with moving live windows or dynamic updates to the
+ *       clipping start time of a {@link ClippingMediaSource}.
  * </ul>
  */
 @UnstableApi
@@ -155,6 +157,13 @@ public final class ConcatenatingMediaSource2 extends CompositeMediaSource<Intege
       checkStateNotNull(
           mediaSourceFactory,
           "Must use useDefaultMediaSourceFactory or setMediaSourceFactory first.");
+      if (initialPlaceholderDurationMs == C.TIME_UNSET
+          && mediaItem.clippingConfiguration.endPositionMs != C.TIME_END_OF_SOURCE) {
+        // If the item is going to be clipped, we can provide a placeholder duration automatically.
+        initialPlaceholderDurationMs =
+            mediaItem.clippingConfiguration.endPositionMs
+                - mediaItem.clippingConfiguration.startPositionMs;
+      }
       return add(mediaSourceFactory.createMediaSource(mediaItem), initialPlaceholderDurationMs);
     }
 
@@ -277,8 +286,15 @@ public final class ConcatenatingMediaSource2 extends CompositeMediaSource<Intege
                     id.windowSequenceNumber, mediaSourceHolders.size(), holder.index));
     enableChildSource(holder.index);
     holder.activeMediaPeriods++;
+    long timeOffsetUs =
+        id.isAd()
+            ? 0
+            : checkNotNull(holder.periodTimeOffsetsByUid.get(childMediaPeriodId.periodUid));
     MediaPeriod mediaPeriod =
-        holder.mediaSource.createPeriod(childMediaPeriodId, allocator, startPositionUs);
+        new TimeOffsetMediaPeriod(
+            holder.mediaSource.createPeriod(
+                childMediaPeriodId, allocator, startPositionUs - timeOffsetUs),
+            timeOffsetUs);
     mediaSourceByMediaPeriod.put(mediaPeriod, holder);
     disableUnusedMediaSources();
     return mediaPeriod;
@@ -287,7 +303,7 @@ public final class ConcatenatingMediaSource2 extends CompositeMediaSource<Intege
   @Override
   public void releasePeriod(MediaPeriod mediaPeriod) {
     MediaSourceHolder holder = checkNotNull(mediaSourceByMediaPeriod.remove(mediaPeriod));
-    holder.mediaSource.releasePeriod(mediaPeriod);
+    holder.mediaSource.releasePeriod(((TimeOffsetMediaPeriod) mediaPeriod).getWrappedMediaPeriod());
     holder.activeMediaPeriods--;
     if (!mediaSourceByMediaPeriod.isEmpty()) {
       disableUnusedMediaSources();
@@ -334,6 +350,21 @@ public final class ConcatenatingMediaSource2 extends CompositeMediaSource<Intege
   @Override
   protected int getWindowIndexForChildWindowIndex(Integer childSourceId, int windowIndex) {
     return 0;
+  }
+
+  @Override
+  protected long getMediaTimeForChildMediaTime(
+      Integer childSourceId, long mediaTimeMs, @Nullable MediaPeriodId mediaPeriodId) {
+    if (mediaTimeMs == C.TIME_UNSET || mediaPeriodId == null || mediaPeriodId.isAd()) {
+      return mediaTimeMs;
+    }
+    @Nullable
+    Long timeOffsetUs =
+        mediaSourceHolders.get(childSourceId).periodTimeOffsetsByUid.get(mediaPeriodId.periodUid);
+    if (timeOffsetUs == null) {
+      return mediaTimeMs;
+    }
+    return mediaTimeMs + Util.usToMs(timeOffsetUs);
   }
 
   private boolean handleMessage(Message msg) {
@@ -383,13 +414,15 @@ public final class ConcatenatingMediaSource2 extends CompositeMediaSource<Intege
     boolean manifestsAreIdentical = true;
     boolean hasInitialManifest = false;
     @Nullable Object initialManifest = null;
-    for (int i = 0; i < mediaSourceHolders.size(); i++) {
+    int mediaSourceHoldersCount = mediaSourceHolders.size();
+    for (int i = 0; i < mediaSourceHoldersCount; i++) {
       MediaSourceHolder holder = mediaSourceHolders.get(i);
       Timeline timeline = holder.mediaSource.getTimeline();
       checkArgument(!timeline.isEmpty(), "Can't concatenate empty child Timeline.");
       timelinesBuilder.add(timeline);
       firstPeriodIndicesBuilder.add(periodCount);
-      periodCount += timeline.getPeriodCount();
+      int periodCountInMediaSourceHolder = timeline.getPeriodCount();
+      periodCount += periodCountInMediaSourceHolder;
       for (int j = 0; j < timeline.getWindowCount(); j++) {
         timeline.getWindow(/* windowIndex= */ j, window);
         if (!hasInitialManifest) {
@@ -411,31 +444,38 @@ public final class ConcatenatingMediaSource2 extends CompositeMediaSource<Intege
         if (holder.index == 0 && j == 0) {
           defaultPositionUs = window.defaultPositionUs;
           nextPeriodOffsetInWindowUs = -window.positionInFirstPeriodUs;
-        } else {
-          checkArgument(
-              window.positionInFirstPeriodUs == 0,
-              "Can't concatenate windows. A window has a non-zero offset in a period.");
         }
         // Assume placeholder windows are seekable to not prevent seeking in other periods.
         isSeekable &= window.isSeekable || window.isPlaceholder;
         isDynamic |= window.isDynamic;
-      }
-      int childPeriodCount = timeline.getPeriodCount();
-      for (int j = 0; j < childPeriodCount; j++) {
-        periodOffsetsInWindowUsBuilder.add(nextPeriodOffsetInWindowUs);
-        timeline.getPeriod(/* periodIndex= */ j, period);
-        long periodDurationUs = period.durationUs;
-        if (periodDurationUs == C.TIME_UNSET) {
+
+        for (int k = window.firstPeriodIndex; k <= window.lastPeriodIndex; k++) {
+          periodOffsetsInWindowUsBuilder.add(nextPeriodOffsetInWindowUs);
+          timeline.getPeriod(/* periodIndex= */ k, period, /* setIds= */ true);
+          long periodDurationUs = period.durationUs;
+          if (periodDurationUs == C.TIME_UNSET) {
+            checkArgument(
+                window.firstPeriodIndex == window.lastPeriodIndex,
+                "Can't apply placeholder duration to multiple periods with unknown duration "
+                    + "in a single window.");
+            periodDurationUs = windowDurationUs + window.positionInFirstPeriodUs;
+          }
+          long timeOffsetUsForPeriod = 0;
+          boolean isFirstPeriodInNonFirstWindow =
+              k == window.firstPeriodIndex && (holder.index != 0 || j != 0);
+          if (isFirstPeriodInNonFirstWindow && periodDurationUs != C.TIME_UNSET) {
+            timeOffsetUsForPeriod = -window.positionInFirstPeriodUs;
+            periodDurationUs += timeOffsetUsForPeriod;
+          }
+          Object periodUid = checkNotNull(period.uid);
           checkArgument(
-              childPeriodCount == 1,
-              "Can't concatenate multiple periods with unknown duration in one window.");
-          long windowDurationUs =
-              window.durationUs != C.TIME_UNSET
-                  ? window.durationUs
-                  : holder.initialPlaceholderDurationUs;
-          periodDurationUs = windowDurationUs + window.positionInFirstPeriodUs;
+              holder.activeMediaPeriods == 0
+                  || !holder.periodTimeOffsetsByUid.containsKey(periodUid)
+                  || holder.periodTimeOffsetsByUid.get(periodUid).equals(timeOffsetUsForPeriod),
+              "Can't handle windows with changing offset in first period.");
+          holder.periodTimeOffsetsByUid.put(periodUid, timeOffsetUsForPeriod);
+          nextPeriodOffsetInWindowUs += periodDurationUs;
         }
-        nextPeriodOffsetInWindowUs += periodDurationUs;
       }
     }
     return new ConcatenatedTimeline(
@@ -492,6 +532,7 @@ public final class ConcatenatingMediaSource2 extends CompositeMediaSource<Intege
     public final MaskingMediaSource mediaSource;
     public final int index;
     public final long initialPlaceholderDurationUs;
+    public final HashMap<Object, Long> periodTimeOffsetsByUid;
 
     public int activeMediaPeriods;
 
@@ -500,6 +541,7 @@ public final class ConcatenatingMediaSource2 extends CompositeMediaSource<Intege
       this.mediaSource = new MaskingMediaSource(mediaSource, /* useLazyPreparation= */ false);
       this.index = index;
       this.initialPlaceholderDurationUs = initialPlaceholderDurationUs;
+      this.periodTimeOffsetsByUid = new HashMap<>();
     }
   }
 
@@ -547,8 +589,7 @@ public final class ConcatenatingMediaSource2 extends CompositeMediaSource<Intege
     }
 
     @Override
-    public final Window getWindow(
-        int windowIndex, Window window, long defaultPositionProjectionUs) {
+    public Window getWindow(int windowIndex, Window window, long defaultPositionProjectionUs) {
       return window.set(
           Window.SINGLE_WINDOW_UID,
           mediaItem,
@@ -567,7 +608,7 @@ public final class ConcatenatingMediaSource2 extends CompositeMediaSource<Intege
     }
 
     @Override
-    public final Period getPeriodByUid(Object periodUid, Period period) {
+    public Period getPeriodByUid(Object periodUid, Period period) {
       int childIndex = getChildIndex(periodUid);
       Object childPeriodUid = getChildPeriodUid(periodUid);
       Timeline timeline = timelines.get(childIndex);
@@ -576,17 +617,19 @@ public final class ConcatenatingMediaSource2 extends CompositeMediaSource<Intege
       timeline.getPeriodByUid(childPeriodUid, period);
       period.windowIndex = 0;
       period.positionInWindowUs = periodOffsetsInWindowUs.get(periodIndex);
+      period.durationUs = getPeriodDurationUs(period, periodIndex);
       period.uid = periodUid;
       return period;
     }
 
     @Override
-    public final Period getPeriod(int periodIndex, Period period, boolean setIds) {
+    public Period getPeriod(int periodIndex, Period period, boolean setIds) {
       int childIndex = getChildIndexByPeriodIndex(periodIndex);
       int firstPeriodIndexInChild = firstPeriodIndices.get(childIndex);
       timelines.get(childIndex).getPeriod(periodIndex - firstPeriodIndexInChild, period, setIds);
       period.windowIndex = 0;
       period.positionInWindowUs = periodOffsetsInWindowUs.get(periodIndex);
+      period.durationUs = getPeriodDurationUs(period, periodIndex);
       if (setIds) {
         period.uid = getPeriodUid(childIndex, checkNotNull(period.uid));
       }
@@ -594,7 +637,7 @@ public final class ConcatenatingMediaSource2 extends CompositeMediaSource<Intege
     }
 
     @Override
-    public final int getIndexOfPeriod(Object uid) {
+    public int getIndexOfPeriod(Object uid) {
       if (!(uid instanceof Pair) || !(((Pair<?, ?>) uid).first instanceof Integer)) {
         return C.INDEX_UNSET;
       }
@@ -607,7 +650,7 @@ public final class ConcatenatingMediaSource2 extends CompositeMediaSource<Intege
     }
 
     @Override
-    public final Object getUidOfPeriod(int periodIndex) {
+    public Object getUidOfPeriod(int periodIndex) {
       int childIndex = getChildIndexByPeriodIndex(periodIndex);
       int firstPeriodIndexInChild = firstPeriodIndices.get(childIndex);
       Object periodUidInChild =
@@ -618,6 +661,19 @@ public final class ConcatenatingMediaSource2 extends CompositeMediaSource<Intege
     private int getChildIndexByPeriodIndex(int periodIndex) {
       return Util.binarySearchFloor(
           firstPeriodIndices, periodIndex + 1, /* inclusive= */ false, /* stayInBounds= */ false);
+    }
+
+    private long getPeriodDurationUs(Timeline.Period childPeriod, int periodIndex) {
+      // Keep unset duration, but force duration to match offset of next period otherwise.
+      if (childPeriod.durationUs == C.TIME_UNSET) {
+        return C.TIME_UNSET;
+      }
+      long periodStartTimeInWindowUs = periodOffsetsInWindowUs.get(periodIndex);
+      long periodEndTimeInWindowUs =
+          periodIndex == periodOffsetsInWindowUs.size() - 1
+              ? durationUs
+              : periodOffsetsInWindowUs.get(periodIndex + 1);
+      return periodEndTimeInWindowUs - periodStartTimeInWindowUs;
     }
   }
 }
