@@ -23,12 +23,15 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer.InsufficientCapacityException;
+import com.google.android.exoplayer2.source.MediaPeriod;
+import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.SampleStream.ReadDataResult;
 import com.google.android.exoplayer2.source.SampleStream.ReadFlags;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.MediaClock;
+import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -59,6 +62,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   private long readingPositionUs;
   private boolean streamIsFinal;
   private boolean throwRendererExceptionIsExecuting;
+  private Timeline timeline;
 
   @GuardedBy("lock")
   @Nullable
@@ -73,6 +77,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     this.trackType = trackType;
     formatHolder = new FormatHolder();
     readingPositionUs = C.TIME_END_OF_SOURCE;
+    timeline = Timeline.EMPTY;
   }
 
   @Override
@@ -112,13 +117,14 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
       boolean joining,
       boolean mayRenderStartOfStream,
       long startPositionUs,
-      long offsetUs)
+      long offsetUs,
+      MediaSource.MediaPeriodId mediaPeriodId)
       throws ExoPlaybackException {
     Assertions.checkState(state == STATE_DISABLED);
     this.configuration = configuration;
     state = STATE_ENABLED;
     onEnabled(joining, mayRenderStartOfStream);
-    replaceStream(formats, stream, startPositionUs, offsetUs);
+    replaceStream(formats, stream, startPositionUs, offsetUs, mediaPeriodId);
     resetPosition(startPositionUs, joining);
   }
 
@@ -131,7 +137,11 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
 
   @Override
   public final void replaceStream(
-      Format[] formats, SampleStream stream, long startPositionUs, long offsetUs)
+      Format[] formats,
+      SampleStream stream,
+      long startPositionUs,
+      long offsetUs,
+      MediaSource.MediaPeriodId mediaPeriodId)
       throws ExoPlaybackException {
     Assertions.checkState(!streamIsFinal);
     this.stream = stream;
@@ -140,7 +150,7 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
     }
     streamFormats = formats;
     streamOffsetUs = offsetUs;
-    onStreamChanged(formats, startPositionUs, offsetUs);
+    onStreamChanged(formats, startPositionUs, offsetUs, mediaPeriodId);
   }
 
   @Override
@@ -172,6 +182,14 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
   @Override
   public final void maybeThrowStreamError() throws IOException {
     Assertions.checkNotNull(stream).maybeThrowError();
+  }
+
+  @Override
+  public final void setTimeline(Timeline timeline) {
+    if (!Util.areEqual(this.timeline, timeline)) {
+      this.timeline = timeline;
+      onTimelineChanged(this.timeline);
+    }
   }
 
   @Override
@@ -274,17 +292,23 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    * @param startPositionUs The start position of the new stream in renderer time (microseconds).
    * @param offsetUs The offset that will be added to the timestamps of buffers read via {@link
    *     #readSource} so that decoder input buffers have monotonically increasing timestamps.
+   * @param mediaPeriodId The {@link MediaSource.MediaPeriodId} of the {@link MediaPeriod} that
+   *     produces the stream.
    * @throws ExoPlaybackException If an error occurs.
    */
-  protected void onStreamChanged(Format[] formats, long startPositionUs, long offsetUs)
+  protected void onStreamChanged(
+      Format[] formats,
+      long startPositionUs,
+      long offsetUs,
+      MediaSource.MediaPeriodId mediaPeriodId)
       throws ExoPlaybackException {
     // Do nothing.
   }
 
   /**
    * Called when the position is reset. This occurs when the renderer is enabled after {@link
-   * #onStreamChanged(Format[], long, long)} has been called, and also when a position discontinuity
-   * is encountered.
+   * #onStreamChanged(Format[], long, long, MediaSource.MediaPeriodId)} has been called, and also
+   * when a position discontinuity is encountered.
    *
    * <p>After a position reset, the renderer's {@link SampleStream} is guaranteed to provide samples
    * starting from a key frame.
@@ -344,6 +368,17 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    */
   protected void onRelease() {
     // Do nothing.
+  }
+
+  /**
+   * Called when a new timeline is {@linkplain #setTimeline(Timeline) set}.
+   *
+   * <p>The default implementation is a no-op.
+   *
+   * @param timeline The new timeline, which can also be obtained from {@link #getTimeline()}.
+   */
+  protected void onTimelineChanged(Timeline timeline) {
+    // Do nothing
   }
 
   // Methods to be called by subclasses.
@@ -407,6 +442,11 @@ public abstract class BaseRenderer implements Renderer, RendererCapabilities {
    */
   protected final Clock getClock() {
     return checkNotNull(clock);
+  }
+
+  /** Returns the current {@link Timeline} containing the rendered stream. */
+  protected final Timeline getTimeline() {
+    return timeline;
   }
 
   /**

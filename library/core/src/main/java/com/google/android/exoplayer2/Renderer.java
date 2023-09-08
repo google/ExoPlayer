@@ -24,6 +24,8 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
+import com.google.android.exoplayer2.source.MediaPeriod;
+import com.google.android.exoplayer2.source.MediaSource.MediaPeriodId;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.util.Clock;
 import com.google.android.exoplayer2.util.Effect;
@@ -348,6 +350,8 @@ public interface Renderer extends PlayerMessage.Target {
    * @param startPositionUs The start position of the stream in renderer time (microseconds).
    * @param offsetUs The offset to be added to timestamps of buffers read from {@code stream} before
    *     they are rendered.
+   * @param mediaPeriodId The {@link MediaPeriodId} of the {@link MediaPeriod} producing the {@code
+   *     stream}.
    * @throws ExoPlaybackException If an error occurs.
    */
   void enable(
@@ -358,7 +362,8 @@ public interface Renderer extends PlayerMessage.Target {
       boolean joining,
       boolean mayRenderStartOfStream,
       long startPositionUs,
-      long offsetUs)
+      long offsetUs,
+      MediaPeriodId mediaPeriodId)
       throws ExoPlaybackException;
 
   /**
@@ -383,9 +388,16 @@ public interface Renderer extends PlayerMessage.Target {
    * @param startPositionUs The start position of the new stream in renderer time (microseconds).
    * @param offsetUs The offset to be added to timestamps of buffers read from {@code stream} before
    *     they are rendered.
+   * @param mediaPeriodId The {@link MediaPeriodId} of the {@link MediaPeriod} producing the {@code
+   *     stream}.
    * @throws ExoPlaybackException If an error occurs.
    */
-  void replaceStream(Format[] formats, SampleStream stream, long startPositionUs, long offsetUs)
+  void replaceStream(
+      Format[] formats,
+      SampleStream stream,
+      long startPositionUs,
+      long offsetUs,
+      MediaPeriodId mediaPeriodId)
       throws ExoPlaybackException;
 
   /** Returns the {@link SampleStream} being consumed, or null if the renderer is disabled. */
@@ -473,6 +485,9 @@ public interface Renderer extends PlayerMessage.Target {
    */
   default void enableMayRenderStartOfStream() {}
 
+  /** Sets the timeline that is currently being played. */
+  void setTimeline(Timeline timeline);
+
   /**
    * Incrementally renders the {@link SampleStream}.
    *
@@ -484,8 +499,8 @@ public interface Renderer extends PlayerMessage.Target {
    * <p>The renderer may also render the very start of the media at the current position (e.g. the
    * first frame of a video stream) while still in the {@link #STATE_ENABLED} state, unless it's the
    * initial start of the media after calling {@link #enable(RendererConfiguration, Format[],
-   * SampleStream, long, boolean, boolean, long, long)} with {@code mayRenderStartOfStream} set to
-   * {@code false}.
+   * SampleStream, long, boolean, boolean, long, long, MediaPeriodId)} with {@code
+   * mayRenderStartOfStream} set to {@code false}.
    *
    * <p>This method should return quickly, and should not block if the renderer is unable to make
    * useful progress.

@@ -70,8 +70,8 @@ import com.google.android.exoplayer2.util.NullableType;
    *
    * <p>Renderers that are needed must have been enabled with the {@link #sampleStreams} for this
    * {@link #mediaPeriod}. This means either {@link Renderer#enable(RendererConfiguration, Format[],
-   * SampleStream, long, boolean, boolean, long, long)} or {@link Renderer#replaceStream(Format[],
-   * SampleStream, long, long)} has been called.
+   * SampleStream, long, boolean, boolean, long, long, MediaPeriodId)} or {@link
+   * Renderer#replaceStream(Format[], SampleStream, long, long, MediaPeriodId)} has been called.
    *
    * <p>Renderers that are not needed must have been {@link Renderer#disable() disabled}.
    */

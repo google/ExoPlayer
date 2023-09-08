@@ -44,6 +44,7 @@ import com.google.android.exoplayer2.decoder.SimpleDecoder;
 import com.google.android.exoplayer2.decoder.SimpleDecoderOutputBuffer;
 import com.google.android.exoplayer2.drm.DrmSessionEventListener;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
+import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.testutil.FakeSampleStream;
 import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.util.Clock;
@@ -134,7 +135,8 @@ public class DecoderAudioRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 0,
-        /* offsetUs= */ 0);
+        /* offsetUs= */ 0,
+        new MediaSource.MediaPeriodId(new Object()));
     audioRenderer.setCurrentStreamFinal();
     when(mockAudioSink.isEnded()).thenReturn(true);
     while (!audioRenderer.isEnded()) {
@@ -172,7 +174,8 @@ public class DecoderAudioRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 0,
-        /* offsetUs= */ 0);
+        /* offsetUs= */ 0,
+        new MediaSource.MediaPeriodId(new Object()));
 
     audioRenderer.setCurrentStreamFinal();
     while (!audioRenderer.isEnded()) {
@@ -215,6 +218,7 @@ public class DecoderAudioRendererTest {
                 oneByteSample(/* timeUs= */ 1_001_000),
                 END_OF_STREAM_ITEM));
     fakeSampleStream2.writeData(/* startPositionUs= */ 0);
+    MediaSource.MediaPeriodId mediaPeriodId = new MediaSource.MediaPeriodId(new Object());
     audioRenderer.enable(
         RendererConfiguration.DEFAULT,
         new Format[] {FORMAT},
@@ -223,7 +227,8 @@ public class DecoderAudioRendererTest {
         /* joining= */ false,
         /* mayRenderStartOfStream= */ true,
         /* startPositionUs= */ 0,
-        /* offsetUs= */ 0);
+        /* offsetUs= */ 0,
+        mediaPeriodId);
 
     while (!audioRenderer.hasReadStreamToEnd()) {
       audioRenderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0);
@@ -232,7 +237,8 @@ public class DecoderAudioRendererTest {
         new Format[] {FORMAT},
         fakeSampleStream2,
         /* startPositionUs= */ 1_000_000,
-        /* offsetUs= */ 1_000_000);
+        /* offsetUs= */ 1_000_000,
+        mediaPeriodId);
     audioRenderer.setCurrentStreamFinal();
     while (!audioRenderer.isEnded()) {
       audioRenderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0);
