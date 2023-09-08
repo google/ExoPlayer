@@ -19,6 +19,8 @@ import android.content.Context;
 import android.media.MediaFormat;
 import androidx.test.core.app.ApplicationProvider;
 import com.google.android.exoplayer2.audio.AudioProcessor;
+import com.google.android.exoplayer2.audio.ChannelMixingAudioProcessor;
+import com.google.android.exoplayer2.audio.ChannelMixingMatrix;
 import com.google.android.exoplayer2.audio.SonicAudioProcessor;
 import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -74,6 +76,17 @@ public final class TestUtil {
     SonicAudioProcessor sonicAudioProcessor = new SonicAudioProcessor();
     sonicAudioProcessor.setPitch(pitch);
     return sonicAudioProcessor;
+  }
+
+  public static ChannelMixingAudioProcessor createVolumeScalingAudioProcessor(float scale) {
+    ChannelMixingAudioProcessor audioProcessor = new ChannelMixingAudioProcessor();
+    for (int channel = 1; channel <= 6; channel++) {
+      audioProcessor.putChannelMixingMatrix(
+          ChannelMixingMatrix.create(
+                  /* inputChannelCount= */ channel, /* outputChannelCount= */ channel)
+              .scaleBy(scale));
+    }
+    return audioProcessor;
   }
 
   public static String getDumpFileName(String originalFileName, String... modifications) {
