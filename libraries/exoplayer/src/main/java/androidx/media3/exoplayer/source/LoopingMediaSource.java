@@ -35,8 +35,8 @@ import java.util.Map;
  *     instead of this class. To add a {@link MediaSource} a specific number of times to the
  *     playlist, use {@link ExoPlayer#addMediaSource} in a loop with the same {@link MediaSource}.
  *     To combine repeated {@link MediaSource} instances into one {@link MediaSource}, for example
- *     to further wrap it in another {@link MediaSource}, use {@link ConcatenatingMediaSource} with
- *     the same {@link MediaSource} {@link ConcatenatingMediaSource#addMediaSource added} multiple
+ *     to further wrap it in another {@link MediaSource}, use {@link ConcatenatingMediaSource2} with
+ *     the same {@link MediaSource} {@link ConcatenatingMediaSource2.Builder#add added} multiple
  *     times.
  */
 @Deprecated

@@ -47,10 +47,16 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Concatenates multiple {@link MediaSource}s. The list of {@link MediaSource}s can be modified
- * during playback. It is valid for the same {@link MediaSource} instance to be present more than
- * once in the concatenation. Access to this class is thread-safe.
+ * Concatenates multiple {@link MediaSource} instances. The list of {@link MediaSource} instances
+ * can be modified during playback. It is valid for the same {@link MediaSource} instance to be
+ * present more than once in the concatenation. Access to this class is thread-safe.
+ *
+ * @deprecated Use playlist modification methods like {@link
+ *     androidx.media3.common.Player#addMediaItem} instead. To combine multiple sources together as
+ *     one item or for further wrapping in other {@link MediaSource} instances, use {@link
+ *     ConcatenatingMediaSource2} instead.
  */
+@Deprecated
 @UnstableApi
 public final class ConcatenatingMediaSource extends CompositeMediaSource<MediaSourceHolder> {
 
