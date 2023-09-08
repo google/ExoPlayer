@@ -15,11 +15,12 @@
  */
 package com.google.android.exoplayer2.extractor.webp;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.extractor.Extractor;
 import com.google.android.exoplayer2.extractor.ExtractorInput;
 import com.google.android.exoplayer2.extractor.ExtractorOutput;
 import com.google.android.exoplayer2.extractor.PositionHolder;
-import com.google.android.exoplayer2.extractor.SingleSampleExtractorHelper;
+import com.google.android.exoplayer2.extractor.SingleSampleExtractor;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import java.io.IOException;
@@ -35,19 +36,19 @@ import java.io.IOException;
 @Deprecated
 public final class WebpExtractor implements Extractor {
 
-  // Documentation Reference:
+  // Documentation reference:
   // https://developers.google.com/speed/webp/docs/riff_container#webp_file_header
   private static final int FILE_SIGNATURE_SEGMENT_LENGTH = 4;
   private static final int RIFF_FILE_SIGNATURE = 0x52494646;
   private static final int WEBP_FILE_SIGNATURE = 0x57454250;
 
   private final ParsableByteArray scratch;
-  private final SingleSampleExtractorHelper imageExtractor;
+  private final SingleSampleExtractor imageExtractor;
 
   /** Creates an instance. */
   public WebpExtractor() {
     scratch = new ParsableByteArray(FILE_SIGNATURE_SEGMENT_LENGTH);
-    imageExtractor = new SingleSampleExtractorHelper();
+    imageExtractor = new SingleSampleExtractor(C.INDEX_UNSET, C.LENGTH_UNSET, MimeTypes.IMAGE_WEBP);
   }
 
   @Override
@@ -68,7 +69,7 @@ public final class WebpExtractor implements Extractor {
 
   @Override
   public void init(ExtractorOutput output) {
-    imageExtractor.init(output, MimeTypes.IMAGE_WEBP);
+    imageExtractor.init(output);
   }
 
   @Override
@@ -79,7 +80,7 @@ public final class WebpExtractor implements Extractor {
 
   @Override
   public void seek(long position, long timeUs) {
-    imageExtractor.seek(position);
+    imageExtractor.seek(position, timeUs);
   }
 
   @Override

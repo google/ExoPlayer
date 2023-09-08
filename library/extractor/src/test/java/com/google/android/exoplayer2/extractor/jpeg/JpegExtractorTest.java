@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
 
-/** Unit tests for {@link JpegExtractor}. */
+/** Unit tests for {@link JpegExtractorTest}. */
 @RunWith(ParameterizedRobolectricTestRunner.class)
 public final class JpegExtractorTest {
 
@@ -34,36 +34,62 @@ public final class JpegExtractorTest {
   public ExtractorAsserts.SimulationConfig simulationConfig;
 
   @Test
-  public void sampleNonMotionPhotoShortened() throws Exception {
+  public void sampleNonMotionPhotoShortened_extractImage() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        () -> new JpegExtractor(JpegExtractor.FLAG_READ_IMAGE),
+        "media/jpeg/non-motion-photo-shortened.jpg",
+        new ExtractorAsserts.AssertionConfig.Builder()
+            .setDumpFilesPrefix(
+                "extractordumps/jpeg/non-motion-photo-shortened.jpg_JpegExtractor.FLAG_READ_IMAGE")
+            .build(),
+        simulationConfig);
+  }
+
+  @Test
+  public void samplePixelMotionPhotoShortened_extractImage() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        () -> new JpegExtractor(JpegExtractor.FLAG_READ_IMAGE),
+        "media/jpeg/pixel-motion-photo-shortened.jpg",
+        new ExtractorAsserts.AssertionConfig.Builder()
+            .setDumpFilesPrefix(
+                "extractordumps/jpeg/pixel-motion-photo-shortened.jpg_JpegExtractor.FLAG_READ_IMAGE")
+            .build(),
+        simulationConfig);
+  }
+
+  @Test
+  public void sampleNonMotionPhotoShortened_extractMotionPhoto() throws Exception {
     ExtractorAsserts.assertBehavior(
         JpegExtractor::new, "media/jpeg/non-motion-photo-shortened.jpg", simulationConfig);
   }
 
   @Test
-  public void samplePixelMotionPhotoShortened() throws Exception {
+  public void samplePixelMotionPhotoShortened_extractMotionPhoto() throws Exception {
     ExtractorAsserts.assertBehavior(
         JpegExtractor::new, "media/jpeg/pixel-motion-photo-shortened.jpg", simulationConfig);
   }
 
   @Test
-  public void samplePixelMotionPhotoJfifSegmentShortened() throws Exception {
+  public void samplePixelMotionPhotoJfifSegmentShortened_extractMotionPhoto() throws Exception {
     ExtractorAsserts.assertBehavior(
-        JpegExtractor::new,
+        JpegMotionPhotoExtractor::new,
         "media/jpeg/pixel-motion-photo-jfif-segment-shortened.jpg",
         simulationConfig);
   }
 
   @Test
-  public void samplePixelMotionPhotoVideoRemovedShortened() throws Exception {
+  public void samplePixelMotionPhotoVideoRemovedShortened_extractMotionPhoto() throws Exception {
     ExtractorAsserts.assertBehavior(
-        JpegExtractor::new,
+        JpegMotionPhotoExtractor::new,
         "media/jpeg/pixel-motion-photo-video-removed-shortened.jpg",
         simulationConfig);
   }
 
   @Test
-  public void sampleSsMotionPhotoShortened() throws Exception {
+  public void sampleSsMotionPhotoShortened_extractMotionPhoto() throws Exception {
     ExtractorAsserts.assertBehavior(
-        JpegExtractor::new, "media/jpeg/ss-motion-photo-shortened.jpg", simulationConfig);
+        JpegMotionPhotoExtractor::new,
+        "media/jpeg/ss-motion-photo-shortened.jpg",
+        simulationConfig);
   }
 }
