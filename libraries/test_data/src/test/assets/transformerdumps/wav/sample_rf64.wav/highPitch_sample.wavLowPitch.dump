@@ -1,107 +1,107 @@
-format 0:
+format audio:
   averageBitrate = 131072
   sampleMimeType = audio/mp4a-latm
   channelCount = 2
   sampleRate = 48000
   pcmEncoding = 2
 sample:
-  trackIndex = 0
+  trackType = audio
   dataHashCode = -226169394
   size = 15528
   isKeyFrame = true
   presentationTimeUs = 0
 sample:
-  trackIndex = 0
+  trackType = audio
   dataHashCode = -1654106973
   size = 17436
   isKeyFrame = true
   presentationTimeUs = 80875
 sample:
-  trackIndex = 0
+  trackType = audio
   dataHashCode = 1078555669
   size = 19384
   isKeyFrame = true
   presentationTimeUs = 171687
 sample:
-  trackIndex = 0
+  trackType = audio
   dataHashCode = -1783495042
   size = 8904
   isKeyFrame = true
   presentationTimeUs = 272645
 sample:
-  trackIndex = 0
+  trackType = audio
   dataHashCode = 1369234850
   size = 5688
   isKeyFrame = true
   presentationTimeUs = 319020
 sample:
-  trackIndex = 0
+  trackType = audio
   dataHashCode = 711439073
   size = 14040
   isKeyFrame = true
   presentationTimeUs = 348645
 sample:
-  trackIndex = 0
+  trackType = audio
   dataHashCode = 804848209
   size = 15020
   isKeyFrame = true
   presentationTimeUs = 421770
 sample:
-  trackIndex = 0
+  trackType = audio
   dataHashCode = -95210289
   size = 22668
   isKeyFrame = true
   presentationTimeUs = 500000
 sample:
-  trackIndex = 0
+  trackType = audio
   dataHashCode = -416119019
   size = 20856
   isKeyFrame = true
   presentationTimeUs = 618062
 sample:
-  trackIndex = 0
+  trackType = audio
   dataHashCode = -2060733789
   size = 19976
   isKeyFrame = true
   presentationTimeUs = 726687
 sample:
-  trackIndex = 0
+  trackType = audio
   dataHashCode = 212454167
   size = 17192
   isKeyFrame = true
   presentationTimeUs = 830729
 sample:
-  trackIndex = 0
+  trackType = audio
   dataHashCode = 1298593295
   size = 15308
   isKeyFrame = true
   presentationTimeUs = 920270
 sample:
-  trackIndex = 0
+  trackType = audio
   dataHashCode = -1669619067
   size = 23564
   isKeyFrame = true
   presentationTimeUs = 1000000
 sample:
-  trackIndex = 0
+  trackType = audio
   dataHashCode = 636945085
   size = 18304
   isKeyFrame = true
   presentationTimeUs = 1122729
 sample:
-  trackIndex = 0
+  trackType = audio
   dataHashCode = -754285165
   size = 22232
   isKeyFrame = true
   presentationTimeUs = 1218062
 sample:
-  trackIndex = 0
+  trackType = audio
   dataHashCode = -1967816889
   size = 2856
   isKeyFrame = true
   presentationTimeUs = 1333854
 sample:
-  trackIndex = 0
+  trackType = audio
   dataHashCode = 1012987
   size = 4
   isKeyFrame = true

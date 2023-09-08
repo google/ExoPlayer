@@ -1,71 +1,71 @@
-format 0:
+format audio:
   averageBitrate = 131072
   sampleMimeType = audio/mp4a-latm
   channelCount = 1
   sampleRate = 44100
   pcmEncoding = 2
 sample:
-  trackIndex = 0
+  trackType = audio
   dataHashCode = -385202820
   size = 8820
   isKeyFrame = true
   presentationTimeUs = 0
 sample:
-  trackIndex = 0
+  trackType = audio
   dataHashCode = -361135248
   size = 8820
   isKeyFrame = true
   presentationTimeUs = 100000
 sample:
-  trackIndex = 0
+  trackType = audio
   dataHashCode = -1518413431
   size = 8820
   isKeyFrame = true
   presentationTimeUs = 200000
 sample:
-  trackIndex = 0
+  trackType = audio
   dataHashCode = -1956112362
   size = 8820
   isKeyFrame = true
   presentationTimeUs = 300000
 sample:
-  trackIndex = 0
+  trackType = audio
   dataHashCode = 1209498603
   size = 8820
   isKeyFrame = true
   presentationTimeUs = 400000
 sample:
-  trackIndex = 0
+  trackType = audio
   dataHashCode = 1880717174
   size = 8820
   isKeyFrame = true
   presentationTimeUs = 500000
 sample:
-  trackIndex = 0
+  trackType = audio
   dataHashCode = -615889148
   size = 8820
   isKeyFrame = true
   presentationTimeUs = 600000
 sample:
-  trackIndex = 0
+  trackType = audio
   dataHashCode = -2069551664
   size = 8820
   isKeyFrame = true
   presentationTimeUs = 700000
 sample:
-  trackIndex = 0
+  trackType = audio
   dataHashCode = 427443063
   size = 8820
   isKeyFrame = true
   presentationTimeUs = 800000
 sample:
-  trackIndex = 0
+  trackType = audio
   dataHashCode = 1770175633
   size = 8820
   isKeyFrame = true
   presentationTimeUs = 900000
 sample:
-  trackIndex = 0
+  trackType = audio
   dataHashCode = 1038969069
   size = 1604
   isKeyFrame = true
