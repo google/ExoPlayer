@@ -25,18 +25,22 @@ import com.google.common.base.Function;
 /** Wraps a {@link Format} to allow dumping it. */
 public final class DumpableFormat implements Dumper.Dumpable {
   private final Format format;
-  public final int index;
+  private final String tag;
 
   private static final Format DEFAULT_FORMAT = new Format.Builder().build();
 
   public DumpableFormat(Format format, int index) {
+    this(format, Integer.toString(index));
+  }
+
+  public DumpableFormat(Format format, String tag) {
     this.format = format;
-    this.index = index;
+    this.tag = tag;
   }
 
   @Override
   public void dump(Dumper dumper) {
-    dumper.startBlock("format " + index);
+    dumper.startBlock("format " + tag);
     addIfNonDefault(dumper, "averageBitrate", format -> format.averageBitrate);
     addIfNonDefault(dumper, "peakBitrate", format -> format.peakBitrate);
     addIfNonDefault(dumper, "id", format -> format.id);
@@ -90,13 +94,13 @@ public final class DumpableFormat implements Dumper.Dumpable {
       return false;
     }
     DumpableFormat that = (DumpableFormat) o;
-    return index == that.index && format.equals(that.format);
+    return tag.equals(that.tag) && format.equals(that.format);
   }
 
   @Override
   public int hashCode() {
     int result = format.hashCode();
-    result = 31 * result + index;
+    result = 31 * result + tag.hashCode();
     return result;
   }
 

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.transformer.TransformerUtil.getProcessedTrackType;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.util.SparseArray;
@@ -25,11 +26,15 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.testutil.DumpableFormat;
 import com.google.android.exoplayer2.testutil.Dumper;
 import com.google.android.exoplayer2.testutil.Dumper.Dumpable;
+import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A {@link Dumpable} {@link Muxer} implementation that supports dumping information about all
@@ -72,14 +77,19 @@ public final class CapturingMuxer implements Muxer, Dumpable {
   }
 
   private final Muxer wrappedMuxer;
-  private final SparseArray<ArrayList<DumpableSample>> dumpableSamplesByTrackIndex;
-  private final List<Dumpable> dumpables;
+  private final SparseArray<DumpableFormat> dumpableFormatByTrackType;
+  private final SparseArray<ArrayList<DumpableSample>> dumpableSamplesByTrackType;
+  private final Map<Integer, Integer> trackIndexToType;
+  private final ArrayList<Metadata> metadataList;
+  private boolean released;
 
   /** Creates a new test muxer. */
   private CapturingMuxer(Muxer wrappedMuxer) {
     this.wrappedMuxer = wrappedMuxer;
-    dumpableSamplesByTrackIndex = new SparseArray<>();
-    dumpables = new ArrayList<>();
+    dumpableSamplesByTrackType = new SparseArray<>();
+    dumpableFormatByTrackType = new SparseArray<>();
+    trackIndexToType = new HashMap<>();
+    metadataList = new ArrayList<>();
   }
 
   // Muxer implementation.
@@ -87,8 +97,14 @@ public final class CapturingMuxer implements Muxer, Dumpable {
   @Override
   public int addTrack(Format format) throws MuxerException {
     int trackIndex = wrappedMuxer.addTrack(format);
-    dumpables.add(new DumpableFormat(format, trackIndex));
-    dumpableSamplesByTrackIndex.append(trackIndex, new ArrayList<>());
+    @C.TrackType int trackType = getProcessedTrackType(format.sampleMimeType);
+
+    trackIndexToType.put(trackIndex, trackType);
+
+    dumpableFormatByTrackType.append(
+        trackType, new DumpableFormat(format, /* tag= */ Util.getTrackTypeString(trackType)));
+    dumpableSamplesByTrackType.append(trackType, new ArrayList<>());
+
     return trackIndex;
   }
 
@@ -96,11 +112,12 @@ public final class CapturingMuxer implements Muxer, Dumpable {
   public void writeSampleData(
       int trackIndex, ByteBuffer data, long presentationTimeUs, @C.BufferFlags int flags)
       throws MuxerException {
-    dumpableSamplesByTrackIndex
-        .get(trackIndex)
+    @C.TrackType int trackType = checkNotNull(trackIndexToType.get(trackIndex));
+    dumpableSamplesByTrackType
+        .get(trackType)
         .add(
             new DumpableSample(
-                trackIndex,
+                trackType,
                 data,
                 (flags & C.BUFFER_FLAG_KEY_FRAME) == C.BUFFER_FLAG_KEY_FRAME,
                 presentationTimeUs));
@@ -109,16 +126,13 @@ public final class CapturingMuxer implements Muxer, Dumpable {
 
   @Override
   public void addMetadata(Metadata metadata) {
-    dumpables.add(dumper -> dumper.add("container metadata", metadata));
+    metadataList.add(metadata);
     wrappedMuxer.addMetadata(metadata);
   }
 
   @Override
   public void release(boolean forCancellation) throws MuxerException {
-    for (int i = 0; i < dumpableSamplesByTrackIndex.size(); i++) {
-      dumpables.addAll(dumpableSamplesByTrackIndex.valueAt(i));
-    }
-    dumpables.add(dumper -> dumper.add("released", true));
+    released = true;
     wrappedMuxer.release(forCancellation);
   }
 
@@ -131,22 +145,38 @@ public final class CapturingMuxer implements Muxer, Dumpable {
 
   @Override
   public void dump(Dumper dumper) {
-    for (Dumpable dumpable : dumpables) {
-      dumpable.dump(dumper);
+    for (int i = 0; i < dumpableFormatByTrackType.size(); i++) {
+      dumpableFormatByTrackType.valueAt(i).dump(dumper);
     }
+
+    Collections.sort(metadataList, Comparator.comparing(Metadata::toString));
+    for (Metadata metadata : metadataList) {
+      dumper.add("container metadata", metadata);
+    }
+
+    for (int i = 0; i < dumpableSamplesByTrackType.size(); i++) {
+      for (DumpableSample sample : dumpableSamplesByTrackType.valueAt(i)) {
+        sample.dump(dumper);
+      }
+    }
+
+    dumper.add("released", released);
   }
 
   private static final class DumpableSample implements Dumpable {
 
-    private final int trackIndex;
+    private final @C.TrackType int trackType;
     private final long presentationTimeUs;
     private final boolean isKeyFrame;
     private final int sampleDataHashCode;
     private final int sampleSize;
 
     public DumpableSample(
-        int trackIndex, ByteBuffer sample, boolean isKeyFrame, long presentationTimeUs) {
-      this.trackIndex = trackIndex;
+        @C.TrackType int trackType,
+        ByteBuffer sample,
+        boolean isKeyFrame,
+        long presentationTimeUs) {
+      this.trackType = trackType;
       this.presentationTimeUs = presentationTimeUs;
       this.isKeyFrame = isKeyFrame;
       int initialPosition = sample.position();
@@ -161,7 +191,7 @@ public final class CapturingMuxer implements Muxer, Dumpable {
     public void dump(Dumper dumper) {
       dumper
           .startBlock("sample")
-          .add("trackIndex", trackIndex)
+          .add("trackType", Util.getTrackTypeString(trackType))
           .add("dataHashCode", sampleDataHashCode)
           .add("size", sampleSize)
           .add("isKeyFrame", isKeyFrame)
