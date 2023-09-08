@@ -18,6 +18,7 @@ package androidx.media3.muxer;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 import android.media.MediaCodec;
 import android.media.MediaCodec.BufferInfo;
@@ -339,9 +340,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
    * @return The mdat box extension amount in bytes.
    */
   private long getMdatExtensionAmount(long currentFileLength) {
+    // Don't extend by more than 1 GB at a time because the final trimming creates a "free" box that
+    // can be as big as this extension + the old "moov" box, but should be less than 2**31 - 1 bytes
+    // (because it is a compact "free" box and for simplicity its size is written as a signed
+    // integer). Therefore, to be conservative, a max extension of 1 GB was chosen.
     long minBytesToExtend = 500_000L;
+    long maxBytesToExtend = 1_000_000_000L;
     float extensionRatio = 0.2f;
-    return max(minBytesToExtend, (long) (extensionRatio * currentFileLength));
+
+    return min(
+        maxBytesToExtend, max(minBytesToExtend, (long) (extensionRatio * currentFileLength)));
   }
 
   private class Track implements TrackToken, Mp4MoovStructure.TrackMetadataProvider {
