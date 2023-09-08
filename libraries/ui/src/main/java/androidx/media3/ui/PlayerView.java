@@ -1113,10 +1113,11 @@ public class PlayerView extends FrameLayout implements AdViewProvider {
   }
 
   /**
-   * Sets whether the time bar should show all windows, as opposed to just the current one.
-   *
-   * @param showMultiWindowTimeBar Whether to show all windows.
+   * @deprecated Replace multi-window time bar display by merging source windows together instead,
+   *     for example using ExoPlayer's {@code ConcatenatingMediaSource2}.
    */
+  @SuppressWarnings("deprecation") // Forwarding to deprecated method.
+  @Deprecated
   @UnstableApi
   public void setShowMultiWindowTimeBar(boolean showMultiWindowTimeBar) {
     Assertions.checkStateNotNull(controller);
