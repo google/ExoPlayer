@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.robolectric.PlaybackOutput;
 import com.google.android.exoplayer2.robolectric.ShadowMediaCodecConfig;
 import com.google.android.exoplayer2.robolectric.TestPlayerRunHelper;
+import com.google.android.exoplayer2.source.ConcatenatingMediaSource2;
 import com.google.android.exoplayer2.testutil.CapturingRenderersFactory;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.testutil.FakeClock;
@@ -71,7 +72,7 @@ public final class ClippingPlaylistPlaybackTest {
       ShadowMediaCodecConfig.forAllSupportedMimeTypes();
 
   @Test
-  public void test() throws Exception {
+  public void playbackWithClippingMediaSources() throws Exception {
     Context applicationContext = ApplicationProvider.getApplicationContext();
     CapturingRenderersFactory capturingRenderersFactory =
         new CapturingRenderersFactory(applicationContext);
@@ -107,6 +108,61 @@ public final class ClippingPlaylistPlaybackTest {
     player.release();
     surface.release();
 
+    DumpFileAsserts.assertOutput(
+        applicationContext,
+        playbackOutput,
+        "playbackdumps/clipping/" + firstItemConfig.name + "_" + secondItemConfig.name + ".dump");
+  }
+
+  @Test
+  public void playbackWithClippingMediaSourcesInConcatenatingMediaSource2() throws Exception {
+    Context applicationContext = ApplicationProvider.getApplicationContext();
+    CapturingRenderersFactory capturingRenderersFactory =
+        new CapturingRenderersFactory(applicationContext);
+    ExoPlayer player =
+        new ExoPlayer.Builder(applicationContext, capturingRenderersFactory)
+            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
+            .build();
+    Surface surface = new Surface(new SurfaceTexture(/* texName= */ 1));
+    player.setVideoSurface(surface);
+    PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
+
+    player.addMediaSource(
+        new ConcatenatingMediaSource2.Builder()
+            .useDefaultMediaSourceFactory(applicationContext)
+            .add(
+                new MediaItem.Builder()
+                    .setUri(TEST_MP4_URI)
+                    .setClippingConfiguration(
+                        new MediaItem.ClippingConfiguration.Builder()
+                            .setStartPositionMs(firstItemConfig.startMs)
+                            .setEndPositionMs(firstItemConfig.endMs)
+                            .build())
+                    .build(),
+                /* initialPlaceholderDurationMs= */ firstItemConfig.endMs == C.TIME_END_OF_SOURCE
+                    ? 1
+                    : C.TIME_UNSET)
+            .add(
+                new MediaItem.Builder()
+                    .setUri(TEST_MP4_URI)
+                    .setClippingConfiguration(
+                        new MediaItem.ClippingConfiguration.Builder()
+                            .setStartPositionMs(secondItemConfig.startMs)
+                            .setEndPositionMs(secondItemConfig.endMs)
+                            .build())
+                    .build(),
+                /* initialPlaceholderDurationMs= */ secondItemConfig.endMs == C.TIME_END_OF_SOURCE
+                    ? 1
+                    : C.TIME_UNSET)
+            .build());
+    player.prepare();
+    player.play();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
+    player.release();
+    surface.release();
+
+    // Intentionally uses the same dump files as for the test above because the renderer output
+    // should not be affected by combining all sources in a ConcatenatingMediaSource2.
     DumpFileAsserts.assertOutput(
         applicationContext,
         playbackOutput,
