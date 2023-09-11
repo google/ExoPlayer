@@ -617,9 +617,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
           e = e.copyWithMediaPeriodId(readingPeriod.info.id);
         }
       }
-      if (e.isRecoverable && pendingRecoverableRendererError == null) {
+      if (e.isRecoverable
+          && (pendingRecoverableRendererError == null
+              || e.errorCode == PlaybackException.ERROR_CODE_AUDIO_TRACK_OFFLOAD_WRITE_FAILED)) {
+        // If pendingRecoverableRendererError != null and error was
+        // ERROR_CODE_AUDIO_TRACK_OFFLOAD_WRITE_FAILED then upon retry, renderer will attempt with
+        // offload disabled.
         Log.w(TAG, "Recoverable renderer error", e);
-        pendingRecoverableRendererError = e;
+        if (pendingRecoverableRendererError != null) {
+          pendingRecoverableRendererError.addSuppressed(e);
+          e = pendingRecoverableRendererError;
+        } else {
+          pendingRecoverableRendererError = e;
+        }
         // Given that the player is now in an unhandled exception state, the error needs to be
         // recovered or the player stopped before any other message is handled.
         handler.sendMessageAtFrontOfQueue(

@@ -755,7 +755,13 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
           e, inputFormat, e.isRecoverable, PlaybackException.ERROR_CODE_AUDIO_TRACK_INIT_FAILED);
     } catch (WriteException e) {
       throw createRendererException(
-          e, format, e.isRecoverable, PlaybackException.ERROR_CODE_AUDIO_TRACK_WRITE_FAILED);
+          e,
+          format,
+          e.isRecoverable,
+          isBypassEnabled()
+                  && getConfiguration().offloadModePreferred != AudioSink.OFFLOAD_MODE_DISABLED
+              ? PlaybackException.ERROR_CODE_AUDIO_TRACK_OFFLOAD_WRITE_FAILED
+              : PlaybackException.ERROR_CODE_AUDIO_TRACK_WRITE_FAILED);
     }
 
     if (fullyConsumed) {
@@ -775,7 +781,12 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
       audioSink.playToEndOfStream();
     } catch (AudioSink.WriteException e) {
       throw createRendererException(
-          e, e.format, e.isRecoverable, PlaybackException.ERROR_CODE_AUDIO_TRACK_WRITE_FAILED);
+          e,
+          e.format,
+          e.isRecoverable,
+          isBypassEnabled()
+              ? PlaybackException.ERROR_CODE_AUDIO_TRACK_OFFLOAD_WRITE_FAILED
+              : PlaybackException.ERROR_CODE_AUDIO_TRACK_WRITE_FAILED);
     }
   }
 
