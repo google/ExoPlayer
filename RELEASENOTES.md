@@ -33,6 +33,8 @@
     *   Add `media3.extractor.heif.HeifExtractor`.
 *   Audio:
     *   Add support for Opus gapless metadata during offload playback.
+    *   Allow renderer recovery by disabling offload if failed at first write
+        ([#627](https://github.com/androidx/media/issues/627)).
 *   Video:
 *   Text:
 *   Metadata:
