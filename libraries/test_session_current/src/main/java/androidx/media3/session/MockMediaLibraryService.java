@@ -53,7 +53,6 @@ import static androidx.media3.test.session.common.MediaBrowserConstants.SUBSCRIB
 import static androidx.media3.test.session.common.MediaBrowserConstants.SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE;
 import static androidx.media3.test.session.common.MediaBrowserConstants.SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE_WITH_NON_SUBSCRIBED_ID;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.junit.Assert.fail;
 
 import android.app.PendingIntent;
 import android.app.Service;
@@ -523,7 +522,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
       testArtworkData =
           TestUtils.getByteArrayForScaledBitmap(getApplicationContext(), TEST_IMAGE_PATH);
     } catch (IOException e) {
-      fail(e.getMessage());
+      throw new IllegalStateException(e);
     }
     return testArtworkData;
   }
