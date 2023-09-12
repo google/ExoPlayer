@@ -133,17 +133,7 @@ import java.util.concurrent.Executor;
    * <p>This method must be called at most once.
    */
   @Override
-  public void initialize() {
-    // Initialization is deferred to createInput().
-  }
-
-  /**
-   * {@inheritDoc}
-   *
-   * <p>This method must only be called once.
-   */
-  @Override
-  public GraphInput createInput() throws VideoFrameProcessingException {
+  public void initialize() throws VideoFrameProcessingException {
     checkStateNotNull(videoFrameProcessingWrapper == null && !released);
 
     videoFrameProcessingWrapper =
@@ -193,7 +183,12 @@ import java.util.concurrent.Executor;
             renderFramesAutomatically,
             presentation,
             initialTimestampOffsetUs);
-    return videoFrameProcessingWrapper;
+  }
+
+  /** Returns the {@link GraphInput}. */
+  @Override
+  public GraphInput getInput() {
+    return checkNotNull(videoFrameProcessingWrapper);
   }
 
   @Override
