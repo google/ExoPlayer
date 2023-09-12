@@ -15,6 +15,7 @@
  */
 package androidx.media3.effect;
 
+import static androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
@@ -86,22 +87,14 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     /** A builder for {@link DefaultVideoFrameProcessor.Factory} instances. */
     public static final class Builder {
       private boolean enableColorTransfers;
-      @Nullable private ExecutorService executorService;
       private @MonotonicNonNull GlObjectsProvider glObjectsProvider;
+      private @MonotonicNonNull ExecutorService executorService;
       private GlTextureProducer.@MonotonicNonNull Listener textureOutputListener;
       private int textureOutputCapacity;
 
       /** Creates an instance. */
       public Builder() {
         enableColorTransfers = true;
-      }
-
-      private Builder(Factory factory) {
-        enableColorTransfers = factory.enableColorTransfers;
-        executorService = factory.executorService;
-        glObjectsProvider = factory.glObjectsProvider;
-        textureOutputListener = factory.textureOutputListener;
-        textureOutputCapacity = factory.textureOutputCapacity;
       }
 
       /**
@@ -129,18 +122,18 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       /**
        * Sets the {@link Util#newSingleThreadScheduledExecutor} to execute GL commands from.
        *
-       * <p>If set to a non-null value, the {@link ExecutorService} must be {@linkplain
-       * ExecutorService#shutdown shut down} by the caller after all {@linkplain VideoFrameProcessor
-       * VideoFrameProcessors} using it have been {@linkplain #release released}.
+       * <p>If set, the {@link ExecutorService} must be {@linkplain ExecutorService#shutdown shut
+       * down} by the caller after all {@linkplain VideoFrameProcessor VideoFrameProcessors} using
+       * it have been {@linkplain #release released}.
        *
        * <p>The default value is a new {@link Util#newSingleThreadScheduledExecutor}, owned and
-       * {@link ExecutorService#shutdown} by the created {@link DefaultVideoFrameProcessor}. Setting
-       * a {@code null} {@link ExecutorService} is equivalent to using the default value.
+       * {@link ExecutorService#shutdown} by the created {@link DefaultVideoFrameProcessor}.
        *
        * @param executorService The {@link ExecutorService}.
        */
       @CanIgnoreReturnValue
-      public Builder setExecutorService(@Nullable ExecutorService executorService) {
+      @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
+      public Builder setExecutorService(ExecutorService executorService) {
         this.executorService = executorService;
         return this;
       }
@@ -163,6 +156,7 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
        * @param textureOutputCapacity The amount of output textures that may be allocated at a time
        *     before texture output blocks. Must be greater than or equal to 1.
        */
+      @VisibleForTesting
       @CanIgnoreReturnValue
       public Builder setTextureOutput(
           GlTextureProducer.Listener textureOutputListener,
@@ -201,10 +195,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       this.executorService = executorService;
       this.textureOutputListener = textureOutputListener;
       this.textureOutputCapacity = textureOutputCapacity;
-    }
-
-    public Builder buildUpon() {
-      return new Builder(this);
     }
 
     /**
@@ -276,7 +266,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
       boolean shouldShutdownExecutorService = executorService == null;
       ExecutorService instanceExecutorService =
           executorService == null ? Util.newSingleThreadExecutor(THREAD_NAME) : executorService;
-
       VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor =
           new VideoFrameProcessingTaskExecutor(
               instanceExecutorService, shouldShutdownExecutorService, listener::onError);
@@ -438,7 +427,6 @@ public final class DefaultVideoFrameProcessor implements VideoFrameProcessor {
     if (!inputStreamRegisteredCondition.isOpen()) {
       return false;
     }
-
     inputSwitcher.activeTextureManager().queueInputTexture(textureId, presentationTimeUs);
     return true;
   }

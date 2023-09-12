@@ -68,23 +68,14 @@ import java.util.concurrent.Executor;
      *
      * @param width The new output width in pixels.
      * @param height The new output width in pixels.
-     * @return A {@link SurfaceInfo} to which the {@link VideoGraph} renders to, or {@code null} if
-     *     the output is not needed.
+     * @return A {@link SurfaceInfo} to which {@link SingleInputVideoGraph} renders to, or {@code
+     *     null} if the output is not needed.
      */
-    // TODO - b/289985577: Consider returning void from this method.
     @Nullable
     SurfaceInfo onOutputSizeChanged(int width, int height);
 
-    /** Called after the {@link VideoGraph} has rendered its final output frame. */
+    /** Called after the {@link SingleInputVideoGraph} has rendered its final output frame. */
     void onEnded(long finalFramePresentationTimeUs);
-
-    /**
-     * Called when an exception occurs during video frame processing.
-     *
-     * <p>If this is called, the calling {@link VideoGraph} must immediately be {@linkplain
-     * #release() released}.
-     */
-    void onError(VideoFrameProcessingException exception);
   }
 
   /**
@@ -102,21 +93,15 @@ import java.util.concurrent.Executor;
    * <p>This method must be called after successfully {@linkplain #initialize() initializing} the
    * {@code VideoGraph}.
    *
-   * <p>This method must called exactly once for every input stream.
-   *
    * <p>If the method throws any {@link Exception}, the caller must call {@link #release}.
    */
-  GraphInput createInput() throws VideoFrameProcessingException;
+  GraphInput getInput() throws VideoFrameProcessingException;
 
   /**
    * Returns whether the {@code VideoGraph} has produced a frame with zero presentation timestamp.
    */
   boolean hasProducedFrameWithTimestampZero();
 
-  /**
-   * Releases the associated resources.
-   *
-   * <p>This {@code VideoGraph} instance must not be used after this method is called.
-   */
+  /** Releases the associated resources. */
   void release();
 }

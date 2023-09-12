@@ -782,10 +782,12 @@ public final class Transformer {
    * <p>This method is under development. A {@link Composition} must meet the following conditions:
    *
    * <ul>
+   *   <li>The composition must have at most one {@linkplain EditedMediaItemSequence sequence} with
+   *       video/image data. There are no restrictions on the number of audio sequences.
    *   <li>The {@linkplain Composition#effects composition effects} must contain no {@linkplain
    *       Effects#audioProcessors audio effects}.
-   *   <li>The video composition {@link Presentation} effect is applied after input streams are
-   *       composited. Other composition effects are ignored.
+   *   <li>The composition effects must either contain no {@linkplain Effects#videoEffects video
+   *       effects}, or exactly one {@link Presentation}.
    * </ul>
    *
    * <p>{@linkplain EditedMediaItemSequence Sequences} within the {@link Composition} must meet the
@@ -970,6 +972,11 @@ public final class Transformer {
   private void startInternal(
       Composition composition, MuxerWrapper muxerWrapper, ComponentListener componentListener) {
     checkArgument(composition.effects.audioProcessors.isEmpty());
+    // Only supports Presentation in video effects.
+    ImmutableList<Effect> videoEffects = composition.effects.videoEffects;
+    checkArgument(
+        videoEffects.isEmpty()
+            || (videoEffects.size() == 1 && videoEffects.get(0) instanceof Presentation));
     verifyApplicationThread();
     checkState(transformerInternal == null, "There is already an export in progress.");
     HandlerWrapper applicationHandler = clock.createHandler(looper, /* callback= */ null);
