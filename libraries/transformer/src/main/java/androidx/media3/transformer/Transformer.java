@@ -832,7 +832,9 @@ public final class Transformer {
   public void start(Composition composition, String path) {
     ComponentListener componentListener = new ComponentListener(composition);
     startInternal(
-        composition, new MuxerWrapper(path, muxerFactory, componentListener), componentListener);
+        composition,
+        new MuxerWrapper(path, muxerFactory, componentListener, MuxerWrapper.MUXER_MODE_DEFAULT),
+        componentListener);
   }
 
   /**
