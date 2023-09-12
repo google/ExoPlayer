@@ -98,7 +98,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   public void getRoot() throws Exception {
     // The MockMediaLibraryService gives MediaBrowserConstants.ROOT_ID as root ID, and
     // MediaBrowserConstants.ROOT_EXTRAS as extras.
-    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
+    connectAndWait(/* rootHints= */ Bundle.EMPTY);
 
     assertThat(browserCompat.getRoot()).isEqualTo(ROOT_ID);
     assertThat(
@@ -115,7 +115,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   @Test
   public void getItem_browsable() throws Exception {
     String mediaId = MEDIA_ID_GET_BROWSABLE_ITEM;
-    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
+    connectAndWait(/* rootHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
     AtomicReference<MediaItem> itemRef = new AtomicReference<>();
 
@@ -138,7 +138,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   @Test
   public void getItem_playable() throws Exception {
     String mediaId = MEDIA_ID_GET_PLAYABLE_ITEM;
-    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
+    connectAndWait(/* rootHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
     AtomicReference<MediaItem> itemRef = new AtomicReference<>();
 
@@ -161,7 +161,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   @Test
   public void getItem_metadata() throws Exception {
     String mediaId = MEDIA_ID_GET_ITEM_WITH_METADATA;
-    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
+    connectAndWait(/* rootHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
     AtomicReference<MediaItem> itemRef = new AtomicReference<>();
 
@@ -192,7 +192,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   @Test
   public void getItem_nullResult() throws Exception {
     String mediaId = "random_media_id";
-    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
+    connectAndWait(/* rootHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
     AtomicBoolean onItemLoadedCalled = new AtomicBoolean();
     AtomicReference<MediaItem> itemRef = new AtomicReference<>();
@@ -247,7 +247,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   @Test
   public void getChildren() throws Exception {
     String testParentId = PARENT_ID;
-    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
+    connectAndWait(/* rootHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
     AtomicReference<String> parentIdRef = new AtomicReference<>();
     AtomicReference<List<MediaItem>> childrenRef = new AtomicReference<>();
@@ -293,7 +293,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   @Test
   public void getChildren_withLongList() throws Exception {
     String testParentId = PARENT_ID_LONG_LIST;
-    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
+    connectAndWait(/* rootHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
     AtomicReference<String> parentIdRef = new AtomicReference<>();
     AtomicReference<List<MediaItem>> childrenRef = new AtomicReference<>();
@@ -334,7 +334,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
     int pageSize = 10;
     Bundle extras = new Bundle();
     extras.putString(testParentId, testParentId);
-    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
+    connectAndWait(/* rootHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
     Bundle option = new Bundle();
     option.putInt(MediaBrowserCompat.EXTRA_PAGE, page);
@@ -381,7 +381,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   @Test
   public void getChildren_authErrorResult() throws Exception {
     String testParentId = PARENT_ID_AUTH_EXPIRED_ERROR;
-    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
+    connectAndWait(/* rootHints= */ Bundle.EMPTY);
     CountDownLatch errorLatch = new CountDownLatch(1);
     AtomicReference<String> parentIdRefOnError = new AtomicReference<>();
 
@@ -433,7 +433,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   @Test
   public void getChildren_emptyResult() throws Exception {
     String testParentId = PARENT_ID_NO_CHILDREN;
-    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
+    connectAndWait(/* rootHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
     AtomicReference<List<MediaItem>> childrenRef = new AtomicReference<>();
 
@@ -456,7 +456,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   @Test
   public void getChildren_nullResult() throws Exception {
     String testParentId = PARENT_ID_ERROR;
-    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
+    connectAndWait(/* rootHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
     AtomicReference<String> parentIdRef = new AtomicReference<>();
     AtomicBoolean onChildrenLoadedWithBundleCalled = new AtomicBoolean();
@@ -524,7 +524,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
     AtomicReference<String> queryRef = new AtomicReference<>();
     AtomicReference<Bundle> extrasRef = new AtomicReference<>();
     AtomicReference<List<MediaItem>> itemsRef = new AtomicReference<>();
-    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
+    connectAndWait(/* rootHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
 
     browserCompat.search(
@@ -567,7 +567,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
     AtomicReference<String> queryRef = new AtomicReference<>();
     AtomicReference<Bundle> extrasRef = new AtomicReference<>();
     AtomicReference<List<MediaItem>> itemsRef = new AtomicReference<>();
-    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
+    connectAndWait(/* rootHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
 
     browserCompat.search(
@@ -602,7 +602,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
     AtomicReference<String> queryRef = new AtomicReference<>();
     AtomicReference<Bundle> extrasRef = new AtomicReference<>();
     AtomicReference<List<MediaItem>> itemsRef = new AtomicReference<>();
-    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
+    connectAndWait(/* rootHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
 
     browserCompat.search(
@@ -660,7 +660,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
     String testQuery = SEARCH_QUERY_ERROR;
     Bundle testExtras = new Bundle();
     testExtras.putString(testQuery, testQuery);
-    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
+    connectAndWait(/* rootHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
     AtomicReference<String> queryRef = new AtomicReference<>();
     AtomicReference<Bundle> extrasRef = new AtomicReference<>();
@@ -694,7 +694,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   public void customAction() throws Exception {
     Bundle testArgs = new Bundle();
     testArgs.putString("args_key", "args_value");
-    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
+    connectAndWait(/* rootHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
     AtomicReference<String> actionRef = new AtomicReference<>();
     AtomicReference<Bundle> extrasRef = new AtomicReference<>();
@@ -724,7 +724,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
   public void customAction_rejected() throws Exception {
     // This action will not be allowed by the library session.
     String testAction = "random_custom_action";
-    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
+    connectAndWait(/* rootHints= */ Bundle.EMPTY);
     CountDownLatch latch = new CountDownLatch(1);
 
     browserCompat.sendCustomAction(
@@ -755,7 +755,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest
 
   @Test
   public void rootBrowserHints_searchSupported_reportsSearchSupported() throws Exception {
-    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
+    connectAndWait(/* rootHints= */ Bundle.EMPTY);
 
     boolean isSearchSupported =
         browserCompat.getExtras().getBoolean(BROWSER_SERVICE_EXTRAS_KEY_SEARCH_SUPPORTED);

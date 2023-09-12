@@ -96,7 +96,7 @@ public class MediaBrowserCompatWithMediaSessionServiceTest {
 
   @Test
   public void connect() throws Exception {
-    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
+    connectAndWait(/* rootHints= */ Bundle.EMPTY);
     assertThat(connectionCallback.failedLatch.getCount()).isNotEqualTo(0);
   }
 
@@ -110,7 +110,7 @@ public class MediaBrowserCompatWithMediaSessionServiceTest {
 
   @Test
   public void getSessionToken() throws Exception {
-    connectAndWait(/* connectionHints= */ Bundle.EMPTY);
+    connectAndWait(/* rootHints= */ Bundle.EMPTY);
     MediaControllerCompat controller =
         new MediaControllerCompat(context, browserCompat.getSessionToken());
     assertThat(controller.getPackageName())
