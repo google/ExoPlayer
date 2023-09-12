@@ -41,7 +41,7 @@ MediaCodecAdapter (exotest.audio.ac4):
       timeUs = 1000000480000
       contents = length 520, hash FEE56928
     input buffer #13:
-      timeUs = 1000000519999
+      timeUs = 1000000520000
       contents = length 599, hash 41F496C5
     input buffer #14:
       timeUs = 1000000560000
@@ -117,7 +117,7 @@ MediaCodecAdapter (exotest.audio.ac4):
       size = 0
       rendered = false
     output buffer #13:
-      timeUs = 1000000519999
+      timeUs = 1000000520000
       size = 0
       rendered = false
     output buffer #14:
@@ -186,7 +186,7 @@ AudioSink:
     time = 1000000480000
     data = 1
   buffer #13:
-    time = 1000000519999
+    time = 1000000520000
     data = 1
   buffer #14:
     time = 1000000560000

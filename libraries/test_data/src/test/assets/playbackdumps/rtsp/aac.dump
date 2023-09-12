@@ -146,7 +146,7 @@ MediaCodecAdapter (exotest.audio.aac):
       timeUs = 1000001024000
       contents = length 30, hash E7FD80C4
     input buffer #48:
-      timeUs = 1000001044999
+      timeUs = 1000001045000
       contents = length 42, hash 79A5EBAC
     input buffer #49:
       timeUs = 1000001066000
@@ -290,10 +290,10 @@ MediaCodecAdapter (exotest.audio.aac):
       timeUs = 1000002048000
       contents = length 34, hash 16D99E00
     input buffer #96:
-      timeUs = 1000002068999
+      timeUs = 1000002069000
       contents = length 35, hash 1CE3D79C
     input buffer #97:
-      timeUs = 1000002089999
+      timeUs = 1000002090000
       contents = length 35, hash 552D9CF8
     input buffer #98:
       timeUs = 1000002112000
@@ -578,16 +578,16 @@ MediaCodecAdapter (exotest.audio.aac):
       timeUs = 1000004096000
       contents = length 942, hash E4FA1D93
     input buffer #192:
-      timeUs = 1000004116999
+      timeUs = 1000004117000
       contents = length 896, hash 3AD1120
     input buffer #193:
-      timeUs = 1000004137999
+      timeUs = 1000004138000
       contents = length 903, hash 5841ACE
     input buffer #194:
-      timeUs = 1000004159999
+      timeUs = 1000004160000
       contents = length 883, hash FCD9B32A
     input buffer #195:
-      timeUs = 1000004180999
+      timeUs = 1000004181000
       contents = length 945, hash A5D31FA1
     input buffer #196:
       timeUs = 1000004202000
@@ -1049,7 +1049,7 @@ MediaCodecAdapter (exotest.audio.aac):
       size = 0
       rendered = false
     output buffer #48:
-      timeUs = 1000001044999
+      timeUs = 1000001045000
       size = 0
       rendered = false
     output buffer #49:
@@ -1241,11 +1241,11 @@ MediaCodecAdapter (exotest.audio.aac):
       size = 0
       rendered = false
     output buffer #96:
-      timeUs = 1000002068999
+      timeUs = 1000002069000
       size = 0
       rendered = false
     output buffer #97:
-      timeUs = 1000002089999
+      timeUs = 1000002090000
       size = 0
       rendered = false
     output buffer #98:
@@ -1625,19 +1625,19 @@ MediaCodecAdapter (exotest.audio.aac):
       size = 0
       rendered = false
     output buffer #192:
-      timeUs = 1000004116999
+      timeUs = 1000004117000
       size = 0
       rendered = false
     output buffer #193:
-      timeUs = 1000004137999
+      timeUs = 1000004138000
       size = 0
       rendered = false
     output buffer #194:
-      timeUs = 1000004159999
+      timeUs = 1000004160000
       size = 0
       rendered = false
     output buffer #195:
-      timeUs = 1000004180999
+      timeUs = 1000004181000
       size = 0
       rendered = false
     output buffer #196:
@@ -2139,7 +2139,7 @@ AudioSink:
     time = 1000001024000
     data = 1
   buffer #48:
-    time = 1000001044999
+    time = 1000001045000
     data = 1
   buffer #49:
     time = 1000001066000
@@ -2283,10 +2283,10 @@ AudioSink:
     time = 1000002048000
     data = 1
   buffer #96:
-    time = 1000002068999
+    time = 1000002069000
     data = 1
   buffer #97:
-    time = 1000002089999
+    time = 1000002090000
     data = 1
   buffer #98:
     time = 1000002112000
@@ -2571,16 +2571,16 @@ AudioSink:
     time = 1000004096000
     data = 1
   buffer #192:
-    time = 1000004116999
+    time = 1000004117000
     data = 1
   buffer #193:
-    time = 1000004137999
+    time = 1000004138000
     data = 1
   buffer #194:
-    time = 1000004159999
+    time = 1000004160000
     data = 1
   buffer #195:
-    time = 1000004180999
+    time = 1000004181000
     data = 1
   buffer #196:
     time = 1000004202000

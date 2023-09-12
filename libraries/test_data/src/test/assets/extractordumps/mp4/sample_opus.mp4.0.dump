@@ -230,11 +230,11 @@ track 0:
     flags = 1
     data = length 3, hash 4732
   sample 52:
-    time = 513499
+    time = 513500
     flags = 1
     data = length 3, hash 4732
   sample 53:
-    time = 523499
+    time = 523500
     flags = 1
     data = length 3, hash 4732
   sample 54:
