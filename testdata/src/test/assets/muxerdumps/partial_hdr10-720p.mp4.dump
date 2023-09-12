@@ -606,7 +606,7 @@ track 1:
     flags = 1
     data = length 685, hash 564F62A
   sample 47:
-    time = 1045624
+    time = 1045625
     flags = 1
     data = length 691, hash 71BBA88D
   sample 48:
@@ -798,7 +798,7 @@ track 1:
     flags = 1
     data = length 664, hash A9D0717
   sample 95:
-    time = 2069624
+    time = 2069625
     flags = 1
     data = length 672, hash 6F2663EA
   sample 96:
@@ -1178,7 +1178,7 @@ track 1:
     flags = 1
     data = length 822, hash 2A045560
   sample 190:
-    time = 4096249
+    time = 4096250
     flags = 1
     data = length 643, hash 551E7C72
   sample 191:

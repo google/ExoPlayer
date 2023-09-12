@@ -90,6 +90,8 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.Commands;
 import com.google.common.base.Ascii;
 import com.google.common.base.Charsets;
+import com.google.common.math.DoubleMath;
+import com.google.common.math.LongMath;
 import com.google.common.util.concurrent.AsyncFunction;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -102,6 +104,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayDeque;
@@ -1468,7 +1471,7 @@ public final class Util {
    * @return The total duration, in microseconds, of {@code sampleCount} samples.
    */
   public static long sampleCountToDurationUs(long sampleCount, int sampleRate) {
-    return (sampleCount * C.MICROS_PER_SECOND) / sampleRate;
+    return scaleLargeValue(sampleCount, C.MICROS_PER_SECOND, sampleRate, RoundingMode.FLOOR);
   }
 
   /**
@@ -1484,7 +1487,7 @@ public final class Util {
    * @return The number of samples required to represent {@code durationUs}.
    */
   public static long durationUsToSampleCount(long durationUs, int sampleRate) {
-    return Util.ceilDivide(durationUs * sampleRate, C.MICROS_PER_SECOND);
+    return scaleLargeValue(durationUs, sampleRate, C.MICROS_PER_SECOND, RoundingMode.CEILING);
   }
 
   /**
@@ -1576,10 +1579,209 @@ public final class Util {
   }
 
   /**
+   * Scales a large value by a multiplier and a divisor.
+   *
+   * <p>The order of operations in this implementation is designed to minimize the probability of
+   * overflow. The implementation tries to stay in integer arithmetic as long as possible, but falls
+   * through to floating-point arithmetic if the values can't be combined without overflowing signed
+   * 64-bit longs.
+   *
+   * <p>If the mathematical result would overflow or underflow a 64-bit long, the result will be
+   * either {@link Long#MAX_VALUE} or {@link Long#MIN_VALUE}, respectively.
+   *
+   * @param value The value to scale.
+   * @param multiplier The multiplier.
+   * @param divisor The divisor.
+   * @param roundingMode The rounding mode to use if the result of the division is not an integer.
+   * @return The scaled value.
+   */
+  // LongMath.saturatedMultiply is @Beta in the version of Guava we currently depend on (31.1)
+  // but it is no longer @Beta from 32.0.0. This suppression is therefore safe because there's
+  // no version of Guava after 31.1 that doesn't contain this symbol.
+  // TODO(b/290045069): Remove this suppression when we depend on Guava 32+.
+  @SuppressWarnings("UnstableApiUsage")
+  public static long scaleLargeValue(
+      long value, long multiplier, long divisor, RoundingMode roundingMode) {
+    if (value == 0 || multiplier == 0) {
+      return 0;
+    }
+    if (divisor >= multiplier && (divisor % multiplier) == 0) {
+      long divisionFactor = LongMath.divide(divisor, multiplier, RoundingMode.UNNECESSARY);
+      return LongMath.divide(value, divisionFactor, roundingMode);
+    } else if (divisor < multiplier && (multiplier % divisor) == 0) {
+      long multiplicationFactor = LongMath.divide(multiplier, divisor, RoundingMode.UNNECESSARY);
+      return LongMath.saturatedMultiply(value, multiplicationFactor);
+    } else if (divisor >= value && (divisor % value) == 0) {
+      long divisionFactor = LongMath.divide(divisor, value, RoundingMode.UNNECESSARY);
+      return LongMath.divide(multiplier, divisionFactor, roundingMode);
+    } else if (divisor < value && (value % divisor) == 0) {
+      long multiplicationFactor = LongMath.divide(value, divisor, RoundingMode.UNNECESSARY);
+      return LongMath.saturatedMultiply(multiplier, multiplicationFactor);
+    } else {
+      return scaleLargeValueFallback(value, multiplier, divisor, roundingMode);
+    }
+  }
+
+  /**
+   * Applies {@link #scaleLargeValue(long, long, long, RoundingMode)} to a list of unscaled values.
+   *
+   * @param values The values to scale.
+   * @param multiplier The multiplier.
+   * @param divisor The divisor.
+   * @param roundingMode The rounding mode to use if the result of the division is not an integer.
+   * @return The scaled values.
+   */
+  // LongMath.saturatedMultiply is @Beta in the version of Guava we currently depend on (31.1)
+  // but it is no longer @Beta from 32.0.0. This suppression is therefore safe because there's
+  // no version of Guava after 31.1 that doesn't contain this symbol.
+  // TODO(b/290045069): Remove this suppression when we depend on Guava 32+.
+  @SuppressWarnings("UnstableApiUsage")
+  public static long[] scaleLargeValues(
+      List<Long> values, long multiplier, long divisor, RoundingMode roundingMode) {
+    long[] result = new long[values.size()];
+    if (multiplier == 0) {
+      // Array is initialized with all zeroes by default.
+      return result;
+    }
+    if (divisor >= multiplier && (divisor % multiplier) == 0) {
+      long divisionFactor = LongMath.divide(divisor, multiplier, RoundingMode.UNNECESSARY);
+      for (int i = 0; i < result.length; i++) {
+        result[i] = LongMath.divide(values.get(i), divisionFactor, roundingMode);
+      }
+      return result;
+    } else if (divisor < multiplier && (multiplier % divisor) == 0) {
+      long multiplicationFactor = LongMath.divide(multiplier, divisor, RoundingMode.UNNECESSARY);
+      for (int i = 0; i < result.length; i++) {
+        result[i] = LongMath.saturatedMultiply(values.get(i), multiplicationFactor);
+      }
+      return result;
+    } else {
+      for (int i = 0; i < result.length; i++) {
+        long value = values.get(i);
+        if (value == 0) {
+          // Array is initialized with all zeroes by default.
+          continue;
+        }
+        if (divisor >= value && (divisor % value) == 0) {
+          long divisionFactor = LongMath.divide(divisor, value, RoundingMode.UNNECESSARY);
+          result[i] = LongMath.divide(multiplier, divisionFactor, roundingMode);
+        } else if (divisor < value && (value % divisor) == 0) {
+          long multiplicationFactor = LongMath.divide(value, divisor, RoundingMode.UNNECESSARY);
+          result[i] = LongMath.saturatedMultiply(multiplier, multiplicationFactor);
+        } else {
+          result[i] = scaleLargeValueFallback(value, multiplier, divisor, roundingMode);
+        }
+      }
+      return result;
+    }
+  }
+
+  /**
+   * Applies {@link #scaleLargeValue(long, long, long, RoundingMode)} to an array of unscaled
+   * values.
+   *
+   * @param values The values to scale.
+   * @param multiplier The multiplier.
+   * @param divisor The divisor.
+   * @param roundingMode The rounding mode to use if the result of the division is not an integer.
+   */
+  public static void scaleLargeValuesInPlace(
+      long[] values, long multiplier, long divisor, RoundingMode roundingMode) {
+    if (multiplier == 0) {
+      Arrays.fill(values, 0);
+      return;
+    }
+    if (divisor >= multiplier && (divisor % multiplier) == 0) {
+      long divisionFactor = LongMath.divide(divisor, multiplier, RoundingMode.UNNECESSARY);
+      for (int i = 0; i < values.length; i++) {
+        values[i] = LongMath.divide(values[i], divisionFactor, roundingMode);
+      }
+    } else if (divisor < multiplier && (multiplier % divisor) == 0) {
+      long multiplicationFactor = LongMath.divide(multiplier, divisor, RoundingMode.UNNECESSARY);
+      for (int i = 0; i < values.length; i++) {
+        values[i] = LongMath.saturatedMultiply(values[i], multiplicationFactor);
+      }
+    } else {
+      for (int i = 0; i < values.length; i++) {
+        if (values[i] == 0) {
+          continue;
+        }
+        if (divisor >= values[i] && (divisor % values[i]) == 0) {
+          long divisionFactor = LongMath.divide(divisor, values[i], RoundingMode.UNNECESSARY);
+          values[i] = LongMath.divide(multiplier, divisionFactor, roundingMode);
+        } else if (divisor < values[i] && (values[i] % divisor) == 0) {
+          long multiplicationFactor = LongMath.divide(values[i], divisor, RoundingMode.UNNECESSARY);
+          values[i] = LongMath.saturatedMultiply(multiplier, multiplicationFactor);
+        } else {
+          values[i] = scaleLargeValueFallback(values[i], multiplier, divisor, roundingMode);
+        }
+      }
+    }
+  }
+
+  /**
+   * Scales a large value by a multiplier and a divisor.
+   *
+   * <p>If naively multiplying {@code value} and {@code multiplier} will overflow a 64-bit long,
+   * this implementation uses {@link LongMath#gcd(long, long)} to try and simplify the fraction
+   * before computing the result. If simplifying is not possible (or the simplified result will
+   * still result in an overflow) then the implementation falls back to floating-point arithmetic.
+   *
+   * <p>If the mathematical result would overflow or underflow a 64-bit long, the result will be
+   * either {@link Long#MAX_VALUE} or {@link Long#MIN_VALUE}, respectively.
+   *
+   * <p>This implementation should be used after simpler simplifying efforts have failed (such as
+   * checking if {@code value} or {@code multiplier} are exact multiples of {@code divisor}).
+   */
+  // LongMath.saturatedMultiply is @Beta in the version of Guava we currently depend on (31.1)
+  // but it is no longer @Beta from 32.0.0. This suppression is therefore safe because there's
+  // no version of Guava after 31.1 that doesn't contain this symbol.
+  // TODO(b/290045069): Remove this suppression when we depend on Guava 32+.
+  @SuppressWarnings("UnstableApiUsage")
+  private static long scaleLargeValueFallback(
+      long value, long multiplier, long divisor, RoundingMode roundingMode) {
+    long numerator = LongMath.saturatedMultiply(value, multiplier);
+    if (numerator != Long.MAX_VALUE && numerator != Long.MIN_VALUE) {
+      return LongMath.divide(numerator, divisor, roundingMode);
+    } else {
+      // Directly multiplying value and multiplier will overflow a long, so we try and cancel
+      // with GCD and try directly multiplying again below. If that still overflows we fall
+      // through to floating point arithmetic.
+      long gcdOfMultiplierAndDivisor = LongMath.gcd(multiplier, divisor);
+      long simplifiedMultiplier =
+          LongMath.divide(multiplier, gcdOfMultiplierAndDivisor, RoundingMode.UNNECESSARY);
+      long simplifiedDivisor =
+          LongMath.divide(divisor, gcdOfMultiplierAndDivisor, RoundingMode.UNNECESSARY);
+      long gcdOfValueAndSimplifiedDivisor = LongMath.gcd(value, simplifiedDivisor);
+      long simplifiedValue =
+          LongMath.divide(value, gcdOfValueAndSimplifiedDivisor, RoundingMode.UNNECESSARY);
+      simplifiedDivisor =
+          LongMath.divide(
+              simplifiedDivisor, gcdOfValueAndSimplifiedDivisor, RoundingMode.UNNECESSARY);
+      long simplifiedNumerator = LongMath.saturatedMultiply(simplifiedValue, simplifiedMultiplier);
+      if (simplifiedNumerator != Long.MAX_VALUE && simplifiedNumerator != Long.MIN_VALUE) {
+        return LongMath.divide(simplifiedNumerator, simplifiedDivisor, roundingMode);
+      } else {
+        double multiplicationFactor = (double) simplifiedMultiplier / simplifiedDivisor;
+        double result = simplifiedValue * multiplicationFactor;
+        // Clamp values that are too large to be represented by 64-bit signed long. If we don't
+        // explicitly clamp then DoubleMath.roundToLong will throw ArithmeticException.
+        if (result > Long.MAX_VALUE) {
+          return Long.MAX_VALUE;
+        } else if (result < Long.MIN_VALUE) {
+          return Long.MIN_VALUE;
+        } else {
+          return DoubleMath.roundToLong(result, roundingMode);
+        }
+      }
+    }
+  }
+
+  /**
    * Scales a large timestamp.
    *
-   * <p>Logically, scaling consists of a multiplication followed by a division. The actual
-   * operations performed are designed to minimize the probability of overflow.
+   * <p>Equivalent to {@link #scaleLargeValue(long, long, long, RoundingMode)} with {@link
+   * RoundingMode#FLOOR}.
    *
    * @param timestamp The timestamp to scale.
    * @param multiplier The multiplier.
@@ -1587,16 +1789,7 @@ public final class Util {
    * @return The scaled timestamp.
    */
   public static long scaleLargeTimestamp(long timestamp, long multiplier, long divisor) {
-    if (divisor >= multiplier && (divisor % multiplier) == 0) {
-      long divisionFactor = divisor / multiplier;
-      return timestamp / divisionFactor;
-    } else if (divisor < multiplier && (multiplier % divisor) == 0) {
-      long multiplicationFactor = multiplier / divisor;
-      return timestamp * multiplicationFactor;
-    } else {
-      double multiplicationFactor = (double) multiplier / divisor;
-      return (long) (timestamp * multiplicationFactor);
-    }
+    return scaleLargeValue(timestamp, multiplier, divisor, RoundingMode.FLOOR);
   }
 
   /**
@@ -1608,24 +1801,7 @@ public final class Util {
    * @return The scaled timestamps.
    */
   public static long[] scaleLargeTimestamps(List<Long> timestamps, long multiplier, long divisor) {
-    long[] scaledTimestamps = new long[timestamps.size()];
-    if (divisor >= multiplier && (divisor % multiplier) == 0) {
-      long divisionFactor = divisor / multiplier;
-      for (int i = 0; i < scaledTimestamps.length; i++) {
-        scaledTimestamps[i] = timestamps.get(i) / divisionFactor;
-      }
-    } else if (divisor < multiplier && (multiplier % divisor) == 0) {
-      long multiplicationFactor = multiplier / divisor;
-      for (int i = 0; i < scaledTimestamps.length; i++) {
-        scaledTimestamps[i] = timestamps.get(i) * multiplicationFactor;
-      }
-    } else {
-      double multiplicationFactor = (double) multiplier / divisor;
-      for (int i = 0; i < scaledTimestamps.length; i++) {
-        scaledTimestamps[i] = (long) (timestamps.get(i) * multiplicationFactor);
-      }
-    }
-    return scaledTimestamps;
+    return scaleLargeValues(timestamps, multiplier, divisor, RoundingMode.FLOOR);
   }
 
   /**
@@ -1636,22 +1812,7 @@ public final class Util {
    * @param divisor The divisor.
    */
   public static void scaleLargeTimestampsInPlace(long[] timestamps, long multiplier, long divisor) {
-    if (divisor >= multiplier && (divisor % multiplier) == 0) {
-      long divisionFactor = divisor / multiplier;
-      for (int i = 0; i < timestamps.length; i++) {
-        timestamps[i] /= divisionFactor;
-      }
-    } else if (divisor < multiplier && (multiplier % divisor) == 0) {
-      long multiplicationFactor = multiplier / divisor;
-      for (int i = 0; i < timestamps.length; i++) {
-        timestamps[i] *= multiplicationFactor;
-      }
-    } else {
-      double multiplicationFactor = (double) multiplier / divisor;
-      for (int i = 0; i < timestamps.length; i++) {
-        timestamps[i] = (long) (timestamps[i] * multiplicationFactor);
-      }
-    }
+    scaleLargeValuesInPlace(timestamps, multiplier, divisor, RoundingMode.FLOOR);
   }
 
   /**
