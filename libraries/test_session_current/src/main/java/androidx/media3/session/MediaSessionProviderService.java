@@ -454,6 +454,11 @@ public class MediaSessionProviderService extends Service {
           () -> {
             MediaSession session = sessionMap.get(sessionId);
             List<ControllerInfo> controllerInfos = MediaTestUtils.getTestControllerInfos(session);
+            if (controllerInfos.isEmpty()) {
+              Log.e(
+                  TAG,
+                  "No connected controllers to receive custom command. sessionId=" + sessionId);
+            }
             for (ControllerInfo info : controllerInfos) {
               session.sendCustomCommand(info, SessionCommand.CREATOR.fromBundle(command), args);
             }
@@ -476,6 +481,11 @@ public class MediaSessionProviderService extends Service {
           () -> {
             MediaSession session = sessionMap.get(sessionId);
             List<ControllerInfo> controllerInfos = MediaTestUtils.getTestControllerInfos(session);
+            if (controllerInfos.isEmpty()) {
+              Log.e(
+                  TAG,
+                  "No connected controllers to receive available commands. sessionId=" + sessionId);
+            }
             for (ControllerInfo info : controllerInfos) {
               session.setAvailableCommands(
                   info,
