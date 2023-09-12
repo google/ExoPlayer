@@ -92,7 +92,8 @@ import org.checkerframework.dataflow.qual.Pure;
       Consumer<ExportException> errorConsumer,
       FallbackListener fallbackListener,
       DebugViewProvider debugViewProvider,
-      long initialTimestampOffsetUs)
+      long initialTimestampOffsetUs,
+      boolean hasMultipleInputs)
       throws ExportException {
     // TODO(b/278259383) Consider delaying configuration of VideoSampleExporter to use the decoder
     //  output format instead of the extractor output format, to match AudioSampleExporter behavior.
@@ -151,7 +152,9 @@ import org.checkerframework.dataflow.qual.Pure;
       videoGraph =
           new VideoGraphWrapper(
               context,
-              new SingleInputVideoGraph.Factory(videoFrameProcessorFactory),
+              hasMultipleInputs
+                  ? new MultipleInputVideoGraph.Factory()
+                  : new SingleInputVideoGraph.Factory(videoFrameProcessorFactory),
               videoGraphInputColor,
               videoGraphOutputColor,
               errorConsumer,
@@ -167,7 +170,7 @@ import org.checkerframework.dataflow.qual.Pure;
   public GraphInput getInput(EditedMediaItem editedMediaItem, Format format)
       throws ExportException {
     try {
-      return videoGraph.getInput();
+      return videoGraph.createInput();
     } catch (VideoFrameProcessingException e) {
       throw ExportException.createForVideoFrameProcessingException(e);
     }
@@ -526,13 +529,18 @@ import org.checkerframework.dataflow.qual.Pure;
     }
 
     @Override
+    public void onError(VideoFrameProcessingException e) {
+      errorConsumer.accept(ExportException.createForVideoFrameProcessingException(e));
+    }
+
+    @Override
     public void initialize() throws VideoFrameProcessingException {
       videoGraph.initialize();
     }
 
     @Override
-    public GraphInput getInput() throws VideoFrameProcessingException {
-      return videoGraph.getInput();
+    public GraphInput createInput() throws VideoFrameProcessingException {
+      return videoGraph.createInput();
     }
 
     @Override

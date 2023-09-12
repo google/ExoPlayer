@@ -571,7 +571,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 fallbackListener));
 
       } else {
-        ImmutableList<Effect> compositionVideoEffects = composition.effects.videoEffects;
         // TODO(b/267301878): Pass firstAssetLoaderOutputFormat once surface creation not in VSP.
         assetLoaderInputTracker.registerSampleExporter(
             C.TRACK_TYPE_VIDEO,
@@ -579,14 +578,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 context,
                 firstAssetLoaderInputFormat,
                 transformationRequest,
-                compositionVideoEffects,
+                composition.effects.videoEffects,
                 videoFrameProcessorFactory,
                 encoderFactory,
                 muxerWrapper,
                 /* errorConsumer= */ this::onError,
                 fallbackListener,
                 debugViewProvider,
-                videoSampleTimestampOffsetUs));
+                videoSampleTimestampOffsetUs,
+                /* hasMultipleInputs= */ composition.sequences.size() > 1));
       }
     }
 
