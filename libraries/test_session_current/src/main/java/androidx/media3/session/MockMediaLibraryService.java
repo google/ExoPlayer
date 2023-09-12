@@ -155,16 +155,19 @@ public class MockMediaLibraryService extends MediaLibraryService {
       return (MediaLibrarySession) onGetSessionHandler.onGetSession(controllerInfo);
     }
 
-    MockPlayer player = new MockPlayer.Builder().setApplicationLooper(handler.getLooper()).build();
+    if (session == null) {
+      MockPlayer player =
+          new MockPlayer.Builder().setApplicationLooper(handler.getLooper()).build();
 
-    MediaLibrarySession.Callback callback = registry.getSessionCallback();
-    session =
-        new MediaLibrarySession.Builder(
-                MockMediaLibraryService.this,
-                player,
-                callback != null ? callback : new TestLibrarySessionCallback())
-            .setId(ID)
-            .build();
+      MediaLibrarySession.Callback callback = registry.getSessionCallback();
+      session =
+          new MediaLibrarySession.Builder(
+                  MockMediaLibraryService.this,
+                  player,
+                  callback != null ? callback : new TestLibrarySessionCallback())
+              .setId(ID)
+              .build();
+    }
     return session;
   }
 
