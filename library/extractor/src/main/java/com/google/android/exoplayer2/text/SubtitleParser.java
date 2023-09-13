@@ -68,7 +68,16 @@ public interface SubtitleParser {
     private static final OutputOptions ALL =
         new OutputOptions(C.TIME_UNSET, /* outputAllCues= */ false);
 
+    /**
+     * Cues after this time (inclusive) will be emitted first. Cues before this time might be
+     * emitted later, depending on {@link #outputAllCues}.
+     */
     public final long startTimeUs;
+
+    /**
+     * Whether to eventually emit all cues, or only those after {@link #startTimeUs}. Ignored if
+     * {@link #startTimeUs} is not set.
+     */
     public final boolean outputAllCues;
 
     private OutputOptions(long startTimeUs, boolean outputAllCues) {
