@@ -22,9 +22,11 @@ import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_DOLBY_VISION;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_H264;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_H265;
 import static com.google.android.exoplayer2.util.Util.SDK_INT;
+import static org.junit.Assume.assumeFalse;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.media.Image;
 import android.media.MediaFormat;
 import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
@@ -39,6 +41,8 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.effect.DefaultGlObjectsProvider;
 import com.google.android.exoplayer2.effect.ScaleAndRotateTransformation;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
+import com.google.android.exoplayer2.testutil.BitmapPixelTestUtil;
+import com.google.android.exoplayer2.testutil.VideoDecodingWrapper;
 import com.google.android.exoplayer2.util.GlObjectsProvider;
 import com.google.android.exoplayer2.util.GlUtil;
 import com.google.android.exoplayer2.util.Log;
@@ -46,6 +50,7 @@ import com.google.android.exoplayer2.util.MediaFormatUtil;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
+import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.FileWriter;
@@ -598,6 +603,27 @@ public final class AndroidTestUtil {
     testJson.put("skipReason", reason);
 
     writeTestSummaryToFile(context, testId, testJson);
+  }
+
+  public static ImmutableList<Bitmap> extractBitmapsFromVideo(Context context, String filePath)
+      throws IOException, InterruptedException {
+    // b/298599172 - runUntilComparisonFrameOrEnded fails on this device because reading decoder
+    //  output as a bitmap doesn't work.
+    assumeFalse(Util.SDK_INT == 21 && Ascii.toLowerCase(Util.MODEL).contains("nexus"));
+    ImmutableList.Builder<Bitmap> bitmaps = new ImmutableList.Builder<>();
+    try (VideoDecodingWrapper decodingWrapper =
+        new VideoDecodingWrapper(
+            context, filePath, /* comparisonInterval= */ 1, /* maxImagesAllowed= */ 1)) {
+      while (true) {
+        @Nullable Image image = decodingWrapper.runUntilComparisonFrameOrEnded();
+        if (image == null) {
+          break;
+        }
+        bitmaps.add(BitmapPixelTestUtil.createGrayscaleArgb8888BitmapFromYuv420888Image(image));
+        image.close();
+      }
+    }
+    return bitmaps.build();
   }
 
   /** A customizable forwarding {@link Codec.EncoderFactory} that forces encoding. */

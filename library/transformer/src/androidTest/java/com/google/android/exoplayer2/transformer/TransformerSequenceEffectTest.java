@@ -17,6 +17,7 @@
 
 package com.google.android.exoplayer2.transformer;
 
+import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_LUMA;
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceArgb8888;
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.maybeSaveTestBitmap;
 import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.readBitmap;
@@ -25,13 +26,12 @@ import static com.google.android.exoplayer2.transformer.AndroidTestUtil.JPG_PORT
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_PORTRAIT_ASSET_URI_STRING;
+import static com.google.android.exoplayer2.transformer.AndroidTestUtil.extractBitmapsFromVideo;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assume.assumeFalse;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.media.Image;
 import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -41,11 +41,8 @@ import com.google.android.exoplayer2.effect.OverlayEffect;
 import com.google.android.exoplayer2.effect.Presentation;
 import com.google.android.exoplayer2.effect.RgbFilter;
 import com.google.android.exoplayer2.effect.ScaleAndRotateTransformation;
-import com.google.android.exoplayer2.testutil.BitmapPixelTestUtil;
-import com.google.android.exoplayer2.testutil.VideoDecodingWrapper;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.Util;
-import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.List;
@@ -64,13 +61,6 @@ public final class TransformerSequenceEffectTest {
   private static final String OVERLAY_PNG_ASSET_PATH = "media/bitmap/input_images/media3test.png";
   private static final int EXPORT_WIDTH = 360;
   private static final int EXPORT_HEIGHT = 240;
-
-  /**
-   * Maximum allowed average pixel difference between bitmaps generated from luma values.
-   *
-   * @see BitmapPixelTestUtil#MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE
-   */
-  private static final float MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_LUMA = 8.0f;
 
   private final Context context = ApplicationProvider.getApplicationContext();
 
@@ -257,28 +247,7 @@ public final class TransformerSequenceEffectTest {
         .build();
   }
 
-  private static ImmutableList<Bitmap> extractBitmapsFromVideo(Context context, String filePath)
-      throws IOException, InterruptedException {
-    // b/298599172 - runUntilComparisonFrameOrEnded fails on this device because reading decoder
-    // output as a bitmap doesn't work.
-    assumeFalse(Util.SDK_INT == 21 && Ascii.toLowerCase(Util.MODEL).contains("nexus"));
-    ImmutableList.Builder<Bitmap> bitmaps = new ImmutableList.Builder<>();
-    try (VideoDecodingWrapper decodingWrapper =
-        new VideoDecodingWrapper(
-            context, filePath, /* comparisonInterval= */ 1, /* maxImagesAllowed= */ 1)) {
-      while (true) {
-        @Nullable Image image = decodingWrapper.runUntilComparisonFrameOrEnded();
-        if (image == null) {
-          break;
-        }
-        bitmaps.add(BitmapPixelTestUtil.createGrayscaleArgb8888BitmapFromYuv420888Image(image));
-        image.close();
-      }
-    }
-    return bitmaps.build();
-  }
-
-  private static void assertBitmapsMatchExpected(List<Bitmap> actualBitmaps, String testId)
+  static void assertBitmapsMatchExpected(List<Bitmap> actualBitmaps, String testId)
       throws IOException {
     for (int i = 0; i < actualBitmaps.size(); i++) {
       Bitmap actualBitmap = actualBitmaps.get(i);
