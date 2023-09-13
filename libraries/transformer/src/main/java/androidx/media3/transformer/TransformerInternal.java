@@ -16,6 +16,8 @@
 
 package androidx.media3.transformer;
 
+import static androidx.media3.common.C.TRACK_TYPE_AUDIO;
+import static androidx.media3.common.C.TRACK_TYPE_VIDEO;
 import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Util.contains;
@@ -558,7 +560,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           assetLoaderInputTracker.getAssetLoaderInputFormat(sequenceIndex, trackType);
       if (MimeTypes.isAudio(assetLoaderOutputFormat.sampleMimeType)) {
         assetLoaderInputTracker.registerSampleExporter(
-            C.TRACK_TYPE_AUDIO,
+            TRACK_TYPE_AUDIO,
             new AudioSampleExporter(
                 firstAssetLoaderInputFormat,
                 /* firstInputFormat= */ assetLoaderOutputFormat,
@@ -568,9 +570,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 encoderFactory,
                 muxerWrapper,
                 fallbackListener));
-
       } else {
-        ImmutableList<Effect> compositionVideoEffects = composition.effects.videoEffects;
         // TODO(b/267301878): Pass firstAssetLoaderOutputFormat once surface creation not in VSP.
         assetLoaderInputTracker.registerSampleExporter(
             C.TRACK_TYPE_VIDEO,
@@ -578,14 +578,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 context,
                 firstAssetLoaderInputFormat,
                 transformationRequest,
-                compositionVideoEffects,
+                composition.effects.videoEffects,
                 videoFrameProcessorFactory,
                 encoderFactory,
                 muxerWrapper,
                 /* errorConsumer= */ this::onError,
                 fallbackListener,
                 debugViewProvider,
-                videoSampleTimestampOffsetUs));
+                videoSampleTimestampOffsetUs,
+                /* hasMultipleInputs= */ assetLoaderInputTracker
+                    .hasMultipleConcurrentVideoTracks()));
       }
     }
 
@@ -659,7 +661,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       boolean shouldTranscode = false;
       if (!assetLoaderCanOutputEncoded) {
         shouldTranscode = true;
-      } else if (trackType == C.TRACK_TYPE_AUDIO) {
+      } else if (trackType == TRACK_TYPE_AUDIO) {
         shouldTranscode = shouldTranscodeAudio(inputFormat);
       } else if (trackType == C.TRACK_TYPE_VIDEO) {
         shouldTranscode = shouldTranscodeVideo(inputFormat);
@@ -891,7 +893,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       for (int i = 0; i < sequencesMetadata.size(); i++) {
         SparseArray<Format> trackTypeToFirstAssetLoaderInputFormat =
             sequencesMetadata.get(i).trackTypeToFirstAssetLoaderInputFormat;
-        if (contains(trackTypeToFirstAssetLoaderInputFormat, C.TRACK_TYPE_AUDIO)) {
+        if (contains(trackTypeToFirstAssetLoaderInputFormat, TRACK_TYPE_AUDIO)) {
           outputHasAudio = true;
         }
         if (contains(trackTypeToFirstAssetLoaderInputFormat, C.TRACK_TYPE_VIDEO)) {
@@ -899,6 +901,25 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         }
       }
       return (outputHasAudio ? 1 : 0) + (outputHasVideo ? 1 : 0);
+    }
+
+    /**
+     * Returns whether more than one {@link EditedMediaItemSequence EditedMediaItemSequences} have
+     * video tracks.
+     */
+    public boolean hasMultipleConcurrentVideoTracks() {
+      if (sequencesMetadata.size() < 2) {
+        return false;
+      }
+
+      int numberOfVideoTracks = 0;
+      for (int i = 0; i < sequencesMetadata.size(); i++) {
+        if (contains(
+            sequencesMetadata.get(i).trackTypeToFirstAssetLoaderInputFormat, TRACK_TYPE_VIDEO)) {
+          numberOfVideoTracks++;
+        }
+      }
+      return numberOfVideoTracks > 1;
     }
 
     /** Registers a {@link SampleExporter} for the given {@link C.TrackType trackType}. */
