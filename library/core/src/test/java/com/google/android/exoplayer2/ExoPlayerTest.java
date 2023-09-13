@@ -161,6 +161,7 @@ import com.google.android.exoplayer2.testutil.FakeTrackSelector;
 import com.google.android.exoplayer2.testutil.FakeVideoRenderer;
 import com.google.android.exoplayer2.testutil.TestExoPlayerBuilder;
 import com.google.android.exoplayer2.text.TextOutput;
+import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
 import com.google.android.exoplayer2.upstream.Allocation;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.Loader;
@@ -10188,53 +10189,118 @@ public final class ExoPlayerTest {
   }
 
   @Test
-  public void enableOffloadScheduling_isReported() throws Exception {
-    ExoPlayer player = new TestExoPlayerBuilder(context).build();
-    ExoPlayer.AudioOffloadListener mockListener = mock(ExoPlayer.AudioOffloadListener.class);
-    player.addAudioOffloadListener(mockListener);
-
-    player.experimentalSetOffloadSchedulingEnabled(true);
-    verify(mockListener).onExperimentalOffloadSchedulingEnabledChanged(true);
-
-    player.experimentalSetOffloadSchedulingEnabled(false);
-    verify(mockListener).onExperimentalOffloadSchedulingEnabledChanged(false);
-  }
-
-  @Test
-  public void enableOffloadScheduling_isEnable_playerSleeps() throws Exception {
+  public void enablingOffload_withAudioOnly_playerSleeps() throws Exception {
     FakeSleepRenderer sleepRenderer = new FakeSleepRenderer(C.TRACK_TYPE_AUDIO);
     ExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(sleepRenderer).build();
     Timeline timeline = new FakeTimeline();
     player.setMediaSource(new FakeMediaSource(timeline, ExoPlayerTestRunner.AUDIO_FORMAT));
-    player.experimentalSetOffloadSchedulingEnabled(true);
+    player.setTrackSelectionParameters(
+        player
+            .getTrackSelectionParameters()
+            .buildUpon()
+            .setAudioOffloadPreference(
+                TrackSelectionParameters.AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED,
+                /* isGaplessSupportRequired= */ false,
+                /* isSpeedChangeSupportRequired= */ false)
+            .build());
     player.prepare();
     player.play();
 
     sleepRenderer.sleepOnNextRender();
-
     runUntilSleepingForOffload(player, /* expectedSleepForOffload= */ true);
-    assertThat(player.experimentalIsSleepingForOffload()).isTrue();
+
+    assertThat(player.isSleepingForOffload()).isTrue();
 
     player.release();
   }
 
   @Test
-  public void
-      experimentalEnableOffloadSchedulingWhileSleepingForOffload_isDisabled_renderingResumes()
-          throws Exception {
+  public void enablingOffloadDuringPlayback_withAudioOnly_playerSleeps() throws Exception {
+    FakeSleepRenderer sleepRenderer = new FakeSleepRenderer(C.TRACK_TYPE_AUDIO);
+    ExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(sleepRenderer).build();
+    Timeline timeline = new FakeTimeline();
+    player.setMediaSource(new FakeMediaSource(timeline, ExoPlayerTestRunner.AUDIO_FORMAT));
+    player.prepare();
+    player.play();
+    runUntilPlaybackState(player, Player.STATE_READY);
+    sleepRenderer.sleepOnNextRender();
+
+    player.setTrackSelectionParameters(
+        player
+            .getTrackSelectionParameters()
+            .buildUpon()
+            .setAudioOffloadPreference(
+                TrackSelectionParameters.AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED,
+                /* isGaplessSupportRequired= */ false,
+                /* isSpeedChangeSupportRequired= */ false)
+            .build());
+    runUntilSleepingForOffload(player, /* expectedSleepForOffload= */ true);
+
+    assertThat(player.isSleepingForOffload()).isTrue();
+
+    player.release();
+  }
+
+  @Test
+  public void enableOffloadScheduling_whenPlayerSleeps_callsOnSleepingForOffloadChanged()
+      throws Exception {
+    FakeSleepRenderer sleepRenderer = new FakeSleepRenderer(C.TRACK_TYPE_AUDIO);
+    ExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(sleepRenderer).build();
+    ExoPlayer.AudioOffloadListener mockListener = mock(ExoPlayer.AudioOffloadListener.class);
+    player.addAudioOffloadListener(mockListener);
+    Timeline timeline = new FakeTimeline();
+    player.setMediaSource(new FakeMediaSource(timeline, ExoPlayerTestRunner.AUDIO_FORMAT));
+    player.setTrackSelectionParameters(
+        player
+            .getTrackSelectionParameters()
+            .buildUpon()
+            .setAudioOffloadPreference(
+                TrackSelectionParameters.AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED,
+                /* isGaplessSupportRequired= */ false,
+                /* isSpeedChangeSupportRequired= */ false)
+            .build());
+    player.prepare();
+    player.play();
+
+    sleepRenderer.sleepOnNextRender();
+    runUntilSleepingForOffload(player, /* expectedSleepForOffload= */ true);
+
+    verify(mockListener).onSleepingForOffloadChanged(true);
+
+    player.release();
+  }
+
+  @Test
+  public void enableOffloadScheduling_whenOffloadIsDisabled_renderingResumes() throws Exception {
     FakeSleepRenderer sleepRenderer = new FakeSleepRenderer(C.TRACK_TYPE_AUDIO).sleepOnNextRender();
     ExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(sleepRenderer).build();
     Timeline timeline = new FakeTimeline();
     player.setMediaSource(new FakeMediaSource(timeline, ExoPlayerTestRunner.AUDIO_FORMAT));
-    player.experimentalSetOffloadSchedulingEnabled(true);
+    player.setTrackSelectionParameters(
+        player
+            .getTrackSelectionParameters()
+            .buildUpon()
+            .setAudioOffloadPreference(
+                TrackSelectionParameters.AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED,
+                /* isGaplessSupportRequired= */ false,
+                /* isSpeedChangeSupportRequired= */ false)
+            .build());
     player.prepare();
     player.play();
     runUntilSleepingForOffload(player, /* expectedSleepForOffload= */ true);
 
-    player.experimentalSetOffloadSchedulingEnabled(false); // Force the player to exit offload sleep
+    player.setTrackSelectionParameters(
+        player
+            .getTrackSelectionParameters()
+            .buildUpon()
+            .setAudioOffloadPreference(
+                TrackSelectionParameters.AUDIO_OFFLOAD_MODE_PREFERENCE_DISABLED,
+                /* isGaplessSupportRequired= */ false,
+                /* isSpeedChangeSupportRequired= */ false)
+            .build());
 
     runUntilSleepingForOffload(player, /* expectedSleepForOffload= */ false);
-    assertThat(player.experimentalIsSleepingForOffload()).isFalse();
+    assertThat(player.isSleepingForOffload()).isFalse();
     runUntilPlaybackState(player, Player.STATE_ENDED);
 
     player.release();
@@ -10246,22 +10312,29 @@ public final class ExoPlayerTest {
     ExoPlayer player = new TestExoPlayerBuilder(context).setRenderers(sleepRenderer).build();
     Timeline timeline = new FakeTimeline();
     player.setMediaSource(new FakeMediaSource(timeline, ExoPlayerTestRunner.AUDIO_FORMAT));
-    player.experimentalSetOffloadSchedulingEnabled(true);
+    player.setTrackSelectionParameters(
+        player
+            .getTrackSelectionParameters()
+            .buildUpon()
+            .setAudioOffloadPreference(
+                TrackSelectionParameters.AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED,
+                /* isGaplessSupportRequired= */ false,
+                /* isSpeedChangeSupportRequired= */ false)
+            .build());
     player.prepare();
     player.play();
     runUntilSleepingForOffload(player, /* expectedSleepForOffload= */ true);
 
     sleepRenderer.wakeup();
-
     runUntilSleepingForOffload(player, /* expectedSleepForOffload= */ false);
-    assertThat(player.experimentalIsSleepingForOffload()).isFalse();
-    runUntilPlaybackState(player, Player.STATE_ENDED);
+    assertThat(player.isSleepingForOffload()).isFalse();
 
+    runUntilPlaybackState(player, Player.STATE_ENDED);
     player.release();
   }
 
   @Test
-  public void enableOffloadScheduling_duringSleepGetCurrentPosition_returnsEstimatedPosition()
+  public void enableOffload_duringSleepGetCurrentPosition_returnsEstimatedPosition()
       throws Exception {
     FakeClock fakeClock =
         new FakeClock(/* initialTimeMs= */ 987_654_321L, /* isAutoAdvancing= */ true);
@@ -10270,7 +10343,15 @@ public final class ExoPlayerTest {
         new TestExoPlayerBuilder(context).setClock(fakeClock).setRenderers(sleepRenderer).build();
     Timeline timeline = new FakeTimeline();
     player.setMediaSource(new FakeMediaSource(timeline, ExoPlayerTestRunner.AUDIO_FORMAT));
-    player.experimentalSetOffloadSchedulingEnabled(true);
+    player.setTrackSelectionParameters(
+        player
+            .getTrackSelectionParameters()
+            .buildUpon()
+            .setAudioOffloadPreference(
+                TrackSelectionParameters.AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED,
+                /* isGaplessSupportRequired= */ false,
+                /* isSpeedChangeSupportRequired= */ false)
+            .build());
     player.prepare();
     player.play();
     sleepRenderer.sleepOnNextRender();
@@ -10287,7 +10368,7 @@ public final class ExoPlayerTest {
   }
 
   @Test
-  public void enableOffloadScheduling_pauseAndSeekDuringSleep_currentPositionIsSeekedPosition()
+  public void enableOffload_pauseAndSeekDuringSleep_currentPositionIsSeekedPosition()
       throws Exception {
     FakeClock fakeClock =
         new FakeClock(/* initialTimeMs= */ 987_654_321L, /* isAutoAdvancing= */ true);
@@ -10296,7 +10377,15 @@ public final class ExoPlayerTest {
         new TestExoPlayerBuilder(context).setClock(fakeClock).setRenderers(sleepRenderer).build();
     Timeline timeline = new FakeTimeline();
     player.setMediaSource(new FakeMediaSource(timeline, ExoPlayerTestRunner.AUDIO_FORMAT));
-    player.experimentalSetOffloadSchedulingEnabled(true);
+    player.setTrackSelectionParameters(
+        player
+            .getTrackSelectionParameters()
+            .buildUpon()
+            .setAudioOffloadPreference(
+                TrackSelectionParameters.AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED,
+                /* isGaplessSupportRequired= */ false,
+                /* isSpeedChangeSupportRequired= */ false)
+            .build());
     player.prepare();
     player.play();
     sleepRenderer.sleepOnNextRender();
@@ -10314,7 +10403,7 @@ public final class ExoPlayerTest {
   }
 
   @Test
-  public void enableOffloadScheduling_seekThenPauseDuringSleep_returnsEstimatePositionByPauseTime()
+  public void enableOffload_seekThenPauseDuringSleep_returnsEstimatePositionByPauseTime()
       throws Exception {
     FakeClock fakeClock =
         new FakeClock(/* initialTimeMs= */ 987_654_321L, /* isAutoAdvancing= */ true);
@@ -10323,7 +10412,15 @@ public final class ExoPlayerTest {
         new TestExoPlayerBuilder(context).setClock(fakeClock).setRenderers(sleepRenderer).build();
     Timeline timeline = new FakeTimeline();
     player.setMediaSource(new FakeMediaSource(timeline, ExoPlayerTestRunner.AUDIO_FORMAT));
-    player.experimentalSetOffloadSchedulingEnabled(true);
+    player.setTrackSelectionParameters(
+        player
+            .getTrackSelectionParameters()
+            .buildUpon()
+            .setAudioOffloadPreference(
+                TrackSelectionParameters.AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED,
+                /* isGaplessSupportRequired= */ false,
+                /* isSpeedChangeSupportRequired= */ false)
+            .build());
     player.prepare();
     player.play();
     sleepRenderer.sleepOnNextRender();
@@ -14086,6 +14183,16 @@ public final class ExoPlayerTest {
     public FakeSleepRenderer sleepOnNextRender() {
       sleepOnNextRender.set(true);
       return this;
+    }
+
+    @Override
+    public @Capabilities int supportsFormat(Format format) throws ExoPlaybackException {
+      @Capabilities int rendererCapabilities = super.supportsFormat(format);
+      if (RendererCapabilities.getFormatSupport(rendererCapabilities) == C.FORMAT_HANDLED
+          && getTrackType() == C.TRACK_TYPE_AUDIO) {
+        rendererCapabilities |= AUDIO_OFFLOAD_SUPPORTED;
+      }
+      return rendererCapabilities;
     }
 
     @Override

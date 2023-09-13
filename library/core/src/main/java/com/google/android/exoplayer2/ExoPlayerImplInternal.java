@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2;
 
+import static com.google.android.exoplayer2.audio.AudioSink.OFFLOAD_MODE_DISABLED;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.castNonNull;
 import static com.google.android.exoplayer2.util.Util.msToUs;
@@ -163,7 +164,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
   private static final int MSG_SET_SHUFFLE_ORDER = 21;
   private static final int MSG_PLAYLIST_UPDATE_REQUESTED = 22;
   private static final int MSG_SET_PAUSE_AT_END_OF_WINDOW = 23;
-  private static final int MSG_SET_OFFLOAD_SCHEDULING_ENABLED = 24;
   private static final int MSG_ATTEMPT_RENDERER_ERROR_RECOVERY = 25;
   private static final int MSG_RENDERER_CAPABILITIES_CHANGED = 26;
   private static final int MSG_UPDATE_MEDIA_SOURCES_WITH_MEDIA_ITEMS = 27;
@@ -314,13 +314,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
   public void experimentalSetForegroundModeTimeoutMs(long setForegroundModeTimeoutMs) {
     this.setForegroundModeTimeoutMs = setForegroundModeTimeoutMs;
-  }
-
-  public void experimentalSetOffloadSchedulingEnabled(boolean offloadSchedulingEnabled) {
-    handler
-        .obtainMessage(
-            MSG_SET_OFFLOAD_SCHEDULING_ENABLED, offloadSchedulingEnabled ? 1 : 0, /* unused */ 0)
-        .sendToTarget();
   }
 
   public void prepare() {
@@ -588,9 +581,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
           break;
         case MSG_SET_PAUSE_AT_END_OF_WINDOW:
           setPauseAtEndOfWindowInternal(msg.arg1 != 0);
-          break;
-        case MSG_SET_OFFLOAD_SCHEDULING_ENABLED:
-          setOffloadSchedulingEnabledInternal(msg.arg1 == 1);
           break;
         case MSG_ATTEMPT_RENDERER_ERROR_RECOVERY:
           attemptRendererErrorRecovery();
@@ -890,7 +880,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
   }
 
-  private void setOffloadSchedulingEnabledInternal(boolean offloadSchedulingEnabled) {
+  private void setOffloadSchedulingEnabled(boolean offloadSchedulingEnabled) {
     if (offloadSchedulingEnabled == this.offloadSchedulingEnabled) {
       return;
     }
@@ -2300,6 +2290,30 @@ import java.util.concurrent.atomic.AtomicBoolean;
     }
   }
 
+  private void maybeUpdateOffloadScheduling() {
+    // If playing period is audio-only with offload mode preference to enable, then offload
+    // scheduling should be enabled.
+    @Nullable MediaPeriodHolder playingPeriodHolder = queue.getPlayingPeriod();
+    if (playingPeriodHolder != null) {
+      TrackSelectorResult trackSelectorResult = playingPeriodHolder.getTrackSelectorResult();
+      boolean isAudioRendererEnabledAndOffloadPreferred = false;
+      boolean isAudioOnly = true;
+      for (int i = 0; i < renderers.length; i++) {
+        if (trackSelectorResult.isRendererEnabled(i)) {
+          if (renderers[i].getTrackType() != C.TRACK_TYPE_AUDIO) {
+            isAudioOnly = false;
+            break;
+          }
+          if (trackSelectorResult.rendererConfigurations[i].offloadModePreferred
+              != OFFLOAD_MODE_DISABLED) {
+            isAudioRendererEnabledAndOffloadPreferred = true;
+          }
+        }
+      }
+      setOffloadSchedulingEnabled(isAudioRendererEnabledAndOffloadPreferred && isAudioOnly);
+    }
+  }
+
   private void allowRenderersToRenderStartOfStreams() {
     TrackSelectorResult playingTracks = queue.getPlayingPeriod().getTrackSelectorResult();
     for (int i = 0; i < renderers.length; i++) {
@@ -2545,6 +2559,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
         playingPeriodHolder.info =
             playingPeriodHolder.info.copyWithRequestedContentPositionUs(requestedContentPositionUs);
       }
+      maybeUpdateOffloadScheduling();
     } else if (!mediaPeriodId.equals(playbackInfo.periodId)) {
       // Reset previously kept track info if unprepared and the period changes.
       trackGroupArray = TrackGroupArray.EMPTY;

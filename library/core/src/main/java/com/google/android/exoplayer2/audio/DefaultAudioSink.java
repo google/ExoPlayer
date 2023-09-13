@@ -1017,7 +1017,7 @@ public final class DefaultAudioSink implements AudioSink {
       AudioTrack audioTrack =
           configuration.buildAudioTrack(tunneling, audioAttributes, audioSessionId);
       if (audioOffloadListener != null) {
-        audioOffloadListener.onExperimentalOffloadedPlayback(isOffloadedPlayback(audioTrack));
+        audioOffloadListener.onOffloadedPlayback(isOffloadedPlayback(audioTrack));
       }
       return audioTrack;
     } catch (InitializationException e) {
