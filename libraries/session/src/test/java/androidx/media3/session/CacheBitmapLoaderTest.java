@@ -18,6 +18,7 @@ package androidx.media3.session;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertThrows;
+import static org.robolectric.annotation.GraphicsMode.Mode.NATIVE;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -35,6 +36,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.GraphicsMode;
 
 /**
  * Tests for {@link CacheBitmapLoader}.
@@ -43,6 +45,7 @@ import org.junit.runner.RunWith;
  * fully functional.
  */
 @RunWith(AndroidJUnit4.class)
+@GraphicsMode(value = NATIVE)
 public class CacheBitmapLoaderTest {
 
   private static final String TEST_IMAGE_PATH = "media/jpeg/non-motion-photo-shortened.jpg";

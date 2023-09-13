@@ -24,7 +24,7 @@ android {
             testCoverageEnabled = true
         }
     }
-    sourceSets.androidTest.assets.srcDir '../test_data/src/test/assets/'
+    sourceSets.test.assets.srcDir '../test_data/src/test/assets/'
     lint {
         baseline = file("lint-baseline.xml")
     }
@@ -44,10 +44,8 @@ dependencies {
     implementation 'androidx.collection:collection:' + androidxCollectionVersion
     implementation 'androidx.media:media:' + androidxMediaVersion
     implementation 'androidx.core:core:' + androidxCoreVersion
-    androidTestImplementation 'com.squareup.okhttp3:mockwebserver:' + okhttpVersion
-    androidTestImplementation project(modulePrefix + 'test-utils')
-    androidTestImplementation project(modulePrefix + 'test-data')
-    androidTestImplementation 'androidx.test:runner:' + androidxTestRunnerVersion
+    testImplementation 'com.squareup.okhttp3:mockwebserver:' + okhttpVersion
+    testImplementation project(modulePrefix + 'test-data')
     testImplementation project(modulePrefix + 'test-utils')
     testImplementation project(modulePrefix + 'test-utils-robolectric')
     testImplementation project(modulePrefix + 'lib-exoplayer')
