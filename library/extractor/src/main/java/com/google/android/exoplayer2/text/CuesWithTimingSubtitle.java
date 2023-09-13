@@ -35,8 +35,9 @@ import java.util.List;
  *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
  *     migration guide</a> for more details, including a script to help with the migration.
  */
+// TODO(b/181312195): Make this package-private when ExoplayerCuesDecoder is deleted.
 @Deprecated
-/* package */ final class CuesWithTimingSubtitle implements Subtitle {
+public final class CuesWithTimingSubtitle implements Subtitle {
 
   private static final String TAG = "CuesWithTimingSubtitle";
 

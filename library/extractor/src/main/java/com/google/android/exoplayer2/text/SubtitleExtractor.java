@@ -15,7 +15,6 @@
  */
 package com.google.android.exoplayer2.text;
 
-import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import static java.lang.annotation.ElementType.TYPE_USE;
@@ -41,6 +40,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
@@ -90,14 +90,14 @@ public class SubtitleExtractor implements Extractor {
   private final SubtitleParser subtitleParser;
   private final CueEncoder cueEncoder;
   private final Format format;
-  private final List<Long> timestamps;
-  private final List<byte[]> samples;
+  private final List<Sample> samples;
   private final ParsableByteArray scratchSampleArray;
 
   private byte[] subtitleData;
   private @MonotonicNonNull TrackOutput trackOutput;
   private int bytesRead;
   private @State int state;
+  private long[] timestamps;
   private long seekTimeUs;
 
   /**
@@ -118,9 +118,9 @@ public class SubtitleExtractor implements Extractor {
             .setSampleMimeType(MimeTypes.APPLICATION_MEDIA3_CUES)
             .setCodecs(format.sampleMimeType)
             .build();
-    timestamps = new ArrayList<>();
     samples = new ArrayList<>();
     state = STATE_CREATED;
+    timestamps = Util.EMPTY_LONG_ARRAY;
     seekTimeUs = C.TIME_UNSET;
   }
 
@@ -163,8 +163,7 @@ public class SubtitleExtractor implements Extractor {
     if (state == STATE_EXTRACTING) {
       boolean inputFinished = readFromInput(input);
       if (inputFinished) {
-        parse();
-        writeToOutput();
+        parseAndWriteToOutput();
         state = STATE_FINISHED;
       }
     }
@@ -229,41 +228,78 @@ public class SubtitleExtractor implements Extractor {
         || readResult == C.RESULT_END_OF_INPUT;
   }
 
-  /** Parses the subtitle data and stores the samples in the memory of the extractor. */
-  private void parse() throws IOException {
+  /**
+   * Parses the subtitle data and writes the samples to the output, and stores them in {@link
+   * #timestamps} and {@link #samples} to speed up any subsequent seeks.
+   *
+   * <p>Also reassigns {@link #subtitleData} to an empty array once parsing is complete.
+   */
+  private void parseAndWriteToOutput() throws IOException {
     try {
-      List<CuesWithTiming> cuesWithTimingList = checkNotNull(subtitleParser.parse(subtitleData));
-      for (int i = 0; i < cuesWithTimingList.size(); i++) {
-        CuesWithTiming cuesWithTiming = cuesWithTimingList.get(i);
-        long eventTimeUs = cuesWithTiming.startTimeUs;
-        byte[] cuesSample = cueEncoder.encode(cuesWithTiming.cues, cuesWithTiming.durationUs);
-        timestamps.add(eventTimeUs);
-        samples.add(cuesSample);
+      SubtitleParser.OutputOptions outputOptions =
+          seekTimeUs != C.TIME_UNSET
+              ? SubtitleParser.OutputOptions.cuesAfterThenRemainingCuesBefore(seekTimeUs)
+              : SubtitleParser.OutputOptions.allCues();
+      subtitleParser.parse(
+          subtitleData,
+          outputOptions,
+          cuesWithTiming -> {
+            Sample sample =
+                new Sample(
+                    cuesWithTiming.startTimeUs,
+                    cueEncoder.encode(cuesWithTiming.cues, cuesWithTiming.durationUs));
+            samples.add(sample);
+            if (seekTimeUs == C.TIME_UNSET || cuesWithTiming.startTimeUs >= seekTimeUs) {
+              writeToOutput(sample);
+            }
+          });
+      Collections.sort(samples);
+      timestamps = new long[samples.size()];
+      for (int i = 0; i < samples.size(); i++) {
+        timestamps[i] = samples.get(i).timeUs;
       }
+      subtitleData = Util.EMPTY_BYTE_ARRAY;
     } catch (RuntimeException e) {
       throw ParserException.createForMalformedContainer("SubtitleParser failed.", e);
     }
   }
 
   private void writeToOutput() {
-    checkStateNotNull(this.trackOutput);
-    checkState(timestamps.size() == samples.size());
     int index =
         seekTimeUs == C.TIME_UNSET
             ? 0
             : Util.binarySearchFloor(
                 timestamps, seekTimeUs, /* inclusive= */ true, /* stayInBounds= */ true);
     for (int i = index; i < samples.size(); i++) {
-      byte[] sample = samples.get(i);
-      int size = sample.length;
-      scratchSampleArray.reset(sample);
-      trackOutput.sampleData(scratchSampleArray, size);
-      trackOutput.sampleMetadata(
-          /* timeUs= */ timestamps.get(i),
-          /* flags= */ C.BUFFER_FLAG_KEY_FRAME,
-          /* size= */ size,
-          /* offset= */ 0,
-          /* cryptoData= */ null);
+      writeToOutput(samples.get(i));
+    }
+  }
+
+  private void writeToOutput(Sample sample) {
+    checkStateNotNull(this.trackOutput);
+    int size = sample.data.length;
+    scratchSampleArray.reset(sample.data);
+    trackOutput.sampleData(scratchSampleArray, size);
+    trackOutput.sampleMetadata(
+        sample.timeUs,
+        /* flags= */ C.BUFFER_FLAG_KEY_FRAME,
+        /* size= */ size,
+        /* offset= */ 0,
+        /* cryptoData= */ null);
+  }
+
+  private static class Sample implements Comparable<Sample> {
+    private final long timeUs;
+    private final byte[] data;
+
+    private Sample(long timeUs, byte[] data) {
+      this.timeUs = timeUs;
+      this.data = data;
+    }
+
+    @Override
+    public int compareTo(Sample sample) {
+      return Long.compare(timeUs, sample.timeUs);
     }
   }
 }

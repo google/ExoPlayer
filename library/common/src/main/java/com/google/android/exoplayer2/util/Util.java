@@ -177,6 +177,9 @@ public final class Util {
   /** An empty byte array. */
   public static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
+  /** An empty long array. */
+  public static final long[] EMPTY_LONG_ARRAY = new long[0];
+
   private static final String TAG = "Util";
   private static final Pattern XS_DATE_TIME_PATTERN =
       Pattern.compile(

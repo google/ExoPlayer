@@ -64,6 +64,8 @@ public interface Subtitle {
   List<Cue> getCues(long timeUs);
 
   /** Converts the current instance to a list of {@link CuesWithTiming} representing it. */
+  // TODO(b/181312195): Remove this when TtmlDecoder has been migrated to TtmlParser (and in-line it
+  //  in DelegatingSubtitleDecoderTtmlParserTest).
   default ImmutableList<CuesWithTiming> toCuesWithTimingList() {
     ImmutableList.Builder<CuesWithTiming> allCues = ImmutableList.builder();
     for (int i = 0; i < getEventTimeCount(); i++) {
