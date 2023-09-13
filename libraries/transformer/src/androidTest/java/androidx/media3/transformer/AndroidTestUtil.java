@@ -22,9 +22,11 @@ import static androidx.media3.common.MimeTypes.VIDEO_H265;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Util.SDK_INT;
+import static org.junit.Assume.assumeFalse;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.media.Image;
 import android.media.MediaFormat;
 import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
@@ -46,6 +48,9 @@ import androidx.media3.common.util.Util;
 import androidx.media3.effect.DefaultGlObjectsProvider;
 import androidx.media3.effect.ScaleAndRotateTransformation;
 import androidx.media3.exoplayer.mediacodec.MediaCodecUtil;
+import androidx.media3.test.utils.BitmapPixelTestUtil;
+import androidx.media3.test.utils.VideoDecodingWrapper;
+import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.io.FileWriter;
@@ -598,6 +603,27 @@ public final class AndroidTestUtil {
     testJson.put("skipReason", reason);
 
     writeTestSummaryToFile(context, testId, testJson);
+  }
+
+  public static ImmutableList<Bitmap> extractBitmapsFromVideo(Context context, String filePath)
+      throws IOException, InterruptedException {
+    // b/298599172 - runUntilComparisonFrameOrEnded fails on this device because reading decoder
+    //  output as a bitmap doesn't work.
+    assumeFalse(Util.SDK_INT == 21 && Ascii.toLowerCase(Util.MODEL).contains("nexus"));
+    ImmutableList.Builder<Bitmap> bitmaps = new ImmutableList.Builder<>();
+    try (VideoDecodingWrapper decodingWrapper =
+        new VideoDecodingWrapper(
+            context, filePath, /* comparisonInterval= */ 1, /* maxImagesAllowed= */ 1)) {
+      while (true) {
+        @Nullable Image image = decodingWrapper.runUntilComparisonFrameOrEnded();
+        if (image == null) {
+          break;
+        }
+        bitmaps.add(BitmapPixelTestUtil.createGrayscaleArgb8888BitmapFromYuv420888Image(image));
+        image.close();
+      }
+    }
+    return bitmaps.build();
   }
 
   /** A customizable forwarding {@link Codec.EncoderFactory} that forces encoding. */

@@ -119,6 +119,13 @@ public class BitmapPixelTestUtil {
   public static final float MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE_FP16 = .01f;
 
   /**
+   * Maximum allowed average pixel difference between bitmaps generated from luma values.
+   *
+   * @see #MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE
+   */
+  public static final float MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_LUMA = 8.0f;
+
+  /**
    * Reads a bitmap from the specified asset location.
    *
    * @param assetString Relative path to the asset within the assets directory.
