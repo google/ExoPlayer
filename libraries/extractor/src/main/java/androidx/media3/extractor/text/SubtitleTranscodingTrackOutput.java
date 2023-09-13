@@ -26,6 +26,7 @@ import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.DataReader;
 import androidx.media3.common.Format;
+import androidx.media3.common.Format.CueReplacementBehavior;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.Util;
@@ -86,6 +87,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (currentSubtitleParser == null) {
       delegate.format(format);
     } else {
+      @CueReplacementBehavior
+      int nextCuesBehavior = currentSubtitleParser.getCueReplacementBehavior();
       delegate.format(
           format
               .buildUpon()
@@ -94,6 +97,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               // Reset this value to the default. All non-default timestamp adjustments are done
               // below in sampleMetadata() and there are no 'subsamples' after transcoding.
               .setSubsampleOffsetUs(Format.OFFSET_SAMPLE_RELATIVE)
+              .setCueReplacementBehavior(nextCuesBehavior)
               .build());
     }
   }

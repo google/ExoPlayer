@@ -19,6 +19,8 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
+import androidx.media3.common.Format;
+import androidx.media3.common.Format.CueReplacementBehavior;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.UnstableApi;
@@ -50,6 +52,11 @@ public final class Mp4WebvttParser implements SubtitleParser {
 
   public Mp4WebvttParser() {
     parsableByteArray = new ParsableByteArray();
+  }
+
+  @Override
+  public @CueReplacementBehavior int getCueReplacementBehavior() {
+    return Format.CUE_REPLACEMENT_BEHAVIOR_REPLACE;
   }
 
   @Override

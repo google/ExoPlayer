@@ -15,6 +15,7 @@
  */
 package androidx.media3.extractor.text.ssa;
 
+import static androidx.media3.common.Format.CUE_REPLACEMENT_BEHAVIOR_MERGE;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
@@ -59,6 +60,12 @@ public final class SsaParserTest {
   private static final String STYLE_BOLD_ITALIC = "media/ssa/style_bold_italic";
   private static final String STYLE_UNDERLINE = "media/ssa/style_underline";
   private static final String STYLE_STRIKEOUT = "media/ssa/style_strikeout";
+
+  @Test
+  public void cuesReplacementBehaviorIsMerge() throws IOException {
+    SsaParser parser = new SsaParser();
+    assertThat(parser.getCueReplacementBehavior()).isEqualTo(CUE_REPLACEMENT_BEHAVIOR_MERGE);
+  }
 
   @Test
   public void parseEmpty() throws IOException {

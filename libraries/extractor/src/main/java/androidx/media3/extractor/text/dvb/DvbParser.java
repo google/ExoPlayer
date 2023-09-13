@@ -26,6 +26,8 @@ import android.graphics.PorterDuffXfermode;
 import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
+import androidx.media3.common.Format;
+import androidx.media3.common.Format.CueReplacementBehavior;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.ParsableBitArray;
@@ -126,6 +128,11 @@ public final class DvbParser implements SubtitleParser {
   @Override
   public void reset() {
     subtitleService.reset();
+  }
+
+  @Override
+  public @CueReplacementBehavior int getCueReplacementBehavior() {
+    return Format.CUE_REPLACEMENT_BEHAVIOR_REPLACE;
   }
 
   @Override

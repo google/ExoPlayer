@@ -16,9 +16,12 @@
 
 package androidx.media3.extractor.text;
 
+import static androidx.media3.common.Format.CUE_REPLACEMENT_BEHAVIOR_MERGE;
+
 import androidx.annotation.Nullable;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
+import androidx.media3.common.Format.CueReplacementBehavior;
 import androidx.media3.common.util.UnstableApi;
 import java.util.List;
 
@@ -95,4 +98,16 @@ public interface SubtitleParser {
    * <p>The default implementation is a no-op.
    */
   default void reset() {}
+
+  /**
+   * Returns the {@link CueReplacementBehavior} for consecutive {@link CuesWithTiming} emitted by
+   * this implementation.
+   *
+   * <p>A given instance must always return the same value from this method.
+   *
+   * <p>The default implementation returns {@link Format#CUE_REPLACEMENT_BEHAVIOR_MERGE}.
+   */
+  default @CueReplacementBehavior int getCueReplacementBehavior() {
+    return CUE_REPLACEMENT_BEHAVIOR_MERGE;
+  }
 }

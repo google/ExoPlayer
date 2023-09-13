@@ -15,6 +15,7 @@
  */
 package androidx.media3.extractor.text.webvtt;
 
+import static androidx.media3.common.Format.CUE_REPLACEMENT_BEHAVIOR_MERGE;
 import static androidx.media3.test.utils.truth.SpannedSubject.assertThat;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
@@ -64,6 +65,12 @@ public class WebvttParserTest {
   private static final String EMPTY_FILE = "media/webvtt/empty";
 
   @Rule public final Expect expect = Expect.create();
+
+  @Test
+  public void cueReplacementBehaviorIsMerge() throws IOException {
+    WebvttParser parser = new WebvttParser();
+    assertThat(parser.getCueReplacementBehavior()).isEqualTo(CUE_REPLACEMENT_BEHAVIOR_MERGE);
+  }
 
   @Test
   public void parseEmpty() throws IOException {
