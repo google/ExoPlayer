@@ -26,6 +26,8 @@ import android.graphics.PorterDuffXfermode;
 import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.Format.CueReplacementBehavior;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.CuesWithTiming;
 import com.google.android.exoplayer2.text.SubtitleParser;
@@ -132,6 +134,11 @@ public final class DvbParser implements SubtitleParser {
   @Override
   public void reset() {
     subtitleService.reset();
+  }
+
+  @Override
+  public @CueReplacementBehavior int getCueReplacementBehavior() {
+    return Format.CUE_REPLACEMENT_BEHAVIOR_REPLACE;
   }
 
   @Override

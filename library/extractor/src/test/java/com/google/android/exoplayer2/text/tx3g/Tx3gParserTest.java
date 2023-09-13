@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.text.tx3g;
 
+import static com.google.android.exoplayer2.Format.CUE_REPLACEMENT_BEHAVIOR_REPLACE;
 import static com.google.android.exoplayer2.testutil.truth.SpannedSubject.assertThat;
 import static com.google.common.truth.Truth.assertThat;
 
@@ -54,6 +55,12 @@ public final class Tx3gParserTest {
   private static final String INITIALIZATION = "media/tx3g/initialization";
   private static final String INITIALIZATION_ALL_DEFAULTS =
       "media/tx3g/initialization_all_defaults";
+
+  @Test
+  public void cueReplacementBehaviorIsReplace() {
+    Tx3gParser parser = new Tx3gParser(/* initializationData= */ ImmutableList.of());
+    assertThat(parser.getCueReplacementBehavior()).isEqualTo(CUE_REPLACEMENT_BEHAVIOR_REPLACE);
+  }
 
   @Test
   public void parseNoSubtitle() throws Exception {

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.text.webvtt;
 
+import static com.google.android.exoplayer2.Format.CUE_REPLACEMENT_BEHAVIOR_MERGE;
 import static com.google.android.exoplayer2.testutil.truth.SpannedSubject.assertThat;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
@@ -64,6 +65,12 @@ public class WebvttParserTest {
   private static final String EMPTY_FILE = "media/webvtt/empty";
 
   @Rule public final Expect expect = Expect.create();
+
+  @Test
+  public void cueReplacementBehaviorIsMerge() throws IOException {
+    WebvttParser parser = new WebvttParser();
+    assertThat(parser.getCueReplacementBehavior()).isEqualTo(CUE_REPLACEMENT_BEHAVIOR_MERGE);
+  }
 
   @Test
   public void parseEmpty() throws IOException {

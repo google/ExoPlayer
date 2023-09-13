@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.text.webvtt;
 
+import static com.google.android.exoplayer2.Format.CUE_REPLACEMENT_BEHAVIOR_REPLACE;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
@@ -158,6 +159,12 @@ public final class Mp4WebvttParserTest {
   };
 
   @Rule public final Expect expect = Expect.create();
+
+  @Test
+  public void cueReplacementBehaviorIsReplace() {
+    Mp4WebvttParser parser = new Mp4WebvttParser();
+    assertThat(parser.getCueReplacementBehavior()).isEqualTo(CUE_REPLACEMENT_BEHAVIOR_REPLACE);
+  }
 
   // Positive tests.
 

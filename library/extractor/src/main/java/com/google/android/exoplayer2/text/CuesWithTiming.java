@@ -17,6 +17,7 @@
 package com.google.android.exoplayer2.text;
 
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 
@@ -46,9 +47,12 @@ public class CuesWithTiming {
    * The duration for which {@link #cues} should be shown on screen, in microseconds, or {@link
    * C#TIME_UNSET} if not known.
    *
-   * <p>If this value is set then {@link #cues} from multiple instances may be shown on the screen
-   * simultaneously (if their durations overlap). If this value is {@link C#TIME_UNSET} then {@link
-   * #cues} should be shown on the screen until the {@link #startTimeUs} of the next instance.
+   * <p>If {@link Format#cueReplacementBehavior} is {@link Format#CUE_REPLACEMENT_BEHAVIOR_MERGE}
+   * then cues from multiple instances will be shown on screen simultaneously if their start times
+   * and durations overlap.
+   *
+   * <p>{@link C#TIME_UNSET} is only permitted if the {@link Format#cueReplacementBehavior} of the
+   * current track is {@link Format#CUE_REPLACEMENT_BEHAVIOR_REPLACE}.
    */
   public final long durationUs;
 

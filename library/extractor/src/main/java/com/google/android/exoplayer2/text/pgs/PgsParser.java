@@ -20,6 +20,8 @@ import static java.lang.Math.min;
 import android.graphics.Bitmap;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.Format.CueReplacementBehavior;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.CuesWithTiming;
 import com.google.android.exoplayer2.text.SubtitleParser;
@@ -57,6 +59,11 @@ public final class PgsParser implements SubtitleParser {
     buffer = new ParsableByteArray();
     inflatedBuffer = new ParsableByteArray();
     cueBuilder = new CueBuilder();
+  }
+
+  @Override
+  public @CueReplacementBehavior int getCueReplacementBehavior() {
+    return Format.CUE_REPLACEMENT_BEHAVIOR_REPLACE;
   }
 
   @Override

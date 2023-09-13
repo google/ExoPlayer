@@ -29,6 +29,8 @@ import android.text.style.TypefaceSpan;
 import android.text.style.UnderlineSpan;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.Format.CueReplacementBehavior;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.CuesWithTiming;
 import com.google.android.exoplayer2.text.SubtitleParser;
@@ -124,6 +126,11 @@ public final class Tx3gParser implements SubtitleParser {
       defaultVerticalPlacement = DEFAULT_VERTICAL_PLACEMENT;
       calculatedVideoTrackHeight = C.LENGTH_UNSET;
     }
+  }
+
+  @Override
+  public @CueReplacementBehavior int getCueReplacementBehavior() {
+    return Format.CUE_REPLACEMENT_BEHAVIOR_REPLACE;
   }
 
   @Override

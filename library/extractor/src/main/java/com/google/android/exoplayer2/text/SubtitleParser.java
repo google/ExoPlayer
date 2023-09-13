@@ -16,9 +16,12 @@
 
 package com.google.android.exoplayer2.text;
 
+import static com.google.android.exoplayer2.Format.CUE_REPLACEMENT_BEHAVIOR_MERGE;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.Format.CueReplacementBehavior;
 import java.util.List;
 
 /**
@@ -99,4 +102,16 @@ public interface SubtitleParser {
    * <p>The default implementation is a no-op.
    */
   default void reset() {}
+
+  /**
+   * Returns the {@link CueReplacementBehavior} for consecutive {@link CuesWithTiming} emitted by
+   * this implementation.
+   *
+   * <p>A given instance must always return the same value from this method.
+   *
+   * <p>The default implementation returns {@link Format#CUE_REPLACEMENT_BEHAVIOR_MERGE}.
+   */
+  default @CueReplacementBehavior int getCueReplacementBehavior() {
+    return CUE_REPLACEMENT_BEHAVIOR_MERGE;
+  }
 }

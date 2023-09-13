@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.text.subrip;
 
+import static com.google.android.exoplayer2.Format.CUE_REPLACEMENT_BEHAVIOR_MERGE;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.test.core.app.ApplicationProvider;
@@ -47,6 +48,12 @@ public final class SubripParserTest {
   private static final String TYPICAL_WITH_TAGS = "media/subrip/typical_with_tags";
   private static final String TYPICAL_NO_HOURS_AND_MILLIS =
       "media/subrip/typical_no_hours_and_millis";
+
+  @Test
+  public void cueReplacementBehaviorIsMerge() {
+    SubripParser parser = new SubripParser();
+    assertThat(parser.getCueReplacementBehavior()).isEqualTo(CUE_REPLACEMENT_BEHAVIOR_MERGE);
+  }
 
   @Test
   public void parseEmpty() throws IOException {

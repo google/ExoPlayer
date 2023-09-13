@@ -15,7 +15,10 @@
  */
 package com.google.android.exoplayer2;
 
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import android.os.Bundle;
+import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.drm.DrmInitData;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -25,6 +28,10 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.base.Joiner;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -180,6 +187,7 @@ public final class Format implements Bundleable {
     // Text specific.
 
     private int accessibilityChannel;
+    private @CueReplacementBehavior int cueReplacementBehavior;
 
     // Image specific
 
@@ -209,6 +217,7 @@ public final class Format implements Bundleable {
       pcmEncoding = NO_VALUE;
       // Text specific.
       accessibilityChannel = NO_VALUE;
+      cueReplacementBehavior = CUE_REPLACEMENT_BEHAVIOR_MERGE;
       // Image specific.
       tileCountHorizontal = NO_VALUE;
       tileCountVertical = NO_VALUE;
@@ -256,6 +265,7 @@ public final class Format implements Bundleable {
       this.encoderPadding = format.encoderPadding;
       // Text specific.
       this.accessibilityChannel = format.accessibilityChannel;
+      this.cueReplacementBehavior = format.cueReplacementBehavior;
       // Image specific.
       this.tileCountHorizontal = format.tileCountHorizontal;
       this.tileCountVertical = format.tileCountVertical;
@@ -634,6 +644,19 @@ public final class Format implements Bundleable {
       return this;
     }
 
+    /**
+     * Sets {@link Format#cueReplacementBehavior}. The default value is {@link
+     * #CUE_REPLACEMENT_BEHAVIOR_MERGE}.
+     *
+     * @param cueReplacementBehavior The {@link Format.CueReplacementBehavior}.
+     * @return The builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder setCueReplacementBehavior(@CueReplacementBehavior int cueReplacementBehavior) {
+      this.cueReplacementBehavior = cueReplacementBehavior;
+      return this;
+    }
+
     // Image specific.
 
     /**
@@ -680,6 +703,35 @@ public final class Format implements Bundleable {
       return new Format(/* builder= */ this);
     }
   }
+
+  /**
+   * The replacement behaviors for consecutive samples in a {@linkplain C#TRACK_TYPE_TEXT text
+   * track} of type {@link MimeTypes#APPLICATION_MEDIA3_CUES}.
+   */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
+  @IntDef({
+    CUE_REPLACEMENT_BEHAVIOR_MERGE,
+    CUE_REPLACEMENT_BEHAVIOR_REPLACE,
+  })
+  public @interface CueReplacementBehavior {}
+
+  /**
+   * Subsequent cues should be merged with any previous cues that should still be shown on screen.
+   *
+   * <p>Tracks with this behavior must not contain samples with an {@linkplain C#TIME_UNSET unset}
+   * duration.
+   */
+  public static final int CUE_REPLACEMENT_BEHAVIOR_MERGE = 1;
+
+  /**
+   * Subsequent cues should replace all previous cues.
+   *
+   * <p>Tracks with this behavior may contain samples with an {@linkplain C#TIME_UNSET unset}
+   * duration (but the duration may also be set to a 'real' value).
+   */
+  public static final int CUE_REPLACEMENT_BEHAVIOR_REPLACE = 2;
 
   /** A value for various fields to indicate that the field's value is unknown or not applicable. */
   public static final int NO_VALUE = -1;
@@ -855,6 +907,12 @@ public final class Format implements Bundleable {
   /** The Accessibility channel, or {@link #NO_VALUE} if not known or applicable. */
   public final int accessibilityChannel;
 
+  /**
+   * The replacement behavior that should be followed when handling consecutive samples in a
+   * {@linkplain C#TRACK_TYPE_TEXT text track} of type {@link MimeTypes#APPLICATION_MEDIA3_CUES}.
+   */
+  public final @CueReplacementBehavior int cueReplacementBehavior;
+
   // Image specific.
 
   /**
@@ -916,6 +974,7 @@ public final class Format implements Bundleable {
     encoderPadding = builder.encoderPadding == NO_VALUE ? 0 : builder.encoderPadding;
     // Text specific.
     accessibilityChannel = builder.accessibilityChannel;
+    cueReplacementBehavior = builder.cueReplacementBehavior;
     // Image specific.
     tileCountHorizontal = builder.tileCountHorizontal;
     tileCountVertical = builder.tileCountVertical;
