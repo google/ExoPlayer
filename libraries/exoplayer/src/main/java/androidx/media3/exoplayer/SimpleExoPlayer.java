@@ -446,15 +446,9 @@ public class SimpleExoPlayer extends BasePlayer
   }
 
   @Override
-  public void experimentalSetOffloadSchedulingEnabled(boolean offloadSchedulingEnabled) {
+  public boolean isSleepingForOffload() {
     blockUntilConstructorFinished();
-    player.experimentalSetOffloadSchedulingEnabled(offloadSchedulingEnabled);
-  }
-
-  @Override
-  public boolean experimentalIsSleepingForOffload() {
-    blockUntilConstructorFinished();
-    return player.experimentalIsSleepingForOffload();
+    return player.isSleepingForOffload();
   }
 
   /**

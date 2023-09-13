@@ -421,37 +421,24 @@ public interface ExoPlayer extends Player {
     void setDeviceMuted(boolean muted);
   }
 
-  /**
-   * A listener for audio offload events.
-   *
-   * <p>This class is experimental, and might be renamed, moved or removed in a future release.
-   */
+  /** A listener for audio offload events. */
   @UnstableApi
   interface AudioOffloadListener {
     /**
-     * Called when the player has started or stopped offload scheduling using {@link
-     * #experimentalSetOffloadSchedulingEnabled(boolean)}.
+     * Called when the value of {@link #isSleepingForOffload} changes.
      *
-     * <p>This method is experimental, and will be renamed or removed in a future release.
+     * <p>When {@code isSleepingForOffload} is {@code true} then, the player has paused its main
+     * loop to save power in offload scheduling mode.
      */
-    default void onExperimentalOffloadSchedulingEnabledChanged(boolean offloadSchedulingEnabled) {}
-
-    /**
-     * Called when the player has started or finished sleeping for offload.
-     *
-     * <p>This method is experimental, and will be renamed or removed in a future release.
-     */
-    default void onExperimentalSleepingForOffloadChanged(boolean sleepingForOffload) {}
+    default void onSleepingForOffloadChanged(boolean isSleepingForOffload) {}
 
     /**
      * Called when the value of {@link AudioTrack#isOffloadedPlayback} changes.
      *
      * <p>This should not be generally required to be acted upon. But when offload is critical for
      * efficiency, or audio features (gapless, playback speed), this will let the app know.
-     *
-     * <p>This method is experimental, and will be renamed or removed in a future release.
      */
-    default void onExperimentalOffloadedPlayback(boolean offloadedPlayback) {}
+    default void onOffloadedPlayback(boolean isOffloadedPlayback) {}
   }
 
   /**
@@ -1827,24 +1814,13 @@ public interface ExoPlayer extends Player {
   void setPriorityTaskManager(@Nullable PriorityTaskManager priorityTaskManager);
 
   /**
-   * Sets whether audio offload scheduling is enabled. If enabled, ExoPlayer's main loop will run as
-   * rarely as possible when playing an audio stream using audio offload.
+   * Returns whether the player has paused its main loop to save power in offload scheduling mode.
    *
-   * <p>Only use this scheduling mode if the player is not displaying anything to the user. For
-   * example when the application is in the background, or the screen is off. The player state
-   * (including position) is rarely updated (roughly between every 10 seconds and 1 minute).
+   * <p>Offload scheduling mode should save significant power when the phone is playing offload
+   * audio with the screen off.
    *
-   * <p>While offload scheduling is enabled, player events may be delivered severely delayed and
-   * apps should not interact with the player. When returning to the foreground, disable offload
-   * scheduling and wait for {@link
-   * AudioOffloadListener#onExperimentalOffloadSchedulingEnabledChanged(boolean)} to be called with
-   * {@code offloadSchedulingEnabled = false} before interacting with the player.
-   *
-   * <p>This mode should save significant power when the phone is playing offload audio with the
-   * screen off.
-   *
-   * <p>This mode only has an effect when playing an audio track in offload mode, which requires all
-   * the following:
+   * <p>Offload scheduling is only enabled when playing an audio track in offload mode, which
+   * requires all the following:
    *
    * <ul>
    *   <li>Audio offload rendering is enabled through {@link
@@ -1854,24 +1830,10 @@ public interface ExoPlayer extends Player {
    *   <li>The {@link AudioSink} is playing with an offload {@link AudioTrack}.
    * </ul>
    *
-   * <p>The state where ExoPlayer main loop has been paused to save power during offload playback
-   * can be queried with {@link #experimentalIsSleepingForOffload()}.
-   *
-   * <p>This method is experimental, and will be renamed or removed in a future release.
-   *
-   * @param offloadSchedulingEnabled Whether to enable offload scheduling.
+   * @see AudioOffloadListener#onSleepingForOffloadChanged(boolean)
    */
   @UnstableApi
-  void experimentalSetOffloadSchedulingEnabled(boolean offloadSchedulingEnabled);
-
-  /**
-   * Returns whether the player has paused its main loop to save power in offload scheduling mode.
-   *
-   * @see #experimentalSetOffloadSchedulingEnabled(boolean)
-   * @see AudioOffloadListener#onExperimentalSleepingForOffloadChanged(boolean)
-   */
-  @UnstableApi
-  boolean experimentalIsSleepingForOffload();
+  boolean isSleepingForOffload();
 
   /**
    * Returns whether <a

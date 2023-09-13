@@ -466,16 +466,7 @@ import java.util.concurrent.TimeoutException;
   }
 
   @Override
-  public void experimentalSetOffloadSchedulingEnabled(boolean offloadSchedulingEnabled) {
-    verifyApplicationThread();
-    internalPlayer.experimentalSetOffloadSchedulingEnabled(offloadSchedulingEnabled);
-    for (AudioOffloadListener listener : audioOffloadListeners) {
-      listener.onExperimentalOffloadSchedulingEnabledChanged(offloadSchedulingEnabled);
-    }
-  }
-
-  @Override
-  public boolean experimentalIsSleepingForOffload() {
+  public boolean isSleepingForOffload() {
     verifyApplicationThread();
     return playbackInfo.sleepingForOffload;
   }
@@ -2135,7 +2126,7 @@ import java.util.concurrent.TimeoutException;
 
     if (previousPlaybackInfo.sleepingForOffload != newPlaybackInfo.sleepingForOffload) {
       for (AudioOffloadListener listener : audioOffloadListeners) {
-        listener.onExperimentalSleepingForOffloadChanged(newPlaybackInfo.sleepingForOffload);
+        listener.onSleepingForOffloadChanged(newPlaybackInfo.sleepingForOffload);
       }
     }
   }
@@ -2817,7 +2808,7 @@ import java.util.concurrent.TimeoutException;
     switch (playbackState) {
       case Player.STATE_READY:
       case Player.STATE_BUFFERING:
-        boolean isSleeping = experimentalIsSleepingForOffload();
+        boolean isSleeping = isSleepingForOffload();
         wakeLockManager.setStayAwake(getPlayWhenReady() && !isSleeping);
         // The wifi lock is not released while sleeping to avoid interrupting downloads.
         wifiLockManager.setStayAwake(getPlayWhenReady());
@@ -3262,7 +3253,7 @@ import java.util.concurrent.TimeoutException;
     // Player.AudioOffloadListener implementation.
 
     @Override
-    public void onExperimentalSleepingForOffloadChanged(boolean sleepingForOffload) {
+    public void onSleepingForOffloadChanged(boolean sleepingForOffload) {
       updateWakeAndWifiLock();
     }
   }

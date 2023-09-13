@@ -35,6 +35,12 @@
     *   Add support for Opus gapless metadata during offload playback.
     *   Allow renderer recovery by disabling offload if failed at first write
         ([#627](https://github.com/androidx/media/issues/627)).
+    *   Enable Offload Scheduling by default for audio-only offloaded playback.
+    *   Delete `ExoPlayer.experimentalSetOffloadSchedulingEnabled` and
+        `AudioOffloadListener.onExperimentalOffloadSchedulingEnabledChanged`.
+    *   Renamed `onExperimentalSleepingForOffloadChanged` as
+        `onSleepingForOffloadChanged` and `onExperimentalOffloadedPlayback` as
+        `onOffloadedPlayback`.
 *   Video:
 *   Text:
 *   Metadata:

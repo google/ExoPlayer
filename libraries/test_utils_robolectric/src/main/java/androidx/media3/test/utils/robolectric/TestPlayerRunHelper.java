@@ -225,8 +225,8 @@ public class TestPlayerRunHelper {
 
   /**
    * Runs tasks of the main {@link Looper} until {@link
-   * ExoPlayer.AudioOffloadListener#onExperimentalSleepingForOffloadChanged(boolean)} is called or a
-   * playback error occurs.
+   * ExoPlayer.AudioOffloadListener#onSleepingForOffloadChanged(boolean)} is called or a playback
+   * error occurs.
    *
    * <p>If a playback error occurs it will be thrown wrapped in an {@link IllegalStateException}.
    *
@@ -244,7 +244,7 @@ public class TestPlayerRunHelper {
     ExoPlayer.AudioOffloadListener listener =
         new ExoPlayer.AudioOffloadListener() {
           @Override
-          public void onExperimentalSleepingForOffloadChanged(boolean sleepingForOffload) {
+          public void onSleepingForOffloadChanged(boolean sleepingForOffload) {
             if (sleepingForOffload == expectedSleepForOffload) {
               receiverCallback.set(true);
             }
