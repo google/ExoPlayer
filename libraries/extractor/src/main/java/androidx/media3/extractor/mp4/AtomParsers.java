@@ -617,11 +617,7 @@ import java.util.List;
     long durationUs = Util.scaleLargeTimestamp(duration, C.MICROS_PER_SECOND, track.timescale);
 
     if (track.editListDurations == null) {
-      try {
-        Util.scaleLargeTimestampsInPlace(timestamps, C.MICROS_PER_SECOND, track.timescale);
-      } catch (ArithmeticException e) {
-        throw new RuntimeException("track.timescale=" + track.timescale, e);
-      }
+      Util.scaleLargeTimestampsInPlace(timestamps, C.MICROS_PER_SECOND, track.timescale);
       return new TrackSampleTable(
           track, offsets, sizes, maximumSize, timestamps, flags, durationUs);
     }
