@@ -851,6 +851,26 @@ public class UtilTest {
   }
 
   @Test
+  public void durationToSampleCount_doesntOverflowWithLargeDuration() {
+    // Choose a durationUs & sampleRate that will overflow a signed 64-bit integer if they are
+    // multiplied together, but not if the durationUs is converted to seconds first.
+    long sampleCount =
+        Util.durationUsToSampleCount(
+            /* durationUs= */ Long.MAX_VALUE / 100_000, /* sampleRate= */ 192_000);
+    assertThat(sampleCount).isEqualTo(17708874310762L);
+  }
+
+  @Test
+  public void sampleCountToDuration_doesntOverflowWithLargeDuration() {
+    // Choose a sampleCount that will overflow a signed 64-bit integer if it is multiplied directly
+    // by C.MICROS_PER_SECOND, but not if it is divided by sampleRate first.
+    long durationUs =
+        Util.sampleCountToDurationUs(
+            /* sampleCount= */ Long.MAX_VALUE / 100_000, /* sampleRate= */ 192_000);
+    assertThat(durationUs).isEqualTo(480383960252848L);
+  }
+
+  @Test
   public void parseXsDuration_returnsParsedDurationInMillis() {
     assertThat(parseXsDuration("PT150.279S")).isEqualTo(150279L);
     assertThat(parseXsDuration("PT1.500S")).isEqualTo(1500L);
