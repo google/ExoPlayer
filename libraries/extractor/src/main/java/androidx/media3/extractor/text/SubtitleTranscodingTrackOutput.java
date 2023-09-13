@@ -33,7 +33,6 @@ import androidx.media3.common.util.Util;
 import androidx.media3.extractor.TrackOutput;
 import java.io.EOFException;
 import java.io.IOException;
-import java.util.List;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
@@ -145,41 +144,41 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       delegate.sampleMetadata(timeUs, flags, size, offset, cryptoData);
       return;
     }
-    checkStateNotNull(currentFormat); // format() must be called before sampleMetadata()
     checkArgument(cryptoData == null, "DRM on subtitles is not supported");
 
     int sampleStart = sampleDataEnd - offset - size;
-    @Nullable
-    List<CuesWithTiming> cuesWithTimingList =
-        currentSubtitleParser.parse(sampleData, /* offset= */ sampleStart, /* length= */ size);
+    currentSubtitleParser.parse(
+        sampleData,
+        sampleStart,
+        size,
+        SubtitleParser.OutputOptions.allCues(),
+        cuesWithTiming -> outputSample(cuesWithTiming, timeUs, flags));
     sampleDataStart = sampleStart + size;
-    if (cuesWithTimingList != null) {
-      for (int i = 0; i < cuesWithTimingList.size(); i++) {
-        CuesWithTiming cuesWithTiming = cuesWithTimingList.get(i);
-        byte[] cuesWithDurationBytes =
-            cueEncoder.encode(cuesWithTiming.cues, cuesWithTiming.durationUs);
+  }
 
-        parsableScratch.reset(cuesWithDurationBytes);
-        delegate.sampleData(parsableScratch, cuesWithDurationBytes.length);
-        // Clear FLAG_DECODE_ONLY if it is set.
-        flags &= ~C.BUFFER_FLAG_DECODE_ONLY;
-        long outputSampleTimeUs;
-        if (cuesWithTiming.startTimeUs == C.TIME_UNSET) {
-          checkState(currentFormat.subsampleOffsetUs == Format.OFFSET_SAMPLE_RELATIVE);
-          outputSampleTimeUs = timeUs;
-        } else if (currentFormat.subsampleOffsetUs == Format.OFFSET_SAMPLE_RELATIVE) {
-          outputSampleTimeUs = timeUs + cuesWithTiming.startTimeUs;
-        } else {
-          outputSampleTimeUs = cuesWithTiming.startTimeUs + currentFormat.subsampleOffsetUs;
-        }
-        delegate.sampleMetadata(
-            outputSampleTimeUs,
-            flags,
-            cuesWithDurationBytes.length,
-            /* offset= */ 0,
-            /* cryptoData= */ null);
-      }
+  private void outputSample(CuesWithTiming cuesWithTiming, long timeUs, int flags) {
+    checkStateNotNull(currentFormat); // format() must be called before sampleMetadata()
+    byte[] cuesWithDurationBytes =
+        cueEncoder.encode(cuesWithTiming.cues, cuesWithTiming.durationUs);
+    parsableScratch.reset(cuesWithDurationBytes);
+    delegate.sampleData(parsableScratch, cuesWithDurationBytes.length);
+    // Clear FLAG_DECODE_ONLY if it is set.
+    flags &= ~C.BUFFER_FLAG_DECODE_ONLY;
+    long outputSampleTimeUs;
+    if (cuesWithTiming.startTimeUs == C.TIME_UNSET) {
+      checkState(currentFormat.subsampleOffsetUs == Format.OFFSET_SAMPLE_RELATIVE);
+      outputSampleTimeUs = timeUs;
+    } else if (currentFormat.subsampleOffsetUs == Format.OFFSET_SAMPLE_RELATIVE) {
+      outputSampleTimeUs = timeUs + cuesWithTiming.startTimeUs;
+    } else {
+      outputSampleTimeUs = cuesWithTiming.startTimeUs + currentFormat.subsampleOffsetUs;
     }
+    delegate.sampleMetadata(
+        outputSampleTimeUs,
+        flags,
+        cuesWithDurationBytes.length,
+        /* offset= */ 0,
+        /* cryptoData= */ null);
   }
 
   /**

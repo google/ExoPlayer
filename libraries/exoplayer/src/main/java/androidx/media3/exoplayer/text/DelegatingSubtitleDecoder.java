@@ -17,20 +17,16 @@ package androidx.media3.exoplayer.text;
 
 import static androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-import androidx.media3.extractor.text.CuesWithTiming;
 import androidx.media3.extractor.text.SimpleSubtitleDecoder;
 import androidx.media3.extractor.text.Subtitle;
 import androidx.media3.extractor.text.SubtitleParser;
-import com.google.common.collect.ImmutableList;
-import java.util.List;
 
 /**
  * Wrapper around a {@link SubtitleParser} that can be used instead of any current {@link
  * SimpleSubtitleDecoder} subclass. The main {@link #decode(byte[], int, boolean)} method will be
  * delegating the parsing of the data to the underlying {@link SubtitleParser} instance and its
- * {@link SubtitleParser#parse(byte[], int, int)} implementation.
+ * {@link SubtitleParser#parseToLegacySubtitle(byte[], int, int)} implementation.
  *
  * <p>Functionally, once each XXXDecoder class is refactored to be a XXXParser that implements
  * {@link SubtitleParser}, the following should be equivalent:
@@ -55,7 +51,6 @@ import java.util.List;
 @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
 public final class DelegatingSubtitleDecoder extends SimpleSubtitleDecoder {
 
-  private static final Subtitle EMPTY_SUBTITLE = new CuesWithTimingSubtitle(ImmutableList.of());
   private final SubtitleParser subtitleParser;
 
   public DelegatingSubtitleDecoder(String name, SubtitleParser subtitleParser) {
@@ -68,11 +63,6 @@ public final class DelegatingSubtitleDecoder extends SimpleSubtitleDecoder {
     if (reset) {
       subtitleParser.reset();
     }
-    @Nullable
-    List<CuesWithTiming> cuesWithTiming = subtitleParser.parse(data, /* offset= */ 0, length);
-    if (cuesWithTiming == null) {
-      return EMPTY_SUBTITLE;
-    }
-    return new CuesWithTimingSubtitle(cuesWithTiming);
+    return subtitleParser.parseToLegacySubtitle(data, /* offset= */ 0, length);
   }
 }

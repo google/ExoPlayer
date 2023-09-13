@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.media3.exoplayer.text;
+package androidx.media3.extractor.text;
 
 import static androidx.media3.common.util.Assertions.checkArgument;
 
 import androidx.media3.common.C;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.util.Log;
+import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
-import androidx.media3.extractor.text.CuesWithTiming;
-import androidx.media3.extractor.text.Subtitle;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
@@ -31,7 +30,9 @@ import java.util.Arrays;
 import java.util.List;
 
 /** A {@link Subtitle} backed by a list of {@link CuesWithTiming} instances. */
-/* package */ final class CuesWithTimingSubtitle implements Subtitle {
+// TODO(b/181312195): Make this package-private when ExoplayerCuesDecoder is deleted.
+@UnstableApi
+public final class CuesWithTimingSubtitle implements Subtitle {
 
   private static final String TAG = "CuesWithTimingSubtitle";
 

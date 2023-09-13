@@ -26,6 +26,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.extractor.text.CueDecoder;
+import androidx.media3.extractor.text.CuesWithTimingSubtitle;
 import androidx.media3.extractor.text.Subtitle;
 import androidx.media3.extractor.text.SubtitleDecoder;
 import androidx.media3.extractor.text.SubtitleDecoderException;
