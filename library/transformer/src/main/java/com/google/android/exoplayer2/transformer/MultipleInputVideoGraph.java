@@ -1,0 +1,490 @@
+/*
+ * Copyright 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.google.android.exoplayer2.transformer;
+
+import static com.google.android.exoplayer2.effect.DebugTraceUtil.EVENT_COMPOSITOR_OUTPUT_TEXTURE_RENDERED;
+import static com.google.android.exoplayer2.effect.DebugTraceUtil.EVENT_VFP_OUTPUT_TEXTURE_RENDERED;
+import static com.google.android.exoplayer2.effect.DebugTraceUtil.logEvent;
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
+import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
+import static com.google.android.exoplayer2.util.Util.contains;
+import static com.google.android.exoplayer2.util.Util.newSingleThreadScheduledExecutor;
+import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_TEXTURE_ID;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+
+import android.content.Context;
+import android.opengl.EGLContext;
+import android.opengl.EGLDisplay;
+import android.opengl.EGLSurface;
+import android.util.SparseArray;
+import androidx.annotation.Nullable;
+import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.effect.DefaultGlObjectsProvider;
+import com.google.android.exoplayer2.effect.DefaultVideoCompositor;
+import com.google.android.exoplayer2.effect.DefaultVideoFrameProcessor;
+import com.google.android.exoplayer2.effect.GlTextureProducer;
+import com.google.android.exoplayer2.effect.VideoCompositor;
+import com.google.android.exoplayer2.util.Consumer;
+import com.google.android.exoplayer2.util.DebugViewProvider;
+import com.google.android.exoplayer2.util.Effect;
+import com.google.android.exoplayer2.util.FrameInfo;
+import com.google.android.exoplayer2.util.GlObjectsProvider;
+import com.google.android.exoplayer2.util.GlTextureInfo;
+import com.google.android.exoplayer2.util.GlUtil;
+import com.google.android.exoplayer2.util.VideoFrameProcessingException;
+import com.google.android.exoplayer2.util.VideoFrameProcessor;
+import com.google.android.exoplayer2.video.ColorInfo;
+import com.google.common.util.concurrent.MoreExecutors;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+
+/**
+ * A {@link VideoGraph} that handles multiple input streams.
+ *
+ * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
+ *     contains the same ExoPlayer code). See <a
+ *     href="https://developer.android.com/guide/topics/media/media3/getting-started/migration-guide">the
+ *     migration guide</a> for more details, including a script to help with the migration.
+ */
+@Deprecated
+/* package */ final class MultipleInputVideoGraph implements VideoGraph {
+
+  public static final class Factory implements VideoGraph.Factory {
+
+    @Override
+    public MultipleInputVideoGraph create(
+        Context context,
+        ColorInfo inputColorInfo,
+        ColorInfo outputColorInfo,
+        Consumer<ExportException> errorConsumer,
+        DebugViewProvider debugViewProvider,
+        Listener listener,
+        Executor listenerExecutor,
+        List<Effect> compositionEffects,
+        long initialTimestampOffsetUs) {
+      return new MultipleInputVideoGraph(
+          context,
+          inputColorInfo,
+          outputColorInfo,
+          errorConsumer,
+          debugViewProvider,
+          listener,
+          listenerExecutor,
+          compositionEffects,
+          initialTimestampOffsetUs);
+    }
+  }
+
+  private static final String SHARED_EXECUTOR_NAME = "Transformer:MultipleInputVideoGraph:Thread";
+
+  private static final long RELEASE_WAIT_TIME_MS = 1_000;
+  private static final int PRE_COMPOSITOR_TEXTURE_OUTPUT_CAPACITY = 2;
+  private static final int COMPOSITOR_TEXTURE_OUTPUT_CAPACITY = 1;
+
+  private final Context context;
+  private final ColorInfo inputColorInfo;
+  private final ColorInfo outputColorInfo;
+  private final Consumer<ExportException> errorConsumer;
+  private final GlObjectsProvider glObjectsProvider;
+  private final DebugViewProvider debugViewProvider;
+  private final Listener listener;
+  private final Executor listenerExecutor;
+  private final List<Effect> compositionEffects;
+  private final List<VideoFrameProcessingWrapper> preProcessingWrappers;
+
+  private final ExecutorService sharedExecutorService;
+
+  private final DefaultVideoFrameProcessor.Factory videoFrameProcessorFactory;
+  private final Queue<CompositorOutputTextureInfo> compositorOutputTextures;
+  private final SparseArray<CompositorOutputTextureRelease> compositorOutputTextureReleases;
+
+  private final long initialTimestampOffsetUs;
+
+  @Nullable private VideoFrameProcessor compositionVideoFrameProcessor;
+  @Nullable private VideoCompositor videoCompositor;
+
+  private boolean compositionVideoFrameProcessorInputStreamRegistered;
+  private boolean compositionVideoFrameProcessorInputStreamRegistrationCompleted;
+  private boolean compositorEnded;
+  private boolean released;
+  private long lastRenderedPresentationTimeUs;
+
+  private volatile boolean hasProducedFrameWithTimestampZero;
+
+  // TODO - b/289986435: Remove errorConsumer and use Listener.onError().
+  private MultipleInputVideoGraph(
+      Context context,
+      ColorInfo inputColorInfo,
+      ColorInfo outputColorInfo,
+      Consumer<ExportException> errorConsumer,
+      DebugViewProvider debugViewProvider,
+      Listener listener,
+      Executor listenerExecutor,
+      List<Effect> compositionEffects,
+      long initialTimestampOffsetUs) {
+    this.context = context;
+    this.inputColorInfo = inputColorInfo;
+    this.outputColorInfo = outputColorInfo;
+    this.errorConsumer = errorConsumer;
+    this.debugViewProvider = debugViewProvider;
+    this.listener = listener;
+    this.listenerExecutor = listenerExecutor;
+    this.compositionEffects = new ArrayList<>(compositionEffects);
+    this.initialTimestampOffsetUs = initialTimestampOffsetUs;
+    lastRenderedPresentationTimeUs = C.TIME_UNSET;
+    preProcessingWrappers = new ArrayList<>();
+    sharedExecutorService = newSingleThreadScheduledExecutor(SHARED_EXECUTOR_NAME);
+    glObjectsProvider = new SingleContextGlObjectsProvider();
+    // TODO - b/289986435: Support injecting VideoFrameProcessor.Factory.
+    videoFrameProcessorFactory =
+        new DefaultVideoFrameProcessor.Factory.Builder()
+            .setGlObjectsProvider(glObjectsProvider)
+            .setExecutorService(sharedExecutorService)
+            .build();
+    compositorOutputTextures = new ArrayDeque<>();
+    compositorOutputTextureReleases = new SparseArray<>();
+  }
+
+  /**
+   * {@inheritDoc}
+   *
+   * <p>This method must be called at most once.
+   */
+  @Override
+  public void initialize() throws VideoFrameProcessingException {
+    checkState(
+        preProcessingWrappers.isEmpty()
+            && videoCompositor == null
+            && compositionVideoFrameProcessor == null
+            && !released);
+
+    // Setting up the compositionVideoFrameProcessor
+    compositionVideoFrameProcessor =
+        videoFrameProcessorFactory.create(
+            context,
+            debugViewProvider,
+            // Pre-processing VideoFrameProcessors have converted the inputColor to outputColor
+            // already.
+            /* inputColorInfo= */ outputColorInfo,
+            outputColorInfo,
+            /* renderFramesAutomatically= */ true,
+            /* listenerExecutor= */ MoreExecutors.directExecutor(),
+            new VideoFrameProcessor.Listener() {
+              @Override
+              public void onInputStreamRegistered(
+                  @VideoFrameProcessor.InputType int inputType,
+                  List<Effect> effects,
+                  FrameInfo frameInfo) {
+                compositionVideoFrameProcessorInputStreamRegistrationCompleted = true;
+                queueCompositionOutputInternal();
+              }
+
+              @Override
+              public void onOutputSizeChanged(int width, int height) {
+                checkNotNull(compositionVideoFrameProcessor)
+                    .setOutputSurfaceInfo(listener.onOutputSizeChanged(width, height));
+              }
+
+              @Override
+              public void onOutputFrameAvailableForRendering(long presentationTimeUs) {
+                if (presentationTimeUs == 0) {
+                  hasProducedFrameWithTimestampZero = true;
+                }
+                lastRenderedPresentationTimeUs = presentationTimeUs;
+              }
+
+              @Override
+              public void onError(VideoFrameProcessingException exception) {
+                handleException(exception);
+              }
+
+              @Override
+              public void onEnded() {
+                listenerExecutor.execute(() -> listener.onEnded(lastRenderedPresentationTimeUs));
+              }
+            });
+    // Release the compositor's output texture.
+    compositionVideoFrameProcessor.setOnInputFrameProcessedListener(
+        (textureId, syncObject) -> {
+          checkState(contains(compositorOutputTextureReleases, textureId));
+          compositorOutputTextureReleases.get(textureId).release();
+          compositorOutputTextureReleases.remove(textureId);
+          queueCompositionOutputInternal();
+        });
+
+    // Setting up the compositor.
+    videoCompositor =
+        new DefaultVideoCompositor(
+            context,
+            glObjectsProvider,
+            new DefaultVideoCompositor.Settings(),
+            sharedExecutorService,
+            new VideoCompositor.Listener() {
+              @Override
+              public void onError(VideoFrameProcessingException exception) {
+                handleException(exception);
+              }
+
+              @Override
+              public void onEnded() {
+                compositorEnded = true;
+                if (compositorOutputTextures.isEmpty()) {
+                  compositionVideoFrameProcessor.signalEndOfInput();
+                } else {
+                  queueCompositionOutputInternal();
+                }
+              }
+            },
+            /* textureOutputListener= */ this::processCompositorOutputTexture,
+            COMPOSITOR_TEXTURE_OUTPUT_CAPACITY);
+  }
+
+  @Override
+  public GraphInput createInput() throws VideoFrameProcessingException {
+    checkStateNotNull(videoCompositor);
+
+    int videoCompositorInputId = videoCompositor.registerInputSource();
+    // Creating a new VideoFrameProcessor for the input.
+    VideoFrameProcessingWrapper preProcessingVideoFrameProcessorWrapper =
+        new VideoFrameProcessingWrapper(
+            context,
+            videoFrameProcessorFactory
+                .buildUpon()
+                .setTextureOutput(
+                    // Texture output to compositor.
+                    (textureProducer, texture, presentationTimeUs, syncObject) -> {
+                      logEvent(EVENT_VFP_OUTPUT_TEXTURE_RENDERED, presentationTimeUs);
+                      checkNotNull(videoCompositor)
+                          .queueInputTexture(
+                              videoCompositorInputId,
+                              textureProducer,
+                              texture,
+                              // Color is converted to outputColor in pre processing.
+                              /* colorInfo= */ outputColorInfo,
+                              presentationTimeUs);
+                    },
+                    PRE_COMPOSITOR_TEXTURE_OUTPUT_CAPACITY)
+                .build(),
+            inputColorInfo,
+            outputColorInfo,
+            DebugViewProvider.NONE,
+            listenerExecutor,
+            new VideoFrameProcessor.Listener() {
+              @Override
+              public void onInputStreamRegistered(
+                  @VideoFrameProcessor.InputType int inputType,
+                  List<Effect> effects,
+                  FrameInfo frameInfo) {
+                // Do nothing.
+              }
+
+              @Override
+              public void onOutputSizeChanged(int width, int height) {}
+
+              @Override
+              public void onOutputFrameAvailableForRendering(long presentationTimeUs) {}
+
+              @Override
+              public void onError(VideoFrameProcessingException ex) {
+                errorConsumer.accept(ExportException.createForVideoFrameProcessingException(ex));
+              }
+
+              @Override
+              public void onEnded() {
+                checkNotNull(videoCompositor).signalEndOfInputSource(videoCompositorInputId);
+              }
+            },
+            /* renderFramesAutomatically= */ true,
+            /* presentation= */ null,
+            initialTimestampOffsetUs);
+    preProcessingWrappers.add(preProcessingVideoFrameProcessorWrapper);
+    return preProcessingVideoFrameProcessorWrapper;
+  }
+
+  @Override
+  public boolean hasProducedFrameWithTimestampZero() {
+    return hasProducedFrameWithTimestampZero;
+  }
+
+  @Override
+  public void release() {
+    if (released) {
+      return;
+    }
+
+    // Needs to release the frame processors before their internal executor services are released.
+    for (int i = 0; i < preProcessingWrappers.size(); i++) {
+      preProcessingWrappers.get(i).release();
+    }
+    preProcessingWrappers.clear();
+
+    if (videoCompositor != null) {
+      videoCompositor.release();
+      videoCompositor = null;
+    }
+
+    if (compositionVideoFrameProcessor != null) {
+      compositionVideoFrameProcessor.release();
+      compositionVideoFrameProcessor = null;
+    }
+
+    sharedExecutorService.shutdown();
+    try {
+      sharedExecutorService.awaitTermination(RELEASE_WAIT_TIME_MS, MILLISECONDS);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      listenerExecutor.execute(() -> listener.onError(VideoFrameProcessingException.from(e)));
+    }
+
+    released = true;
+  }
+
+  private void handleException(Exception e) {
+    errorConsumer.accept(
+        ExportException.createForVideoFrameProcessingException(
+            e instanceof VideoFrameProcessingException
+                ? (VideoFrameProcessingException) e
+                : VideoFrameProcessingException.from(e)));
+  }
+
+  private void processCompositorOutputTexture(
+      GlTextureProducer textureProducer,
+      GlTextureInfo outputTexture,
+      long presentationTimeUs,
+      long syncObject) {
+    checkStateNotNull(compositionVideoFrameProcessor);
+    checkState(!compositorEnded);
+    logEvent(EVENT_COMPOSITOR_OUTPUT_TEXTURE_RENDERED, presentationTimeUs);
+
+    compositorOutputTextures.add(
+        new CompositorOutputTextureInfo(outputTexture, presentationTimeUs));
+    compositorOutputTextureReleases.put(
+        outputTexture.texId,
+        new CompositorOutputTextureRelease(textureProducer, presentationTimeUs));
+
+    if (!compositionVideoFrameProcessorInputStreamRegistered) {
+      checkNotNull(compositionVideoFrameProcessor)
+          .registerInputStream(
+              INPUT_TYPE_TEXTURE_ID,
+              compositionEffects,
+              new FrameInfo.Builder(outputTexture.width, outputTexture.height).build());
+      compositionVideoFrameProcessorInputStreamRegistered = true;
+      // Return as the VideoFrameProcessor rejects input textures until the input is registered.
+      return;
+    }
+    queueCompositionOutputInternal();
+  }
+
+  private void queueCompositionOutputInternal() {
+    checkStateNotNull(compositionVideoFrameProcessor);
+    if (!compositionVideoFrameProcessorInputStreamRegistrationCompleted) {
+      return;
+    }
+
+    @Nullable CompositorOutputTextureInfo outputTexture = compositorOutputTextures.peek();
+    if (outputTexture == null) {
+      return;
+    }
+
+    checkState(
+        checkNotNull(compositionVideoFrameProcessor)
+            .queueInputTexture(
+                outputTexture.glTextureInfo.texId, outputTexture.presentationTimeUs));
+    compositorOutputTextures.remove();
+    if (compositorEnded && compositorOutputTextures.isEmpty()) {
+      checkNotNull(compositionVideoFrameProcessor).signalEndOfInput();
+    }
+  }
+
+  private static final class CompositorOutputTextureInfo {
+    public final GlTextureInfo glTextureInfo;
+    public final long presentationTimeUs;
+
+    private CompositorOutputTextureInfo(GlTextureInfo glTextureInfo, long presentationTimeUs) {
+      this.glTextureInfo = glTextureInfo;
+      this.presentationTimeUs = presentationTimeUs;
+    }
+  }
+
+  private static final class CompositorOutputTextureRelease {
+    private final GlTextureProducer textureProducer;
+    private final long presentationTimeUs;
+
+    public CompositorOutputTextureRelease(
+        GlTextureProducer textureProducer, long presentationTimeUs) {
+      this.textureProducer = textureProducer;
+      this.presentationTimeUs = presentationTimeUs;
+    }
+
+    public void release() {
+      textureProducer.releaseOutputTexture(presentationTimeUs);
+    }
+  }
+
+  /**
+   * A {@link GlObjectsProvider} that creates a new {@link EGLContext} in {@link #createEglContext}
+   * with the same shared EGLContext.
+   */
+  private static final class SingleContextGlObjectsProvider implements GlObjectsProvider {
+    private final GlObjectsProvider glObjectsProvider;
+    private @MonotonicNonNull EGLContext singleEglContext;
+
+    public SingleContextGlObjectsProvider() {
+      this.glObjectsProvider = new DefaultGlObjectsProvider();
+    }
+
+    @Override
+    public EGLContext createEglContext(
+        EGLDisplay eglDisplay, int openGlVersion, int[] configAttributes)
+        throws GlUtil.GlException {
+      if (singleEglContext == null) {
+        singleEglContext =
+            glObjectsProvider.createEglContext(eglDisplay, openGlVersion, configAttributes);
+      }
+      return singleEglContext;
+    }
+
+    @Override
+    public EGLSurface createEglSurface(
+        EGLDisplay eglDisplay,
+        Object surface,
+        @C.ColorTransfer int colorTransfer,
+        boolean isEncoderInputSurface)
+        throws GlUtil.GlException {
+      return glObjectsProvider.createEglSurface(
+          eglDisplay, surface, colorTransfer, isEncoderInputSurface);
+    }
+
+    @Override
+    public EGLSurface createFocusedPlaceholderEglSurface(
+        EGLContext eglContext, EGLDisplay eglDisplay) throws GlUtil.GlException {
+      return glObjectsProvider.createFocusedPlaceholderEglSurface(eglContext, eglDisplay);
+    }
+
+    @Override
+    public GlTextureInfo createBuffersForTexture(int texId, int width, int height)
+        throws GlUtil.GlException {
+      return glObjectsProvider.createBuffersForTexture(texId, width, height);
+    }
+  }
+}
