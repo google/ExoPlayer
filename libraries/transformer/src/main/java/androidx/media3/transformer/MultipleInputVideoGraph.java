@@ -182,6 +182,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             /* renderFramesAutomatically= */ true,
             /* listenerExecutor= */ MoreExecutors.directExecutor(),
             new VideoFrameProcessor.Listener() {
+              // All of this listener's methods are called on the sharedExecutorService.
               @Override
               public void onInputStreamRegistered(
                   @VideoFrameProcessor.InputType int inputType,
@@ -207,7 +208,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
               @Override
               public void onError(VideoFrameProcessingException exception) {
-                handleException(exception);
+                handleVideoFrameProcessingException(exception);
               }
 
               @Override
@@ -217,12 +218,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             });
     // Release the compositor's output texture.
     compositionVideoFrameProcessor.setOnInputFrameProcessedListener(
-        (textureId, syncObject) -> {
-          checkState(contains(compositorOutputTextureReleases, textureId));
-          compositorOutputTextureReleases.get(textureId).release();
-          compositorOutputTextureReleases.remove(textureId);
-          queueCompositionOutputInternal();
-        });
+        this::onCompositionVideoFrameProcessorInputFrameProcessed);
 
     // Setting up the compositor.
     videoCompositor =
@@ -232,19 +228,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             new DefaultVideoCompositor.Settings(),
             sharedExecutorService,
             new VideoCompositor.Listener() {
+              // All of this listener's methods are called on the sharedExecutorService.
               @Override
               public void onError(VideoFrameProcessingException exception) {
-                handleException(exception);
+                handleVideoFrameProcessingException(exception);
               }
 
               @Override
               public void onEnded() {
-                compositorEnded = true;
-                if (compositorOutputTextures.isEmpty()) {
-                  compositionVideoFrameProcessor.signalEndOfInput();
-                } else {
-                  queueCompositionOutputInternal();
-                }
+                onVideoCompositorEnded();
               }
             },
             /* textureOutputListener= */ this::processCompositorOutputTexture,
@@ -264,17 +256,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
                 .buildUpon()
                 .setTextureOutput(
                     // Texture output to compositor.
-                    (textureProducer, texture, presentationTimeUs, syncObject) -> {
-                      logEvent(EVENT_VFP_OUTPUT_TEXTURE_RENDERED, presentationTimeUs);
-                      checkNotNull(videoCompositor)
-                          .queueInputTexture(
-                              videoCompositorInputId,
-                              textureProducer,
-                              texture,
-                              // Color is converted to outputColor in pre processing.
-                              /* colorInfo= */ outputColorInfo,
-                              presentationTimeUs);
-                    },
+                    (textureProducer, texture, presentationTimeUs, syncObject) ->
+                        queuePreProcessingOutputToCompositor(
+                            videoCompositorInputId, textureProducer, texture, presentationTimeUs),
                     PRE_COMPOSITOR_TEXTURE_OUTPUT_CAPACITY)
                 .build(),
             inputColorInfo,
@@ -282,13 +266,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             DebugViewProvider.NONE,
             listenerExecutor,
             new VideoFrameProcessor.Listener() {
+              // All of this listener's methods are called on the sharedExecutorService.
               @Override
               public void onInputStreamRegistered(
                   @VideoFrameProcessor.InputType int inputType,
                   List<Effect> effects,
-                  FrameInfo frameInfo) {
-                // Do nothing.
-              }
+                  FrameInfo frameInfo) {}
 
               @Override
               public void onOutputSizeChanged(int width, int height) {}
@@ -297,13 +280,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               public void onOutputFrameAvailableForRendering(long presentationTimeUs) {}
 
               @Override
-              public void onError(VideoFrameProcessingException ex) {
-                errorConsumer.accept(ExportException.createForVideoFrameProcessingException(ex));
+              public void onError(VideoFrameProcessingException exception) {
+                handleVideoFrameProcessingException(exception);
               }
 
               @Override
               public void onEnded() {
-                checkNotNull(videoCompositor).signalEndOfInputSource(videoCompositorInputId);
+                onPreProcessingVideoFrameProcessorEnded(videoCompositorInputId);
               }
             },
             /* renderFramesAutomatically= */ true,
@@ -351,14 +334,24 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     released = true;
   }
 
-  private void handleException(Exception e) {
-    errorConsumer.accept(
-        ExportException.createForVideoFrameProcessingException(
-            e instanceof VideoFrameProcessingException
-                ? (VideoFrameProcessingException) e
-                : VideoFrameProcessingException.from(e)));
+  // This method is called on the sharedExecutorService.
+  private void queuePreProcessingOutputToCompositor(
+      int videoCompositorInputId,
+      GlTextureProducer textureProducer,
+      GlTextureInfo texture,
+      long presentationTimeUs) {
+    logEvent(EVENT_VFP_OUTPUT_TEXTURE_RENDERED, presentationTimeUs);
+    checkNotNull(videoCompositor)
+        .queueInputTexture(
+            videoCompositorInputId,
+            textureProducer,
+            texture,
+            // Color is converted to outputColor in pre processing.
+            /* colorInfo= */ outputColorInfo,
+            presentationTimeUs);
   }
 
+  // This method is called on the sharedExecutorService.
   private void processCompositorOutputTexture(
       GlTextureProducer textureProducer,
       GlTextureInfo outputTexture,
@@ -387,6 +380,31 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     queueCompositionOutputInternal();
   }
 
+  // This method is called on the sharedExecutorService.
+  private void onCompositionVideoFrameProcessorInputFrameProcessed(int textureId, long syncObject) {
+    // CompositionVideoFrameProcessor's input is VideoCompositor's output.
+    checkState(contains(compositorOutputTextureReleases, textureId));
+    compositorOutputTextureReleases.get(textureId).release();
+    compositorOutputTextureReleases.remove(textureId);
+    queueCompositionOutputInternal();
+  }
+
+  // This method is called on the sharedExecutorService.
+  private void onPreProcessingVideoFrameProcessorEnded(int videoCompositorInputId) {
+    checkNotNull(videoCompositor).signalEndOfInputSource(videoCompositorInputId);
+  }
+
+  // This method is called on the sharedExecutorService.
+  private void onVideoCompositorEnded() {
+    compositorEnded = true;
+    if (compositorOutputTextures.isEmpty()) {
+      checkNotNull(compositionVideoFrameProcessor).signalEndOfInput();
+    } else {
+      queueCompositionOutputInternal();
+    }
+  }
+
+  // This method is called on the sharedExecutorService.
   private void queueCompositionOutputInternal() {
     checkStateNotNull(compositionVideoFrameProcessor);
     if (!compositionVideoFrameProcessorInputStreamRegistrationCompleted) {
@@ -406,6 +424,15 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (compositorEnded && compositorOutputTextures.isEmpty()) {
       checkNotNull(compositionVideoFrameProcessor).signalEndOfInput();
     }
+  }
+
+  // This method is called on the sharedExecutorService.
+  private void handleVideoFrameProcessingException(Exception e) {
+    errorConsumer.accept(
+        ExportException.createForVideoFrameProcessingException(
+            e instanceof VideoFrameProcessingException
+                ? (VideoFrameProcessingException) e
+                : VideoFrameProcessingException.from(e)));
   }
 
   private static final class CompositorOutputTextureInfo {
