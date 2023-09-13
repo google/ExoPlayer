@@ -56,7 +56,13 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * and combines them into one output stream.
  *
  * <p>The first {@linkplain #registerInputSource registered source} will be the primary stream,
- * which is used to determine the output frames' timestamps and dimensions.
+ * which is used to determine the output textures' timestamps and dimensions.
+ *
+ * <p>The input source must be able to have at least two {@linkplain
+ * VideoCompositor#queueInputTexture queued textures} in its output buffer.
+ *
+ * <p>When composited, textures are drawn in the reverse order of their registration order, so that
+ * the first registered source is on the very top.
  *
  * <p>Only SDR input with the same {@link ColorInfo} are supported.
  *
@@ -157,16 +163,6 @@ public final class DefaultVideoCompositor implements VideoCompositor {
     videoFrameProcessingTaskExecutor.submit(this::setupGlObjects);
   }
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>The input source must be able to have at least two {@linkplain
-   * VideoCompositor#queueInputTexture queued textures} before one texture is {@linkplain
-   * DefaultVideoFrameProcessor.ReleaseOutputTextureCallback released}.
-   *
-   * <p>When composited, textures are drawn in the reverse order of their registration order, so
-   * that the first registered source is on the very top.
-   */
   @Override
   public synchronized int registerInputSource() {
     inputSources.add(new InputSource());
