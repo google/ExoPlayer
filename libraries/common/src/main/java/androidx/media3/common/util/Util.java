@@ -1661,11 +1661,6 @@ public final class Util {
    * @param roundingMode The rounding mode to use if the result of the division is not an integer.
    * @return The scaled value.
    */
-  // LongMath.saturatedMultiply is @Beta in the version of Guava we currently depend on (31.1)
-  // but it is no longer @Beta from 32.0.0. This suppression is therefore safe because there's
-  // no version of Guava after 31.1 that doesn't contain this symbol.
-  // TODO(b/290045069): Remove this suppression when we depend on Guava 32+.
-  @SuppressWarnings("UnstableApiUsage")
   @UnstableApi
   public static long scaleLargeValue(
       long value, long multiplier, long divisor, RoundingMode roundingMode) {
@@ -1698,11 +1693,6 @@ public final class Util {
    * @param roundingMode The rounding mode to use if the result of the division is not an integer.
    * @return The scaled values.
    */
-  // LongMath.saturatedMultiply is @Beta in the version of Guava we currently depend on (31.1)
-  // but it is no longer @Beta from 32.0.0. This suppression is therefore safe because there's
-  // no version of Guava after 31.1 that doesn't contain this symbol.
-  // TODO(b/290045069): Remove this suppression when we depend on Guava 32+.
-  @SuppressWarnings("UnstableApiUsage")
   @UnstableApi
   public static long[] scaleLargeValues(
       List<Long> values, long multiplier, long divisor, RoundingMode roundingMode) {
@@ -1802,11 +1792,6 @@ public final class Util {
    * <p>This implementation should be used after simpler simplifying efforts have failed (such as
    * checking if {@code value} or {@code multiplier} are exact multiples of {@code divisor}).
    */
-  // LongMath.saturatedMultiply is @Beta in the version of Guava we currently depend on (31.1)
-  // but it is no longer @Beta from 32.0.0. This suppression is therefore safe because there's
-  // no version of Guava after 31.1 that doesn't contain this symbol.
-  // TODO(b/290045069): Remove this suppression when we depend on Guava 32+.
-  @SuppressWarnings("UnstableApiUsage")
   private static long scaleLargeValueFallback(
       long value, long multiplier, long divisor, RoundingMode roundingMode) {
     long numerator = LongMath.saturatedMultiply(value, multiplier);
