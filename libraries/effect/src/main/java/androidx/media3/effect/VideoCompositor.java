@@ -27,6 +27,8 @@ import java.util.List;
  * output frames.
  *
  * <p>Input and output are provided via OpenGL textures.
+ *
+ * <p>Methods may be called from any thread.
  */
 @UnstableApi
 public interface VideoCompositor extends GlTextureProducer {
