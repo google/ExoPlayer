@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,13 @@ import com.google.android.exoplayer2.testutil.CapturingRenderersFactory;
 import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.util.Clock;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
@@ -42,17 +48,23 @@ import org.robolectric.annotation.GraphicsMode;
 @RunWith(ParameterizedRobolectricTestRunner.class)
 @GraphicsMode(value = NATIVE)
 public class ImagePlaybackTest {
-
-  @Parameter public String inputFile;
+  @Parameter public Set<String> inputFiles;
 
   @Parameters(name = "{0}")
-  public static ImmutableList<String> mediaSamples() {
-    // TODO(b/289989736): When extraction for other types of images is implemented, add those image
-    //   types to this list.
-    // Robolectric's NativeShadowBitmapFactory doesn't support decoding HEIF format, so we don't
-    // test that format here.
-    return ImmutableList.of(
-        "png/non-motion-photo-shortened.png", "jpeg/non-motion-photo-shortened.jpg");
+  public static List<Set<String>> mediaSamples() {
+    // Robolectric's ShadowNativeBitmapFactory doesn't support decoding HEIF format, so we don't
+    // test that here.
+    // TODO b/300457060 - Find out why jpegs cause flaky failures in this test and then add jpegs to
+    // this list if possible.
+    return new ArrayList<>(
+        Collections2.filter(
+            Sets.powerSet(
+                ImmutableSet.of(
+                    "bitmap/input_images/media3test.png",
+                    "bmp/non-motion-photo-shortened-cropped.bmp",
+                    "png/non-motion-photo-shortened.png",
+                    "webp/ic_launcher_round.webp")),
+            /* predicate= */ input -> !input.isEmpty()));
   }
 
   @Test
@@ -64,23 +76,43 @@ public class ImagePlaybackTest {
     ExoPlayer player =
         new ExoPlayer.Builder(applicationContext, renderersFactory).setClock(clock).build();
     PlaybackOutput playbackOutput = PlaybackOutput.register(player, renderersFactory);
-    long durationMs = 5 * C.MILLIS_PER_SECOND;
-    player.setMediaItem(
-        new MediaItem.Builder()
-            .setUri("asset:///media/" + inputFile)
-            .setImageDurationMs(durationMs)
-            .build());
+    List<String> sortedInputFiles = new ArrayList<>(inputFiles);
+    Collections.sort(sortedInputFiles);
+    List<MediaItem> mediaItems = new ArrayList<>(inputFiles.size());
+    long totalDurationMs = 0;
+    long currentDurationMs = 3 * C.MILLIS_PER_SECOND;
+    for (String inputFile : sortedInputFiles) {
+      mediaItems.add(
+          new MediaItem.Builder()
+              .setUri("asset:///media/" + inputFile)
+              .setImageDurationMs(currentDurationMs)
+              .build());
+      totalDurationMs += currentDurationMs;
+      if (currentDurationMs < 5 * C.MILLIS_PER_SECOND) {
+        currentDurationMs += C.MILLIS_PER_SECOND;
+      }
+    }
+    player.setMediaItems(mediaItems);
     player.prepare();
-
     TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_READY);
     long playerStartedMs = clock.elapsedRealtime();
     player.play();
     TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
     long playbackDurationMs = clock.elapsedRealtime() - playerStartedMs;
     player.release();
-
-    assertThat(playbackDurationMs).isEqualTo(durationMs);
+    assertThat(playbackDurationMs).isEqualTo(totalDurationMs);
     DumpFileAsserts.assertOutput(
-        applicationContext, playbackOutput, "playbackdumps/" + inputFile + ".dump");
+        applicationContext,
+        playbackOutput,
+        "playbackdumps/image/" + generateName(sortedInputFiles) + ".dump");
+  }
+
+  private static String generateName(List<String> sortedInputFiles) {
+    StringBuilder name = new StringBuilder();
+    for (String inputFile : sortedInputFiles) {
+      name.append(inputFile, inputFile.lastIndexOf("/") + 1, inputFile.length()).append("+");
+    }
+    name.setLength(name.length() - 1);
+    return name.toString();
   }
 }

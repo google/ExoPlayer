@@ -15,13 +15,18 @@
  */
 package com.google.android.exoplayer2.ext.image;
 
-import static com.google.android.exoplayer2.PlaybackException.ERROR_CODE_FAILED_RUNTIME_CHECK;
+import static com.google.android.exoplayer2.C.FIRST_FRAME_NOT_RENDERED;
+import static com.google.android.exoplayer2.C.FIRST_FRAME_NOT_RENDERED_ONLY_ALLOWED_IF_STARTED;
+import static com.google.android.exoplayer2.C.FIRST_FRAME_RENDERED;
 import static com.google.android.exoplayer2.source.SampleStream.FLAG_REQUIRE_FORMAT;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
+import static java.lang.Math.min;
+import static java.lang.annotation.ElementType.TYPE_USE;
 
 import android.graphics.Bitmap;
+import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.BaseRenderer;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -33,14 +38,16 @@ import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.SampleStream;
+import com.google.android.exoplayer2.util.LongArrayQueue;
 import com.google.android.exoplayer2.util.TraceUtil;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
-// TODO(b/289989736): Currently works for one stream only. Refactor so that it works for multiple
-//   inputs streams.
 /**
  * A {@link Renderer} implementation for images.
  *
@@ -51,21 +58,50 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
  */
 @Deprecated
 public final class ImageRenderer extends BaseRenderer {
+
   private static final String TAG = "ImageRenderer";
 
-  private final DecoderInputBuffer flagsOnlyBuffer;
+  /** Decoder reinitialization states. */
+  @Documented
+  @Retention(RetentionPolicy.SOURCE)
+  @Target(TYPE_USE)
+  @IntDef({
+    REINITIALIZATION_STATE_NONE,
+    REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM_THEN_WAIT,
+    REINITIALIZATION_STATE_WAIT_END_OF_STREAM
+  })
+  private @interface ReinitializationState {}
+
+  /** The decoder does not need to be re-initialized. */
+  private static final int REINITIALIZATION_STATE_NONE = 0;
+
+  /**
+   * The input format has changed in a way that requires the decoder to be re-initialized, but we
+   * haven't yet signaled an end of stream to the existing decoder. We need to do so in order to
+   * ensure that it outputs any remaining buffers before we release it.
+   */
+  private static final int REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM_THEN_WAIT = 2;
+
+  /**
+   * The input format has changed in a way that requires the decoder to be re-initialized, and we've
+   * signaled an end of stream to the existing decoder. We're waiting for the decoder to output an
+   * end of stream signal to indicate that it has output any remaining buffers before we release it.
+   */
+  private static final int REINITIALIZATION_STATE_WAIT_END_OF_STREAM = 3;
+
   private final ImageDecoder.Factory decoderFactory;
   private final ImageOutput imageOutput;
+  private final DecoderInputBuffer flagsOnlyBuffer;
+  private final LongArrayQueue offsetQueue;
 
-  private @C.FirstFrameState int firstFrameState;
   private boolean inputStreamEnded;
   private boolean outputStreamEnded;
-  private long durationUs;
-  private long offsetUs;
+  private @ReinitializationState int decoderReinitializationState;
+  private @C.FirstFrameState int firstFrameState;
+  private @Nullable Format inputFormat;
   private @Nullable ImageDecoder decoder;
   private @Nullable DecoderInputBuffer inputBuffer;
   private @Nullable ImageOutputBuffer outputBuffer;
-  private @MonotonicNonNull Format inputFormat;
 
   /**
    * Creates an instance.
@@ -77,11 +113,12 @@ public final class ImageRenderer extends BaseRenderer {
    */
   public ImageRenderer(ImageDecoder.Factory decoderFactory, ImageOutput imageOutput) {
     super(C.TRACK_TYPE_IMAGE);
-    flagsOnlyBuffer = DecoderInputBuffer.newNoDataInstance();
     this.decoderFactory = decoderFactory;
     this.imageOutput = imageOutput;
-    durationUs = C.TIME_UNSET;
-    firstFrameState = C.FIRST_FRAME_NOT_RENDERED;
+    flagsOnlyBuffer = DecoderInputBuffer.newNoDataInstance();
+    offsetQueue = new LongArrayQueue();
+    decoderReinitializationState = REINITIALIZATION_STATE_NONE;
+    firstFrameState = FIRST_FRAME_NOT_RENDERED;
   }
 
   @Override
@@ -96,11 +133,11 @@ public final class ImageRenderer extends BaseRenderer {
 
   @Override
   public void render(long positionUs, long elapsedRealtimeUs) throws ExoPlaybackException {
-    checkState(durationUs != C.TIME_UNSET);
     if (outputStreamEnded) {
       return;
     }
-
+    // If the offsetQueue is empty, we haven't been given a stream to render.
+    checkState(!offsetQueue.isEmpty());
     if (inputFormat == null) {
       // We don't have a format yet, so try and read one.
       FormatHolder formatHolder = getFormatHolder();
@@ -108,9 +145,9 @@ public final class ImageRenderer extends BaseRenderer {
       @SampleStream.ReadDataResult
       int result = readSource(formatHolder, flagsOnlyBuffer, FLAG_REQUIRE_FORMAT);
       if (result == C.RESULT_FORMAT_READ) {
-        // Note that this works because we only expect to enter this if-condition once per playback
-        // for now.
-        maybeInitDecoder(checkNotNull(formatHolder.format));
+        // Note that this works because we only expect to enter this if-condition once per playback.
+        inputFormat = checkNotNull(formatHolder.format);
+        initDecoder();
       } else if (result == C.RESULT_BUFFER_READ) {
         // End of stream read having not read a format.
         checkState(flagsOnlyBuffer.isEndOfStream());
@@ -122,7 +159,6 @@ public final class ImageRenderer extends BaseRenderer {
         return;
       }
     }
-
     try {
       // Rendering loop.
       TraceUtil.beginSection("drainAndFeedDecoder");
@@ -136,12 +172,22 @@ public final class ImageRenderer extends BaseRenderer {
 
   @Override
   public boolean isReady() {
-    return firstFrameState == C.FIRST_FRAME_RENDERED;
+    return firstFrameState == FIRST_FRAME_RENDERED
+        || (firstFrameState == FIRST_FRAME_NOT_RENDERED_ONLY_ALLOWED_IF_STARTED
+            && outputBuffer != null);
   }
 
   @Override
   public boolean isEnded() {
     return outputStreamEnded;
+  }
+
+  @Override
+  protected void onEnabled(boolean joining, boolean mayRenderStartOfStream) {
+    firstFrameState =
+        mayRenderStartOfStream
+            ? C.FIRST_FRAME_NOT_RENDERED
+            : C.FIRST_FRAME_NOT_RENDERED_ONLY_ALLOWED_IF_STARTED;
   }
 
   @Override
@@ -151,36 +197,41 @@ public final class ImageRenderer extends BaseRenderer {
       long offsetUs,
       MediaSource.MediaPeriodId mediaPeriodId)
       throws ExoPlaybackException {
-    // TODO(b/289989736): when the mediaPeriodId is signalled to the renders, collect and set
-    //   durationUs here.
-    durationUs = 2 * C.MICROS_PER_SECOND;
-    this.offsetUs = offsetUs;
     super.onStreamChanged(formats, startPositionUs, offsetUs, mediaPeriodId);
+    offsetQueue.add(offsetUs);
+    inputStreamEnded = false;
+    outputStreamEnded = false;
   }
 
   @Override
   protected void onPositionReset(long positionUs, boolean joining) {
-    // Since the renderer only supports playing one image from, this is currently a no-op (don't
-    // need to consider a new stream because it will be the same as the last one).
+    lowerFirstFrameState(FIRST_FRAME_NOT_RENDERED);
   }
 
   @Override
   protected void onDisabled() {
-    releaseResources();
+    offsetQueue.clear();
+    inputFormat = null;
+    releaseDecoderResources();
+    imageOutput.onDisabled();
   }
 
   @Override
   protected void onReset() {
-    releaseResources();
+    offsetQueue.clear();
+    releaseDecoderResources();
+    lowerFirstFrameState(FIRST_FRAME_NOT_RENDERED);
   }
 
   @Override
   protected void onRelease() {
-    releaseResources();
+    offsetQueue.clear();
+    releaseDecoderResources();
   }
 
   /**
-   * Attempts to dequeue an output buffer from the decoder and, if successful, renders it.
+   * Attempts to dequeue an output buffer from the decoder and, if successful and permitted to,
+   * renders it.
    *
    * @param positionUs The player's current position.
    * @param elapsedRealtimeUs {@link android.os.SystemClock#elapsedRealtime()} in microseconds,
@@ -189,7 +240,7 @@ public final class ImageRenderer extends BaseRenderer {
    * @throws ImageDecoderException If an error occurs draining the output buffer.
    */
   private boolean drainOutputBuffer(long positionUs, long elapsedRealtimeUs)
-      throws ImageDecoderException {
+      throws ImageDecoderException, ExoPlaybackException {
     if (outputBuffer == null) {
       checkStateNotNull(decoder);
       outputBuffer = decoder.dequeueOutputBuffer();
@@ -197,27 +248,45 @@ public final class ImageRenderer extends BaseRenderer {
         return false;
       }
     }
-    if (outputBuffer.isEndOfStream()) {
-      outputBuffer.release();
-      outputBuffer = null;
-      outputStreamEnded = true;
+    if (firstFrameState == FIRST_FRAME_NOT_RENDERED_ONLY_ALLOWED_IF_STARTED
+        && getState() != STATE_STARTED) {
       return false;
     }
-
+    if (checkNotNull(outputBuffer).isEndOfStream()) {
+      offsetQueue.remove();
+      if (decoderReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM) {
+        // We're waiting to re-initialize the decoder, and have now processed all final buffers.
+        releaseDecoderResources();
+        checkStateNotNull(inputFormat);
+        initDecoder();
+      } else {
+        checkNotNull(outputBuffer).release();
+        outputBuffer = null;
+        if (offsetQueue.isEmpty()) {
+          outputStreamEnded = true;
+        }
+      }
+      return false;
+    }
+    checkStateNotNull(outputBuffer);
     if (!processOutputBuffer(positionUs, elapsedRealtimeUs)) {
       return false;
     }
-
-    firstFrameState = C.FIRST_FRAME_RENDERED;
+    firstFrameState = FIRST_FRAME_RENDERED;
     return true;
   }
 
-  @RequiresNonNull("outputBuffer")
   @SuppressWarnings("unused") // Will be used or removed when the integrated with the videoSink.
+  @RequiresNonNull("outputBuffer")
   private boolean processOutputBuffer(long positionUs, long elapsedRealtimeUs) {
-    checkStateNotNull(
-        outputBuffer.bitmap, "Non-EOS buffer came back from the decoder without bitmap.");
-    imageOutput.onImageAvailable(positionUs - offsetUs, outputBuffer.bitmap);
+    Bitmap outputBitmap =
+        checkNotNull(
+            outputBuffer.bitmap, "Non-EOS buffer came back from the decoder without bitmap.");
+    if (positionUs < outputBuffer.timeUs) {
+      // It's too early to render the buffer.
+      return false;
+    }
+    imageOutput.onImageAvailable(outputBuffer.timeUs - offsetQueue.element(), outputBitmap);
     checkNotNull(outputBuffer).release();
     outputBuffer = null;
     return true;
@@ -226,9 +295,12 @@ public final class ImageRenderer extends BaseRenderer {
   /**
    * @return Whether we can feed more input data to the decoder.
    */
-  private boolean feedInputBuffer() throws ExoPlaybackException, ImageDecoderException {
+  private boolean feedInputBuffer() throws ImageDecoderException {
     FormatHolder formatHolder = getFormatHolder();
-    if (decoder == null || inputStreamEnded) {
+    if (decoder == null
+        || decoderReinitializationState == REINITIALIZATION_STATE_WAIT_END_OF_STREAM
+        || inputStreamEnded) {
+      // We need to reinitialize the decoder or the input stream has ended.
       return false;
     }
     if (inputBuffer == null) {
@@ -236,6 +308,14 @@ public final class ImageRenderer extends BaseRenderer {
       if (inputBuffer == null) {
         return false;
       }
+    }
+    if (decoderReinitializationState == REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM_THEN_WAIT) {
+      checkStateNotNull(inputBuffer);
+      inputBuffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
+      checkNotNull(decoder).queueInputBuffer(inputBuffer);
+      inputBuffer = null;
+      decoderReinitializationState = REINITIALIZATION_STATE_WAIT_END_OF_STREAM;
+      return false;
     }
     switch (readSource(formatHolder, inputBuffer, /* readFlags= */ 0)) {
       case C.RESULT_NOTHING_READ:
@@ -251,26 +331,18 @@ public final class ImageRenderer extends BaseRenderer {
         inputBuffer = null;
         return true;
       case C.RESULT_FORMAT_READ:
-        if (checkNotNull(formatHolder.format).equals(inputFormat)) {
-          return true;
-        }
-        throw createRendererException(
-            new UnsupportedOperationException(
-                "Changing format is not supported in the ImageRenderer."),
-            formatHolder.format,
-            ERROR_CODE_FAILED_RUNTIME_CHECK);
+        inputFormat = checkNotNull(formatHolder.format);
+        decoderReinitializationState = REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM_THEN_WAIT;
+        return true;
       default:
         throw new IllegalStateException();
     }
   }
 
+  @RequiresNonNull("inputFormat")
   @EnsuresNonNull("decoder")
-  private void maybeInitDecoder(Format format) throws ExoPlaybackException {
-    if (inputFormat != null && inputFormat.equals(format) && decoder != null) {
-      return;
-    }
-    inputFormat = format;
-    if (canCreateDecoderForFormat(format)) {
+  private void initDecoder() throws ExoPlaybackException {
+    if (canCreateDecoderForFormat(inputFormat)) {
       if (decoder != null) {
         decoder.release();
       }
@@ -278,7 +350,7 @@ public final class ImageRenderer extends BaseRenderer {
     } else {
       throw createRendererException(
           new ImageDecoderException("Provided decoder factory can't create decoder for format."),
-          format,
+          inputFormat,
           PlaybackException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED);
     }
   }
@@ -289,12 +361,17 @@ public final class ImageRenderer extends BaseRenderer {
         || supportsFormat == RendererCapabilities.create(C.FORMAT_EXCEEDS_CAPABILITIES);
   }
 
-  private void releaseResources() {
+  private void lowerFirstFrameState(@C.FirstFrameState int firstFrameState) {
+    this.firstFrameState = min(this.firstFrameState, firstFrameState);
+  }
+
+  private void releaseDecoderResources() {
     inputBuffer = null;
     if (outputBuffer != null) {
       outputBuffer.release();
     }
     outputBuffer = null;
+    decoderReinitializationState = REINITIALIZATION_STATE_NONE;
     if (decoder != null) {
       decoder.release();
       decoder = null;

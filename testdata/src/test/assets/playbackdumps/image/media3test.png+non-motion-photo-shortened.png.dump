@@ -1,0 +1,8 @@
+ImageOutput:
+  rendered image count = 2
+  image output #1:
+    presentationTimeUs = 0
+    bitmap hash = -389047680
+  image output #2:
+    presentationTimeUs = 0
+    bitmap hash = 1367007828

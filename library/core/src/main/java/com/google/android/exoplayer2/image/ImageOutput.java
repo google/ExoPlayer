@@ -37,4 +37,7 @@ public interface ImageOutput {
    * @param bitmap The new image available.
    */
   void onImageAvailable(long presentationTimeUs, Bitmap bitmap);
+
+  /** Called when the renderer is disabled. */
+  void onDisabled();
 }
