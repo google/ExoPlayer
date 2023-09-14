@@ -104,13 +104,18 @@ import org.checkerframework.checker.nullness.qual.Nullable;
     }
   }
 
-  /** Returns the presentation timestamp (in microseconds) of the last sync sample. */
+  /**
+   * Returns the presentation timestamp (in microseconds) of the last sync sample or {@link
+   * C#TIME_UNSET} if there is no video track.
+   */
   public long getLastSyncSampleTimestampUs() {
     checkState(initialized);
 
+    if (extractorOutput.videoTrackId == C.INDEX_UNSET) {
+      return C.TIME_UNSET;
+    }
     long durationUs = mp4Extractor.getDurationUs();
     checkState(durationUs != C.TIME_UNSET);
-    checkState(extractorOutput.videoTrackId != C.INDEX_UNSET);
     SeekMap.SeekPoints seekPoints =
         mp4Extractor.getSeekPoints(durationUs, extractorOutput.videoTrackId);
     return seekPoints.first.timeUs;

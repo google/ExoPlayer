@@ -19,6 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import android.content.Context;
+import androidx.media3.common.C;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import java.io.IOException;
@@ -35,7 +36,7 @@ public class Mp4ExtractorWrapperTest {
   private final Context context = ApplicationProvider.getApplicationContext();
 
   @Test
-  public void initialize_withEmptyFile_throws() throws IOException {
+  public void init_withEmptyFile_throws() throws IOException {
     String emptyFilePath = temporaryFolder.newFile("EmptyFile").getPath();
     Mp4ExtractorWrapper mp4ExtractorWrapper = new Mp4ExtractorWrapper(context, emptyFilePath);
 
@@ -43,7 +44,7 @@ public class Mp4ExtractorWrapperTest {
   }
 
   @Test
-  public void initialize_withNonMp4File_throws() {
+  public void init_withNonMp4File_throws() {
     String mp4FilePath = "asset:///media/mkv/sample.mkv";
     Mp4ExtractorWrapper mp4ExtractorWrapper = new Mp4ExtractorWrapper(context, mp4FilePath);
 
@@ -51,7 +52,8 @@ public class Mp4ExtractorWrapperTest {
   }
 
   @Test
-  public void getLastSyncSampleTimestamp_ofSmallMp4File_outputsFirstTimestamp() throws IOException {
+  public void getLastSyncSampleTimestampUs_ofSmallMp4File_outputsFirstTimestamp()
+      throws IOException {
     String mp4FilePath = "asset:///media/mp4/sample.mp4";
     Mp4ExtractorWrapper mp4ExtractorWrapper = new Mp4ExtractorWrapper(context, mp4FilePath);
     mp4ExtractorWrapper.init();
@@ -63,7 +65,7 @@ public class Mp4ExtractorWrapperTest {
   }
 
   @Test
-  public void getLastSyncSampleTimestamp_ofMp4File_outputMatchesExpected() throws IOException {
+  public void getLastSyncSampleTimestampUs_ofMp4File_outputMatchesExpected() throws IOException {
     String mp4FilePath = "asset:///media/mp4/hdr10-720p.mp4";
     Mp4ExtractorWrapper mp4ExtractorWrapper = new Mp4ExtractorWrapper(context, mp4FilePath);
     mp4ExtractorWrapper.init();
@@ -75,11 +77,12 @@ public class Mp4ExtractorWrapperTest {
   }
 
   @Test
-  public void getLastSyncSampleTimestamp_ofAudioOnlyMp4File_throws() throws IOException {
+  public void getLastSyncSampleTimestampUs_ofAudioOnlyMp4File_returnsUnsetValue()
+      throws IOException {
     String mp4FilePath = "asset:///media/mp4/sample_ac3.mp4";
     Mp4ExtractorWrapper mp4ExtractorWrapper = new Mp4ExtractorWrapper(context, mp4FilePath);
     mp4ExtractorWrapper.init();
 
-    assertThrows(IllegalStateException.class, mp4ExtractorWrapper::getLastSyncSampleTimestampUs);
+    assertThat(mp4ExtractorWrapper.getLastSyncSampleTimestampUs()).isEqualTo(C.TIME_UNSET);
   }
 }
