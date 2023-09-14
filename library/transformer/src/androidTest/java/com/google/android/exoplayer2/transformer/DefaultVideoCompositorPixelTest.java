@@ -51,6 +51,7 @@ import com.google.android.exoplayer2.effect.RgbFilter;
 import com.google.android.exoplayer2.effect.ScaleAndRotateTransformation;
 import com.google.android.exoplayer2.effect.TextOverlay;
 import com.google.android.exoplayer2.effect.VideoCompositor;
+import com.google.android.exoplayer2.effect.VideoCompositorSettings;
 import com.google.android.exoplayer2.testutil.BitmapPixelTestUtil;
 import com.google.android.exoplayer2.testutil.TextureBitmapReader;
 import com.google.android.exoplayer2.testutil.VideoFrameProcessorTestRunner;
@@ -548,8 +549,8 @@ public final class DefaultVideoCompositorPixelTest {
   public void compositeTwoInputs_pictureInPicture_matchesExpectedBitmap() throws Exception {
     ImmutableList<ImmutableList<Effect>> inputEffectLists =
         ImmutableList.of(ImmutableList.of(), ImmutableList.of(RgbFilter.createGrayscaleFilter()));
-    VideoCompositor.Settings pictureInPictureSettings =
-        new VideoCompositor.Settings() {
+    VideoCompositorSettings pictureInPictureVideoCompositorSettings =
+        new VideoCompositorSettings() {
           @Override
           public Size getOutputSize(List<Size> inputSizes) {
             return inputSizes.get(0);
@@ -573,7 +574,7 @@ public final class DefaultVideoCompositorPixelTest {
         };
     compositorTestRunner =
         new VideoCompositorTestRunner(
-            testId, useSharedExecutor, inputEffectLists, pictureInPictureSettings);
+            testId, useSharedExecutor, inputEffectLists, pictureInPictureVideoCompositorSettings);
 
     compositorTestRunner.queueBitmapToAllInputs(1);
     compositorTestRunner.endCompositing();
@@ -590,8 +591,8 @@ public final class DefaultVideoCompositorPixelTest {
             ImmutableList.of(
                 Presentation.createForWidthAndHeight(100, 100, Presentation.LAYOUT_STRETCH_TO_FIT)),
             ImmutableList.of(RgbFilter.createGrayscaleFilter()));
-    VideoCompositor.Settings secondStreamAsOutputSizeSettings =
-        new VideoCompositor.Settings() {
+    VideoCompositorSettings secondStreamAsOutputSizeVideoCompositorSettings =
+        new VideoCompositorSettings() {
           @Override
           public Size getOutputSize(List<Size> inputSizes) {
             return Iterables.getLast(inputSizes);
@@ -604,7 +605,10 @@ public final class DefaultVideoCompositorPixelTest {
         };
     compositorTestRunner =
         new VideoCompositorTestRunner(
-            testId, useSharedExecutor, inputEffectLists, secondStreamAsOutputSizeSettings);
+            testId,
+            useSharedExecutor,
+            inputEffectLists,
+            secondStreamAsOutputSizeVideoCompositorSettings);
 
     compositorTestRunner.queueBitmapToAllInputs(1);
     compositorTestRunner.endCompositing();
@@ -621,8 +625,8 @@ public final class DefaultVideoCompositorPixelTest {
             ImmutableList.of(RgbFilter.createGrayscaleFilter()),
             ImmutableList.of(),
             ImmutableList.of(RgbFilter.createInvertedFilter()));
-    VideoCompositor.Settings stackedFrameSettings =
-        new VideoCompositor.Settings() {
+    VideoCompositorSettings stackedFrameVideoCompositorSettings =
+        new VideoCompositorSettings() {
           private static final int NUMBER_OF_INPUT_STREAMS = 3;
 
           @Override
@@ -647,7 +651,7 @@ public final class DefaultVideoCompositorPixelTest {
         };
     compositorTestRunner =
         new VideoCompositorTestRunner(
-            testId, useSharedExecutor, inputEffectLists, stackedFrameSettings);
+            testId, useSharedExecutor, inputEffectLists, stackedFrameVideoCompositorSettings);
 
     compositorTestRunner.queueBitmapToAllInputs(1);
     compositorTestRunner.endCompositing();
@@ -673,7 +677,7 @@ public final class DefaultVideoCompositorPixelTest {
     private final String testId;
 
     /**
-     * Creates an instance using {@link DefaultVideoCompositor.Settings}.
+     * Creates an instance using {@link VideoCompositorSettings}.
      *
      * @param testId The {@link String} identifier for the test, used to name output files.
      * @param useSharedExecutor Whether to use a shared executor for {@link
@@ -688,7 +692,7 @@ public final class DefaultVideoCompositorPixelTest {
         boolean useSharedExecutor,
         ImmutableList<ImmutableList<Effect>> inputEffectLists)
         throws GlUtil.GlException, VideoFrameProcessingException {
-      this(testId, useSharedExecutor, inputEffectLists, new DefaultVideoCompositor.Settings());
+      this(testId, useSharedExecutor, inputEffectLists, VideoCompositorSettings.DEFAULT);
     }
 
     /**
@@ -701,13 +705,13 @@ public final class DefaultVideoCompositorPixelTest {
      *     The size of this outer {@link List} is the amount of inputs. One inner list of {@link
      *     Effect}s is used for each input. For each input, the frame timestamp and {@code inputId}
      *     are overlaid via {@link TextOverlay} prior to its effects being applied.
-     * @param settings The {@link VideoCompositor.Settings}.
+     * @param videoCompositorSettings The {@link VideoCompositorSettings}.
      */
     public VideoCompositorTestRunner(
         String testId,
         boolean useSharedExecutor,
         ImmutableList<ImmutableList<Effect>> inputEffectLists,
-        VideoCompositor.Settings settings)
+        VideoCompositorSettings videoCompositorSettings)
         throws GlUtil.GlException, VideoFrameProcessingException {
       this.testId = testId;
       timeoutMs = inputEffectLists.size() * VIDEO_FRAME_PROCESSING_WAIT_MS;
@@ -725,7 +729,7 @@ public final class DefaultVideoCompositorPixelTest {
           new DefaultVideoCompositor(
               getApplicationContext(),
               glObjectsProvider,
-              settings,
+              videoCompositorSettings,
               sharedExecutorService,
               new VideoCompositor.Listener() {
                 @Override

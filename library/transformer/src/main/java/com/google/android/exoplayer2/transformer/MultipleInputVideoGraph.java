@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.effect.DefaultVideoCompositor;
 import com.google.android.exoplayer2.effect.DefaultVideoFrameProcessor;
 import com.google.android.exoplayer2.effect.GlTextureProducer;
 import com.google.android.exoplayer2.effect.VideoCompositor;
+import com.google.android.exoplayer2.effect.VideoCompositorSettings;
 import com.google.android.exoplayer2.util.Consumer;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
@@ -233,7 +234,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         new DefaultVideoCompositor(
             context,
             glObjectsProvider,
-            new DefaultVideoCompositor.Settings(),
+            VideoCompositorSettings.DEFAULT,
             sharedExecutorService,
             new VideoCompositor.Listener() {
               // All of this listener's methods are called on the sharedExecutorService.
