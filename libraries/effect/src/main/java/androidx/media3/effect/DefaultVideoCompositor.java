@@ -76,19 +76,6 @@ public final class DefaultVideoCompositor implements VideoCompositor {
   //  * Add support for mixing SDR streams with different ColorInfo.
   //  * Add support for HDR input.
 
-  /** A default implementation of {@link VideoCompositor.Settings}. */
-  public static final class Settings implements VideoCompositor.Settings {
-    @Override
-    public Size getOutputSize(List<Size> inputSizes) {
-      return inputSizes.get(PRIMARY_INPUT_ID);
-    }
-
-    @Override
-    public OverlaySettings getOverlaySettings(int inputId, long presentationTimeUs) {
-      return new OverlaySettings.Builder().build();
-    }
-  }
-
   private static final String THREAD_NAME = "Effect:DefaultVideoCompositor:GlThread";
   private static final String TAG = "DefaultVideoCompositor";
   private static final String VERTEX_SHADER_PATH = "shaders/vertex_shader_transformation_es2.glsl";
@@ -99,7 +86,7 @@ public final class DefaultVideoCompositor implements VideoCompositor {
   private final VideoCompositor.Listener listener;
   private final GlTextureProducer.Listener textureOutputListener;
   private final GlObjectsProvider glObjectsProvider;
-  private final VideoCompositor.Settings settings;
+  private final VideoCompositorSettings settings;
   private final OverlayMatrixProvider overlayMatrixProvider;
   private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
 
@@ -130,7 +117,7 @@ public final class DefaultVideoCompositor implements VideoCompositor {
   public DefaultVideoCompositor(
       Context context,
       GlObjectsProvider glObjectsProvider,
-      VideoCompositor.Settings settings,
+      VideoCompositorSettings settings,
       @Nullable ExecutorService executorService,
       VideoCompositor.Listener listener,
       GlTextureProducer.Listener textureOutputListener,

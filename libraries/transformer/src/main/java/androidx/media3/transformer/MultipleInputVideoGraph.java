@@ -49,6 +49,7 @@ import androidx.media3.effect.DefaultVideoCompositor;
 import androidx.media3.effect.DefaultVideoFrameProcessor;
 import androidx.media3.effect.GlTextureProducer;
 import androidx.media3.effect.VideoCompositor;
+import androidx.media3.effect.VideoCompositorSettings;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -225,7 +226,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         new DefaultVideoCompositor(
             context,
             glObjectsProvider,
-            new DefaultVideoCompositor.Settings(),
+            VideoCompositorSettings.DEFAULT,
             sharedExecutorService,
             new VideoCompositor.Listener() {
               // All of this listener's methods are called on the sharedExecutorService.
