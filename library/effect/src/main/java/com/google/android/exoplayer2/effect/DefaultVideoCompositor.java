@@ -82,16 +82,13 @@ public final class DefaultVideoCompositor implements VideoCompositor {
 
   private static final String THREAD_NAME = "Effect:DefaultVideoCompositor:GlThread";
   private static final String TAG = "DefaultVideoCompositor";
-  private static final String VERTEX_SHADER_PATH = "shaders/vertex_shader_transformation_es2.glsl";
-  private static final String FRAGMENT_SHADER_PATH = "shaders/fragment_shader_alpha_scale_es2.glsl";
   private static final int PRIMARY_INPUT_ID = 0;
 
-  private final Context context;
   private final VideoCompositor.Listener listener;
   private final GlTextureProducer.Listener textureOutputListener;
   private final GlObjectsProvider glObjectsProvider;
   private final VideoCompositorSettings settings;
-  private final OverlayMatrixProvider overlayMatrixProvider;
+  private final CompositorGlProgram compositorGlProgram;
   private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
 
   @GuardedBy("this")
@@ -109,7 +106,6 @@ public final class DefaultVideoCompositor implements VideoCompositor {
   // Only used on the GL Thread.
   private @MonotonicNonNull EGLContext eglContext;
   private @MonotonicNonNull EGLDisplay eglDisplay;
-  private @MonotonicNonNull GlProgram glProgram;
   private @MonotonicNonNull EGLSurface placeholderEglSurface;
 
   /**
@@ -126,12 +122,11 @@ public final class DefaultVideoCompositor implements VideoCompositor {
       VideoCompositor.Listener listener,
       GlTextureProducer.Listener textureOutputListener,
       @IntRange(from = 1) int textureOutputCapacity) {
-    this.context = context;
     this.listener = listener;
     this.textureOutputListener = textureOutputListener;
     this.glObjectsProvider = glObjectsProvider;
     this.settings = settings;
-    this.overlayMatrixProvider = new OverlayMatrixProvider();
+    this.compositorGlProgram = new CompositorGlProgram(context);
 
     inputSources = new ArrayList<>();
     outputTexturePool =
@@ -218,7 +213,8 @@ public final class DefaultVideoCompositor implements VideoCompositor {
   }
 
   @Override
-  public void release() {
+  public synchronized void release() {
+    checkState(allInputsEnded);
     try {
       videoFrameProcessingTaskExecutor.release(/* releaseTask= */ this::releaseGlObjects);
     } catch (InterruptedException e) {
@@ -300,8 +296,6 @@ public final class DefaultVideoCompositor implements VideoCompositor {
       return;
     }
 
-    ensureGlProgramConfigured();
-
     InputFrameInfo primaryInputFrame = framesToComposite.get(PRIMARY_INPUT_ID);
 
     ImmutableList.Builder<Size> inputSizes = new ImmutableList.Builder<>();
@@ -317,7 +311,7 @@ public final class DefaultVideoCompositor implements VideoCompositor {
     long outputPresentationTimestampUs = primaryInputFrame.presentationTimeUs;
     outputTextureTimestamps.add(outputPresentationTimestampUs);
 
-    drawFrame(framesToComposite, outputTexture);
+    compositorGlProgram.drawFrame(framesToComposite, outputTexture);
     long syncObject = GlUtil.createGlSyncFence();
     syncObjects.add(syncObject);
     textureOutputListener.onTextureRendered(
@@ -407,82 +401,11 @@ public final class DefaultVideoCompositor implements VideoCompositor {
     maybeComposite();
   }
 
-  private void ensureGlProgramConfigured()
-      throws VideoFrameProcessingException, GlUtil.GlException {
-    if (glProgram != null) {
-      return;
-    }
+  private void releaseGlObjects() {
     try {
-      glProgram = new GlProgram(context, VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
-      glProgram.setBufferAttribute(
-          "aFramePosition",
-          GlUtil.getNormalizedCoordinateBounds(),
-          GlUtil.HOMOGENEOUS_COORDINATE_VECTOR_SIZE);
-      glProgram.setFloatsUniform("uTexTransformationMatrix", GlUtil.create4x4IdentityMatrix());
-    } catch (IOException e) {
-      throw new VideoFrameProcessingException(e);
-    }
-  }
-
-  // Enhanced for-loops are discouraged in media3.effect due to short-lived allocations.
-  @SuppressWarnings("ListReverse")
-  private void drawFrame(List<InputFrameInfo> framesToComposite, GlTextureInfo outputTexture)
-      throws GlUtil.GlException {
-    GlUtil.focusFramebufferUsingCurrentContext(
-        outputTexture.fboId, outputTexture.width, outputTexture.height);
-    overlayMatrixProvider.configure(new Size(outputTexture.width, outputTexture.height));
-    GlUtil.clearFocusedBuffers();
-
-    GlProgram glProgram = checkNotNull(this.glProgram);
-    glProgram.use();
-
-    // Setup for blending.
-    GLES20.glEnable(GLES20.GL_BLEND);
-    // Similar to:
-    // dst.rgb = src.rgb * src.a + dst.rgb * (1 - src.a)
-    // dst.a   = src.a           + dst.a   * (1 - src.a)
-    GLES20.glBlendFuncSeparate(
-        /* srcRGB= */ GLES20.GL_SRC_ALPHA,
-        /* dstRGB= */ GLES20.GL_ONE_MINUS_SRC_ALPHA,
-        /* srcAlpha= */ GLES20.GL_ONE,
-        /* dstAlpha= */ GLES20.GL_ONE_MINUS_SRC_ALPHA);
-    GlUtil.checkGlError();
-
-    // Draw textures from back to front.
-    for (int i = framesToComposite.size() - 1; i >= 0; i--) {
-      blendOntoFocusedTexture(framesToComposite.get(i));
-    }
-
-    GLES20.glDisable(GLES20.GL_BLEND);
-
-    GlUtil.checkGlError();
-  }
-
-  private void blendOntoFocusedTexture(InputFrameInfo inputFrameInfo) throws GlUtil.GlException {
-    GlProgram glProgram = checkNotNull(this.glProgram);
-    GlTextureInfo inputTexture = inputFrameInfo.texture;
-    glProgram.setSamplerTexIdUniform("uTexSampler", inputTexture.texId, /* texUnitIndex= */ 0);
-    float[] transformationMatrix =
-        overlayMatrixProvider.getTransformationMatrix(
-            /* overlaySize= */ new Size(inputTexture.width, inputTexture.height),
-            inputFrameInfo.overlaySettings);
-    glProgram.setFloatsUniform("uTransformationMatrix", transformationMatrix);
-    glProgram.setFloatUniform("uAlphaScale", inputFrameInfo.overlaySettings.alphaScale);
-    glProgram.bindAttributesAndUniforms();
-
-    // The four-vertex triangle strip forms a quad.
-    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
-    GlUtil.checkGlError();
-  }
-
-  private synchronized void releaseGlObjects() {
-    try {
-      checkState(allInputsEnded);
+      compositorGlProgram.release();
       outputTexturePool.deleteAllTextures();
       GlUtil.destroyEglSurface(eglDisplay, placeholderEglSurface);
-      if (glProgram != null) {
-        glProgram.delete();
-      }
     } catch (GlUtil.GlException e) {
       Log.e(TAG, "Error releasing GL resources", e);
     } finally {
@@ -491,6 +414,112 @@ public final class DefaultVideoCompositor implements VideoCompositor {
       } catch (GlUtil.GlException e) {
         Log.e(TAG, "Error releasing GL context", e);
       }
+    }
+  }
+
+  /**
+   * A wrapper for a {@link GlProgram}, that draws multiple input {@link InputFrameInfo}s onto one
+   * output {@link GlTextureInfo}.
+   *
+   * <p>All methods must be called on a GL thread, unless otherwise stated.
+   */
+  private static final class CompositorGlProgram {
+    private static final String TAG = "CompositorGlProgram";
+    private static final String VERTEX_SHADER_PATH =
+        "shaders/vertex_shader_transformation_es2.glsl";
+    private static final String FRAGMENT_SHADER_PATH =
+        "shaders/fragment_shader_alpha_scale_es2.glsl";
+
+    private final Context context;
+    private final OverlayMatrixProvider overlayMatrixProvider;
+    private @MonotonicNonNull GlProgram glProgram;
+
+    /**
+     * Creates an instance.
+     *
+     * <p>May be called on any thread.
+     */
+    public CompositorGlProgram(Context context) {
+      this.context = context;
+      this.overlayMatrixProvider = new OverlayMatrixProvider();
+    }
+
+    /** Draws {@link InputFrameInfo}s onto an output {@link GlTextureInfo}. */
+    // Enhanced for-loops are discouraged in media3.effect due to short-lived allocations.
+    @SuppressWarnings("ListReverse")
+    public void drawFrame(List<InputFrameInfo> framesToComposite, GlTextureInfo outputTexture)
+        throws GlUtil.GlException, VideoFrameProcessingException {
+      ensureConfigured();
+      GlUtil.focusFramebufferUsingCurrentContext(
+          outputTexture.fboId, outputTexture.width, outputTexture.height);
+      overlayMatrixProvider.configure(new Size(outputTexture.width, outputTexture.height));
+      GlUtil.clearFocusedBuffers();
+
+      GlProgram glProgram = checkNotNull(this.glProgram);
+      glProgram.use();
+
+      // Setup for blending.
+      GLES20.glEnable(GLES20.GL_BLEND);
+      // Similar to:
+      // dst.rgb = src.rgb * src.a + dst.rgb * (1 - src.a)
+      // dst.a   = src.a           + dst.a   * (1 - src.a)
+      GLES20.glBlendFuncSeparate(
+          /* srcRGB= */ GLES20.GL_SRC_ALPHA,
+          /* dstRGB= */ GLES20.GL_ONE_MINUS_SRC_ALPHA,
+          /* srcAlpha= */ GLES20.GL_ONE,
+          /* dstAlpha= */ GLES20.GL_ONE_MINUS_SRC_ALPHA);
+      GlUtil.checkGlError();
+
+      // Draw textures from back to front.
+      for (int i = framesToComposite.size() - 1; i >= 0; i--) {
+        blendOntoFocusedTexture(framesToComposite.get(i));
+      }
+
+      GLES20.glDisable(GLES20.GL_BLEND);
+      GlUtil.checkGlError();
+    }
+
+    public void release() {
+      try {
+        if (glProgram != null) {
+          glProgram.delete();
+        }
+      } catch (GlUtil.GlException e) {
+        Log.e(TAG, "Error releasing GL Program", e);
+      }
+    }
+
+    private void ensureConfigured() throws VideoFrameProcessingException, GlUtil.GlException {
+      if (glProgram != null) {
+        return;
+      }
+      try {
+        glProgram = new GlProgram(context, VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
+        glProgram.setBufferAttribute(
+            "aFramePosition",
+            GlUtil.getNormalizedCoordinateBounds(),
+            GlUtil.HOMOGENEOUS_COORDINATE_VECTOR_SIZE);
+        glProgram.setFloatsUniform("uTexTransformationMatrix", GlUtil.create4x4IdentityMatrix());
+      } catch (IOException e) {
+        throw new VideoFrameProcessingException(e);
+      }
+    }
+
+    private void blendOntoFocusedTexture(InputFrameInfo inputFrameInfo) throws GlUtil.GlException {
+      GlProgram glProgram = checkNotNull(this.glProgram);
+      GlTextureInfo inputTexture = inputFrameInfo.texture;
+      glProgram.setSamplerTexIdUniform("uTexSampler", inputTexture.texId, /* texUnitIndex= */ 0);
+      float[] transformationMatrix =
+          overlayMatrixProvider.getTransformationMatrix(
+              /* overlaySize= */ new Size(inputTexture.width, inputTexture.height),
+              inputFrameInfo.overlaySettings);
+      glProgram.setFloatsUniform("uTransformationMatrix", transformationMatrix);
+      glProgram.setFloatUniform("uAlphaScale", inputFrameInfo.overlaySettings.alphaScale);
+      glProgram.bindAttributesAndUniforms();
+
+      // The four-vertex triangle strip forms a quad.
+      GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, /* first= */ 0, /* count= */ 4);
+      GlUtil.checkGlError();
     }
   }
 
