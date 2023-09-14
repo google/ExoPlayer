@@ -20,11 +20,12 @@ import static androidx.media3.test.utils.FakeSampleStream.FakeSampleStreamItem.o
 import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.Bitmap;
+import android.util.Pair;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.Clock;
-import androidx.media3.common.util.TimedValueQueue;
+import androidx.media3.common.util.SystemClock;
 import androidx.media3.exoplayer.RendererConfiguration;
 import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.exoplayer.drm.DrmSessionEventListener;
@@ -34,34 +35,65 @@ import androidx.media3.exoplayer.upstream.DefaultAllocator;
 import androidx.media3.test.utils.FakeSampleStream;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeoutException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Unit test for {@link ImageRenderer}. */
+/** Unit tests for {@link ImageRenderer}. */
 @RunWith(AndroidJUnit4.class)
 public class ImageRendererTest {
-
-  private static final Format FORMAT =
+  private static final long DEFAULT_LOOP_TIMEOUT_MS = 10 * C.MILLIS_PER_SECOND;
+  private static final String IS_READY_TIMEOUT_MESSAGE =
+      "Renderer not ready after " + DEFAULT_LOOP_TIMEOUT_MS + " milliseconds.";
+  private static final String IS_ENDED_TIMEOUT_MESSAGE =
+      "Renderer not ended after " + DEFAULT_LOOP_TIMEOUT_MS + " milliseconds.";
+  private static final String HAS_READ_STREAM_TO_END_TIMEOUT_MESSAGE =
+      "Renderer has not read stream to end after " + DEFAULT_LOOP_TIMEOUT_MS + " milliseconds.";
+  private static final Format PNG_FORMAT =
       new Format.Builder()
           .setContainerMimeType(MimeTypes.IMAGE_PNG)
           .setTileCountVertical(1)
           .setTileCountHorizontal(1)
           .build();
+  private static final Format JPEG_FORMAT =
+      new Format.Builder()
+          .setContainerMimeType(MimeTypes.IMAGE_JPEG)
+          .setTileCountVertical(1)
+          .setTileCountHorizontal(1)
+          .build();
 
-  private final TimedValueQueue<Bitmap> renderedBitmaps = new TimedValueQueue<>();
-  private final Bitmap fakeDecodedBitmap =
+  private final List<Pair<Long, Bitmap>> renderedBitmaps = new ArrayList<>();
+  private final Bitmap fakeDecodedBitmap1 =
       Bitmap.createBitmap(/* width= */ 1, /* height= */ 1, Bitmap.Config.ARGB_8888);
+  private final Bitmap fakeDecodedBitmap2 =
+      Bitmap.createBitmap(/* width= */ 2, /* height= */ 2, Bitmap.Config.ARGB_8888);
 
   private ImageRenderer renderer;
+  private int decodeCallCount;
 
   @Before
   public void setUp() throws Exception {
+    decodeCallCount = 0;
     ImageDecoder.Factory fakeDecoderFactory =
-        new DefaultImageDecoder.Factory((data, length) -> fakeDecodedBitmap);
-    ImageOutput capturingImageOutput = renderedBitmaps::add;
-    renderer = new ImageRenderer(fakeDecoderFactory, capturingImageOutput);
+        new DefaultImageDecoder.Factory(
+            (data, length) -> ++decodeCallCount == 1 ? fakeDecodedBitmap1 : fakeDecodedBitmap2);
+    ImageOutput queuingImageOutput =
+        new ImageOutput() {
+          @Override
+          public void onImageAvailable(long presentationTimeUs, Bitmap bitmap) {
+            renderedBitmaps.add(Pair.create(presentationTimeUs, bitmap));
+          }
+
+          @Override
+          public void onDisabled() {
+            // Do nothing.
+          }
+        };
+    renderer = new ImageRenderer(fakeDecoderFactory, queuingImageOutput);
     renderer.init(/* index= */ 0, PlayerId.UNSET, Clock.DEFAULT);
   }
 
@@ -73,22 +105,12 @@ public class ImageRendererTest {
   }
 
   @Test
-  public void renderOneStream_rendersToImageOutput() throws Exception {
-    FakeSampleStream fakeSampleStream =
-        new FakeSampleStream(
-            new DefaultAllocator(/* trimOnReset= */ true, /* individualAllocationSize= */ 1024),
-            /* mediaSourceEventDispatcher= */ null,
-            DrmSessionManager.DRM_UNSUPPORTED,
-            new DrmSessionEventListener.EventDispatcher(),
-            FORMAT,
-            ImmutableList.of(
-                oneByteSample(/* timeUs= */ 0, C.BUFFER_FLAG_KEY_FRAME), END_OF_STREAM_ITEM));
+  public void renderOneStream_withMayRenderStartOfStream_rendersToImageOutput() throws Exception {
+    FakeSampleStream fakeSampleStream = createSampleStream(/* timeUs= */ 0);
     fakeSampleStream.writeData(/* startPositionUs= */ 0);
-    // TODO(b/289989736): When the mediaPeriodId is signalled to the renders set durationUs here and
-    //  assert on it.
     renderer.enable(
         RendererConfiguration.DEFAULT,
-        new Format[] {FORMAT},
+        new Format[] {PNG_FORMAT},
         fakeSampleStream,
         /* positionUs= */ 0,
         /* joining= */ false,
@@ -98,15 +120,168 @@ public class ImageRendererTest {
         new MediaSource.MediaPeriodId(new Object()));
     renderer.setCurrentStreamFinal();
 
-    while (!renderer.isReady()) {
+    StopWatch isReadyStopWatch = new StopWatch(IS_READY_TIMEOUT_MESSAGE);
+    while (!renderer.isReady() && isReadyStopWatch.ensureNotExpired()) {
       renderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0);
     }
 
-    assertThat(renderedBitmaps.size()).isEqualTo(1);
-    assertThat(renderedBitmaps.poll(0)).isSameInstanceAs(fakeDecodedBitmap);
+    assertThat(renderedBitmaps).hasSize(1);
+    assertThat(renderedBitmaps.get(0).first).isEqualTo(0L);
+    assertThat(renderedBitmaps.get(0).second).isSameInstanceAs(fakeDecodedBitmap1);
+  }
 
-    renderer.render(
-        /* positionUs= */ C.MICROS_PER_SECOND, /* elapsedRealtimeUs= */ C.MICROS_PER_SECOND);
-    assertThat(renderer.isEnded()).isTrue();
+  @Test
+  public void renderOneStream_withoutMayRenderStartOfStream_rendersToImageOutput()
+      throws Exception {
+    FakeSampleStream fakeSampleStream = createSampleStream(/* timeUs= */ 0);
+    fakeSampleStream.writeData(/* startPositionUs= */ 0);
+    renderer.enable(
+        RendererConfiguration.DEFAULT,
+        new Format[] {PNG_FORMAT},
+        fakeSampleStream,
+        /* positionUs= */ 0,
+        /* joining= */ false,
+        /* mayRenderStartOfStream= */ false,
+        /* startPositionUs= */ 0,
+        /* offsetUs= */ 0,
+        new MediaSource.MediaPeriodId(new Object()));
+    renderer.setCurrentStreamFinal();
+
+    StopWatch isReadyStopWatch = new StopWatch(IS_READY_TIMEOUT_MESSAGE);
+    while (!renderer.isReady() && isReadyStopWatch.ensureNotExpired()) {
+      renderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0);
+    }
+    assertThat(renderedBitmaps).isEmpty();
+    renderer.start();
+    StopWatch isEndedStopWatch = new StopWatch(IS_ENDED_TIMEOUT_MESSAGE);
+    while (!renderer.isEnded() && isEndedStopWatch.ensureNotExpired()) {
+      renderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0);
+    }
+    renderer.stop();
+
+    assertThat(renderedBitmaps).hasSize(1);
+    assertThat(renderedBitmaps.get(0).first).isEqualTo(0L);
+    assertThat(renderedBitmaps.get(0).second).isSameInstanceAs(fakeDecodedBitmap1);
+  }
+
+  @Test
+  public void renderTwoStreams_sameFormat_rendersToImageOutput() throws Exception {
+    FakeSampleStream fakeSampleStream1 = createSampleStream(/* timeUs= */ 0);
+    fakeSampleStream1.writeData(/* startPositionUs= */ 0);
+    FakeSampleStream fakeSampleStream2 = createSampleStream(/* timeUs= */ 10);
+    fakeSampleStream2.writeData(/* startPositionUs= */ 10);
+    renderer.enable(
+        RendererConfiguration.DEFAULT,
+        new Format[] {PNG_FORMAT},
+        fakeSampleStream1,
+        /* positionUs= */ 0,
+        /* joining= */ false,
+        /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
+        /* offsetUs= */ 0,
+        new MediaSource.MediaPeriodId(new Object()));
+
+    StopWatch isReadyStopWatch = new StopWatch(IS_READY_TIMEOUT_MESSAGE);
+    while (!renderer.isReady() && isReadyStopWatch.ensureNotExpired()) {
+      renderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0);
+    }
+    renderer.start();
+    StopWatch hasReadStreamToEndStopWatch = new StopWatch(HAS_READ_STREAM_TO_END_TIMEOUT_MESSAGE);
+    while (!renderer.hasReadStreamToEnd() && hasReadStreamToEndStopWatch.ensureNotExpired()) {
+      renderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0);
+    }
+    renderer.replaceStream(
+        new Format[] {PNG_FORMAT},
+        fakeSampleStream2,
+        /* startPositionUs= */ 10,
+        /* offsetUs= */ 0,
+        new MediaSource.MediaPeriodId(new Object()));
+    renderer.setCurrentStreamFinal();
+    StopWatch isEndedStopWatch = new StopWatch(IS_ENDED_TIMEOUT_MESSAGE);
+    while (!renderer.isEnded() && isEndedStopWatch.ensureNotExpired()) {
+      renderer.render(/* positionUs= */ 10, /* elapsedRealtimeUs= */ 0);
+    }
+    renderer.stop();
+
+    assertThat(renderedBitmaps).hasSize(2);
+    assertThat(renderedBitmaps.get(0).first).isEqualTo(0L);
+    assertThat(renderedBitmaps.get(0).second).isSameInstanceAs(fakeDecodedBitmap1);
+    assertThat(renderedBitmaps.get(1).first).isEqualTo(10L);
+    assertThat(renderedBitmaps.get(1).second).isSameInstanceAs(fakeDecodedBitmap2);
+  }
+
+  @Test
+  public void renderTwoStreams_differentFormat_rendersToImageOutput() throws Exception {
+    FakeSampleStream fakeSampleStream1 = createSampleStream(/* timeUs= */ 0);
+    fakeSampleStream1.writeData(/* startPositionUs= */ 0);
+    FakeSampleStream fakeSampleStream2 = createSampleStream(/* timeUs= */ 10);
+    fakeSampleStream2.writeData(/* startPositionUs= */ 10);
+    renderer.enable(
+        RendererConfiguration.DEFAULT,
+        new Format[] {PNG_FORMAT},
+        fakeSampleStream1,
+        /* positionUs= */ 0,
+        /* joining= */ false,
+        /* mayRenderStartOfStream= */ true,
+        /* startPositionUs= */ 0,
+        /* offsetUs= */ 0,
+        new MediaSource.MediaPeriodId(new Object()));
+
+    StopWatch isReadyStopWatch = new StopWatch(IS_READY_TIMEOUT_MESSAGE);
+    while (!renderer.isReady() && isReadyStopWatch.ensureNotExpired()) {
+      renderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0);
+    }
+    renderer.start();
+    StopWatch hasReadStreamToEndStopWatch = new StopWatch(HAS_READ_STREAM_TO_END_TIMEOUT_MESSAGE);
+    while (!renderer.hasReadStreamToEnd() && hasReadStreamToEndStopWatch.ensureNotExpired()) {
+      renderer.render(/* positionUs= */ 0, /* elapsedRealtimeUs= */ 0);
+    }
+    renderer.replaceStream(
+        new Format[] {JPEG_FORMAT},
+        fakeSampleStream2,
+        /* startPositionUs= */ 10,
+        /* offsetUs= */ 0,
+        new MediaSource.MediaPeriodId(new Object()));
+    renderer.setCurrentStreamFinal();
+    StopWatch isEndedStopWatch = new StopWatch(IS_ENDED_TIMEOUT_MESSAGE);
+    while (!renderer.isEnded() && isEndedStopWatch.ensureNotExpired()) {
+      renderer.render(/* positionUs= */ 10, /* elapsedRealtimeUs= */ 0);
+    }
+    renderer.stop();
+
+    assertThat(renderedBitmaps).hasSize(2);
+    assertThat(renderedBitmaps.get(0).first).isEqualTo(0L);
+    assertThat(renderedBitmaps.get(0).second).isSameInstanceAs(fakeDecodedBitmap1);
+    assertThat(renderedBitmaps.get(1).first).isEqualTo(10L);
+    assertThat(renderedBitmaps.get(1).second).isSameInstanceAs(fakeDecodedBitmap2);
+  }
+
+  private static FakeSampleStream createSampleStream(long timeUs) {
+    return new FakeSampleStream(
+        new DefaultAllocator(/* trimOnReset= */ true, /* individualAllocationSize= */ 1024),
+        /* mediaSourceEventDispatcher= */ null,
+        DrmSessionManager.DRM_UNSUPPORTED,
+        new DrmSessionEventListener.EventDispatcher(),
+        PNG_FORMAT,
+        ImmutableList.of(oneByteSample(timeUs, C.BUFFER_FLAG_KEY_FRAME), END_OF_STREAM_ITEM));
+  }
+
+  private static final class StopWatch {
+    private final long startTimeMs;
+    private final long timeOutMs;
+    private final String timeoutMessage;
+
+    public StopWatch(String timeoutMessage) {
+      startTimeMs = SystemClock.DEFAULT.currentTimeMillis();
+      timeOutMs = DEFAULT_LOOP_TIMEOUT_MS;
+      this.timeoutMessage = timeoutMessage;
+    }
+
+    public boolean ensureNotExpired() throws TimeoutException {
+      if (startTimeMs + timeOutMs < SystemClock.DEFAULT.currentTimeMillis()) {
+        throw new TimeoutException(timeoutMessage);
+      }
+      return true;
+    }
   }
 }
