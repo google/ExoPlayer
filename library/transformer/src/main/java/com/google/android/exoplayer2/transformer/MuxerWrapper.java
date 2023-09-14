@@ -375,7 +375,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
       }
     }
 
-    if (muxedPartialVideo) {
+    if (muxerMode == MUXER_MODE_MUX_PARTIAL_VIDEO && muxedPartialVideo) {
       listener.onEnded(Util.usToMs(maxEndedTrackTimeUs), getCurrentOutputSizeBytes());
       if (abortScheduledFuture != null) {
         abortScheduledFuture.cancel(/* mayInterruptIfRunning= */ false);
