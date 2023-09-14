@@ -25,7 +25,7 @@ project.ext {
     junitVersion = '4.13.2'
     // Use the same Guava version as the Android repo:
     // https://cs.android.com/android/platform/superproject/+/master:external/guava/METADATA
-    guavaVersion = '31.1-android'
+    guavaVersion = '32.1.2-android'
     mockitoVersion = '3.12.4'
     robolectricVersion = '4.10.3'
     // Keep this in sync with Google's internal Checker Framework version.
