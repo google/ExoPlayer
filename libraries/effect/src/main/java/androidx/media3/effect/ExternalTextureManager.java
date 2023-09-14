@@ -30,6 +30,7 @@ import androidx.media3.common.util.GlUtil;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.effect.GlShaderProgram.InputListener;
+import com.google.common.base.Ascii;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
@@ -55,7 +56,10 @@ import java.util.concurrent.atomic.AtomicInteger;
    * pressured the decoder, and the decoder is not able to decode another frame.
    */
   private static final long SURFACE_TEXTURE_TIMEOUT_MS =
-      Util.DEVICE.contains("emulator") ? 10_000 : 500;
+      Ascii.toLowerCase(Util.DEVICE).contains("emulator")
+              || Ascii.toLowerCase(Util.DEVICE).contains("generic")
+          ? 10_000
+          : 500;
 
   private final GlObjectsProvider glObjectsProvider;
   private final VideoFrameProcessingTaskExecutor videoFrameProcessingTaskExecutor;
