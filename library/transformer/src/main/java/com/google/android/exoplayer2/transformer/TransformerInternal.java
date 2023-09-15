@@ -367,8 +367,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       internalHandler.post(internalHandlerThread::quitSafely);
     }
 
+    // Update progress before opening variable to avoid getProgress returning an invalid combination
+    // of state and progress.
+    progressState = PROGRESS_STATE_NOT_STARTED;
+    transformerConditionVariable.open();
+
     if (forCancellation) {
-      transformerConditionVariable.open();
       return;
     }
 
