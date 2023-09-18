@@ -23,5 +23,5 @@ locally. Instructions for doing this can be found in the [top level README][].
 *   [Developer Guide][]
 *   [Javadoc][]
 
-[Developer Guide]: https://developer.android.com/guide/topics/media/exoplayer/ui-components
+[Developer Guide]: https://developer.android.com/guide/topics/media/ui/playerview
 [Javadoc]: https://developer.android.com/reference/androidx/media3/ui/package-summary
