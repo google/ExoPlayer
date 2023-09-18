@@ -71,8 +71,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 public final class DefaultVideoCompositor implements VideoCompositor {
   // TODO: b/262694346 -  Flesh out this implementation by doing the following:
   //  * Use a lock to synchronize inputFrameInfos more narrowly, to reduce blocking.
-  //  * If the primary stream ends, consider setting the secondary stream as the new primary stream,
-  //    so that secondary stream frames aren't dropped.
   //  * Add support for mixing SDR streams with different ColorInfo.
   //  * Add support for HDR input.
 
