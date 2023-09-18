@@ -26,9 +26,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/**
- * Tests for {@link DefaultAudioTrackBufferSizeProvider} DTS-HD (DTS Express) audio.
- */
+/** Tests for {@link DefaultAudioTrackBufferSizeProvider} DTS-HD (DTS Express) audio. */
 @RunWith(AndroidJUnit4.class)
 public class DefaultAudioTrackBufferSizeProviderDTSHDTest {
 
@@ -37,7 +35,7 @@ public class DefaultAudioTrackBufferSizeProviderDTSHDTest {
 
   @Test
   public void
-  getBufferSizeInBytes_passthroughDtshdAndNoBitrate_assumesMaxByteRateTimesMultiplicationFactor() {
+      getBufferSizeInBytes_passthroughDtshdAndNoBitrate_assumesMaxByteRateTimesMultiplicationFactor() {
     int bufferSize =
         DEFAULT.getBufferSizeInBytes(
             /* minBufferSizeInBytes= */ 0,
@@ -56,7 +54,7 @@ public class DefaultAudioTrackBufferSizeProviderDTSHDTest {
 
   @Test
   public void
-  getBufferSizeInBytes_passthroughDtshdAt384Kbits_isPassthroughBufferSizeTimesMultiplicationFactor() {
+      getBufferSizeInBytes_passthroughDtshdAt384Kbits_isPassthroughBufferSizeTimesMultiplicationFactor() {
     int bufferSize =
         DEFAULT.getBufferSizeInBytes(
             /* minBufferSizeInBytes= */ 0,
