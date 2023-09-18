@@ -1,0 +1,77 @@
+seekMap:
+  isSeekable = true
+  duration = 2741666
+  getPosition(0) = [[timeUs=0, position=16]]
+  getPosition(1) = [[timeUs=0, position=16], [timeUs=471666, position=694060]]
+  getPosition(1370833) = [[timeUs=1081666, position=1534024], [timeUs=1691666, position=2598705]]
+  getPosition(2741666) = [[timeUs=2438333, position=4019235]]
+numberOfTracks = 2
+track 0:
+  total output bytes = 469433
+  sample count = 8
+  format 0:
+    id = 1
+    sampleMimeType = video/hevc
+    codecs = hvc1.1.6.L150.B0
+    maxInputSize = 364750
+    width = 1920
+    height = 1440
+    frameRate = 29.179338
+    rotationDegrees = 90
+    colorInfo:
+      colorSpace = -1
+      colorRange = 1
+      colorTransfer = 3
+      hdrStaticInfo = length 0, hash 0
+    metadata = entries=[mdta: key=com.apple.quicktime.live-photo.auto, value=01, mdta: key=com.apple.quicktime.content.identifier, value=A873E9D3-2FBA-440A-B4D1-AEB073BC8E54, mdta: key=com.apple.quicktime.live-photo.vitality-score, value=0.9398496, mdta: key=com.apple.quicktime.live-photo.vitality-scoring-version, value=0000000000000004, mdta: key=com.apple.quicktime.make, value=Apple, mdta: key=com.apple.quicktime.model, value=iPhone SE (3rd generation), mdta: key=com.apple.quicktime.software, value=16.5.1, mdta: key=com.apple.quicktime.creationdate, value=2023-07-05T13:13:32+0800, Mp4Timestamp: creation time=3771378882, modification time=3771378882, timescale=600]
+    initializationData:
+      data = length 78, hash C57F938D
+  sample 0:
+    time = 2438333
+    flags = 1
+    data = length 302471, hash 94BDFA4A
+  sample 1:
+    time = 2573333
+    flags = 0
+    data = length 30489, hash C077BCC8
+  sample 2:
+    time = 2506666
+    flags = 0
+    data = length 20085, hash FD0232B7
+  sample 3:
+    time = 2471666
+    flags = 0
+    data = length 11066, hash 10D3869
+  sample 4:
+    time = 2540000
+    flags = 0
+    data = length 12144, hash FC1D71A8
+  sample 5:
+    time = 2708333
+    flags = 0
+    data = length 64048, hash AF8C69C4
+  sample 6:
+    time = 2640000
+    flags = 0
+    data = length 17710, hash ED7B986C
+  sample 7:
+    time = 2606666
+    flags = 536870912
+    data = length 11420, hash 712BAC8D
+track 1:
+  total output bytes = 6708
+  sample count = 1
+  format 0:
+    id = 2
+    sampleMimeType = audio/raw
+    maxInputSize = 8222
+    channelCount = 1
+    sampleRate = 44100
+    pcmEncoding = 2
+    language = und
+    metadata = entries=[mdta: key=com.apple.quicktime.live-photo.auto, value=01, mdta: key=com.apple.quicktime.content.identifier, value=A873E9D3-2FBA-440A-B4D1-AEB073BC8E54, mdta: key=com.apple.quicktime.live-photo.vitality-score, value=0.9398496, mdta: key=com.apple.quicktime.live-photo.vitality-scoring-version, value=0000000000000004, mdta: key=com.apple.quicktime.make, value=Apple, mdta: key=com.apple.quicktime.model, value=iPhone SE (3rd generation), mdta: key=com.apple.quicktime.software, value=16.5.1, mdta: key=com.apple.quicktime.creationdate, value=2023-07-05T13:13:32+0800, Mp4Timestamp: creation time=3771378882, modification time=3771378882, timescale=600]
+  sample 0:
+    time = 2557278
+    flags = 536870913
+    data = length 6708, hash BF420F22
+tracksEnded = true

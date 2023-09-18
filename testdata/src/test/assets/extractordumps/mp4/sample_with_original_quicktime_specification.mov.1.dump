@@ -1,0 +1,385 @@
+seekMap:
+  isSeekable = true
+  duration = 2741666
+  getPosition(0) = [[timeUs=0, position=16]]
+  getPosition(1) = [[timeUs=0, position=16], [timeUs=471666, position=694060]]
+  getPosition(1370833) = [[timeUs=1081666, position=1534024], [timeUs=1691666, position=2598705]]
+  getPosition(2741666) = [[timeUs=2438333, position=4019235]]
+numberOfTracks = 2
+track 0:
+  total output bytes = 3786256
+  sample count = 66
+  format 0:
+    id = 1
+    sampleMimeType = video/hevc
+    codecs = hvc1.1.6.L150.B0
+    maxInputSize = 364750
+    width = 1920
+    height = 1440
+    frameRate = 29.179338
+    rotationDegrees = 90
+    colorInfo:
+      colorSpace = -1
+      colorRange = 1
+      colorTransfer = 3
+      hdrStaticInfo = length 0, hash 0
+    metadata = entries=[mdta: key=com.apple.quicktime.live-photo.auto, value=01, mdta: key=com.apple.quicktime.content.identifier, value=A873E9D3-2FBA-440A-B4D1-AEB073BC8E54, mdta: key=com.apple.quicktime.live-photo.vitality-score, value=0.9398496, mdta: key=com.apple.quicktime.live-photo.vitality-scoring-version, value=0000000000000004, mdta: key=com.apple.quicktime.make, value=Apple, mdta: key=com.apple.quicktime.model, value=iPhone SE (3rd generation), mdta: key=com.apple.quicktime.software, value=16.5.1, mdta: key=com.apple.quicktime.creationdate, value=2023-07-05T13:13:32+0800, Mp4Timestamp: creation time=3771378882, modification time=3771378882, timescale=600]
+    initializationData:
+      data = length 78, hash C57F938D
+  sample 0:
+    time = 471666
+    flags = 1
+    data = length 206359, hash AA9C86B7
+  sample 1:
+    time = 606666
+    flags = 0
+    data = length 32316, hash 91F96807
+  sample 2:
+    time = 540000
+    flags = 0
+    data = length 15943, hash 45FA9864
+  sample 3:
+    time = 506666
+    flags = 0
+    data = length 7183, hash BEF025B1
+  sample 4:
+    time = 573333
+    flags = 0
+    data = length 9604, hash A6E08624
+  sample 5:
+    time = 741666
+    flags = 0
+    data = length 93206, hash 8D92A1BC
+  sample 6:
+    time = 675000
+    flags = 0
+    data = length 27500, hash 9DBA11AA
+  sample 7:
+    time = 641666
+    flags = 0
+    data = length 11687, hash E23F32C7
+  sample 8:
+    time = 708333
+    flags = 0
+    data = length 14906, hash DC2DA89D
+  sample 9:
+    time = 880000
+    flags = 0
+    data = length 80531, hash 5F281EEE
+  sample 10:
+    time = 811666
+    flags = 0
+    data = length 25736, hash 4D443883
+  sample 11:
+    time = 776666
+    flags = 0
+    data = length 45840, hash 4456028
+  sample 12:
+    time = 845000
+    flags = 0
+    data = length 20499, hash 9940E6F1
+  sample 13:
+    time = 1015000
+    flags = 0
+    data = length 89733, hash 5BBF699C
+  sample 14:
+    time = 946666
+    flags = 0
+    data = length 35009, hash DB122D5B
+  sample 15:
+    time = 913333
+    flags = 0
+    data = length 19035, hash 3C338E70
+  sample 16:
+    time = 980000
+    flags = 0
+    data = length 17084, hash 8E308D8C
+  sample 17:
+    time = 1048333
+    flags = 0
+    data = length 87793, hash FAC29674
+  sample 18:
+    time = 1081666
+    flags = 1
+    data = length 356935, hash 8C646516
+  sample 19:
+    time = 1216666
+    flags = 0
+    data = length 65937, hash 6F9EDC54
+  sample 20:
+    time = 1150000
+    flags = 0
+    data = length 18102, hash 703C5395
+  sample 21:
+    time = 1115000
+    flags = 0
+    data = length 6787, hash 3D0E2B31
+  sample 22:
+    time = 1183333
+    flags = 0
+    data = length 10192, hash 461CF7D3
+  sample 23:
+    time = 1353333
+    flags = 0
+    data = length 189823, hash FFBAEEFD
+  sample 24:
+    time = 1285000
+    flags = 0
+    data = length 25293, hash 33EFA370
+  sample 25:
+    time = 1250000
+    flags = 0
+    data = length 9088, hash 46BE5B80
+  sample 26:
+    time = 1318333
+    flags = 0
+    data = length 16795, hash F3915E7A
+  sample 27:
+    time = 1488333
+    flags = 0
+    data = length 71742, hash 170147AF
+  sample 28:
+    time = 1421666
+    flags = 0
+    data = length 29558, hash 181F9C60
+  sample 29:
+    time = 1388333
+    flags = 0
+    data = length 15494, hash 1F2B57F6
+  sample 30:
+    time = 1455000
+    flags = 0
+    data = length 14166, hash E1FD2EC1
+  sample 31:
+    time = 1623333
+    flags = 0
+    data = length 84016, hash 99426E2E
+  sample 32:
+    time = 1556666
+    flags = 0
+    data = length 28831, hash 5CD70807
+  sample 33:
+    time = 1523333
+    flags = 0
+    data = length 17372, hash AFF61899
+  sample 34:
+    time = 1590000
+    flags = 0
+    data = length 21827, hash E3B1A343
+  sample 35:
+    time = 1658333
+    flags = 0
+    data = length 82723, hash 116637ED
+  sample 36:
+    time = 1691666
+    flags = 1
+    data = length 364720, hash 97CC919
+  sample 37:
+    time = 1826666
+    flags = 0
+    data = length 56266, hash B00EE494
+  sample 38:
+    time = 1758333
+    flags = 0
+    data = length 15158, hash A9F99FBC
+  sample 39:
+    time = 1725000
+    flags = 0
+    data = length 9522, hash B3C6232B
+  sample 40:
+    time = 1793333
+    flags = 0
+    data = length 11191, hash C2118AB9
+  sample 41:
+    time = 1963333
+    flags = 0
+    data = length 77904, hash 19170263
+  sample 42:
+    time = 1895000
+    flags = 0
+    data = length 105375, hash E5C39C98
+  sample 43:
+    time = 1860000
+    flags = 0
+    data = length 16265, hash 478FD058
+  sample 44:
+    time = 1930000
+    flags = 0
+    data = length 9527, hash B8C5D790
+  sample 45:
+    time = 2031666
+    flags = 0
+    data = length 27558, hash 3CAFD1D3
+  sample 46:
+    time = 1996666
+    flags = 0
+    data = length 10814, hash 9CBA8FAA
+  sample 47:
+    time = 2065000
+    flags = 1
+    data = length 354639, hash 5F75524F
+  sample 48:
+    time = 2200000
+    flags = 0
+    data = length 34289, hash 7BD19879
+  sample 49:
+    time = 2131666
+    flags = 0
+    data = length 16370, hash 7247AF47
+  sample 50:
+    time = 2098333
+    flags = 0
+    data = length 8429, hash B9F88E07
+  sample 51:
+    time = 2166666
+    flags = 0
+    data = length 11477, hash 7E9AF3B8
+  sample 52:
+    time = 2335000
+    flags = 0
+    data = length 202300, hash FC193F4E
+  sample 53:
+    time = 2266666
+    flags = 0
+    data = length 17622, hash C230902B
+  sample 54:
+    time = 2233333
+    flags = 0
+    data = length 7898, hash 70F94769
+  sample 55:
+    time = 2301666
+    flags = 0
+    data = length 13175, hash 966061EB
+  sample 56:
+    time = 2403333
+    flags = 0
+    data = length 30833, hash B4420439
+  sample 57:
+    time = 2368333
+    flags = 0
+    data = length 10846, hash 88595E1
+  sample 58:
+    time = 2438333
+    flags = 1
+    data = length 302471, hash 94BDFA4A
+  sample 59:
+    time = 2573333
+    flags = 0
+    data = length 30489, hash C077BCC8
+  sample 60:
+    time = 2506666
+    flags = 0
+    data = length 20085, hash FD0232B7
+  sample 61:
+    time = 2471666
+    flags = 0
+    data = length 11066, hash 10D3869
+  sample 62:
+    time = 2540000
+    flags = 0
+    data = length 12144, hash FC1D71A8
+  sample 63:
+    time = 2708333
+    flags = 0
+    data = length 64048, hash AF8C69C4
+  sample 64:
+    time = 2640000
+    flags = 0
+    data = length 17710, hash ED7B986C
+  sample 65:
+    time = 2606666
+    flags = 536870912
+    data = length 11420, hash 712BAC8D
+track 1:
+  total output bytes = 158532
+  sample count = 20
+  format 0:
+    id = 2
+    sampleMimeType = audio/raw
+    maxInputSize = 8222
+    channelCount = 1
+    sampleRate = 44100
+    pcmEncoding = 2
+    language = und
+    metadata = entries=[mdta: key=com.apple.quicktime.live-photo.auto, value=01, mdta: key=com.apple.quicktime.content.identifier, value=A873E9D3-2FBA-440A-B4D1-AEB073BC8E54, mdta: key=com.apple.quicktime.live-photo.vitality-score, value=0.9398496, mdta: key=com.apple.quicktime.live-photo.vitality-scoring-version, value=0000000000000004, mdta: key=com.apple.quicktime.make, value=Apple, mdta: key=com.apple.quicktime.model, value=iPhone SE (3rd generation), mdta: key=com.apple.quicktime.software, value=16.5.1, mdta: key=com.apple.quicktime.creationdate, value=2023-07-05T13:13:32+0800, Mp4Timestamp: creation time=3771378882, modification time=3771378882, timescale=600]
+  sample 0:
+    time = 835918
+    flags = 1
+    data = length 8192, hash 15A70C61
+  sample 1:
+    time = 928798
+    flags = 1
+    data = length 6280, hash 418D1C1
+  sample 2:
+    time = 1000000
+    flags = 1
+    data = length 8192, hash E1AE913E
+  sample 3:
+    time = 1092879
+    flags = 1
+    data = length 8192, hash 888B8687
+  sample 4:
+    time = 1185759
+    flags = 1
+    data = length 8192, hash F750B9D9
+  sample 5:
+    time = 1278639
+    flags = 1
+    data = length 8192, hash 4566AA2D
+  sample 6:
+    time = 1371519
+    flags = 1
+    data = length 8192, hash C6F827CD
+  sample 7:
+    time = 1464399
+    flags = 1
+    data = length 8192, hash 3A911603
+  sample 8:
+    time = 1557278
+    flags = 1
+    data = length 8192, hash FDE3EF6A
+  sample 9:
+    time = 1650158
+    flags = 1
+    data = length 8192, hash 450F2C8B
+  sample 10:
+    time = 1743038
+    flags = 1
+    data = length 8192, hash 9D74782F
+  sample 11:
+    time = 1835918
+    flags = 1
+    data = length 8192, hash 3A421696
+  sample 12:
+    time = 1928798
+    flags = 1
+    data = length 6280, hash CD4EC54B
+  sample 13:
+    time = 2000000
+    flags = 1
+    data = length 8192, hash A7477920
+  sample 14:
+    time = 2092879
+    flags = 1
+    data = length 8192, hash 1AF0CDAE
+  sample 15:
+    time = 2185759
+    flags = 1
+    data = length 8192, hash 8F158715
+  sample 16:
+    time = 2278639
+    flags = 1
+    data = length 8192, hash 4787ED61
+  sample 17:
+    time = 2371519
+    flags = 1
+    data = length 8192, hash 8E96B0F9
+  sample 18:
+    time = 2464399
+    flags = 1
+    data = length 8192, hash B6BDD1BD
+  sample 19:
+    time = 2557278
+    flags = 536870913
+    data = length 6708, hash BF420F22
+tracksEnded = true

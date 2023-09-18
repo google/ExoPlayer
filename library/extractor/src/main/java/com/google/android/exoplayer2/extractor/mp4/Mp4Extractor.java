@@ -170,6 +170,7 @@ public final class Mp4Extractor implements Extractor, SeekMap {
   private int sampleBytesRead;
   private int sampleBytesWritten;
   private int sampleCurrentNalBytesRemaining;
+  private boolean seenFtypAtom;
 
   // Extractor outputs.
   private ExtractorOutput extractorOutput;
@@ -450,11 +451,17 @@ public final class Mp4Extractor implements Extractor, SeekMap {
     if (atomData != null) {
       input.readFully(atomData.getData(), atomHeaderBytesRead, (int) atomPayloadSize);
       if (atomType == Atom.TYPE_ftyp) {
+        seenFtypAtom = true;
         fileType = processFtypAtom(atomData);
       } else if (!containerAtoms.isEmpty()) {
         containerAtoms.peek().add(new Atom.LeafAtom(atomType, atomData));
       }
     } else {
+      if (!seenFtypAtom && atomType == Atom.TYPE_mdat) {
+        // The original QuickTime specification did not require files to begin with the ftyp atom.
+        // See https://developer.apple.com/standards/qtff-2001.pdf.
+        fileType = FILE_TYPE_QUICKTIME;
+      }
       // We don't need the data. Skip or seek, depending on how large the atom is.
       if (atomPayloadSize < RELOAD_MINIMUM_SEEK_DISTANCE) {
         input.skipFully((int) atomPayloadSize);

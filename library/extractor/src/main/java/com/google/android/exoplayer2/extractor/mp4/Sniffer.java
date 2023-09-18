@@ -176,6 +176,12 @@ import java.io.IOException;
         break;
       }
 
+      if (atomType == Atom.TYPE_mdat) {
+        // The original QuickTime specification did not require files to begin with the ftyp atom.
+        // See https://developer.apple.com/standards/qtff-2001.pdf.
+        foundGoodFileType = true;
+      }
+
       if (bytesSearched + atomSize - headerSize >= bytesToSearch) {
         // Stop searching as peeking this atom would exceed the search limit.
         break;
