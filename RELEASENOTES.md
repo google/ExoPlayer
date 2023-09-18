@@ -11,6 +11,8 @@
         stays at its current behavior of `true`.
 *   Extractors:
 *   Audio:
+    *   Fix DTS Express audio buffer underflow issue
+        ([#650](https://github.com/androidx/media/pull/650)).
 *   Video:
 *   Text:
     *   Remove `ExoplayerCuesDecoder`. Text tracks with `sampleMimeType =

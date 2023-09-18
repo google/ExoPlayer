@@ -70,7 +70,6 @@ public class DefaultAudioTrackBufferSizeProvider
   private static final int DTSHD_BUFFER_MULTIPLICATION_FACTOR = 4;
 
   /** A builder to create {@link DefaultAudioTrackBufferSizeProvider} instances. */
-
   public static class Builder {
 
     private int minPcmBufferDurationUs;
