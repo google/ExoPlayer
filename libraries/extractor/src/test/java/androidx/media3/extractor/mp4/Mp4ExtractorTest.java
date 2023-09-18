@@ -125,4 +125,13 @@ public final class Mp4ExtractorTest {
     ExtractorAsserts.assertBehavior(
         Mp4Extractor::new, "media/mp4/sample_with_colr_mdcv_and_clli.mp4", simulationConfig);
   }
+
+  /** Test case for supporting original QuickTime specification [Internal: b/297137302]. */
+  @Test
+  public void mp4SampleWithOriginalQuicktimeSpecification() throws Exception {
+    ExtractorAsserts.assertBehavior(
+        Mp4Extractor::new,
+        "media/mp4/sample_with_original_quicktime_specification.mov",
+        simulationConfig);
+  }
 }

@@ -31,6 +31,9 @@
     *   Add `BmpExtractor`.
     *   Add `WebpExtractor`.
     *   Add `media3.extractor.heif.HeifExtractor`.
+    *   Add QuickTime classic
+        (https://developer.apple.com/standards/qtff-2001.pdf) support to
+        `Mp4Extractor`.
 *   Audio:
     *   Add support for Opus gapless metadata during offload playback.
     *   Allow renderer recovery by disabling offload if failed at first write
