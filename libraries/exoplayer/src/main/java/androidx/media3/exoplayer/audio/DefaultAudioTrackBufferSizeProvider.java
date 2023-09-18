@@ -69,6 +69,7 @@ public class DefaultAudioTrackBufferSizeProvider
    */
   private static final int DTSE_BUFFER_MULTIPLICATION_FACTOR = 4;
   /** A builder to create {@link DefaultAudioTrackBufferSizeProvider} instances. */
+
   public static class Builder {
 
     private int minPcmBufferDurationUs;
@@ -78,6 +79,7 @@ public class DefaultAudioTrackBufferSizeProvider
     private int offloadBufferDurationUs;
     private int ac3BufferMultiplicationFactor;
     private int dtseBufferMultiplicationFactor;
+
     /** Creates a new builder. */
     public Builder() {
       minPcmBufferDurationUs = MIN_PCM_BUFFER_DURATION_US;
@@ -254,17 +256,10 @@ public class DefaultAudioTrackBufferSizeProvider
     int bufferSizeUs = passthroughBufferDurationUs;
     if (encoding == C.ENCODING_AC3) {
       bufferSizeUs *= ac3BufferMultiplicationFactor;
-    } else if ((DtsUtil.getCurrentMimeType().contentEquals(MimeTypes.AUDIO_DTS_EXPRESS) && (bitrate
-        != Format.NO_VALUE)))
-    // DTS Express for streaming uses a frame size (number of audio samples per channel per frame)
-    // of 4096. This requires a higher multiple for the buffersize computation.
-    // Need to use encoding DtsUtil.getCurrentMimeType(). ENCODING_DTS_HD cannot be used
-    // to represent DTS Express as some MTK firmware versions only recognises
-    // ENCODING_DTS for DTS Express passthrough playback.
-    // When bitrate is unknown (e.g. HLS-fMP4), the multiple below is not necessary as the buffer
-    // size is taken care of by getMaximumEncodedRateBytesPerSecond().
-    {
-      // This is necessary to prevent buffer underflow during playback in DASH DTS Express.
+    } else if (encoding == C.ENCODING_DTS_HD) {
+      // DTS Express for streaming uses a frame size (number of audio samples per channel per frame)
+      // of 4096. This requires a higher multiple for the buffersize computation. Otherwise, there
+      // will be buffer underflow during DASH playback.
       bufferSizeUs *= dtseBufferMultiplicationFactor;
     }
 

@@ -76,19 +76,6 @@ public final class DtsUtil {
         64, 112, 128, 192, 224, 256, 384, 448, 512, 640, 768, 896, 1024, 1152, 1280, 1536, 1920,
         2048, 2304, 2560, 2688, 2816, 2823, 2944, 3072, 3840, 4096, 6144, 7680
       };
-  private static String currentMimeType;
-
-  public static void setCurrentMimeType(String currentMimeType) {
-    DtsUtil.currentMimeType = currentMimeType;
-  }
-
-  public static String getCurrentMimeType() {
-    return currentMimeType;
-  }
-
-  public static void clearCurrentMimeType() {
-    currentMimeType = "";
-  }
 
   /**
    * Returns whether a given integer matches a DTS sync word. Synchronization and storage modes are

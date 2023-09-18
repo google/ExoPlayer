@@ -653,9 +653,6 @@ public final class DefaultAudioSink implements AudioSink {
     boolean enableAudioTrackPlaybackParams;
     boolean enableOffloadGapless = false;
 
-    if (inputFormat.sampleMimeType.contains("audio/vnd.dts")) {
-      DtsUtil.setCurrentMimeType(inputFormat.sampleMimeType);
-    }
     if (MimeTypes.AUDIO_RAW.equals(inputFormat.sampleMimeType)) {
       Assertions.checkArgument(Util.isEncodingLinearPcm(inputFormat.pcmEncoding));
 
@@ -1462,7 +1459,6 @@ public final class DefaultAudioSink implements AudioSink {
     }
     playing = false;
     offloadDisabledUntilNextConfiguration = false;
-    DtsUtil.clearCurrentMimeType();
   }
 
   @Override
