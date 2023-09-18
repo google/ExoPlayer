@@ -51,7 +51,7 @@ public class DefaultAudioTrackBufferSizeProviderDTSHDTest {
     assertThat(bufferSize)
         .isEqualTo(
             durationUsToDtshdMaxBytes(DEFAULT.passthroughBufferDurationUs)
-                * DEFAULT.dtseBufferMultiplicationFactor);
+                * DEFAULT.dtshdBufferMultiplicationFactor);
   }
 
   @Test
@@ -68,7 +68,7 @@ public class DefaultAudioTrackBufferSizeProviderDTSHDTest {
             /* maxAudioTrackPlaybackSpeed= */ 1);
 
     // Default buffer duration 0.25s => 0.25 * 384000 / 8 = 12000
-    assertThat(bufferSize).isEqualTo(12000 * DEFAULT.dtseBufferMultiplicationFactor);
+    assertThat(bufferSize).isEqualTo(12000 * DEFAULT.dtshdBufferMultiplicationFactor);
   }
 
   private static int durationUsToDtshdMaxBytes(long durationUs) {

@@ -26,7 +26,6 @@ import static java.lang.Math.max;
 import android.media.AudioTrack;
 import androidx.media3.common.C;
 import androidx.media3.common.Format;
-import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.audio.DefaultAudioSink.OutputMode;
 import androidx.media3.extractor.AacUtil;
@@ -67,8 +66,11 @@ public class DefaultAudioTrackBufferSizeProvider
    * Default multiplication factor to apply to DTS Express passthrough buffer to avoid underruns
    * on some devices (e.g., Xiaomi A2 TV).
    */
-  private static final int DTSE_BUFFER_MULTIPLICATION_FACTOR = 4;
-  /** A builder to create {@link DefaultAudioTrackBufferSizeProvider} instances. */
+  private static final int DTSHD_BUFFER_MULTIPLICATION_FACTOR = 4;
+
+  /**
+   * A builder to create {@link DefaultAudioTrackBufferSizeProvider} instances.
+   */
 
   public static class Builder {
 
@@ -78,7 +80,7 @@ public class DefaultAudioTrackBufferSizeProvider
     private int passthroughBufferDurationUs;
     private int offloadBufferDurationUs;
     private int ac3BufferMultiplicationFactor;
-    private int dtseBufferMultiplicationFactor;
+    private int dtshdBufferMultiplicationFactor;
 
     /** Creates a new builder. */
     public Builder() {
@@ -88,7 +90,7 @@ public class DefaultAudioTrackBufferSizeProvider
       passthroughBufferDurationUs = PASSTHROUGH_BUFFER_DURATION_US;
       offloadBufferDurationUs = OFFLOAD_BUFFER_DURATION_US;
       ac3BufferMultiplicationFactor = AC3_BUFFER_MULTIPLICATION_FACTOR;
-      dtseBufferMultiplicationFactor = DTSE_BUFFER_MULTIPLICATION_FACTOR;
+      dtshdBufferMultiplicationFactor = DTSHD_BUFFER_MULTIPLICATION_FACTOR;
     }
 
     /**
@@ -152,13 +154,13 @@ public class DefaultAudioTrackBufferSizeProvider
     }
 
     /**
-     * Sets the multiplication factor to apply to the passthrough buffer for DTS Express to avoid
-     * underruns on some devices (e.g., Xiaomi A2 TV). Default is
-     * {@value #DTSE_BUFFER_MULTIPLICATION_FACTOR}.
+     * Sets the multiplication factor to apply to the passthrough buffer for DTS-HD (DTS Express)
+     * to avoid underruns on some devices (e.g., Xiaomi A2 TV). Default is
+     * {@value #DTSHD_BUFFER_MULTIPLICATION_FACTOR}.
      */
     @CanIgnoreReturnValue
-    public Builder setDtseBufferMultiplicationFactor(int dtseBufferMultiplicationFactor) {
-      this.dtseBufferMultiplicationFactor = dtseBufferMultiplicationFactor;
+    public Builder setDtshdBufferMultiplicationFactor(int dtshdBufferMultiplicationFactor) {
+      this.dtshdBufferMultiplicationFactor = dtshdBufferMultiplicationFactor;
       return this;
     }
 
@@ -189,10 +191,10 @@ public class DefaultAudioTrackBufferSizeProvider
    */
   public final int ac3BufferMultiplicationFactor;
   /**
-   * The multiplication factor to apply to DTS Express passthrough buffer to avoid underruns on some
-   * devices (e.g., Xiaomi A2 TV).
+   * The multiplication factor to apply to DTS-HD (DTS Express) passthrough buffer to avoid
+   * underruns on some devices (e.g., Xiaomi A2 TV).
    */
-  public final int dtseBufferMultiplicationFactor;
+  public final int dtshdBufferMultiplicationFactor;
   protected DefaultAudioTrackBufferSizeProvider(Builder builder) {
     minPcmBufferDurationUs = builder.minPcmBufferDurationUs;
     maxPcmBufferDurationUs = builder.maxPcmBufferDurationUs;
@@ -200,7 +202,7 @@ public class DefaultAudioTrackBufferSizeProvider
     passthroughBufferDurationUs = builder.passthroughBufferDurationUs;
     offloadBufferDurationUs = builder.offloadBufferDurationUs;
     ac3BufferMultiplicationFactor = builder.ac3BufferMultiplicationFactor;
-    dtseBufferMultiplicationFactor = builder.dtseBufferMultiplicationFactor;
+    dtshdBufferMultiplicationFactor = builder.dtshdBufferMultiplicationFactor;
   }
 
   @Override
@@ -257,10 +259,10 @@ public class DefaultAudioTrackBufferSizeProvider
     if (encoding == C.ENCODING_AC3) {
       bufferSizeUs *= ac3BufferMultiplicationFactor;
     } else if (encoding == C.ENCODING_DTS_HD) {
-      // DTS Express for streaming uses a frame size (number of audio samples per channel per frame)
-      // of 4096. This requires a higher multiple for the buffersize computation. Otherwise, there
-      // will be buffer underflow during DASH playback.
-      bufferSizeUs *= dtseBufferMultiplicationFactor;
+      // DTSHD (DTS Express) for streaming uses a frame size (number of audio samples per channel
+      // per frame of 4096. This requires a higher multiple for the buffersize computation.
+      // Otherwise, there will be buffer underflow during DASH playback.
+      bufferSizeUs *= dtshdBufferMultiplicationFactor;
     }
 
     int byteRate =
