@@ -68,9 +68,7 @@ public class DefaultAudioTrackBufferSizeProvider
    */
   private static final int DTSHD_BUFFER_MULTIPLICATION_FACTOR = 4;
 
-  /**
-   * A builder to create {@link DefaultAudioTrackBufferSizeProvider} instances.
-   */
+  /** A builder to create {@link DefaultAudioTrackBufferSizeProvider} instances. */
 
   public static class Builder {
 
@@ -156,7 +154,7 @@ public class DefaultAudioTrackBufferSizeProvider
     /**
      * Sets the multiplication factor to apply to the passthrough buffer for DTS-HD (DTS Express)
      * to avoid underruns on some devices (e.g., Xiaomi A2 TV). Default is
-     * {@value #DTSHD_BUFFER_MULTIPLICATION_FACTOR}.
+     * {@link #DTSHD_BUFFER_MULTIPLICATION_FACTOR}.
      */
     @CanIgnoreReturnValue
     public Builder setDtshdBufferMultiplicationFactor(int dtshdBufferMultiplicationFactor) {
@@ -259,8 +257,8 @@ public class DefaultAudioTrackBufferSizeProvider
     if (encoding == C.ENCODING_AC3) {
       bufferSizeUs *= ac3BufferMultiplicationFactor;
     } else if (encoding == C.ENCODING_DTS_HD) {
-      // DTSHD (DTS Express) for streaming uses a frame size (number of audio samples per channel
-      // per frame of 4096. This requires a higher multiple for the buffersize computation.
+      // DTS-HD (DTS Express) for streaming uses a frame size (number of audio samples per channel
+      // per frame) of 4096. This requires a higher multiple for the buffersize computation.
       // Otherwise, there will be buffer underflow during DASH playback.
       bufferSizeUs *= dtshdBufferMultiplicationFactor;
     }
