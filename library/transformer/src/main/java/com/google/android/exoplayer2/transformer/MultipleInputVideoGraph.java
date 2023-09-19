@@ -40,7 +40,6 @@ import com.google.android.exoplayer2.effect.DefaultVideoFrameProcessor;
 import com.google.android.exoplayer2.effect.GlTextureProducer;
 import com.google.android.exoplayer2.effect.VideoCompositor;
 import com.google.android.exoplayer2.effect.VideoCompositorSettings;
-import com.google.android.exoplayer2.util.Consumer;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.FrameInfo;
@@ -78,7 +77,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         Context context,
         ColorInfo inputColorInfo,
         ColorInfo outputColorInfo,
-        Consumer<ExportException> errorConsumer,
         DebugViewProvider debugViewProvider,
         Listener listener,
         Executor listenerExecutor,
@@ -88,7 +86,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           context,
           inputColorInfo,
           outputColorInfo,
-          errorConsumer,
           debugViewProvider,
           listener,
           listenerExecutor,
@@ -106,7 +103,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final Context context;
   private final ColorInfo inputColorInfo;
   private final ColorInfo outputColorInfo;
-  private final Consumer<ExportException> errorConsumer;
   private final GlObjectsProvider glObjectsProvider;
   private final DebugViewProvider debugViewProvider;
   private final Listener listener;
@@ -133,12 +129,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private volatile boolean hasProducedFrameWithTimestampZero;
 
-  // TODO - b/289986435: Remove errorConsumer and use Listener.onError().
   private MultipleInputVideoGraph(
       Context context,
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
-      Consumer<ExportException> errorConsumer,
       DebugViewProvider debugViewProvider,
       Listener listener,
       Executor listenerExecutor,
@@ -147,7 +141,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.context = context;
     this.inputColorInfo = inputColorInfo;
     this.outputColorInfo = outputColorInfo;
-    this.errorConsumer = errorConsumer;
     this.debugViewProvider = debugViewProvider;
     this.listener = listener;
     this.listenerExecutor = listenerExecutor;
@@ -442,11 +435,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   // This method is called on the sharedExecutorService.
   private void handleVideoFrameProcessingException(Exception e) {
-    errorConsumer.accept(
-        ExportException.createForVideoFrameProcessingException(
-            e instanceof VideoFrameProcessingException
-                ? (VideoFrameProcessingException) e
-                : VideoFrameProcessingException.from(e)));
+    listenerExecutor.execute(
+        () ->
+            listener.onError(
+                e instanceof VideoFrameProcessingException
+                    ? (VideoFrameProcessingException) e
+                    : VideoFrameProcessingException.from(e)));
   }
 
   private static final class CompositorOutputTextureInfo {

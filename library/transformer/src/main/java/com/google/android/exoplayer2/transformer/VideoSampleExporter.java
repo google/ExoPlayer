@@ -498,7 +498,6 @@ import org.checkerframework.dataflow.qual.Pure;
               context,
               videoFrameProcessorInputColor,
               videoFrameProcessorOutputColor,
-              errorConsumer,
               debugViewProvider,
               /* listener= */ thisRef,
               /* listenerExecutor= */ MoreExecutors.directExecutor(),

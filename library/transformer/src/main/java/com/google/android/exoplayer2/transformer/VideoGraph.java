@@ -18,7 +18,6 @@ package com.google.android.exoplayer2.transformer;
 
 import android.content.Context;
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.util.Consumer;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.SurfaceInfo;
@@ -47,7 +46,6 @@ import java.util.concurrent.Executor;
      * @param context A {@link Context}.
      * @param inputColorInfo The {@link ColorInfo} for the input frames.
      * @param outputColorInfo The {@link ColorInfo} for the output frames.
-     * @param errorConsumer A {@link Consumer} of {@link ExportException}.
      * @param debugViewProvider A {@link DebugViewProvider}.
      * @param listener A {@link Listener}.
      * @param listenerExecutor The {@link Executor} on which the {@code listener} is invoked.
@@ -60,7 +58,6 @@ import java.util.concurrent.Executor;
         Context context,
         ColorInfo inputColorInfo,
         ColorInfo outputColorInfo,
-        Consumer<ExportException> errorConsumer,
         DebugViewProvider debugViewProvider,
         Listener listener,
         Executor listenerExecutor,
