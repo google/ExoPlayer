@@ -815,6 +815,10 @@ public final class CastPlayer extends BasePlayer {
   @Override
   public void setDeviceMuted(boolean muted, @C.VolumeFlags int flags) {}
 
+  /** This method is not supported and does nothing. */
+  @Override
+  public void setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus) {}
+
   // Internal methods.
 
   // Call deprecated callbacks.

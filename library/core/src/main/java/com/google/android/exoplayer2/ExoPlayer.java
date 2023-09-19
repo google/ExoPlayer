@@ -171,7 +171,7 @@ public interface ExoPlayer extends Player {
   interface AudioComponent {
 
     /**
-     * @deprecated Use {@link ExoPlayer#setAudioAttributes(AudioAttributes, boolean)} instead.
+     * @deprecated Use {@link Player#setAudioAttributes(AudioAttributes, boolean)} instead.
      */
     @Deprecated
     void setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus);
@@ -1451,29 +1451,6 @@ public interface ExoPlayer extends Player {
    */
   @Override
   void replaceMediaItems(int fromIndex, int toIndex, List<MediaItem> mediaItems);
-
-  /**
-   * Sets the attributes for audio playback, used by the underlying audio track. If not set, the
-   * default audio attributes will be used. They are suitable for general media playback.
-   *
-   * <p>Setting the audio attributes during playback may introduce a short gap in audio output as
-   * the audio track is recreated. A new audio session id will also be generated.
-   *
-   * <p>If tunneling is enabled by the track selector, the specified audio attributes will be
-   * ignored, but they will take effect if audio is later played without tunneling.
-   *
-   * <p>If the device is running a build before platform API version 21, audio attributes cannot be
-   * set directly on the underlying audio track. In this case, the usage will be mapped onto an
-   * equivalent stream type using {@link Util#getStreamTypeForAudioUsage(int)}.
-   *
-   * <p>If audio focus should be handled, the {@link AudioAttributes#usage} must be {@link
-   * C#USAGE_MEDIA} or {@link C#USAGE_GAME}. Other usages will throw an {@link
-   * IllegalArgumentException}.
-   *
-   * @param audioAttributes The attributes to use for audio playback.
-   * @param handleAudioFocus True if the player should handle audio focus, false otherwise.
-   */
-  void setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus);
 
   /**
    * Sets the ID of the audio session to attach to the underlying {@link android.media.AudioTrack}.

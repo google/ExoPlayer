@@ -495,6 +495,7 @@ public interface Player {
         COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS,
         COMMAND_ADJUST_DEVICE_VOLUME,
         COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS,
+        COMMAND_SET_AUDIO_ATTRIBUTES,
         COMMAND_SET_VIDEO_SURFACE,
         COMMAND_GET_TEXT,
         COMMAND_SET_TRACK_SELECTION_PARAMETERS,
@@ -1603,6 +1604,7 @@ public interface Player {
    *   <li>{@link #COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS}
    *   <li>{@link #COMMAND_ADJUST_DEVICE_VOLUME}
    *   <li>{@link #COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS}
+   *   <li>{@link #COMMAND_SET_AUDIO_ATTRIBUTES}
    *   <li>{@link #COMMAND_SET_VIDEO_SURFACE}
    *   <li>{@link #COMMAND_GET_TEXT}
    *   <li>{@link #COMMAND_SET_TRACK_SELECTION_PARAMETERS}
@@ -1649,6 +1651,7 @@ public interface Player {
     COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS,
     COMMAND_ADJUST_DEVICE_VOLUME,
     COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS,
+    COMMAND_SET_AUDIO_ATTRIBUTES,
     COMMAND_SET_VIDEO_SURFACE,
     COMMAND_GET_TEXT,
     COMMAND_SET_TRACK_SELECTION_PARAMETERS,
@@ -1999,6 +2002,14 @@ public interface Player {
    * </ul>
    */
   int COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS = 34;
+
+  /**
+   * Command to set the player's audio attributes.
+   *
+   * <p>The {@link #setAudioAttributes(AudioAttributes, boolean)} method must only be called if this
+   * command is {@linkplain #isCommandAvailable(int) available}.
+   */
+  int COMMAND_SET_AUDIO_ATTRIBUTES = 35;
 
   /**
    * Command to set and clear the surface on which to render the video.
@@ -3372,4 +3383,30 @@ public interface Player {
    * @param flags Either 0 or a bitwise combination of one or more {@link C.VolumeFlags}.
    */
   void setDeviceMuted(boolean muted, @C.VolumeFlags int flags);
+
+  /**
+   * Sets the attributes for audio playback, used by the underlying audio track. If not set, the
+   * default audio attributes will be used. They are suitable for general media playback.
+   *
+   * <p>Setting the audio attributes during playback may introduce a short gap in audio output as
+   * the audio track is recreated. A new audio session id will also be generated.
+   *
+   * <p>If tunneling is enabled by the track selector, the specified audio attributes will be
+   * ignored, but they will take effect if audio is later played without tunneling.
+   *
+   * <p>If the device is running a build before platform API version 21, audio attributes cannot be
+   * set directly on the underlying audio track. In this case, the usage will be mapped onto an
+   * equivalent stream type using {@link Util#getStreamTypeForAudioUsage(int)}.
+   *
+   * <p>If audio focus should be handled, the {@link AudioAttributes#usage} must be {@link
+   * C#USAGE_MEDIA} or {@link C#USAGE_GAME}. Other usages will throw an {@link
+   * IllegalArgumentException}.
+   *
+   * <p>This method must only be called if {@link #COMMAND_SET_AUDIO_ATTRIBUTES} is {@linkplain
+   * #getAvailableCommands() available}.
+   *
+   * @param audioAttributes The attributes to use for audio playback.
+   * @param handleAudioFocus True if the player should handle audio focus, false otherwise.
+   */
+  void setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus);
 }

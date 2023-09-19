@@ -2897,6 +2897,20 @@ public abstract class SimpleBasePlayer extends BasePlayer {
         /* placeholderStateSupplier= */ () -> state.buildUpon().setIsDeviceMuted(muted).build());
   }
 
+  @Override
+  public final void setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus) {
+    verifyApplicationThreadAndInitState();
+    // Use a local copy to ensure the lambda below uses the current state value.
+    State state = this.state;
+    if (!shouldHandleCommand(Player.COMMAND_SET_AUDIO_ATTRIBUTES)) {
+      return;
+    }
+    updateStateForPendingOperation(
+        /* pendingOperation= */ handleSetAudioAttributes(audioAttributes, handleAudioFocus),
+        /* placeholderStateSupplier= */ () ->
+            state.buildUpon().setAudioAttributes(audioAttributes).build());
+  }
+
   /**
    * Invalidates the current state.
    *
@@ -3182,6 +3196,23 @@ public abstract class SimpleBasePlayer extends BasePlayer {
     throw new IllegalStateException(
         "Missing implementation to handle COMMAND_ADJUST_DEVICE_VOLUME or"
             + " COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS");
+  }
+
+  /**
+   * Handles calls to set the audio attributes.
+   *
+   * <p>Will only be called if {@link Player#COMMAND_SET_AUDIO_ATTRIBUTES} is available.
+   *
+   * @param audioAttributes The attributes to use for audio playback.
+   * @param handleAudioFocus True if the player should handle audio focus, false otherwise.
+   * @return A {@link ListenableFuture} indicating the completion of all immediate {@link State}
+   *     changes caused by this call.
+   */
+  @ForOverride
+  protected ListenableFuture<?> handleSetAudioAttributes(
+      AudioAttributes audioAttributes, boolean handleAudioFocus) {
+    throw new IllegalStateException(
+        "Missing implementation to handle COMMAND_SET_AUDIO_ATTRIBUTES");
   }
 
   /**
