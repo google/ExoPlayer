@@ -2317,8 +2317,12 @@ public final class Util {
     }
   }
 
-  /** Returns the {@link C.AudioContentType} corresponding to the specified {@link C.StreamType}. */
+  /**
+   * @deprecated This method is no longer used by the media3 library, it does not work well and
+   *     should be avoided. There is no direct replacement.
+   */
   @UnstableApi
+  @Deprecated
   public static @C.AudioContentType int getAudioContentTypeForStreamType(
       @C.StreamType int streamType) {
     switch (streamType) {
