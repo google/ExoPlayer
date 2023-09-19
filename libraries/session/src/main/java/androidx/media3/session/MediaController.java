@@ -1794,6 +1794,16 @@ public class MediaController implements Player {
   }
 
   @Override
+  public final void setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus) {
+    verifyApplicationThread();
+    if (!isConnected()) {
+      Log.w(TAG, "The controller is not connected. Ignoring setAudioAttributes().");
+      return;
+    }
+    impl.setAudioAttributes(audioAttributes, handleAudioFocus);
+  }
+
+  @Override
   public final MediaMetadata getMediaMetadata() {
     verifyApplicationThread();
     return isConnected() ? impl.getMediaMetadata() : MediaMetadata.EMPTY;
@@ -2138,6 +2148,8 @@ public class MediaController implements Player {
     void setDeviceMuted(boolean muted);
 
     void setDeviceMuted(boolean muted, @C.VolumeFlags int flags);
+
+    void setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus);
 
     boolean getPlayWhenReady();
 

@@ -28,6 +28,7 @@ import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.PlaybackParameters;
@@ -694,6 +695,18 @@ public class MediaControllerProviderService extends Service {
           () -> {
             MediaController controller = mediaControllerMap.get(controllerId);
             controller.setDeviceMuted(muted, flags);
+          });
+    }
+
+    @Override
+    public void setAudioAttributes(
+        String controllerId, Bundle audioAttributes, boolean handleAudioFocus)
+        throws RemoteException {
+      runOnHandler(
+          () -> {
+            MediaController controller = mediaControllerMap.get(controllerId);
+            controller.setAudioAttributes(
+                AudioAttributes.CREATOR.fromBundle(audioAttributes), handleAudioFocus);
           });
     }
 

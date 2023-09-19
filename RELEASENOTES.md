@@ -23,6 +23,7 @@
         ([#11226](https://github.com/google/ExoPlayer/issues/11226)).
     *   Change `BaseRenderer.onStreamChanged()` to also receive a
         `MediaPeriodId` argument.
+    *   Move `ExoPlayer.setAudioAttributes` to the `Player` interface.
 *   Transformer:
     *   Changed `frameRate` and `durationUs` parameters of
         `SampleConsumer.queueInputBitmap` to `TimestampIterator`.

@@ -257,6 +257,9 @@ public class MockPlayer implements Player {
   /** Maps to {@link Player#replaceMediaItems(int, int, List)} . */
   public static final int METHOD_REPLACE_MEDIA_ITEMS = 47;
 
+  /** Maps to {@link Player#setAudioAttributes(AudioAttributes, boolean)}. */
+  public static final int METHOD_SET_AUDIO_ATTRIBUTES = 48;
+
   private final boolean changePlayerStateWithTransportControl;
   private final Looper applicationLooper;
   private final ArraySet<Listener> listeners = new ArraySet<>();
@@ -764,6 +767,12 @@ public class MockPlayer implements Player {
   public void setDeviceMuted(boolean muted, @C.VolumeFlags int flags) {
     deviceMuted = muted;
     checkNotNull(conditionVariables.get(METHOD_SET_DEVICE_MUTED_WITH_FLAGS)).open();
+  }
+
+  @Override
+  public void setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus) {
+    this.audioAttributes = audioAttributes;
+    checkNotNull(conditionVariables.get(METHOD_SET_AUDIO_ATTRIBUTES)).open();
   }
 
   @Override
@@ -1478,6 +1487,7 @@ public class MockPlayer implements Player {
         .put(METHOD_SET_SHUFFLE_MODE, new ConditionVariable())
         .put(METHOD_SET_TRACK_SELECTION_PARAMETERS, new ConditionVariable())
         .put(METHOD_SET_VOLUME, new ConditionVariable())
+        .put(METHOD_SET_AUDIO_ATTRIBUTES, new ConditionVariable())
         .put(METHOD_STOP, new ConditionVariable())
         .put(METHOD_REPLACE_MEDIA_ITEM, new ConditionVariable())
         .put(METHOD_REPLACE_MEDIA_ITEMS, new ConditionVariable())

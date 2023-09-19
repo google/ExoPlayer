@@ -28,6 +28,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.RemoteException;
 import androidx.annotation.Nullable;
+import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
 import androidx.media3.common.DeviceInfo;
 import androidx.media3.common.MediaItem;
@@ -709,6 +710,52 @@ public class MediaControllerStateMaskingTest {
     assertThat(deviceMutedFromGetterRef.get()).isEqualTo(testDeviceMuted);
     assertThat(getEventsAsList(onEventsRef.get()))
         .containsExactly(Player.EVENT_DEVICE_VOLUME_CHANGED);
+  }
+
+  @Test
+  public void setAudioAttributes() throws Exception {
+    AudioAttributes originalAttrs =
+        new AudioAttributes.Builder().setContentType(C.AUDIO_CONTENT_TYPE_MUSIC).build();
+    Bundle playerConfig =
+        new RemoteMediaSession.MockPlayerConfigBuilder().setAudioAttributes(originalAttrs).build();
+    remoteSession.setPlayer(playerConfig);
+
+    MediaController controller = controllerTestRule.createController(remoteSession.getToken());
+    CountDownLatch latch = new CountDownLatch(2);
+    AtomicReference<AudioAttributes> audioAttributesFromCallbackRef = new AtomicReference<>();
+    AtomicReference<Player.Events> onEventsRef = new AtomicReference<>();
+    Player.Listener listener =
+        new Player.Listener() {
+          @Override
+          public void onAudioAttributesChanged(AudioAttributes audioAttributes) {
+            audioAttributesFromCallbackRef.set(originalAttrs);
+            latch.countDown();
+          }
+
+          @Override
+          public void onEvents(Player player, Player.Events events) {
+            onEventsRef.set(events);
+            latch.countDown();
+          }
+        };
+    threadTestRule.getHandler().postAndSync(() -> controller.addListener(listener));
+
+    AtomicReference<AudioAttributes> audioAttributesFromGetterRef = new AtomicReference<>();
+    AudioAttributes newAttributes =
+        new AudioAttributes.Builder().setContentType(C.AUDIO_CONTENT_TYPE_SPEECH).build();
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              controller.setAudioAttributes(newAttributes, /* handleAudioFocus= */ false);
+              audioAttributesFromGetterRef.set(controller.getAudioAttributes());
+            });
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(audioAttributesFromCallbackRef.get()).isEqualTo(originalAttrs);
+    assertThat(audioAttributesFromGetterRef.get()).isEqualTo(newAttributes);
+    assertThat(getEventsAsList(onEventsRef.get()))
+        .containsExactly(Player.EVENT_AUDIO_ATTRIBUTES_CHANGED);
   }
 
   @Test

@@ -314,6 +314,7 @@ import java.util.concurrent.TimeoutException;
                   COMMAND_CHANGE_MEDIA_ITEMS,
                   COMMAND_GET_TRACKS,
                   COMMAND_GET_AUDIO_ATTRIBUTES,
+                  COMMAND_SET_AUDIO_ATTRIBUTES,
                   COMMAND_GET_VOLUME,
                   COMMAND_SET_VOLUME,
                   COMMAND_SET_VIDEO_SURFACE,

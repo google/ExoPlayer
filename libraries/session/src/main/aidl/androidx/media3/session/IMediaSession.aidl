@@ -40,6 +40,7 @@ oneway interface IMediaSession {
   void decreaseDeviceVolumeWithFlags(IMediaController caller, int seq, int flags) = 3052;
   void setDeviceMuted(IMediaController caller, int seq, boolean muted) = 3005;
   void setDeviceMutedWithFlags(IMediaController caller, int seq, boolean muted, int flags) = 3053;
+  void setAudioAttributes(IMediaController caller, int seq, in Bundle audioAttributes, boolean handleAudioFocus) = 3056;
   void setMediaItem(
       IMediaController caller,
       int seq,
@@ -120,7 +121,7 @@ oneway interface IMediaSession {
   void setRatingWithMediaId(
        IMediaController caller, int seq, String mediaId, in Bundle rating) = 3048;
   void setRating(IMediaController caller, int seq, in Bundle rating) = 3049;
-  // Next Id for MediaSession: 3056
+  // Next Id for MediaSession: 3057
 
   void getLibraryRoot(IMediaController caller, int seq, in Bundle libraryParams) = 4000;
   void getItem(IMediaController caller, int seq, String mediaId) = 4001;

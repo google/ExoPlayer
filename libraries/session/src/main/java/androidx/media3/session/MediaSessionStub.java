@@ -29,6 +29,7 @@ import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS;
 import static androidx.media3.common.Player.COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM;
+import static androidx.media3.common.Player.COMMAND_SET_AUDIO_ATTRIBUTES;
 import static androidx.media3.common.Player.COMMAND_SET_DEVICE_VOLUME;
 import static androidx.media3.common.Player.COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS;
 import static androidx.media3.common.Player.COMMAND_SET_MEDIA_ITEM;
@@ -65,6 +66,7 @@ import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.core.util.ObjectsCompat;
 import androidx.media.MediaSessionManager;
+import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.BundleListRetriever;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
@@ -1539,6 +1541,25 @@ import java.util.concurrent.ExecutionException;
         sequenceNumber,
         COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS,
         sendSessionResultSuccess(player -> player.setDeviceMuted(muted, flags)));
+  }
+
+  @Override
+  public void setAudioAttributes(
+      @Nullable IMediaController caller,
+      int sequenceNumber,
+      Bundle audioAttributes,
+      boolean handleAudioFocus) {
+    if (caller == null) {
+      return;
+    }
+    queueSessionTaskWithPlayerCommand(
+        caller,
+        sequenceNumber,
+        COMMAND_SET_AUDIO_ATTRIBUTES,
+        sendSessionResultSuccess(
+            player ->
+                player.setAudioAttributes(
+                    AudioAttributes.CREATOR.fromBundle(audioAttributes), handleAudioFocus)));
   }
 
   @Override

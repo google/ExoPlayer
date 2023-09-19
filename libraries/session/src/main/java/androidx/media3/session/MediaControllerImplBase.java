@@ -1673,6 +1673,26 @@ import org.checkerframework.checker.nullness.qual.NonNull;
   }
 
   @Override
+  public void setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus) {
+    if (!isPlayerCommandAvailable(Player.COMMAND_SET_AUDIO_ATTRIBUTES)) {
+      return;
+    }
+
+    dispatchRemoteSessionTaskWithPlayerCommand(
+        (iSession, seq) ->
+            iSession.setAudioAttributes(
+                controllerStub, seq, audioAttributes.toBundle(), handleAudioFocus));
+
+    if (!playerInfo.audioAttributes.equals(audioAttributes)) {
+      playerInfo = playerInfo.copyWithAudioAttributes(audioAttributes);
+      listeners.queueEvent(
+          /* eventFlag= */ Player.EVENT_AUDIO_ATTRIBUTES_CHANGED,
+          listener -> listener.onAudioAttributesChanged(audioAttributes));
+      listeners.flushEvents();
+    }
+  }
+
+  @Override
   public VideoSize getVideoSize() {
     return playerInfo.videoSize;
   }

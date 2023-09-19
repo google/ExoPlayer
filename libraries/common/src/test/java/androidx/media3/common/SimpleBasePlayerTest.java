@@ -3618,6 +3618,125 @@ public class SimpleBasePlayerTest {
   }
 
   @Test
+  public void setAudioAttributes_immediateHandling_updatesStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .build();
+    // Also change the audio attributes to ensure the updated state is used.
+    AudioAttributes newAudioAttributes =
+        new AudioAttributes.Builder()
+            .setContentType(C.AUDIO_CONTENT_TYPE_MOVIE)
+            .setUsage(C.USAGE_MEDIA)
+            .build();
+    State updatedState = state.buildUpon().setAudioAttributes(newAudioAttributes).build();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          private State playerState = state;
+
+          @Override
+          protected State getState() {
+            return playerState;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetAudioAttributes(
+              AudioAttributes audioAttributes, boolean handleAudioFocus) {
+            playerState = updatedState;
+            return Futures.immediateVoidFuture();
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.setAudioAttributes(newAudioAttributes, /* handleAudioFocus= */ true);
+
+    assertThat(player.getAudioAttributes()).isEqualTo(newAudioAttributes);
+    verify(listener).onAudioAttributesChanged(newAudioAttributes);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void setAudioAttributes_asyncHandling_usesPlaceholderStateAndInformsListeners() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(new Commands.Builder().addAllCommands().build())
+            .build();
+    SettableFuture<?> future = SettableFuture.create();
+    AudioAttributes firstAudioAttributes =
+        new AudioAttributes.Builder()
+            .setContentType(C.AUDIO_CONTENT_TYPE_SONIFICATION)
+            .setUsage(C.USAGE_ALARM)
+            .build();
+    AudioAttributes lastAudioAttributes =
+        new AudioAttributes.Builder()
+            .setContentType(C.AUDIO_CONTENT_TYPE_MOVIE)
+            .setUsage(C.USAGE_MEDIA)
+            .build();
+    State updatedState = state.buildUpon().setAudioAttributes(lastAudioAttributes).build();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return future.isDone() ? updatedState : state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetAudioAttributes(
+              AudioAttributes audioAttributes, boolean handleAudioFocus) {
+            return future;
+          }
+        };
+    Listener listener = mock(Listener.class);
+    player.addListener(listener);
+
+    player.setAudioAttributes(firstAudioAttributes, /* handleAudioFocus= */ true);
+
+    // Verify placeholder state and listener calls.
+    assertThat(player.getAudioAttributes()).isEqualTo(firstAudioAttributes);
+    verify(listener).onAudioAttributesChanged(firstAudioAttributes);
+    verifyNoMoreInteractions(listener);
+
+    future.set(null);
+
+    // Verify actual state update.
+    assertThat(player.getAudioAttributes()).isEqualTo(lastAudioAttributes);
+    verify(listener).onAudioAttributesChanged(lastAudioAttributes);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void setAudioAttributes_withoutAvailableCommand_isNotForwarded() {
+    State state =
+        new State.Builder()
+            .setAvailableCommands(
+                new Commands.Builder()
+                    .addAllCommands()
+                    .remove(Player.COMMAND_SET_AUDIO_ATTRIBUTES)
+                    .build())
+            .build();
+    AtomicBoolean callForwarded = new AtomicBoolean();
+    SimpleBasePlayer player =
+        new SimpleBasePlayer(Looper.myLooper()) {
+          @Override
+          protected State getState() {
+            return state;
+          }
+
+          @Override
+          protected ListenableFuture<?> handleSetAudioAttributes(
+              AudioAttributes audioAttributes, boolean handleAudioFocus) {
+            callForwarded.set(true);
+            return Futures.immediateVoidFuture();
+          }
+        };
+
+    player.setAudioAttributes(AudioAttributes.DEFAULT, /* handleAudioFocus= */ true);
+
+    assertThat(callForwarded.get()).isFalse();
+  }
+
+  @Test
   public void setVideoSurface_immediateHandling_updatesStateAndInformsListeners() {
     State state =
         new State.Builder()

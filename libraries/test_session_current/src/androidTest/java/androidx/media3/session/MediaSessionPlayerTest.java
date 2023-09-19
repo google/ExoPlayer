@@ -27,6 +27,8 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.session.MediaControllerCompat;
+import androidx.media3.common.AudioAttributes;
+import androidx.media3.common.C;
 import androidx.media3.common.DeviceInfo;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
@@ -268,7 +270,7 @@ public class MediaSessionPlayerTest {
         remoteControllerTestRule.createRemoteController(session.getToken());
 
     // The controller should only be able to see the current item without Timeline access.
-    controller.seekTo(/* mediaItemIndex= */ 0, /* seekPositionMs= */ 2000);
+    controller.seekTo(/* mediaItemIndex= */ 0, /* positionMs= */ 2000);
     player.awaitMethodCalled(MockPlayer.METHOD_SEEK_TO_WITH_MEDIA_ITEM_INDEX, TIMEOUT_MS);
     controller.release();
     session.release();
@@ -826,6 +828,20 @@ public class MediaSessionPlayerTest {
 
     player.awaitMethodCalled(MockPlayer.METHOD_SET_DEVICE_MUTED, TIMEOUT_MS);
     assertThat(player.deviceMuted).isTrue();
+  }
+
+  @Test
+  public void setAudioAttributes() throws Exception {
+    AudioAttributes audioAttributes =
+        new AudioAttributes.Builder()
+            .setContentType(C.AUDIO_CONTENT_TYPE_SONIFICATION)
+            .setUsage(C.USAGE_ALARM)
+            .build();
+
+    controller.setAudioAttributes(audioAttributes, /* handleAudioFocus= */ true);
+
+    player.awaitMethodCalled(MockPlayer.METHOD_SET_AUDIO_ATTRIBUTES, TIMEOUT_MS);
+    assertThat(player.getAudioAttributes()).isEqualTo(audioAttributes);
   }
 
   @Test

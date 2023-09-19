@@ -431,4 +431,9 @@ public class StubPlayer extends BasePlayer {
   public void setDeviceMuted(boolean muted, @C.VolumeFlags int flags) {
     throw new UnsupportedOperationException();
   }
+
+  @Override
+  public void setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus) {
+    throw new UnsupportedOperationException();
+  }
 }

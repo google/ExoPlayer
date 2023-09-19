@@ -81,6 +81,7 @@ interface IRemoteMediaController {
   void decreaseDeviceVolumeWithFlags(String controllerId, int flags);
   void setDeviceMuted(String controllerId, boolean muted);
   void setDeviceMutedWithFlags(String controllerId, boolean muted, int flags);
+  void setAudioAttributes(String controllerId, in Bundle audioAttributes, boolean handleAudioFocus);
   Bundle sendCustomCommand(String controllerId, in Bundle command, in Bundle args);
   Bundle setRatingWithMediaId(String controllerId, String mediaId, in Bundle rating);
   Bundle setRating(String controllerId, in Bundle rating);

@@ -917,6 +917,12 @@ public class ForwardingPlayer implements Player {
     player.setDeviceMuted(muted, flags);
   }
 
+  /** Calls {@link Player#setAudioAttributes(AudioAttributes, boolean)} on the delegate. */
+  @Override
+  public void setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus) {
+    player.setAudioAttributes(audioAttributes, handleAudioFocus);
+  }
+
   /** Returns the {@link Player} to which operations are forwarded. */
   public Player getWrappedPlayer() {
     return player;

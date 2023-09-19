@@ -1207,6 +1207,11 @@ import org.checkerframework.checker.initialization.qual.UnderInitialization;
   }
 
   @Override
+  public void setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus) {
+    Log.w(TAG, "Legacy session doesn't support setting audio attributes remotely");
+  }
+
+  @Override
   public void setPlayWhenReady(boolean playWhenReady) {
     if (playWhenReady) {
       play();

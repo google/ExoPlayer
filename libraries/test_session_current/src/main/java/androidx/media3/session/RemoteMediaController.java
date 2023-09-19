@@ -30,6 +30,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import androidx.annotation.Nullable;
+import androidx.media3.common.AudioAttributes;
 import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
@@ -312,6 +313,11 @@ public class RemoteMediaController {
 
   public void setDeviceMuted(boolean muted, @C.VolumeFlags int flags) throws RemoteException {
     binder.setDeviceMutedWithFlags(controllerId, muted, flags);
+  }
+
+  public void setAudioAttributes(AudioAttributes audioAttributes, boolean handleAudioFocus)
+      throws RemoteException {
+    binder.setAudioAttributes(controllerId, audioAttributes.toBundle(), handleAudioFocus);
   }
 
   public SessionResult sendCustomCommand(SessionCommand command, Bundle args)
