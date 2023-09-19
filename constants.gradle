@@ -24,7 +24,7 @@ project.ext {
     dexmakerVersion = '2.28.3'
     junitVersion = '4.13.2'
     // Use the same Guava version as the Android repo:
-    // https://cs.android.com/android/platform/superproject/+/master:external/guava/METADATA
+    // https://cs.android.com/android/platform/superproject/main/+/main:external/guava/METADATA
     guavaVersion = '31.1-android'
     mockitoVersion = '3.12.4'
     robolectricVersion = '4.10.3'
