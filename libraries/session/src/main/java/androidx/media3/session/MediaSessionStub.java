@@ -545,7 +545,9 @@ import java.util.concurrent.ExecutionException;
             } catch (RemoteException e) {
               // Controller may be died prematurely.
             }
-            sessionImpl.onPostConnectOnHandler(controllerInfo);
+            if (connected) {
+              sessionImpl.onPostConnectOnHandler(controllerInfo);
+            }
           } finally {
             if (!connected) {
               try {
