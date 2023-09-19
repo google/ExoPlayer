@@ -506,16 +506,15 @@ import org.checkerframework.dataflow.qual.Pure;
               initialTimestampOffsetUs);
     }
 
-    @Nullable
     @Override
-    public SurfaceInfo onOutputSizeChanged(int width, int height) {
+    public void onOutputSizeChanged(int width, int height) {
       @Nullable SurfaceInfo surfaceInfo = null;
       try {
         surfaceInfo = encoderWrapper.getSurfaceInfo(width, height);
       } catch (ExportException e) {
         errorConsumer.accept(e);
       }
-      return surfaceInfo;
+      setOutputSurfaceInfo(surfaceInfo);
     }
 
     @Override
@@ -541,6 +540,11 @@ import org.checkerframework.dataflow.qual.Pure;
     @Override
     public GraphInput createInput() throws VideoFrameProcessingException {
       return videoGraph.createInput();
+    }
+
+    @Override
+    public void setOutputSurfaceInfo(@Nullable SurfaceInfo outputSurfaceInfo) {
+      videoGraph.setOutputSurfaceInfo(outputSurfaceInfo);
     }
 
     @Override

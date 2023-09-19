@@ -47,6 +47,7 @@ import com.google.android.exoplayer2.util.FrameInfo;
 import com.google.android.exoplayer2.util.GlObjectsProvider;
 import com.google.android.exoplayer2.util.GlTextureInfo;
 import com.google.android.exoplayer2.util.GlUtil;
+import com.google.android.exoplayer2.util.SurfaceInfo;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.android.exoplayer2.video.ColorInfo;
@@ -203,8 +204,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
               @Override
               public void onOutputSizeChanged(int width, int height) {
-                checkNotNull(compositionVideoFrameProcessor)
-                    .setOutputSurfaceInfo(listener.onOutputSizeChanged(width, height));
+                listenerExecutor.execute(() -> listener.onOutputSizeChanged(width, height));
               }
 
               @Override
@@ -303,6 +303,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             initialTimestampOffsetUs);
     preProcessingWrappers.add(preProcessingVideoFrameProcessorWrapper);
     return preProcessingVideoFrameProcessorWrapper;
+  }
+
+  @Override
+  public void setOutputSurfaceInfo(@Nullable SurfaceInfo outputSurfaceInfo) {
+    checkNotNull(compositionVideoFrameProcessor).setOutputSurfaceInfo(outputSurfaceInfo);
   }
 
   @Override

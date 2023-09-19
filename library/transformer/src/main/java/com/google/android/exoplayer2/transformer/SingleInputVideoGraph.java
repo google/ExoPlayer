@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.util.Consumer;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.FrameInfo;
+import com.google.android.exoplayer2.util.SurfaceInfo;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.android.exoplayer2.video.ColorInfo;
@@ -165,9 +166,7 @@ import java.util.concurrent.Executor;
 
               @Override
               public void onOutputSizeChanged(int width, int height) {
-                // TODO: b/289986435 - Allow setting output surface info on VideoGraph.
-                checkNotNull(videoFrameProcessingWrapper)
-                    .setOutputSurfaceInfo(listener.onOutputSizeChanged(width, height));
+                listenerExecutor.execute(() -> listener.onOutputSizeChanged(width, height));
               }
 
               @Override
@@ -194,6 +193,11 @@ import java.util.concurrent.Executor;
             presentation,
             initialTimestampOffsetUs);
     return videoFrameProcessingWrapper;
+  }
+
+  @Override
+  public void setOutputSurfaceInfo(@Nullable SurfaceInfo outputSurfaceInfo) {
+    checkNotNull(videoFrameProcessingWrapper).setOutputSurfaceInfo(outputSurfaceInfo);
   }
 
   @Override
