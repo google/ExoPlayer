@@ -23,6 +23,7 @@ import androidx.media3.extractor.text.dvb.DvbParser;
 import androidx.media3.extractor.text.pgs.PgsParser;
 import androidx.media3.extractor.text.ssa.SsaParser;
 import androidx.media3.extractor.text.subrip.SubripParser;
+import androidx.media3.extractor.text.ttml.TtmlParser;
 import androidx.media3.extractor.text.tx3g.Tx3gParser;
 import androidx.media3.extractor.text.webvtt.Mp4WebvttParser;
 import androidx.media3.extractor.text.webvtt.WebvttParser;
@@ -41,6 +42,7 @@ import java.util.Objects;
  *   <li>TX3G ({@link Tx3gParser})
  *   <li>PGS ({@link PgsParser})
  *   <li>DVB ({@link DvbParser})
+ *   <li>TTML ({@link TtmlParser})
  * </ul>
  */
 @UnstableApi
@@ -55,7 +57,8 @@ public final class DefaultSubtitleParserFactory implements SubtitleParser.Factor
         || Objects.equals(mimeType, MimeTypes.APPLICATION_SUBRIP)
         || Objects.equals(mimeType, MimeTypes.APPLICATION_TX3G)
         || Objects.equals(mimeType, MimeTypes.APPLICATION_PGS)
-        || Objects.equals(mimeType, MimeTypes.APPLICATION_DVBSUBS);
+        || Objects.equals(mimeType, MimeTypes.APPLICATION_DVBSUBS)
+        || Objects.equals(mimeType, MimeTypes.APPLICATION_TTML);
   }
 
   @Override
@@ -77,6 +80,8 @@ public final class DefaultSubtitleParserFactory implements SubtitleParser.Factor
           return new PgsParser();
         case MimeTypes.APPLICATION_DVBSUBS:
           return new DvbParser(format.initializationData);
+        case MimeTypes.APPLICATION_TTML:
+          return new TtmlParser();
         default:
           break;
       }

@@ -25,19 +25,18 @@ import androidx.media3.common.text.TextAnnotation;
 import androidx.media3.common.text.TextEmphasisSpan;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.ColorParser;
-import androidx.media3.extractor.text.Subtitle;
-import androidx.media3.extractor.text.SubtitleDecoderException;
+import androidx.media3.extractor.text.CuesWithTiming;
 import androidx.media3.test.utils.TestUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import java.io.IOException;
-import java.util.List;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Unit test for {@link TtmlDecoder}. */
+/** Unit test for {@link TtmlParser}. */
 @RunWith(AndroidJUnit4.class)
-public final class TtmlDecoderTest {
+public final class TtmlParserTest {
 
   private static final String INLINE_ATTRIBUTES_TTML_FILE =
       "media/ttml/inline_style_attributes.xml";
@@ -71,12 +70,12 @@ public final class TtmlDecoderTest {
   private static final String SHEAR_FILE = "media/ttml/shear.xml";
 
   @Test
-  public void inlineAttributes() throws IOException, SubtitleDecoderException {
-    TtmlSubtitle subtitle = getSubtitle(INLINE_ATTRIBUTES_TTML_FILE);
+  public void inlineAttributes() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(INLINE_ATTRIBUTES_TTML_FILE);
 
-    assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
+    assertThat(allCues).hasSize(2);
 
-    Spanned spanned = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
+    Spanned spanned = getOnlyCueTextAtIndex(allCues, 0);
     assertThat(spanned.toString()).isEqualTo("text 1");
     assertThat(spanned).hasTypefaceSpanBetween(0, spanned.length()).withFamily("serif");
     assertThat(spanned).hasBoldItalicSpanBetween(0, spanned.length());
@@ -90,12 +89,12 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void inheritInlineAttributes() throws IOException, SubtitleDecoderException {
-    TtmlSubtitle subtitle = getSubtitle(INLINE_ATTRIBUTES_TTML_FILE);
+  public void inheritInlineAttributes() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(INLINE_ATTRIBUTES_TTML_FILE);
 
-    assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
+    assertThat(allCues).hasSize(2);
 
-    Spanned spanned = getOnlyCueTextAtTimeUs(subtitle, 20_000_000);
+    Spanned spanned = getOnlyCueTextAtIndex(allCues, 1);
     assertThat(spanned.toString()).isEqualTo("text 2");
     assertThat(spanned).hasTypefaceSpanBetween(0, spanned.length()).withFamily("sansSerif");
     assertThat(spanned).hasItalicSpanBetween(0, spanned.length());
@@ -116,12 +115,12 @@ public final class TtmlDecoderTest {
   // KitKat Color:
   // https://github.com/android/platform_frameworks_base/blob/kitkat-mr2.2-release/graphics/java/android/graphics/Color.java#L414
   @Test
-  public void lime() throws IOException, SubtitleDecoderException {
-    TtmlSubtitle subtitle = getSubtitle(INLINE_ATTRIBUTES_TTML_FILE);
+  public void lime() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(INLINE_ATTRIBUTES_TTML_FILE);
 
-    assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
+    assertThat(allCues).hasSize(2);
 
-    Spanned spanned = getOnlyCueTextAtTimeUs(subtitle, 20_000_000);
+    Spanned spanned = getOnlyCueTextAtIndex(allCues, 1);
     assertThat(spanned.toString()).isEqualTo("text 2");
     assertThat(spanned).hasTypefaceSpanBetween(0, spanned.length()).withFamily("sansSerif");
     assertThat(spanned).hasItalicSpanBetween(0, spanned.length());
@@ -131,12 +130,12 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void inheritGlobalStyle() throws IOException, SubtitleDecoderException {
-    TtmlSubtitle subtitle = getSubtitle(INHERIT_STYLE_TTML_FILE);
+  public void inheritGlobalStyle() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(INHERIT_STYLE_TTML_FILE);
 
-    assertThat(subtitle.getEventTimeCount()).isEqualTo(2);
+    assertThat(allCues).hasSize(1);
 
-    Spanned spanned = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
+    Spanned spanned = getOnlyCueTextAtIndex(allCues, 0);
     assertThat(spanned.toString()).isEqualTo("text 1");
     assertThat(spanned).hasTypefaceSpanBetween(0, spanned.length()).withFamily("serif");
     assertThat(spanned).hasBoldItalicSpanBetween(0, spanned.length());
@@ -146,13 +145,12 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void inheritGlobalStyleOverriddenByInlineAttributes()
-      throws IOException, SubtitleDecoderException {
-    TtmlSubtitle subtitle = getSubtitle(INHERIT_STYLE_OVERRIDE_TTML_FILE);
+  public void inheritGlobalStyleOverriddenByInlineAttributes() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(INHERIT_STYLE_OVERRIDE_TTML_FILE);
 
-    assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
+    assertThat(allCues).hasSize(2);
 
-    Spanned firstCueText = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
+    Spanned firstCueText = getOnlyCueTextAtIndex(allCues, 0);
     assertThat(firstCueText.toString()).isEqualTo("text 1");
     assertThat(firstCueText).hasTypefaceSpanBetween(0, firstCueText.length()).withFamily("serif");
     assertThat(firstCueText).hasBoldItalicSpanBetween(0, firstCueText.length());
@@ -164,7 +162,7 @@ public final class TtmlDecoderTest {
         .hasForegroundColorSpanBetween(0, firstCueText.length())
         .withColor(0xFFFFFF00);
 
-    Spanned secondCueText = getOnlyCueTextAtTimeUs(subtitle, 20_000_000);
+    Spanned secondCueText = getOnlyCueTextAtIndex(allCues, 1);
     assertThat(secondCueText.toString()).isEqualTo("text 2");
     assertThat(secondCueText)
         .hasTypefaceSpanBetween(0, secondCueText.length())
@@ -180,12 +178,12 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void inheritGlobalAndParent() throws IOException, SubtitleDecoderException {
-    TtmlSubtitle subtitle = getSubtitle(INHERIT_GLOBAL_AND_PARENT_TTML_FILE);
+  public void inheritGlobalAndParent() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(INHERIT_GLOBAL_AND_PARENT_TTML_FILE);
 
-    assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
+    assertThat(allCues).hasSize(2);
 
-    Spanned firstCueText = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
+    Spanned firstCueText = getOnlyCueTextAtIndex(allCues, 0);
     assertThat(firstCueText.toString()).isEqualTo("text 1");
     assertThat(firstCueText)
         .hasTypefaceSpanBetween(0, firstCueText.length())
@@ -198,7 +196,7 @@ public final class TtmlDecoderTest {
         .hasForegroundColorSpanBetween(0, firstCueText.length())
         .withColor(ColorParser.parseTtmlColor("lime"));
 
-    Spanned secondCueText = getOnlyCueTextAtTimeUs(subtitle, 20_000_000);
+    Spanned secondCueText = getOnlyCueTextAtIndex(allCues, 1);
     assertThat(secondCueText.toString()).isEqualTo("text 2");
     assertThat(secondCueText).hasTypefaceSpanBetween(0, secondCueText.length()).withFamily("serif");
     assertThat(secondCueText).hasBoldItalicSpanBetween(0, secondCueText.length());
@@ -213,12 +211,12 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void inheritMultipleStyles() throws IOException, SubtitleDecoderException {
-    TtmlSubtitle subtitle = getSubtitle(INHERIT_MULTIPLE_STYLES_TTML_FILE);
+  public void inheritMultipleStyles() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(INHERIT_MULTIPLE_STYLES_TTML_FILE);
 
-    assertThat(subtitle.getEventTimeCount()).isEqualTo(12);
+    assertThat(allCues).hasSize(6);
 
-    Spanned spanned = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
+    Spanned spanned = getOnlyCueTextAtIndex(allCues, 0);
     assertThat(spanned.toString()).isEqualTo("text 1");
     assertThat(spanned).hasTypefaceSpanBetween(0, spanned.length()).withFamily("sansSerif");
     assertThat(spanned).hasBoldItalicSpanBetween(0, spanned.length());
@@ -228,13 +226,12 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void inheritMultipleStylesWithoutLocalAttributes()
-      throws IOException, SubtitleDecoderException {
-    TtmlSubtitle subtitle = getSubtitle(INHERIT_MULTIPLE_STYLES_TTML_FILE);
+  public void inheritMultipleStylesWithoutLocalAttributes() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(INHERIT_MULTIPLE_STYLES_TTML_FILE);
 
-    assertThat(subtitle.getEventTimeCount()).isEqualTo(12);
+    assertThat(allCues).hasSize(6);
 
-    Spanned secondCueText = getOnlyCueTextAtTimeUs(subtitle, 20_000_000);
+    Spanned secondCueText = getOnlyCueTextAtIndex(allCues, 1);
     assertThat(secondCueText.toString()).isEqualTo("text 2");
     assertThat(secondCueText)
         .hasTypefaceSpanBetween(0, secondCueText.length())
@@ -250,12 +247,12 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void mergeMultipleStylesWithParentStyle() throws IOException, SubtitleDecoderException {
-    TtmlSubtitle subtitle = getSubtitle(INHERIT_MULTIPLE_STYLES_TTML_FILE);
+  public void mergeMultipleStylesWithParentStyle() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(INHERIT_MULTIPLE_STYLES_TTML_FILE);
 
-    assertThat(subtitle.getEventTimeCount()).isEqualTo(12);
+    assertThat(allCues).hasSize(6);
 
-    Spanned thirdCueText = getOnlyCueTextAtTimeUs(subtitle, 30_000_000);
+    Spanned thirdCueText = getOnlyCueTextAtIndex(allCues, 2);
     assertThat(thirdCueText.toString()).isEqualTo("text 2.5");
     assertThat(thirdCueText)
         .hasTypefaceSpanBetween(0, thirdCueText.length())
@@ -272,10 +269,12 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void multipleRegions() throws IOException, SubtitleDecoderException {
-    TtmlSubtitle subtitle = getSubtitle(MULTIPLE_REGIONS_TTML_FILE);
+  public void multipleRegions() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(MULTIPLE_REGIONS_TTML_FILE);
 
-    List<Cue> cues = subtitle.getCues(1_000_000);
+    assertThat(allCues).hasSize(6);
+
+    ImmutableList<Cue> cues = allCues.get(0).cues;
     assertThat(cues).hasSize(2);
     Cue cue = cues.get(0);
     assertThat(cue.text.toString()).isEqualTo("lorem");
@@ -289,13 +288,13 @@ public final class TtmlDecoderTest {
     assertThat(cue.line).isEqualTo(10f / 100f);
     assertThat(cue.size).isEqualTo(20f / 100f);
 
-    cue = getOnlyCueAtTimeUs(subtitle, 5_000_000);
+    cue = Iterables.getOnlyElement(allCues.get(1).cues);
     assertThat(cue.text.toString()).isEqualTo("ipsum");
     assertThat(cue.position).isEqualTo(40f / 100f);
     assertThat(cue.line).isEqualTo(40f / 100f);
     assertThat(cue.size).isEqualTo(20f / 100f);
 
-    cue = getOnlyCueAtTimeUs(subtitle, 9_000_000);
+    cue = Iterables.getOnlyElement(allCues.get(2).cues);
     assertThat(cue.text.toString()).isEqualTo("dolor");
     assertThat(cue.position).isEqualTo(Cue.DIMEN_UNSET);
     assertThat(cue.line).isEqualTo(Cue.DIMEN_UNSET);
@@ -305,64 +304,67 @@ public final class TtmlDecoderTest {
     // assertEquals(80f / 100f, cue.line);
     // assertEquals(1f, cue.size);
 
-    cue = getOnlyCueAtTimeUs(subtitle, 21_000_000);
+    cue = Iterables.getOnlyElement(allCues.get(3).cues);
     assertThat(cue.text.toString()).isEqualTo("They first said this");
     assertThat(cue.position).isEqualTo(45f / 100f);
     assertThat(cue.line).isEqualTo(45f / 100f);
     assertThat(cue.size).isEqualTo(35f / 100f);
 
-    cue = getOnlyCueAtTimeUs(subtitle, 25_000_000);
+    cue = Iterables.getOnlyElement(allCues.get(4).cues);
     assertThat(cue.text.toString()).isEqualTo("They first said this\nThen this");
 
-    cue = getOnlyCueAtTimeUs(subtitle, 29_000_000);
+    cue = Iterables.getOnlyElement(allCues.get(5).cues);
     assertThat(cue.text.toString()).isEqualTo("They first said this\nThen this\nFinally this");
     assertThat(cue.position).isEqualTo(45f / 100f);
     assertThat(cue.line).isEqualTo(45f / 100f);
   }
 
   @Test
-  public void emptyStyleAttribute() throws IOException, SubtitleDecoderException {
-    TtmlSubtitle subtitle = getSubtitle(INHERIT_MULTIPLE_STYLES_TTML_FILE);
+  public void emptyStyleAttribute() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(INHERIT_MULTIPLE_STYLES_TTML_FILE);
 
-    assertThat(subtitle.getEventTimeCount()).isEqualTo(12);
+    assertThat(allCues).hasSize(6);
 
-    Spanned spanned = getOnlyCueTextAtTimeUs(subtitle, 40_000_000);
+    Spanned spanned = getOnlyCueTextAtIndex(allCues, 3);
 
+    assertThat(allCues.get(3).startTimeUs).isEqualTo(40_000_000);
     assertThat(spanned.toString()).isEqualTo("text 3");
     assertThat(spanned).hasNoSpans();
   }
 
   @Test
-  public void nonexistingStyleId() throws IOException, SubtitleDecoderException {
-    TtmlSubtitle subtitle = getSubtitle(INHERIT_MULTIPLE_STYLES_TTML_FILE);
+  public void nonexistingStyleId() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(INHERIT_MULTIPLE_STYLES_TTML_FILE);
 
-    assertThat(subtitle.getEventTimeCount()).isEqualTo(12);
+    assertThat(allCues).hasSize(6);
 
-    Spanned spanned = getOnlyCueTextAtTimeUs(subtitle, 50_000_000);
+    Spanned spanned = getOnlyCueTextAtIndex(allCues, 4);
 
+    assertThat(allCues.get(4).startTimeUs).isEqualTo(50_000_000);
     assertThat(spanned.toString()).isEqualTo("text 4");
     assertThat(spanned).hasNoSpans();
   }
 
   @Test
-  public void nonExistingAndExistingStyleIdWithRedundantSpaces()
-      throws IOException, SubtitleDecoderException {
-    TtmlSubtitle subtitle = getSubtitle(INHERIT_MULTIPLE_STYLES_TTML_FILE);
+  public void nonExistingAndExistingStyleIdWithRedundantSpaces() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(INHERIT_MULTIPLE_STYLES_TTML_FILE);
 
-    assertThat(subtitle.getEventTimeCount()).isEqualTo(12);
+    assertThat(allCues).hasSize(6);
 
-    Spanned spanned = getOnlyCueTextAtTimeUs(subtitle, 60_000_000);
+    Spanned spanned = getOnlyCueTextAtIndex(allCues, 5);
+
+    assertThat(allCues.get(5).startTimeUs).isEqualTo(60_000_000);
     assertThat(spanned.toString()).isEqualTo("text 5");
     assertThat(spanned).hasBackgroundColorSpanBetween(0, spanned.length()).withColor(0xFFFF0000);
   }
 
   @Test
-  public void multipleChaining() throws IOException, SubtitleDecoderException {
-    TtmlSubtitle subtitle = getSubtitle(CHAIN_MULTIPLE_STYLES_TTML_FILE);
+  public void multipleChaining() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(CHAIN_MULTIPLE_STYLES_TTML_FILE);
 
-    assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
+    assertThat(allCues).hasSize(2);
 
-    Spanned spanned1 = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
+    Spanned spanned1 = getOnlyCueTextAtIndex(allCues, 0);
     assertThat(spanned1.toString()).isEqualTo("text 1");
     assertThat(spanned1).hasTypefaceSpanBetween(0, spanned1.length()).withFamily("serif");
     assertThat(spanned1).hasBackgroundColorSpanBetween(0, spanned1.length()).withColor(0xFFFF0000);
@@ -371,7 +373,7 @@ public final class TtmlDecoderTest {
     assertThat(spanned1).hasStrikethroughSpanBetween(0, spanned1.length());
 
     // only difference: foreground (font) color must be RED
-    Spanned spanned2 = getOnlyCueTextAtTimeUs(subtitle, 20_000_000);
+    Spanned spanned2 = getOnlyCueTextAtIndex(allCues, 1);
     assertThat(spanned2.toString()).isEqualTo("text 2");
     assertThat(spanned2).hasTypefaceSpanBetween(0, spanned2.length()).withFamily("serif");
     assertThat(spanned2).hasBackgroundColorSpanBetween(0, spanned2.length()).withColor(0xFFFF0000);
@@ -381,118 +383,122 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void noUnderline() throws IOException, SubtitleDecoderException {
-    TtmlSubtitle subtitle = getSubtitle(NO_UNDERLINE_LINETHROUGH_TTML_FILE);
+  public void noUnderline() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(NO_UNDERLINE_LINETHROUGH_TTML_FILE);
 
-    assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
+    assertThat(allCues).hasSize(2);
 
-    Spanned spanned = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
+    Spanned spanned = getOnlyCueTextAtIndex(allCues, 0);
     assertThat(spanned.toString()).isEqualTo("text 1");
     // noUnderline from inline attribute overrides s0 global underline style id
     assertThat(spanned).hasNoUnderlineSpanBetween(0, spanned.length());
   }
 
   @Test
-  public void noLinethrough() throws IOException, SubtitleDecoderException {
-    TtmlSubtitle subtitle = getSubtitle(NO_UNDERLINE_LINETHROUGH_TTML_FILE);
+  public void noLinethrough() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(NO_UNDERLINE_LINETHROUGH_TTML_FILE);
 
-    assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
+    assertThat(allCues).hasSize(2);
 
-    Spanned spanned = getOnlyCueTextAtTimeUs(subtitle, 20_000_000);
+    Spanned spanned = getOnlyCueTextAtIndex(allCues, 1);
     assertThat(spanned.toString()).isEqualTo("text 2");
     // noLineThrough from inline attribute overrides s1 global lineThrough style id
     assertThat(spanned).hasNoStrikethroughSpanBetween(0, spanned.length());
   }
 
   @Test
-  public void fontSizeSpans() throws IOException, SubtitleDecoderException {
-    TtmlSubtitle subtitle = getSubtitle(FONT_SIZE_TTML_FILE);
+  public void fontSizeSpans() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(FONT_SIZE_TTML_FILE);
 
-    assertThat(subtitle.getEventTimeCount()).isEqualTo(10);
+    assertThat(allCues).hasSize(5);
 
-    Spanned spanned = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
+    Spanned spanned = getOnlyCueTextAtIndex(allCues, 0);
     assertThat(String.valueOf(spanned)).isEqualTo("text 1");
     assertThat(spanned).hasAbsoluteSizeSpanBetween(0, spanned.length()).withAbsoluteSize(32);
 
-    spanned = getOnlyCueTextAtTimeUs(subtitle, 20_000_000);
+    spanned = getOnlyCueTextAtIndex(allCues, 1);
     assertThat(spanned.toString()).isEqualTo("text 2");
     assertThat(spanned).hasRelativeSizeSpanBetween(0, spanned.length()).withSizeChange(2.2f);
 
-    spanned = getOnlyCueTextAtTimeUs(subtitle, 30_000_000);
+    spanned = getOnlyCueTextAtIndex(allCues, 2);
     assertThat(spanned.toString()).isEqualTo("text 3");
     assertThat(spanned).hasRelativeSizeSpanBetween(0, spanned.length()).withSizeChange(1.5f);
 
-    spanned = getOnlyCueTextAtTimeUs(subtitle, 40_000_000);
+    spanned = getOnlyCueTextAtIndex(allCues, 3);
     assertThat(spanned.toString()).isEqualTo("two values");
     assertThat(spanned).hasAbsoluteSizeSpanBetween(0, spanned.length()).withAbsoluteSize(16);
 
-    spanned = getOnlyCueTextAtTimeUs(subtitle, 50_000_000);
+    spanned = getOnlyCueTextAtIndex(allCues, 4);
     assertThat(spanned.toString()).isEqualTo("leading dot");
     assertThat(spanned).hasRelativeSizeSpanBetween(0, spanned.length()).withSizeChange(0.5f);
   }
 
   @Test
-  public void fontSizeWithMissingUnitIsIgnored() throws IOException, SubtitleDecoderException {
-    TtmlSubtitle subtitle = getSubtitle(FONT_SIZE_MISSING_UNIT_TTML_FILE);
+  public void fontSizeWithMissingUnitIsIgnored() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(FONT_SIZE_MISSING_UNIT_TTML_FILE);
 
-    assertThat(subtitle.getEventTimeCount()).isEqualTo(2);
+    assertThat(allCues).hasSize(1);
 
-    Spanned spanned = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
+    Spanned spanned = getOnlyCueTextAtIndex(allCues, 0);
     assertThat(spanned.toString()).isEqualTo("no unit");
     assertThat(spanned).hasNoRelativeSizeSpanBetween(0, spanned.length());
     assertThat(spanned).hasNoAbsoluteSizeSpanBetween(0, spanned.length());
   }
 
   @Test
-  public void fontSizeWithInvalidValueIsIgnored() throws IOException, SubtitleDecoderException {
-    TtmlSubtitle subtitle = getSubtitle(FONT_SIZE_INVALID_TTML_FILE);
+  public void fontSizeWithInvalidValueIsIgnored() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(FONT_SIZE_INVALID_TTML_FILE);
 
-    assertThat(subtitle.getEventTimeCount()).isEqualTo(6);
+    assertThat(allCues).hasSize(3);
 
-    Spanned spanned = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
+    Spanned spanned = getOnlyCueTextAtIndex(allCues, 0);
     assertThat(String.valueOf(spanned)).isEqualTo("invalid");
     assertThat(spanned).hasNoRelativeSizeSpanBetween(0, spanned.length());
     assertThat(spanned).hasNoAbsoluteSizeSpanBetween(0, spanned.length());
 
-    spanned = getOnlyCueTextAtTimeUs(subtitle, 20_000_000);
+    spanned = getOnlyCueTextAtIndex(allCues, 1);
     assertThat(String.valueOf(spanned)).isEqualTo("invalid");
     assertThat(spanned).hasNoRelativeSizeSpanBetween(0, spanned.length());
     assertThat(spanned).hasNoAbsoluteSizeSpanBetween(0, spanned.length());
 
-    spanned = getOnlyCueTextAtTimeUs(subtitle, 30_000_000);
+    spanned = getOnlyCueTextAtIndex(allCues, 2);
     assertThat(String.valueOf(spanned)).isEqualTo("invalid dot");
     assertThat(spanned).hasNoRelativeSizeSpanBetween(0, spanned.length());
     assertThat(spanned).hasNoAbsoluteSizeSpanBetween(0, spanned.length());
   }
 
   @Test
-  public void fontSizeWithEmptyValueIsIgnored() throws IOException, SubtitleDecoderException {
-    TtmlSubtitle subtitle = getSubtitle(FONT_SIZE_EMPTY_TTML_FILE);
+  public void fontSizeWithEmptyValueIsIgnored() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(FONT_SIZE_EMPTY_TTML_FILE);
 
-    assertThat(subtitle.getEventTimeCount()).isEqualTo(2);
+    assertThat(allCues).hasSize(1);
 
-    Spanned spanned = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
+    Spanned spanned = getOnlyCueTextAtIndex(allCues, 0);
     assertThat(String.valueOf(spanned)).isEqualTo("empty");
     assertThat(spanned).hasNoRelativeSizeSpanBetween(0, spanned.length());
     assertThat(spanned).hasNoAbsoluteSizeSpanBetween(0, spanned.length());
   }
 
   @Test
-  public void frameRate() throws IOException, SubtitleDecoderException {
-    TtmlSubtitle subtitle = getSubtitle(FRAME_RATE_TTML_FILE);
+  public void frameRate() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(FRAME_RATE_TTML_FILE);
 
-    assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
-    assertThat(subtitle.getEventTime(0)).isEqualTo(1_000_000);
-    assertThat(subtitle.getEventTime(1)).isEqualTo(1_010_000);
-    assertThat((double) subtitle.getEventTime(2)).isWithin(1000).of(1_001_000_000);
-    assertThat((double) subtitle.getEventTime(3)).isWithin(2000).of(2_002_000_000);
+    assertThat(allCues).hasSize(2);
+    assertThat(allCues.get(0).startTimeUs).isEqualTo(1_000_000);
+    assertThat(allCues.get(0).durationUs).isEqualTo(10_000);
+    assertThat((double) allCues.get(1).startTimeUs).isWithin(1000).of(1_001_000_000);
+    assertThat((double) allCues.get(1).durationUs).isWithin(2000).of(1_001_000_000);
   }
 
   @Test
-  public void bitmapPercentageRegion() throws IOException, SubtitleDecoderException {
-    TtmlSubtitle subtitle = getSubtitle(BITMAP_REGION_FILE);
+  public void bitmapPercentageRegion() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(BITMAP_REGION_FILE);
 
-    Cue cue = getOnlyCueAtTimeUs(subtitle, 1_000_000);
+    assertThat(allCues).hasSize(3);
+
+    assertThat(allCues.get(0).startTimeUs).isEqualTo(200_000);
+    assertThat(allCues.get(0).durationUs).isEqualTo(2_800_000);
+    Cue cue = Iterables.getOnlyElement(allCues.get(0).cues);
     assertThat(cue.text).isNull();
     assertThat(cue.bitmap).isNotNull();
     assertThat(cue.position).isEqualTo(24f / 100f);
@@ -500,7 +506,9 @@ public final class TtmlDecoderTest {
     assertThat(cue.size).isEqualTo(51f / 100f);
     assertThat(cue.bitmapHeight).isEqualTo(12f / 100f);
 
-    cue = getOnlyCueAtTimeUs(subtitle, 4_000_000);
+    assertThat(allCues.get(1).startTimeUs).isEqualTo(3_200_000);
+    assertThat(allCues.get(1).durationUs).isEqualTo(3_737_000);
+    cue = Iterables.getOnlyElement(allCues.get(1).cues);
     assertThat(cue.text).isNull();
     assertThat(cue.bitmap).isNotNull();
     assertThat(cue.position).isEqualTo(21f / 100f);
@@ -508,7 +516,8 @@ public final class TtmlDecoderTest {
     assertThat(cue.size).isEqualTo(57f / 100f);
     assertThat(cue.bitmapHeight).isEqualTo(6f / 100f);
 
-    cue = getOnlyCueAtTimeUs(subtitle, 7_500_000);
+    assertThat(allCues.get(2).startTimeUs).isEqualTo(7_200_000);
+    cue = Iterables.getOnlyElement(allCues.get(2).cues);
     assertThat(cue.text).isNull();
     assertThat(cue.bitmap).isNotNull();
     assertThat(cue.position).isEqualTo(24f / 100f);
@@ -518,10 +527,14 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void bitmapPixelRegion() throws IOException, SubtitleDecoderException {
-    TtmlSubtitle subtitle = getSubtitle(BITMAP_PIXEL_REGION_FILE);
+  public void bitmapPixelRegion() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(BITMAP_PIXEL_REGION_FILE);
 
-    Cue cue = getOnlyCueAtTimeUs(subtitle, 1_000_000);
+    assertThat(allCues).hasSize(2);
+
+    assertThat(allCues.get(0).startTimeUs).isEqualTo(200_000);
+    assertThat(allCues.get(0).durationUs).isEqualTo(2_800_000);
+    Cue cue = Iterables.getOnlyElement(allCues.get(0).cues);
     assertThat(cue.text).isNull();
     assertThat(cue.bitmap).isNotNull();
     assertThat(cue.position).isEqualTo(307f / 1280f);
@@ -529,7 +542,9 @@ public final class TtmlDecoderTest {
     assertThat(cue.size).isEqualTo(653f / 1280f);
     assertThat(cue.bitmapHeight).isEqualTo(86f / 720f);
 
-    cue = getOnlyCueAtTimeUs(subtitle, 4_000_000);
+    assertThat(allCues.get(1).startTimeUs).isEqualTo(3_200_000);
+    assertThat(allCues.get(1).durationUs).isEqualTo(3_737_000);
+    cue = Iterables.getOnlyElement(allCues.get(1).cues);
     assertThat(cue.text).isNull();
     assertThat(cue.bitmap).isNotNull();
     assertThat(cue.position).isEqualTo(269f / 1280f);
@@ -539,10 +554,14 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void bitmapUnsupportedRegion() throws IOException, SubtitleDecoderException {
-    TtmlSubtitle subtitle = getSubtitle(BITMAP_UNSUPPORTED_REGION_FILE);
+  public void bitmapUnsupportedRegion() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(BITMAP_UNSUPPORTED_REGION_FILE);
 
-    Cue cue = getOnlyCueAtTimeUs(subtitle, 1_000_000);
+    assertThat(allCues).hasSize(2);
+
+    assertThat(allCues.get(0).startTimeUs).isEqualTo(200_000);
+    assertThat(allCues.get(0).durationUs).isEqualTo(2_800_000);
+    Cue cue = Iterables.getOnlyElement(allCues.get(0).cues);
     assertThat(cue.text).isNull();
     assertThat(cue.bitmap).isNotNull();
     assertThat(cue.position).isEqualTo(Cue.DIMEN_UNSET);
@@ -550,7 +569,9 @@ public final class TtmlDecoderTest {
     assertThat(cue.size).isEqualTo(Cue.DIMEN_UNSET);
     assertThat(cue.bitmapHeight).isEqualTo(Cue.DIMEN_UNSET);
 
-    cue = getOnlyCueAtTimeUs(subtitle, 4_000_000);
+    assertThat(allCues.get(1).startTimeUs).isEqualTo(3_200_000);
+    assertThat(allCues.get(1).durationUs).isEqualTo(3_737_000);
+    cue = Iterables.getOnlyElement(allCues.get(1).cues);
     assertThat(cue.text).isNull();
     assertThat(cue.bitmap).isNotNull();
     assertThat(cue.position).isEqualTo(Cue.DIMEN_UNSET);
@@ -560,109 +581,111 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void textAlign() throws IOException, SubtitleDecoderException {
-    TtmlSubtitle subtitle = getSubtitle(TEXT_ALIGN_FILE);
+  public void textAlign() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(TEXT_ALIGN_FILE);
 
-    Cue firstCue = getOnlyCueAtTimeUs(subtitle, 10_000_000);
+    assertThat(allCues).hasSize(9);
+
+    Cue firstCue = Iterables.getOnlyElement(allCues.get(0).cues);
     assertThat(firstCue.text.toString()).isEqualTo("Start alignment");
     assertThat(firstCue.textAlignment).isEqualTo(Layout.Alignment.ALIGN_NORMAL);
 
-    Cue secondCue = getOnlyCueAtTimeUs(subtitle, 20_000_000);
+    Cue secondCue = Iterables.getOnlyElement(allCues.get(1).cues);
     assertThat(secondCue.text.toString()).isEqualTo("Left alignment");
     assertThat(secondCue.textAlignment).isEqualTo(Layout.Alignment.ALIGN_NORMAL);
 
-    Cue thirdCue = getOnlyCueAtTimeUs(subtitle, 30_000_000);
+    Cue thirdCue = Iterables.getOnlyElement(allCues.get(2).cues);
     assertThat(thirdCue.text.toString()).isEqualTo("Center alignment");
     assertThat(thirdCue.textAlignment).isEqualTo(Layout.Alignment.ALIGN_CENTER);
 
-    Cue fourthCue = getOnlyCueAtTimeUs(subtitle, 40_000_000);
+    Cue fourthCue = Iterables.getOnlyElement(allCues.get(3).cues);
     assertThat(fourthCue.text.toString()).isEqualTo("Right alignment");
     assertThat(fourthCue.textAlignment).isEqualTo(Layout.Alignment.ALIGN_OPPOSITE);
 
-    Cue fifthCue = getOnlyCueAtTimeUs(subtitle, 50_000_000);
+    Cue fifthCue = Iterables.getOnlyElement(allCues.get(4).cues);
     assertThat(fifthCue.text.toString()).isEqualTo("End alignment");
     assertThat(fifthCue.textAlignment).isEqualTo(Layout.Alignment.ALIGN_OPPOSITE);
 
-    Cue sixthCue = getOnlyCueAtTimeUs(subtitle, 60_000_000);
+    Cue sixthCue = Iterables.getOnlyElement(allCues.get(5).cues);
     assertThat(sixthCue.text.toString()).isEqualTo("Justify alignment (unsupported)");
     assertThat(sixthCue.textAlignment).isNull();
 
-    Cue seventhCue = getOnlyCueAtTimeUs(subtitle, 70_000_000);
+    Cue seventhCue = Iterables.getOnlyElement(allCues.get(6).cues);
     assertThat(seventhCue.text.toString()).isEqualTo("No textAlign property");
     assertThat(seventhCue.textAlignment).isNull();
 
-    Cue eighthCue = getOnlyCueAtTimeUs(subtitle, 80_000_000);
+    Cue eighthCue = Iterables.getOnlyElement(allCues.get(7).cues);
     assertThat(eighthCue.text.toString()).isEqualTo("Ancestor start alignment");
     assertThat(eighthCue.textAlignment).isEqualTo(Layout.Alignment.ALIGN_NORMAL);
 
-    Cue ninthCue = getOnlyCueAtTimeUs(subtitle, 90_000_000);
+    Cue ninthCue = Iterables.getOnlyElement(allCues.get(8).cues);
     assertThat(ninthCue.text.toString()).isEqualTo("Not a P node");
     assertThat(ninthCue.textAlignment).isNull();
   }
 
   @Test
-  public void multiRowAlign() throws IOException, SubtitleDecoderException {
-    TtmlSubtitle subtitle = getSubtitle(MULTI_ROW_ALIGN_FILE);
+  public void multiRowAlign() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(MULTI_ROW_ALIGN_FILE);
 
-    Cue firstCue = getOnlyCueAtTimeUs(subtitle, 10_000_000);
+    Cue firstCue = Iterables.getOnlyElement(allCues.get(0).cues);
     assertThat(firstCue.multiRowAlignment).isEqualTo(Layout.Alignment.ALIGN_NORMAL);
 
-    Cue secondCue = getOnlyCueAtTimeUs(subtitle, 20_000_000);
+    Cue secondCue = Iterables.getOnlyElement(allCues.get(1).cues);
     assertThat(secondCue.multiRowAlignment).isEqualTo(Layout.Alignment.ALIGN_CENTER);
 
-    Cue thirdCue = getOnlyCueAtTimeUs(subtitle, 30_000_000);
+    Cue thirdCue = Iterables.getOnlyElement(allCues.get(2).cues);
     assertThat(thirdCue.multiRowAlignment).isEqualTo(Layout.Alignment.ALIGN_OPPOSITE);
 
-    Cue fourthCue = getOnlyCueAtTimeUs(subtitle, 40_000_000);
+    Cue fourthCue = Iterables.getOnlyElement(allCues.get(3).cues);
     assertThat(fourthCue.multiRowAlignment).isEqualTo(Layout.Alignment.ALIGN_NORMAL);
 
-    Cue fifthCue = getOnlyCueAtTimeUs(subtitle, 50_000_000);
+    Cue fifthCue = Iterables.getOnlyElement(allCues.get(4).cues);
     assertThat(fifthCue.multiRowAlignment).isEqualTo(Layout.Alignment.ALIGN_OPPOSITE);
 
-    Cue sixthCue = getOnlyCueAtTimeUs(subtitle, 60_000_000);
+    Cue sixthCue = Iterables.getOnlyElement(allCues.get(5).cues);
     assertThat(sixthCue.multiRowAlignment).isNull();
 
-    Cue seventhCue = getOnlyCueAtTimeUs(subtitle, 70_000_000);
+    Cue seventhCue = Iterables.getOnlyElement(allCues.get(6).cues);
     assertThat(seventhCue.multiRowAlignment).isNull();
   }
 
   @Test
-  public void verticalText() throws IOException, SubtitleDecoderException {
-    TtmlSubtitle subtitle = getSubtitle(VERTICAL_TEXT_FILE);
+  public void verticalText() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(VERTICAL_TEXT_FILE);
 
-    Cue firstCue = getOnlyCueAtTimeUs(subtitle, 10_000_000);
+    Cue firstCue = Iterables.getOnlyElement(allCues.get(0).cues);
     assertThat(firstCue.verticalType).isEqualTo(Cue.VERTICAL_TYPE_RL);
 
-    Cue secondCue = getOnlyCueAtTimeUs(subtitle, 20_000_000);
+    Cue secondCue = Iterables.getOnlyElement(allCues.get(1).cues);
     assertThat(secondCue.verticalType).isEqualTo(Cue.VERTICAL_TYPE_LR);
 
-    Cue thirdCue = getOnlyCueAtTimeUs(subtitle, 30_000_000);
+    Cue thirdCue = Iterables.getOnlyElement(allCues.get(2).cues);
     assertThat(thirdCue.verticalType).isEqualTo(Cue.TYPE_UNSET);
   }
 
   @Test
-  public void textCombine() throws IOException, SubtitleDecoderException {
-    TtmlSubtitle subtitle = getSubtitle(TEXT_COMBINE_FILE);
+  public void textCombine() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(TEXT_COMBINE_FILE);
 
-    Spanned firstCue = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
+    Spanned firstCue = getOnlyCueTextAtIndex(allCues, 0);
     assertThat(firstCue)
         .hasHorizontalTextInVerticalContextSpanBetween(
             "text with ".length(), "text with combined".length());
 
-    Spanned secondCue = getOnlyCueTextAtTimeUs(subtitle, 20_000_000);
+    Spanned secondCue = getOnlyCueTextAtIndex(allCues, 1);
     assertThat(secondCue)
         .hasNoHorizontalTextInVerticalContextSpanBetween(
             "text with ".length(), "text with un-combined".length());
 
-    Spanned thirdCue = getOnlyCueTextAtTimeUs(subtitle, 30_000_000);
+    Spanned thirdCue = getOnlyCueTextAtIndex(allCues, 2);
     assertThat(thirdCue).hasNoHorizontalTextInVerticalContextSpanBetween(0, thirdCue.length());
   }
 
   @Test
-  public void rubies() throws IOException, SubtitleDecoderException {
-    TtmlSubtitle subtitle = getSubtitle(RUBIES_FILE);
+  public void rubies() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(RUBIES_FILE);
 
-    Spanned firstCue = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
+    Spanned firstCue = getOnlyCueTextAtIndex(allCues, 0);
     assertThat(firstCue.toString()).isEqualTo("Cue with annotated text.");
     assertThat(firstCue)
         .hasRubySpanBetween("Cue with ".length(), "Cue with annotated".length())
@@ -671,35 +694,37 @@ public final class TtmlDecoderTest {
         .hasRubySpanBetween("Cue with annotated ".length(), "Cue with annotated text".length())
         .withTextAndPosition("2nd rubies", TextAnnotation.POSITION_UNKNOWN);
 
-    Spanned secondCue = getOnlyCueTextAtTimeUs(subtitle, 20_000_000);
+    Spanned secondCue = getOnlyCueTextAtIndex(allCues, 1);
     assertThat(secondCue.toString()).isEqualTo("Cue with annotated text.");
     assertThat(secondCue)
         .hasRubySpanBetween("Cue with ".length(), "Cue with annotated".length())
         .withTextAndPosition("rubies", TextAnnotation.POSITION_UNKNOWN);
 
-    Spanned thirdCue = getOnlyCueTextAtTimeUs(subtitle, 30_000_000);
+    Spanned thirdCue = getOnlyCueTextAtIndex(allCues, 2);
     assertThat(thirdCue.toString()).isEqualTo("Cue with annotated text.");
-    assertThat(thirdCue).hasRubySpanBetween("Cue with ".length(), "Cue with annotated".length());
+    assertThat(thirdCue)
+        .hasRubySpanBetween("Cue with ".length(), "Cue with annotated".length())
+        .withTextAndPosition("rubies", TextAnnotation.POSITION_UNKNOWN);
 
-    Spanned fourthCue = getOnlyCueTextAtTimeUs(subtitle, 40_000_000);
+    Spanned fourthCue = getOnlyCueTextAtIndex(allCues, 3);
     assertThat(fourthCue.toString()).isEqualTo("Cue with annotated text.");
     assertThat(fourthCue).hasNoRubySpanBetween(0, fourthCue.length());
 
-    Spanned fifthCue = getOnlyCueTextAtTimeUs(subtitle, 50_000_000);
+    Spanned fifthCue = getOnlyCueTextAtIndex(allCues, 4);
     assertThat(fifthCue.toString()).isEqualTo("Cue with text.");
     assertThat(fifthCue).hasNoRubySpanBetween(0, fifthCue.length());
 
-    Spanned sixthCue = getOnlyCueTextAtTimeUs(subtitle, 60_000_000);
+    Spanned sixthCue = getOnlyCueTextAtIndex(allCues, 5);
     assertThat(sixthCue.toString()).isEqualTo("Cue with annotated text.");
     assertThat(sixthCue).hasNoRubySpanBetween(0, sixthCue.length());
 
-    Spanned seventhCue = getOnlyCueTextAtTimeUs(subtitle, 70_000_000);
+    Spanned seventhCue = getOnlyCueTextAtIndex(allCues, 6);
     assertThat(seventhCue.toString()).isEqualTo("Cue with annotated text.");
     assertThat(seventhCue)
         .hasRubySpanBetween("Cue with ".length(), "Cue with annotated".length())
         .withTextAndPosition("rubies", TextAnnotation.POSITION_BEFORE);
 
-    Spanned eighthCue = getOnlyCueTextAtTimeUs(subtitle, 80_000_000);
+    Spanned eighthCue = getOnlyCueTextAtIndex(allCues, 7);
     assertThat(eighthCue.toString()).isEqualTo("Cue with annotated text.");
     assertThat(eighthCue)
         .hasRubySpanBetween("Cue with ".length(), "Cue with annotated".length())
@@ -707,10 +732,10 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void textEmphasis() throws IOException, SubtitleDecoderException {
-    TtmlSubtitle subtitle = getSubtitle(TEXT_EMPHASIS_FILE);
+  public void textEmphasis() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(TEXT_EMPHASIS_FILE);
 
-    Spanned firstCue = getOnlyCueTextAtTimeUs(subtitle, 10_000_000);
+    Spanned firstCue = getOnlyCueTextAtIndex(allCues, 0);
     assertThat(firstCue)
         .hasTextEmphasisSpanBetween("None ".length(), "None おはよ".length())
         .withMarkAndPosition(
@@ -718,7 +743,7 @@ public final class TtmlDecoderTest {
             TextEmphasisSpan.MARK_FILL_UNKNOWN,
             TextAnnotation.POSITION_BEFORE);
 
-    Spanned secondCue = getOnlyCueTextAtTimeUs(subtitle, 20_000_000);
+    Spanned secondCue = getOnlyCueTextAtIndex(allCues, 1);
     assertThat(secondCue)
         .hasTextEmphasisSpanBetween("Auto ".length(), "Auto ございます".length())
         .withMarkAndPosition(
@@ -726,7 +751,7 @@ public final class TtmlDecoderTest {
             TextEmphasisSpan.MARK_FILL_FILLED,
             TextAnnotation.POSITION_BEFORE);
 
-    Spanned thirdCue = getOnlyCueTextAtTimeUs(subtitle, 30_000_000);
+    Spanned thirdCue = getOnlyCueTextAtIndex(allCues, 2);
     assertThat(thirdCue)
         .hasTextEmphasisSpanBetween("Filled circle ".length(), "Filled circle こんばんは".length())
         .withMarkAndPosition(
@@ -734,7 +759,7 @@ public final class TtmlDecoderTest {
             TextEmphasisSpan.MARK_FILL_FILLED,
             TextAnnotation.POSITION_BEFORE);
 
-    Spanned fourthCue = getOnlyCueTextAtTimeUs(subtitle, 40_000_000);
+    Spanned fourthCue = getOnlyCueTextAtIndex(allCues, 3);
     assertThat(fourthCue)
         .hasTextEmphasisSpanBetween("Filled dot ".length(), "Filled dot ございます".length())
         .withMarkAndPosition(
@@ -742,7 +767,7 @@ public final class TtmlDecoderTest {
             TextEmphasisSpan.MARK_FILL_FILLED,
             TextAnnotation.POSITION_BEFORE);
 
-    Spanned fifthCue = getOnlyCueTextAtTimeUs(subtitle, 50_000_000);
+    Spanned fifthCue = getOnlyCueTextAtIndex(allCues, 4);
     assertThat(fifthCue)
         .hasTextEmphasisSpanBetween("Filled sesame ".length(), "Filled sesame おはよ".length())
         .withMarkAndPosition(
@@ -750,7 +775,7 @@ public final class TtmlDecoderTest {
             TextEmphasisSpan.MARK_FILL_FILLED,
             TextAnnotation.POSITION_BEFORE);
 
-    Spanned sixthCue = getOnlyCueTextAtTimeUs(subtitle, 60_000_000);
+    Spanned sixthCue = getOnlyCueTextAtIndex(allCues, 5);
     assertThat(sixthCue)
         .hasTextEmphasisSpanBetween(
             "Open circle before ".length(), "Open circle before ございます".length())
@@ -759,7 +784,7 @@ public final class TtmlDecoderTest {
             TextEmphasisSpan.MARK_FILL_OPEN,
             TextAnnotation.POSITION_BEFORE);
 
-    Spanned seventhCue = getOnlyCueTextAtTimeUs(subtitle, 70_000_000);
+    Spanned seventhCue = getOnlyCueTextAtIndex(allCues, 6);
     assertThat(seventhCue)
         .hasTextEmphasisSpanBetween("Open dot after ".length(), "Open dot after おはよ".length())
         .withMarkAndPosition(
@@ -767,7 +792,7 @@ public final class TtmlDecoderTest {
             TextEmphasisSpan.MARK_FILL_OPEN,
             TextAnnotation.POSITION_AFTER);
 
-    Spanned eighthCue = getOnlyCueTextAtTimeUs(subtitle, 80_000_000);
+    Spanned eighthCue = getOnlyCueTextAtIndex(allCues, 7);
     assertThat(eighthCue)
         .hasTextEmphasisSpanBetween(
             "Open sesame outside ".length(), "Open sesame outside ございます".length())
@@ -776,7 +801,7 @@ public final class TtmlDecoderTest {
             TextEmphasisSpan.MARK_FILL_OPEN,
             TextAnnotation.POSITION_BEFORE);
 
-    Spanned ninthCue = getOnlyCueTextAtTimeUs(subtitle, 90_000_000);
+    Spanned ninthCue = getOnlyCueTextAtIndex(allCues, 8);
     assertThat(ninthCue)
         .hasTextEmphasisSpanBetween("Auto outside ".length(), "Auto outside おはよ".length())
         .withMarkAndPosition(
@@ -784,7 +809,7 @@ public final class TtmlDecoderTest {
             TextEmphasisSpan.MARK_FILL_FILLED,
             TextAnnotation.POSITION_BEFORE);
 
-    Spanned tenthCue = getOnlyCueTextAtTimeUs(subtitle, 100_000_000);
+    Spanned tenthCue = getOnlyCueTextAtIndex(allCues, 9);
     assertThat(tenthCue)
         .hasTextEmphasisSpanBetween("Circle before ".length(), "Circle before ございます".length())
         .withMarkAndPosition(
@@ -792,7 +817,7 @@ public final class TtmlDecoderTest {
             TextEmphasisSpan.MARK_FILL_FILLED,
             TextAnnotation.POSITION_BEFORE);
 
-    Spanned eleventhCue = getOnlyCueTextAtTimeUs(subtitle, 110_000_000);
+    Spanned eleventhCue = getOnlyCueTextAtIndex(allCues, 10);
     assertThat(eleventhCue)
         .hasTextEmphasisSpanBetween("Sesame after ".length(), "Sesame after おはよ".length())
         .withMarkAndPosition(
@@ -800,7 +825,7 @@ public final class TtmlDecoderTest {
             TextEmphasisSpan.MARK_FILL_FILLED,
             TextAnnotation.POSITION_AFTER);
 
-    Spanned twelfthCue = getOnlyCueTextAtTimeUs(subtitle, 120_000_000);
+    Spanned twelfthCue = getOnlyCueTextAtIndex(allCues, 11);
     assertThat(twelfthCue)
         .hasTextEmphasisSpanBetween("Dot outside ".length(), "Dot outside ございます".length())
         .withMarkAndPosition(
@@ -808,12 +833,12 @@ public final class TtmlDecoderTest {
             TextEmphasisSpan.MARK_FILL_FILLED,
             TextAnnotation.POSITION_BEFORE);
 
-    Spanned thirteenthCue = getOnlyCueTextAtTimeUs(subtitle, 130_000_000);
+    Spanned thirteenthCue = getOnlyCueTextAtIndex(allCues, 12);
     assertThat(thirteenthCue)
         .hasNoTextEmphasisSpanBetween(
             "No textEmphasis property ".length(), "No textEmphasis property おはよ".length());
 
-    Spanned fourteenthCue = getOnlyCueTextAtTimeUs(subtitle, 140_000_000);
+    Spanned fourteenthCue = getOnlyCueTextAtIndex(allCues, 13);
     assertThat(fourteenthCue)
         .hasTextEmphasisSpanBetween("Auto (TBLR) ".length(), "Auto (TBLR) ございます".length())
         .withMarkAndPosition(
@@ -821,7 +846,7 @@ public final class TtmlDecoderTest {
             TextEmphasisSpan.MARK_FILL_FILLED,
             TextAnnotation.POSITION_BEFORE);
 
-    Spanned fifteenthCue = getOnlyCueTextAtTimeUs(subtitle, 150_000_000);
+    Spanned fifteenthCue = getOnlyCueTextAtIndex(allCues, 14);
     assertThat(fifteenthCue)
         .hasTextEmphasisSpanBetween("Auto (TBRL) ".length(), "Auto (TBRL) おはよ".length())
         .withMarkAndPosition(
@@ -829,7 +854,7 @@ public final class TtmlDecoderTest {
             TextEmphasisSpan.MARK_FILL_FILLED,
             TextAnnotation.POSITION_BEFORE);
 
-    Spanned sixteenthCue = getOnlyCueTextAtTimeUs(subtitle, 160_000_000);
+    Spanned sixteenthCue = getOnlyCueTextAtIndex(allCues, 15);
     assertThat(sixteenthCue)
         .hasTextEmphasisSpanBetween("Auto (TB) ".length(), "Auto (TB) ございます".length())
         .withMarkAndPosition(
@@ -837,7 +862,7 @@ public final class TtmlDecoderTest {
             TextEmphasisSpan.MARK_FILL_FILLED,
             TextAnnotation.POSITION_BEFORE);
 
-    Spanned seventeenthCue = getOnlyCueTextAtTimeUs(subtitle, 170_000_000);
+    Spanned seventeenthCue = getOnlyCueTextAtIndex(allCues, 16);
     assertThat(seventeenthCue)
         .hasTextEmphasisSpanBetween("Auto (LR) ".length(), "Auto (LR) おはよ".length())
         .withMarkAndPosition(
@@ -847,50 +872,49 @@ public final class TtmlDecoderTest {
   }
 
   @Test
-  public void shear() throws IOException, SubtitleDecoderException {
-    TtmlSubtitle subtitle = getSubtitle(SHEAR_FILE);
+  public void shear() throws Exception {
+    ImmutableList<CuesWithTiming> allCues = getAllCues(SHEAR_FILE);
 
-    Cue firstCue = getOnlyCueAtTimeUs(subtitle, 10_000_000);
+    Cue firstCue = Iterables.getOnlyElement(allCues.get(0).cues);
     assertThat(firstCue.shearDegrees).isZero();
 
-    Cue secondCue = getOnlyCueAtTimeUs(subtitle, 20_000_000);
+    Cue secondCue = Iterables.getOnlyElement(allCues.get(1).cues);
     assertThat(secondCue.shearDegrees).isWithin(0.01f).of(-15f);
 
-    Cue thirdCue = getOnlyCueAtTimeUs(subtitle, 30_000_000);
+    Cue thirdCue = Iterables.getOnlyElement(allCues.get(2).cues);
     assertThat(thirdCue.shearDegrees).isWithin(0.01f).of(15f);
 
-    Cue fourthCue = getOnlyCueAtTimeUs(subtitle, 40_000_000);
+    Cue fourthCue = Iterables.getOnlyElement(allCues.get(3).cues);
     assertThat(fourthCue.shearDegrees).isWithin(0.01f).of(-15f);
 
-    Cue fifthCue = getOnlyCueAtTimeUs(subtitle, 50_000_000);
+    Cue fifthCue = Iterables.getOnlyElement(allCues.get(4).cues);
     assertThat(fifthCue.shearDegrees).isWithin(0.01f).of(-22.5f);
 
-    Cue sixthCue = getOnlyCueAtTimeUs(subtitle, 60_000_000);
+    Cue sixthCue = Iterables.getOnlyElement(allCues.get(5).cues);
     assertThat(sixthCue.shearDegrees).isWithin(0.01f).of(0f);
 
-    Cue seventhCue = getOnlyCueAtTimeUs(subtitle, 70_000_000);
+    Cue seventhCue = Iterables.getOnlyElement(allCues.get(6).cues);
     assertThat(seventhCue.shearDegrees).isWithin(0.01f).of(-90f);
 
-    Cue eighthCue = getOnlyCueAtTimeUs(subtitle, 80_000_000);
+    Cue eighthCue = Iterables.getOnlyElement(allCues.get(7).cues);
     assertThat(eighthCue.shearDegrees).isWithin(0.01f).of(90f);
   }
 
-  private static Spanned getOnlyCueTextAtTimeUs(Subtitle subtitle, long timeUs) {
-    Cue cue = getOnlyCueAtTimeUs(subtitle, timeUs);
+  private static Spanned getOnlyCueTextAtIndex(ImmutableList<CuesWithTiming> allCues, int index) {
+    Cue cue = getOnlyCueAtIndex(allCues, index);
     assertThat(cue.text).isInstanceOf(Spanned.class);
     return (Spanned) Assertions.checkNotNull(cue.text);
   }
 
-  private static Cue getOnlyCueAtTimeUs(Subtitle subtitle, long timeUs) {
-    List<Cue> cues = subtitle.getCues(timeUs);
+  private static Cue getOnlyCueAtIndex(ImmutableList<CuesWithTiming> allCues, int index) {
+    ImmutableList<Cue> cues = allCues.get(index).cues;
     assertThat(cues).hasSize(1);
     return cues.get(0);
   }
 
-  private static TtmlSubtitle getSubtitle(String file)
-      throws IOException, SubtitleDecoderException {
-    TtmlDecoder ttmlDecoder = new TtmlDecoder();
+  private static ImmutableList<CuesWithTiming> getAllCues(String file) throws Exception {
+    TtmlParser ttmlParser = new TtmlParser();
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), file);
-    return (TtmlSubtitle) ttmlDecoder.decode(bytes, bytes.length, false);
+    return ttmlParser.parse(bytes, 0, bytes.length);
   }
 }
