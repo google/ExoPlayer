@@ -19,7 +19,9 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.text.CuesWithTiming;
+import com.google.android.exoplayer2.text.LegacySubtitleUtil;
 import com.google.android.exoplayer2.text.SubtitleParser;
+import com.google.android.exoplayer2.util.Consumer;
 import com.google.android.exoplayer2.util.ParsableByteArray;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
@@ -57,6 +59,18 @@ public final class WebvttParser implements SubtitleParser {
 
   @Override
   public ImmutableList<CuesWithTiming> parse(byte[] data, int offset, int length) {
+    ImmutableList.Builder<CuesWithTiming> result = ImmutableList.builder();
+    parse(data, offset, length, OutputOptions.allCues(), result::add);
+    return result.build();
+  }
+
+  @Override
+  public void parse(
+      byte[] data,
+      int offset,
+      int length,
+      OutputOptions outputOptions,
+      Consumer<CuesWithTiming> output) {
     parsableWebvttData.reset(data, /* limit= */ offset + length);
     parsableWebvttData.setPosition(offset);
     List<WebvttCssStyle> definedStyles = new ArrayList<>();
@@ -89,7 +103,7 @@ public final class WebvttParser implements SubtitleParser {
       }
     }
     WebvttSubtitle subtitle = new WebvttSubtitle(cueInfos);
-    return subtitle.toCuesWithTimingList();
+    LegacySubtitleUtil.toCuesWithTiming(subtitle, outputOptions, output);
   }
 
   /**

@@ -21,8 +21,6 @@ import static java.lang.Long.MAX_VALUE;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.text.Cue;
-import com.google.android.exoplayer2.text.CuesWithTiming;
-import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -297,31 +295,6 @@ public class WebvttSubtitleTest {
     assertThat(nestedSubtitle.getCues(4_000_000)).isEmpty();
     assertThat(nestedSubtitle.getCues(4_500_000)).isEmpty();
     assertThat(nestedSubtitle.getCues(Long.MAX_VALUE)).isEmpty();
-  }
-
-  @Test
-  public void toCuesWithTimingConversion() {
-    ImmutableList<CuesWithTiming> cuesWithTimingsList = simpleSubtitle.toCuesWithTimingList();
-
-    assertThat(simpleSubtitle.getEventTimeCount()).isEqualTo(4);
-    assertThat(simpleSubtitle.getCues(simpleSubtitle.getEventTime(1))).isEmpty();
-    assertThat(simpleSubtitle.getCues(simpleSubtitle.getEventTime(3))).isEmpty();
-    // cuesWithTimingsList has half the events because it skips the empty cues
-    assertThat(cuesWithTimingsList).hasSize(2);
-
-    cuesWithTimingsList = overlappingSubtitle.toCuesWithTimingList();
-
-    assertThat(overlappingSubtitle.getEventTimeCount()).isEqualTo(4);
-    assertThat(overlappingSubtitle.getCues(overlappingSubtitle.getEventTime(3))).isEmpty();
-    // cuesWithTimingsList has one fewer events because it skips the empty cues
-    assertThat(cuesWithTimingsList).hasSize(3);
-
-    cuesWithTimingsList = nestedSubtitle.toCuesWithTimingList();
-
-    assertThat(nestedSubtitle.getEventTimeCount()).isEqualTo(4);
-    assertThat(nestedSubtitle.getCues(nestedSubtitle.getEventTime(3))).isEmpty();
-    // cuesWithTimingsList has one fewer events because it skips the empty cues
-    assertThat(cuesWithTimingsList).hasSize(3);
   }
 
   private static List<String> getCueTexts(List<Cue> cues) {
