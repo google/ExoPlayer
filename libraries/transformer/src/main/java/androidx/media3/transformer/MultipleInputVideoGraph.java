@@ -40,6 +40,7 @@ import androidx.media3.common.Effect;
 import androidx.media3.common.FrameInfo;
 import androidx.media3.common.GlObjectsProvider;
 import androidx.media3.common.GlTextureInfo;
+import androidx.media3.common.SurfaceInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.util.Consumer;
@@ -195,8 +196,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
               @Override
               public void onOutputSizeChanged(int width, int height) {
-                checkNotNull(compositionVideoFrameProcessor)
-                    .setOutputSurfaceInfo(listener.onOutputSizeChanged(width, height));
+                listenerExecutor.execute(() -> listener.onOutputSizeChanged(width, height));
               }
 
               @Override
@@ -295,6 +295,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             initialTimestampOffsetUs);
     preProcessingWrappers.add(preProcessingVideoFrameProcessorWrapper);
     return preProcessingVideoFrameProcessorWrapper;
+  }
+
+  @Override
+  public void setOutputSurfaceInfo(@Nullable SurfaceInfo outputSurfaceInfo) {
+    checkNotNull(compositionVideoFrameProcessor).setOutputSurfaceInfo(outputSurfaceInfo);
   }
 
   @Override

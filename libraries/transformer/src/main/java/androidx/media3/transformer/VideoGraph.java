@@ -68,12 +68,8 @@ import java.util.concurrent.Executor;
      *
      * @param width The new output width in pixels.
      * @param height The new output width in pixels.
-     * @return A {@link SurfaceInfo} to which the {@link VideoGraph} renders to, or {@code null} if
-     *     the output is not needed.
      */
-    // TODO - b/289985577: Consider returning void from this method.
-    @Nullable
-    SurfaceInfo onOutputSizeChanged(int width, int height);
+    void onOutputSizeChanged(int width, int height);
 
     /** Called after the {@link VideoGraph} has rendered its final output frame. */
     void onEnded(long finalFramePresentationTimeUs);
@@ -107,6 +103,23 @@ import java.util.concurrent.Executor;
    * <p>If the method throws any {@link Exception}, the caller must call {@link #release}.
    */
   GraphInput createInput() throws VideoFrameProcessingException;
+
+  /**
+   * Sets the output surface and supporting information.
+   *
+   * <p>The new output {@link SurfaceInfo} is applied from the next output frame rendered onwards.
+   * If the output {@link SurfaceInfo} is {@code null}, the {@code VideoGraph} will stop rendering
+   * pending frames and resume rendering once a non-null {@link SurfaceInfo} is set.
+   *
+   * <p>If the dimensions given in {@link SurfaceInfo} do not match the {@linkplain
+   * Listener#onOutputSizeChanged(int,int) output size after applying the final effect} the frames
+   * are resized before rendering to the surface and letter/pillar-boxing is applied.
+   *
+   * <p>The caller is responsible for tracking the lifecycle of the {@link SurfaceInfo#surface}
+   * including calling this method with a new surface if it is destroyed. When this method returns,
+   * the previous output surface is no longer being used and can safely be released by the caller.
+   */
+  void setOutputSurfaceInfo(@Nullable SurfaceInfo outputSurfaceInfo);
 
   /**
    * Returns whether the {@code VideoGraph} has produced a frame with zero presentation timestamp.

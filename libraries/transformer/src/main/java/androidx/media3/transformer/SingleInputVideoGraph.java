@@ -25,6 +25,7 @@ import androidx.media3.common.ColorInfo;
 import androidx.media3.common.DebugViewProvider;
 import androidx.media3.common.Effect;
 import androidx.media3.common.FrameInfo;
+import androidx.media3.common.SurfaceInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.util.Consumer;
@@ -157,9 +158,7 @@ import java.util.concurrent.Executor;
 
               @Override
               public void onOutputSizeChanged(int width, int height) {
-                // TODO: b/289986435 - Allow setting output surface info on VideoGraph.
-                checkNotNull(videoFrameProcessingWrapper)
-                    .setOutputSurfaceInfo(listener.onOutputSizeChanged(width, height));
+                listenerExecutor.execute(() -> listener.onOutputSizeChanged(width, height));
               }
 
               @Override
@@ -186,6 +185,11 @@ import java.util.concurrent.Executor;
             presentation,
             initialTimestampOffsetUs);
     return videoFrameProcessingWrapper;
+  }
+
+  @Override
+  public void setOutputSurfaceInfo(@Nullable SurfaceInfo outputSurfaceInfo) {
+    checkNotNull(videoFrameProcessingWrapper).setOutputSurfaceInfo(outputSurfaceInfo);
   }
 
   @Override
