@@ -21,6 +21,7 @@ import com.google.android.exoplayer2.text.dvb.DvbParser;
 import com.google.android.exoplayer2.text.pgs.PgsParser;
 import com.google.android.exoplayer2.text.ssa.SsaParser;
 import com.google.android.exoplayer2.text.subrip.SubripParser;
+import com.google.android.exoplayer2.text.ttml.TtmlParser;
 import com.google.android.exoplayer2.text.tx3g.Tx3gParser;
 import com.google.android.exoplayer2.text.webvtt.Mp4WebvttParser;
 import com.google.android.exoplayer2.text.webvtt.WebvttParser;
@@ -40,6 +41,7 @@ import java.util.Objects;
  *   <li>TX3G ({@link Tx3gParser})
  *   <li>PGS ({@link PgsParser})
  *   <li>DVB ({@link DvbParser})
+ *   <li>TTML ({@link TtmlParser})
  * </ul>
  *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
@@ -59,7 +61,8 @@ public final class DefaultSubtitleParserFactory implements SubtitleParser.Factor
         || Objects.equals(mimeType, MimeTypes.APPLICATION_SUBRIP)
         || Objects.equals(mimeType, MimeTypes.APPLICATION_TX3G)
         || Objects.equals(mimeType, MimeTypes.APPLICATION_PGS)
-        || Objects.equals(mimeType, MimeTypes.APPLICATION_DVBSUBS);
+        || Objects.equals(mimeType, MimeTypes.APPLICATION_DVBSUBS)
+        || Objects.equals(mimeType, MimeTypes.APPLICATION_TTML);
   }
 
   @Override
@@ -81,6 +84,8 @@ public final class DefaultSubtitleParserFactory implements SubtitleParser.Factor
           return new PgsParser();
         case MimeTypes.APPLICATION_DVBSUBS:
           return new DvbParser(format.initializationData);
+        case MimeTypes.APPLICATION_TTML:
+          return new TtmlParser();
         default:
           break;
       }
