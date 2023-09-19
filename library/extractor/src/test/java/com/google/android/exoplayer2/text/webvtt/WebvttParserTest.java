@@ -27,6 +27,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.android.exoplayer2.text.CuesWithTiming;
+import com.google.android.exoplayer2.text.SubtitleParser;
 import com.google.android.exoplayer2.text.span.TextAnnotation;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.ColorParser;
@@ -76,7 +77,11 @@ public class WebvttParserTest {
   public void parseEmpty() throws IOException {
     WebvttParser parser = new WebvttParser();
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), EMPTY_FILE);
-    assertThrows(IllegalArgumentException.class, () -> parser.parse(bytes));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            parser.parse(
+                bytes, SubtitleParser.OutputOptions.allCues(), unusedCuesWithTiming -> {}));
   }
 
   @Test
@@ -94,6 +99,38 @@ public class WebvttParserTest {
     assertThat(allCues.get(1).durationUs).isEqualTo(3_456_000L - 2_345_000L);
     Cue secondCue = Iterables.getOnlyElement(allCues.get(1).cues);
     assertThat(secondCue.text.toString()).isEqualTo("This is the second subtitle.");
+  }
+
+  @Test
+  public void parseTypical_withStartTime() throws Exception {
+    ImmutableList<CuesWithTiming> allCues =
+        getCuesForTestAsset(TYPICAL_FILE, SubtitleParser.OutputOptions.onlyCuesAfter(2_000_000));
+
+    assertThat(allCues).hasSize(1);
+
+    assertThat(allCues.get(0).startTimeUs).isEqualTo(2_345_000L);
+    assertThat(allCues.get(0).durationUs).isEqualTo(3_456_000L - 2_345_000L);
+    Cue secondCue = Iterables.getOnlyElement(allCues.get(0).cues);
+    assertThat(secondCue.text.toString()).isEqualTo("This is the second subtitle.");
+  }
+
+  @Test
+  public void parseTypical_withStartTimeAndRemainingCues() throws Exception {
+    ImmutableList<CuesWithTiming> allCues =
+        getCuesForTestAsset(
+            TYPICAL_FILE, SubtitleParser.OutputOptions.cuesAfterThenRemainingCuesBefore(2_000_000));
+
+    assertThat(allCues).hasSize(2);
+
+    assertThat(allCues.get(0).startTimeUs).isEqualTo(2_345_000L);
+    assertThat(allCues.get(0).durationUs).isEqualTo(3_456_000L - 2_345_000L);
+    Cue secondCue = Iterables.getOnlyElement(allCues.get(0).cues);
+    assertThat(secondCue.text.toString()).isEqualTo("This is the second subtitle.");
+
+    assertThat(allCues.get(1).startTimeUs).isEqualTo(0L);
+    assertThat(allCues.get(1).durationUs).isEqualTo(1_234_000L);
+    Cue firstCue = Iterables.getOnlyElement(allCues.get(1).cues);
+    assertThat(firstCue.text.toString()).isEqualTo("This is the first subtitle.");
   }
 
   @Test
@@ -558,10 +595,17 @@ public class WebvttParserTest {
             "Combine ".length(), "Combine 0004".length());
   }
 
-  private List<CuesWithTiming> getCuesForTestAsset(String asset) throws IOException {
+  private ImmutableList<CuesWithTiming> getCuesForTestAsset(String asset) throws IOException {
+    return getCuesForTestAsset(asset, SubtitleParser.OutputOptions.allCues());
+  }
+
+  private ImmutableList<CuesWithTiming> getCuesForTestAsset(
+      String asset, SubtitleParser.OutputOptions outputOptions) throws IOException {
     WebvttParser parser = new WebvttParser();
     byte[] bytes = TestUtil.getByteArray(ApplicationProvider.getApplicationContext(), asset);
-    return parser.parse(bytes);
+    ImmutableList.Builder<CuesWithTiming> result = ImmutableList.builder();
+    parser.parse(bytes, outputOptions, /* output= */ result::add);
+    return result.build();
   }
 
   private Spanned getUniqueSpanTextAt(CuesWithTiming cuesWithTiming) {
