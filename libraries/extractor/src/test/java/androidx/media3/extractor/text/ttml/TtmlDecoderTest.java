@@ -25,13 +25,11 @@ import androidx.media3.common.text.TextAnnotation;
 import androidx.media3.common.text.TextEmphasisSpan;
 import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.ColorParser;
-import androidx.media3.extractor.text.CuesWithTiming;
 import androidx.media3.extractor.text.Subtitle;
 import androidx.media3.extractor.text.SubtitleDecoderException;
 import androidx.media3.test.utils.TestUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.common.collect.ImmutableList;
 import java.io.IOException;
 import java.util.List;
 import org.junit.Test;
@@ -875,39 +873,6 @@ public final class TtmlDecoderTest {
 
     Cue eighthCue = getOnlyCueAtTimeUs(subtitle, 80_000_000);
     assertThat(eighthCue.shearDegrees).isWithin(0.01f).of(90f);
-  }
-
-  @Test
-  public void toCuesWithTimingConversion() throws IOException, SubtitleDecoderException {
-    TtmlSubtitle subtitle = getSubtitle(INLINE_ATTRIBUTES_TTML_FILE);
-    ImmutableList<CuesWithTiming> cuesWithTimingsList = subtitle.toCuesWithTimingList();
-
-    assertThat(subtitle.getEventTimeCount()).isEqualTo(4);
-    assertThat(subtitle.getCues(subtitle.getEventTime(1))).isEmpty();
-    assertThat(subtitle.getCues(subtitle.getEventTime(3))).isEmpty();
-    // cuesWithTimingsList has 2 fewer the events because it skips the empty cues
-    assertThat(cuesWithTimingsList).hasSize(2);
-
-    subtitle = getSubtitle(INHERIT_STYLE_TTML_FILE);
-    cuesWithTimingsList = subtitle.toCuesWithTimingList();
-
-    assertThat(subtitle.getEventTimeCount()).isEqualTo(2);
-    assertThat(subtitle.getCues(subtitle.getEventTime(1))).isEmpty();
-    // cuesWithTimingsList has 1 fewer events because it skips the empty cues
-    assertThat(cuesWithTimingsList).hasSize(1);
-
-    subtitle = getSubtitle(INHERIT_MULTIPLE_STYLES_TTML_FILE);
-    cuesWithTimingsList = subtitle.toCuesWithTimingList();
-
-    assertThat(subtitle.getEventTimeCount()).isEqualTo(12);
-    assertThat(subtitle.getCues(subtitle.getEventTime(1))).isEmpty();
-    assertThat(subtitle.getCues(subtitle.getEventTime(3))).isEmpty();
-    assertThat(subtitle.getCues(subtitle.getEventTime(5))).isEmpty();
-    assertThat(subtitle.getCues(subtitle.getEventTime(7))).isEmpty();
-    assertThat(subtitle.getCues(subtitle.getEventTime(9))).isEmpty();
-    assertThat(subtitle.getCues(subtitle.getEventTime(11))).isEmpty();
-    // cuesWithTimingsList has 6 fewer events because it skips the empty cues
-    assertThat(cuesWithTimingsList).hasSize(6);
   }
 
   private static Spanned getOnlyCueTextAtTimeUs(Subtitle subtitle, long timeUs) {

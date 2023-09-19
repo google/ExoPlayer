@@ -18,9 +18,11 @@ package androidx.media3.extractor.text.webvtt;
 import android.text.TextUtils;
 import androidx.annotation.Nullable;
 import androidx.media3.common.ParserException;
+import androidx.media3.common.util.Consumer;
 import androidx.media3.common.util.ParsableByteArray;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.extractor.text.CuesWithTiming;
+import androidx.media3.extractor.text.LegacySubtitleUtil;
 import androidx.media3.extractor.text.SubtitleParser;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
@@ -53,6 +55,18 @@ public final class WebvttParser implements SubtitleParser {
 
   @Override
   public ImmutableList<CuesWithTiming> parse(byte[] data, int offset, int length) {
+    ImmutableList.Builder<CuesWithTiming> result = ImmutableList.builder();
+    parse(data, offset, length, OutputOptions.allCues(), result::add);
+    return result.build();
+  }
+
+  @Override
+  public void parse(
+      byte[] data,
+      int offset,
+      int length,
+      OutputOptions outputOptions,
+      Consumer<CuesWithTiming> output) {
     parsableWebvttData.reset(data, /* limit= */ offset + length);
     parsableWebvttData.setPosition(offset);
     List<WebvttCssStyle> definedStyles = new ArrayList<>();
@@ -85,7 +99,7 @@ public final class WebvttParser implements SubtitleParser {
       }
     }
     WebvttSubtitle subtitle = new WebvttSubtitle(cueInfos);
-    return subtitle.toCuesWithTimingList();
+    LegacySubtitleUtil.toCuesWithTiming(subtitle, outputOptions, output);
   }
 
   /**

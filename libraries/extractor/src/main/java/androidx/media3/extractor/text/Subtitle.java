@@ -18,7 +18,6 @@ package androidx.media3.extractor.text;
 import androidx.media3.common.C;
 import androidx.media3.common.text.Cue;
 import androidx.media3.common.util.UnstableApi;
-import com.google.common.collect.ImmutableList;
 import java.util.List;
 
 /** A subtitle consisting of timed {@link Cue}s. */
@@ -57,24 +56,4 @@ public interface Subtitle {
    * @return A list of cues that should be displayed, possibly empty.
    */
   List<Cue> getCues(long timeUs);
-
-  /** Converts the current instance to a list of {@link CuesWithTiming} representing it. */
-  // TODO(b/181312195): Remove this when TtmlDecoder has been migrated to TtmlParser (and in-line it
-  //  in DelegatingSubtitleDecoderTtmlParserTest).
-  default ImmutableList<CuesWithTiming> toCuesWithTimingList() {
-    ImmutableList.Builder<CuesWithTiming> allCues = ImmutableList.builder();
-    for (int i = 0; i < getEventTimeCount(); i++) {
-      long startTimeUs = getEventTime(i);
-      List<Cue> cuesForThisStartTime = getCues(startTimeUs);
-      if (cuesForThisStartTime.isEmpty() && i != 0) {
-        // An empty cue list has already been implicitly encoded in the duration of the previous
-        // sample (unless there was no previous sample).
-        continue;
-      }
-      long durationUs =
-          i < getEventTimeCount() - 1 ? getEventTime(i + 1) - getEventTime(i) : C.TIME_UNSET;
-      allCues.add(new CuesWithTiming(cuesForThisStartTime, startTimeUs, durationUs));
-    }
-    return allCues.build();
-  }
 }
