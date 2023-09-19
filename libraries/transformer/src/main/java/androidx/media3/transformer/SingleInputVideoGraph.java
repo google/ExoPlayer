@@ -28,7 +28,6 @@ import androidx.media3.common.FrameInfo;
 import androidx.media3.common.SurfaceInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
-import androidx.media3.common.util.Consumer;
 import androidx.media3.effect.Presentation;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -50,7 +49,6 @@ import java.util.concurrent.Executor;
         Context context,
         ColorInfo inputColorInfo,
         ColorInfo outputColorInfo,
-        Consumer<ExportException> errorConsumer,
         DebugViewProvider debugViewProvider,
         Listener listener,
         Executor listenerExecutor,
@@ -69,7 +67,6 @@ import java.util.concurrent.Executor;
           inputColorInfo,
           outputColorInfo,
           listener,
-          errorConsumer,
           debugViewProvider,
           listenerExecutor,
           /* renderFramesAutomatically= */ true,
@@ -83,7 +80,6 @@ import java.util.concurrent.Executor;
   private final ColorInfo inputColorInfo;
   private final ColorInfo outputColorInfo;
   private final Listener listener;
-  private final Consumer<ExportException> errorConsumer;
   private final DebugViewProvider debugViewProvider;
   private final Executor listenerExecutor;
   private final boolean renderFramesAutomatically;
@@ -101,7 +97,6 @@ import java.util.concurrent.Executor;
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
       Listener listener,
-      Consumer<ExportException> errorConsumer,
       DebugViewProvider debugViewProvider,
       Executor listenerExecutor,
       boolean renderFramesAutomatically,
@@ -112,7 +107,6 @@ import java.util.concurrent.Executor;
     this.inputColorInfo = inputColorInfo;
     this.outputColorInfo = outputColorInfo;
     this.listener = listener;
-    this.errorConsumer = errorConsumer;
     this.debugViewProvider = debugViewProvider;
     this.listenerExecutor = listenerExecutor;
     this.renderFramesAutomatically = renderFramesAutomatically;
@@ -172,8 +166,7 @@ import java.util.concurrent.Executor;
 
               @Override
               public void onError(VideoFrameProcessingException exception) {
-                errorConsumer.accept(
-                    ExportException.createForVideoFrameProcessingException(exception));
+                listenerExecutor.execute(() -> listener.onError(exception));
               }
 
               @Override
