@@ -49,6 +49,7 @@ import androidx.media3.exoplayer.source.TrackGroupArray;
 import androidx.media3.exoplayer.upstream.Allocator;
 import androidx.media3.test.utils.FakeMediaPeriod.TrackDataFactory;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -106,6 +107,7 @@ public class FakeMediaSource extends BaseMediaSource {
   private boolean releasedSource;
   @Nullable private Handler sourceInfoRefreshHandler;
   @Nullable private TransferListener transferListener;
+  private boolean periodDefersOnPreparedCallback;
 
   /** Creates a {@link FakeMediaSource} with a default {@link FakeTimeline}. */
   public FakeMediaSource() {
@@ -360,6 +362,27 @@ public class FakeMediaSource extends BaseMediaSource {
   }
 
   /**
+   * Sets whether the created {@link FakeMediaPeriod period} should defer to call {@link
+   * MediaPeriod.Callback#onPrepared(MediaPeriod)}. If set to true, {@link
+   * MediaPeriod.Callback#onPrepared(MediaPeriod)} should be called only after {@link
+   * FakeMediaPeriod#setPreparationComplete()} has been called, otherwise the preparation completes
+   * immediately.
+   */
+  public void setPeriodDefersOnPreparedCallback(boolean periodDefersOnPreparedCallback) {
+    this.periodDefersOnPreparedCallback = periodDefersOnPreparedCallback;
+  }
+
+  /**
+   * Returns the last created active {@link MediaPeriod}.
+   *
+   * <p>Must only be called if the source has created at least one period and it hasn't been
+   * released.
+   */
+  public MediaPeriod getLastCreatedActiveMediaPeriod() {
+    return Iterables.getLast(activeMediaPeriods);
+  }
+
+  /**
    * Creates a {@link MediaPeriod} for this media source.
    *
    * @param id The identifier of the period.
@@ -372,7 +395,7 @@ public class FakeMediaSource extends BaseMediaSource {
    *     events.
    * @param transferListener The transfer listener which should be informed of any data transfers.
    *     May be null if no listener is available.
-   * @return A new {@link FakeMediaPeriod}.
+   * @return A new {@link MediaPeriod}.
    */
   @RequiresNonNull("this.timeline")
   protected MediaPeriod createMediaPeriod(
@@ -395,7 +418,7 @@ public class FakeMediaSource extends BaseMediaSource {
         mediaSourceEventDispatcher,
         drmSessionManager,
         drmEventDispatcher,
-        /* deferOnPrepared= */ false);
+        periodDefersOnPreparedCallback);
   }
 
   /**
