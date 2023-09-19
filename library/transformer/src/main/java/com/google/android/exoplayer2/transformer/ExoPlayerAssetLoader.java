@@ -51,7 +51,9 @@ import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.text.TextOutput;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.util.Clock;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
+import com.google.common.base.Ascii;
 import com.google.common.collect.ImmutableMap;
 
 /**
@@ -146,6 +148,12 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
     }
   }
 
+  /**
+   * The timeout value, in milliseconds, to set on the internal {@link ExoPlayer} instance when
+   * running on an emulator.
+   */
+  private static final long EMULATOR_RELEASE_TIMEOUT_MS = 5_000;
+
   private final EditedMediaItem editedMediaItem;
   private final CapturingDecoderFactory decoderFactory;
   private final ExoPlayer player;
@@ -193,7 +201,8 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
             .setTrackSelector(trackSelector)
             .setLoadControl(loadControl)
             .setLooper(looper)
-            .setUsePlatformDiagnostics(false);
+            .setUsePlatformDiagnostics(false)
+            .setReleaseTimeoutMs(getReleaseTimeoutMs());
     if (clock != Clock.DEFAULT) {
       // Transformer.Builder#setClock is also @VisibleForTesting, so if we're using a non-default
       // clock we must be in a test context.
@@ -368,5 +377,13 @@ public final class ExoPlayerAssetLoader implements AssetLoader {
                   error.getErrorCodeName(), ERROR_CODE_UNSPECIFIED));
       assetLoaderListener.onError(ExportException.createForAssetLoader(error, errorCode));
     }
+  }
+
+  private static long getReleaseTimeoutMs() {
+    // b/297916906 - Emulators need a larger timeout for releasing.
+    return Ascii.toLowerCase(Util.DEVICE).contains("emulator")
+            || Ascii.toLowerCase(Util.DEVICE).contains("generic")
+        ? EMULATOR_RELEASE_TIMEOUT_MS
+        : ExoPlayer.DEFAULT_RELEASE_TIMEOUT_MS;
   }
 }
