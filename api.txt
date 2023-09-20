@@ -1076,13 +1076,10 @@ package androidx.media3.common {
     method public static androidx.media3.common.TrackSelectionParameters fromBundle(android.os.Bundle);
     method public static androidx.media3.common.TrackSelectionParameters getDefaults(android.content.Context);
     method public android.os.Bundle toBundle();
-    field public final int audioOffloadModePreference;
     field public final com.google.common.collect.ImmutableSet<java.lang.Integer> disabledTrackTypes;
     field public final boolean forceHighestSupportedBitrate;
     field public final boolean forceLowestBitrate;
     field @androidx.media3.common.C.SelectionFlags public final int ignoredTextSelectionFlags;
-    field public final boolean isGaplessSupportRequired;
-    field public final boolean isSpeedChangeSupportRequired;
     field public final int maxAudioBitrate;
     field public final int maxAudioChannelCount;
     field public final int maxVideoBitrate;
@@ -1116,7 +1113,6 @@ package androidx.media3.common {
     method public androidx.media3.common.TrackSelectionParameters.Builder clearOverridesOfType(@androidx.media3.common.C.TrackType int);
     method public androidx.media3.common.TrackSelectionParameters.Builder clearVideoSizeConstraints();
     method public androidx.media3.common.TrackSelectionParameters.Builder clearViewportSizeConstraints();
-    method public androidx.media3.common.TrackSelectionParameters.Builder setAudioOffloadPreference(int, boolean, boolean);
     method public androidx.media3.common.TrackSelectionParameters.Builder setForceHighestSupportedBitrate(boolean);
     method public androidx.media3.common.TrackSelectionParameters.Builder setForceLowestBitrate(boolean);
     method public androidx.media3.common.TrackSelectionParameters.Builder setIgnoredTextSelectionFlags(@androidx.media3.common.C.SelectionFlags int);
