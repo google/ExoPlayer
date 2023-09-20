@@ -88,12 +88,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     try {
       videoSinkImpl =
           new VideoSinkImpl(context, videoFrameProcessorFactory, renderControl, sourceFormat);
-      if (videoFrameMetadataListener != null) {
-        videoSinkImpl.setVideoFrameMetadataListener(videoFrameMetadataListener);
-      }
     } catch (VideoFrameProcessingException e) {
       throw new VideoSink.VideoSinkException(e, sourceFormat);
     }
+
+    if (videoFrameMetadataListener != null) {
+      videoSinkImpl.setVideoFrameMetadataListener(videoFrameMetadataListener);
+    }
+    videoSinkImpl.setVideoEffects(checkNotNull(videoEffects));
   }
 
   /** Returns whether this provider is initialized for frame processing. */
