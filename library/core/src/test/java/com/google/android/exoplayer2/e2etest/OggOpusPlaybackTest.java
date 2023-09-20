@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.e2etest;
 
-import static com.google.android.exoplayer2.trackselection.TrackSelectionParameters.AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED;
+import static com.google.android.exoplayer2.trackselection.TrackSelectionParameters.AudioOffloadPreferences.AUDIO_OFFLOAD_MODE_ENABLED;
 
 import android.content.Context;
 import androidx.annotation.Nullable;
@@ -36,6 +36,7 @@ import com.google.android.exoplayer2.testutil.DumpFileAsserts;
 import com.google.android.exoplayer2.testutil.Dumper;
 import com.google.android.exoplayer2.testutil.FakeClock;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelectionParameters.AudioOffloadPreferences;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,10 +62,12 @@ public class OggOpusPlaybackTest {
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
-            .setAudioOffloadPreference(
-                AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED,
-                /* isGaplessSupportRequired= */ false,
-                /* isSpeedChangeSupportRequired= */ false)
+            .setAudioOffloadPreferences(
+                new AudioOffloadPreferences.Builder()
+                    .setAudioOffloadMode(AUDIO_OFFLOAD_MODE_ENABLED)
+                    .setIsGaplessSupportRequired(false)
+                    .setIsSpeedChangeSupportRequired(false)
+                    .build())
             .build());
     ExoPlayer player =
         new ExoPlayer.Builder(applicationContext, offloadRenderersFactory)

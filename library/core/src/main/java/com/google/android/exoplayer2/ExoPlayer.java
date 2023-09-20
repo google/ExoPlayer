@@ -1712,7 +1712,7 @@ public interface ExoPlayer extends Player {
    *
    * <ul>
    *   <li>Audio offload rendering is enabled through {@link
-   *       TrackSelectionParameters.Builder#setAudioOffloadPreference}.
+   *       TrackSelectionParameters.Builder#setAudioOffloadPreferences}.
    *   <li>An audio track is playing in a format that the device supports offloading (for example,
    *       MP3 or AAC).
    *   <li>The {@link AudioSink} is playing with an offload {@link AudioTrack}.

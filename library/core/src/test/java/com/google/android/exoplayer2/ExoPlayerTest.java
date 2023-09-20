@@ -162,7 +162,7 @@ import com.google.android.exoplayer2.testutil.FakeTrackSelector;
 import com.google.android.exoplayer2.testutil.FakeVideoRenderer;
 import com.google.android.exoplayer2.testutil.TestExoPlayerBuilder;
 import com.google.android.exoplayer2.text.TextOutput;
-import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
+import com.google.android.exoplayer2.trackselection.TrackSelectionParameters.AudioOffloadPreferences;
 import com.google.android.exoplayer2.upstream.Allocation;
 import com.google.android.exoplayer2.upstream.Allocator;
 import com.google.android.exoplayer2.upstream.Loader;
@@ -10200,10 +10200,10 @@ public final class ExoPlayerTest {
         player
             .getTrackSelectionParameters()
             .buildUpon()
-            .setAudioOffloadPreference(
-                TrackSelectionParameters.AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED,
-                /* isGaplessSupportRequired= */ false,
-                /* isSpeedChangeSupportRequired= */ false)
+            .setAudioOffloadPreferences(
+                new AudioOffloadPreferences.Builder()
+                    .setAudioOffloadMode(AudioOffloadPreferences.AUDIO_OFFLOAD_MODE_ENABLED)
+                    .build())
             .build());
     player.prepare();
     player.play();
@@ -10231,10 +10231,10 @@ public final class ExoPlayerTest {
         player
             .getTrackSelectionParameters()
             .buildUpon()
-            .setAudioOffloadPreference(
-                TrackSelectionParameters.AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED,
-                /* isGaplessSupportRequired= */ false,
-                /* isSpeedChangeSupportRequired= */ false)
+            .setAudioOffloadPreferences(
+                new AudioOffloadPreferences.Builder()
+                    .setAudioOffloadMode(AudioOffloadPreferences.AUDIO_OFFLOAD_MODE_ENABLED)
+                    .build())
             .build());
     runUntilSleepingForOffload(player, /* expectedSleepForOffload= */ true);
 
@@ -10256,10 +10256,10 @@ public final class ExoPlayerTest {
         player
             .getTrackSelectionParameters()
             .buildUpon()
-            .setAudioOffloadPreference(
-                TrackSelectionParameters.AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED,
-                /* isGaplessSupportRequired= */ false,
-                /* isSpeedChangeSupportRequired= */ false)
+            .setAudioOffloadPreferences(
+                new AudioOffloadPreferences.Builder()
+                    .setAudioOffloadMode(AudioOffloadPreferences.AUDIO_OFFLOAD_MODE_ENABLED)
+                    .build())
             .build());
     player.prepare();
     player.play();
@@ -10282,10 +10282,10 @@ public final class ExoPlayerTest {
         player
             .getTrackSelectionParameters()
             .buildUpon()
-            .setAudioOffloadPreference(
-                TrackSelectionParameters.AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED,
-                /* isGaplessSupportRequired= */ false,
-                /* isSpeedChangeSupportRequired= */ false)
+            .setAudioOffloadPreferences(
+                new AudioOffloadPreferences.Builder()
+                    .setAudioOffloadMode(AudioOffloadPreferences.AUDIO_OFFLOAD_MODE_ENABLED)
+                    .build())
             .build());
     player.prepare();
     player.play();
@@ -10295,10 +10295,10 @@ public final class ExoPlayerTest {
         player
             .getTrackSelectionParameters()
             .buildUpon()
-            .setAudioOffloadPreference(
-                TrackSelectionParameters.AUDIO_OFFLOAD_MODE_PREFERENCE_DISABLED,
-                /* isGaplessSupportRequired= */ false,
-                /* isSpeedChangeSupportRequired= */ false)
+            .setAudioOffloadPreferences(
+                new AudioOffloadPreferences.Builder()
+                    .setAudioOffloadMode(AudioOffloadPreferences.AUDIO_OFFLOAD_MODE_DISABLED)
+                    .build())
             .build());
 
     runUntilSleepingForOffload(player, /* expectedSleepForOffload= */ false);
@@ -10318,10 +10318,10 @@ public final class ExoPlayerTest {
         player
             .getTrackSelectionParameters()
             .buildUpon()
-            .setAudioOffloadPreference(
-                TrackSelectionParameters.AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED,
-                /* isGaplessSupportRequired= */ false,
-                /* isSpeedChangeSupportRequired= */ false)
+            .setAudioOffloadPreferences(
+                new AudioOffloadPreferences.Builder()
+                    .setAudioOffloadMode(AudioOffloadPreferences.AUDIO_OFFLOAD_MODE_ENABLED)
+                    .build())
             .build());
     player.prepare();
     player.play();
@@ -10349,10 +10349,10 @@ public final class ExoPlayerTest {
         player
             .getTrackSelectionParameters()
             .buildUpon()
-            .setAudioOffloadPreference(
-                TrackSelectionParameters.AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED,
-                /* isGaplessSupportRequired= */ false,
-                /* isSpeedChangeSupportRequired= */ false)
+            .setAudioOffloadPreferences(
+                new AudioOffloadPreferences.Builder()
+                    .setAudioOffloadMode(AudioOffloadPreferences.AUDIO_OFFLOAD_MODE_ENABLED)
+                    .build())
             .build());
     player.prepare();
     player.play();
@@ -10383,10 +10383,10 @@ public final class ExoPlayerTest {
         player
             .getTrackSelectionParameters()
             .buildUpon()
-            .setAudioOffloadPreference(
-                TrackSelectionParameters.AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED,
-                /* isGaplessSupportRequired= */ false,
-                /* isSpeedChangeSupportRequired= */ false)
+            .setAudioOffloadPreferences(
+                new AudioOffloadPreferences.Builder()
+                    .setAudioOffloadMode(AudioOffloadPreferences.AUDIO_OFFLOAD_MODE_ENABLED)
+                    .build())
             .build());
     player.prepare();
     player.play();
@@ -10418,10 +10418,10 @@ public final class ExoPlayerTest {
         player
             .getTrackSelectionParameters()
             .buildUpon()
-            .setAudioOffloadPreference(
-                TrackSelectionParameters.AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED,
-                /* isGaplessSupportRequired= */ false,
-                /* isSpeedChangeSupportRequired= */ false)
+            .setAudioOffloadPreferences(
+                new AudioOffloadPreferences.Builder()
+                    .setAudioOffloadMode(AudioOffloadPreferences.AUDIO_OFFLOAD_MODE_ENABLED)
+                    .build())
             .build());
     player.prepare();
     player.play();

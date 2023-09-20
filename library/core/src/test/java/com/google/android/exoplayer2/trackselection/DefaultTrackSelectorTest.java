@@ -32,8 +32,8 @@ import static com.google.android.exoplayer2.RendererConfiguration.DEFAULT;
 import static com.google.android.exoplayer2.audio.AudioSink.OFFLOAD_MODE_DISABLED;
 import static com.google.android.exoplayer2.audio.AudioSink.OFFLOAD_MODE_ENABLED_GAPLESS_NOT_REQUIRED;
 import static com.google.android.exoplayer2.audio.AudioSink.OFFLOAD_MODE_ENABLED_GAPLESS_REQUIRED;
-import static com.google.android.exoplayer2.trackselection.TrackSelectionParameters.AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED;
-import static com.google.android.exoplayer2.trackselection.TrackSelectionParameters.AUDIO_OFFLOAD_MODE_PREFERENCE_REQUIRED;
+import static com.google.android.exoplayer2.trackselection.TrackSelectionParameters.AudioOffloadPreferences.AUDIO_OFFLOAD_MODE_ENABLED;
+import static com.google.android.exoplayer2.trackselection.TrackSelectionParameters.AudioOffloadPreferences.AUDIO_OFFLOAD_MODE_REQUIRED;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -64,6 +64,7 @@ import com.google.android.exoplayer2.testutil.FakeTimeline;
 import com.google.android.exoplayer2.testutil.TestUtil;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.Parameters;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector.SelectionOverride;
+import com.google.android.exoplayer2.trackselection.TrackSelectionParameters.AudioOffloadPreferences;
 import com.google.android.exoplayer2.trackselection.TrackSelector.InvalidationListener;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.util.HandlerWrapper;
@@ -2327,10 +2328,12 @@ public final class DefaultTrackSelectorTest {
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
-            .setAudioOffloadPreference(
-                AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED,
-                /* isGaplessSupportRequired= */ true,
-                /* isSpeedChangeSupportRequired= */ false)
+            .setAudioOffloadPreferences(
+                new AudioOffloadPreferences.Builder()
+                    .setAudioOffloadMode(AUDIO_OFFLOAD_MODE_ENABLED)
+                    .setIsGaplessSupportRequired(true)
+                    .setIsSpeedChangeSupportRequired(false)
+                    .build())
             .build());
     RendererCapabilities capabilitiesOffloadSupport =
         new FakeRendererCapabilities(
@@ -2363,10 +2366,12 @@ public final class DefaultTrackSelectorTest {
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
-            .setAudioOffloadPreference(
-                AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED,
-                /* isGaplessSupportRequired= */ true,
-                /* isSpeedChangeSupportRequired= */ false)
+            .setAudioOffloadPreferences(
+                new AudioOffloadPreferences.Builder()
+                    .setAudioOffloadMode(AUDIO_OFFLOAD_MODE_ENABLED)
+                    .setIsGaplessSupportRequired(true)
+                    .setIsSpeedChangeSupportRequired(false)
+                    .build())
             .build());
     RendererCapabilities capabilitiesOffloadSupport =
         new FakeRendererCapabilities(
@@ -2400,10 +2405,12 @@ public final class DefaultTrackSelectorTest {
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
-            .setAudioOffloadPreference(
-                AUDIO_OFFLOAD_MODE_PREFERENCE_REQUIRED,
-                /* isGaplessSupportRequired= */ true,
-                /* isSpeedChangeSupportRequired= */ false)
+            .setAudioOffloadPreferences(
+                new AudioOffloadPreferences.Builder()
+                    .setAudioOffloadMode(AUDIO_OFFLOAD_MODE_REQUIRED)
+                    .setIsGaplessSupportRequired(true)
+                    .setIsSpeedChangeSupportRequired(false)
+                    .build())
             .build());
     RendererCapabilities capabilitiesOffloadSupport =
         new FakeRendererCapabilities(
@@ -2436,10 +2443,12 @@ public final class DefaultTrackSelectorTest {
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
-            .setAudioOffloadPreference(
-                AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED,
-                /* isGaplessSupportRequired= */ false,
-                /* isSpeedChangeSupportRequired= */ false)
+            .setAudioOffloadPreferences(
+                new AudioOffloadPreferences.Builder()
+                    .setAudioOffloadMode(AUDIO_OFFLOAD_MODE_ENABLED)
+                    .setIsGaplessSupportRequired(false)
+                    .setIsSpeedChangeSupportRequired(false)
+                    .build())
             .build());
     RendererCapabilities audioCapabilities =
         new FakeRendererCapabilities(
@@ -2473,10 +2482,12 @@ public final class DefaultTrackSelectorTest {
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
-            .setAudioOffloadPreference(
-                AUDIO_OFFLOAD_MODE_PREFERENCE_REQUIRED,
-                /* isGaplessSupportRequired= */ false,
-                /* isSpeedChangeSupportRequired= */ false)
+            .setAudioOffloadPreferences(
+                new AudioOffloadPreferences.Builder()
+                    .setAudioOffloadMode(AUDIO_OFFLOAD_MODE_REQUIRED)
+                    .setIsGaplessSupportRequired(false)
+                    .setIsSpeedChangeSupportRequired(false)
+                    .build())
             .build());
     RendererCapabilities audioCapabilities =
         new FakeRendererCapabilities(
@@ -2515,10 +2526,12 @@ public final class DefaultTrackSelectorTest {
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
-            .setAudioOffloadPreference(
-                AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED,
-                /* isGaplessSupportRequired= */ true,
-                /* isSpeedChangeSupportRequired= */ false)
+            .setAudioOffloadPreferences(
+                new AudioOffloadPreferences.Builder()
+                    .setAudioOffloadMode(AUDIO_OFFLOAD_MODE_ENABLED)
+                    .setIsGaplessSupportRequired(true)
+                    .setIsSpeedChangeSupportRequired(false)
+                    .build())
             .build());
     // Offload playback without gapless transitions is supported
     RendererCapabilities capabilitiesOffloadSupport =
@@ -2557,12 +2570,14 @@ public final class DefaultTrackSelectorTest {
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
-            .setAudioOffloadPreference(
-                AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED,
-                /* isGaplessSupportRequired= */ true,
-                /* isSpeedChangeSupportRequired= */ false)
+            .setAudioOffloadPreferences(
+                new AudioOffloadPreferences.Builder()
+                    .setAudioOffloadMode(AUDIO_OFFLOAD_MODE_ENABLED)
+                    .setIsGaplessSupportRequired(true)
+                    .setIsSpeedChangeSupportRequired(false)
+                    .build())
             .build());
-    // Offload playback without gapless transitions is supported
+    // Offload playback with gapless transitions is supported
     RendererCapabilities capabilitiesOffloadSupport =
         new FakeRendererCapabilities(
             C.TRACK_TYPE_AUDIO,
@@ -2596,10 +2611,12 @@ public final class DefaultTrackSelectorTest {
     trackSelector.setParameters(
         trackSelector
             .buildUponParameters()
-            .setAudioOffloadPreference(
-                AUDIO_OFFLOAD_MODE_PREFERENCE_REQUIRED,
-                /* isGaplessSupportRequired= */ true,
-                /* isSpeedChangeSupportRequired= */ false)
+            .setAudioOffloadPreferences(
+                new AudioOffloadPreferences.Builder()
+                    .setAudioOffloadMode(AUDIO_OFFLOAD_MODE_REQUIRED)
+                    .setIsGaplessSupportRequired(true)
+                    .setIsSpeedChangeSupportRequired(false)
+                    .build())
             .build());
     // Offload playback without gapless transitions is supported
     RendererCapabilities capabilitiesOffloadSupport =

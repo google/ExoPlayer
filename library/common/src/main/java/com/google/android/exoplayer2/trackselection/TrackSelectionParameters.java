@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.BundleableUtil.toBundleArrayList;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.annotation.ElementType.TYPE_USE;
+import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.content.Context;
 import android.graphics.Point;
@@ -41,7 +42,6 @@ import com.google.common.primitives.Ints;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -81,40 +81,6 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 public class TrackSelectionParameters implements Bundleable {
 
   /**
-   * The preference level for enabling audio offload on the audio sink. One of {@link
-   * #AUDIO_OFFLOAD_MODE_PREFERENCE_REQUIRED}, {@link #AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED}, or
-   * {@link #AUDIO_OFFLOAD_MODE_PREFERENCE_DISABLED}.
-   */
-  @Documented
-  @Retention(RetentionPolicy.SOURCE)
-  @Target(TYPE_USE)
-  @IntDef({
-    AUDIO_OFFLOAD_MODE_PREFERENCE_REQUIRED,
-    AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED,
-    AUDIO_OFFLOAD_MODE_PREFERENCE_DISABLED,
-  })
-  public @interface AudioOffloadModePreference {}
-
-  /**
-   * The track selector will only select tracks that with the renderer capabilities provide an audio
-   * offload compatible playback scenario. If it is impossible to create an offload-compatible track
-   * selection, then no tracks will be selected.
-   */
-  public static final int AUDIO_OFFLOAD_MODE_PREFERENCE_REQUIRED = 2;
-
-  /**
-   * The track selector will enable audio offload if the selected tracks and renderer capabilities
-   * are compatible.
-   */
-  public static final int AUDIO_OFFLOAD_MODE_PREFERENCE_ENABLED = 1;
-
-  /**
-   * The track selector will disable audio offload on the audio sink. Track selection will not take
-   * into consideration whether or not a track is offload compatible.
-   */
-  public static final int AUDIO_OFFLOAD_MODE_PREFERENCE_DISABLED = 0;
-
-  /**
    * A builder for {@link TrackSelectionParameters}. See the {@link TrackSelectionParameters}
    * documentation for explanations of the parameters that can be configured using this builder.
    */
@@ -139,9 +105,7 @@ public class TrackSelectionParameters implements Bundleable {
     private int maxAudioChannelCount;
     private int maxAudioBitrate;
     private ImmutableList<String> preferredAudioMimeTypes;
-    private @AudioOffloadModePreference int audioOffloadModePreference;
-    private boolean isGaplessSupportRequired;
-    private boolean isSpeedChangeSupportRequired;
+    private AudioOffloadPreferences audioOffloadPreferences;
     // Text
     private ImmutableList<String> preferredTextLanguages;
     private @C.RoleFlags int preferredTextRoleFlags;
@@ -175,9 +139,7 @@ public class TrackSelectionParameters implements Bundleable {
       maxAudioChannelCount = Integer.MAX_VALUE;
       maxAudioBitrate = Integer.MAX_VALUE;
       preferredAudioMimeTypes = ImmutableList.of();
-      audioOffloadModePreference = AUDIO_OFFLOAD_MODE_PREFERENCE_DISABLED;
-      isGaplessSupportRequired = false;
-      isSpeedChangeSupportRequired = false;
+      audioOffloadPreferences = AudioOffloadPreferences.DEFAULT;
       // Text
       preferredTextLanguages = ImmutableList.of();
       preferredTextRoleFlags = 0;
@@ -251,6 +213,7 @@ public class TrackSelectionParameters implements Bundleable {
       preferredAudioMimeTypes =
           ImmutableList.copyOf(
               firstNonNull(bundle.getStringArray(FIELD_PREFERRED_AUDIO_MIME_TYPES), new String[0]));
+      audioOffloadPreferences = getAudioOffloadPreferencesFromBundle(bundle);
       // Text
       preferredTextLanguages =
           normalizeLanguageCodes(
@@ -266,17 +229,7 @@ public class TrackSelectionParameters implements Bundleable {
           bundle.getBoolean(
               FIELD_SELECT_UNDETERMINED_TEXT_LANGUAGE,
               DEFAULT_WITHOUT_CONTEXT.selectUndeterminedTextLanguage);
-      audioOffloadModePreference =
-          bundle.getInt(
-              FIELD_AUDIO_OFFLOAD_MODE_PREFERENCE,
-              DEFAULT_WITHOUT_CONTEXT.audioOffloadModePreference);
-      isGaplessSupportRequired =
-          bundle.getBoolean(
-              FIELD_IS_GAPLESS_SUPPORT_REQUIRED, DEFAULT_WITHOUT_CONTEXT.isGaplessSupportRequired);
-      isSpeedChangeSupportRequired =
-          bundle.getBoolean(
-              FIELD_IS_SPEED_CHANGE_SUPPORT_REQUIRED,
-              DEFAULT_WITHOUT_CONTEXT.isSpeedChangeSupportRequired);
+
       // General
       forceLowestBitrate =
           bundle.getBoolean(FIELD_FORCE_LOWEST_BITRATE, DEFAULT_WITHOUT_CONTEXT.forceLowestBitrate);
@@ -303,11 +256,32 @@ public class TrackSelectionParameters implements Bundleable {
       }
     }
 
+    private static AudioOffloadPreferences getAudioOffloadPreferencesFromBundle(Bundle bundle) {
+      Bundle audioOffloadPreferencesBundle = bundle.getBundle(FIELD_AUDIO_OFFLOAD_PREFERENCES);
+      return (audioOffloadPreferencesBundle != null)
+          ? AudioOffloadPreferences.fromBundle(audioOffloadPreferencesBundle)
+          : new AudioOffloadPreferences.Builder()
+              .setAudioOffloadMode(
+                  bundle.getInt(
+                      FIELD_AUDIO_OFFLOAD_MODE_PREFERENCE,
+                      AudioOffloadPreferences.DEFAULT.audioOffloadMode))
+              .setIsGaplessSupportRequired(
+                  bundle.getBoolean(
+                      FIELD_IS_GAPLESS_SUPPORT_REQUIRED,
+                      AudioOffloadPreferences.DEFAULT.isGaplessSupportRequired))
+              .setIsSpeedChangeSupportRequired(
+                  bundle.getBoolean(
+                      FIELD_IS_SPEED_CHANGE_SUPPORT_REQUIRED,
+                      AudioOffloadPreferences.DEFAULT.isSpeedChangeSupportRequired))
+              .build();
+    }
+
     /** Overrides the value of the builder with the value of {@link TrackSelectionParameters}. */
     @EnsuresNonNull({
       "preferredVideoMimeTypes",
       "preferredAudioLanguages",
       "preferredAudioMimeTypes",
+      "audioOffloadPreferences",
       "preferredTextLanguages",
       "overrides",
       "disabledTrackTypes",
@@ -333,9 +307,7 @@ public class TrackSelectionParameters implements Bundleable {
       maxAudioChannelCount = parameters.maxAudioChannelCount;
       maxAudioBitrate = parameters.maxAudioBitrate;
       preferredAudioMimeTypes = parameters.preferredAudioMimeTypes;
-      audioOffloadModePreference = parameters.audioOffloadModePreference;
-      isGaplessSupportRequired = parameters.isGaplessSupportRequired;
-      isSpeedChangeSupportRequired = parameters.isSpeedChangeSupportRequired;
+      audioOffloadPreferences = parameters.audioOffloadPreferences;
       // Text
       preferredTextLanguages = parameters.preferredTextLanguages;
       preferredTextRoleFlags = parameters.preferredTextRoleFlags;
@@ -629,21 +601,10 @@ public class TrackSelectionParameters implements Bundleable {
      * Sets the audio offload mode preferences. This includes whether to enable/disable offload as
      * well as to set requirements like if the device must support gapless transitions or speed
      * change during offload.
-     *
-     * <p>If {@code isGaplessSupportRequired}, then audio offload will be enabled only if the device
-     * supports gapless transitions during offload or the selected audio is not gapless.
-     *
-     * <p>If {@code isSpeedChangeSupportRequired}, then audio offload will be enabled only if the
-     * device supports changing playback speed during offload.
      */
     @CanIgnoreReturnValue
-    public Builder setAudioOffloadPreference(
-        @AudioOffloadModePreference int audioOffloadModePreference,
-        boolean isGaplessSupportRequired,
-        boolean isSpeedChangeSupportRequired) {
-      this.audioOffloadModePreference = audioOffloadModePreference;
-      this.isGaplessSupportRequired = isGaplessSupportRequired;
-      this.isSpeedChangeSupportRequired = isSpeedChangeSupportRequired;
+    public Builder setAudioOffloadPreferences(AudioOffloadPreferences audioOffloadPreferences) {
+      this.audioOffloadPreferences = audioOffloadPreferences;
       return this;
     }
 
@@ -874,6 +835,198 @@ public class TrackSelectionParameters implements Bundleable {
     }
   }
 
+  /** Preferences and constraints for enabling audio offload. */
+  public static final class AudioOffloadPreferences implements Bundleable {
+
+    /**
+     * The preference level for enabling audio offload on the audio sink. One of {@link
+     * #AUDIO_OFFLOAD_MODE_REQUIRED}, {@link #AUDIO_OFFLOAD_MODE_ENABLED}, or {@link
+     * #AUDIO_OFFLOAD_MODE_DISABLED}.
+     */
+    @Documented
+    @Retention(SOURCE)
+    @Target(TYPE_USE)
+    @IntDef({
+      AUDIO_OFFLOAD_MODE_REQUIRED,
+      AUDIO_OFFLOAD_MODE_ENABLED,
+      AUDIO_OFFLOAD_MODE_DISABLED,
+    })
+    public @interface AudioOffloadMode {}
+
+    /**
+     * The track selector will only select tracks that with the renderer capabilities provide an
+     * audio offload compatible playback scenario. If it is impossible to create an
+     * offload-compatible track selection, then no tracks will be selected.
+     */
+    public static final int AUDIO_OFFLOAD_MODE_REQUIRED = 2;
+
+    /**
+     * The track selector will enable audio offload if the selected tracks and renderer capabilities
+     * are compatible.
+     */
+    public static final int AUDIO_OFFLOAD_MODE_ENABLED = 1;
+
+    /**
+     * The track selector will disable audio offload on the audio sink. Track selection will not
+     * take into consideration whether or not a track is offload compatible.
+     */
+    public static final int AUDIO_OFFLOAD_MODE_DISABLED = 0;
+
+    /**
+     * A builder for {@link AudioOffloadPreferences}. See the {@link AudioOffloadPreferences}
+     * documentation for explanations of the parameters that can be configured using this builder.
+     */
+    public static final class Builder {
+      private @AudioOffloadMode int audioOffloadMode;
+      private boolean isGaplessSupportRequired;
+      private boolean isSpeedChangeSupportRequired;
+
+      public Builder() {
+        this.audioOffloadMode = AUDIO_OFFLOAD_MODE_DISABLED;
+        this.isGaplessSupportRequired = false;
+        this.isSpeedChangeSupportRequired = false;
+      }
+
+      /**
+       * Sets the audio offload mode preferences. For instance if the preferred mode is
+       * enabled/disabled or if offload is required for playback. Default value is {@link
+       * #AUDIO_OFFLOAD_MODE_DISABLED}.
+       *
+       * @param audioOffloadMode for enabling/disabling offload. One of {@link
+       *     #AUDIO_OFFLOAD_MODE_REQUIRED}, {@link #AUDIO_OFFLOAD_MODE_ENABLED}, or {@link
+       *     #AUDIO_OFFLOAD_MODE_DISABLED}.
+       * @return This builder.
+       */
+      @CanIgnoreReturnValue
+      public Builder setAudioOffloadMode(@AudioOffloadMode int audioOffloadMode) {
+        this.audioOffloadMode = audioOffloadMode;
+        return this;
+      }
+
+      /**
+       * Sets a constraint on audio offload enablement. If {@code true} then audio offload will be
+       * enabled only if the device supports gapless transitions during offload or the selected
+       * audio is not gapless. Default value is {@code false}.
+       *
+       * @param isGaplessSupportRequired for playing gapless audio offloaded.
+       * @return This builder.
+       */
+      @CanIgnoreReturnValue
+      public Builder setIsGaplessSupportRequired(boolean isGaplessSupportRequired) {
+        this.isGaplessSupportRequired = isGaplessSupportRequired;
+        return this;
+      }
+
+      /**
+       * Sets a constraint on audio offload enablement. If {@code true}, then audio offload will be
+       * enabled only if the device supports changing playback speed during offload. Default value
+       * is {@code false}.
+       *
+       * @param isSpeedChangeSupportRequired for playing audio offloaded.
+       * @return This builder.
+       */
+      @CanIgnoreReturnValue
+      public Builder setIsSpeedChangeSupportRequired(boolean isSpeedChangeSupportRequired) {
+        this.isSpeedChangeSupportRequired = isSpeedChangeSupportRequired;
+        return this;
+      }
+
+      /** Builds a {@link TrackSelectionParameters} instance with the selected values. */
+      public AudioOffloadPreferences build() {
+        return new AudioOffloadPreferences(this);
+      }
+    }
+
+    /** Returns an instance configured with default values. */
+    public static final AudioOffloadPreferences DEFAULT =
+        new AudioOffloadPreferences.Builder().build();
+
+    /** The preferred offload mode setting for audio playback. */
+    public final @AudioOffloadMode int audioOffloadMode;
+
+    /**
+     * A constraint on enabling offload. If {@code true}, then audio offload will be enabled only if
+     * the device supports gapless transitions during offload or the selected audio is not gapless.
+     */
+    public final boolean isGaplessSupportRequired;
+
+    /**
+     * A constraint on enabling offload. If {@code true}, then audio offload will be enabled only if
+     * the device supports changing playback speed during offload.
+     */
+    public final boolean isSpeedChangeSupportRequired;
+
+    private AudioOffloadPreferences(Builder builder) {
+      this.audioOffloadMode = builder.audioOffloadMode;
+      this.isGaplessSupportRequired = builder.isGaplessSupportRequired;
+      this.isSpeedChangeSupportRequired = builder.isSpeedChangeSupportRequired;
+    }
+
+    /**
+     * Creates a new {@link AudioOffloadPreferences.Builder}, copying the initial values from this
+     * instance.
+     */
+    public AudioOffloadPreferences.Builder buildUpon() {
+      return new AudioOffloadPreferences.Builder()
+          .setAudioOffloadMode(audioOffloadMode)
+          .setIsGaplessSupportRequired(isGaplessSupportRequired)
+          .setIsSpeedChangeSupportRequired(isSpeedChangeSupportRequired);
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+      if (this == obj) {
+        return true;
+      }
+      if (obj == null || getClass() != obj.getClass()) {
+        return false;
+      }
+      AudioOffloadPreferences other = (AudioOffloadPreferences) obj;
+      return audioOffloadMode == other.audioOffloadMode
+          && isGaplessSupportRequired == other.isGaplessSupportRequired
+          && isSpeedChangeSupportRequired == other.isSpeedChangeSupportRequired;
+    }
+
+    @Override
+    public int hashCode() {
+      int result = 1;
+      result = 31 * result + audioOffloadMode;
+      result = 31 * result + (isGaplessSupportRequired ? 1 : 0);
+      result = 31 * result + (isSpeedChangeSupportRequired ? 1 : 0);
+      return result;
+    }
+
+    // Bundleable implementation
+
+    private static final String FIELD_AUDIO_OFFLOAD_MODE_PREFERENCE = Util.intToStringMaxRadix(1);
+    private static final String FIELD_IS_GAPLESS_SUPPORT_REQUIRED = Util.intToStringMaxRadix(2);
+    private static final String FIELD_IS_SPEED_CHANGE_SUPPORT_REQUIRED =
+        Util.intToStringMaxRadix(3);
+
+    @Override
+    public Bundle toBundle() {
+      Bundle bundle = new Bundle();
+      bundle.putInt(FIELD_AUDIO_OFFLOAD_MODE_PREFERENCE, audioOffloadMode);
+      bundle.putBoolean(FIELD_IS_GAPLESS_SUPPORT_REQUIRED, isGaplessSupportRequired);
+      bundle.putBoolean(FIELD_IS_SPEED_CHANGE_SUPPORT_REQUIRED, isSpeedChangeSupportRequired);
+      return bundle;
+    }
+
+    /** Construct an instance from a {@link Bundle} produced by {@link #toBundle()}. */
+    public static AudioOffloadPreferences fromBundle(Bundle bundle) {
+      return new AudioOffloadPreferences.Builder()
+          .setAudioOffloadMode(
+              bundle.getInt(FIELD_AUDIO_OFFLOAD_MODE_PREFERENCE, DEFAULT.audioOffloadMode))
+          .setIsGaplessSupportRequired(
+              bundle.getBoolean(
+                  FIELD_IS_GAPLESS_SUPPORT_REQUIRED, DEFAULT.isGaplessSupportRequired))
+          .setIsSpeedChangeSupportRequired(
+              bundle.getBoolean(
+                  FIELD_IS_SPEED_CHANGE_SUPPORT_REQUIRED, DEFAULT.isSpeedChangeSupportRequired))
+          .build();
+    }
+  }
+
   /**
    * An instance with default values, except those obtained from the {@link Context}.
    *
@@ -1016,23 +1169,10 @@ public class TrackSelectionParameters implements Bundleable {
   public final ImmutableList<String> preferredAudioMimeTypes;
 
   /**
-   * The preferred offload mode setting for audio playback. The default is {@link
-   * #AUDIO_OFFLOAD_MODE_PREFERENCE_DISABLED}.
+   * The preferred offload mode settings for audio playback. The default is {@link
+   * AudioOffloadPreferences#DEFAULT}.
    */
-  public final @AudioOffloadModePreference int audioOffloadModePreference;
-
-  /**
-   * A constraint on enabling offload. If {@code isGaplessSupportRequired}, then audio offload will
-   * be enabled only if the device supports gapless transitions during offload or the selected audio
-   * is not gapless.
-   */
-  public final boolean isGaplessSupportRequired;
-
-  /**
-   * A constraint on enabling offload. If {@code isSpeedChangeSupportRequired}, then audio offload
-   * will be enabled only if the device supports changing playback speed during offload.
-   */
-  public final boolean isSpeedChangeSupportRequired;
+  public final AudioOffloadPreferences audioOffloadPreferences;
 
   // Text
   /**
@@ -1108,9 +1248,7 @@ public class TrackSelectionParameters implements Bundleable {
     this.maxAudioChannelCount = builder.maxAudioChannelCount;
     this.maxAudioBitrate = builder.maxAudioBitrate;
     this.preferredAudioMimeTypes = builder.preferredAudioMimeTypes;
-    this.audioOffloadModePreference = builder.audioOffloadModePreference;
-    this.isGaplessSupportRequired = builder.isGaplessSupportRequired;
-    this.isSpeedChangeSupportRequired = builder.isSpeedChangeSupportRequired;
+    this.audioOffloadPreferences = builder.audioOffloadPreferences;
     // Text
     this.preferredTextLanguages = builder.preferredTextLanguages;
     this.preferredTextRoleFlags = builder.preferredTextRoleFlags;
@@ -1158,9 +1296,7 @@ public class TrackSelectionParameters implements Bundleable {
         && maxAudioChannelCount == other.maxAudioChannelCount
         && maxAudioBitrate == other.maxAudioBitrate
         && preferredAudioMimeTypes.equals(other.preferredAudioMimeTypes)
-        && audioOffloadModePreference == other.audioOffloadModePreference
-        && isGaplessSupportRequired == other.isGaplessSupportRequired
-        && isSpeedChangeSupportRequired == other.isSpeedChangeSupportRequired
+        && audioOffloadPreferences.equals(other.audioOffloadPreferences)
         // Text
         && preferredTextLanguages.equals(other.preferredTextLanguages)
         && preferredTextRoleFlags == other.preferredTextRoleFlags
@@ -1196,9 +1332,7 @@ public class TrackSelectionParameters implements Bundleable {
     result = 31 * result + maxAudioChannelCount;
     result = 31 * result + maxAudioBitrate;
     result = 31 * result + preferredAudioMimeTypes.hashCode();
-    result = 31 * result + audioOffloadModePreference;
-    result = 31 * result + (isGaplessSupportRequired ? 1 : 0);
-    result = 31 * result + (isSpeedChangeSupportRequired ? 1 : 0);
+    result = 31 * result + audioOffloadPreferences.hashCode();
     // Text
     result = 31 * result + preferredTextLanguages.hashCode();
     result = 31 * result + preferredTextRoleFlags;
@@ -1243,6 +1377,7 @@ public class TrackSelectionParameters implements Bundleable {
   private static final String FIELD_AUDIO_OFFLOAD_MODE_PREFERENCE = Util.intToStringMaxRadix(27);
   private static final String FIELD_IS_GAPLESS_SUPPORT_REQUIRED = Util.intToStringMaxRadix(28);
   private static final String FIELD_IS_SPEED_CHANGE_SUPPORT_REQUIRED = Util.intToStringMaxRadix(29);
+  private static final String FIELD_AUDIO_OFFLOAD_PREFERENCES = Util.intToStringMaxRadix(30);
 
   /**
    * Defines a minimum field ID value for subclasses to use when implementing {@link #toBundle()}
@@ -1287,9 +1422,13 @@ public class TrackSelectionParameters implements Bundleable {
     bundle.putInt(FIELD_PREFERRED_TEXT_ROLE_FLAGS, preferredTextRoleFlags);
     bundle.putInt(FIELD_IGNORED_TEXT_SELECTION_FLAGS, ignoredTextSelectionFlags);
     bundle.putBoolean(FIELD_SELECT_UNDETERMINED_TEXT_LANGUAGE, selectUndeterminedTextLanguage);
-    bundle.putInt(FIELD_AUDIO_OFFLOAD_MODE_PREFERENCE, audioOffloadModePreference);
-    bundle.putBoolean(FIELD_IS_GAPLESS_SUPPORT_REQUIRED, isGaplessSupportRequired);
-    bundle.putBoolean(FIELD_IS_SPEED_CHANGE_SUPPORT_REQUIRED, isSpeedChangeSupportRequired);
+    bundle.putInt(FIELD_AUDIO_OFFLOAD_MODE_PREFERENCE, audioOffloadPreferences.audioOffloadMode);
+    bundle.putBoolean(
+        FIELD_IS_GAPLESS_SUPPORT_REQUIRED, audioOffloadPreferences.isGaplessSupportRequired);
+    bundle.putBoolean(
+        FIELD_IS_SPEED_CHANGE_SUPPORT_REQUIRED,
+        audioOffloadPreferences.isSpeedChangeSupportRequired);
+    bundle.putBundle(FIELD_AUDIO_OFFLOAD_PREFERENCES, audioOffloadPreferences.toBundle());
     // General
     bundle.putBoolean(FIELD_FORCE_LOWEST_BITRATE, forceLowestBitrate);
     bundle.putBoolean(FIELD_FORCE_HIGHEST_SUPPORTED_BITRATE, forceHighestSupportedBitrate);
