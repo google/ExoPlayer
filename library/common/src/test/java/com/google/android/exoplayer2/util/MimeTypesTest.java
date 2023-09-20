@@ -124,6 +124,7 @@ public final class MimeTypesTest {
     assertThat(MimeTypes.isImage(MimeTypes.IMAGE_BMP)).isTrue();
     assertThat(MimeTypes.isImage(MimeTypes.IMAGE_WEBP)).isTrue();
     assertThat(MimeTypes.isImage("image/custom")).isTrue();
+    assertThat(MimeTypes.isImage(MimeTypes.APPLICATION_EXTERNALLY_LOADED_IMAGE)).isTrue();
 
     assertThat(MimeTypes.isImage(MimeTypes.VIDEO_MP4)).isFalse();
     assertThat(MimeTypes.isImage(MimeTypes.AUDIO_AAC)).isFalse();
