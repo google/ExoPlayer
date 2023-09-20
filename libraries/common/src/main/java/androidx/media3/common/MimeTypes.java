@@ -107,7 +107,6 @@ public final class MimeTypes {
 
   public static final String TEXT_VTT = BASE_TYPE_TEXT + "/vtt";
   public static final String TEXT_SSA = BASE_TYPE_TEXT + "/x-ssa";
-
   @UnstableApi public static final String TEXT_UNKNOWN = BASE_TYPE_TEXT + "/x-unknown";
 
   // application/ MIME types
@@ -151,6 +150,11 @@ public final class MimeTypes {
 
   @UnstableApi
   public static final String APPLICATION_MEDIA3_CUES = BASE_TYPE_APPLICATION + "/x-media3-cues";
+
+  /** MIME type for image content loaded from an external image management framework. */
+  @UnstableApi
+  public static final String APPLICATION_EXTERNALLY_LOADED_IMAGE =
+      BASE_TYPE_APPLICATION + "/x-image-uri-key";
 
   // image/ MIME types
 
@@ -233,7 +237,8 @@ public final class MimeTypes {
   /** Returns whether the given string is an image MIME type. */
   @UnstableApi
   public static boolean isImage(@Nullable String mimeType) {
-    return BASE_TYPE_IMAGE.equals(getTopLevelType(mimeType));
+    return BASE_TYPE_IMAGE.equals(getTopLevelType(mimeType))
+        || APPLICATION_EXTERNALLY_LOADED_IMAGE.equals(mimeType);
   }
 
   /**
