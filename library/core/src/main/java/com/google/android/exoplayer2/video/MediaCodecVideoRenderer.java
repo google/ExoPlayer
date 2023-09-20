@@ -149,7 +149,7 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
 
   private final Context context;
   private final VideoFrameReleaseHelper frameReleaseHelper;
-  private final CompositingVideoSinkProvider videoSinkProvider;
+  private final VideoSinkProvider videoSinkProvider;
   private final EventDispatcher eventDispatcher;
   private final long allowedJoiningTimeMs;
   private final int maxDroppedFramesToNotify;

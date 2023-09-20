@@ -57,7 +57,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-/* package */ final class CompositingVideoSinkProvider {
+/* package */ final class CompositingVideoSinkProvider implements VideoSinkProvider {
 
   private final Context context;
   private final VideoFrameProcessor.Factory videoFrameProcessorFactory;
@@ -78,13 +78,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.renderControl = renderControl;
   }
 
-  /**
-   * Initializes the provider for video frame processing. Can be called up to one time and only
-   * after video effects are {@linkplain #setVideoEffects(List) set}.
-   *
-   * @param sourceFormat The format of the compressed video.
-   * @throws VideoSink.VideoSinkException If enabling the provider failed.
-   */
+  @Override
   public void initialize(Format sourceFormat) throws VideoSink.VideoSinkException {
     checkState(!released && videoSinkImpl == null);
     checkStateNotNull(videoEffects);
@@ -102,12 +96,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     videoSinkImpl.setVideoEffects(checkNotNull(videoEffects));
   }
 
-  /** Returns whether this provider is initialized for frame processing. */
+  @Override
   public boolean isInitialized() {
     return videoSinkImpl != null;
   }
 
-  /** Releases the sink provider. */
+  @Override
   public void release() {
     if (released) {
       return;
@@ -120,12 +114,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     released = true;
   }
 
-  /** Returns a {@link VideoSink} to forward video frames for processing. */
+  @Override
   public VideoSink getSink() {
     return checkStateNotNull(videoSinkImpl);
   }
 
-  /** Sets video effects on this provider. */
+  @Override
   public void setVideoEffects(List<Effect> videoEffects) {
     this.videoEffects = videoEffects;
     if (isInitialized()) {
@@ -133,35 +127,22 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
-  /**
-   * Sets the offset, in microseconds, that is added to the video frames presentation timestamps
-   * from the player.
-   *
-   * <p>Must be called after the sink provider is {@linkplain #initialize(Format) initialized}.
-   */
+  @Override
   public void setStreamOffsetUs(long streamOffsetUs) {
     checkStateNotNull(videoSinkImpl).setStreamOffsetUs(streamOffsetUs);
   }
 
-  /**
-   * Sets the output surface info.
-   *
-   * <p>Must be called after the sink provider is {@linkplain #initialize(Format) initialized}.
-   */
+  @Override
   public void setOutputSurfaceInfo(Surface outputSurface, Size outputResolution) {
     checkStateNotNull(videoSinkImpl).setOutputSurfaceInfo(outputSurface, outputResolution);
   }
 
-  /**
-   * Clears the set output surface info.
-   *
-   * <p>Must be called after the sink provider is {@linkplain #initialize(Format) initialized}.
-   */
+  @Override
   public void clearOutputSurfaceInfo() {
     checkStateNotNull(videoSinkImpl).clearOutputSurfaceInfo();
   }
 
-  /** Sets a {@link VideoFrameMetadataListener} which is used in the returned {@link VideoSink}. */
+  @Override
   public void setVideoFrameMetadataListener(VideoFrameMetadataListener videoFrameMetadataListener) {
     this.videoFrameMetadataListener = videoFrameMetadataListener;
     if (isInitialized()) {
