@@ -22,7 +22,6 @@ import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import androidx.annotation.Nullable;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.Buffer;
 import java.util.HashMap;
 import java.util.Map;
@@ -57,25 +56,9 @@ public final class GlProgram {
    */
   public GlProgram(Context context, String vertexShaderFilePath, String fragmentShaderFilePath)
       throws IOException, GlUtil.GlException {
-    this(loadAsset(context, vertexShaderFilePath), loadAsset(context, fragmentShaderFilePath));
-  }
-
-  /**
-   * Loads a file from the assets folder.
-   *
-   * @param context The {@link Context}.
-   * @param assetPath The path to the file to load, from the assets folder.
-   * @return The content of the file to load.
-   * @throws IOException If the file couldn't be read.
-   */
-  private static String loadAsset(Context context, String assetPath) throws IOException {
-    @Nullable InputStream inputStream = null;
-    try {
-      inputStream = context.getAssets().open(assetPath);
-      return Util.fromUtf8Bytes(Util.toByteArray(inputStream));
-    } finally {
-      Util.closeQuietly(inputStream);
-    }
+    this(
+        Util.loadAsset(context, vertexShaderFilePath),
+        Util.loadAsset(context, fragmentShaderFilePath));
   }
 
   /**
