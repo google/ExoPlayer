@@ -110,8 +110,7 @@ public final class TtmlParser implements SubtitleParser {
 
   private static final FrameAndTickRate DEFAULT_FRAME_AND_TICK_RATE =
       new FrameAndTickRate(DEFAULT_FRAME_RATE, 1, 1);
-  private static final CellResolution DEFAULT_CELL_RESOLUTION =
-      new CellResolution(/* columns= */ 32, /* rows= */ 15);
+  private static final int DEFAULT_CELL_ROWS = 15;
 
   private final XmlPullParserFactory xmlParserFactory;
 
@@ -157,7 +156,7 @@ public final class TtmlParser implements SubtitleParser {
       int unsupportedNodeDepth = 0;
       int eventType = xmlParser.getEventType();
       FrameAndTickRate frameAndTickRate = DEFAULT_FRAME_AND_TICK_RATE;
-      CellResolution cellResolution = DEFAULT_CELL_RESOLUTION;
+      int cellRows = DEFAULT_CELL_ROWS;
       @Nullable TtsExtent ttsExtent = null;
       while (eventType != XmlPullParser.END_DOCUMENT) {
         @Nullable TtmlNode parent = nodeStack.peek();
@@ -166,14 +165,14 @@ public final class TtmlParser implements SubtitleParser {
           if (eventType == XmlPullParser.START_TAG) {
             if (TtmlNode.TAG_TT.equals(name)) {
               frameAndTickRate = parseFrameAndTickRates(xmlParser);
-              cellResolution = parseCellResolution(xmlParser, DEFAULT_CELL_RESOLUTION);
+              cellRows = parseCellRows(xmlParser, DEFAULT_CELL_ROWS);
               ttsExtent = parseTtsExtent(xmlParser);
             }
             if (!isSupportedTag(name)) {
               Log.i(TAG, "Ignoring unsupported tag: " + xmlParser.getName());
               unsupportedNodeDepth++;
             } else if (TtmlNode.TAG_HEAD.equals(name)) {
-              parseHeader(xmlParser, globalStyles, cellResolution, ttsExtent, regionMap, imageMap);
+              parseHeader(xmlParser, globalStyles, cellRows, ttsExtent, regionMap, imageMap);
             } else {
               try {
                 TtmlNode node = parseNode(xmlParser, parent, regionMap, frameAndTickRate);
@@ -246,8 +245,7 @@ public final class TtmlParser implements SubtitleParser {
     return new FrameAndTickRate(frameRate * frameRateMultiplier, subFrameRate, tickRate);
   }
 
-  private static CellResolution parseCellResolution(
-      XmlPullParser xmlParser, CellResolution defaultValue) {
+  private static int parseCellRows(XmlPullParser xmlParser, int defaultValue) {
     String cellResolution = xmlParser.getAttributeValue(TTP, "cellResolution");
     if (cellResolution == null) {
       return defaultValue;
@@ -262,7 +260,7 @@ public final class TtmlParser implements SubtitleParser {
       int columns = Integer.parseInt(Assertions.checkNotNull(cellResolutionMatcher.group(1)));
       int rows = Integer.parseInt(Assertions.checkNotNull(cellResolutionMatcher.group(2)));
       checkArgument(columns != 0 && rows != 0, "Invalid cell resolution " + columns + " " + rows);
-      return new CellResolution(columns, rows);
+      return rows;
     } catch (NumberFormatException e) {
       Log.w(TAG, "Ignoring malformed cell resolution: " + cellResolution);
       return defaultValue;
@@ -295,7 +293,7 @@ public final class TtmlParser implements SubtitleParser {
   private static Map<String, TtmlStyle> parseHeader(
       XmlPullParser xmlParser,
       Map<String, TtmlStyle> globalStyles,
-      CellResolution cellResolution,
+      int cellRows,
       @Nullable TtsExtent ttsExtent,
       Map<String, TtmlRegion> globalRegions,
       Map<String, String> imageMap)
@@ -315,8 +313,7 @@ public final class TtmlParser implements SubtitleParser {
           globalStyles.put(styleId, style);
         }
       } else if (XmlPullParserUtil.isStartTag(xmlParser, TtmlNode.TAG_REGION)) {
-        @Nullable
-        TtmlRegion ttmlRegion = parseRegionAttributes(xmlParser, cellResolution, ttsExtent);
+        @Nullable TtmlRegion ttmlRegion = parseRegionAttributes(xmlParser, cellRows, ttsExtent);
         if (ttmlRegion != null) {
           globalRegions.put(ttmlRegion.id, ttmlRegion);
         }
@@ -351,7 +348,7 @@ public final class TtmlParser implements SubtitleParser {
    */
   @Nullable
   private static TtmlRegion parseRegionAttributes(
-      XmlPullParser xmlParser, CellResolution cellResolution, @Nullable TtsExtent ttsExtent) {
+      XmlPullParser xmlParser, int cellRows, @Nullable TtsExtent ttsExtent) {
     @Nullable String regionId = XmlPullParserUtil.getAttributeValue(xmlParser, TtmlNode.ATTR_ID);
     if (regionId == null) {
       return null;
@@ -469,7 +466,7 @@ public final class TtmlParser implements SubtitleParser {
       }
     }
 
-    float regionTextHeight = 1.0f / cellResolution.rows;
+    float regionTextHeight = 1.0f / cellRows;
 
     @Cue.VerticalType int verticalType = Cue.TYPE_UNSET;
     @Nullable
@@ -885,17 +882,6 @@ public final class TtmlParser implements SubtitleParser {
       this.effectiveFrameRate = effectiveFrameRate;
       this.subFrameRate = subFrameRate;
       this.tickRate = tickRate;
-    }
-  }
-
-  /** Represents the cell resolution for a TTML file. */
-  private static final class CellResolution {
-    final int columns;
-    final int rows;
-
-    CellResolution(int columns, int rows) {
-      this.columns = columns;
-      this.rows = rows;
     }
   }
 
