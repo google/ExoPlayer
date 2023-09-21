@@ -100,7 +100,6 @@ import org.checkerframework.dataflow.qual.Pure;
     } else {
       decoderInputColor = firstInputFormat.colorInfo;
     }
-
     encoderWrapper =
         new EncoderWrapper(
             encoderFactory,
@@ -108,19 +107,19 @@ import org.checkerframework.dataflow.qual.Pure;
             muxerWrapper.getSupportedSampleMimeTypes(C.TRACK_TYPE_VIDEO),
             transformationRequest,
             fallbackListener);
-
     encoderOutputBuffer =
         new DecoderInputBuffer(DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_DISABLED);
 
+    @Composition.HdrMode int hdrModeAfterFallback = encoderWrapper.getHdrModeAfterFallback();
     boolean isMediaCodecToneMapping =
-        encoderWrapper.getHdrModeAfterFallback() == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC
+        hdrModeAfterFallback == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC
             && ColorInfo.isTransferHdr(decoderInputColor);
     ColorInfo videoGraphInputColor =
         isMediaCodecToneMapping ? SDR_BT709_LIMITED : decoderInputColor;
 
     boolean isGlToneMapping =
-        ColorInfo.isTransferHdr(decoderInputColor)
-            && transformationRequest.hdrMode == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL;
+        hdrModeAfterFallback == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL
+            && ColorInfo.isTransferHdr(decoderInputColor);
     ColorInfo videoGraphOutputColor;
     if (videoGraphInputColor.colorTransfer == C.COLOR_TRANSFER_SRGB) {
       // The sRGB color transfer is only used for images, so when an image gets transcoded into a
@@ -274,7 +273,7 @@ import org.checkerframework.dataflow.qual.Pure;
       }
 
       // HdrMode fallback is only supported from HDR_MODE_KEEP_HDR to
-      // HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC.
+      // HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL.
       @Composition.HdrMode int hdrMode = transformationRequest.hdrMode;
       if (hdrMode == HDR_MODE_KEEP_HDR && isTransferHdr(inputFormat.colorInfo)) {
         ImmutableList<MediaCodecInfo> hdrEncoders =
@@ -289,7 +288,7 @@ import org.checkerframework.dataflow.qual.Pure;
           }
         }
         if (hdrEncoders.isEmpty()) {
-          hdrMode = HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC;
+          hdrMode = HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL;
         }
       }
 

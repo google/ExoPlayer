@@ -255,7 +255,7 @@ public final class Composition {
    * <p>Supported on API 31+, by some device and HDR format combinations.
    *
    * <p>If not supported, {@link Transformer} will attempt to use {@link
-   * #HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC}.
+   * #HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL}.
    */
   public static final int HDR_MODE_KEEP_HDR = 0;
 
@@ -288,10 +288,10 @@ public final class Composition {
   /**
    * Interpret HDR input as SDR, likely with a washed out look.
    *
-   * <p>This is much more widely supported than {@link #HDR_MODE_KEEP_HDR} and {@link
-   * #HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC}. However, as HDR transfer functions and
-   * metadata will be ignored, contents will be displayed incorrectly, likely with a washed out
-   * look.
+   * <p>This is much more widely supported than {@link #HDR_MODE_KEEP_HDR}, {@link
+   * #HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC}, and {@link
+   * #HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL}. However, as HDR transfer functions and metadata
+   * will be ignored, contents will be displayed incorrectly, likely with a washed out look.
    *
    * <p>Using this API may lead to codec errors before API 29.
    *
