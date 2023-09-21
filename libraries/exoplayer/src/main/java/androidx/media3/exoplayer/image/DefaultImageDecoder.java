@@ -117,7 +117,7 @@ public final class DefaultImageDecoder
   }
 
   @Override
-  public final String getName() {
+  public String getName() {
     return "DefaultImageDecoder";
   }
 

@@ -18,6 +18,7 @@ package androidx.media3.exoplayer.image;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
+import static org.robolectric.annotation.GraphicsMode.Mode.NATIVE;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -31,9 +32,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.GraphicsMode;
 
 /** Unit tests for {@link DefaultImageDecoder}. */
 @RunWith(AndroidJUnit4.class)
+@GraphicsMode(value = NATIVE)
 public class DefaultImageDecoderTest {
 
   private static final String PNG_TEST_IMAGE_PATH = "media/png/non-motion-photo-shortened.png";
