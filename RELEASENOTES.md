@@ -58,6 +58,7 @@
         in a playlist can throw an exception
         ([#571](https://github.com/androidx/media/issues/571)).
     *   Release StreamManager before calling `AdsLoader.destroy()`
+    *   Bump IMA SDK version to 3.31.0.
 *   Session:
     *   Set the notifications foreground service behavior to
         `FOREGROUND_SERVICE_IMMEDIATE` in `DefaultMediaNotificationProvider`
