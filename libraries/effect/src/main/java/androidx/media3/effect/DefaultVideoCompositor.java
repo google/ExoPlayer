@@ -62,8 +62,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  * <p>The input source must be able to have at least two {@linkplain
  * VideoCompositor#queueInputTexture queued textures} in its output buffer.
  *
- * <p>When composited, textures are drawn in the reverse order of their registration order, so that
- * the first registered source is on the very top.
+ * <p>When composited, textures are overlaid over one another in the reverse order of their
+ * registration order, so that the first registered source is on the very top. The way the textures
+ * are overlaid can be customized using the {@link OverlaySettings} output by {@link
+ * VideoCompositorSettings}.
  *
  * <p>Only SDR input with the same {@link ColorInfo} are supported.
  */
