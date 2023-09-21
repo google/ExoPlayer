@@ -24,7 +24,7 @@ import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSE
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_DOLBY_VISION_HDR_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
 import static com.google.android.exoplayer2.transformer.Composition.HDR_MODE_KEEP_HDR;
-import static com.google.android.exoplayer2.transformer.Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC;
+import static com.google.android.exoplayer2.transformer.Composition.HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL;
 import static com.google.android.exoplayer2.transformer.mh.FileUtil.assertFileHasColorTransfer;
 import static com.google.android.exoplayer2.util.MimeTypes.VIDEO_H265;
 import static com.google.common.truth.Truth.assertThat;
@@ -252,7 +252,7 @@ public final class HdrEditingTest {
                     assertThat(originalTransformationRequest.hdrMode).isEqualTo(HDR_MODE_KEEP_HDR);
                     isToneMappingFallbackApplied.set(
                         fallbackTransformationRequest.hdrMode
-                            == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC);
+                            == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL);
                   }
                 })
             .build();
@@ -318,7 +318,7 @@ public final class HdrEditingTest {
                     assertThat(originalTransformationRequest.hdrMode).isEqualTo(HDR_MODE_KEEP_HDR);
                     isToneMappingFallbackApplied.set(
                         fallbackTransformationRequest.hdrMode
-                            == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_MEDIACODEC);
+                            == HDR_MODE_TONE_MAP_HDR_TO_SDR_USING_OPEN_GL);
                   }
                 })
             .build();
