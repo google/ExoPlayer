@@ -15,6 +15,11 @@ track 256:
     codecs = hvc1.1.6.L90.90
     width = 854
     height = 480
+    colorInfo:
+      colorSpace = -1
+      colorRange = 2
+      colorTransfer = -1
+      hdrStaticInfo = length 0, hash 0
     initializationData:
       data = length 83, hash 7F428
   sample 0:

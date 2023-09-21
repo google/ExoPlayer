@@ -17,6 +17,11 @@ track 0:
     width = 1080
     height = 720
     frameRate = 32.113037
+    colorInfo:
+      colorSpace = -1
+      colorRange = 2
+      colorTransfer = -1
+      hdrStaticInfo = length 0, hash 0
     metadata = entries=[xyz: latitude=40.68, longitude=-74.5, Mp4Timestamp: creation time=2000000000, modification time=2000000000, timescale=10000]
     initializationData:
       data = length 29, hash 4746B5D9

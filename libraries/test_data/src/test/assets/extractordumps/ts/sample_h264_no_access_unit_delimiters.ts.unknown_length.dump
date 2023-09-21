@@ -12,6 +12,11 @@ track 256:
     codecs = avc1.64001E
     width = 640
     height = 426
+    colorInfo:
+      colorSpace = -1
+      colorRange = -1
+      colorTransfer = -1
+      hdrStaticInfo = length 0, hash 0
     initializationData:
       data = length 29, hash 4C2CAE9C
       data = length 9, hash D971CD89

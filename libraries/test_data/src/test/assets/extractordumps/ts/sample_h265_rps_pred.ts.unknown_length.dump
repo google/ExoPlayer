@@ -13,6 +13,11 @@ track 256:
     width = 914
     height = 686
     pixelWidthHeightRatio = 1.0003651
+    colorInfo:
+      colorSpace = -1
+      colorRange = -1
+      colorTransfer = -1
+      hdrStaticInfo = length 0, hash 0
     initializationData:
       data = length 146, hash 61554FEF
   sample 0:
