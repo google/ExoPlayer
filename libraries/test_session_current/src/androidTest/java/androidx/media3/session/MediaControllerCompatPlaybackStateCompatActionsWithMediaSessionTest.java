@@ -616,7 +616,7 @@ public class MediaControllerCompatPlaybackStateCompatActionsWithMediaSessionTest
             /* availableCommands= */ new Player.Commands.Builder()
                 .add(Player.COMMAND_SEEK_TO_NEXT)
                 .build(),
-            /* excludedCommand= */ new Player.Commands.Builder()
+            /* excludedCommands= */ new Player.Commands.Builder()
                 .add(Player.COMMAND_SEEK_TO_NEXT_MEDIA_ITEM)
                 .build());
     MediaSession mediaSession = createMediaSession(player);
@@ -1515,6 +1515,7 @@ public class MediaControllerCompatPlaybackStateCompatActionsWithMediaSessionTest
 
     getInstrumentation().runOnMainSync(() -> mediaSession.setCustomLayout(customLayout));
 
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(reportedCustomLayout.get())
         .containsExactly(
             customLayout.get(0).copyWithIsEnabled(true),
