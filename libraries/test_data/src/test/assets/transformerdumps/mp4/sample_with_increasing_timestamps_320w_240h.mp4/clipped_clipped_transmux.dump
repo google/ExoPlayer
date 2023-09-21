@@ -23,6 +23,8 @@ format video:
     colorSpace = 2
     colorRange = 1
     colorTransfer = 3
+    lumaBitdepth = 8
+    chromaBitdepth = 8
   metadata = entries=[TSSE: description=null: values=[Lavf58.76.100], Mp4Timestamp: creation time=0, modification time=0, timescale=1000]
   initializationData:
     data = length 31, hash 4B108214

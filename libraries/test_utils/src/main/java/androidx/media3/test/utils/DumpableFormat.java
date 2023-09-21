@@ -74,6 +74,8 @@ public final class DumpableFormat implements Dumper.Dumpable {
       if (colorInfo.hdrStaticInfo != null) {
         dumper.add("hdrStaticInfo", colorInfo.hdrStaticInfo);
       }
+      addIfNonDefault(dumper, "lumaBitdepth", colorInfo, DEFAULT_COLOR_INFO, c -> c.lumaBitdepth);
+      addIfNonDefault(dumper, "chromaBitdepth", colorInfo, DEFAULT_COLOR_INFO, c -> c.chromaBitdepth);
       dumper.endBlock();
     }
     addIfNonDefault(dumper, "channelCount", format, DEFAULT_FORMAT, format -> format.channelCount);

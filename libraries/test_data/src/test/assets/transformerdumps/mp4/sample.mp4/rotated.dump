@@ -20,10 +20,8 @@ format video:
   frameRate = 29.970028
   rotationDegrees = 90
   colorInfo:
-    colorSpace = -1
-    colorRange = -1
-    colorTransfer = -1
-    hdrStaticInfo = length 0, hash 0
+    lumaBitdepth = 8
+    chromaBitdepth = 8
   metadata = entries=[TSSE: description=null: values=[Lavf56.1.0], xyz: latitude=40.68, longitude=-74.5, Mp4Timestamp: creation time=3547558895, modification time=3547558895, timescale=1000]
   initializationData:
     data = length 29, hash 4746B5D9

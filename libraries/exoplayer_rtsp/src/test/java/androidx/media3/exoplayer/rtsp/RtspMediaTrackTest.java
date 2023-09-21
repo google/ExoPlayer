@@ -74,11 +74,12 @@ public class RtspMediaTrackTest {
                 .setHeight(544)
                 .setWidth(960)
                 .setCodecs("avc1.64001F")
-                .setColorInfo(new ColorInfo.Builder()
-                    .setColorRange(1)
-                    .setLumaBitdepth(8)
-                    .setChromaBitdepth(8)
-                    .build())
+                .setColorInfo(
+                    new ColorInfo.Builder()
+                        .setColorRange(1)
+                        .setLumaBitdepth(8)
+                        .setChromaBitdepth(8)
+                        .build())
                 .setInitializationData(
                     ImmutableList.of(
                         new byte[] {

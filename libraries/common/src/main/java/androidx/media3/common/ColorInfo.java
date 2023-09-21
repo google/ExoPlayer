@@ -22,6 +22,7 @@ import androidx.media3.common.util.Util;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.Arrays;
 import org.checkerframework.dataflow.qual.Pure;
+
 // copybara:exo-only import com.google.android.exoplayer2.Bundleable;
 // copybara:exo-only import com.google.android.exoplayer2.C;
 // copybara:exo-only import com.google.android.exoplayer2.Format;
@@ -255,6 +256,24 @@ public final class ColorInfo implements Bundleable {
 
   // Lazily initialized hashcode.
   private int hashCode;
+
+  /**
+   * Constructs the ColorInfo.
+   *
+   * @param colorSpace The color space of the video.
+   * @param colorRange The color range of the video.
+   * @param colorTransfer The color transfer characteristics of the video.
+   * @param hdrStaticInfo HdrStaticInfo as defined in CTA-861.3, or null if none specified.
+   * @deprecated Use {@link Builder}.
+   */
+  @Deprecated
+  public ColorInfo(
+      @C.ColorSpace int colorSpace,
+      @C.ColorRange int colorRange,
+      @C.ColorTransfer int colorTransfer,
+      @Nullable byte[] hdrStaticInfo) {
+    this(colorSpace, colorRange, colorTransfer, hdrStaticInfo, Format.NO_VALUE, Format.NO_VALUE);
+  }
 
   /**
    * Constructs the ColorInfo.

@@ -12,6 +12,9 @@ format video:
   width = 1080
   height = 720
   frameRate = 29.970028
+  colorInfo:
+    lumaBitdepth = 8
+    chromaBitdepth = 8
   metadata = entries=[xyz: latitude=40.68, longitude=-74.5, Mp4Timestamp: creation time=0, modification time=0, timescale=1000]
   initializationData:
     data = length 29, hash 4746B5D9

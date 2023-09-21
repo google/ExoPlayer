@@ -16,6 +16,8 @@ format video:
   colorInfo:
     colorSpace = 1
     colorRange = 2
+    lumaBitdepth = 8
+    chromaBitdepth = 8
   metadata = entries=[Mp4Timestamp: creation time=0, modification time=0, timescale=1000]
   initializationData:
     data = length 34, hash 8D738018
