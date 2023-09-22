@@ -152,9 +152,9 @@ public final class MimeTypes {
   public static final String APPLICATION_RTSP = BASE_TYPE_APPLICATION + "/x-rtsp";
   public static final String APPLICATION_MEDIA3_CUES = BASE_TYPE_APPLICATION + "/x-media3-cues";
 
-  /** MIME type for image content loaded from an external image management framework. */
+  /** MIME type for an image URI loaded from an external image management framework. */
   public static final String APPLICATION_EXTERNALLY_LOADED_IMAGE =
-      BASE_TYPE_APPLICATION + "/x-image-uri-key";
+      BASE_TYPE_APPLICATION + "/x-image-uri";
 
   // image/ MIME types
 
