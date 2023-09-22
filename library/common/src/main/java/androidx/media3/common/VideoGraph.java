@@ -39,7 +39,11 @@ public interface VideoGraph {
      */
     void onOutputSizeChanged(int width, int height);
 
-    /** Called after the {@link VideoGraph} has rendered its final output frame. */
+    /**
+     * Called after the {@link VideoGraph} has rendered its final output frame.
+     *
+     * @param finalFramePresentationTimeUs The timestamp of the last output frame, in microseconds.
+     */
     void onEnded(long finalFramePresentationTimeUs);
 
     /**
