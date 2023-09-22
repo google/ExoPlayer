@@ -33,6 +33,7 @@ import android.opengl.EGLDisplay;
 import android.opengl.EGLSurface;
 import android.util.SparseArray;
 import androidx.annotation.Nullable;
+import androidx.media3.common.VideoGraph;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.effect.DefaultGlObjectsProvider;
 import com.google.android.exoplayer2.effect.DefaultVideoCompositor;
@@ -68,10 +69,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-/* package */ final class MultipleInputVideoGraph implements VideoGraph {
+/* package */ final class MultipleInputVideoGraph implements TransformerVideoGraph {
 
-  public static final class Factory implements VideoGraph.Factory {
-
+  public static final class Factory implements TransformerVideoGraph.Factory {
     @Override
     public MultipleInputVideoGraph create(
         Context context,
