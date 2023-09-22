@@ -17,6 +17,7 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.common.util.Assertions.checkState;
 import static androidx.media3.common.util.Assertions.checkStateNotNull;
 
 import android.content.Context;
@@ -30,6 +31,7 @@ import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.VideoGraph;
 import androidx.media3.effect.Presentation;
+import androidx.media3.effect.VideoCompositorSettings;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -52,6 +54,11 @@ import java.util.concurrent.Executor;
   private boolean released;
   private volatile boolean hasProducedFrameWithTimestampZero;
 
+  /**
+   * Creates an instance.
+   *
+   * <p>{@code videoCompositorSettings} must be {@link VideoCompositorSettings#DEFAULT}.
+   */
   public SingleInputVideoGraph(
       Context context,
       VideoFrameProcessor.Factory videoFrameProcessorFactory,
@@ -60,9 +67,14 @@ import java.util.concurrent.Executor;
       Listener listener,
       DebugViewProvider debugViewProvider,
       Executor listenerExecutor,
+      VideoCompositorSettings videoCompositorSettings,
       boolean renderFramesAutomatically,
       @Nullable Presentation presentation,
       long initialTimestampOffsetUs) {
+    checkState(
+        VideoCompositorSettings.DEFAULT.equals(videoCompositorSettings),
+        "SingleInputVideoGraph does not use VideoCompositor, and therefore cannot apply"
+            + " VideoCompositorSettings");
     this.context = context;
     this.videoFrameProcessorFactory = videoFrameProcessorFactory;
     this.inputColorInfo = inputColorInfo;

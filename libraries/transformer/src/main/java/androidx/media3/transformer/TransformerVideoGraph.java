@@ -23,6 +23,7 @@ import androidx.media3.common.Effect;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.VideoGraph;
+import androidx.media3.effect.VideoCompositorSettings;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -40,7 +41,10 @@ import java.util.concurrent.Executor;
      * @param debugViewProvider A {@link DebugViewProvider}.
      * @param listener A {@link Listener}.
      * @param listenerExecutor The {@link Executor} on which the {@code listener} is invoked.
+     * @param videoCompositorSettings The {@link VideoCompositorSettings} to apply to the
+     *     composition.
      * @param compositionEffects A list of {@linkplain Effect effects} to apply to the composition.
+     * @param initialTimestampOffsetUs The timestamp offset for the first frame, in microseconds.
      * @return A new instance.
      * @throws VideoFrameProcessingException If a problem occurs while creating the {@link
      *     VideoFrameProcessor}.
@@ -52,6 +56,7 @@ import java.util.concurrent.Executor;
         DebugViewProvider debugViewProvider,
         Listener listener,
         Executor listenerExecutor,
+        VideoCompositorSettings videoCompositorSettings,
         List<Effect> compositionEffects,
         long initialTimestampOffsetUs)
         throws VideoFrameProcessingException;

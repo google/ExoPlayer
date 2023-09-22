@@ -23,6 +23,7 @@ import androidx.media3.common.DebugViewProvider;
 import androidx.media3.common.Effect;
 import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.effect.Presentation;
+import androidx.media3.effect.VideoCompositorSettings;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -46,6 +47,7 @@ import java.util.concurrent.Executor;
         DebugViewProvider debugViewProvider,
         Listener listener,
         Executor listenerExecutor,
+        VideoCompositorSettings videoCompositorSettings,
         List<Effect> compositionEffects,
         long initialTimestampOffsetUs) {
       @Nullable Presentation presentation = null;
@@ -63,6 +65,7 @@ import java.util.concurrent.Executor;
           listener,
           debugViewProvider,
           listenerExecutor,
+          videoCompositorSettings,
           /* renderFramesAutomatically= */ true,
           presentation,
           initialTimestampOffsetUs);
@@ -77,6 +80,7 @@ import java.util.concurrent.Executor;
       Listener listener,
       DebugViewProvider debugViewProvider,
       Executor listenerExecutor,
+      VideoCompositorSettings videoCompositorSettings,
       boolean renderFramesAutomatically,
       @Nullable Presentation presentation,
       long initialTimestampOffsetUs) {
@@ -88,6 +92,7 @@ import java.util.concurrent.Executor;
         listener,
         debugViewProvider,
         listenerExecutor,
+        videoCompositorSettings,
         renderFramesAutomatically,
         presentation,
         initialTimestampOffsetUs);
