@@ -67,7 +67,7 @@ public final class TextureBitmapReader implements VideoFrameProcessorTestRunner.
    * @return The output {@link Bitmap} at a given {@code presentationTimeUs}.
    * @throws IllegalStateException If no such bitmap is produced.
    */
-  public Bitmap getBitmap(long presentationTimeUs) {
+  public Bitmap getBitmapAtPresentationTimeUs(long presentationTimeUs) {
     return checkStateNotNull(outputTimestampsToBitmaps.get(presentationTimeUs));
   }
 
@@ -79,7 +79,8 @@ public final class TextureBitmapReader implements VideoFrameProcessorTestRunner.
   /**
    * Reads the given {@code outputTexture}.
    *
-   * <p>The read result can be fetched by calling one of the {@link #getBitmap} methods.
+   * <p>The read result can be fetched by calling {@link #getBitmapAtPresentationTimeUs} or {@link
+   * #getBitmap}.
    *
    * <p>This implementation incorrectly marks the output Bitmap as {@link Bitmap#isPremultiplied()
    * premultiplied}, even though OpenGL typically outputs only non-premultiplied alpha. Use {@link
@@ -108,7 +109,8 @@ public final class TextureBitmapReader implements VideoFrameProcessorTestRunner.
   /**
    * Reads the given {@code outputTexture} as one with unpremultiplied alpha.
    *
-   * <p>The read result can be fetched by calling one of the {@link #getBitmap} methods.
+   * <p>The read result can be fetched by calling {@link #getBitmapAtPresentationTimeUs} or {@link
+   * #getBitmap}.
    */
   @RequiresApi(19) // BitmapPixelTestUtil#createArgb8888BitmapFromFocusedGlFramebuffer.
   public void readBitmapUnpremultipliedAlpha(GlTextureInfo outputTexture, long presentationTimeUs)

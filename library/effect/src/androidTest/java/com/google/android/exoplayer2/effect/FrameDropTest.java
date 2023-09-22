@@ -135,7 +135,7 @@ public class FrameDropTest {
       throws IOException {
     for (int i = 0; i < presentationTimesUs.size(); i++) {
       long presentationTimeUs = presentationTimesUs.get(i);
-      Bitmap actualBitmap = textureBitmapReader.getBitmap(presentationTimeUs);
+      Bitmap actualBitmap = textureBitmapReader.getBitmapAtPresentationTimeUs(presentationTimeUs);
       Bitmap expectedBitmap =
           readBitmap(Util.formatInvariant("%s/pts_%d.png", ASSET_PATH, presentationTimeUs));
       maybeSaveTestBitmap(

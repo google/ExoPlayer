@@ -78,7 +78,7 @@ public class DefaultVideoFrameProcessorMultipleTextureOutputPixelTest {
     TextureBitmapReader textureBitmapReader = checkNotNull(this.textureBitmapReader);
     Set<Long> outputTimestamps = textureBitmapReader.getOutputTimestamps();
     assertThat(outputTimestamps).containsExactlyElementsIn(inputTimestamps).inOrder();
-    Bitmap actualBitmap = textureBitmapReader.getBitmap(/* presentationTimeUs= */ 1_000_000L);
+    Bitmap actualBitmap = textureBitmapReader.getBitmapAtPresentationTimeUs(1_000_000L);
     maybeSaveTestBitmap(testId, /* bitmapLabel= */ "actual", actualBitmap, /* path= */ null);
     float averagePixelAbsoluteDifference =
         BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceArgb8888(
@@ -103,9 +103,9 @@ public class DefaultVideoFrameProcessorMultipleTextureOutputPixelTest {
     TextureBitmapReader textureBitmapReader = checkNotNull(this.textureBitmapReader);
     Set<Long> actualOutputTimestamps = textureBitmapReader.getOutputTimestamps();
     assertThat(actualOutputTimestamps).containsExactlyElementsIn(outputTimestamps).inOrder();
-    Bitmap actualBitmap1 = textureBitmapReader.getBitmap(/* presentationTimeUs= */ 1_000_000L);
+    Bitmap actualBitmap1 = textureBitmapReader.getBitmapAtPresentationTimeUs(1_000_000L);
     maybeSaveTestBitmap(testId, /* bitmapLabel= */ "actual1", actualBitmap1, /* path= */ null);
-    Bitmap actualBitmap2 = textureBitmapReader.getBitmap(/* presentationTimeUs= */ 2_000_000L);
+    Bitmap actualBitmap2 = textureBitmapReader.getBitmapAtPresentationTimeUs(2_000_000L);
     maybeSaveTestBitmap(testId, /* bitmapLabel= */ "actual2", actualBitmap2, /* path= */ null);
     float averagePixelAbsoluteDifference1 =
         BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceArgb8888(
