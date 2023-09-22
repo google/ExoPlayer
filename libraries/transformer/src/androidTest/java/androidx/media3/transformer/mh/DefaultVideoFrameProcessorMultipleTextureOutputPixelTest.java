@@ -19,10 +19,11 @@ import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.maybeSaveTestBitmap;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.readBitmap;
+import static androidx.media3.test.utils.VideoFrameProcessorTestRunner.createTimestampIterator;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.Bitmap;
-import androidx.media3.common.C;
+import android.util.Pair;
 import androidx.media3.common.ColorInfo;
 import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.effect.DefaultVideoFrameProcessor;
@@ -30,6 +31,9 @@ import androidx.media3.test.utils.BitmapPixelTestUtil;
 import androidx.media3.test.utils.TextureBitmapReader;
 import androidx.media3.test.utils.VideoFrameProcessorTestRunner;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import com.google.common.collect.ImmutableList;
+import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.junit.After;
@@ -66,21 +70,15 @@ public class DefaultVideoFrameProcessorMultipleTextureOutputPixelTest {
   public void textureOutput_queueBitmap_matchesGoldenFile() throws Exception {
     String testId = "textureOutput_queueBitmap_matchesGoldenFile";
     videoFrameProcessorTestRunner = getFrameProcessorTestRunnerBuilder(testId).build();
+    ImmutableList<Long> inputTimestamps = ImmutableList.of(1_000_000L, 2_000_000L, 3_000_000L);
 
-    long offsetUs = 1_000_000L;
-    videoFrameProcessorTestRunner.queueInputBitmap(
-        readBitmap(ORIGINAL_PNG_ASSET_PATH),
-        /* durationUs= */ 3 * C.MICROS_PER_SECOND,
-        /* offsetToAddUs= */ offsetUs,
-        /* frameRate= */ 1);
+    queueBitmaps(videoFrameProcessorTestRunner, ORIGINAL_PNG_ASSET_PATH, inputTimestamps);
     videoFrameProcessorTestRunner.endFrameProcessing();
 
     TextureBitmapReader textureBitmapReader = checkNotNull(this.textureBitmapReader);
     Set<Long> outputTimestamps = textureBitmapReader.getOutputTimestamps();
-    assertThat(outputTimestamps)
-        .containsExactly(
-            offsetUs, offsetUs + C.MICROS_PER_SECOND, offsetUs + 2 * C.MICROS_PER_SECOND);
-    Bitmap actualBitmap = textureBitmapReader.getBitmap(offsetUs);
+    assertThat(outputTimestamps).containsExactlyElementsIn(inputTimestamps).inOrder();
+    Bitmap actualBitmap = textureBitmapReader.getBitmap(/* presentationTimeUs= */ 1_000_000L);
     maybeSaveTestBitmap(testId, /* bitmapLabel= */ "actual", actualBitmap, /* path= */ null);
     float averagePixelAbsoluteDifference =
         BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceArgb8888(
@@ -93,33 +91,21 @@ public class DefaultVideoFrameProcessorMultipleTextureOutputPixelTest {
   public void textureOutput_queueTwoBitmaps_matchesGoldenFiles() throws Exception {
     String testId = "textureOutput_queueTwoBitmaps_matchesGoldenFiles";
     videoFrameProcessorTestRunner = getFrameProcessorTestRunnerBuilder(testId).build();
+    ImmutableList<Long> inputTimestamps1 = ImmutableList.of(1_000_000L, 1_500_000L);
+    ImmutableList<Long> inputTimestamps2 = ImmutableList.of(2_000_000L, 3_000_000L, 4_000_000L);
+    ImmutableList<Long> outputTimestamps =
+        ImmutableList.of(1_000_000L, 1_500_000L, 2_000_000L, 3_000_000L, 4_000_000L);
 
-    long offsetUs1 = 1_000_000L;
-    videoFrameProcessorTestRunner.queueInputBitmap(
-        readBitmap(ORIGINAL_PNG_ASSET_PATH),
-        /* durationUs= */ C.MICROS_PER_SECOND,
-        /* offsetToAddUs= */ offsetUs1,
-        /* frameRate= */ 2);
-    long offsetUs2 = 2_000_000L;
-    videoFrameProcessorTestRunner.queueInputBitmap(
-        readBitmap(MEDIA3_TEST_PNG_ASSET_PATH),
-        /* durationUs= */ 3 * C.MICROS_PER_SECOND,
-        /* offsetToAddUs= */ offsetUs2,
-        /* frameRate= */ 1);
+    queueBitmaps(videoFrameProcessorTestRunner, ORIGINAL_PNG_ASSET_PATH, inputTimestamps1);
+    queueBitmaps(videoFrameProcessorTestRunner, MEDIA3_TEST_PNG_ASSET_PATH, inputTimestamps2);
     videoFrameProcessorTestRunner.endFrameProcessing();
 
     TextureBitmapReader textureBitmapReader = checkNotNull(this.textureBitmapReader);
-    Set<Long> outputTimestamps = textureBitmapReader.getOutputTimestamps();
-    assertThat(outputTimestamps)
-        .containsExactly(
-            offsetUs1,
-            offsetUs1 + C.MICROS_PER_SECOND / 2,
-            offsetUs2,
-            offsetUs2 + C.MICROS_PER_SECOND,
-            offsetUs2 + 2 * C.MICROS_PER_SECOND);
-    Bitmap actualBitmap1 = textureBitmapReader.getBitmap(offsetUs1);
+    Set<Long> actualOutputTimestamps = textureBitmapReader.getOutputTimestamps();
+    assertThat(actualOutputTimestamps).containsExactlyElementsIn(outputTimestamps).inOrder();
+    Bitmap actualBitmap1 = textureBitmapReader.getBitmap(/* presentationTimeUs= */ 1_000_000L);
     maybeSaveTestBitmap(testId, /* bitmapLabel= */ "actual1", actualBitmap1, /* path= */ null);
-    Bitmap actualBitmap2 = textureBitmapReader.getBitmap(offsetUs2);
+    Bitmap actualBitmap2 = textureBitmapReader.getBitmap(/* presentationTimeUs= */ 2_000_000L);
     maybeSaveTestBitmap(testId, /* bitmapLabel= */ "actual2", actualBitmap2, /* path= */ null);
     float averagePixelAbsoluteDifference1 =
         BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceArgb8888(
@@ -131,6 +117,18 @@ public class DefaultVideoFrameProcessorMultipleTextureOutputPixelTest {
             readBitmap(SRGB_TO_ELECTRICAL_MEDIA3_TEST_PNG_ASSET_PATH), actualBitmap2, testId);
     assertThat(averagePixelAbsoluteDifference2)
         .isAtMost(MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_DIFFERENT_DEVICE);
+  }
+
+  private void queueBitmaps(
+      VideoFrameProcessorTestRunner videoFrameProcessorTestRunner,
+      String bitmapAssetPath,
+      List<Long> timestamps)
+      throws IOException, InterruptedException {
+    Bitmap bitmap = readBitmap(bitmapAssetPath);
+    videoFrameProcessorTestRunner.queueInputBitmaps(
+        bitmap.getWidth(),
+        bitmap.getHeight(),
+        Pair.create(bitmap, createTimestampIterator(timestamps)));
   }
 
   private VideoFrameProcessorTestRunner.Builder getFrameProcessorTestRunnerBuilder(String testId) {
