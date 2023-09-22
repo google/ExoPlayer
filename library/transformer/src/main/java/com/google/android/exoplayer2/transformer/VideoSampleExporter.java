@@ -38,6 +38,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.effect.DebugTraceUtil;
+import com.google.android.exoplayer2.effect.VideoCompositorSettings;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.util.Consumer;
 import com.google.android.exoplayer2.util.DebugViewProvider;
@@ -86,6 +87,7 @@ import org.checkerframework.dataflow.qual.Pure;
       Context context,
       Format firstInputFormat,
       TransformationRequest transformationRequest,
+      VideoCompositorSettings videoCompositorSettings,
       List<Effect> compositionEffects,
       VideoFrameProcessor.Factory videoFrameProcessorFactory,
       Codec.EncoderFactory encoderFactory,
@@ -159,6 +161,7 @@ import org.checkerframework.dataflow.qual.Pure;
               videoGraphOutputColor,
               errorConsumer,
               debugViewProvider,
+              videoCompositorSettings,
               compositionEffects);
       videoGraph.initialize();
     } catch (VideoFrameProcessingException e) {
@@ -485,6 +488,7 @@ import org.checkerframework.dataflow.qual.Pure;
         ColorInfo videoFrameProcessorOutputColor,
         Consumer<ExportException> errorConsumer,
         DebugViewProvider debugViewProvider,
+        VideoCompositorSettings videoCompositorSettings,
         List<Effect> compositionEffects)
         throws VideoFrameProcessingException {
       this.errorConsumer = errorConsumer;
@@ -501,6 +505,7 @@ import org.checkerframework.dataflow.qual.Pure;
               debugViewProvider,
               /* listener= */ thisRef,
               /* listenerExecutor= */ MoreExecutors.directExecutor(),
+              videoCompositorSettings,
               compositionEffects,
               initialTimestampOffsetUs);
     }

@@ -19,6 +19,7 @@ package com.google.android.exoplayer2.transformer;
 import android.content.Context;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.effect.Presentation;
+import com.google.android.exoplayer2.effect.VideoCompositorSettings;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
@@ -47,6 +48,7 @@ import java.util.concurrent.Executor;
         DebugViewProvider debugViewProvider,
         Listener listener,
         Executor listenerExecutor,
+        VideoCompositorSettings videoCompositorSettings,
         List<Effect> compositionEffects,
         long initialTimestampOffsetUs) {
       @Nullable Presentation presentation = null;
@@ -64,6 +66,7 @@ import java.util.concurrent.Executor;
           listener,
           debugViewProvider,
           listenerExecutor,
+          videoCompositorSettings,
           /* renderFramesAutomatically= */ true,
           presentation,
           initialTimestampOffsetUs);
@@ -78,6 +81,7 @@ import java.util.concurrent.Executor;
       Listener listener,
       DebugViewProvider debugViewProvider,
       Executor listenerExecutor,
+      VideoCompositorSettings videoCompositorSettings,
       boolean renderFramesAutomatically,
       @Nullable Presentation presentation,
       long initialTimestampOffsetUs) {
@@ -89,6 +93,7 @@ import java.util.concurrent.Executor;
         listener,
         debugViewProvider,
         listenerExecutor,
+        videoCompositorSettings,
         renderFramesAutomatically,
         presentation,
         initialTimestampOffsetUs);

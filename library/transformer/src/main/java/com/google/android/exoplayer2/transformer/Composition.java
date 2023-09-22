@@ -22,6 +22,7 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.audio.AudioProcessor;
+import com.google.android.exoplayer2.effect.VideoCompositorSettings;
 import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.lang.annotation.Documented;
@@ -47,6 +48,7 @@ public final class Composition {
   public static final class Builder {
 
     private ImmutableList<EditedMediaItemSequence> sequences;
+    private VideoCompositorSettings videoCompositorSettings;
     private Effects effects;
     private boolean forceAudioTrack;
     private boolean transmuxAudio;
@@ -73,17 +75,33 @@ public final class Composition {
           !sequences.isEmpty(),
           "The composition must contain at least one EditedMediaItemSequence.");
       this.sequences = ImmutableList.copyOf(sequences);
+      videoCompositorSettings = VideoCompositorSettings.DEFAULT;
       effects = Effects.EMPTY;
     }
 
     /** Creates a new instance to build upon the provided {@link Composition}. */
     private Builder(Composition composition) {
       sequences = composition.sequences;
+      videoCompositorSettings = composition.videoCompositorSettings;
       effects = composition.effects;
       forceAudioTrack = composition.forceAudioTrack;
       transmuxAudio = composition.transmuxAudio;
       transmuxVideo = composition.transmuxVideo;
       hdrMode = composition.hdrMode;
+    }
+
+    /**
+     * Sets the {@link VideoCompositorSettings} to apply to the {@link Composition}.
+     *
+     * <p>The default value is {@link VideoCompositorSettings#DEFAULT}.
+     *
+     * @param videoCompositorSettings The {@link VideoCompositorSettings}.
+     * @return This builder.
+     */
+    @CanIgnoreReturnValue
+    public Builder setVideoCompositorSettings(VideoCompositorSettings videoCompositorSettings) {
+      this.videoCompositorSettings = videoCompositorSettings;
+      return this;
     }
 
     /**
@@ -211,7 +229,13 @@ public final class Composition {
     /** Builds a {@link Composition} instance. */
     public Composition build() {
       return new Composition(
-          sequences, effects, forceAudioTrack, transmuxAudio, transmuxVideo, hdrMode);
+          sequences,
+          videoCompositorSettings,
+          effects,
+          forceAudioTrack,
+          transmuxAudio,
+          transmuxVideo,
+          hdrMode);
     }
 
     /**
@@ -313,6 +337,9 @@ public final class Composition {
    */
   public final ImmutableList<EditedMediaItemSequence> sequences;
 
+  /** The {@link VideoCompositorSettings} to apply to the composition. */
+  public final VideoCompositorSettings videoCompositorSettings;
+
   /** The {@link Effects} to apply to the composition. */
   public final Effects effects;
 
@@ -351,6 +378,7 @@ public final class Composition {
 
   private Composition(
       List<EditedMediaItemSequence> sequences,
+      VideoCompositorSettings videoCompositorSettings,
       Effects effects,
       boolean forceAudioTrack,
       boolean transmuxAudio,
@@ -360,6 +388,7 @@ public final class Composition {
         !transmuxAudio || !forceAudioTrack,
         "Audio transmuxing and audio track forcing are not allowed together.");
     this.sequences = ImmutableList.copyOf(sequences);
+    this.videoCompositorSettings = videoCompositorSettings;
     this.effects = effects;
     this.transmuxAudio = transmuxAudio;
     this.transmuxVideo = transmuxVideo;

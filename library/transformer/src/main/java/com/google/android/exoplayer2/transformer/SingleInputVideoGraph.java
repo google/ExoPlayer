@@ -17,12 +17,14 @@
 package com.google.android.exoplayer2.transformer;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+import static com.google.android.exoplayer2.util.Assertions.checkState;
 import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
 import android.content.Context;
 import androidx.annotation.Nullable;
 import androidx.media3.common.VideoGraph;
 import com.google.android.exoplayer2.effect.Presentation;
+import com.google.android.exoplayer2.effect.VideoCompositorSettings;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.FrameInfo;
@@ -60,6 +62,11 @@ import java.util.concurrent.Executor;
   private boolean released;
   private volatile boolean hasProducedFrameWithTimestampZero;
 
+  /**
+   * Creates an instance.
+   *
+   * <p>{@code videoCompositorSettings} must be {@link VideoCompositorSettings#DEFAULT}.
+   */
   public SingleInputVideoGraph(
       Context context,
       VideoFrameProcessor.Factory videoFrameProcessorFactory,
@@ -68,9 +75,14 @@ import java.util.concurrent.Executor;
       Listener listener,
       DebugViewProvider debugViewProvider,
       Executor listenerExecutor,
+      VideoCompositorSettings videoCompositorSettings,
       boolean renderFramesAutomatically,
       @Nullable Presentation presentation,
       long initialTimestampOffsetUs) {
+    checkState(
+        VideoCompositorSettings.DEFAULT.equals(videoCompositorSettings),
+        "SingleInputVideoGraph does not use VideoCompositor, and therefore cannot apply"
+            + " VideoCompositorSettings");
     this.context = context;
     this.videoFrameProcessorFactory = videoFrameProcessorFactory;
     this.inputColorInfo = inputColorInfo;

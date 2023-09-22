@@ -35,9 +35,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.effect.AlphaScale;
 import com.google.android.exoplayer2.effect.Contrast;
+import com.google.android.exoplayer2.effect.OverlaySettings;
 import com.google.android.exoplayer2.effect.Presentation;
 import com.google.android.exoplayer2.effect.ScaleAndRotateTransformation;
+import com.google.android.exoplayer2.effect.VideoCompositorSettings;
 import com.google.android.exoplayer2.util.Effect;
+import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
 import java.io.IOException;
@@ -49,6 +52,9 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class TransformerMultiSequenceCompositionTest {
 
+  // Bitmaps are generated on a Pixel 6 or 7 Pro instead of an emulator, due to an emulator bug.
+  // TODO: b/301242589 - Fix this test on the crow emulator, and re-generate bitmaps using the crow
+  //  emulator, for consistency with other pixel tests.
   private static final String PNG_ASSET_BASE_PATH =
       "media/bitmap/transformer_multi_sequence_composition_test";
 
@@ -86,7 +92,8 @@ public final class TransformerMultiSequenceCompositionTest {
                             .build()))),
             /* secondSequenceMediaItems= */ ImmutableList.of(
                 editedMediaItemByClippingVideo(
-                    MP4_ASSET_URI_STRING, /* effects= */ ImmutableList.of())));
+                    MP4_ASSET_URI_STRING, /* effects= */ ImmutableList.of())),
+            VideoCompositorSettings.DEFAULT);
 
     ExportTestResult result =
         new TransformerAndroidTestRunner.Builder(context, new Transformer.Builder(context).build())
@@ -125,7 +132,70 @@ public final class TransformerMultiSequenceCompositionTest {
                             .build()))),
             /* secondSequenceMediaItems= */ ImmutableList.of(
                 editedMediaItemOfOneFrameImage(
-                    JPG_ASSET_URI_STRING, /* effects= */ ImmutableList.of())));
+                    JPG_ASSET_URI_STRING, /* effects= */ ImmutableList.of())),
+            VideoCompositorSettings.DEFAULT);
+
+    ExportTestResult result =
+        new TransformerAndroidTestRunner.Builder(context, new Transformer.Builder(context).build())
+            .build()
+            .run(testId, composition);
+
+    assertThat(result.filePath).isNotNull();
+    assertBitmapsMatchExpected(
+        extractBitmapsFromVideo(context, checkNotNull(result.filePath)), testId);
+  }
+
+  @Test
+  public void export_withTwoSequencesWithVideoCompositorSettings_succeeds() throws Exception {
+    String testId = "export_withTwoSequencesWithVideoCompositorSettings_succeeds";
+    if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
+        context,
+        testId,
+        /* inputFormat= */ MP4_ASSET_FORMAT,
+        /* outputFormat= */ MP4_ASSET_FORMAT)) {
+      return;
+    }
+
+    VideoCompositorSettings pictureInPictureVideoCompositorSettings =
+        new VideoCompositorSettings() {
+          @Override
+          public Size getOutputSize(List<Size> inputSizes) {
+            return inputSizes.get(0);
+          }
+
+          @Override
+          public OverlaySettings getOverlaySettings(int inputId, long presentationTimeUs) {
+            if (inputId == 0) {
+              // This tests all OverlaySettings builder variables.
+              return new OverlaySettings.Builder()
+                  .setScale(.25f, .25f)
+                  .setOverlayFrameAnchor(1, -1)
+                  .setBackgroundFrameAnchor(.9f, -.7f)
+                  .build();
+            } else {
+              return new OverlaySettings.Builder().build();
+            }
+          }
+        };
+
+    Composition composition =
+        createComposition(
+            /* compositionEffects= */ ImmutableList.of(
+                new Contrast(0.1f),
+                Presentation.createForWidthAndHeight(
+                    EXPORT_WIDTH, EXPORT_HEIGHT, Presentation.LAYOUT_SCALE_TO_FIT)),
+            /* firstSequenceMediaItems= */ ImmutableList.of(
+                editedMediaItemByClippingVideo(
+                    MP4_ASSET_URI_STRING,
+                    /* effects= */ ImmutableList.of(
+                        new AlphaScale(0.5f),
+                        new ScaleAndRotateTransformation.Builder()
+                            .setRotationDegrees(180)
+                            .build()))),
+            /* secondSequenceMediaItems= */ ImmutableList.of(
+                editedMediaItemByClippingVideo(
+                    MP4_ASSET_URI_STRING, /* effects= */ ImmutableList.of())),
+            pictureInPictureVideoCompositorSettings);
 
     ExportTestResult result =
         new TransformerAndroidTestRunner.Builder(context, new Transformer.Builder(context).build())
@@ -165,7 +235,8 @@ public final class TransformerMultiSequenceCompositionTest {
   private static Composition createComposition(
       List<Effect> compositionEffects,
       List<EditedMediaItem> firstSequenceMediaItems,
-      List<EditedMediaItem> secondSequenceMediaItems) {
+      List<EditedMediaItem> secondSequenceMediaItems,
+      VideoCompositorSettings videoCompositorSettings) {
 
     return new Composition.Builder(
             ImmutableList.of(
@@ -174,6 +245,7 @@ public final class TransformerMultiSequenceCompositionTest {
         .setEffects(
             new Effects(
                 /* audioProcessors= */ ImmutableList.of(), /* videoEffects= */ compositionEffects))
+        .setVideoCompositorSettings(videoCompositorSettings)
         .build();
   }
 
@@ -181,12 +253,11 @@ public final class TransformerMultiSequenceCompositionTest {
       throws IOException {
     for (int i = 0; i < actualBitmaps.size(); i++) {
       Bitmap actualBitmap = actualBitmaps.get(i);
+      maybeSaveTestBitmap(
+          testId, /* bitmapLabel= */ String.valueOf(i), actualBitmap, /* path= */ null);
       String subTestId = testId + "_" + i;
       Bitmap expectedBitmap =
           readBitmap(Util.formatInvariant("%s/%s.png", PNG_ASSET_BASE_PATH, subTestId));
-
-      maybeSaveTestBitmap(
-          testId, /* bitmapLabel= */ String.valueOf(i), actualBitmap, /* path= */ null);
       float averagePixelAbsoluteDifference =
           getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, subTestId);
       assertThat(averagePixelAbsoluteDifference)

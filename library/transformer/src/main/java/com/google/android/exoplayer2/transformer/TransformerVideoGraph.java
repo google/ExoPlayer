@@ -18,6 +18,7 @@ package com.google.android.exoplayer2.transformer;
 
 import android.content.Context;
 import androidx.media3.common.VideoGraph;
+import com.google.android.exoplayer2.effect.VideoCompositorSettings;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
@@ -48,7 +49,10 @@ import java.util.concurrent.Executor;
      * @param debugViewProvider A {@link DebugViewProvider}.
      * @param listener A {@link Listener}.
      * @param listenerExecutor The {@link Executor} on which the {@code listener} is invoked.
+     * @param videoCompositorSettings The {@link VideoCompositorSettings} to apply to the
+     *     composition.
      * @param compositionEffects A list of {@linkplain Effect effects} to apply to the composition.
+     * @param initialTimestampOffsetUs The timestamp offset for the first frame, in microseconds.
      * @return A new instance.
      * @throws VideoFrameProcessingException If a problem occurs while creating the {@link
      *     VideoFrameProcessor}.
@@ -60,6 +64,7 @@ import java.util.concurrent.Executor;
         DebugViewProvider debugViewProvider,
         Listener listener,
         Executor listenerExecutor,
+        VideoCompositorSettings videoCompositorSettings,
         List<Effect> compositionEffects,
         long initialTimestampOffsetUs)
         throws VideoFrameProcessingException;

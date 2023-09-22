@@ -80,6 +80,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         DebugViewProvider debugViewProvider,
         Listener listener,
         Executor listenerExecutor,
+        VideoCompositorSettings videoCompositorSettings,
         List<Effect> compositionEffects,
         long initialTimestampOffsetUs) {
       return new MultipleInputVideoGraph(
@@ -89,6 +90,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           debugViewProvider,
           listener,
           listenerExecutor,
+          videoCompositorSettings,
           compositionEffects,
           initialTimestampOffsetUs);
     }
@@ -107,6 +109,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private final DebugViewProvider debugViewProvider;
   private final Listener listener;
   private final Executor listenerExecutor;
+  private final VideoCompositorSettings videoCompositorSettings;
   private final List<Effect> compositionEffects;
   private final List<VideoFrameProcessingWrapper> preProcessingWrappers;
 
@@ -136,6 +139,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       DebugViewProvider debugViewProvider,
       Listener listener,
       Executor listenerExecutor,
+      VideoCompositorSettings videoCompositorSettings,
       List<Effect> compositionEffects,
       long initialTimestampOffsetUs) {
     this.context = context;
@@ -144,6 +148,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.debugViewProvider = debugViewProvider;
     this.listener = listener;
     this.listenerExecutor = listenerExecutor;
+    this.videoCompositorSettings = videoCompositorSettings;
     this.compositionEffects = new ArrayList<>(compositionEffects);
     this.initialTimestampOffsetUs = initialTimestampOffsetUs;
     lastRenderedPresentationTimeUs = C.TIME_UNSET;
@@ -227,7 +232,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         new DefaultVideoCompositor(
             context,
             glObjectsProvider,
-            VideoCompositorSettings.DEFAULT,
+            videoCompositorSettings,
             sharedExecutorService,
             new VideoCompositor.Listener() {
               // All of this listener's methods are called on the sharedExecutorService.
