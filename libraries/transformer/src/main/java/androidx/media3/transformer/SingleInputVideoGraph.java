@@ -28,52 +28,13 @@ import androidx.media3.common.FrameInfo;
 import androidx.media3.common.SurfaceInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
+import androidx.media3.common.VideoGraph;
 import androidx.media3.effect.Presentation;
 import java.util.List;
 import java.util.concurrent.Executor;
 
 /** A {@link VideoGraph} that handles one input stream. */
-/* package */ final class SingleInputVideoGraph implements VideoGraph {
-
-  /** A factory for creating a {@link SingleInputVideoGraph}. */
-  public static final class Factory implements VideoGraph.Factory {
-
-    private final VideoFrameProcessor.Factory videoFrameProcessorFactory;
-
-    public Factory(VideoFrameProcessor.Factory videoFrameProcessorFactory) {
-      this.videoFrameProcessorFactory = videoFrameProcessorFactory;
-    }
-
-    @Override
-    public VideoGraph create(
-        Context context,
-        ColorInfo inputColorInfo,
-        ColorInfo outputColorInfo,
-        DebugViewProvider debugViewProvider,
-        Listener listener,
-        Executor listenerExecutor,
-        List<Effect> compositionEffects,
-        long initialTimestampOffsetUs) {
-      @Nullable Presentation presentation = null;
-      for (int i = 0; i < compositionEffects.size(); i++) {
-        Effect effect = compositionEffects.get(i);
-        if (effect instanceof Presentation) {
-          presentation = (Presentation) effect;
-        }
-      }
-      return new SingleInputVideoGraph(
-          context,
-          videoFrameProcessorFactory,
-          inputColorInfo,
-          outputColorInfo,
-          listener,
-          debugViewProvider,
-          listenerExecutor,
-          /* renderFramesAutomatically= */ true,
-          presentation,
-          initialTimestampOffsetUs);
-    }
-  }
+/* package */ abstract class SingleInputVideoGraph implements VideoGraph {
 
   private final Context context;
   private final VideoFrameProcessor.Factory videoFrameProcessorFactory;
@@ -91,7 +52,7 @@ import java.util.concurrent.Executor;
   private boolean released;
   private volatile boolean hasProducedFrameWithTimestampZero;
 
-  private SingleInputVideoGraph(
+  public SingleInputVideoGraph(
       Context context,
       VideoFrameProcessor.Factory videoFrameProcessorFactory,
       ColorInfo inputColorInfo,
@@ -120,17 +81,7 @@ import java.util.concurrent.Executor;
    * <p>This method must be called at most once.
    */
   @Override
-  public void initialize() {
-    // Initialization is deferred to createInput().
-  }
-
-  /**
-   * {@inheritDoc}
-   *
-   * <p>This method must only be called once.
-   */
-  @Override
-  public GraphInput createInput() throws VideoFrameProcessingException {
+  public void initialize() throws VideoFrameProcessingException {
     checkStateNotNull(videoFrameProcessingWrapper == null && !released);
 
     videoFrameProcessingWrapper =
@@ -177,7 +128,6 @@ import java.util.concurrent.Executor;
             renderFramesAutomatically,
             presentation,
             initialTimestampOffsetUs);
-    return videoFrameProcessingWrapper;
   }
 
   @Override
@@ -201,5 +151,9 @@ import java.util.concurrent.Executor;
       videoFrameProcessingWrapper = null;
     }
     released = true;
+  }
+
+  protected VideoFrameProcessingWrapper getVideoFrameProcessingWrapper() {
+    return checkNotNull(videoFrameProcessingWrapper);
   }
 }

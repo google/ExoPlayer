@@ -42,6 +42,7 @@ import androidx.media3.common.MimeTypes;
 import androidx.media3.common.SurfaceInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
+import androidx.media3.common.VideoGraph;
 import androidx.media3.common.util.Consumer;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
@@ -60,7 +61,7 @@ import org.checkerframework.dataflow.qual.Pure;
 /* package */ final class VideoSampleExporter extends SampleExporter {
 
   private static final String TAG = "VideoSampleExporter";
-  private final VideoGraph videoGraph;
+  private final TransformerVideoGraph videoGraph;
   private final EncoderWrapper encoderWrapper;
   private final DecoderInputBuffer encoderOutputBuffer;
   private final long initialTimestampOffsetUs;
@@ -145,7 +146,7 @@ import org.checkerframework.dataflow.qual.Pure;
               context,
               hasMultipleInputs
                   ? new MultipleInputVideoGraph.Factory()
-                  : new SingleInputVideoGraph.Factory(videoFrameProcessorFactory),
+                  : new TransformerSingleInputVideoGraph.Factory(videoFrameProcessorFactory),
               videoGraphInputColor,
               videoGraphOutputColor,
               errorConsumer,
@@ -464,14 +465,14 @@ import org.checkerframework.dataflow.qual.Pure;
     }
   }
 
-  private final class VideoGraphWrapper implements VideoGraph, VideoGraph.Listener {
+  private final class VideoGraphWrapper implements TransformerVideoGraph, VideoGraph.Listener {
 
-    private final VideoGraph videoGraph;
+    private final TransformerVideoGraph videoGraph;
     private final Consumer<ExportException> errorConsumer;
 
     public VideoGraphWrapper(
         Context context,
-        VideoGraph.Factory videoGraphFactory,
+        TransformerVideoGraph.Factory videoGraphFactory,
         ColorInfo videoFrameProcessorInputColor,
         ColorInfo videoFrameProcessorOutputColor,
         Consumer<ExportException> errorConsumer,

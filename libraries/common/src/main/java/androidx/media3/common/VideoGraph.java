@@ -14,49 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.media3.transformer;
+package androidx.media3.common;
 
-import android.content.Context;
 import androidx.annotation.Nullable;
-import androidx.media3.common.ColorInfo;
-import androidx.media3.common.DebugViewProvider;
-import androidx.media3.common.Effect;
-import androidx.media3.common.SurfaceInfo;
-import androidx.media3.common.VideoFrameProcessingException;
-import androidx.media3.common.VideoFrameProcessor;
-import java.util.List;
-import java.util.concurrent.Executor;
+import androidx.media3.common.util.UnstableApi;
 
 /** Represents a graph for processing decoded video frames. */
-/* package */ interface VideoGraph {
-
-  /** A factory for creating a {@link VideoGraph}. */
-  interface Factory {
-    /**
-     * Creates a new {@link VideoGraph} instance.
-     *
-     * @param context A {@link Context}.
-     * @param inputColorInfo The {@link ColorInfo} for the input frames.
-     * @param outputColorInfo The {@link ColorInfo} for the output frames.
-     * @param debugViewProvider A {@link DebugViewProvider}.
-     * @param listener A {@link Listener}.
-     * @param listenerExecutor The {@link Executor} on which the {@code listener} is invoked.
-     * @param compositionEffects A list of {@linkplain Effect effects} to apply to the composition.
-     * @return A new instance.
-     * @throws VideoFrameProcessingException If a problem occurs while creating the {@link
-     *     VideoFrameProcessor}.
-     */
-    VideoGraph create(
-        Context context,
-        ColorInfo inputColorInfo,
-        ColorInfo outputColorInfo,
-        DebugViewProvider debugViewProvider,
-        Listener listener,
-        Executor listenerExecutor,
-        List<Effect> compositionEffects,
-        long initialTimestampOffsetUs)
-        throws VideoFrameProcessingException;
-  }
+@UnstableApi
+public interface VideoGraph {
 
   /** Listener for video frame processing events. */
   interface Listener {
@@ -88,18 +53,6 @@ import java.util.concurrent.Executor;
    * <p>If the method throws, the caller must call {@link #release}.
    */
   void initialize() throws VideoFrameProcessingException;
-
-  /**
-   * Returns a {@link GraphInput} object to which the {@code VideoGraph} inputs are queued.
-   *
-   * <p>This method must be called after successfully {@linkplain #initialize() initializing} the
-   * {@code VideoGraph}.
-   *
-   * <p>This method must called exactly once for every input stream.
-   *
-   * <p>If the method throws any {@link Exception}, the caller must call {@link #release}.
-   */
-  GraphInput createInput() throws VideoFrameProcessingException;
 
   /**
    * Sets the output surface and supporting information.

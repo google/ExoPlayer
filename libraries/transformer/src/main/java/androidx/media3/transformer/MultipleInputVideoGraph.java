@@ -43,6 +43,7 @@ import androidx.media3.common.GlTextureInfo;
 import androidx.media3.common.SurfaceInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
+import androidx.media3.common.VideoGraph;
 import androidx.media3.common.util.GlUtil;
 import androidx.media3.effect.DefaultGlObjectsProvider;
 import androidx.media3.effect.DefaultVideoCompositor;
@@ -60,10 +61,9 @@ import java.util.concurrent.ExecutorService;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** A {@link VideoGraph} that handles multiple input streams. */
-/* package */ final class MultipleInputVideoGraph implements VideoGraph {
+/* package */ final class MultipleInputVideoGraph implements TransformerVideoGraph {
 
-  public static final class Factory implements VideoGraph.Factory {
-
+  public static final class Factory implements TransformerVideoGraph.Factory {
     @Override
     public MultipleInputVideoGraph create(
         Context context,
