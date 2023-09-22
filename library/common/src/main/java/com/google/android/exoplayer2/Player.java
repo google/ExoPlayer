@@ -3298,6 +3298,9 @@ public interface Player {
    * <p>For devices with {@link DeviceInfo#PLAYBACK_TYPE_REMOTE remote playback}, the volume of the
    * remote device is returned.
    *
+   * <p>Note that this method returns the volume of the device. To check the current stream volume,
+   * use {@link getVolume()}.
+   *
    * <p>This method must only be called if {@link #COMMAND_GET_DEVICE_VOLUME} is {@linkplain
    * #getAvailableCommands() available}.
    */
@@ -3306,6 +3309,9 @@ public interface Player {
 
   /**
    * Gets whether the device is muted or not.
+   *
+   * <p>Note that this method returns the mute state of the device. To check if the current stream
+   * is muted, use {@code getVolume() == 0}.
    *
    * <p>This method must only be called if {@link #COMMAND_GET_DEVICE_VOLUME} is {@linkplain
    * #getAvailableCommands() available}.
@@ -3320,6 +3326,9 @@ public interface Player {
 
   /**
    * Sets the volume of the device with volume flags.
+   *
+   * <p>Note that this method affects the device volume. To change the volume of the current stream
+   * only, use {@link #setVolume}.
    *
    * <p>This method must only be called if {@link #COMMAND_SET_DEVICE_VOLUME_WITH_FLAGS} is
    * {@linkplain #getAvailableCommands() available}.
@@ -3341,6 +3350,9 @@ public interface Player {
    * <p>The {@link #getDeviceVolume()} device volume cannot be increased above {@link
    * DeviceInfo#maxVolume}, if defined.
    *
+   * <p>Note that this method affects the device volume. To change the volume of the current stream
+   * only, use {@link #setVolume}.
+   *
    * <p>This method must only be called if {@link #COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS} is
    * {@linkplain #getAvailableCommands() available}.
    *
@@ -3360,6 +3372,9 @@ public interface Player {
    * <p>The {@link #getDeviceVolume()} device volume cannot be decreased below {@link
    * DeviceInfo#minVolume}.
    *
+   * <p>Note that this method affects the device volume. To change the volume of the current stream
+   * only, use {@link #setVolume}.
+   *
    * <p>This method must only be called if {@link #COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS} is
    * {@linkplain #getAvailableCommands() available}.
    *
@@ -3375,6 +3390,9 @@ public interface Player {
 
   /**
    * Sets the mute state of the device.
+   *
+   * <p>Note that this method affects the device volume. To mute just the current stream, use {@code
+   * setVolume(0)} instead.
    *
    * <p>This method must only be called if {@link #COMMAND_ADJUST_DEVICE_VOLUME_WITH_FLAGS} is
    * {@linkplain #getAvailableCommands() available}.
