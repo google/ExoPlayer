@@ -43,6 +43,8 @@ import androidx.media3.common.Timeline;
 import androidx.media3.common.util.ConditionVariable;
 import androidx.media3.common.util.Consumer;
 import androidx.media3.exoplayer.ExoPlayer;
+import androidx.media3.session.MediaSession.ConnectionResult;
+import androidx.media3.session.MediaSession.ConnectionResult.AcceptedResultBuilder;
 import androidx.media3.test.session.R;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.test.core.app.ApplicationProvider;
@@ -51,6 +53,7 @@ import androidx.test.filters.LargeTest;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -1459,18 +1462,23 @@ public class MediaControllerCompatPlaybackStateCompatActionsWithMediaSessionTest
                 .setIconResId(R.drawable.media3_notification_pause)
                 .setSessionCommand(command2)
                 .build());
-    MediaSession mediaSession = createMediaSession(player, /* callback= */ null, customLayout);
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
+          @Override
+          public ConnectionResult onConnect(
+              MediaSession session, MediaSession.ControllerInfo controller) {
+            return new AcceptedResultBuilder(session)
+                .setAvailableSessionCommands(
+                    ConnectionResult.DEFAULT_SESSION_COMMANDS.buildUpon().add(command1).build())
+                .build();
+          }
+        };
+    MediaSession mediaSession = createMediaSession(player, callback, customLayout);
+    connectMediaNotificationController(mediaSession);
     MediaControllerCompat controllerCompat = createMediaControllerCompat(mediaSession);
 
-    // Wait until a playback state is sent to the controller.
-    PlaybackStateCompat firstPlaybackState =
-        getFirstPlaybackState(controllerCompat, threadTestRule.getHandler());
-
-    assertThat(MediaUtils.convertToCustomLayout(firstPlaybackState))
-        .containsExactly(
-            customLayout.get(0).copyWithIsEnabled(true),
-            customLayout.get(1).copyWithIsEnabled(true))
-        .inOrder();
+    assertThat(MediaUtils.convertToCustomLayout(controllerCompat.getPlaybackState()))
+        .containsExactly(customLayout.get(0).copyWithIsEnabled(true));
     mediaSession.release();
     releasePlayer(player);
   }
@@ -1497,11 +1505,23 @@ public class MediaControllerCompatPlaybackStateCompatActionsWithMediaSessionTest
                 .setIconResId(R.drawable.media3_notification_pause)
                 .setSessionCommand(command2)
                 .build());
-    MediaSession mediaSession = createMediaSession(player);
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
+          @Override
+          public ConnectionResult onConnect(
+              MediaSession session, MediaSession.ControllerInfo controller) {
+            return new ConnectionResult.AcceptedResultBuilder(session)
+                .setAvailableSessionCommands(
+                    ConnectionResult.DEFAULT_SESSION_COMMANDS.buildUpon().add(command1).build())
+                .build();
+          }
+        };
+    MediaSession mediaSession = createMediaSession(player, callback);
+    connectMediaNotificationController(mediaSession);
     MediaControllerCompat controllerCompat = createMediaControllerCompat(mediaSession);
+    ImmutableList<CommandButton> initialCustomLayout =
+        MediaUtils.convertToCustomLayout(controllerCompat.getPlaybackState());
     AtomicReference<List<CommandButton>> reportedCustomLayout = new AtomicReference<>();
-    // Wait until a playback state is sent to the controller.
-    getFirstPlaybackState(controllerCompat, threadTestRule.getHandler());
     CountDownLatch latch = new CountDownLatch(1);
     controllerCompat.registerCallback(
         new MediaControllerCompat.Callback() {
@@ -1516,12 +1536,95 @@ public class MediaControllerCompatPlaybackStateCompatActionsWithMediaSessionTest
     getInstrumentation().runOnMainSync(() -> mediaSession.setCustomLayout(customLayout));
 
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(initialCustomLayout).isEmpty();
     assertThat(reportedCustomLayout.get())
-        .containsExactly(
-            customLayout.get(0).copyWithIsEnabled(true),
-            customLayout.get(1).copyWithIsEnabled(true));
+        .containsExactly(customLayout.get(0).copyWithIsEnabled(true));
     mediaSession.release();
     releasePlayer(player);
+  }
+
+  @Test
+  public void
+      playerWithCustomLayout_setCustomLayoutForMediaNotificationController_playbackStateChangedWithCustomActionsChanged()
+          throws Exception {
+    Player player = createDefaultPlayer();
+    Bundle extras1 = new Bundle();
+    extras1.putString("key1", "value1");
+    Bundle extras2 = new Bundle();
+    extras1.putString("key2", "value2");
+    SessionCommand command1 = new SessionCommand("command1", extras1);
+    SessionCommand command2 = new SessionCommand("command2", extras2);
+    ImmutableList<CommandButton> customLayout =
+        ImmutableList.of(
+            new CommandButton.Builder()
+                .setDisplayName("button1")
+                .setIconResId(R.drawable.media3_notification_play)
+                .setSessionCommand(command1)
+                .build(),
+            new CommandButton.Builder()
+                .setDisplayName("button2")
+                .setIconResId(R.drawable.media3_notification_pause)
+                .setSessionCommand(command2)
+                .build());
+    MediaSession.Callback callback =
+        new MediaSession.Callback() {
+          @Override
+          public ConnectionResult onConnect(
+              MediaSession session, MediaSession.ControllerInfo controller) {
+            return new ConnectionResult.AcceptedResultBuilder(session)
+                .setAvailableSessionCommands(
+                    ConnectionResult.DEFAULT_SESSION_COMMANDS.buildUpon().add(command1).build())
+                .build();
+          }
+        };
+    MediaSession mediaSession = createMediaSession(player, callback);
+    connectMediaNotificationController(mediaSession);
+    MediaControllerCompat controllerCompat = createMediaControllerCompat(mediaSession);
+    ImmutableList<CommandButton> initialCustomLayout =
+        MediaUtils.convertToCustomLayout(controllerCompat.getPlaybackState());
+    AtomicReference<List<CommandButton>> reportedCustomLayout = new AtomicReference<>();
+    CountDownLatch latch = new CountDownLatch(1);
+    controllerCompat.registerCallback(
+        new MediaControllerCompat.Callback() {
+          @Override
+          public void onPlaybackStateChanged(PlaybackStateCompat state) {
+            reportedCustomLayout.set(MediaUtils.convertToCustomLayout(state));
+            latch.countDown();
+          }
+        },
+        threadTestRule.getHandler());
+
+    getInstrumentation()
+        .runOnMainSync(
+            () ->
+                mediaSession.setCustomLayout(
+                    mediaSession.getMediaNotificationControllerInfo(), customLayout));
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(initialCustomLayout).isEmpty();
+    assertThat(reportedCustomLayout.get())
+        .containsExactly(customLayout.get(0).copyWithIsEnabled(true));
+    mediaSession.release();
+    releasePlayer(player);
+  }
+
+  /**
+   * Connect a controller that mimics the media notification controller that is connected by {@link
+   * MediaNotificationManager} when the session is running in the service.
+   */
+  private void connectMediaNotificationController(MediaSession mediaSession)
+      throws InterruptedException {
+    CountDownLatch connectionLatch = new CountDownLatch(1);
+    Bundle connectionHints = new Bundle();
+    connectionHints.putBoolean(MediaNotificationManager.KEY_MEDIA_NOTIFICATION_MANAGER, true);
+    ListenableFuture<MediaController> mediaNotificationControllerFuture =
+        new MediaController.Builder(
+                ApplicationProvider.getApplicationContext(), mediaSession.getToken())
+            .setConnectionHints(connectionHints)
+            .buildAsync();
+    mediaNotificationControllerFuture.addListener(
+        connectionLatch::countDown, MoreExecutors.directExecutor());
+    assertThat(connectionLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
   }
 
   private PlaybackStateCompat getFirstPlaybackState(

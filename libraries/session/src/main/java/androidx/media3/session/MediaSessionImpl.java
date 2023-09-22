@@ -130,6 +130,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   // Should be only accessed on the application looper
   private long sessionPositionUpdateDelayMs;
+  private boolean isMediaNotificationControllerConnected;
   private ImmutableList<CommandButton> customLayout;
 
   public MediaSessionImpl(
@@ -191,10 +192,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     sessionLegacyStub =
         new MediaSessionLegacyStub(/* session= */ thisRef, sessionUri, applicationHandler);
-
-    PlayerWrapper playerWrapper = new PlayerWrapper(player, playIfSuppressed);
+    // For PlayerWrapper, use the same default commands as the proxy controller gets when the app
+    // doesn't overrides the default commands in `onConnect`. When the default is overridden by the
+    // app in `onConnect`, the default set here will be overridden with these values.
+    MediaSession.ConnectionResult connectionResult =
+        new MediaSession.ConnectionResult.AcceptedResultBuilder(instance).build();
+    PlayerWrapper playerWrapper =
+        new PlayerWrapper(
+            player,
+            playIfSuppressed,
+            customLayout,
+            connectionResult.availableSessionCommands,
+            connectionResult.availablePlayerCommands);
     this.playerWrapper = playerWrapper;
-    this.playerWrapper.setCustomLayout(customLayout);
     postOrRun(
         applicationHandler,
         () ->
@@ -212,13 +222,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       return;
     }
     setPlayerInternal(
-        /* oldPlayerWrapper= */ playerWrapper, new PlayerWrapper(player, playIfSuppressed));
+        /* oldPlayerWrapper= */ playerWrapper,
+        new PlayerWrapper(
+            player,
+            playIfSuppressed,
+            playerWrapper.getCustomLayout(),
+            playerWrapper.getAvailableSessionCommands(),
+            playerWrapper.getAvailablePlayerCommands()));
   }
 
   private void setPlayerInternal(
       @Nullable PlayerWrapper oldPlayerWrapper, PlayerWrapper newPlayerWrapper) {
     playerWrapper = newPlayerWrapper;
-    playerWrapper.setCustomLayout(customLayout);
     if (oldPlayerWrapper != null) {
       oldPlayerWrapper.removeListener(checkStateNotNull(this.playerListener));
     }
@@ -295,14 +310,27 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public List<ControllerInfo> getConnectedControllers() {
     List<ControllerInfo> controllers = new ArrayList<>();
     controllers.addAll(sessionStub.getConnectedControllersManager().getConnectedControllers());
-    controllers.addAll(
-        sessionLegacyStub.getConnectedControllersManager().getConnectedControllers());
+    if (isMediaNotificationControllerConnected) {
+      ImmutableList<ControllerInfo> legacyControllers =
+          sessionLegacyStub.getConnectedControllersManager().getConnectedControllers();
+      for (int i = 0; i < legacyControllers.size(); i++) {
+        ControllerInfo legacyController = legacyControllers.get(i);
+        if (!isSystemUiController(legacyController)) {
+          controllers.add(legacyController);
+        }
+      }
+    } else {
+      controllers.addAll(
+          sessionLegacyStub.getConnectedControllersManager().getConnectedControllers());
+    }
     return controllers;
   }
 
   @Nullable
   public ControllerInfo getControllerForCurrentRequest() {
-    return controllerForCurrentRequest;
+    return controllerForCurrentRequest != null
+        ? resolveControllerInfoForCallback(controllerForCurrentRequest)
+        : null;
   }
 
   public boolean isConnected(ControllerInfo controller) {
@@ -372,17 +400,39 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return null;
   }
 
-  public ListenableFuture<SessionResult> setCustomLayout(
-      ControllerInfo controller, List<CommandButton> layout) {
-    return dispatchRemoteControllerTask(
-        controller, (controller1, seq) -> controller1.setCustomLayout(seq, layout));
+  /** Returns whether the media notification controller is connected. */
+  protected boolean isMediaNotificationControllerConnected() {
+    return isMediaNotificationControllerConnected;
   }
 
-  public void setCustomLayout(List<CommandButton> layout) {
-    customLayout = ImmutableList.copyOf(layout);
+  /**
+   * Sets the custom layout for the given {@link MediaController}.
+   *
+   * @param controller The controller.
+   * @param customLayout The custom layout.
+   * @return The session result from the controller.
+   */
+  public ListenableFuture<SessionResult> setCustomLayout(
+      ControllerInfo controller, ImmutableList<CommandButton> customLayout) {
+    if (isMediaNotificationController(controller)) {
+      playerWrapper.setCustomLayout(customLayout);
+      sessionLegacyStub.updateLegacySessionPlaybackStateCompat();
+    }
+    return dispatchRemoteControllerTask(
+        controller, (controller1, seq) -> controller1.setCustomLayout(seq, customLayout));
+  }
+
+  /** Sets the custom layout of the session and sends the custom layout to all controllers. */
+  public void setCustomLayout(ImmutableList<CommandButton> customLayout) {
+    this.customLayout = customLayout;
     playerWrapper.setCustomLayout(customLayout);
     dispatchRemoteControllerTaskWithoutReturn(
-        (controller, seq) -> controller.setCustomLayout(seq, layout));
+        (controller, seq) -> controller.setCustomLayout(seq, customLayout));
+  }
+
+  /** Returns the custom layout. */
+  public ImmutableList<CommandButton> getCustomLayout() {
+    return customLayout;
   }
 
   public void setSessionExtras(Bundle sessionExtras) {
@@ -408,6 +458,18 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   public void setAvailableCommands(
       ControllerInfo controller, SessionCommands sessionCommands, Player.Commands playerCommands) {
     if (sessionStub.getConnectedControllersManager().isConnected(controller)) {
+      if (isMediaNotificationController(controller)) {
+        playerWrapper.setAvailableCommands(sessionCommands, playerCommands);
+        sessionLegacyStub.updateLegacySessionPlaybackStateCompat();
+        ControllerInfo systemUiControllerInfo = getSystemUiControllerInfo();
+        if (systemUiControllerInfo != null) {
+          // Set the available commands of the proxy controller to the ConnectedControllerRecord of
+          // the hidden System UI controller.
+          sessionLegacyStub
+              .getConnectedControllersManager()
+              .updateCommandsFromSession(systemUiControllerInfo, sessionCommands, playerCommands);
+        }
+      }
       sessionStub
           .getConnectedControllersManager()
           .updateCommandsFromSession(controller, sessionCommands, playerCommands);
@@ -482,43 +544,101 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   public MediaSession.ConnectionResult onConnectOnHandler(ControllerInfo controller) {
-    return checkNotNull(
-        callback.onConnect(instance, controller), "Callback.onConnect must return non-null future");
+    if (isMediaNotificationControllerConnected && isSystemUiController(controller)) {
+      // Hide System UI and provide the connection result from the `PlayerWrapper` state.
+      return new MediaSession.ConnectionResult.AcceptedResultBuilder(instance)
+          .setAvailableSessionCommands(playerWrapper.getAvailableSessionCommands())
+          .setAvailablePlayerCommands(playerWrapper.getAvailablePlayerCommands())
+          .setCustomLayout(playerWrapper.getCustomLayout())
+          .build();
+    }
+    MediaSession.ConnectionResult connectionResult =
+        checkNotNull(
+            callback.onConnect(instance, controller),
+            "Callback.onConnect must return non-null future");
+    if (isMediaNotificationController(controller)) {
+      isMediaNotificationControllerConnected = true;
+      playerWrapper.setAvailableCommands(
+          connectionResult.availableSessionCommands, connectionResult.availablePlayerCommands);
+      playerWrapper.setCustomLayout(
+          connectionResult.customLayout != null
+              ? connectionResult.customLayout
+              : instance.getCustomLayout());
+      sessionLegacyStub.updateLegacySessionPlaybackStateCompat();
+    }
+    return connectionResult;
   }
 
   public void onPostConnectOnHandler(ControllerInfo controller) {
+    if (isMediaNotificationControllerConnected && isSystemUiController(controller)) {
+      // Hide System UI. Apps can use the media notification controller to maintain the platform
+      // session
+      return;
+    }
     callback.onPostConnect(instance, controller);
   }
 
   public void onDisconnectedOnHandler(ControllerInfo controller) {
+    if (isMediaNotificationControllerConnected) {
+      if (isSystemUiController(controller)) {
+        // Hide System UI controller. Apps can use the media notification controller to maintain the
+        // platform session.
+        return;
+      } else if (isMediaNotificationController(controller)) {
+        isMediaNotificationControllerConnected = false;
+      }
+    }
     callback.onDisconnected(instance, controller);
   }
 
   @SuppressWarnings("deprecation") // Calling deprecated callback method.
   public @SessionResult.Code int onPlayerCommandRequestOnHandler(
       ControllerInfo controller, @Player.Command int playerCommand) {
-    return callback.onPlayerCommandRequest(instance, controller, playerCommand);
+    return callback.onPlayerCommandRequest(
+        instance, resolveControllerInfoForCallback(controller), playerCommand);
   }
 
   public ListenableFuture<SessionResult> onSetRatingOnHandler(
       ControllerInfo controller, String mediaId, Rating rating) {
     return checkNotNull(
-        callback.onSetRating(instance, controller, mediaId, rating),
+        callback.onSetRating(
+            instance, resolveControllerInfoForCallback(controller), mediaId, rating),
         "Callback.onSetRating must return non-null future");
   }
 
   public ListenableFuture<SessionResult> onSetRatingOnHandler(
       ControllerInfo controller, Rating rating) {
     return checkNotNull(
-        callback.onSetRating(instance, controller, rating),
+        callback.onSetRating(instance, resolveControllerInfoForCallback(controller), rating),
         "Callback.onSetRating must return non-null future");
   }
 
   public ListenableFuture<SessionResult> onCustomCommandOnHandler(
-      ControllerInfo browser, SessionCommand command, Bundle extras) {
+      ControllerInfo controller, SessionCommand command, Bundle extras) {
     return checkNotNull(
-        callback.onCustomCommand(instance, browser, command, extras),
+        callback.onCustomCommand(
+            instance, resolveControllerInfoForCallback(controller), command, extras),
         "Callback.onCustomCommandOnHandler must return non-null future");
+  }
+
+  protected ListenableFuture<List<MediaItem>> onAddMediaItemsOnHandler(
+      ControllerInfo controller, List<MediaItem> mediaItems) {
+    return checkNotNull(
+        callback.onAddMediaItems(
+            instance, resolveControllerInfoForCallback(controller), mediaItems),
+        "Callback.onAddMediaItems must return a non-null future");
+  }
+
+  protected ListenableFuture<MediaItemsWithStartPosition> onSetMediaItemsOnHandler(
+      ControllerInfo controller, List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
+    return checkNotNull(
+        callback.onSetMediaItems(
+            instance,
+            resolveControllerInfoForCallback(controller),
+            mediaItems,
+            startIndex,
+            startPositionMs),
+        "Callback.onSetMediaItems must return a non-null future");
   }
 
   public void connectFromService(
@@ -555,20 +675,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     return applicationHandler;
   }
 
-  protected ListenableFuture<List<MediaItem>> onAddMediaItemsOnHandler(
-      ControllerInfo controller, List<MediaItem> mediaItems) {
-    return checkNotNull(
-        callback.onAddMediaItems(instance, controller, mediaItems),
-        "Callback.onAddMediaItems must return a non-null future");
-  }
-
-  protected ListenableFuture<MediaItemsWithStartPosition> onSetMediaItemsOnHandler(
-      ControllerInfo controller, List<MediaItem> mediaItems, int startIndex, long startPositionMs) {
-    return checkNotNull(
-        callback.onSetMediaItems(instance, controller, mediaItems, startIndex, startPositionMs),
-        "Callback.onSetMediaItems must return a non-null future");
-  }
-
   protected boolean isReleased() {
     synchronized (lock) {
       return closed;
@@ -578,10 +684,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Nullable
   protected PendingIntent getSessionActivity() {
     return sessionActivity;
-  }
-
-  protected ImmutableList<CommandButton> getCustomLayout() {
-    return customLayout;
   }
 
   @UnstableApi
@@ -601,6 +703,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             (controller, seq) -> controller.onSessionActivityChanged(seq, sessionActivity));
       }
     }
+  }
+
+  protected ControllerInfo resolveControllerInfoForCallback(ControllerInfo controller) {
+    return isMediaNotificationControllerConnected && isSystemUiController(controller)
+        ? checkNotNull(getMediaNotificationControllerInfo())
+        : controller;
   }
 
   /**
@@ -693,7 +801,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     @Nullable
     ListenableFuture<MediaItemsWithStartPosition> future =
         checkNotNull(
-            callback.onPlaybackResumption(instance, controller),
+            callback.onPlaybackResumption(instance, resolveControllerInfoForCallback(controller)),
             "Callback.onPlaybackResumption must return a non-null future");
     // Use a direct executor when an immediate future is returned to execute the player setup in the
     // caller's looper event on the application thread.

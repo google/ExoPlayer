@@ -20,6 +20,7 @@ import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_MEDIA_ID
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_USER_RATING;
 import static androidx.media3.common.Player.STATE_ENDED;
 import static androidx.media3.common.Player.STATE_READY;
+import static androidx.media3.test.session.common.MediaSessionConstants.TEST_MEDIA_CONTROLLER_COMPAT_CALLBACK_WITH_MEDIA_SESSION_TEST;
 import static androidx.media3.test.session.common.MediaSessionConstants.TEST_SET_SHOW_PLAY_BUTTON_IF_SUPPRESSED_TO_FALSE;
 import static androidx.media3.test.session.common.TestUtils.LONG_TIMEOUT_MS;
 import static androidx.media3.test.session.common.TestUtils.TIMEOUT_MS;
@@ -78,10 +79,10 @@ import org.junit.runner.RunWith;
 @LargeTest
 public class MediaControllerCompatCallbackWithMediaSessionTest {
 
-  private static final String TAG = "MCCCallbackTestWithMS2";
-  private static final float EPSILON = 1e-6f;
+  private static final String SESSION_ID =
+      TEST_MEDIA_CONTROLLER_COMPAT_CALLBACK_WITH_MEDIA_SESSION_TEST;
 
-  @Rule public final HandlerThreadTestRule threadTestRule = new HandlerThreadTestRule(TAG);
+  @Rule public final HandlerThreadTestRule threadTestRule = new HandlerThreadTestRule(SESSION_ID);
 
   private Context context;
   private TestHandler handler;
@@ -92,7 +93,10 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
   public void setUp() throws Exception {
     context = ApplicationProvider.getApplicationContext();
     handler = threadTestRule.getHandler();
-    session = new RemoteMediaSession(TAG, context, null);
+    Bundle tokenExtras = new Bundle();
+    tokenExtras.putBoolean(
+        MediaSessionProviderService.KEY_ENABLE_FAKE_MEDIA_NOTIFICATION_MANAGER_CONTROLLER, true);
+    session = new RemoteMediaSession(SESSION_ID, context, tokenExtras);
     controllerCompat = new MediaControllerCompat(context, session.getCompatToken());
   }
 
@@ -181,7 +185,7 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
   public void getError_withPlayerErrorAfterConnected_returnsError() throws Exception {
     PlaybackException testPlayerError =
         new PlaybackException(
-            /* messaage= */ "testremote",
+            /* message= */ "testremote",
             /* cause= */ null,
             PlaybackException.ERROR_CODE_REMOTE_ERROR);
     Bundle playerConfig =
@@ -207,7 +211,7 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
   public void playerError_notified() throws Exception {
     PlaybackException testPlayerError =
         new PlaybackException(
-            /* messaage= */ "player error",
+            /* message= */ "player error",
             /* cause= */ null,
             PlaybackException.ERROR_CODE_UNSPECIFIED);
 
@@ -937,53 +941,46 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
 
   @Test
   public void setCustomLayout_onPlaybackStateCompatChangedCalled() throws Exception {
-    List<CommandButton> buttons = new ArrayList<>();
     Bundle extras1 = new Bundle();
     extras1.putString("key", "value-1");
-    CommandButton button1 =
-        new CommandButton.Builder()
-            .setSessionCommand(new SessionCommand("action1", extras1))
-            .setDisplayName("actionName1")
-            .setIconResId(1)
-            .build();
+    SessionCommand command1 = new SessionCommand("command1", extras1);
     Bundle extras2 = new Bundle();
     extras2.putString("key", "value-2");
-    CommandButton button2 =
-        new CommandButton.Builder()
-            .setSessionCommand(new SessionCommand("action2", extras2))
-            .setDisplayName("actionName2")
-            .setIconResId(2)
-            .build();
-    buttons.add(button1);
-    buttons.add(button2);
-    List<String> receivedActions = new ArrayList<>();
-    List<String> receivedDisplayNames = new ArrayList<>();
-    List<String> receivedBundleValues = new ArrayList<>();
-    List<Integer> receivedIconResIds = new ArrayList<>();
-    CountDownLatch latch = new CountDownLatch(1);
+    SessionCommand command2 = new SessionCommand("command2", extras2);
+    ImmutableList<CommandButton> customLayout =
+        ImmutableList.of(
+            new CommandButton.Builder()
+                .setSessionCommand(command1)
+                .setDisplayName("command1")
+                .setIconResId(1)
+                .build()
+                .copyWithIsEnabled(true),
+            new CommandButton.Builder()
+                .setSessionCommand(command2)
+                .setDisplayName("command2")
+                .setIconResId(2)
+                .build()
+                .copyWithIsEnabled(true));
+    List<ImmutableList<CommandButton>> reportedCustomLayouts = new ArrayList<>();
+    CountDownLatch latch1 = new CountDownLatch(2);
     MediaControllerCompat.Callback callback =
         new MediaControllerCompat.Callback() {
           @Override
           public void onPlaybackStateChanged(PlaybackStateCompat state) {
-            List<PlaybackStateCompat.CustomAction> layout = state.getCustomActions();
-            for (PlaybackStateCompat.CustomAction action : layout) {
-              receivedActions.add(action.getAction());
-              receivedDisplayNames.add(String.valueOf(action.getName()));
-              receivedBundleValues.add(action.getExtras().getString("key"));
-              receivedIconResIds.add(action.getIcon());
-            }
-            latch.countDown();
+            reportedCustomLayouts.add(MediaUtils.convertToCustomLayout(state));
+            latch1.countDown();
           }
         };
     controllerCompat.registerCallback(callback, handler);
 
-    session.setCustomLayout(buttons);
+    session.setCustomLayout(customLayout);
+    session.setAvailableCommands(
+        SessionCommands.EMPTY.buildUpon().add(command1).add(command2).build(),
+        Player.Commands.EMPTY);
 
-    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(receivedActions).containsExactly("action1", "action2").inOrder();
-    assertThat(receivedDisplayNames).containsExactly("actionName1", "actionName2").inOrder();
-    assertThat(receivedIconResIds).containsExactly(1, 2).inOrder();
-    assertThat(receivedBundleValues).containsExactly("value-1", "value-2").inOrder();
+    assertThat(latch1.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(reportedCustomLayouts.get(0)).containsExactly(customLayout.get(0));
+    assertThat(reportedCustomLayouts.get(1)).isEqualTo(customLayout);
   }
 
   @Test
@@ -1403,6 +1400,6 @@ public class MediaControllerCompatCallbackWithMediaSessionTest {
       PlaybackStateCompat state, PlaybackException playerError) {
     assertThat(state.getState()).isEqualTo(PlaybackStateCompat.STATE_ERROR);
     assertThat(state.getErrorCode()).isEqualTo(PlaybackStateCompat.ERROR_CODE_UNKNOWN_ERROR);
-    assertThat(state.getErrorMessage()).isEqualTo(playerError.getMessage());
+    assertThat(state.getErrorMessage().toString()).isEqualTo(playerError.getMessage());
   }
 }

@@ -128,6 +128,13 @@ import java.util.concurrent.Future;
 
   public void notifyChildrenChanged(
       ControllerInfo browser, String parentId, int itemCount, @Nullable LibraryParams params) {
+    if (isMediaNotificationControllerConnected() && isMediaNotificationController(browser)) {
+      ControllerInfo systemUiBrowser = getSystemUiControllerInfo();
+      if (systemUiBrowser == null) {
+        return;
+      }
+      browser = systemUiBrowser;
+    }
     dispatchRemoteControllerTaskWithoutReturn(
         browser,
         (callback, seq) -> {
@@ -140,6 +147,13 @@ import java.util.concurrent.Future;
 
   public void notifySearchResultChanged(
       ControllerInfo browser, String query, int itemCount, @Nullable LibraryParams params) {
+    if (isMediaNotificationControllerConnected() && isMediaNotificationController(browser)) {
+      ControllerInfo systemUiBrowser = getSystemUiControllerInfo();
+      if (systemUiBrowser == null) {
+        return;
+      }
+      browser = systemUiBrowser;
+    }
     dispatchRemoteControllerTaskWithoutReturn(
         browser, (callback, seq) -> callback.onSearchResultChanged(seq, query, itemCount, params));
   }
@@ -163,7 +177,7 @@ import java.util.concurrent.Future;
                   params));
     }
     ListenableFuture<LibraryResult<MediaItem>> future =
-        callback.onGetLibraryRoot(instance, browser, params);
+        callback.onGetLibraryRoot(instance, resolveControllerInfoForCallback(browser), params);
     future.addListener(
         () -> {
           @Nullable LibraryResult<MediaItem> result = tryGetFutureResult(future);
@@ -204,7 +218,8 @@ import java.util.concurrent.Future;
                   params));
     }
     ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> future =
-        callback.onGetChildren(instance, browser, parentId, page, pageSize, params);
+        callback.onGetChildren(
+            instance, resolveControllerInfoForCallback(browser), parentId, page, pageSize, params);
     future.addListener(
         () -> {
           @Nullable LibraryResult<ImmutableList<MediaItem>> result = tryGetFutureResult(future);
@@ -220,7 +235,7 @@ import java.util.concurrent.Future;
   public ListenableFuture<LibraryResult<MediaItem>> onGetItemOnHandler(
       ControllerInfo browser, String mediaId) {
     ListenableFuture<LibraryResult<MediaItem>> future =
-        callback.onGetItem(instance, browser, mediaId);
+        callback.onGetItem(instance, resolveControllerInfoForCallback(browser), mediaId);
     future.addListener(
         () -> {
           @Nullable LibraryResult<MediaItem> result = tryGetFutureResult(future);
@@ -251,7 +266,8 @@ import java.util.concurrent.Future;
     // so we explicitly null-check the result to fail early if an app accidentally returns null.
     ListenableFuture<LibraryResult<Void>> future =
         checkNotNull(
-            callback.onSubscribe(instance, browser, parentId, params),
+            callback.onSubscribe(
+                instance, resolveControllerInfoForCallback(browser), parentId, params),
             "onSubscribe must return non-null future");
 
     // When error happens, remove from the subscription list.
@@ -270,7 +286,7 @@ import java.util.concurrent.Future;
   public ListenableFuture<LibraryResult<Void>> onUnsubscribeOnHandler(
       ControllerInfo browser, String parentId) {
     ListenableFuture<LibraryResult<Void>> future =
-        callback.onUnsubscribe(instance, browser, parentId);
+        callback.onUnsubscribe(instance, resolveControllerInfoForCallback(browser), parentId);
 
     future.addListener(
         () -> removeSubscription(checkStateNotNull(browser.getControllerCb()), parentId),
@@ -282,7 +298,7 @@ import java.util.concurrent.Future;
   public ListenableFuture<LibraryResult<Void>> onSearchOnHandler(
       ControllerInfo browser, String query, @Nullable LibraryParams params) {
     ListenableFuture<LibraryResult<Void>> future =
-        callback.onSearch(instance, browser, query, params);
+        callback.onSearch(instance, resolveControllerInfoForCallback(browser), query, params);
     future.addListener(
         () -> {
           @Nullable LibraryResult<Void> result = tryGetFutureResult(future);
@@ -301,7 +317,8 @@ import java.util.concurrent.Future;
       int pageSize,
       @Nullable LibraryParams params) {
     ListenableFuture<LibraryResult<ImmutableList<MediaItem>>> future =
-        callback.onGetSearchResult(instance, browser, query, page, pageSize, params);
+        callback.onGetSearchResult(
+            instance, resolveControllerInfoForCallback(browser), query, page, pageSize, params);
     future.addListener(
         () -> {
           @Nullable LibraryResult<ImmutableList<MediaItem>> result = tryGetFutureResult(future);
@@ -410,6 +427,10 @@ import java.util.concurrent.Future;
           ControllerInfo controller, @Nullable LibraryParams params) {
     SettableFuture<LibraryResult<ImmutableList<MediaItem>>> settableFuture =
         SettableFuture.create();
+    controller =
+        isMediaNotificationControllerConnected()
+            ? checkNotNull(getMediaNotificationControllerInfo())
+            : controller;
     ListenableFuture<MediaSession.MediaItemsWithStartPosition> future =
         callback.onPlaybackResumption(instance, controller);
     Futures.addCallback(

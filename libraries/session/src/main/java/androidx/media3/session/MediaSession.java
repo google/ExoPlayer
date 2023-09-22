@@ -32,7 +32,6 @@ import android.os.Looper;
 import android.os.RemoteException;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.KeyEvent;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
@@ -775,9 +774,7 @@ public class MediaSession {
   /**
    * Returns whether the given media controller info belongs to the media notification controller.
    *
-   * <p>Use this method for instance in {@link Callback#onConnect(MediaSession, ControllerInfo)} to
-   * recognize the media notification controller and provide a {@link ConnectionResult} with a
-   * custom layout specific for this controller.
+   * <p>See {@link #getMediaNotificationControllerInfo()}.
    *
    * @param controllerInfo The controller info.
    * @return Whether the controller info belongs to the media notification controller.
@@ -792,8 +789,28 @@ public class MediaSession {
    *
    * <p>Use this controller info to set {@linkplain #setAvailableCommands(ControllerInfo,
    * SessionCommands, Player.Commands) available commands} and {@linkplain
-   * #setCustomLayout(ControllerInfo, List) custom layout} that are applied to the media
-   * notification.
+   * #setCustomLayout(ControllerInfo, List) custom layout} that are consistently applied to the
+   * media notification on all API levels.
+   *
+   * <p>Available {@linkplain SessionCommands session commands} of the media notification controller
+   * are used to enable or disable buttons of the custom layout before it is passed to the
+   * {@linkplain MediaNotification.Provider#createNotification(MediaSession, ImmutableList,
+   * MediaNotification.ActionFactory, MediaNotification.Provider.Callback) notification provider}.
+   * Disabled command buttons are not converted to notification actions when using {@link
+   * DefaultMediaNotificationProvider}. This affects the media notification displayed by System UI
+   * below API 33.
+   *
+   * <p>The available session commands of the media notification controller are used to maintain
+   * custom actions of the platform session (see {@code PlaybackStateCompat.getCustomActions()}).
+   * Command buttons of the custom layout are disabled or enabled according to the available session
+   * commands. Disabled command buttons are not converted to custom actions of the platform session.
+   * This affects the media notification displayed by System UI <a
+   * href="https://developer.android.com/about/versions/13/behavior-changes-13#playback-controls">starting
+   * with API 33</a>.
+   *
+   * <p>The available {@linkplain Player.Commands player commands} are intersected with the actual
+   * available commands of the underlying player to determine the playback actions of the platform
+   * session (see {@code PlaybackStateCompat.getActions()}).
    */
   @UnstableApi
   @Nullable
@@ -815,7 +832,8 @@ public class MediaSession {
    * <p>On the controller side, {@link
    * MediaController.Listener#onCustomLayoutChanged(MediaController, List)} is only called if the
    * new custom layout is different to the custom layout the {@link
-   * MediaController#getCustomLayout() controller already has available}.
+   * MediaController#getCustomLayout() controller already has available}. Note that this comparison
+   * uses {@link CommandButton#equals} and therefore ignores {@link CommandButton#extras}.
    *
    * <p>It's up to controller's decision how to represent the layout in its own UI.
    *
@@ -836,22 +854,17 @@ public class MediaSession {
   /**
    * Sets the custom layout that can initially be set when building the session.
    *
-   * <p>Calling this method broadcasts the custom layout to all connected Media3 controllers and
-   * converts the {@linkplain CommandButton command buttons} to {@linkplain
-   * PlaybackStateCompat.CustomAction custom actions of the playback state} of the platform media
-   * session (see {@code
-   * PlaybackStateCompat.Builder#addCustomAction(PlaybackStateCompat.CustomAction)}). The {@link
-   * CommandButton#isEnabled} flag is set according to the available commands of the controller and
-   * overrides a value that has been set by the app. The platform media session won't see any
-   * commands that are disabled.
+   * <p>Calling this method broadcasts the custom layout to all connected Media3 controllers,
+   * including the {@linkplain #getMediaNotificationControllerInfo() media notification controller}.
    *
-   * <p>On the controller side, {@link
-   * MediaController.Listener#onCustomLayoutChanged(MediaController, List)} is only called if the
-   * new custom layout is different to the custom layout the {@linkplain
-   * MediaController#getCustomLayout() controller already has available}.
+   * <p>On the controller side, the {@linkplain CommandButton#isEnabled enabled} flag is set
+   * according to the available commands of the controller which overrides a value that has been set
+   * by the session.
    *
-   * <p>When converting, the {@linkplain SessionCommand#customExtras custom extras of the session
-   * command} is used for the extras of the legacy custom action.
+   * <p>{@link MediaController.Listener#onCustomLayoutChanged(MediaController, List)} is only called
+   * if the new custom layout is different to the custom layout the {@linkplain
+   * MediaController#getCustomLayout() controller already has available}. Note that {@link Bundle
+   * extras} are ignored when comparing {@linkplain CommandButton command buttons}.
    *
    * <p>Controllers that connect after calling this method will have the new custom layout available
    * with the initial connection result. A custom layout specific to a controller can be set when

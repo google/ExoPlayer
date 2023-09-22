@@ -157,6 +157,7 @@ public final class SessionCommand implements Bundleable {
     customExtras = new Bundle(checkNotNull(extras));
   }
 
+  /** Checks the given session command for equality while ignoring extras. */
   @Override
   public boolean equals(@Nullable Object obj) {
     if (!(obj instanceof SessionCommand)) {

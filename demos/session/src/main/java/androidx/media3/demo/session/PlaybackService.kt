@@ -33,7 +33,6 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DataSourceBitmapLoader
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.*
-import androidx.media3.session.LibraryResult.RESULT_ERROR_NOT_SUPPORTED
 import androidx.media3.session.MediaSession.ConnectionResult
 import androidx.media3.session.MediaSession.ControllerInfo
 import com.google.common.collect.ImmutableList
@@ -45,7 +44,7 @@ class PlaybackService : MediaLibraryService() {
 
   private lateinit var player: ExoPlayer
   private lateinit var mediaLibrarySession: MediaLibrarySession
-  private lateinit var customCommands: List<CommandButton>
+  private lateinit var customLayoutCommandButtons: List<CommandButton>
 
   companion object {
     private const val CUSTOM_COMMAND_TOGGLE_SHUFFLE_MODE_ON =
@@ -60,7 +59,7 @@ class PlaybackService : MediaLibraryService() {
   @OptIn(UnstableApi::class) // MediaSessionService.setListener
   override fun onCreate() {
     super.onCreate()
-    customCommands =
+    customLayoutCommandButtons =
       listOf(
         getShuffleCommandButton(
           SessionCommand(CUSTOM_COMMAND_TOGGLE_SHUFFLE_MODE_ON, Bundle.EMPTY)
@@ -100,33 +99,47 @@ class PlaybackService : MediaLibraryService() {
     // ConnectionResult.AcceptedResultBuilder
     @OptIn(UnstableApi::class)
     override fun onConnect(session: MediaSession, controller: ControllerInfo): ConnectionResult {
-      val availableSessionCommands =
-        ConnectionResult.DEFAULT_SESSION_AND_LIBRARY_COMMANDS.buildUpon()
-      for (commandButton in customCommands) {
-        // Add custom command to available session commands.
-        commandButton.sessionCommand?.let { availableSessionCommands.add(it) }
+      if (session.isMediaNotificationController(controller)) {
+        // Set the required available session commands and the custom layout for the notification
+        // on all API levels.
+        val availableSessionCommands =
+          ConnectionResult.DEFAULT_SESSION_AND_LIBRARY_COMMANDS.buildUpon()
+        // Add the session commands of all command buttons.
+        customLayoutCommandButtons.forEach { commandButton ->
+          commandButton.sessionCommand?.let { availableSessionCommands.add(it) }
+        }
+        // Select the buttons to display.
+        val customLayout =
+          ImmutableList.of(customLayoutCommandButtons[if (player.shuffleModeEnabled) 1 else 0])
+        return ConnectionResult.AcceptedResultBuilder(session)
+          .setAvailableSessionCommands(availableSessionCommands.build())
+          .setCustomLayout(customLayout)
+          .build()
       }
-      return ConnectionResult.AcceptedResultBuilder(session)
-        .setAvailableSessionCommands(availableSessionCommands.build())
-        .build()
+      // Default commands without custom layout for common controllers.
+      return ConnectionResult.AcceptedResultBuilder(session).build()
     }
 
+    @OptIn(UnstableApi::class) // MediaSession.isMediaNotificationController
     override fun onCustomCommand(
       session: MediaSession,
       controller: ControllerInfo,
       customCommand: SessionCommand,
       args: Bundle
     ): ListenableFuture<SessionResult> {
+      if (!session.isMediaNotificationController(controller)) {
+        return Futures.immediateFuture(SessionResult(SessionResult.RESULT_ERROR_NOT_SUPPORTED))
+      }
       if (CUSTOM_COMMAND_TOGGLE_SHUFFLE_MODE_ON == customCommand.customAction) {
         // Enable shuffling.
         player.shuffleModeEnabled = true
         // Change the custom layout to contain the `Disable shuffling` command.
-        session.setCustomLayout(ImmutableList.of(customCommands[1]))
+        session.setCustomLayout(controller, ImmutableList.of(customLayoutCommandButtons[1]))
       } else if (CUSTOM_COMMAND_TOGGLE_SHUFFLE_MODE_OFF == customCommand.customAction) {
         // Disable shuffling.
         player.shuffleModeEnabled = false
         // Change the custom layout to contain the `Enable shuffling` command.
-        session.setCustomLayout(ImmutableList.of(customCommands[0]))
+        session.setCustomLayout(controller, ImmutableList.of(customLayoutCommandButtons[0]))
       }
       return Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
     }
@@ -136,12 +149,6 @@ class PlaybackService : MediaLibraryService() {
       browser: ControllerInfo,
       params: LibraryParams?
     ): ListenableFuture<LibraryResult<MediaItem>> {
-      if (params != null && params.isRecent) {
-        // The service currently does not support playback resumption. Tell System UI by returning
-        // an error of type 'RESULT_ERROR_NOT_SUPPORTED' for a `params.isRecent` request. See
-        // https://github.com/androidx/media/issues/355
-        return Futures.immediateFuture(LibraryResult.ofError(RESULT_ERROR_NOT_SUPPORTED))
-      }
       return Futures.immediateFuture(LibraryResult.ofItem(MediaItemTree.getRootItem(), params))
     }
 
@@ -234,7 +241,6 @@ class PlaybackService : MediaLibraryService() {
     mediaLibrarySession =
       MediaLibrarySession.Builder(this, player, librarySessionCallback)
         .setSessionActivity(getSingleTopActivity())
-        .setCustomLayout(ImmutableList.of(customCommands[0]))
         .setBitmapLoader(CacheBitmapLoader(DataSourceBitmapLoader(/* context= */ this)))
         .build()
   }
@@ -268,10 +274,6 @@ class PlaybackService : MediaLibraryService() {
       .setSessionCommand(sessionCommand)
       .setIconResId(if (isOn) R.drawable.exo_icon_shuffle_off else R.drawable.exo_icon_shuffle_on)
       .build()
-  }
-
-  private fun ignoreFuture(customLayout: ListenableFuture<SessionResult>) {
-    /* Do nothing. */
   }
 
   @OptIn(UnstableApi::class) // MediaSessionService.Listener

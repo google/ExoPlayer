@@ -45,6 +45,7 @@ dependencies {
     implementation 'androidx.test:core:' + androidxTestCoreVersion
     implementation project(modulePrefix + 'test-data')
     androidTestImplementation project(modulePrefix + 'lib-exoplayer')
+    androidTestImplementation project(modulePrefix + 'test-utils')
     androidTestImplementation 'androidx.test.ext:junit:' + androidxTestJUnitVersion
     androidTestImplementation 'androidx.test.ext:truth:' + androidxTestTruthVersion
     androidTestImplementation 'androidx.test:core:' + androidxTestCoreVersion

@@ -823,6 +823,15 @@ import org.checkerframework.checker.initialization.qual.Initialized;
     connectionTimeoutMs = timeoutMs;
   }
 
+  public void updateLegacySessionPlaybackStateCompat() {
+    postOrRun(
+        sessionImpl.getApplicationHandler(),
+        () ->
+            sessionImpl
+                .getSessionCompat()
+                .setPlaybackState(sessionImpl.getPlayerWrapper().createPlaybackStateCompat()));
+  }
+
   private void handleMediaRequest(MediaItem mediaItem, boolean play) {
     dispatchSessionTaskWithPlayerCommand(
         COMMAND_SET_MEDIA_ITEM,
@@ -1081,16 +1090,12 @@ import org.checkerframework.checker.initialization.qual.Initialized;
 
     @Override
     public void onPlayerError(int seq, @Nullable PlaybackException playerError) {
-      sessionImpl
-          .getSessionCompat()
-          .setPlaybackState(sessionImpl.getPlayerWrapper().createPlaybackStateCompat());
+      updateLegacySessionPlaybackStateCompat();
     }
 
     @Override
     public void setCustomLayout(int seq, List<CommandButton> layout) {
-      sessionImpl
-          .getSessionCompat()
-          .setPlaybackState(sessionImpl.getPlayerWrapper().createPlaybackStateCompat());
+      updateLegacySessionPlaybackStateCompat();
     }
 
     @Override

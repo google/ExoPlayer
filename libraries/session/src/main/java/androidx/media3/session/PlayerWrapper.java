@@ -21,6 +21,7 @@ import static androidx.media3.common.util.Util.msToUs;
 import static androidx.media3.common.util.Util.postOrRun;
 import static androidx.media3.session.MediaConstants.EXTRAS_KEY_MEDIA_ID_COMPAT;
 import static androidx.media3.session.MediaConstants.EXTRAS_KEY_PLAYBACK_SPEED_COMPAT;
+import static androidx.media3.session.MediaUtils.intersect;
 
 import android.media.AudioManager;
 import android.os.Bundle;
@@ -70,12 +71,43 @@ import java.util.List;
   @Nullable private String legacyErrorMessage;
   @Nullable private Bundle legacyErrorExtras;
   private ImmutableList<CommandButton> customLayout;
+  private SessionCommands availableSessionCommands;
+  private Commands availablePlayerCommands;
 
-  public PlayerWrapper(Player player, boolean playIfSuppressed) {
+  public PlayerWrapper(
+      Player player,
+      boolean playIfSuppressed,
+      ImmutableList<CommandButton> customLayout,
+      SessionCommands availableSessionCommands,
+      Commands availablePlayerCommands) {
     super(player);
     this.playIfSuppressed = playIfSuppressed;
+    this.customLayout = customLayout;
+    this.availableSessionCommands = availableSessionCommands;
+    this.availablePlayerCommands = availablePlayerCommands;
     legacyStatusCode = STATUS_CODE_SUCCESS_COMPAT;
-    customLayout = ImmutableList.of();
+  }
+
+  public void setAvailableCommands(
+      SessionCommands availableSessionCommands, Commands availablePlayerCommands) {
+    this.availableSessionCommands = availableSessionCommands;
+    this.availablePlayerCommands = availablePlayerCommands;
+  }
+
+  public SessionCommands getAvailableSessionCommands() {
+    return availableSessionCommands;
+  }
+
+  public Commands getAvailablePlayerCommands() {
+    return availablePlayerCommands;
+  }
+
+  public void setCustomLayout(ImmutableList<CommandButton> customLayout) {
+    this.customLayout = customLayout;
+  }
+
+  /* package */ ImmutableList<CommandButton> getCustomLayout() {
+    return customLayout;
   }
 
   /**
@@ -102,11 +134,6 @@ import java.util.List;
   /** Returns the legacy status code. */
   public int getLegacyStatusCode() {
     return legacyStatusCode;
-  }
-
-  /** Sets the custom layout. */
-  public void setCustomLayout(ImmutableList<CommandButton> customLayout) {
-    this.customLayout = customLayout;
   }
 
   /** Clears the legacy error status. */
@@ -974,7 +1001,7 @@ import java.util.List;
     int state = MediaUtils.convertToPlaybackStateCompatState(/* player= */ this, playIfSuppressed);
     // Always advertise ACTION_SET_RATING.
     long actions = PlaybackStateCompat.ACTION_SET_RATING;
-    Commands availableCommands = getAvailableCommands();
+    Commands availableCommands = intersect(availablePlayerCommands, getAvailableCommands());
     for (int i = 0; i < availableCommands.size(); i++) {
       actions |= convertCommandToPlaybackStateActions(availableCommands.get(i));
     }
@@ -1006,7 +1033,9 @@ import java.util.List;
       CommandButton commandButton = customLayout.get(i);
       if (commandButton.sessionCommand != null) {
         SessionCommand sessionCommand = commandButton.sessionCommand;
-        if (sessionCommand.commandCode == SessionCommand.COMMAND_CODE_CUSTOM) {
+        if (sessionCommand.commandCode == SessionCommand.COMMAND_CODE_CUSTOM
+            && CommandButton.isEnabled(
+                commandButton, availableSessionCommands, availablePlayerCommands)) {
           builder.addCustomAction(
               new PlaybackStateCompat.CustomAction.Builder(
                       sessionCommand.customAction,

@@ -215,6 +215,7 @@ public final class CommandButton implements Bundleable {
         sessionCommand, playerCommand, iconResId, displayName, new Bundle(extras), isEnabled);
   }
 
+  /** Checks the given command button for equality while ignoring {@link #extras}. */
   @Override
   public boolean equals(@Nullable Object obj) {
     if (this == obj) {

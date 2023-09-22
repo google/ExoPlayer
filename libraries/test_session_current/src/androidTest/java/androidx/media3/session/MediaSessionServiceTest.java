@@ -27,18 +27,24 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.Player;
 import androidx.media3.common.util.ConditionVariable;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.session.MediaSession.ControllerInfo;
+import androidx.media3.test.session.R;
 import androidx.media3.test.session.common.HandlerThreadTestRule;
 import androidx.media3.test.session.common.MainLooperTestRule;
+import androidx.media3.test.session.common.TestHandler;
 import androidx.media3.test.session.common.TestUtils;
+import androidx.media3.test.utils.TestExoPlayerBuilder;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
@@ -143,6 +149,100 @@ public class MediaSessionServiceTest {
     mediaItemsAdded.block(TIMEOUT_MS);
     assertThat(controllerBoundWhenMediaItemsAdded.get()).isEqualTo(true);
     service.blockUntilAllControllersUnbind(TIMEOUT_MS);
+  }
+
+  @Test
+  public void onCreate_mediaNotificationManagerController_correctSessionStateFromOnConnect()
+      throws Exception {
+    SessionCommand command1 = new SessionCommand("command1", Bundle.EMPTY);
+    SessionCommand command2 = new SessionCommand("command2", Bundle.EMPTY);
+    SessionCommand command3 = new SessionCommand("command3", Bundle.EMPTY);
+    CommandButton button1 =
+        new CommandButton.Builder()
+            .setDisplayName("button1")
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setSessionCommand(command1)
+            .build();
+    CommandButton button2 =
+        new CommandButton.Builder()
+            .setDisplayName("button2")
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setSessionCommand(command2)
+            .build();
+    CommandButton button3 =
+        new CommandButton.Builder()
+            .setDisplayName("button3")
+            .setIconResId(R.drawable.media3_notification_small_icon)
+            .setSessionCommand(command3)
+            .build();
+    Bundle testHints = new Bundle();
+    testHints.putString("test_key", "test_value");
+    List<ControllerInfo> controllerInfoList = new ArrayList<>();
+    CountDownLatch latch = new CountDownLatch(2);
+    TestHandler handler = new TestHandler(Looper.getMainLooper());
+    ExoPlayer player =
+        handler.postAndSync(
+            () -> {
+              ExoPlayer exoPlayer = new TestExoPlayerBuilder(context).build();
+              exoPlayer.setMediaItem(MediaItem.fromUri("asset:///media/mp4/sample.mp4"));
+              exoPlayer.prepare();
+              return exoPlayer;
+            });
+    MediaSession mediaSession =
+        new MediaSession.Builder(ApplicationProvider.getApplicationContext(), player)
+            .setCustomLayout(Lists.newArrayList(button1, button2))
+            .setCallback(
+                new MediaSession.Callback() {
+                  @Override
+                  public MediaSession.ConnectionResult onConnect(
+                      MediaSession session, ControllerInfo controller) {
+                    controllerInfoList.add(controller);
+                    if (session.isMediaNotificationController(controller)) {
+                      latch.countDown();
+                      return new MediaSession.ConnectionResult.AcceptedResultBuilder(session)
+                          .setAvailableSessionCommands(
+                              SessionCommands.EMPTY.buildUpon().add(command1).add(command3).build())
+                          .setAvailablePlayerCommands(Player.Commands.EMPTY)
+                          .setCustomLayout(ImmutableList.of(button1, button3))
+                          .build();
+                    }
+                    latch.countDown();
+                    return new MediaSession.ConnectionResult.AcceptedResultBuilder(session).build();
+                  }
+                })
+            .build();
+    TestServiceRegistry.getInstance().setOnGetSessionHandler(controllerInfo -> mediaSession);
+    MediaControllerCompat mediaControllerCompat =
+        new MediaControllerCompat(
+            ApplicationProvider.getApplicationContext(), mediaSession.getSessionCompat());
+    ImmutableList<CommandButton> initialCustomLayoutInControllerCompat =
+        MediaUtils.convertToCustomLayout(mediaControllerCompat.getPlaybackState());
+
+    // Start the service by creating a remote controller.
+    RemoteMediaController remoteController =
+        controllerTestRule.createRemoteController(token, /* waitForConnection= */ true, testHints);
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(
+            controllerInfoList
+                .get(0)
+                .getConnectionHints()
+                .getBoolean(
+                    MediaNotificationManager.KEY_MEDIA_NOTIFICATION_MANAGER,
+                    /* defaultValue= */ false))
+        .isTrue();
+    assertThat(TestUtils.equals(controllerInfoList.get(1).getConnectionHints(), testHints))
+        .isTrue();
+    assertThat(mediaControllerCompat.getPlaybackState().getActions())
+        .isEqualTo(PlaybackStateCompat.ACTION_SET_RATING);
+    assertThat(remoteController.getCustomLayout()).containsExactly(button1, button2).inOrder();
+    assertThat(initialCustomLayoutInControllerCompat).isEmpty();
+    assertThat(MediaUtils.convertToCustomLayout(mediaControllerCompat.getPlaybackState()))
+        .containsExactly(button1.copyWithIsEnabled(true), button3.copyWithIsEnabled(true))
+        .inOrder();
+    mediaSession.release();
+    ((MockMediaSessionService) TestServiceRegistry.getInstance().getServiceInstance())
+        .blockUntilAllControllersUnbind(TIMEOUT_MS);
   }
 
   /**

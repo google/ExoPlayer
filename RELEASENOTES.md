@@ -67,6 +67,9 @@
         `android.media.session.MediaSession.setMediaButtonBroadcastReceiver()`
         above API 31 to avoid problems with deprecated API on Samsung devices
         ([#167](https://github.com/androidx/media/issues/167)).
+    *   Use the media notification controller as proxy to set available commands
+        and custom layout used to populate the notification and the platform
+        session.
 *   UI:
 *   Downloads:
 *   OkHttp Extension:
