@@ -43,6 +43,7 @@ import com.google.common.primitives.Bytes;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -411,6 +412,16 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
   @Override
   public @C.CryptoType int getCryptoType() {
     return FakeCryptoConfig.TYPE;
+  }
+
+  @Override
+  public void removeOfflineLicense(byte[] keySetId) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public List<byte[]> getOfflineLicenseKeySetIds() {
+    return Collections.emptyList();
   }
 
   // Methods to facilitate testing

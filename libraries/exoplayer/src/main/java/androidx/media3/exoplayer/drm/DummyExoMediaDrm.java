@@ -24,6 +24,7 @@ import androidx.media3.common.DrmInitData;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.decoder.CryptoConfig;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -155,5 +156,16 @@ public final class DummyExoMediaDrm implements ExoMediaDrm {
   @Override
   public @C.CryptoType int getCryptoType() {
     return C.CRYPTO_TYPE_UNSUPPORTED;
+  }
+
+  @Override
+  public void removeOfflineLicense(byte[] keySetId) {
+    // Should not be invoked. No session should exist.
+    throw new IllegalStateException();
+  }
+
+  @Override
+  public List<byte[]> getOfflineLicenseKeySetIds() {
+    return Collections.emptyList();
   }
 }

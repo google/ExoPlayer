@@ -583,4 +583,19 @@ public interface ExoMediaDrm {
    */
   @C.CryptoType
   int getCryptoType();
+
+  /**
+   * Removes an offline license.
+   * This method is generally not needed, and should only be used if the preferred approach of passing {@link MediaDrm#KEY_TYPE_RELEASE} to {@link #getKeyRequest} is not possible.
+   *
+   * See {@link MediaDrm#removeOfflineLicense(byte[])} for more details.
+   */
+  void removeOfflineLicense(byte[] keySetId);
+
+  /**
+   * This method returns a list of the keySetIds for all offline licenses.
+   *
+   * See {@link MediaDrm#getOfflineLicenseKeySetIds()} for more details.
+   */
+  List<byte[]> getOfflineLicenseKeySetIds();
 }
