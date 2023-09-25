@@ -40,6 +40,7 @@ import androidx.media3.common.VideoSize;
 import androidx.media3.common.util.LongArrayQueue;
 import androidx.media3.common.util.Size;
 import androidx.media3.common.util.TimedValueQueue;
+import androidx.media3.common.util.TimestampIterator;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import java.lang.reflect.Constructor;
@@ -347,7 +348,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     @Override
-    public boolean queueBitmap(Bitmap inputBitmap, long durationUs, float frameRate) {
+    public boolean queueBitmap(Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs) {
       throw new UnsupportedOperationException();
     }
 
