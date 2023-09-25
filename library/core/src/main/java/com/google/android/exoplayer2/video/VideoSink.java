@@ -23,6 +23,7 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.util.TimestampIterator;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -180,13 +181,12 @@ import java.util.concurrent.Executor;
    * Provides an input {@link Bitmap} to the video sink.
    *
    * @param inputBitmap The {@link Bitmap} queued to the video sink.
-   * @param durationUs The duration for which to display the {@code inputBitmap}, in microseconds.
-   * @param frameRate The frame rate at which to display the {@code inputBitmap}, in frames per
-   *     second.
+   * @param inStreamOffsetsUs The times within the current stream that the bitmap should be shown
+   *     at. The timestamps should be monotonically increasing.
    * @return Whether the bitmap was queued successfully. A {@code false} value indicates the caller
    *     must try again later.
    */
-  boolean queueBitmap(Bitmap inputBitmap, long durationUs, float frameRate);
+  boolean queueBitmap(Bitmap inputBitmap, TimestampIterator inStreamOffsetsUs);
 
   /**
    * Incrementally renders processed video frames.
