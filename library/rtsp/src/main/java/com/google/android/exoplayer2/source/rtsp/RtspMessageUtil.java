@@ -291,7 +291,8 @@ import java.util.regex.Pattern;
       case "TEARDOWN":
         return METHOD_TEARDOWN;
       default:
-        throw new IllegalArgumentException();
+        // Return METHOD_UNSET for unknown Rtsp Request method.
+        return METHOD_UNSET;
     }
   }
 
@@ -394,7 +395,10 @@ import java.util.regex.Pattern;
 
     ImmutableList.Builder<Integer> methodListBuilder = new ImmutableList.Builder<>();
     for (String method : Util.split(publicHeader, ",\\s?")) {
-      methodListBuilder.add(parseMethodString(method));
+      @RtspRequest.Method int rtspRequestMethod = parseMethodString(method);
+      if (rtspRequestMethod != METHOD_UNSET) {
+        methodListBuilder.add(rtspRequestMethod);
+      }
     }
     return methodListBuilder.build();
   }
