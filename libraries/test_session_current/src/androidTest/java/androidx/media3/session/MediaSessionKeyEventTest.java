@@ -54,20 +54,6 @@ import org.junit.runner.RunWith;
 @LargeTest
 public class MediaSessionKeyEventTest {
 
-  private static String expectedControllerPackageName;
-
-  static {
-    if (Util.SDK_INT >= 28 || Util.SDK_INT < 21) {
-      expectedControllerPackageName = SUPPORT_APP_PACKAGE_NAME;
-    } else if (Util.SDK_INT >= 24) {
-      // KeyEvent from system service has the package name "android".
-      expectedControllerPackageName = "android";
-    } else {
-      // In API 21+, MediaSessionCompat#getCurrentControllerInfo always returns fake info.
-      expectedControllerPackageName = LEGACY_CONTROLLER;
-    }
-  }
-
   @ClassRule public static MainLooperTestRule mainLooperTestRule = new MainLooperTestRule();
 
   @Rule
@@ -258,13 +244,28 @@ public class MediaSessionKeyEventTest {
 
   private static class TestSessionCallback implements MediaSession.Callback {
 
+    private static final String EXPECTED_CONTROLLER_PACKAGE_NAME =
+        getExpectedControllerPackageName();
+
     @Override
     public MediaSession.ConnectionResult onConnect(
         MediaSession session, ControllerInfo controller) {
-      if (expectedControllerPackageName.equals(controller.getPackageName())) {
+      if (EXPECTED_CONTROLLER_PACKAGE_NAME.equals(controller.getPackageName())) {
         return MediaSession.Callback.super.onConnect(session, controller);
       }
       return MediaSession.ConnectionResult.reject();
+    }
+
+    private static String getExpectedControllerPackageName() {
+      if (Util.SDK_INT >= 28 || Util.SDK_INT < 21) {
+        return SUPPORT_APP_PACKAGE_NAME;
+      } else if (Util.SDK_INT >= 24) {
+        // KeyEvent from system service has the package name "android".
+        return "android";
+      } else {
+        // In API 21+, MediaSessionCompat#getCurrentControllerInfo always returns fake info.
+        return LEGACY_CONTROLLER;
+      }
     }
   }
 }
