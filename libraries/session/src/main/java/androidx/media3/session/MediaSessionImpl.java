@@ -641,22 +641,8 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         "Callback.onSetMediaItems must return a non-null future");
   }
 
-  public void connectFromService(
-      IMediaController caller,
-      int controllerVersion,
-      int controllerInterfaceVersion,
-      String packageName,
-      int pid,
-      int uid,
-      Bundle connectionHints) {
-    sessionStub.connect(
-        caller,
-        controllerVersion,
-        controllerInterfaceVersion,
-        packageName,
-        pid,
-        uid,
-        checkStateNotNull(connectionHints));
+  public void connectFromService(IMediaController caller, ControllerInfo controllerInfo) {
+    sessionStub.connect(caller, controllerInfo);
   }
 
   public MediaSessionCompat getSessionCompat() {

@@ -34,11 +34,10 @@ public class MockMediaSessionService extends MediaSessionService {
   public static final String ID = "TestSession";
 
   private final AtomicInteger boundControllerCount;
+  private final ConditionVariable allControllersUnbound;
 
-  public MediaSession session;
-
-  private HandlerThread handlerThread;
-  private ConditionVariable allControllersUnbound;
+  @Nullable public MediaSession session;
+  @Nullable private HandlerThread handlerThread;
 
   public MockMediaSessionService() {
     boundControllerCount = new AtomicInteger(/* initialValue= */ 0);

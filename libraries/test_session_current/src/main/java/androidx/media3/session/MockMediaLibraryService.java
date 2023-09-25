@@ -60,15 +60,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.HandlerThread;
+import android.os.IBinder;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
+import androidx.media3.common.util.ConditionVariable;
 import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaSession.ControllerInfo;
 import androidx.media3.test.session.common.CommonConstants;
-import androidx.media3.test.session.common.TestHandler;
 import androidx.media3.test.session.common.TestUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
@@ -77,6 +78,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /** A mock MediaLibraryService */
 public class MockMediaLibraryService extends MediaLibraryService {
@@ -119,9 +122,36 @@ public class MockMediaLibraryService extends MediaLibraryService {
 
   @Nullable private static byte[] testArtworkData;
 
-  MediaLibrarySession session;
-  TestHandler handler;
-  HandlerThread handlerThread;
+  private final AtomicInteger boundControllerCount;
+  private final ConditionVariable allControllersUnbound;
+
+  @Nullable MediaLibrarySession session;
+  @Nullable HandlerThread handlerThread;
+
+  public MockMediaLibraryService() {
+    boundControllerCount = new AtomicInteger(/* initialValue= */ 0);
+    allControllersUnbound = new ConditionVariable();
+    allControllersUnbound.open();
+  }
+
+  /** Returns whether at least one controller is bound to this service. */
+  public boolean hasBoundController() {
+    return !allControllersUnbound.isOpen();
+  }
+
+  /**
+   * Blocks until all bound controllers unbind.
+   *
+   * @param timeoutMs The block timeout in milliseconds.
+   * @throws TimeoutException If the block timed out.
+   * @throws InterruptedException If the block was interrupted.
+   */
+  public void blockUntilAllControllersUnbind(long timeoutMs)
+      throws TimeoutException, InterruptedException {
+    if (!allControllersUnbound.block(timeoutMs)) {
+      throw new TimeoutException();
+    }
+  }
 
   @Override
   public void onCreate() {
@@ -129,7 +159,21 @@ public class MockMediaLibraryService extends MediaLibraryService {
     super.onCreate();
     handlerThread = new HandlerThread(TAG);
     handlerThread.start();
-    handler = new TestHandler(handlerThread.getLooper());
+  }
+
+  @Override
+  public IBinder onBind(@Nullable Intent intent) {
+    boundControllerCount.incrementAndGet();
+    allControllersUnbound.close();
+    return super.onBind(intent);
+  }
+
+  @Override
+  public boolean onUnbind(Intent intent) {
+    if (boundControllerCount.decrementAndGet() == 0) {
+      allControllersUnbound.open();
+    }
+    return super.onUnbind(intent);
   }
 
   @Override
@@ -141,9 +185,9 @@ public class MockMediaLibraryService extends MediaLibraryService {
     }
     TestServiceRegistry.getInstance().cleanUp();
     if (Util.SDK_INT >= 18) {
-      handler.getLooper().quitSafely();
+      handlerThread.quitSafely();
     } else {
-      handler.getLooper().quit();
+      handlerThread.quit();
     }
   }
 
@@ -157,7 +201,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
 
     if (session == null) {
       MockPlayer player =
-          new MockPlayer.Builder().setApplicationLooper(handler.getLooper()).build();
+          new MockPlayer.Builder().setApplicationLooper(handlerThread.getLooper()).build();
 
       MediaLibrarySession.Callback callback = registry.getSessionCallback();
       session =

@@ -440,24 +440,8 @@ import java.util.concurrent.ExecutionException;
     return mediaItemIndex;
   }
 
-  public void connect(
-      IMediaController caller,
-      int controllerVersion,
-      int controllerInterfaceVersion,
-      String callingPackage,
-      int pid,
-      int uid,
-      Bundle connectionHints) {
-    MediaSessionManager.RemoteUserInfo remoteUserInfo =
-        new MediaSessionManager.RemoteUserInfo(callingPackage, pid, uid);
-    ControllerInfo controllerInfo =
-        new ControllerInfo(
-            remoteUserInfo,
-            controllerVersion,
-            controllerInterfaceVersion,
-            sessionManager.isTrustedForMediaControl(remoteUserInfo),
-            new Controller2Cb(caller),
-            connectionHints);
+  @SuppressWarnings("UngroupedOverloads") // Overload belongs to AIDL interface that is separated.
+  public void connect(IMediaController caller, ControllerInfo controllerInfo) {
     @Nullable MediaSessionImpl sessionImpl = this.sessionImpl.get();
     if (sessionImpl == null || sessionImpl.isReleased()) {
       try {
@@ -612,14 +596,18 @@ import java.util.concurrent.ExecutionException;
     // If it's the case, use PID from the ConnectionRequest.
     int pid = (callingPid != 0) ? callingPid : request.pid;
     try {
-      connect(
-          caller,
-          request.libraryVersion,
-          request.controllerInterfaceVersion,
-          request.packageName,
-          pid,
-          uid,
-          request.connectionHints);
+
+      MediaSessionManager.RemoteUserInfo remoteUserInfo =
+          new MediaSessionManager.RemoteUserInfo(request.packageName, pid, uid);
+      ControllerInfo controllerInfo =
+          new ControllerInfo(
+              remoteUserInfo,
+              request.libraryVersion,
+              request.controllerInterfaceVersion,
+              sessionManager.isTrustedForMediaControl(remoteUserInfo),
+              new MediaSessionStub.Controller2Cb(caller),
+              request.connectionHints);
+      connect(caller, controllerInfo);
     } finally {
       Binder.restoreCallingIdentity(token);
     }

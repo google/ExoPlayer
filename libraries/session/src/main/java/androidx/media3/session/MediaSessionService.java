@@ -676,7 +676,7 @@ public abstract class MediaSessionService extends Service {
                         request.libraryVersion,
                         request.controllerInterfaceVersion,
                         isTrusted,
-                        /* cb= */ null,
+                        new MediaSessionStub.Controller2Cb(caller),
                         request.connectionHints);
 
                 @Nullable MediaSession session;
@@ -689,14 +689,7 @@ public abstract class MediaSessionService extends Service {
                   service.addSession(session);
                   shouldNotifyDisconnected = false;
 
-                  session.handleControllerConnectionFromService(
-                      caller,
-                      request.libraryVersion,
-                      request.controllerInterfaceVersion,
-                      request.packageName,
-                      pid,
-                      uid,
-                      request.connectionHints);
+                  session.handleControllerConnectionFromService(caller, controllerInfo);
                 } catch (Exception e) {
                   // Don't propagate exception in service to the controller.
                   Log.w(TAG, "Failed to add a session to session service", e);

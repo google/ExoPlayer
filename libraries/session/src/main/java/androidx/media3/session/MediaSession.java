@@ -1030,21 +1030,8 @@ public class MediaSession {
 
   /** Handles the controller's connection request from {@link MediaSessionService}. */
   /* package */ final void handleControllerConnectionFromService(
-      IMediaController controller,
-      int controllerVersion,
-      int controllerInterfaceVersion,
-      String packageName,
-      int pid,
-      int uid,
-      Bundle connectionHints) {
-    impl.connectFromService(
-        controller,
-        controllerVersion,
-        controllerInterfaceVersion,
-        packageName,
-        pid,
-        uid,
-        connectionHints);
+      IMediaController controller, ControllerInfo controllerInfo) {
+    impl.connectFromService(controller, controllerInfo);
   }
 
   /* package */ final IBinder getLegacyBrowserServiceBinder() {

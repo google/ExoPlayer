@@ -29,6 +29,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import androidx.media3.common.ForwardingPlayer;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.Player;
 import androidx.media3.common.util.ConditionVariable;
@@ -52,6 +53,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -66,23 +68,20 @@ public class MediaSessionServiceTest {
 
   @ClassRule public static MainLooperTestRule mainLooperTestRule = new MainLooperTestRule();
 
+  @Rule public final RemoteControllerTestRule controllerTestRule = new RemoteControllerTestRule();
+  @Rule public final MediaSessionTestRule sessionTestRule = new MediaSessionTestRule();
+
   @Rule
   public final HandlerThreadTestRule threadTestRule =
       new HandlerThreadTestRule("MediaSessionServiceTest");
 
-  @Rule public final RemoteControllerTestRule controllerTestRule = new RemoteControllerTestRule();
-
-  @Rule public final MediaSessionTestRule sessionTestRule = new MediaSessionTestRule();
-
   private Context context;
-  private Looper looper;
   private SessionToken token;
 
   @Before
   public void setUp() {
     TestServiceRegistry.getInstance().cleanUp();
     context = ApplicationProvider.getApplicationContext();
-    looper = threadTestRule.getHandler().getLooper();
     token =
         new SessionToken(context, new ComponentName(context, LocalMockMediaSessionService.class));
   }
@@ -90,6 +89,91 @@ public class MediaSessionServiceTest {
   @After
   public void cleanUp() {
     TestServiceRegistry.getInstance().cleanUp();
+  }
+
+  @Test
+  public void onConnect_controllerInfo_sameInstanceFromServiceToConnectedControllerManager()
+      throws Exception {
+    TestServiceRegistry testServiceRegistry = TestServiceRegistry.getInstance();
+    List<ControllerInfo> onGetSessionControllerInfos = new ArrayList<>();
+    List<ControllerInfo> onConnectControllerInfos = new ArrayList<>();
+    List<ControllerInfo> playbackCommandControllerInfos = new ArrayList<>();
+    List<ControllerInfo> onDisconnectedCommandControllerInfos = new ArrayList<>();
+    AtomicReference<MediaSession> session = new AtomicReference<>();
+    testServiceRegistry.setOnGetSessionHandler(
+        controllerInfo -> {
+          // The controllerInfo passed to the onGetSession of the service.
+          onGetSessionControllerInfos.add(controllerInfo);
+          Player player = new ExoPlayer.Builder(context).build();
+          ForwardingPlayer forwardingPlayer =
+              new ForwardingPlayer(player) {
+                @Override
+                public void setRepeatMode(@Player.RepeatMode int repeatMode) {
+                  // The controllerInfo assigned for the current player command request.
+                  playbackCommandControllerInfos.add(
+                      session.get().getControllerForCurrentRequest());
+                  super.setRepeatMode(repeatMode);
+                }
+              };
+          session.set(
+              new MediaSession.Builder(context, forwardingPlayer)
+                  .setCallback(
+                      new MediaSession.Callback() {
+                        @Override
+                        public MediaSession.ConnectionResult onConnect(
+                            MediaSession session, ControllerInfo controller) {
+                          if (!session.isMediaNotificationController(controller)) {
+                            // The controllerInfo passed to MediaSession.Callback.onConnect()
+                            onConnectControllerInfos.add(controllerInfo);
+                          }
+                          return MediaSession.Callback.super.onConnect(session, controller);
+                        }
+
+                        @Override
+                        public void onDisconnected(
+                            MediaSession session, ControllerInfo controller) {
+                          if (!session.isMediaNotificationController(controller)) {
+                            // The controllerInfo when disconnecting.
+                            onDisconnectedCommandControllerInfos.add(controller);
+                          }
+                          MediaSession.Callback.super.onDisconnected(session, controller);
+                        }
+                      })
+                  .build());
+          return session.get();
+        });
+    // Create the remote controller to start the service.
+    RemoteMediaController controller =
+        controllerTestRule.createRemoteController(
+            token, /* waitForConnection= */ true, /* connectionHints= */ null);
+    // Get the started service instance after creation.
+    MockMediaSessionService service =
+        (MockMediaSessionService) testServiceRegistry.getServiceInstance();
+    controller.setRepeatMode(Player.REPEAT_MODE_ONE);
+    List<ControllerInfo> connectedControllerManagerControllerInfos = new ArrayList<>();
+    for (ControllerInfo controllerInfo : session.get().getConnectedControllers()) {
+      if (!session.get().isMediaNotificationController(controllerInfo)) {
+        // The controllerInfo in the connected controller manager.
+        connectedControllerManagerControllerInfos.add(controllerInfo);
+      }
+    }
+
+    controller.release();
+
+    service.blockUntilAllControllersUnbind(TIMEOUT_MS);
+    assertThat(onGetSessionControllerInfos).hasSize(1);
+    assertThat(onGetSessionControllerInfos).isEqualTo(onConnectControllerInfos);
+    assertThat(onGetSessionControllerInfos).isEqualTo(playbackCommandControllerInfos);
+    assertThat(onGetSessionControllerInfos).isEqualTo(onDisconnectedCommandControllerInfos);
+    assertThat(onGetSessionControllerInfos).isEqualTo(connectedControllerManagerControllerInfos);
+    assertThat(onGetSessionControllerInfos.get(0))
+        .isSameInstanceAs(onConnectControllerInfos.get(0));
+    assertThat(onGetSessionControllerInfos.get(0))
+        .isSameInstanceAs(playbackCommandControllerInfos.get(0));
+    assertThat(onGetSessionControllerInfos.get(0))
+        .isSameInstanceAs(onDisconnectedCommandControllerInfos.get(0));
+    assertThat(onGetSessionControllerInfos.get(0))
+        .isSameInstanceAs(connectedControllerManagerControllerInfos.get(0));
   }
 
   @Test
@@ -291,7 +375,10 @@ public class MediaSessionServiceTest {
     MediaSession testSession =
         sessionTestRule.ensureReleaseAfterTest(
             new MediaSession.Builder(
-                    context, new MockPlayer.Builder().setApplicationLooper(looper).build())
+                    context,
+                    new MockPlayer.Builder()
+                        .setApplicationLooper(threadTestRule.getHandler().getLooper())
+                        .build())
                 .setId("testOnGetSession_returnsSession")
                 .setCallback(
                     new MediaSession.Callback() {
@@ -370,7 +457,9 @@ public class MediaSessionServiceTest {
   public void onGetSession_rejectsConnection() throws Exception {
     TestServiceRegistry.getInstance().setOnGetSessionHandler(controllerInfo -> null);
     ListenableFuture<MediaController> future =
-        new MediaController.Builder(context, token).setApplicationLooper(looper).buildAsync();
+        new MediaController.Builder(context, token)
+            .setApplicationLooper(threadTestRule.getHandler().getLooper())
+            .buildAsync();
 
     ExecutionException thrown =
         assertThrows(ExecutionException.class, () -> future.get(TIMEOUT_MS, MILLISECONDS));
@@ -481,7 +570,10 @@ public class MediaSessionServiceTest {
   private MediaSession createMediaSession(String id) {
     return sessionTestRule.ensureReleaseAfterTest(
         new MediaSession.Builder(
-                context, new MockPlayer.Builder().setApplicationLooper(looper).build())
+                context,
+                new MockPlayer.Builder()
+                    .setApplicationLooper(threadTestRule.getHandler().getLooper())
+                    .build())
             .setId(id)
             .build());
   }
