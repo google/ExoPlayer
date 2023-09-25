@@ -17,22 +17,33 @@ package androidx.media3.session;
 
 import static androidx.media3.test.utils.robolectric.RobolectricUtil.runMainLooperUntil;
 import static com.google.common.truth.Truth.assertThat;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.service.notification.StatusBarNotification;
+import android.view.KeyEvent;
 import androidx.annotation.Nullable;
+import androidx.media3.common.C;
+import androidx.media3.common.ForwardingPlayer;
 import androidx.media3.common.MediaItem;
+import androidx.media3.common.Player;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.test.utils.TestExoPlayerBuilder;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
-import org.junit.After;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,21 +54,16 @@ import org.robolectric.shadows.ShadowLooper;
 @RunWith(AndroidJUnit4.class)
 public class MediaSessionServiceTest {
 
+  private static final int TIMEOUT_MS = 500;
+
   private Context context;
   private NotificationManager notificationManager;
-  private ServiceController<TestService> serviceController;
 
   @Before
   public void setUp() {
     context = ApplicationProvider.getApplicationContext();
     notificationManager =
         (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-    serviceController = Robolectric.buildService(TestService.class);
-  }
-
-  @After
-  public void tearDown() {
-    serviceController.destroy();
   }
 
   @Test
@@ -66,6 +72,7 @@ public class MediaSessionServiceTest {
     ExoPlayer player2 = new TestExoPlayerBuilder(context).build();
     MediaSession session1 = new MediaSession.Builder(context, player1).setId("1").build();
     MediaSession session2 = new MediaSession.Builder(context, player2).setId("2").build();
+    ServiceController<TestService> serviceController = Robolectric.buildService(TestService.class);
     TestService service = serviceController.create().get();
     service.setMediaNotificationProvider(
         new DefaultMediaNotificationProvider(
@@ -92,6 +99,7 @@ public class MediaSessionServiceTest {
     session2.release();
     player1.release();
     player2.release();
+    serviceController.destroy();
   }
 
   @Test
@@ -105,6 +113,7 @@ public class MediaSessionServiceTest {
     ExoPlayer player2 = new TestExoPlayerBuilder(context).setLooper(thread2.getLooper()).build();
     MediaSession session1 = new MediaSession.Builder(context, player1).setId("1").build();
     MediaSession session2 = new MediaSession.Builder(context, player2).setId("2").build();
+    ServiceController<TestService> serviceController = Robolectric.buildService(TestService.class);
     TestService service = serviceController.create().get();
     service.setMediaNotificationProvider(
         new DefaultMediaNotificationProvider(
@@ -112,7 +121,6 @@ public class MediaSessionServiceTest {
             session -> 2000 + Integer.parseInt(session.getId()),
             DefaultMediaNotificationProvider.DEFAULT_CHANNEL_ID,
             DefaultMediaNotificationProvider.DEFAULT_CHANNEL_NAME_RESOURCE_ID));
-
     service.addSession(session1);
     service.addSession(session2);
     // Start the players so that we also create notifications for them.
@@ -141,6 +149,7 @@ public class MediaSessionServiceTest {
     new Handler(thread2.getLooper()).post(player2::release);
     thread1.quit();
     thread2.quit();
+    serviceController.destroy();
   }
 
   @Test
@@ -183,6 +192,7 @@ public class MediaSessionServiceTest {
                   }
                 })
             .build();
+    ServiceController<TestService> serviceController = Robolectric.buildService(TestService.class);
     TestService service = serviceController.create().get();
     service.setMediaNotificationProvider(
         new DefaultMediaNotificationProvider(
@@ -229,6 +239,7 @@ public class MediaSessionServiceTest {
         .isEqualTo("customAction2");
     session.release();
     player.release();
+    serviceController.destroy();
   }
 
   @Test
@@ -272,6 +283,7 @@ public class MediaSessionServiceTest {
                   }
                 })
             .build();
+    ServiceController<TestService> serviceController = Robolectric.buildService(TestService.class);
     TestService service = serviceController.create().get();
     service.setMediaNotificationProvider(
         new DefaultMediaNotificationProvider(
@@ -317,6 +329,156 @@ public class MediaSessionServiceTest {
 
     session.release();
     player.release();
+    serviceController.destroy();
+  }
+
+  @Test
+  public void onStartCommand_mediaButtonEvent_pausedByMediaNotificationController()
+      throws InterruptedException {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    AtomicReference<MediaSession> session = new AtomicReference<>();
+    CountDownLatch latch = new CountDownLatch(1);
+    ForwardingPlayer forwardingPlayer =
+        new ForwardingPlayer(player) {
+          @Override
+          public void pause() {
+            super.pause();
+            if (session
+                .get()
+                .isMediaNotificationController(session.get().getControllerForCurrentRequest())) {
+              latch.countDown();
+            }
+          }
+        };
+    session.set(new MediaSession.Builder(context, forwardingPlayer).build());
+    Intent playIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+    playIntent.setData(session.get().getUri());
+    playIntent.putExtra(
+        Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PAUSE));
+    ServiceController<TestService> serviceController =
+        Robolectric.buildService(TestService.class, playIntent);
+    TestService service = serviceController.create().get();
+    service.addSession(session.get());
+    player.setMediaItems(ImmutableList.of(MediaItem.fromUri("asset:///media/mp4/sample.mp4")));
+    player.play();
+    player.prepare();
+
+    serviceController.startCommand(/* flags= */ 0, /* startId= */ 0);
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(player.getPlayWhenReady()).isFalse();
+    session.get().release();
+    player.release();
+    serviceController.destroy();
+  }
+
+  @Test
+  public void onStartCommand_playbackResumption_calledByMediaNotificationController()
+      throws InterruptedException, ExecutionException, TimeoutException {
+    Intent playIntent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+    playIntent.putExtra(
+        Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PLAY));
+    ServiceController<TestServiceWithPlaybackResumption> serviceController =
+        Robolectric.buildService(TestServiceWithPlaybackResumption.class, playIntent);
+    TestServiceWithPlaybackResumption service = serviceController.create().get();
+    service.setMediaItems(
+        ImmutableList.of(
+            new MediaItem.Builder()
+                .setMediaId("media-id-0")
+                .setUri("asset:///media/mp4/sample.mp4")
+                .build()));
+    MediaController controller =
+        new MediaController.Builder(context, service.session.getToken())
+            .buildAsync()
+            .get(TIMEOUT_MS, MILLISECONDS);
+    CountDownLatch latch = new CountDownLatch(1);
+    controller.addListener(
+        new Player.Listener() {
+          @Override
+          public void onEvents(Player player, Player.Events events) {
+            if (events.contains(Player.EVENT_TIMELINE_CHANGED)
+                && player.getMediaItemCount() == 1
+                && player.getCurrentMediaItem().mediaId.equals("media-id-0")
+                && events.contains(Player.EVENT_PLAY_WHEN_READY_CHANGED)
+                && player.getPlayWhenReady()
+                && events.contains(Player.EVENT_PLAYBACK_STATE_CHANGED)
+                && player.getPlaybackState() == Player.STATE_BUFFERING) {
+              latch.countDown();
+            }
+          }
+        });
+
+    serviceController.startCommand(/* flags= */ 0, /* startId= */ 0);
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    serviceController.destroy();
+  }
+
+  @Test
+  public void onStartCommand_customCommands_deliveredByMediaNotificationController()
+      throws InterruptedException {
+    ExoPlayer player = new TestExoPlayerBuilder(context).build();
+    AtomicReference<MediaSession> sessionRef = new AtomicReference<>();
+    SessionCommand expectedCustomCommand = new SessionCommand("enable_shuffle", Bundle.EMPTY);
+    CountDownLatch latch = new CountDownLatch(1);
+    sessionRef.set(
+        new MediaSession.Builder(context, player)
+            .setCallback(
+                new MediaSession.Callback() {
+                  @Override
+                  public MediaSession.ConnectionResult onConnect(
+                      MediaSession session, MediaSession.ControllerInfo controller) {
+                    if (session.getUri().equals(sessionRef.get().getUri())
+                        && session.isMediaNotificationController(controller)) {
+                      return new MediaSession.ConnectionResult.AcceptedResultBuilder(session)
+                          .setAvailableSessionCommands(
+                              new SessionCommands.Builder().add(expectedCustomCommand).build())
+                          .build();
+                    } else {
+                      return MediaSession.ConnectionResult.reject();
+                    }
+                  }
+
+                  @Override
+                  public ListenableFuture<SessionResult> onCustomCommand(
+                      MediaSession session,
+                      MediaSession.ControllerInfo controller,
+                      SessionCommand customCommand,
+                      Bundle args) {
+                    if (session.getUri().equals(sessionRef.get().getUri())
+                        && session.isMediaNotificationController(controller)
+                        && customCommand.equals(expectedCustomCommand)
+                        && customCommand
+                            .customExtras
+                            .getString("expectedKey", /* defaultValue= */ "")
+                            .equals("expectedValue")
+                        && args.isEmpty()) {
+                      latch.countDown();
+                    }
+                    return Futures.immediateFuture(new SessionResult(SessionResult.RESULT_SUCCESS));
+                  }
+                })
+            .build());
+    MediaSession session = sessionRef.get();
+    Intent customCommandIntent = new Intent("androidx.media3.session.CUSTOM_NOTIFICATION_ACTION");
+    customCommandIntent.setData(session.getUri());
+    customCommandIntent.putExtra(
+        "androidx.media3.session.EXTRAS_KEY_CUSTOM_NOTIFICATION_ACTION", "enable_shuffle");
+    Bundle extras = new Bundle();
+    extras.putString("expectedKey", "expectedValue");
+    customCommandIntent.putExtra(
+        "androidx.media3.session.EXTRAS_KEY_CUSTOM_NOTIFICATION_ACTION_EXTRAS", extras);
+    ServiceController<TestService> serviceController =
+        Robolectric.buildService(TestService.class, customCommandIntent);
+    TestService service = serviceController.create().get();
+    service.addSession(session);
+
+    serviceController.startCommand(/* flags= */ 0, /* startId= */ 0);
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    session.release();
+    player.release();
+    serviceController.destroy();
   }
 
   @Nullable
@@ -334,6 +496,62 @@ public class MediaSessionServiceTest {
     @Override
     public MediaSession onGetSession(MediaSession.ControllerInfo controllerInfo) {
       return null; // No need to support binding or pending intents for this test.
+    }
+  }
+
+  private static final class TestServiceWithPlaybackResumption extends MediaSessionService {
+
+    private List<MediaItem> mediaItems = ImmutableList.of();
+
+    public void setMediaItems(List<MediaItem> mediaItems) {
+      this.mediaItems = mediaItems;
+    }
+
+    @Nullable private MediaSession session;
+
+    @Override
+    public void onCreate() {
+      super.onCreate();
+      Context context = ApplicationProvider.getApplicationContext();
+      ExoPlayer player = new TestExoPlayerBuilder(context).build();
+      session =
+          new MediaSession.Builder(context, player)
+              .setCallback(
+                  new MediaSession.Callback() {
+                    @Override
+                    public ListenableFuture<MediaSession.MediaItemsWithStartPosition>
+                        onPlaybackResumption(
+                            MediaSession mediaSession, MediaSession.ControllerInfo controller) {
+                      // Automatic playback resumption is expected to be called only from the media
+                      // notification controller. So we call it here only if the callback is
+                      // actually called from the media notification controller (or a fake of it).
+                      if (mediaSession.isMediaNotificationController(controller)) {
+                        return Futures.immediateFuture(
+                            new MediaSession.MediaItemsWithStartPosition(
+                                mediaItems,
+                                /* startIndex= */ 0,
+                                /* startPositionMs= */ C.TIME_UNSET));
+                      }
+                      return Futures.immediateFailedFuture(new UnsupportedOperationException());
+                    }
+                  })
+              .build();
+    }
+
+    @Nullable
+    @Override
+    public MediaSession onGetSession(MediaSession.ControllerInfo controllerInfo) {
+      return session;
+    }
+
+    @Override
+    public void onDestroy() {
+      session.getPlayer().stop();
+      session.getPlayer().clearMediaItems();
+      session.getPlayer().release();
+      session.release();
+      session = null;
+      super.onDestroy();
     }
   }
 }

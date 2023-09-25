@@ -70,6 +70,12 @@
     *   Use the media notification controller as proxy to set available commands
         and custom layout used to populate the notification and the platform
         session.
+    *   Convert media button events that are received by
+        `MediaSessionService.onStartCommand()` within Media3 instead of routing
+        them to the platform session and back to Media3. With this, the caller
+        controller is always the media notification controller and apps can
+        easily recognize calls coming from the notification in the same way on
+        all supported API levels.
 *   UI:
 *   Downloads:
 *   OkHttp Extension:

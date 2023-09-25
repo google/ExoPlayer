@@ -428,7 +428,7 @@ public abstract class MediaSessionService extends Service {
       }
       @Nullable KeyEvent keyEvent = actionFactory.getKeyEvent(intent);
       if (keyEvent != null) {
-        session.getSessionCompat().getController().dispatchMediaButtonEvent(keyEvent);
+        getMediaNotificationManager().onMediaButtonEvent(session, keyEvent);
       }
     } else if (session != null && actionFactory.isCustomAction(intent)) {
       @Nullable String customAction = actionFactory.getCustomAction(intent);

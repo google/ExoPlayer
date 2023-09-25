@@ -690,6 +690,15 @@ import org.checkerframework.checker.initialization.qual.Initialized;
             return;
           }
           if (!connectedControllersManager.isPlayerCommandAvailable(controller, command)) {
+            if (command == COMMAND_PLAY_PAUSE
+                && !sessionImpl.getPlayerWrapper().getPlayWhenReady()) {
+              Log.w(
+                  TAG,
+                  "Calling play() omitted due to COMMAND_PLAY_PAUSE not being available. If this"
+                      + " play command has started the service for instance for playback"
+                      + " resumption, this may prevent the service from being started into the"
+                      + " foreground.");
+            }
             return;
           }
           int resultCode = sessionImpl.onPlayerCommandRequestOnHandler(controller, command);

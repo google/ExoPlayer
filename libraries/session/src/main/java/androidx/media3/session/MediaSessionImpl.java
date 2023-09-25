@@ -129,6 +129,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private boolean closed;
 
   // Should be only accessed on the application looper
+  private final List<Player.Listener> wrapperListeners;
   private long sessionPositionUpdateDelayMs;
   private boolean isMediaNotificationControllerConnected;
   private ImmutableList<CommandButton> customLayout;
@@ -154,6 +155,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     sessionStub = new MediaSessionStub(thisRef);
     this.sessionActivity = sessionActivity;
     this.customLayout = customLayout;
+    wrapperListeners = new ArrayList<>();
 
     mainHandler = new Handler(Looper.getMainLooper());
     applicationHandler = new Handler(player.getApplicationLooper());
@@ -231,14 +233,38 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             playerWrapper.getAvailablePlayerCommands()));
   }
 
+  public void addPlayerListener(Player.Listener listener) {
+    postOrRun(
+        applicationHandler,
+        () -> {
+          wrapperListeners.add(listener);
+          playerWrapper.addListener(listener);
+        });
+  }
+
+  public void removePlayerListener(Player.Listener listener) {
+    postOrRun(
+        applicationHandler,
+        () -> {
+          playerWrapper.removeListener(listener);
+          wrapperListeners.remove(listener);
+        });
+  }
+
   private void setPlayerInternal(
       @Nullable PlayerWrapper oldPlayerWrapper, PlayerWrapper newPlayerWrapper) {
     playerWrapper = newPlayerWrapper;
     if (oldPlayerWrapper != null) {
       oldPlayerWrapper.removeListener(checkStateNotNull(this.playerListener));
+      for (int i = 0; i < wrapperListeners.size(); i++) {
+        oldPlayerWrapper.removeListener(wrapperListeners.get(i));
+      }
     }
     PlayerListener playerListener = new PlayerListener(this, newPlayerWrapper);
     newPlayerWrapper.addListener(playerListener);
+    for (int i = 0; i < wrapperListeners.size(); i++) {
+      newPlayerWrapper.addListener(wrapperListeners.get(i));
+    }
     this.playerListener = playerListener;
 
     dispatchRemoteControllerTaskToLegacyStub(
@@ -270,6 +296,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
             if (playerListener != null) {
               playerWrapper.removeListener(playerListener);
             }
+            for (int i = 0; i < wrapperListeners.size(); i++) {
+              playerWrapper.removeListener(wrapperListeners.get(i));
+            }
+            wrapperListeners.clear();
           });
     } catch (Exception e) {
       // Catch all exceptions to ensure the rest of this method to be executed as exceptions may be
