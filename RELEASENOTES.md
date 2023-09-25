@@ -83,6 +83,8 @@
     *   Check state in RTSP setup when returning loading state of
         `RtspMediaPeriod`
         ([#577](https://github.com/androidx/media/issues/577)).
+    *   Ignore custom Rtsp request methods in Options response public header
+        ([#613](https://github.com/androidx/media/issues/613)).
 *   Decoder Extensions (FFmpeg, VP9, AV1, etc.):
 *   MIDI extension:
 *   Leanback extension:
