@@ -316,6 +316,9 @@ public final class TextRenderer extends BaseRenderer implements Callback {
             waitingForKeyFrame &= !nextInputBuffer.isKeyFrame();
           }
           if (!waitingForKeyFrame) {
+            if (nextInputBuffer.timeUs < getLastResetPositionUs()) {
+              nextInputBuffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
+            }
             checkNotNull(decoder).queueInputBuffer(nextInputBuffer);
             this.nextInputBuffer = null;
           }

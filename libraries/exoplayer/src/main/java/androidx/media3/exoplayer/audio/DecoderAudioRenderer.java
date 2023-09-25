@@ -532,6 +532,9 @@ public abstract class DecoderAudioRenderer<
           firstStreamSampleRead = true;
           inputBuffer.addFlag(C.BUFFER_FLAG_FIRST_SAMPLE);
         }
+        if (inputBuffer.timeUs < getLastResetPositionUs()) {
+          inputBuffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
+        }
         inputBuffer.flip();
         inputBuffer.format = inputFormat;
         decoder.queueInputBuffer(inputBuffer);
