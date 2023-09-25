@@ -113,7 +113,8 @@ public final class CameraMotionRenderer extends BaseRenderer {
       }
 
       lastTimestampUs = buffer.timeUs;
-      if (listener == null || buffer.isDecodeOnly()) {
+      boolean isDecodeOnly = lastTimestampUs < getLastResetPositionUs();
+      if (listener == null || isDecodeOnly) {
         continue;
       }
 

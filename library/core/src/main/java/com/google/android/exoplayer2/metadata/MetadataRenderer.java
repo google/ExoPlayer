@@ -241,6 +241,9 @@ public final class MetadataRenderer extends BaseRenderer implements Callback {
           inputStreamEnded = true;
         } else {
           buffer.subsampleOffsetUs = subsampleOffsetUs;
+          if (buffer.timeUs < getLastResetPositionUs()) {
+            buffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
+          }
           buffer.flip();
           @Nullable Metadata metadata = castNonNull(decoder).decode(buffer);
           if (metadata != null) {

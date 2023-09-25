@@ -122,7 +122,7 @@ import org.checkerframework.checker.nullness.qual.RequiresNonNull;
 
   @Override
   protected void onDecoderInputReady(DecoderInputBuffer inputBuffer) {
-    if (inputBuffer.isDecodeOnly()) {
+    if (inputBuffer.timeUs < getLastResetPositionUs()) {
       decodeOnlyPresentationTimestamps.add(inputBuffer.timeUs);
     }
   }

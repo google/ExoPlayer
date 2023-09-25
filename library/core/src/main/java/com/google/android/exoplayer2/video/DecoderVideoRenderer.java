@@ -778,6 +778,9 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
           formatQueue.add(inputBuffer.timeUs, inputFormat);
           waitingForFirstSampleInFormat = false;
         }
+        if (inputBuffer.timeUs < getLastResetPositionUs()) {
+          inputBuffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
+        }
         inputBuffer.flip();
         inputBuffer.format = inputFormat;
         onQueueInputBuffer(inputBuffer);
