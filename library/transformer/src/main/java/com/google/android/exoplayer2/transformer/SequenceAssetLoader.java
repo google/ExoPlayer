@@ -95,10 +95,7 @@ import java.util.concurrent.atomic.AtomicInteger;
   private boolean trackCountReported;
   private boolean decodeAudio;
   private boolean decodeVideo;
-  private long totalDurationUs;
   private int sequenceLoopCount;
-  private boolean audioLoopingEnded;
-  private boolean videoLoopingEnded;
   private int processedInputsSize;
   private boolean released;
 
@@ -359,6 +356,10 @@ import java.util.concurrent.atomic.AtomicInteger;
   private final class SampleConsumerWrapper implements SampleConsumer {
 
     private final SampleConsumer sampleConsumer;
+
+    private long totalDurationUs;
+    private boolean audioLoopingEnded;
+    private boolean videoLoopingEnded;
 
     public SampleConsumerWrapper(SampleConsumer sampleConsumer) {
       this.sampleConsumer = sampleConsumer;
