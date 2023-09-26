@@ -44,10 +44,10 @@ import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.extractor.mp4.PsshAtomUtil;
 import com.google.common.base.Charsets;
+import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -329,6 +329,24 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
     mediaDrm.restoreKeys(sessionId, keySetId);
   }
 
+  @Override
+  @RequiresApi(Build.VERSION_CODES.Q)
+  public void removeOfflineLicense(byte[] keySetId) {
+    if (Util.SDK_INT < Build.VERSION_CODES.Q) {
+      throw new UnsupportedOperationException();
+    }
+    mediaDrm.removeOfflineLicense(keySetId);
+  }
+
+  @Override
+  @RequiresApi(Build.VERSION_CODES.Q)
+  public List<byte[]> getOfflineLicenseKeySetIds() {
+    if (Util.SDK_INT < Build.VERSION_CODES.Q) {
+      return ImmutableList.of();
+    }
+    return mediaDrm.getOfflineLicenseKeySetIds();
+  }
+
   @UnstableApi
   @Override
   @Nullable
@@ -380,26 +398,6 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
   @Override
   public @C.CryptoType int getCryptoType() {
     return C.CRYPTO_TYPE_FRAMEWORK;
-  }
-
-  @Override
-  @RequiresApi(Build.VERSION_CODES.Q)
-  public void removeOfflineLicense(byte[] keySetId) {
-    if (Util.SDK_INT < Build.VERSION_CODES.Q) {
-      throw new UnsupportedOperationException();
-    }
-
-    mediaDrm.removeOfflineLicense(keySetId);
-  }
-
-  @Override
-  @RequiresApi(Build.VERSION_CODES.Q)
-  public List<byte[]> getOfflineLicenseKeySetIds() {
-    if (Util.SDK_INT < Build.VERSION_CODES.Q) {
-      return Collections.emptyList();
-    }
-
-    return mediaDrm.getOfflineLicenseKeySetIds();
   }
 
   private static SchemeData getSchemeData(UUID uuid, List<SchemeData> schemeDatas) {
