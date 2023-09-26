@@ -210,6 +210,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   public void start() {
+    verifyInternalThreadAlive();
     internalHandler.sendEmptyMessage(MSG_START);
   }
 
@@ -217,6 +218,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (released) {
       return PROGRESS_STATE_NOT_STARTED;
     }
+    verifyInternalThreadAlive();
     internalHandler.obtainMessage(MSG_UPDATE_PROGRESS, progressHolder).sendToTarget();
     // TODO: figure out why calling clock.onThreadBlocked() here makes the tests fail.
     transformerConditionVariable.blockUninterruptible();
@@ -228,6 +230,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     if (released) {
       return;
     }
+    verifyInternalThreadAlive();
     internalHandler
         .obtainMessage(MSG_END, END_REASON_CANCELLED, /* unused */ 0, /* exportException */ null)
         .sendToTarget();
@@ -240,18 +243,24 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   public void endWithCompletion() {
+    verifyInternalThreadAlive();
     internalHandler
         .obtainMessage(MSG_END, END_REASON_COMPLETED, /* unused */ 0, /* exportException */ null)
         .sendToTarget();
   }
 
   public void endWithException(ExportException exportException) {
+    verifyInternalThreadAlive();
     internalHandler
         .obtainMessage(MSG_END, END_REASON_ERROR, /* unused */ 0, exportException)
         .sendToTarget();
   }
 
   // Private methods.
+
+  private void verifyInternalThreadAlive() {
+    checkState(internalHandlerThread.isAlive(), "Internal thread is dead.");
+  }
 
   private boolean handleMessage(Message msg) {
     // Some messages cannot be ignored when resources have been released. End messages must be
@@ -541,6 +550,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         // which the AssetLoader are allowed to send data. This way SampleExporter understands all
         // the inputs are registered when AssetLoader sends data.
         if (assetLoaderInputTracker.hasAssociatedAllTracksWithGraphInput(trackType)) {
+          verifyInternalThreadAlive();
           internalHandler
               .obtainMessage(MSG_REGISTER_SAMPLE_EXPORTER, sampleExporter)
               .sendToTarget();
