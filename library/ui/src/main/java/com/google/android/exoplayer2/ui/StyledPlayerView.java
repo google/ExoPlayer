@@ -49,6 +49,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.ColorInt;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -433,7 +434,11 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
           }
           break;
         default:
-          surfaceView = new SurfaceView(context);
+          SurfaceView view = new SurfaceView(context);
+          if (Util.SDK_INT >= 34) {
+            Api34.setSurfaceLifecycleToFollowsAttachment(view);
+          }
+          surfaceView = view;
           break;
       }
       surfaceView.setLayoutParams(params);
@@ -1702,6 +1707,15 @@ public class StyledPlayerView extends FrameLayout implements AdViewProvider {
       if (fullscreenButtonClickListener != null) {
         fullscreenButtonClickListener.onFullscreenButtonClick(isFullScreen);
       }
+    }
+  }
+
+  @RequiresApi(34)
+  private static class Api34 {
+
+    @DoNotInline
+    public static void setSurfaceLifecycleToFollowsAttachment(SurfaceView surfaceView) {
+      surfaceView.setSurfaceLifecycle(SurfaceView.SURFACE_LIFECYCLE_FOLLOWS_ATTACHMENT);
     }
   }
 }
