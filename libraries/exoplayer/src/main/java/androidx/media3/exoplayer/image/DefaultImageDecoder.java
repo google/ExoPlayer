@@ -29,6 +29,7 @@ import androidx.media3.common.C;
 import androidx.media3.common.Format;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.util.UnstableApi;
+import androidx.media3.common.util.Util;
 import androidx.media3.decoder.DecoderInputBuffer;
 import androidx.media3.decoder.SimpleDecoder;
 import androidx.media3.exoplayer.RendererCapabilities;
@@ -65,14 +66,9 @@ public final class DefaultImageDecoder
 
   /** A factory for {@link DefaultImageDecoder} instances. */
   public static final class Factory implements ImageDecoder.Factory {
+    private static final ImmutableSet<String> SUPPORTED_IMAGE_TYPES = getSupportedMimeTypes();
+
     private final BitmapDecoder bitmapDecoder;
-    private static final ImmutableSet<String> SUPPORTED_IMAGE_TYPES =
-        ImmutableSet.of(
-            MimeTypes.IMAGE_PNG,
-            MimeTypes.IMAGE_JPEG,
-            MimeTypes.IMAGE_BMP,
-            MimeTypes.IMAGE_HEIF,
-            MimeTypes.IMAGE_WEBP);
 
     /**
      * Creates an instance using a {@link BitmapFactory} implementation of {@link BitmapDecoder}.
@@ -106,6 +102,16 @@ public final class DefaultImageDecoder
     @Override
     public DefaultImageDecoder createImageDecoder() {
       return new DefaultImageDecoder(bitmapDecoder);
+    }
+
+    private static ImmutableSet<String> getSupportedMimeTypes() {
+      ImmutableSet.Builder<String> supportedMimeTypes = ImmutableSet.builder();
+      supportedMimeTypes.add(
+          MimeTypes.IMAGE_PNG, MimeTypes.IMAGE_JPEG, MimeTypes.IMAGE_BMP, MimeTypes.IMAGE_WEBP);
+      if (Util.SDK_INT >= 26) {
+        supportedMimeTypes.add(MimeTypes.IMAGE_HEIF);
+      }
+      return supportedMimeTypes.build();
     }
   }
 
