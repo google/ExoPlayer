@@ -19,6 +19,7 @@ import static androidx.media3.common.MimeTypes.getMimeTypeFromMp4ObjectType;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Util.castNonNull;
 import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 import android.util.Pair;
 import androidx.annotation.Nullable;
@@ -1091,6 +1092,133 @@ import java.util.List;
             .build();
   }
 
+  // Helper class for parsing syntax elements from AV1 bitstream.
+  // Bitstream specification: https://aomediacodec.github.io/av1-spec/av1-spec.pdf
+  private static final class Av1BitstreamParser {
+    private static final String TAG = "Av1BitstreamParser";
+
+    private ParsableByteArray data;
+    private int bitCount;
+    private int currentByte;
+
+    public int colorDescriptionPresentFlag;
+    public int colorPrimaries;
+    public int transferCharacteristics;
+    public int matrixCoefficients;
+    public int colorRange;
+
+    public Av1BitstreamParser(ParsableByteArray data) {
+      this.data = data;
+    }
+
+    private int f(int length) {
+      // 4.10.2. f(n): Unsigned n-bit number appearing directly in the bitstream.
+      // The bits are read from high to low order.
+      int result = 0;
+      while (length > 0) {
+        if (bitCount == 0) {
+          currentByte = data.readUnsignedByte();
+          bitCount = 8;
+        }
+        int newBitCount = min(length, bitCount);
+        bitCount -= newBitCount;
+        length -= newBitCount;
+        result = (result << newBitCount) |
+            ((currentByte >> bitCount) & ((1 << newBitCount) - 1));
+      }
+      return result;
+    }
+
+    public boolean parseSequenceHeader() {
+      // 5.3.1. General OBU syntax
+      f(1); // obu_forbidden_bit
+      int obuType = f(4); // obu_type
+      if (obuType != 1) { // obu_type != OBU_SEQUENCE_HEADER
+        Log.e(TAG, "Unsupported obu_type: " + obuType);
+        return false;
+      } else if (f(1) != 0) { // obu_extension_flag
+        Log.e(TAG, "Unsupported obu_extension_flag");
+        return false;
+      }
+      int obuHasSizeField = f(1); // obu_has_size_field
+      f(1); // obu_reserved_1bit
+      if (obuHasSizeField == 1 && f(8) > 127) { // obu_size
+        Log.e(TAG, "Excessive obu_size");
+        return false;
+      }
+      // 5.5.1. General sequence header OBU syntax
+      int seqProfile = f(3); // seq_profile
+      f(1); // still_picture
+      if (f(1) != 0) { // reduced_still_picture_header
+        Log.e(TAG, "Unsupported reduced_still_picture_header");
+        return false;
+      } else if (f(1) != 0) { // timing_info_present_flag
+        Log.e(TAG, "Unsupported timing_info_present_flag");
+        return false;
+      } else if (f(1) != 0) { // initial_display_delay_present_flag
+        Log.e(TAG, "Unsupported initial_display_delay_present_flag");
+        return false;
+      }
+      int operatingPointsCntMinus1 = f(5); // operating_points_cnt_minus_1
+      for (int i = 0; i <= operatingPointsCntMinus1; i++) {
+        f(12); // operating_point_idc[i]
+        int seqLevelIdx = f(5); // seq_level_idx[i]
+        if (seqLevelIdx > 7) {
+          f(1); // seq_tier[i]
+        }
+      }
+      int frameWidthBitsMinus1 = f(4); // frame_width_bits_minus_1
+      int frameHeightBitsMinus1 = f(4); // frame_height_bits_minus_1
+      f(frameWidthBitsMinus1 + 1); // max_frame_width_minus_1
+      f(frameHeightBitsMinus1 + 1); // max_frame_height_minus_1
+      if (f(1) == 1) { // frame_id_numbers_present_flag
+        f(7); // delta_frame_id_length_minus_2, additional_frame_id_length_minus_1
+      }
+      f(7); // use_128x128_superblock...enable_dual_filter: 7 flags
+      int enableOrderHint = f(1); // enable_order_hint
+      if (enableOrderHint == 1) {
+        f(2); // enable_jnt_comp, enable_ref_frame_mvs
+      }
+      int seqForceScreenContentTools = 2; // SELECT_SCREEN_CONTENT_TOOLS
+      if (f(1) == 0) { // seq_choose_screen_content_tools
+        seqForceScreenContentTools = f(1); // seq_force_screen_content_tools
+      }
+      if (seqForceScreenContentTools > 0) {
+        if (f(1) == 0) { // seq_choose_integer_mv
+          f(1); // seq_force_integer_mv
+        }
+      }
+      if (enableOrderHint == 1) {
+        f(3); // order_hint_bits_minus_1
+      }
+      f(3); // enable_superres, enable_cdef, enable_restoration
+      // 5.5.2. Color config syntax
+      int highBitdepth = f(1); // high_bitdepth
+      if (seqProfile == 2 && highBitdepth == 1) {
+        f(1); // twelve_bit
+      }
+      int monoChrome = 0;
+      if (seqProfile != 1) {
+        monoChrome = f(1); // mono_chrome
+      }
+      colorDescriptionPresentFlag = f(1); // color_description_present_flag
+      if (colorDescriptionPresentFlag == 1) {
+        colorPrimaries = f(8); // color_primaries
+        transferCharacteristics = f(8); // transfer_characteristics
+        matrixCoefficients = f(8); // matrix_coefficients
+        if (monoChrome == 0
+            && colorPrimaries == 1 // CP_BT_709
+            && transferCharacteristics == 13 // TC_SRGB
+            && matrixCoefficients == 0) { // MC_IDENTITY
+          colorRange = 1;
+        } else {
+          colorRange = f(1); // color_range
+        }
+      }
+      return true;
+    }
+  }
+
   // hdrStaticInfo is allocated using allocate() in allocateHdrStaticInfo().
   @SuppressWarnings("ByteBufferBackingArray")
   private static void parseVideoSampleEntry(
@@ -1237,6 +1365,16 @@ import java.util.List;
           bitdepthLuma = highBitdepth ? 10 : 8;
         }
         bitdepthChroma = bitdepthLuma;
+        // See av1C atom syntax: https://aomediacodec.github.io/av1-isobmff/#av1codecconfigurationbox-syntax
+        parent.skipBytes(4); // skip to configOBUs[]
+        Av1BitstreamParser parser = new Av1BitstreamParser(parent);
+        if (parser.parseSequenceHeader() && parser.colorDescriptionPresentFlag == 1) {
+          colorSpace = ColorInfo.isoColorPrimariesToColorSpace(parser.colorPrimaries);
+          colorTransfer = ColorInfo.isoTransferCharacteristicsToColorTransfer(
+              parser.transferCharacteristics
+          );
+          colorRange = (parser.colorRange == 1) ? C.COLOR_RANGE_FULL : C.COLOR_RANGE_LIMITED;
+        }
       } else if (childAtomType == Atom.TYPE_clli) {
         if (hdrStaticInfo == null) {
           hdrStaticInfo = allocateHdrStaticInfo();
