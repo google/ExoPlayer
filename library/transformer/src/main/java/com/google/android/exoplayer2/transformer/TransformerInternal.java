@@ -400,23 +400,25 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         return;
       }
       ExportException finalException = exception;
-      applicationHandler.post(
-          () ->
-              listener.onError(
-                  processedInputsBuilder.build(),
-                  encoderFactory.getAudioEncoderName(),
-                  encoderFactory.getVideoEncoderName(),
-                  finalException));
+      checkState(
+          applicationHandler.post(
+              () ->
+                  listener.onError(
+                      processedInputsBuilder.build(),
+                      encoderFactory.getAudioEncoderName(),
+                      encoderFactory.getVideoEncoderName(),
+                      finalException)));
     } else {
       if (releasedPreviously) {
         return;
       }
-      applicationHandler.post(
-          () ->
-              listener.onCompleted(
-                  processedInputsBuilder.build(),
-                  encoderFactory.getAudioEncoderName(),
-                  encoderFactory.getVideoEncoderName()));
+      checkState(
+          applicationHandler.post(
+              () ->
+                  listener.onCompleted(
+                      processedInputsBuilder.build(),
+                      encoderFactory.getAudioEncoderName(),
+                      encoderFactory.getVideoEncoderName())));
     }
   }
 
