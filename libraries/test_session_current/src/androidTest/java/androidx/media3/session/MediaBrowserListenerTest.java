@@ -19,22 +19,18 @@ import static androidx.media3.session.LibraryResult.RESULT_ERROR_BAD_VALUE;
 import static androidx.media3.session.LibraryResult.RESULT_SUCCESS;
 import static androidx.media3.session.MediaConstants.EXTRAS_KEY_COMPLETION_STATUS;
 import static androidx.media3.session.MediaConstants.EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED;
+import static androidx.media3.session.MockMediaLibraryService.createNotifyChildrenChangedBundle;
 import static androidx.media3.test.session.common.CommonConstants.MOCK_MEDIA3_LIBRARY_SERVICE;
 import static androidx.media3.test.session.common.MediaBrowserConstants.CUSTOM_ACTION_ASSERT_PARAMS;
 import static androidx.media3.test.session.common.MediaBrowserConstants.LONG_LIST_COUNT;
-import static androidx.media3.test.session.common.MediaBrowserConstants.NOTIFY_CHILDREN_CHANGED_EXTRAS;
-import static androidx.media3.test.session.common.MediaBrowserConstants.NOTIFY_CHILDREN_CHANGED_ITEM_COUNT;
 import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_ID;
 import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_EXTRAS;
 import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_EXTRAS_KEY;
 import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_EXTRAS_VALUE;
 import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_ID;
-import static androidx.media3.test.session.common.MediaBrowserConstants.SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL;
-import static androidx.media3.test.session.common.MediaBrowserConstants.SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL_WITH_NON_SUBSCRIBED_ID;
-import static androidx.media3.test.session.common.MediaBrowserConstants.SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE;
-import static androidx.media3.test.session.common.MediaBrowserConstants.SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE_WITH_NON_SUBSCRIBED_ID;
+import static androidx.media3.test.session.common.MediaBrowserConstants.SUBSCRIBE_PARENT_ID_1;
+import static androidx.media3.test.session.common.MediaBrowserConstants.SUBSCRIBE_PARENT_ID_2;
 import static androidx.media3.test.session.common.TestUtils.LONG_TIMEOUT_MS;
-import static androidx.media3.test.session.common.TestUtils.NO_RESPONSE_TIMEOUT_MS;
 import static androidx.media3.test.session.common.TestUtils.TIMEOUT_MS;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -48,6 +44,8 @@ import androidx.media3.test.session.common.TestUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -431,7 +429,7 @@ public class MediaBrowserListenerTest extends MediaControllerListenerTest {
   @Test
   public void onChildrenChanged_calledWhenSubscribed() throws Exception {
     // This test uses MediaLibrarySession.notifyChildrenChanged().
-    String expectedParentId = SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL;
+    String expectedParentId = SUBSCRIBE_PARENT_ID_1;
 
     CountDownLatch latch = new CountDownLatch(1);
     AtomicReference<String> parentIdRef = new AtomicReference<>();
@@ -453,7 +451,7 @@ public class MediaBrowserListenerTest extends MediaControllerListenerTest {
     LibraryResult<Void> result =
         threadTestRule
             .getHandler()
-            .postAndSync(() -> browser.subscribe(expectedParentId, null))
+            .postAndSync(() -> browser.subscribe(expectedParentId, /* params= */ null))
             .get(TIMEOUT_MS, MILLISECONDS);
     assertThat(result.resultCode).isEqualTo(RESULT_SUCCESS);
 
@@ -461,27 +459,23 @@ public class MediaBrowserListenerTest extends MediaControllerListenerTest {
     // notifyChildrenChanged() in its onSubscribe() method.
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
     assertThat(parentIdRef.get()).isEqualTo(expectedParentId);
-    assertThat(itemCountRef.get()).isEqualTo(NOTIFY_CHILDREN_CHANGED_ITEM_COUNT);
-    MediaTestUtils.assertLibraryParamsEquals(paramsRef.get(), NOTIFY_CHILDREN_CHANGED_EXTRAS);
+    assertThat(itemCountRef.get()).isEqualTo(Integer.MAX_VALUE);
   }
 
   @Test
-  public void onChildrenChanged_calledWhenSubscribed2() throws Exception {
-    // This test uses MediaLibrarySession.notifyChildrenChanged(ControllerInfo).
-    String expectedParentId = SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE;
+  public void onChildrenChanged_calledWhenSubscribedAndWithDelay() throws Exception {
+    String expectedParentId = SUBSCRIBE_PARENT_ID_2;
 
-    CountDownLatch latch = new CountDownLatch(1);
-    AtomicReference<String> parentIdRef = new AtomicReference<>();
-    AtomicInteger itemCountRef = new AtomicInteger();
-    AtomicReference<LibraryParams> paramsRef = new AtomicReference<>();
+    CountDownLatch latch = new CountDownLatch(2);
+    List<String> parentIds = new ArrayList<>();
+    List<Integer> itemCounts = new ArrayList<>();
     MediaBrowser.Listener browserListenerProxy =
         new MediaBrowser.Listener() {
           @Override
           public void onChildrenChanged(
               MediaBrowser browser, String parentId, int itemCount, LibraryParams params) {
-            parentIdRef.set(parentId);
-            itemCountRef.set(itemCount);
-            paramsRef.set(params);
+            parentIds.add(parentId);
+            itemCounts.add(itemCount);
             latch.countDown();
           }
         };
@@ -490,75 +484,108 @@ public class MediaBrowserListenerTest extends MediaControllerListenerTest {
     LibraryResult<Void> result =
         threadTestRule
             .getHandler()
-            .postAndSync(() -> browser.subscribe(expectedParentId, null))
+            .postAndSync(
+                () -> {
+                  // Bundle to request to call onChildrenChanged() after a given delay.
+                  Bundle requestNotifyChildren =
+                      createNotifyChildrenChangedBundle(
+                          expectedParentId,
+                          /* itemCount= */ 12,
+                          /* delayMs= */ 250L,
+                          /* broadcast= */ false);
+                  return browser.subscribe(
+                      expectedParentId,
+                      new LibraryParams.Builder().setExtras(requestNotifyChildren).build());
+                })
             .get(TIMEOUT_MS, MILLISECONDS);
     assertThat(result.resultCode).isEqualTo(RESULT_SUCCESS);
 
-    // The MediaLibrarySession in MockMediaLibraryService is supposed to call
-    // notifyChildrenChanged(ControllerInfo) in its onSubscribe() method.
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
-    assertThat(parentIdRef.get()).isEqualTo(expectedParentId);
-    assertThat(itemCountRef.get()).isEqualTo(NOTIFY_CHILDREN_CHANGED_ITEM_COUNT);
-    MediaTestUtils.assertLibraryParamsEquals(paramsRef.get(), NOTIFY_CHILDREN_CHANGED_EXTRAS);
+    assertThat(parentIds).containsExactly(expectedParentId, expectedParentId);
+    assertThat(itemCounts).containsExactly(Integer.MAX_VALUE, 12);
   }
 
   @Test
   public void onChildrenChanged_notCalledWhenNotSubscribed() throws Exception {
-    // This test uses MediaLibrarySession.notifyChildrenChanged().
-    String subscribedMediaId = SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL_WITH_NON_SUBSCRIBED_ID;
-    CountDownLatch latch = new CountDownLatch(1);
-
-    MediaBrowser.Listener browserListenerProxy =
+    String mediaId1 = SUBSCRIBE_PARENT_ID_1;
+    String mediaId2 = SUBSCRIBE_PARENT_ID_2;
+    List<String> notifiedParentIds = new ArrayList<>();
+    List<Integer> notifiedItemCounts = new ArrayList<>();
+    CountDownLatch childrenChangedLatch = new CountDownLatch(4);
+    CountDownLatch disconnectLatch = new CountDownLatch(2);
+    MediaBrowser.Listener browserListener =
         new MediaBrowser.Listener() {
           @Override
           public void onChildrenChanged(
               MediaBrowser browser, String parentId, int itemCount, LibraryParams params) {
-            latch.countDown();
+            notifiedParentIds.add(parentId);
+            notifiedItemCounts.add(itemCount);
+            childrenChangedLatch.countDown();
           }
-        };
 
-    MediaBrowser browser = createBrowser(null, browserListenerProxy);
-    LibraryResult<Void> result =
-        threadTestRule
-            .getHandler()
-            .postAndSync(() -> browser.subscribe(subscribedMediaId, null))
-            .get(TIMEOUT_MS, MILLISECONDS);
-    assertThat(result.resultCode).isEqualTo(RESULT_SUCCESS);
-
-    // The MediaLibrarySession in MockMediaLibraryService is supposed to call
-    // notifyChildrenChanged() in its onSubscribe() method, but with a different media ID.
-    // Therefore, onChildrenChanged() should not be called.
-    assertThat(latch.await(NO_RESPONSE_TIMEOUT_MS, MILLISECONDS)).isFalse();
-  }
-
-  @Test
-  public void onChildrenChanged_notCalledWhenNotSubscribed2() throws Exception {
-    // This test uses MediaLibrarySession.notifyChildrenChanged(ControllerInfo).
-    String subscribedMediaId = SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE_WITH_NON_SUBSCRIBED_ID;
-    CountDownLatch latch = new CountDownLatch(1);
-
-    MediaBrowser.Listener browserListenerProxy =
-        new MediaBrowser.Listener() {
           @Override
-          public void onChildrenChanged(
-              MediaBrowser browser, String parentId, int itemCount, LibraryParams params) {
-            latch.countDown();
+          public void onDisconnected(MediaController controller) {
+            disconnectLatch.countDown();
           }
         };
-
-    MediaBrowser browser = createBrowser(null, browserListenerProxy);
-    LibraryResult<Void> result =
+    MediaBrowser browser1 = createBrowser(/* connectionHints= */ null, browserListener);
+    MediaBrowser browser2 = createBrowser(/* connectionHints= */ null, browserListener);
+    // Subscribe both browsers each to a different media IDs and request a second update after a
+    // delay.
+    LibraryResult<Void> subscriptionResult1 =
         threadTestRule
             .getHandler()
-            .postAndSync(() -> browser.subscribe(subscribedMediaId, null))
+            .postAndSync(
+                () -> {
+                  Bundle requestNotifyChildren =
+                      createNotifyChildrenChangedBundle(
+                          mediaId1,
+                          /* itemCount= */ 123,
+                          /* delayMs= */ 200L,
+                          /* broadcast= */ true);
+                  return browser1.subscribe(
+                      mediaId1,
+                      new LibraryParams.Builder().setExtras(requestNotifyChildren).build());
+                })
             .get(TIMEOUT_MS, MILLISECONDS);
-    assertThat(result.resultCode).isEqualTo(RESULT_SUCCESS);
+    assertThat(subscriptionResult1.resultCode).isEqualTo(RESULT_SUCCESS);
+    LibraryResult<Void> result2 =
+        threadTestRule
+            .getHandler()
+            .postAndSync(
+                () -> {
+                  Bundle requestNotifyChildren =
+                      createNotifyChildrenChangedBundle(
+                          mediaId2,
+                          /* itemCount= */ 567,
+                          /* delayMs= */ 200L,
+                          /* broadcast= */ true);
+                  return browser2.subscribe(
+                      mediaId2,
+                      new LibraryParams.Builder().setExtras(requestNotifyChildren).build());
+                })
+            .get(TIMEOUT_MS, MILLISECONDS);
+    assertThat(result2.resultCode).isEqualTo(RESULT_SUCCESS);
 
-    // The MediaLibrarySession in MockMediaLibraryService is supposed to call
-    // notifyChildrenChanged(ControllerInfo) in its onSubscribe() method, but
-    // with a different media ID.
-    // Therefore, onChildrenChanged() should not be called.
-    assertThat(latch.await(NO_RESPONSE_TIMEOUT_MS, MILLISECONDS)).isFalse();
+    assertThat(childrenChangedLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(notifiedParentIds)
+        .containsExactly(
+            mediaId1, // callback when subscribing browser1
+            mediaId2, // callback when subscribing browser2
+            mediaId1, // callback on first delayed notification
+            mediaId2) // callback on second delayed notification
+        .inOrder();
+    assertThat(notifiedItemCounts)
+        .containsExactly(Integer.MAX_VALUE, Integer.MAX_VALUE, 123, 567)
+        .inOrder();
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              browser1.release();
+              browser2.release();
+            });
+    assertThat(disconnectLatch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
   }
 
   private void setExpectedLibraryParam(MediaBrowser browser, LibraryParams params)

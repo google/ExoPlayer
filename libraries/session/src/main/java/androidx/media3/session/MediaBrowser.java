@@ -187,16 +187,19 @@ public final class MediaBrowser extends MediaController {
   public interface Listener extends MediaController.Listener {
 
     /**
-     * Called when there's change in the parent's children after you've subscribed to the parent
+     * Called when there's a change in the parent's children after you've subscribed to the parent
      * with {@link #subscribe}.
      *
-     * <p>This method is called when the library service called {@link
-     * MediaLibraryService.MediaLibrarySession#notifyChildrenChanged} for the parent.
+     * <p>This method is called when the app calls {@link
+     * MediaLibraryService.MediaLibrarySession#notifyChildrenChanged} for the parent, or it is
+     * called by the library immediately after calling {@link MediaBrowser#subscribe(String,
+     * LibraryParams)}.
      *
      * @param browser The browser for this event.
      * @param parentId The non-empty parent id that you've specified with {@link #subscribe(String,
      *     LibraryParams)}.
-     * @param itemCount The number of children.
+     * @param itemCount The number of children, or {@link Integer#MAX_VALUE} if the number of items
+     *     is unknown.
      * @param params The optional parameters from the library service. Can be differ from the {@code
      *     params} that you've specified with {@link #subscribe(String, LibraryParams)}.
      */

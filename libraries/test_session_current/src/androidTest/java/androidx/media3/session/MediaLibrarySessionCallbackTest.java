@@ -15,11 +15,15 @@
  */
 package androidx.media3.session;
 
+import static androidx.media3.session.LibraryResult.RESULT_ERROR_NOT_SUPPORTED;
+import static androidx.media3.session.LibraryResult.RESULT_ERROR_SESSION_SETUP_REQUIRED;
+import static androidx.media3.test.session.common.MediaBrowserConstants.SUBSCRIBE_PARENT_ID_1;
 import static androidx.media3.test.session.common.TestUtils.TIMEOUT_MS;
 import static com.google.common.truth.Truth.assertThat;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.content.Context;
+import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
@@ -37,7 +41,9 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -77,11 +83,13 @@ public class MediaLibrarySessionCallbackTest {
   }
 
   @Test
-  public void onSubscribe() throws Exception {
-    String testParentId = "testSubscribeId";
+  public void onSubscribeUnsubscribe() throws Exception {
+    String testParentId = "testSubscribeUnsubscribeId";
     LibraryParams testParams = MediaTestUtils.createLibraryParams();
-
-    CountDownLatch latch = new CountDownLatch(1);
+    CountDownLatch latch = new CountDownLatch(2);
+    AtomicReference<LibraryParams> libraryParamsRef = new AtomicReference<>();
+    List<ControllerInfo> subscribedControllers = new ArrayList<>();
+    List<String> parentIds = new ArrayList<>();
     MediaLibrarySession.Callback sessionCallback =
         new MediaLibrarySession.Callback() {
           @Override
@@ -90,24 +98,154 @@ public class MediaLibrarySessionCallbackTest {
               ControllerInfo browser,
               String parentId,
               @Nullable LibraryParams params) {
-            assertThat(parentId).isEqualTo(testParentId);
-            MediaTestUtils.assertLibraryParamsEquals(testParams, params);
+            parentIds.add(parentId);
+            libraryParamsRef.set(params);
+            subscribedControllers.addAll(session.getSubscribedControllers(parentId));
             latch.countDown();
             return Futures.immediateFuture(LibraryResult.ofVoid(params));
           }
-        };
 
+          @Override
+          public ListenableFuture<LibraryResult<Void>> onUnsubscribe(
+              MediaLibrarySession session, ControllerInfo browser, String parentId) {
+            parentIds.add(parentId);
+            subscribedControllers.addAll(session.getSubscribedControllers(parentId));
+            latch.countDown();
+            return Futures.immediateFuture(LibraryResult.ofVoid());
+          }
+        };
     MockMediaLibraryService service = new MockMediaLibraryService();
     service.attachBaseContext(context);
-
     MediaLibrarySession session =
         sessionTestRule.ensureReleaseAfterTest(
             new MediaLibrarySession.Builder(service, player, sessionCallback)
                 .setId("testOnSubscribe")
                 .build());
-    RemoteMediaBrowser browser = controllerTestRule.createRemoteBrowser(session.getToken());
+    Bundle connectionHints = new Bundle();
+    connectionHints.putBoolean("onSubscribeTestBrowser", true);
+    RemoteMediaBrowser browser =
+        controllerTestRule.createRemoteBrowser(session.getToken(), connectionHints);
+
     browser.subscribe(testParentId, testParams);
+    browser.unsubscribe(testParentId);
+
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(parentIds).containsExactly(testParentId, testParentId);
+    MediaTestUtils.assertLibraryParamsEquals(testParams, libraryParamsRef.get());
+    assertThat(subscribedControllers).hasSize(2);
+    assertThat(
+            subscribedControllers
+                .get(0)
+                .getConnectionHints()
+                .getBoolean("onSubscribeTestBrowser", /* defaultValue= */ false))
+        .isTrue();
+    assertThat(
+            subscribedControllers
+                .get(1)
+                .getConnectionHints()
+                .getBoolean("onSubscribeTestBrowser", /* defaultValue= */ false))
+        .isTrue();
+    // After unsubscribing the list of subscribed controllers is empty.
+    assertThat(session.getSubscribedControllers(testParentId)).isEmpty();
+  }
+
+  @Test
+  public void onSubscribe_returnsNonSuccessResult_subscribedControllerNotRegistered()
+      throws Exception {
+    String testParentId = "onSubscribe_returnsNoSuccessResult_subscribedControllerNotRegistered";
+    LibraryParams testParams = MediaTestUtils.createLibraryParams();
+    CountDownLatch latch = new CountDownLatch(1);
+    List<ControllerInfo> subscribedControllers = new ArrayList<>();
+    MediaLibrarySession.Callback sessionCallback =
+        new MediaLibrarySession.Callback() {
+          @Override
+          public ListenableFuture<LibraryResult<Void>> onSubscribe(
+              MediaLibrarySession session,
+              ControllerInfo browser,
+              String parentId,
+              @Nullable LibraryParams params) {
+            latch.countDown();
+            subscribedControllers.addAll(session.getSubscribedControllers(parentId));
+            return Futures.immediateFuture(LibraryResult.ofError(RESULT_ERROR_NOT_SUPPORTED));
+          }
+        };
+    MockMediaLibraryService service = new MockMediaLibraryService();
+    service.attachBaseContext(context);
+    MediaLibrarySession session =
+        sessionTestRule.ensureReleaseAfterTest(
+            new MediaLibrarySession.Builder(service, player, sessionCallback)
+                .setId("testOnSubscribe")
+                .build());
+    Bundle connectionHints = new Bundle();
+    connectionHints.putBoolean("onSubscribeTestBrowser", true);
+    RemoteMediaBrowser browser =
+        controllerTestRule.createRemoteBrowser(session.getToken(), connectionHints);
+
+    browser.subscribe(testParentId, testParams);
+
+    assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    // Inside the callback the subscribed controller is available even when not returning
+    // `RESULT_SUCCESS`. It will be removed after the result has been received.
+    assertThat(subscribedControllers).hasSize(1);
+    assertThat(
+            subscribedControllers
+                .get(0)
+                .getConnectionHints()
+                .getBoolean("onSubscribeTestBrowser", /* defaultValue= */ false))
+        .isTrue();
+    // After subscribing the list of subscribed controllers is empty, because the callback returns a
+    // result different to `RESULT_SUCCESS`.
+    assertThat(session.getSubscribedControllers(testParentId)).isEmpty();
+  }
+
+  @Test
+  public void onSubscribe_onGetItemNotImplemented_errorNotSupported() throws Exception {
+    String testParentId = SUBSCRIBE_PARENT_ID_1;
+    LibraryParams testParams = MediaTestUtils.createLibraryParams();
+    MockMediaLibraryService service = new MockMediaLibraryService();
+    service.attachBaseContext(context);
+    MediaLibrarySession session =
+        sessionTestRule.ensureReleaseAfterTest(
+            new MediaLibrarySession.Builder(service, player, new MediaLibrarySession.Callback() {})
+                .setId("testOnSubscribe")
+                .build());
+    RemoteMediaBrowser browser =
+        controllerTestRule.createRemoteBrowser(session.getToken(), Bundle.EMPTY);
+
+    int resultCode = browser.subscribe(testParentId, testParams).resultCode;
+
+    assertThat(session.getSubscribedControllers(testParentId)).isEmpty();
+    assertThat(resultCode).isEqualTo(RESULT_ERROR_NOT_SUPPORTED);
+    assertThat(session.getSubscribedControllers(testParentId)).isEmpty();
+  }
+
+  @Test
+  public void onSubscribe_onGetItemNotSucceeded_correctErrorCodeReported() throws Exception {
+    LibraryParams testParams = MediaTestUtils.createLibraryParams();
+    MockMediaLibraryService service = new MockMediaLibraryService();
+    service.attachBaseContext(context);
+    MediaLibrarySession session =
+        sessionTestRule.ensureReleaseAfterTest(
+            new MediaLibrarySession.Builder(
+                    service,
+                    player,
+                    new MediaLibrarySession.Callback() {
+                      @Override
+                      public ListenableFuture<LibraryResult<MediaItem>> onGetItem(
+                          MediaLibrarySession session, ControllerInfo browser, String mediaId) {
+                        return Futures.immediateFuture(
+                            LibraryResult.ofError(RESULT_ERROR_SESSION_SETUP_REQUIRED));
+                      }
+                    })
+                .setId("testOnSubscribe")
+                .build());
+    RemoteMediaBrowser browser =
+        controllerTestRule.createRemoteBrowser(session.getToken(), Bundle.EMPTY);
+
+    int resultCode = browser.subscribe(SUBSCRIBE_PARENT_ID_1, testParams).resultCode;
+
+    assertThat(resultCode).isEqualTo(RESULT_ERROR_SESSION_SETUP_REQUIRED);
+    assertThat(session.getSubscribedControllers(SUBSCRIBE_PARENT_ID_1)).isEmpty();
   }
 
   @Test
@@ -115,12 +253,15 @@ public class MediaLibrarySessionCallbackTest {
     String testParentId = "testUnsubscribeId";
 
     CountDownLatch latch = new CountDownLatch(1);
+    List<ControllerInfo> subscribedControllers = new ArrayList<>();
+    List<String> parentIds = new ArrayList<>();
     MediaLibrarySession.Callback sessionCallback =
         new MediaLibrarySession.Callback() {
           @Override
           public ListenableFuture<LibraryResult<Void>> onUnsubscribe(
               MediaLibrarySession session, ControllerInfo browser, String parentId) {
-            assertThat(parentId).isEqualTo(testParentId);
+            parentIds.add(parentId);
+            subscribedControllers.addAll(session.getSubscribedControllers(parentId));
             latch.countDown();
             return Futures.immediateFuture(LibraryResult.ofVoid());
           }
@@ -134,9 +275,14 @@ public class MediaLibrarySessionCallbackTest {
             new MediaLibrarySession.Builder(service, player, sessionCallback)
                 .setId("testOnUnsubscribe")
                 .build());
-    RemoteMediaBrowser browser = controllerTestRule.createRemoteBrowser(session.getToken());
+    RemoteMediaBrowser browser =
+        controllerTestRule.createRemoteBrowser(
+            session.getToken(), /* connectionHints= */ Bundle.EMPTY);
     browser.unsubscribe(testParentId);
     assertThat(latch.await(TIMEOUT_MS, MILLISECONDS)).isTrue();
+    assertThat(parentIds).containsExactly(testParentId);
+    // The browser wasn't subscribed.
+    assertThat(subscribedControllers).isEmpty();
   }
 
   @Test
@@ -167,7 +313,8 @@ public class MediaLibrarySessionCallbackTest {
             new MediaLibrarySession.Builder(service, player, callback)
                 .setId("onGetChildren_callForRecentRootNonSystemUiPackageName_notIntercepted")
                 .build());
-    RemoteMediaBrowser browser = controllerTestRule.createRemoteBrowser(session.getToken());
+    RemoteMediaBrowser browser =
+        controllerTestRule.createRemoteBrowser(session.getToken(), Bundle.EMPTY);
 
     LibraryResult<MediaItem> libraryRoot =
         browser.getLibraryRoot(new LibraryParams.Builder().setRecent(true).build());
@@ -212,7 +359,8 @@ public class MediaLibrarySessionCallbackTest {
             new MediaLibrarySession.Builder(service, player, callback)
                 .setId("onGetChildren_systemUiCallForRecentItems_returnsRecentItems")
                 .build());
-    RemoteMediaBrowser browser = controllerTestRule.createRemoteBrowser(session.getToken());
+    RemoteMediaBrowser browser =
+        controllerTestRule.createRemoteBrowser(session.getToken(), Bundle.EMPTY);
 
     LibraryResult<ImmutableList<MediaItem>> recentItem =
         browser.getChildren(
@@ -254,7 +402,8 @@ public class MediaLibrarySessionCallbackTest {
             new MediaLibrarySession.Builder(service, player, callback)
                 .setId("onGetChildren_systemUiCallForRecentItems_returnsRecentItems")
                 .build());
-    RemoteMediaBrowser browser = controllerTestRule.createRemoteBrowser(session.getToken());
+    RemoteMediaBrowser browser =
+        controllerTestRule.createRemoteBrowser(session.getToken(), Bundle.EMPTY);
 
     LibraryResult<ImmutableList<MediaItem>> recentItem =
         browser.getChildren(
@@ -291,7 +440,8 @@ public class MediaLibrarySessionCallbackTest {
             new MediaLibrarySession.Builder(service, player, callback)
                 .setId("onGetChildren_systemUiCallForRecentItems_returnsRecentItems")
                 .build());
-    RemoteMediaBrowser browser = controllerTestRule.createRemoteBrowser(session.getToken());
+    RemoteMediaBrowser browser =
+        controllerTestRule.createRemoteBrowser(session.getToken(), Bundle.EMPTY);
 
     LibraryResult<ImmutableList<MediaItem>> recentItem =
         browser.getChildren(
@@ -329,7 +479,8 @@ public class MediaLibrarySessionCallbackTest {
             new MediaLibrarySession.Builder(service, player, callback)
                 .setId("onGetChildren_systemUiCallForRecentItems_returnsRecentItems")
                 .build());
-    RemoteMediaBrowser browser = controllerTestRule.createRemoteBrowser(session.getToken());
+    RemoteMediaBrowser browser =
+        controllerTestRule.createRemoteBrowser(session.getToken(), Bundle.EMPTY);
 
     LibraryResult<ImmutableList<MediaItem>> recentItem =
         browser.getChildren(
@@ -372,7 +523,8 @@ public class MediaLibrarySessionCallbackTest {
             new MediaLibrarySession.Builder(service, player, callback)
                 .setId("onGetChildren_systemUiCallForRecentItems_returnsRecentItems")
                 .build());
-    RemoteMediaBrowser browser = controllerTestRule.createRemoteBrowser(session.getToken());
+    RemoteMediaBrowser browser =
+        controllerTestRule.createRemoteBrowser(session.getToken(), Bundle.EMPTY);
 
     LibraryResult<ImmutableList<MediaItem>> recentItem =
         browser.getChildren(

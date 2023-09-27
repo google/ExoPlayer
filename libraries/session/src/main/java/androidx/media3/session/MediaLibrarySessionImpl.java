@@ -17,8 +17,6 @@ package androidx.media3.session;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
-import static androidx.media3.common.util.Assertions.checkStateNotNull;
-import static androidx.media3.common.util.Util.postOrRun;
 import static androidx.media3.session.LibraryResult.RESULT_ERROR_NOT_SUPPORTED;
 import static androidx.media3.session.LibraryResult.RESULT_ERROR_SESSION_AUTHENTICATION_EXPIRED;
 import static androidx.media3.session.LibraryResult.RESULT_SUCCESS;
@@ -32,25 +30,25 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.v4.media.session.MediaSessionCompat;
-import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
-import androidx.collection.ArrayMap;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.Player;
 import androidx.media3.common.util.BitmapLoader;
 import androidx.media3.common.util.Log;
+import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaLibraryService.LibraryParams;
 import androidx.media3.session.MediaLibraryService.MediaLibrarySession;
 import androidx.media3.session.MediaSession.ControllerCb;
 import androidx.media3.session.MediaSession.ControllerInfo;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -61,12 +59,10 @@ import java.util.concurrent.Future;
 /* package */ class MediaLibrarySessionImpl extends MediaSessionImpl {
 
   private static final String RECENT_LIBRARY_ROOT_MEDIA_ID = "androidx.media3.session.recent.root";
-
   private final MediaLibrarySession instance;
   private final MediaLibrarySession.Callback callback;
-
-  @GuardedBy("lock")
-  private final ArrayMap<ControllerCb, Set<String>> subscriptions;
+  private final HashMultimap<String, ControllerInfo> parentIdToSubscribedControllers;
+  private final HashMultimap<ControllerCb, String> controllerToSubscribedParentIds;
 
   /** Creates an instance. */
   public MediaLibrarySessionImpl(
@@ -93,7 +89,8 @@ import java.util.concurrent.Future;
         playIfSuppressed);
     this.instance = instance;
     this.callback = callback;
-    subscriptions = new ArrayMap<>();
+    parentIdToSubscribedControllers = HashMultimap.create();
+    controllerToSubscribedParentIds = HashMultimap.create();
   }
 
   @Override
@@ -114,48 +111,6 @@ import java.util.concurrent.Future;
     @Nullable MediaLibraryServiceLegacyStub legacyStub = getLegacyBrowserService();
     return legacyStub != null
         && legacyStub.getConnectedControllersManager().isConnected(controller);
-  }
-
-  public void notifyChildrenChanged(
-      String parentId, int itemCount, @Nullable LibraryParams params) {
-    dispatchRemoteControllerTaskWithoutReturn(
-        (callback, seq) -> {
-          if (isSubscribed(callback, parentId)) {
-            callback.onChildrenChanged(seq, parentId, itemCount, params);
-          }
-        });
-  }
-
-  public void notifyChildrenChanged(
-      ControllerInfo browser, String parentId, int itemCount, @Nullable LibraryParams params) {
-    if (isMediaNotificationControllerConnected() && isMediaNotificationController(browser)) {
-      ControllerInfo systemUiBrowser = getSystemUiControllerInfo();
-      if (systemUiBrowser == null) {
-        return;
-      }
-      browser = systemUiBrowser;
-    }
-    dispatchRemoteControllerTaskWithoutReturn(
-        browser,
-        (callback, seq) -> {
-          if (!isSubscribed(callback, parentId)) {
-            return;
-          }
-          callback.onChildrenChanged(seq, parentId, itemCount, params);
-        });
-  }
-
-  public void notifySearchResultChanged(
-      ControllerInfo browser, String query, int itemCount, @Nullable LibraryParams params) {
-    if (isMediaNotificationControllerConnected() && isMediaNotificationController(browser)) {
-      ControllerInfo systemUiBrowser = getSystemUiControllerInfo();
-      if (systemUiBrowser == null) {
-        return;
-      }
-      browser = systemUiBrowser;
-    }
-    dispatchRemoteControllerTaskWithoutReturn(
-        browser, (callback, seq) -> callback.onSearchResultChanged(seq, query, itemCount, params));
   }
 
   public ListenableFuture<LibraryResult<MediaItem>> onGetLibraryRootOnHandler(
@@ -185,7 +140,7 @@ import java.util.concurrent.Future;
             maybeUpdateLegacyErrorState(result);
           }
         },
-        (Runnable r) -> postOrRun(getApplicationHandler(), r));
+        this::postOrRunOnApplicationHandler);
     return future;
   }
 
@@ -228,7 +183,7 @@ import java.util.concurrent.Future;
             verifyResultItems(result, pageSize);
           }
         },
-        (Runnable r) -> postOrRun(getApplicationHandler(), r));
+        this::postOrRunOnApplicationHandler);
     return future;
   }
 
@@ -243,21 +198,16 @@ import java.util.concurrent.Future;
             maybeUpdateLegacyErrorState(result);
           }
         },
-        (Runnable r) -> postOrRun(getApplicationHandler(), r));
+        this::postOrRunOnApplicationHandler);
     return future;
   }
 
   public ListenableFuture<LibraryResult<Void>> onSubscribeOnHandler(
       ControllerInfo browser, String parentId, @Nullable LibraryParams params) {
-    ControllerCb controller = checkStateNotNull(browser.getControllerCb());
-    synchronized (lock) {
-      @Nullable Set<String> subscription = subscriptions.get(controller);
-      if (subscription == null) {
-        subscription = new HashSet<>();
-        subscriptions.put(controller, subscription);
-      }
-      subscription.add(parentId);
-    }
+
+    ControllerCb controllerCb = checkNotNull(browser.getControllerCb());
+    controllerToSubscribedParentIds.put(controllerCb, parentId);
+    parentIdToSubscribedControllers.put(parentId, browser);
 
     // Call callbacks after adding it to the subscription list because library session may want
     // to call notifyChildrenChanged() in the callback.
@@ -270,29 +220,63 @@ import java.util.concurrent.Future;
                 instance, resolveControllerInfoForCallback(browser), parentId, params),
             "onSubscribe must return non-null future");
 
-    // When error happens, remove from the subscription list.
     future.addListener(
         () -> {
           @Nullable LibraryResult<Void> result = tryGetFutureResult(future);
           if (result == null || result.resultCode != RESULT_SUCCESS) {
-            removeSubscription(controller, parentId);
+            // Remove subscription in case of an error.
+            removeSubscription(browser, parentId);
           }
         },
-        MoreExecutors.directExecutor());
+        this::postOrRunOnApplicationHandler);
 
     return future;
+  }
+
+  public ImmutableList<ControllerInfo> getSubscribedControllers(String mediaId) {
+    return ImmutableList.copyOf(parentIdToSubscribedControllers.get(mediaId));
+  }
+
+  private boolean isSubscribed(ControllerCb controllerCb, String parentId) {
+    return controllerToSubscribedParentIds.containsEntry(controllerCb, parentId);
   }
 
   public ListenableFuture<LibraryResult<Void>> onUnsubscribeOnHandler(
       ControllerInfo browser, String parentId) {
     ListenableFuture<LibraryResult<Void>> future =
         callback.onUnsubscribe(instance, resolveControllerInfoForCallback(browser), parentId);
-
     future.addListener(
-        () -> removeSubscription(checkStateNotNull(browser.getControllerCb()), parentId),
-        MoreExecutors.directExecutor());
-
+        () -> removeSubscription(browser, parentId), this::postOrRunOnApplicationHandler);
     return future;
+  }
+
+  public void notifyChildrenChanged(
+      String parentId, int itemCount, @Nullable LibraryParams params) {
+    dispatchRemoteControllerTaskWithoutReturn(
+        (callback, seq) -> {
+          if (isSubscribed(callback, parentId)) {
+            callback.onChildrenChanged(seq, parentId, itemCount, params);
+          }
+        });
+  }
+
+  public void notifyChildrenChanged(
+      ControllerInfo browser, String parentId, int itemCount, @Nullable LibraryParams params) {
+    if (isMediaNotificationControllerConnected() && isMediaNotificationController(browser)) {
+      ControllerInfo systemUiBrowser = getSystemUiControllerInfo();
+      if (systemUiBrowser == null) {
+        return;
+      }
+      browser = systemUiBrowser;
+    }
+    dispatchRemoteControllerTaskWithoutReturn(
+        browser,
+        (callback, seq) -> {
+          if (!isSubscribed(callback, parentId)) {
+            return;
+          }
+          callback.onChildrenChanged(seq, parentId, itemCount, params);
+        });
   }
 
   public ListenableFuture<LibraryResult<Void>> onSearchOnHandler(
@@ -306,7 +290,7 @@ import java.util.concurrent.Future;
             maybeUpdateLegacyErrorState(result);
           }
         },
-        (Runnable r) -> postOrRun(getApplicationHandler(), r));
+        this::postOrRunOnApplicationHandler);
     return future;
   }
 
@@ -327,8 +311,31 @@ import java.util.concurrent.Future;
             verifyResultItems(result, pageSize);
           }
         },
-        (Runnable r) -> postOrRun(getApplicationHandler(), r));
+        this::postOrRunOnApplicationHandler);
     return future;
+  }
+
+  public void notifySearchResultChanged(
+      ControllerInfo browser, String query, int itemCount, @Nullable LibraryParams params) {
+    if (isMediaNotificationControllerConnected() && isMediaNotificationController(browser)) {
+      ControllerInfo systemUiBrowser = getSystemUiControllerInfo();
+      if (systemUiBrowser == null) {
+        return;
+      }
+      browser = systemUiBrowser;
+    }
+    dispatchRemoteControllerTaskWithoutReturn(
+        browser, (callback, seq) -> callback.onSearchResultChanged(seq, query, itemCount, params));
+  }
+
+  @Override
+  public void onDisconnectedOnHandler(ControllerInfo controller) {
+    ControllerCb controllerCb = checkNotNull(controller.getControllerCb());
+    Set<String> subscriptions = controllerToSubscribedParentIds.get(controllerCb);
+    for (String parentId : ImmutableSet.copyOf(subscriptions)) {
+      removeSubscription(controller, parentId);
+    }
+    super.onDisconnectedOnHandler(controller);
   }
 
   @Override
@@ -356,16 +363,6 @@ import java.util.concurrent.Future;
         Log.e(TAG, "Exception in using media1 API", e);
       }
     }
-  }
-
-  private boolean isSubscribed(ControllerCb callback, String parentId) {
-    synchronized (lock) {
-      @Nullable Set<String> subscriptions = this.subscriptions.get(callback);
-      if (subscriptions == null || !subscriptions.contains(parentId)) {
-        return false;
-      }
-    }
-    return true;
   }
 
   private void maybeUpdateLegacyErrorState(LibraryResult<?> result) {
@@ -410,16 +407,14 @@ import java.util.concurrent.Future;
     }
   }
 
-  private void removeSubscription(ControllerCb controllerCb, String parentId) {
-    synchronized (lock) {
-      @Nullable Set<String> subscription = subscriptions.get(controllerCb);
-      if (subscription != null) {
-        subscription.remove(parentId);
-        if (subscription.isEmpty()) {
-          subscriptions.remove(controllerCb);
-        }
-      }
-    }
+  private void removeSubscription(ControllerInfo controllerInfo, String parentId) {
+    ControllerCb controllerCb = checkNotNull(controllerInfo.getControllerCb());
+    parentIdToSubscribedControllers.remove(parentId, controllerInfo);
+    controllerToSubscribedParentIds.remove(controllerCb, parentId);
+  }
+
+  private void postOrRunOnApplicationHandler(Runnable runnable) {
+    Util.postOrRun(getApplicationHandler(), runnable);
   }
 
   private ListenableFuture<LibraryResult<ImmutableList<MediaItem>>>

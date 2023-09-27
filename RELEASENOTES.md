@@ -78,6 +78,13 @@
         all supported API levels.
     *   Fix bug where `MediaController.getCurrentPosition()` is not advancing
         when connected to a legacy `MediaSessionCompat`.
+    *   Add `MediaLibrarySession.getSubscribedControllers(mediaId)` for
+        convenience.
+    *   Override `MediaLibrarySession.Callback.onSubscribe()` to assert the
+        availability of the parent Id for which the controller subscribes. If
+        successful, the subscription is accepted and `notifyChildrenChanged()`
+        is called immediately to inform the browser
+        ([#561](https://github.com/androidx/media/issues/561)).
 *   UI:
 *   Downloads:
 *   OkHttp Extension:

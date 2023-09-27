@@ -165,21 +165,6 @@ class PlaybackService : MediaLibraryService() {
       return Futures.immediateFuture(LibraryResult.ofItem(item, /* params= */ null))
     }
 
-    override fun onSubscribe(
-      session: MediaLibrarySession,
-      browser: ControllerInfo,
-      parentId: String,
-      params: LibraryParams?
-    ): ListenableFuture<LibraryResult<Void>> {
-      val children =
-        MediaItemTree.getChildren(parentId)
-          ?: return Futures.immediateFuture(
-            LibraryResult.ofError(LibraryResult.RESULT_ERROR_BAD_VALUE)
-          )
-      session.notifyChildrenChanged(browser, parentId, children.size, params)
-      return Futures.immediateFuture(LibraryResult.ofVoid())
-    }
-
     override fun onGetChildren(
       session: MediaLibrarySession,
       browser: ControllerInfo,

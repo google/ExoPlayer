@@ -19,6 +19,8 @@ import static androidx.media3.common.util.Assertions.checkArgument;
 import static androidx.media3.common.util.Assertions.checkNotEmpty;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.session.LibraryResult.RESULT_ERROR_NOT_SUPPORTED;
+import static androidx.media3.session.LibraryResult.RESULT_SUCCESS;
+import static androidx.media3.session.LibraryResult.ofVoid;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -220,16 +222,28 @@ public abstract class MediaLibraryService extends MediaSessionService {
        * Called when a {@link MediaBrowser} subscribes to the given parent id by {@link
        * MediaBrowser#subscribe(String, LibraryParams)}.
        *
+       * <p>See {@link #getSubscribedControllers(String)} also.
+       *
+       * <p>By default, the library calls {@link Callback#onGetItem(MediaLibrarySession,
+       * ControllerInfo, String)} for the {@code parentId} that the browser requests to subscribe
+       * to. If onGetItem returns {@link LibraryResult#RESULT_SUCCESS} with a {@linkplain
+       * MediaMetadata#isBrowsable browsable item}, the subscription is accepted and {@link
+       * MediaLibrarySession#notifyChildrenChanged(ControllerInfo, String, int, LibraryParams)} is
+       * immediately called with an itemCount of {@link Integer#MAX_VALUE}. In all other cases, the
+       * subscription is rejected and a result value different to {@link
+       * LibraryResult#RESULT_SUCCESS} is returned from this method.
+       *
+       * <p>To implement a different behavior, an app can safely override this method without
+       * calling super. Return a result code {@link LibraryResult#RESULT_SUCCESS} to accept the
+       * subscription, or return a result different to {@link LibraryResult#RESULT_SUCCESS} to
+       * prevent controllers from subscribing.
+       *
        * <p>Return a {@link ListenableFuture} to send a {@link LibraryResult} back to the browser
        * asynchronously. You can also return a {@link LibraryResult} directly by using Guava's
        * {@link Futures#immediateFuture(Object)}.
        *
-       * <p>The {@link LibraryResult#params} should be the same as the given {@link LibraryParams
-       * params}.
-       *
-       * <p>It's your responsibility to keep subscriptions and call {@link
-       * MediaLibrarySession#notifyChildrenChanged(ControllerInfo, String, int, LibraryParams)} when
-       * the children of the parent are changed until it's {@link #onUnsubscribe unsubscribed}.
+       * <p>The {@link LibraryResult#params} returned to the caller should be the same as the {@link
+       * LibraryParams params} passed into this method.
        *
        * <p>Interoperability: This will be called by {@link
        * android.support.v4.media.MediaBrowserCompat#subscribe}, but won't be called by {@link
@@ -247,16 +261,43 @@ public abstract class MediaLibraryService extends MediaSessionService {
           ControllerInfo browser,
           String parentId,
           @Nullable LibraryParams params) {
-        return Futures.immediateFuture(LibraryResult.ofError(RESULT_ERROR_NOT_SUPPORTED));
+        return Util.transformFutureAsync(
+            onGetItem(session, browser, parentId),
+            result -> {
+              if (result.resultCode != RESULT_SUCCESS
+                  || result.value == null
+                  || result.value.mediaMetadata.isBrowsable == null
+                  || !result.value.mediaMetadata.isBrowsable) {
+                // Reject subscription if no browsable item for the parent media ID is returned.
+                return Futures.immediateFuture(
+                    LibraryResult.ofError(
+                        result.resultCode != RESULT_SUCCESS
+                            ? result.resultCode
+                            : LibraryResult.RESULT_ERROR_BAD_VALUE));
+              }
+              if (browser.getControllerVersion() != ControllerInfo.LEGACY_CONTROLLER_VERSION) {
+                // For legacy browsers, android.service.media.MediaBrowserService already calls
+                // MediaLibraryServiceLegacyStub.onLoadChildren() to send the current media items
+                // to the browser callback. So we call back Media3 browsers only.
+                session.notifyChildrenChanged(
+                    browser, parentId, /* itemCount= */ Integer.MAX_VALUE, params);
+              }
+              return Futures.immediateFuture(ofVoid());
+            });
       }
 
       /**
-       * Called when a {@link MediaBrowser} unsubscribes from the given parent id by {@link
+       * Called when a {@link MediaBrowser} unsubscribes from the given parent ID by {@link
        * MediaBrowser#unsubscribe(String)}.
        *
        * <p>Return a {@link ListenableFuture} to send a {@link LibraryResult} back to the browser
        * asynchronously. You can also return a {@link LibraryResult} directly by using Guava's
        * {@link Futures#immediateFuture(Object)}.
+       *
+       * <p>Apps normally don't need to implement this method, because the library maintains the
+       * subscribed controllers internally and an app can use {@link
+       * #getSubscribedControllers(String)} to get subscribed controllers for which to call {@link
+       * #notifyChildrenChanged}.
        *
        * <p>Interoperability: This will be called by {@link
        * android.support.v4.media.MediaBrowserCompat#unsubscribe}, but won't be called by {@link
@@ -270,7 +311,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
        */
       default ListenableFuture<LibraryResult<Void>> onUnsubscribe(
           MediaLibrarySession session, ControllerInfo browser, String parentId) {
-        return Futures.immediateFuture(LibraryResult.ofError(RESULT_ERROR_NOT_SUPPORTED));
+        return Futures.immediateFuture(LibraryResult.ofVoid());
       }
 
       /**
@@ -554,16 +595,31 @@ public abstract class MediaLibraryService extends MediaSessionService {
     }
 
     /**
-     * Notifies a browser that is {@link Callback#onSubscribe subscribing} to the change to a
-     * parent's children. If the browser isn't subscribing to the parent, nothing will happen.
+     * Returns the controllers that are currently subscribed to the given {@code mediaId}.
      *
-     * <p>This only tells the number of child {@link MediaItem media items}. {@link
-     * Callback#onGetChildren} will be called by the browser afterwards to get the list of {@link
-     * MediaItem media items}.
+     * <p>Use the returned {@linkplain ControllerInfo controller infos} to call {@link
+     * #notifyChildrenChanged} in case the children of the media item with the given media ID have
+     * changed and the connected controller should fetch them again.
+     *
+     * <p>Note that calling {@link #notifyChildrenChanged} for a controller that didn't subscribe to
+     * the media ID results in a no-op.
+     *
+     * @param mediaId The ID of the media item for which to get subscribed controllers.
+     * @return A list with the subscribed controllers, may be empty.
+     */
+    @UnstableApi
+    public ImmutableList<ControllerInfo> getSubscribedControllers(String mediaId) {
+      return getImpl().getSubscribedControllers(mediaId);
+    }
+
+    /**
+     * Notifies a browser that is {@link Callback#onSubscribe subscribed} to a browsable media item
+     * that the children of the item have changed. This method is also called immediately after
+     * subscribing was successful.
      *
      * @param browser The browser to notify.
      * @param parentId The non-empty id of the parent with changes to its children.
-     * @param itemCount The number of children.
+     * @param itemCount The number of children, or {@link Integer#MAX_VALUE} if unknown.
      * @param params The parameters given by {@link Callback#onSubscribe}.
      */
     public void notifyChildrenChanged(

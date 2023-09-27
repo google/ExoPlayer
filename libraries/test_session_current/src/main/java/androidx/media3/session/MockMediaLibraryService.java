@@ -16,28 +16,31 @@
 package androidx.media3.session;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.session.LibraryResult.RESULT_ERROR_BAD_VALUE;
 import static androidx.media3.session.MediaConstants.EXTRAS_KEY_COMPLETION_STATUS;
 import static androidx.media3.session.MediaConstants.EXTRAS_KEY_ERROR_RESOLUTION_ACTION_INTENT_COMPAT;
 import static androidx.media3.session.MediaConstants.EXTRAS_KEY_ERROR_RESOLUTION_ACTION_LABEL_COMPAT;
 import static androidx.media3.session.MediaConstants.EXTRAS_VALUE_COMPLETION_STATUS_PARTIALLY_PLAYED;
 import static androidx.media3.session.MediaConstants.EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY;
-import static androidx.media3.session.MediaTestUtils.assertLibraryParamsEquals;
 import static androidx.media3.test.session.common.CommonConstants.SUPPORT_APP_PACKAGE_NAME;
 import static androidx.media3.test.session.common.MediaBrowserConstants.CUSTOM_ACTION;
 import static androidx.media3.test.session.common.MediaBrowserConstants.CUSTOM_ACTION_ASSERT_PARAMS;
 import static androidx.media3.test.session.common.MediaBrowserConstants.CUSTOM_ACTION_EXTRAS;
+import static androidx.media3.test.session.common.MediaBrowserConstants.EXTRAS_KEY_NOTIFY_CHILDREN_CHANGED_BROADCAST;
+import static androidx.media3.test.session.common.MediaBrowserConstants.EXTRAS_KEY_NOTIFY_CHILDREN_CHANGED_DELAY_MS;
+import static androidx.media3.test.session.common.MediaBrowserConstants.EXTRAS_KEY_NOTIFY_CHILDREN_CHANGED_ITEM_COUNT;
+import static androidx.media3.test.session.common.MediaBrowserConstants.EXTRAS_KEY_NOTIFY_CHILDREN_CHANGED_MEDIA_ID;
 import static androidx.media3.test.session.common.MediaBrowserConstants.GET_CHILDREN_RESULT;
 import static androidx.media3.test.session.common.MediaBrowserConstants.LONG_LIST_COUNT;
 import static androidx.media3.test.session.common.MediaBrowserConstants.MEDIA_ID_GET_BROWSABLE_ITEM;
 import static androidx.media3.test.session.common.MediaBrowserConstants.MEDIA_ID_GET_ITEM_WITH_METADATA;
 import static androidx.media3.test.session.common.MediaBrowserConstants.MEDIA_ID_GET_PLAYABLE_ITEM;
-import static androidx.media3.test.session.common.MediaBrowserConstants.NOTIFY_CHILDREN_CHANGED_EXTRAS;
-import static androidx.media3.test.session.common.MediaBrowserConstants.NOTIFY_CHILDREN_CHANGED_ITEM_COUNT;
 import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_ID;
 import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_ID_AUTH_EXPIRED_ERROR;
 import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_ID_AUTH_EXPIRED_ERROR_KEY_ERROR_RESOLUTION_ACTION_LABEL;
 import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_ID_ERROR;
 import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_ID_LONG_LIST;
+import static androidx.media3.test.session.common.MediaBrowserConstants.PARENT_ID_NO_CHILDREN;
 import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_EXTRAS;
 import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_ID;
 import static androidx.media3.test.session.common.MediaBrowserConstants.ROOT_ID_SUPPORTS_BROWSABLE_CHILDREN_ONLY;
@@ -48,10 +51,8 @@ import static androidx.media3.test.session.common.MediaBrowserConstants.SEARCH_Q
 import static androidx.media3.test.session.common.MediaBrowserConstants.SEARCH_RESULT;
 import static androidx.media3.test.session.common.MediaBrowserConstants.SEARCH_RESULT_COUNT;
 import static androidx.media3.test.session.common.MediaBrowserConstants.SEARCH_TIME_IN_MS;
-import static androidx.media3.test.session.common.MediaBrowserConstants.SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL;
-import static androidx.media3.test.session.common.MediaBrowserConstants.SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL_WITH_NON_SUBSCRIBED_ID;
-import static androidx.media3.test.session.common.MediaBrowserConstants.SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE;
-import static androidx.media3.test.session.common.MediaBrowserConstants.SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE_WITH_NON_SUBSCRIBED_ID;
+import static androidx.media3.test.session.common.MediaBrowserConstants.SUBSCRIBE_PARENT_ID_1;
+import static androidx.media3.test.session.common.MediaBrowserConstants.SUBSCRIBE_PARENT_ID_2;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.app.PendingIntent;
@@ -70,6 +71,7 @@ import androidx.media3.common.util.Log;
 import androidx.media3.common.util.Util;
 import androidx.media3.session.MediaSession.ControllerInfo;
 import androidx.media3.test.session.common.CommonConstants;
+import androidx.media3.test.session.common.TestHandler;
 import androidx.media3.test.session.common.TestUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.Futures;
@@ -77,6 +79,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -108,8 +111,6 @@ public class MockMediaLibraryService extends MediaLibraryService {
           .build();
   public static final LibraryParams ROOT_PARAMS =
       new LibraryParams.Builder().setExtras(ROOT_EXTRAS).build();
-  private static final LibraryParams NOTIFY_CHILDREN_CHANGED_PARAMS =
-      new LibraryParams.Builder().setExtras(NOTIFY_CHILDREN_CHANGED_EXTRAS).build();
 
   private static final String TAG = "MockMediaLibrarySvc2";
 
@@ -121,11 +122,11 @@ public class MockMediaLibraryService extends MediaLibraryService {
   private static LibraryParams expectedParams;
 
   @Nullable private static byte[] testArtworkData;
-
   private final AtomicInteger boundControllerCount;
   private final ConditionVariable allControllersUnbound;
 
   @Nullable MediaLibrarySession session;
+  @Nullable TestHandler handler;
   @Nullable HandlerThread handlerThread;
 
   public MockMediaLibraryService() {
@@ -159,6 +160,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
     super.onCreate();
     handlerThread = new HandlerThread(TAG);
     handlerThread.start();
+    handler = new TestHandler(handlerThread.getLooper());
   }
 
   @Override
@@ -231,6 +233,16 @@ public class MockMediaLibraryService extends MediaLibraryService {
     }
   }
 
+  public static Bundle createNotifyChildrenChangedBundle(
+      String mediaId, int itemCount, long delayMs, boolean broadcast) {
+    Bundle bundle = new Bundle();
+    bundle.putString(EXTRAS_KEY_NOTIFY_CHILDREN_CHANGED_MEDIA_ID, mediaId);
+    bundle.putInt(EXTRAS_KEY_NOTIFY_CHILDREN_CHANGED_ITEM_COUNT, itemCount);
+    bundle.putLong(EXTRAS_KEY_NOTIFY_CHILDREN_CHANGED_DELAY_MS, delayMs);
+    bundle.putBoolean(EXTRAS_KEY_NOTIFY_CHILDREN_CHANGED_BROADCAST, broadcast);
+    return bundle;
+  }
+
   private class TestLibrarySessionCallback implements MediaLibrarySession.Callback {
 
     @Override
@@ -293,8 +305,13 @@ public class MockMediaLibraryService extends MediaLibraryService {
     @Override
     public ListenableFuture<LibraryResult<MediaItem>> onGetItem(
         MediaLibrarySession session, ControllerInfo browser, String mediaId) {
+      if (mediaId.startsWith(SUBSCRIBE_PARENT_ID_1)) {
+        return Futures.immediateFuture(
+            LibraryResult.ofItem(createBrowsableMediaItem(mediaId), /* params= */ null));
+      }
       switch (mediaId) {
         case MEDIA_ID_GET_BROWSABLE_ITEM:
+        case SUBSCRIBE_PARENT_ID_2:
           return Futures.immediateFuture(
               LibraryResult.ofItem(createBrowsableMediaItem(mediaId), /* params= */ null));
         case MEDIA_ID_GET_PLAYABLE_ITEM:
@@ -306,7 +323,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
               LibraryResult.ofItem(createMediaItemWithMetadata(mediaId), /* params= */ null));
         default: // fall out
       }
-      return Futures.immediateFuture(LibraryResult.ofError(LibraryResult.RESULT_ERROR_BAD_VALUE));
+      return Futures.immediateFuture(LibraryResult.ofError(RESULT_ERROR_BAD_VALUE));
     }
 
     @Override
@@ -318,19 +335,21 @@ public class MockMediaLibraryService extends MediaLibraryService {
         int pageSize,
         @Nullable LibraryParams params) {
       assertLibraryParams(params);
-      if (PARENT_ID.equals(parentId)) {
+      if (Objects.equals(parentId, PARENT_ID_NO_CHILDREN)) {
+        return Futures.immediateFuture(LibraryResult.ofItemList(ImmutableList.of(), params));
+      } else if (Objects.equals(parentId, PARENT_ID)) {
         return Futures.immediateFuture(
             LibraryResult.ofItemList(
                 getPaginatedResult(GET_CHILDREN_RESULT, page, pageSize), params));
-      } else if (PARENT_ID_LONG_LIST.equals(parentId)) {
+      } else if (Objects.equals(parentId, PARENT_ID_LONG_LIST)) {
         List<MediaItem> list = new ArrayList<>(LONG_LIST_COUNT);
         for (int i = 0; i < LONG_LIST_COUNT; i++) {
           list.add(createPlayableMediaItem(TestUtils.getMediaIdInFakeTimeline(i)));
         }
         return Futures.immediateFuture(LibraryResult.ofItemList(list, params));
-      } else if (PARENT_ID_ERROR.equals(parentId)) {
-        return Futures.immediateFuture(LibraryResult.ofError(LibraryResult.RESULT_ERROR_BAD_VALUE));
-      } else if (PARENT_ID_AUTH_EXPIRED_ERROR.equals(parentId)) {
+      } else if (Objects.equals(parentId, PARENT_ID_ERROR)) {
+        return Futures.immediateFuture(LibraryResult.ofError(RESULT_ERROR_BAD_VALUE));
+      } else if (Objects.equals(parentId, PARENT_ID_AUTH_EXPIRED_ERROR)) {
         Bundle bundle = new Bundle();
         Intent signInIntent = new Intent("action");
         int flags = Util.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0;
@@ -346,8 +365,37 @@ public class MockMediaLibraryService extends MediaLibraryService {
                 LibraryResult.RESULT_ERROR_SESSION_AUTHENTICATION_EXPIRED,
                 new LibraryParams.Builder().setExtras(bundle).build()));
       }
-      // Includes the case of PARENT_ID_NO_CHILDREN.
-      return Futures.immediateFuture(LibraryResult.ofItemList(ImmutableList.of(), params));
+      return Futures.immediateFuture(LibraryResult.ofError(RESULT_ERROR_BAD_VALUE, params));
+    }
+
+    @Override
+    public ListenableFuture<LibraryResult<Void>> onSubscribe(
+        MediaLibrarySession session,
+        ControllerInfo browser,
+        String parentId,
+        @Nullable LibraryParams params) {
+      if (params != null) {
+        String mediaId = params.extras.getString(EXTRAS_KEY_NOTIFY_CHILDREN_CHANGED_MEDIA_ID, null);
+        long delayMs = params.extras.getLong(EXTRAS_KEY_NOTIFY_CHILDREN_CHANGED_DELAY_MS, 0L);
+        if (mediaId != null && delayMs > 0) {
+          int itemCount =
+              params.extras.getInt(
+                  EXTRAS_KEY_NOTIFY_CHILDREN_CHANGED_ITEM_COUNT, Integer.MAX_VALUE);
+          boolean broadcast =
+              params.extras.getBoolean(EXTRAS_KEY_NOTIFY_CHILDREN_CHANGED_BROADCAST, false);
+          // Post a delayed update as requested.
+          handler.postDelayed(
+              () -> {
+                if (broadcast) {
+                  session.notifyChildrenChanged(mediaId, itemCount, params);
+                } else {
+                  session.notifyChildrenChanged(browser, mediaId, itemCount, params);
+                }
+              },
+              delayMs);
+        }
+      }
+      return MediaLibrarySession.Callback.super.onSubscribe(session, browser, parentId, params);
     }
 
     @Override
@@ -406,44 +454,8 @@ public class MockMediaLibraryService extends MediaLibraryService {
         return Futures.immediateFuture(LibraryResult.ofItemList(ImmutableList.of(), params));
       } else {
         // SEARCH_QUERY_ERROR will be handled here.
-        return Futures.immediateFuture(LibraryResult.ofError(LibraryResult.RESULT_ERROR_BAD_VALUE));
+        return Futures.immediateFuture(LibraryResult.ofError(RESULT_ERROR_BAD_VALUE));
       }
-    }
-
-    @Override
-    public ListenableFuture<LibraryResult<Void>> onSubscribe(
-        MediaLibrarySession session,
-        ControllerInfo browser,
-        String parentId,
-        LibraryParams params) {
-      assertLibraryParams(params);
-      String unsubscribedId = "unsubscribedId";
-      switch (parentId) {
-        case SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL:
-          MockMediaLibraryService.this.session.notifyChildrenChanged(
-              parentId, NOTIFY_CHILDREN_CHANGED_ITEM_COUNT, NOTIFY_CHILDREN_CHANGED_PARAMS);
-          return Futures.immediateFuture(LibraryResult.ofVoid(params));
-        case SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE:
-          MockMediaLibraryService.this.session.notifyChildrenChanged(
-              browser,
-              parentId,
-              NOTIFY_CHILDREN_CHANGED_ITEM_COUNT,
-              NOTIFY_CHILDREN_CHANGED_PARAMS);
-          return Futures.immediateFuture(LibraryResult.ofVoid(params));
-        case SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL_WITH_NON_SUBSCRIBED_ID:
-          MockMediaLibraryService.this.session.notifyChildrenChanged(
-              unsubscribedId, NOTIFY_CHILDREN_CHANGED_ITEM_COUNT, NOTIFY_CHILDREN_CHANGED_PARAMS);
-          return Futures.immediateFuture(LibraryResult.ofVoid(params));
-        case SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE_WITH_NON_SUBSCRIBED_ID:
-          MockMediaLibraryService.this.session.notifyChildrenChanged(
-              browser,
-              unsubscribedId,
-              NOTIFY_CHILDREN_CHANGED_ITEM_COUNT,
-              NOTIFY_CHILDREN_CHANGED_PARAMS);
-          return Futures.immediateFuture(LibraryResult.ofVoid(params));
-        default: // fall out
-      }
-      return Futures.immediateFuture(LibraryResult.ofError(LibraryResult.RESULT_ERROR_BAD_VALUE));
     }
 
     @Override
@@ -471,7 +483,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
     private void assertLibraryParams(@Nullable LibraryParams params) {
       synchronized (MockMediaLibraryService.class) {
         if (assertLibraryParams) {
-          assertLibraryParamsEquals(expectedParams, params);
+          MediaTestUtils.assertLibraryParamsEquals(expectedParams, params);
         }
       }
     }

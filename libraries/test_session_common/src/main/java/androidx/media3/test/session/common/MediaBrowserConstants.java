@@ -56,16 +56,16 @@ public class MediaBrowserConstants {
   public static final List<String> SEARCH_RESULT = new ArrayList<>();
   public static final int SEARCH_RESULT_COUNT = 50;
 
-  public static final String SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL =
-      "subscribe_id_notify_children_changed_to_all";
-  public static final String SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE =
-      "subscribe_id_notify_children_changed_to_one";
-  public static final String SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL_WITH_NON_SUBSCRIBED_ID =
-      "subscribe_id_notify_children_changed_to_all_with_non_subscribed_id";
-  public static final String SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE_WITH_NON_SUBSCRIBED_ID =
-      "subscribe_id_notify_children_changed_to_one_with_non_subscribed_id";
-  public static final int NOTIFY_CHILDREN_CHANGED_ITEM_COUNT = 101;
-  public static final Bundle NOTIFY_CHILDREN_CHANGED_EXTRAS = TestUtils.createTestBundle();
+  public static final String SUBSCRIBE_PARENT_ID_1 = "subscribe_parent_id_1";
+  public static final String SUBSCRIBE_PARENT_ID_2 = "subscribe_parent_id_2";
+  public static final String EXTRAS_KEY_NOTIFY_CHILDREN_CHANGED_MEDIA_ID =
+      "notify_children_changed_media_id";
+  public static final String EXTRAS_KEY_NOTIFY_CHILDREN_CHANGED_ITEM_COUNT =
+      "notify_children_changed_item_count";
+  public static final String EXTRAS_KEY_NOTIFY_CHILDREN_CHANGED_DELAY_MS =
+      "notify_children_changed_delay";
+  public static final String EXTRAS_KEY_NOTIFY_CHILDREN_CHANGED_BROADCAST =
+      "notify_children_changed_broadcast";
 
   public static final String CUSTOM_ACTION = "customAction";
   public static final Bundle CUSTOM_ACTION_EXTRAS = new Bundle();

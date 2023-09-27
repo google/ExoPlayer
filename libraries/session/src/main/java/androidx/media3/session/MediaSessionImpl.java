@@ -97,7 +97,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private static final SessionResult RESULT_WHEN_CLOSED = new SessionResult(RESULT_INFO_SKIPPED);
 
-  protected final Object lock = new Object();
+  private final Object lock = new Object();
 
   private final Uri sessionUri;
   private final PlayerInfoChangedHandler onPlayerInfoChangedHandler;
