@@ -23,7 +23,6 @@ import static androidx.media3.common.Player.STATE_IDLE;
 import static androidx.media3.common.Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED;
 
 import android.os.Bundle;
-import android.os.SystemClock;
 import androidx.annotation.CheckResult;
 import androidx.annotation.FloatRange;
 import androidx.annotation.Nullable;
@@ -630,7 +629,7 @@ import com.google.errorprone.annotations.CanIgnoreReturnValue;
                     sessionPositionInfo.positionInfo.adGroupIndex,
                     sessionPositionInfo.positionInfo.adIndexInAdGroup),
                 sessionPositionInfo.isPlayingAd,
-                /* eventTimeMs= */ SystemClock.elapsedRealtime(),
+                sessionPositionInfo.eventTimeMs,
                 sessionPositionInfo.durationMs,
                 sessionPositionInfo.bufferedPositionMs,
                 sessionPositionInfo.bufferedPercentage,

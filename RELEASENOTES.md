@@ -76,6 +76,8 @@
         controller is always the media notification controller and apps can
         easily recognize calls coming from the notification in the same way on
         all supported API levels.
+    *   Fix bug where `MediaController.getCurrentPosition()` is not advancing
+        when connected to a legacy `MediaSessionCompat`.
 *   UI:
 *   Downloads:
 *   OkHttp Extension:

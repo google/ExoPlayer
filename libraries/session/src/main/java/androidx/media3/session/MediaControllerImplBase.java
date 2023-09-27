@@ -583,7 +583,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 
   @Override
   public long getCurrentPosition() {
-    maybeUpdateCurrentPositionMs();
+    currentPositionMs =
+        MediaUtils.getUpdatedCurrentPositionMs(
+            playerInfo,
+            currentPositionMs,
+            lastSetPlayWhenReadyCalledTimeMs,
+            getInstance().getTimeDiffMs());
     return currentPositionMs;
   }
 
@@ -2191,7 +2196,12 @@ import org.checkerframework.checker.nullness.qual.NonNull;
     }
 
     // Update position and then stop estimating until a new positionInfo arrives from the player.
-    maybeUpdateCurrentPositionMs();
+    currentPositionMs =
+        MediaUtils.getUpdatedCurrentPositionMs(
+            this.playerInfo,
+            currentPositionMs,
+            lastSetPlayWhenReadyCalledTimeMs,
+            getInstance().getTimeDiffMs());
     lastSetPlayWhenReadyCalledTimeMs = SystemClock.elapsedRealtime();
     PlayerInfo newPlayerInfo =
         this.playerInfo.copyWithPlayWhenReady(
@@ -2989,34 +2999,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
             .setDiscontinuityReason(discontinuityReason)
             .build();
     return playerInfo;
-  }
-
-  private void maybeUpdateCurrentPositionMs() {
-    boolean receivedUpdatedPositionInfo =
-        lastSetPlayWhenReadyCalledTimeMs < playerInfo.sessionPositionInfo.eventTimeMs;
-    if (!playerInfo.isPlaying) {
-      if (receivedUpdatedPositionInfo || currentPositionMs == C.TIME_UNSET) {
-        currentPositionMs = playerInfo.sessionPositionInfo.positionInfo.positionMs;
-      }
-      return;
-    }
-
-    if (!receivedUpdatedPositionInfo && currentPositionMs != C.TIME_UNSET) {
-      // Need an updated current position in order to make a new position estimation
-      return;
-    }
-
-    long elapsedTimeMs =
-        (getInstance().getTimeDiffMs() != C.TIME_UNSET)
-            ? getInstance().getTimeDiffMs()
-            : SystemClock.elapsedRealtime() - playerInfo.sessionPositionInfo.eventTimeMs;
-    long estimatedPositionMs =
-        playerInfo.sessionPositionInfo.positionInfo.positionMs
-            + (long) (elapsedTimeMs * playerInfo.playbackParameters.speed);
-    if (playerInfo.sessionPositionInfo.durationMs != C.TIME_UNSET) {
-      estimatedPositionMs = min(estimatedPositionMs, playerInfo.sessionPositionInfo.durationMs);
-    }
-    currentPositionMs = estimatedPositionMs;
   }
 
   private static Period getPeriodWithNewWindowIndex(

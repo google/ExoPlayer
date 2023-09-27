@@ -48,6 +48,7 @@ import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -1831,6 +1832,59 @@ public class MediaControllerWithMediaSessionCompatTest {
     long currentPositionMs =
         threadTestRule.getHandler().postAndSync(controller::getCurrentPosition);
     assertThat(currentPositionMs).isEqualTo(testDurationMs);
+  }
+
+  @Test
+  public void getCurrentPosition_withDelayWhileNotPlaying_doesNotAdvance() throws Exception {
+    session.setPlaybackState(
+        new PlaybackStateCompat.Builder()
+            .setState(
+                PlaybackStateCompat.STATE_PAUSED, /* position= */ 500, /* playbackSpeed= */ 2.0f)
+            .build());
+    MediaController controller = controllerTestRule.createController(session.getSessionToken());
+
+    long currentPositionMs =
+        threadTestRule
+            .getHandler()
+            .postAndSync(
+                () -> {
+                  Thread.sleep(100);
+                  return controller.getCurrentPosition();
+                });
+
+    assertThat(currentPositionMs).isEqualTo(500);
+  }
+
+  @Test
+  public void getCurrentPosition_withTimeDiffWhilePlaying_advancesWithTimeDiff() throws Exception {
+    long timeBeforeSetPlaybackState = SystemClock.elapsedRealtime();
+    session.setPlaybackState(
+        new PlaybackStateCompat.Builder()
+            .setState(
+                PlaybackStateCompat.STATE_PLAYING, /* position= */ 500, /* playbackSpeed= */ 2.0f)
+            .build());
+    MediaController controller = controllerTestRule.createController(session.getSessionToken());
+    long timeAfterControllerCreated = SystemClock.elapsedRealtime();
+
+    AtomicLong timeBeforeGetCurrentPosition = new AtomicLong();
+    AtomicLong timeAfterGetCurrentPosition = new AtomicLong();
+    AtomicLong currentPositionMs = new AtomicLong();
+    threadTestRule
+        .getHandler()
+        .postAndSync(
+            () -> {
+              Thread.sleep(100);
+              timeBeforeGetCurrentPosition.set(SystemClock.elapsedRealtime());
+              currentPositionMs.set(controller.getCurrentPosition());
+              timeAfterGetCurrentPosition.set(SystemClock.elapsedRealtime());
+            });
+
+    long minTimeElapsedMs = timeBeforeGetCurrentPosition.get() - timeAfterControllerCreated;
+    long maxTimeElapsedMs = timeAfterGetCurrentPosition.get() - timeBeforeSetPlaybackState;
+    long minExpectedPositionMs = 500 + minTimeElapsedMs * 2;
+    long maxExpectedPositionMs = 500 + maxTimeElapsedMs * 2;
+    assertThat(currentPositionMs.get())
+        .isIn(Range.closed(minExpectedPositionMs, maxExpectedPositionMs));
   }
 
   @Test

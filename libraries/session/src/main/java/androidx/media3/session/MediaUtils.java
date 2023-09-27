@@ -48,6 +48,7 @@ import static androidx.media3.common.util.Util.castNonNull;
 import static androidx.media3.common.util.Util.constrainValue;
 import static androidx.media3.session.MediaConstants.EXTRA_KEY_ROOT_CHILDREN_BROWSABLE_ONLY;
 import static java.lang.Math.max;
+import static java.lang.Math.min;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 import android.annotation.SuppressLint;
@@ -1498,6 +1499,52 @@ import java.util.concurrent.TimeoutException;
         && info1.positionInfo.periodIndex == info2.positionInfo.periodIndex
         && info1.positionInfo.adGroupIndex == info2.positionInfo.adGroupIndex
         && info1.positionInfo.adIndexInAdGroup == info2.positionInfo.adIndexInAdGroup;
+  }
+
+  /**
+   * Returns updated value for a media controller position estimate.
+   *
+   * @param playerInfo The current {@link PlayerInfo}.
+   * @param currentPositionMs The current known position estimate in milliseconds, or {@link
+   *     C#TIME_UNSET} if still unknown.
+   * @param lastSetPlayWhenReadyCalledTimeMs The {@link SystemClock#elapsedRealtime()} when the
+   *     controller was last used to call {@link MediaController#setPlayWhenReady}, or {@link
+   *     C#TIME_UNSET} if it was never called.
+   * @param timeDiffMs A time difference override since the last {@link PlayerInfo} update. Should
+   *     be {@link C#TIME_UNSET} except for testing.
+   * @return The updated position estimate in milliseconds.
+   */
+  public static long getUpdatedCurrentPositionMs(
+      PlayerInfo playerInfo,
+      long currentPositionMs,
+      long lastSetPlayWhenReadyCalledTimeMs,
+      long timeDiffMs) {
+    boolean receivedUpdatedPositionInfo =
+        lastSetPlayWhenReadyCalledTimeMs < playerInfo.sessionPositionInfo.eventTimeMs;
+    if (!playerInfo.isPlaying) {
+      if (receivedUpdatedPositionInfo || currentPositionMs == C.TIME_UNSET) {
+        return playerInfo.sessionPositionInfo.positionInfo.positionMs;
+      } else {
+        return currentPositionMs;
+      }
+    }
+
+    if (!receivedUpdatedPositionInfo && currentPositionMs != C.TIME_UNSET) {
+      // Need an updated current position in order to make a new position estimation
+      return currentPositionMs;
+    }
+
+    long elapsedTimeMs =
+        timeDiffMs != C.TIME_UNSET
+            ? timeDiffMs
+            : SystemClock.elapsedRealtime() - playerInfo.sessionPositionInfo.eventTimeMs;
+    long estimatedPositionMs =
+        playerInfo.sessionPositionInfo.positionInfo.positionMs
+            + (long) (elapsedTimeMs * playerInfo.playbackParameters.speed);
+    if (playerInfo.sessionPositionInfo.durationMs != C.TIME_UNSET) {
+      estimatedPositionMs = min(estimatedPositionMs, playerInfo.sessionPositionInfo.durationMs);
+    }
+    return estimatedPositionMs;
   }
 
   private static byte[] convertToByteArray(Bitmap bitmap) throws IOException {
