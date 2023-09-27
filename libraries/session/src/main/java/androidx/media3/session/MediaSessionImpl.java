@@ -86,6 +86,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /* package */ class MediaSessionImpl {
 
+  private static final String ANDROID_AUTOMOTIVE_LAUNCHER_PACKAGE_NAME =
+      "com.android.car.carlauncher";
+  private static final String ANDROID_AUTOMOTIVE_MEDIA_PACKAGE_NAME = "com.android.car.media";
+  private static final String ANDROID_AUTO_PACKAGE_NAME = "com.google.android.projection.gearhead";
   private static final String SYSTEM_UI_PACKAGE_NAME = "com.android.systemui";
   private static final String WRONG_THREAD_ERROR_MESSAGE =
       "Player callback method is called from a wrong thread. "
@@ -388,12 +392,35 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
    */
   public boolean isMediaNotificationController(MediaSession.ControllerInfo controllerInfo) {
     return Objects.equals(controllerInfo.getPackageName(), context.getPackageName())
-        && controllerInfo.getControllerVersion()
-            != ControllerInfo.LEGACY_CONTROLLER_INTERFACE_VERSION
+        && controllerInfo.getControllerVersion() != ControllerInfo.LEGACY_CONTROLLER_VERSION
         && controllerInfo
             .getConnectionHints()
             .getBoolean(
                 MediaNotificationManager.KEY_MEDIA_NOTIFICATION_MANAGER, /* defaultValue= */ false);
+  }
+
+  /**
+   * Returns whether the given {@link ControllerInfo} belongs to an Automotive OS controller.
+   *
+   * @param controllerInfo The controller info.
+   * @return Whether the given controller info belongs to an Automotive OS controller.
+   */
+  public boolean isAutomotiveController(ControllerInfo controllerInfo) {
+    return controllerInfo.getControllerVersion() == ControllerInfo.LEGACY_CONTROLLER_VERSION
+        && (controllerInfo.getPackageName().equals(ANDROID_AUTOMOTIVE_MEDIA_PACKAGE_NAME)
+            || controllerInfo.getPackageName().equals(ANDROID_AUTOMOTIVE_LAUNCHER_PACKAGE_NAME));
+  }
+
+  /**
+   * Returns whether the given {@link ControllerInfo} belongs to an Android Auto companion app
+   * controller.
+   *
+   * @param controllerInfo The controller info.
+   * @return Whether the given controller info belongs to an Android Auto companion app controller.
+   */
+  public boolean isAutoCompanionController(ControllerInfo controllerInfo) {
+    return controllerInfo.getControllerVersion() == ControllerInfo.LEGACY_CONTROLLER_VERSION
+        && controllerInfo.getPackageName().equals(ANDROID_AUTO_PACKAGE_NAME);
   }
 
   /**

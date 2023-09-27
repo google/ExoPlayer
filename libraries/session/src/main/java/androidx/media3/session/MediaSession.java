@@ -819,6 +819,33 @@ public class MediaSession {
   }
 
   /**
+   * Returns whether the given {@link ControllerInfo} belongs to an Automotive OS controller.
+   *
+   * <p>Note: This is not a security validation.
+   *
+   * @param controllerInfo The controller info of the connected controller.
+   * @return True if the controller into belongs to a connected Automotive OS controller.
+   */
+  @UnstableApi
+  public final boolean isAutomotiveController(ControllerInfo controllerInfo) {
+    return impl.isAutomotiveController(controllerInfo);
+  }
+
+  /**
+   * Returns whether the given {@link ControllerInfo} belongs to an Android Auto companion app
+   * controller.
+   *
+   * <p>Note: This is not a security validation.
+   *
+   * @param controllerInfo The controller info of the connected controller.
+   * @return True if the controller into belongs to a connected Auto companion client app.
+   */
+  @UnstableApi
+  public final boolean isAutoCompanionController(ControllerInfo controllerInfo) {
+    return impl.isAutoCompanionController(controllerInfo);
+  }
+
+  /**
    * Sets the custom layout for the given Media3 controller.
    *
    * <p>Make sure to have the session commands of all command buttons of the custom layout
