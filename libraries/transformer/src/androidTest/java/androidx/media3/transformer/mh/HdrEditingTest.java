@@ -271,11 +271,9 @@ public final class HdrEditingTest {
       if (exception.getCause() != null
           && (Objects.equals(
                   exception.getCause().getMessage(),
-                  "Tone-mapping HDR is not supported on this device.")
+                  "Decoding HDR is not supported on this device.")
               || Objects.equals(
-                  exception.getCause().getMessage(),
-                  "Tone-mapping requested but not supported by the decoder."))) {
-        // Expected on devices without a tone-mapping plugin for the this codec.
+                  exception.getCause().getMessage(), "Device lacks YUV extension support."))) {
         return;
       }
       throw exception;
@@ -303,7 +301,6 @@ public final class HdrEditingTest {
       return;
     }
 
-    AtomicBoolean isFallbackListenerInvoked = new AtomicBoolean();
     AtomicBoolean isToneMappingFallbackApplied = new AtomicBoolean();
     Transformer transformer =
         new Transformer.Builder(context)
@@ -314,7 +311,6 @@ public final class HdrEditingTest {
                       MediaItem inputMediaItem,
                       TransformationRequest originalTransformationRequest,
                       TransformationRequest fallbackTransformationRequest) {
-                    isFallbackListenerInvoked.set(true);
                     assertThat(originalTransformationRequest.hdrMode).isEqualTo(HDR_MODE_KEEP_HDR);
                     isToneMappingFallbackApplied.set(
                         fallbackTransformationRequest.hdrMode
@@ -337,11 +333,9 @@ public final class HdrEditingTest {
       if (exception.getCause() != null
           && (Objects.equals(
                   exception.getCause().getMessage(),
-                  "Tone-mapping HDR is not supported on this device.")
+                  "Decoding HDR is not supported on this device.")
               || Objects.equals(
-                  exception.getCause().getMessage(),
-                  "Tone-mapping requested but not supported by the decoder."))) {
-        // Expected on devices without a tone-mapping plugin for this codec.
+                  exception.getCause().getMessage(), "Device lacks YUV extension support."))) {
         return;
       }
       throw exception;
