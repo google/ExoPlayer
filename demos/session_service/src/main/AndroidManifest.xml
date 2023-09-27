@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright 2021 The Android Open Source Project
+<!-- Copyright 2023 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -13,15 +13,6 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<resources>
-  <string name="app_name">Media3 Session Demo</string>
-  <string name="current_playlist_name">Current playlist</string>
-  <string name="open_player_content_description">Click to view your play list</string>
-  <string name="added_media_item_format">Added %1$s to playlist</string>
-  <string name="shuffle">Shuffle</string>
-  <string name="repeat">Repeat</string>
-  <string name="play_button">Play</string>
-  <string name="no_item_prompt">
-    "! No media in the play list !\nPlease try to add more from browser"
-  </string>
-</resources>
+<manifest  package="androidx.media3.demo.session.service">
+  <uses-sdk />
+</manifest>

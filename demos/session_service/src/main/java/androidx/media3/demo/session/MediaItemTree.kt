@@ -22,6 +22,7 @@ import androidx.media3.common.MediaItem.SubtitleConfiguration
 import androidx.media3.common.MediaMetadata
 import com.google.common.collect.ImmutableList
 import java.io.BufferedReader
+import java.lang.StringBuilder
 import org.json.JSONObject
 
 /**
@@ -47,6 +48,20 @@ object MediaItemTree {
   private const val ITEM_PREFIX = "[item]"
 
   private class MediaItemNode(val item: MediaItem) {
+    val searchTitle = normalizeSearchText(item.mediaMetadata.title)
+    val searchText =
+      StringBuilder()
+        .append(searchTitle)
+        .append(" ")
+        .append(normalizeSearchText(item.mediaMetadata.subtitle))
+        .append(" ")
+        .append(normalizeSearchText(item.mediaMetadata.artist))
+        .append(" ")
+        .append(normalizeSearchText(item.mediaMetadata.albumArtist))
+        .append(" ")
+        .append(normalizeSearchText(item.mediaMetadata.albumTitle))
+        .toString()
+
     private val children: MutableList<MediaItem> = ArrayList()
 
     fun addChild(childID: String) {
@@ -255,18 +270,77 @@ object MediaItemTree {
     return treeNodes[id]?.item
   }
 
+  /**
+   * Returns the media ID of the parent of the given media ID, or null if the media ID wasn't found.
+   *
+   * @param mediaId The media ID of which to search the parent.
+   * @Param parentId The media ID of the media item to start the search from, or undefined to search
+   *   from the top most node.
+   */
+  fun getParentId(mediaId: String, parentId: String = ROOT_ID): String? {
+    for (child in treeNodes[parentId]!!.getChildren()) {
+      if (child.mediaId == mediaId) {
+        return parentId
+      } else if (child.mediaMetadata.isBrowsable == true) {
+        val nextParentId = getParentId(mediaId, child.mediaId)
+        if (nextParentId != null) {
+          return nextParentId
+        }
+      }
+    }
+    return null
+  }
+
+  /**
+   * Returns the index of the [MediaItem] with the give media ID in the given list of items. If the
+   * media ID wasn't found, 0 (zero) is returned.
+   */
+  fun getIndexInMediaItems(mediaId: String, mediaItems: List<MediaItem>): Int {
+    for ((index, child) in mediaItems.withIndex()) {
+      if (child.mediaId == mediaId) {
+        return index
+      }
+    }
+    return 0
+  }
+
+  /**
+   * Tokenizes the query into a list of words with at least two letters and searches in the search
+   * text of the [MediaItemNode].
+   */
+  fun search(query: String): List<MediaItem> {
+    val matches: MutableList<MediaItem> = mutableListOf()
+    val titleMatches: MutableList<MediaItem> = mutableListOf()
+    val words = query.split(" ").map { it.trim().lowercase() }.filter { it.length > 1 }
+    titleMap.keys.forEach { title ->
+      val mediaItemNode = titleMap[title]!!
+      for (word in words) {
+        if (mediaItemNode.searchText.contains(word)) {
+          if (mediaItemNode.searchTitle.contains(query.lowercase())) {
+            titleMatches.add(mediaItemNode.item)
+          } else {
+            matches.add(mediaItemNode.item)
+          }
+          break
+        }
+      }
+    }
+    titleMatches.addAll(matches)
+    return titleMatches
+  }
+
   fun getRootItem(): MediaItem {
     return treeNodes[ROOT_ID]!!.item
   }
 
-  fun getChildren(id: String): List<MediaItem>? {
-    return treeNodes[id]?.getChildren()
+  fun getChildren(id: String): List<MediaItem> {
+    return treeNodes[id]?.getChildren() ?: listOf()
   }
 
   fun getRandomItem(): MediaItem {
     var curRoot = getRootItem()
     while (curRoot.mediaMetadata.isBrowsable == true) {
-      val children = getChildren(curRoot.mediaId)!!
+      val children = getChildren(curRoot.mediaId)
       curRoot = children.random()
     }
     return curRoot
@@ -274,5 +348,12 @@ object MediaItemTree {
 
   fun getItemFromTitle(title: String): MediaItem? {
     return titleMap[title]?.item
+  }
+
+  private fun normalizeSearchText(text: CharSequence?): String {
+    if (text.isNullOrEmpty() || text.trim().length == 1) {
+      return ""
+    }
+    return "$text".trim().lowercase()
   }
 }
