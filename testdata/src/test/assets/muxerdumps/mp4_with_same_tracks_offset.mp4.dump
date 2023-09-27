@@ -18,10 +18,7 @@ track 0:
     height = 10
     frameRate = 20000.0
     colorInfo:
-      colorSpace = -1
       colorRange = 1
-      colorTransfer = -1
-      hdrStaticInfo = length 0, hash 0
     metadata = entries=[Mp4Timestamp: creation time=2083344800, modification time=2083344800, timescale=10000]
     initializationData:
       data = length 28, hash 410B510
@@ -46,10 +43,7 @@ track 1:
     height = 10
     frameRate = 10000.0
     colorInfo:
-      colorSpace = -1
       colorRange = 1
-      colorTransfer = -1
-      hdrStaticInfo = length 0, hash 0
     metadata = entries=[Mp4Timestamp: creation time=2083344800, modification time=2083344800, timescale=10000]
     initializationData:
       data = length 28, hash 410B510

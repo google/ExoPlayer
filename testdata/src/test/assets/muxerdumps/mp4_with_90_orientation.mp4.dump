@@ -18,10 +18,7 @@ track 0:
     height = 10
     rotationDegrees = 90
     colorInfo:
-      colorSpace = -1
       colorRange = 1
-      colorTransfer = -1
-      hdrStaticInfo = length 0, hash 0
     metadata = entries=[Mp4Timestamp: creation time=2082849800, modification time=2082849800, timescale=10000]
     initializationData:
       data = length 28, hash 410B510
