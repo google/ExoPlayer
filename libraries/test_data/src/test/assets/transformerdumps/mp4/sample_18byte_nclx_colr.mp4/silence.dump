@@ -16,7 +16,6 @@ format video:
     colorSpace = 1
     colorRange = 2
     colorTransfer = 3
-    hdrStaticInfo = length 0, hash 0
   metadata = entries=[Mp4Timestamp: creation time=3718109610, modification time=3718109610, timescale=1000]
   initializationData:
     data = length 29, hash 4746B5D9

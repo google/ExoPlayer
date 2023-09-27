@@ -69,7 +69,6 @@ track 2:
       colorSpace = 2
       colorRange = 1
       colorTransfer = 3
-      hdrStaticInfo = length 0, hash 0
     metadata = entries=[Mp4Timestamp: creation time=2083344800, modification time=2083344800, timescale=10000]
     initializationData:
       data = length 85, hash 6F3CAA16

@@ -19,10 +19,8 @@ track 0:
     frameRate = 29.179338
     rotationDegrees = 90
     colorInfo:
-      colorSpace = -1
       colorRange = 1
       colorTransfer = 3
-      hdrStaticInfo = length 0, hash 0
     metadata = entries=[mdta: key=com.apple.quicktime.live-photo.auto, value=01, mdta: key=com.apple.quicktime.content.identifier, value=A873E9D3-2FBA-440A-B4D1-AEB073BC8E54, mdta: key=com.apple.quicktime.live-photo.vitality-score, value=0.9398496, mdta: key=com.apple.quicktime.live-photo.vitality-scoring-version, value=0000000000000004, mdta: key=com.apple.quicktime.make, value=Apple, mdta: key=com.apple.quicktime.model, value=iPhone SE (3rd generation), mdta: key=com.apple.quicktime.software, value=16.5.1, mdta: key=com.apple.quicktime.creationdate, value=2023-07-05T13:13:32+0800, Mp4Timestamp: creation time=3771378882, modification time=3771378882, timescale=600]
     initializationData:
       data = length 78, hash C57F938D

@@ -30,6 +30,7 @@ public final class DumpableFormat implements Dumper.Dumpable {
   private final String tag;
 
   private static final Format DEFAULT_FORMAT = new Format.Builder().build();
+  private static final ColorInfo DEFAULT_COLOR_INFO = new ColorInfo.Builder().build();
 
   public DumpableFormat(Format format, int index) {
     this(format, Integer.toString(index));
@@ -43,40 +44,54 @@ public final class DumpableFormat implements Dumper.Dumpable {
   @Override
   public void dump(Dumper dumper) {
     dumper.startBlock("format " + tag);
-    addIfNonDefault(dumper, "averageBitrate", format -> format.averageBitrate);
-    addIfNonDefault(dumper, "peakBitrate", format -> format.peakBitrate);
-    addIfNonDefault(dumper, "id", format -> format.id);
-    addIfNonDefault(dumper, "containerMimeType", format -> format.containerMimeType);
-    addIfNonDefault(dumper, "sampleMimeType", format -> format.sampleMimeType);
-    addIfNonDefault(dumper, "codecs", format -> format.codecs);
-    addIfNonDefault(dumper, "maxInputSize", format -> format.maxInputSize);
-    addIfNonDefault(dumper, "width", format -> format.width);
-    addIfNonDefault(dumper, "height", format -> format.height);
-    addIfNonDefault(dumper, "frameRate", format -> format.frameRate);
-    addIfNonDefault(dumper, "rotationDegrees", format -> format.rotationDegrees);
-    addIfNonDefault(dumper, "pixelWidthHeightRatio", format -> format.pixelWidthHeightRatio);
+    addIfNonDefault(
+        dumper, "averageBitrate", format, DEFAULT_FORMAT, format -> format.averageBitrate);
+    addIfNonDefault(dumper, "peakBitrate", format, DEFAULT_FORMAT, format -> format.peakBitrate);
+    addIfNonDefault(dumper, "id", format, DEFAULT_FORMAT, format -> format.id);
+    addIfNonDefault(
+        dumper, "containerMimeType", format, DEFAULT_FORMAT, format -> format.containerMimeType);
+    addIfNonDefault(
+        dumper, "sampleMimeType", format, DEFAULT_FORMAT, format -> format.sampleMimeType);
+    addIfNonDefault(dumper, "codecs", format, DEFAULT_FORMAT, format -> format.codecs);
+    addIfNonDefault(dumper, "maxInputSize", format, DEFAULT_FORMAT, format -> format.maxInputSize);
+    addIfNonDefault(dumper, "width", format, DEFAULT_FORMAT, format -> format.width);
+    addIfNonDefault(dumper, "height", format, DEFAULT_FORMAT, format -> format.height);
+    addIfNonDefault(dumper, "frameRate", format, DEFAULT_FORMAT, format -> format.frameRate);
+    addIfNonDefault(
+        dumper, "rotationDegrees", format, DEFAULT_FORMAT, format -> format.rotationDegrees);
+    addIfNonDefault(
+        dumper,
+        "pixelWidthHeightRatio",
+        format,
+        DEFAULT_FORMAT,
+        format -> format.pixelWidthHeightRatio);
     @Nullable ColorInfo colorInfo = format.colorInfo;
     if (colorInfo != null) {
       dumper.startBlock("colorInfo");
-      dumper.add("colorSpace", colorInfo.colorSpace);
-      dumper.add("colorRange", colorInfo.colorRange);
-      dumper.add("colorTransfer", colorInfo.colorTransfer);
-      dumper.add("hdrStaticInfo", colorInfo.hdrStaticInfo);
+      addIfNonDefault(dumper, "colorSpace", colorInfo, DEFAULT_COLOR_INFO, c -> c.colorSpace);
+      addIfNonDefault(dumper, "colorRange", colorInfo, DEFAULT_COLOR_INFO, c -> c.colorRange);
+      addIfNonDefault(dumper, "colorTransfer", colorInfo, DEFAULT_COLOR_INFO, c -> c.colorTransfer);
+      if (colorInfo.hdrStaticInfo != null) {
+        dumper.add("hdrStaticInfo", colorInfo.hdrStaticInfo);
+      }
       dumper.endBlock();
     }
-    addIfNonDefault(dumper, "channelCount", format -> format.channelCount);
-    addIfNonDefault(dumper, "sampleRate", format -> format.sampleRate);
-    addIfNonDefault(dumper, "pcmEncoding", format -> format.pcmEncoding);
-    addIfNonDefault(dumper, "encoderDelay", format -> format.encoderDelay);
-    addIfNonDefault(dumper, "encoderPadding", format -> format.encoderPadding);
-    addIfNonDefault(dumper, "subsampleOffsetUs", format -> format.subsampleOffsetUs);
-    addIfNonDefault(dumper, "selectionFlags", format -> format.selectionFlags);
-    addIfNonDefault(dumper, "language", format -> format.language);
-    addIfNonDefault(dumper, "label", format -> format.label);
+    addIfNonDefault(dumper, "channelCount", format, DEFAULT_FORMAT, format -> format.channelCount);
+    addIfNonDefault(dumper, "sampleRate", format, DEFAULT_FORMAT, format -> format.sampleRate);
+    addIfNonDefault(dumper, "pcmEncoding", format, DEFAULT_FORMAT, format -> format.pcmEncoding);
+    addIfNonDefault(dumper, "encoderDelay", format, DEFAULT_FORMAT, format -> format.encoderDelay);
+    addIfNonDefault(
+        dumper, "encoderPadding", format, DEFAULT_FORMAT, format -> format.encoderPadding);
+    addIfNonDefault(
+        dumper, "subsampleOffsetUs", format, DEFAULT_FORMAT, format -> format.subsampleOffsetUs);
+    addIfNonDefault(
+        dumper, "selectionFlags", format, DEFAULT_FORMAT, format -> format.selectionFlags);
+    addIfNonDefault(dumper, "language", format, DEFAULT_FORMAT, format -> format.language);
+    addIfNonDefault(dumper, "label", format, DEFAULT_FORMAT, format -> format.label);
     if (format.drmInitData != null) {
       dumper.add("drmInitData", format.drmInitData.hashCode());
     }
-    addIfNonDefault(dumper, "metadata", format -> format.metadata);
+    addIfNonDefault(dumper, "metadata", format, DEFAULT_FORMAT, format -> format.metadata);
     if (!format.initializationData.isEmpty()) {
       dumper.startBlock("initializationData");
       for (int i = 0; i < format.initializationData.size(); i++) {
@@ -106,12 +121,16 @@ public final class DumpableFormat implements Dumper.Dumpable {
     return result;
   }
 
-  private void addIfNonDefault(
-      Dumper dumper, String field, Function<Format, @NullableType Object> getFieldFunction) {
-    @Nullable Object thisValue = getFieldFunction.apply(format);
-    @Nullable Object defaultValue = getFieldFunction.apply(DEFAULT_FORMAT);
-    if (!Util.areEqual(thisValue, defaultValue)) {
-      dumper.add(field, thisValue);
+  private <T> void addIfNonDefault(
+      Dumper dumper,
+      String field,
+      T value,
+      T defaultValue,
+      Function<T, @NullableType Object> getFieldFunction) {
+    @Nullable Object fieldValue = getFieldFunction.apply(value);
+    @Nullable Object defaultFieldValue = getFieldFunction.apply(defaultValue);
+    if (!Util.areEqual(fieldValue, defaultFieldValue)) {
+      dumper.add(field, fieldValue);
     }
   }
 }
