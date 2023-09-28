@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.ext.image;
 
+import static androidx.annotation.VisibleForTesting.PRIVATE;
 import static com.google.android.exoplayer2.decoder.DecoderInputBuffer.BUFFER_REPLACEMENT_MODE_NORMAL;
 import static com.google.android.exoplayer2.util.Assertions.checkArgument;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
@@ -24,6 +25,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.exifinterface.media.ExifInterface;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -55,6 +57,7 @@ public final class DefaultImageDecoder
     implements ImageDecoder {
 
   /** A functional interface for turning byte arrays into bitmaps. */
+  @VisibleForTesting(otherwise = PRIVATE)
   public interface BitmapDecoder {
 
     /**
