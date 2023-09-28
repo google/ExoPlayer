@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media3.transformer;
+package androidx.media3.effect;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
 import static androidx.media3.common.util.Assertions.checkState;
@@ -30,13 +30,16 @@ import androidx.media3.common.SurfaceInfo;
 import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.VideoGraph;
-import androidx.media3.effect.Presentation;
-import androidx.media3.effect.VideoCompositorSettings;
+import androidx.media3.common.util.UnstableApi;
 import java.util.List;
 import java.util.concurrent.Executor;
 
 /** A {@link VideoGraph} that handles one input stream. */
-/* package */ abstract class SingleInputVideoGraph implements VideoGraph {
+@UnstableApi
+public abstract class SingleInputVideoGraph implements VideoGraph {
+
+  /** The ID {@link #registerInput()} returns. */
+  public static final int SINGLE_INPUT_INDEX = 0;
 
   private final Context context;
   private final VideoFrameProcessor.Factory videoFrameProcessorFactory;
@@ -46,10 +49,11 @@ import java.util.concurrent.Executor;
   private final DebugViewProvider debugViewProvider;
   private final Executor listenerExecutor;
   private final boolean renderFramesAutomatically;
+
   private final long initialTimestampOffsetUs;
   @Nullable private final Presentation presentation;
 
-  @Nullable private VideoFrameProcessingWrapper videoFrameProcessingWrapper;
+  @Nullable private VideoFrameProcessor videoFrameProcessor;
 
   private boolean released;
   private volatile boolean hasProducedFrameWithTimestampZero;
@@ -93,16 +97,21 @@ import java.util.concurrent.Executor;
    * <p>This method must be called at most once.
    */
   @Override
-  public void initialize() throws VideoFrameProcessingException {
-    checkStateNotNull(videoFrameProcessingWrapper == null && !released);
+  public void initialize() {
+    // Initialization is deferred to registerInput();
+  }
 
-    videoFrameProcessingWrapper =
-        new VideoFrameProcessingWrapper(
+  @Override
+  public int registerInput() throws VideoFrameProcessingException {
+    checkStateNotNull(videoFrameProcessor == null && !released);
+
+    videoFrameProcessor =
+        videoFrameProcessorFactory.create(
             context,
-            videoFrameProcessorFactory,
+            debugViewProvider,
             inputColorInfo,
             outputColorInfo,
-            debugViewProvider,
+            renderFramesAutomatically,
             listenerExecutor,
             new VideoFrameProcessor.Listener() {
               private long lastProcessedFramePresentationTimeUs;
@@ -136,15 +145,18 @@ import java.util.concurrent.Executor;
               public void onEnded() {
                 listener.onEnded(lastProcessedFramePresentationTimeUs);
               }
-            },
-            renderFramesAutomatically,
-            presentation,
-            initialTimestampOffsetUs);
+            });
+    return SINGLE_INPUT_INDEX;
+  }
+
+  @Override
+  public VideoFrameProcessor getProcessor(int inputId) {
+    return checkStateNotNull(videoFrameProcessor);
   }
 
   @Override
   public void setOutputSurfaceInfo(@Nullable SurfaceInfo outputSurfaceInfo) {
-    checkNotNull(videoFrameProcessingWrapper).setOutputSurfaceInfo(outputSurfaceInfo);
+    checkNotNull(videoFrameProcessor).setOutputSurfaceInfo(outputSurfaceInfo);
   }
 
   @Override
@@ -158,14 +170,23 @@ import java.util.concurrent.Executor;
       return;
     }
 
-    if (videoFrameProcessingWrapper != null) {
-      videoFrameProcessingWrapper.release();
-      videoFrameProcessingWrapper = null;
+    if (videoFrameProcessor != null) {
+      videoFrameProcessor.release();
+      videoFrameProcessor = null;
     }
     released = true;
   }
 
-  protected VideoFrameProcessingWrapper getVideoFrameProcessingWrapper() {
-    return checkNotNull(videoFrameProcessingWrapper);
+  protected ColorInfo getInputColorInfo() {
+    return inputColorInfo;
+  }
+
+  protected long getInitialTimestampOffsetUs() {
+    return initialTimestampOffsetUs;
+  }
+
+  @Nullable
+  protected Presentation getPresentation() {
+    return presentation;
   }
 }

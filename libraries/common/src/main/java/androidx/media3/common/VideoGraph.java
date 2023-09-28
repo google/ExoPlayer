@@ -24,6 +24,7 @@ import androidx.media3.common.util.UnstableApi;
 public interface VideoGraph {
 
   /** Listener for video frame processing events. */
+  @UnstableApi
   interface Listener {
     /**
      * Called when the output size changes.
@@ -57,6 +58,26 @@ public interface VideoGraph {
    * <p>If the method throws, the caller must call {@link #release}.
    */
   void initialize() throws VideoFrameProcessingException;
+
+  /**
+   * Registers a new input to the {@code VideoGraph}.
+   *
+   * <p>A underlying processing {@link VideoFrameProcessor} is created every time this method is
+   * called.
+   *
+   * <p>If the method throws, the caller must call {@link #release}.
+   *
+   * @return The id of the registered input, which can be used to get the underlying {@link
+   *     VideoFrameProcessor} via {@link #getProcessor(int)}.
+   */
+  int registerInput() throws VideoFrameProcessingException;
+
+  /**
+   * Returns the {@link VideoFrameProcessor} that handles the processing for an input registered via
+   * {@link #registerInput()}. If the {@code inputId} is not {@linkplain #registerInput()
+   * registered} before, this method will throw an {@link IllegalStateException}.
+   */
+  VideoFrameProcessor getProcessor(int inputId);
 
   /**
    * Sets the output surface and supporting information.

@@ -147,7 +147,7 @@ import org.checkerframework.dataflow.qual.Pure;
           new VideoGraphWrapper(
               context,
               hasMultipleInputs
-                  ? new MultipleInputVideoGraph.Factory()
+                  ? new TransformerMultipleInputVideoGraph.Factory()
                   : new TransformerSingleInputVideoGraph.Factory(videoFrameProcessorFactory),
               videoGraphInputColor,
               videoGraphOutputColor,
@@ -531,6 +531,16 @@ import org.checkerframework.dataflow.qual.Pure;
     @Override
     public void initialize() throws VideoFrameProcessingException {
       videoGraph.initialize();
+    }
+
+    @Override
+    public int registerInput() throws VideoFrameProcessingException {
+      return videoGraph.registerInput();
+    }
+
+    @Override
+    public VideoFrameProcessor getProcessor(int inputId) {
+      return videoGraph.getProcessor(inputId);
     }
 
     @Override

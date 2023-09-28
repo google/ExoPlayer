@@ -21,26 +21,22 @@ import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_SURFACE;
 import static androidx.media3.common.VideoFrameProcessor.INPUT_TYPE_TEXTURE_ID;
 import static androidx.media3.common.util.Assertions.checkNotNull;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.media3.common.ColorInfo;
-import androidx.media3.common.DebugViewProvider;
 import androidx.media3.common.Effect;
 import androidx.media3.common.Format;
 import androidx.media3.common.FrameInfo;
 import androidx.media3.common.MimeTypes;
 import androidx.media3.common.OnInputFrameProcessedListener;
 import androidx.media3.common.SurfaceInfo;
-import androidx.media3.common.VideoFrameProcessingException;
 import androidx.media3.common.VideoFrameProcessor;
 import androidx.media3.common.util.Size;
 import androidx.media3.common.util.TimestampIterator;
 import androidx.media3.effect.Presentation;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 
 /** A wrapper for {@link VideoFrameProcessor} that handles {@link GraphInput} events. */
@@ -52,31 +48,15 @@ import java.util.concurrent.atomic.AtomicLong;
   @Nullable final Presentation presentation;
 
   public VideoFrameProcessingWrapper(
-      Context context,
-      VideoFrameProcessor.Factory videoFrameProcessorFactory,
+      VideoFrameProcessor videoFrameProcessor,
       ColorInfo inputColorInfo,
-      ColorInfo outputColorInfo,
-      DebugViewProvider debugViewProvider,
-      Executor listenerExecutor,
-      VideoFrameProcessor.Listener listener,
-      boolean renderFramesAutomatically,
       @Nullable Presentation presentation,
-      long initialTimestampOffsetUs)
-      throws VideoFrameProcessingException {
+      long initialTimestampOffsetUs) {
+    this.videoFrameProcessor = videoFrameProcessor;
     this.mediaItemOffsetUs = new AtomicLong();
     this.inputColorInfo = inputColorInfo;
     this.initialTimestampOffsetUs = initialTimestampOffsetUs;
     this.presentation = presentation;
-
-    videoFrameProcessor =
-        videoFrameProcessorFactory.create(
-            context,
-            debugViewProvider,
-            inputColorInfo,
-            outputColorInfo,
-            renderFramesAutomatically,
-            listenerExecutor,
-            listener);
   }
 
   @Override
