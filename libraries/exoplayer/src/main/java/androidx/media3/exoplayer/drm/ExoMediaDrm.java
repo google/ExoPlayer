@@ -524,6 +524,40 @@ public interface ExoMediaDrm {
   void restoreKeys(byte[] sessionId, byte[] keySetId);
 
   /**
+   * Removes an offline license.
+   *
+   * <p>This method is generally not needed, and should only be used if the preferred approach of
+   * generating a license release request by passing {@link #KEY_TYPE_RELEASE} to {@link
+   * #getKeyRequest} is not possible.
+   *
+   * <p>This is an optional method, and some implementations may only support it on certain Android
+   * API levels.
+   *
+   * <p>See {@link MediaDrm#removeOfflineLicense(byte[])} for more details.
+   *
+   * @param keySetId The {@code keySetId} of the license to remove.
+   * @throws UnsupportedOperationException if the implementation doesn't support this method.
+   */
+  default void removeOfflineLicense(byte[] keySetId) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Returns a list of the {@code keySetIds} for all offline licenses.
+   *
+   * <p>This is an optional method, and some implementations may only support it on certain Android
+   * API levels.
+   *
+   * <p>See {@link MediaDrm#getOfflineLicenseKeySetIds()} for more details.
+   *
+   * @return The list of {@code keySetIds} for all offline licenses.
+   * @throws UnsupportedOperationException if the implementation doesn't support this method.
+   */
+  default List<byte[]> getOfflineLicenseKeySetIds() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Returns metrics data for this ExoMediaDrm instance, or {@code null} if metrics are unavailable.
    */
   @Nullable
