@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.exoplayer2.transformer;
+package com.google.android.exoplayer2.effect;
 
 import static com.google.android.exoplayer2.effect.DebugTraceUtil.EVENT_COMPOSITOR_OUTPUT_TEXTURE_RENDERED;
 import static com.google.android.exoplayer2.effect.DebugTraceUtil.EVENT_VFP_OUTPUT_TEXTURE_RENDERED;
@@ -35,12 +35,6 @@ import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import androidx.media3.common.VideoGraph;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.effect.DefaultGlObjectsProvider;
-import com.google.android.exoplayer2.effect.DefaultVideoCompositor;
-import com.google.android.exoplayer2.effect.DefaultVideoFrameProcessor;
-import com.google.android.exoplayer2.effect.GlTextureProducer;
-import com.google.android.exoplayer2.effect.VideoCompositor;
-import com.google.android.exoplayer2.effect.VideoCompositorSettings;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.FrameInfo;
@@ -69,32 +63,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-/* package */ final class MultipleInputVideoGraph implements TransformerVideoGraph {
-
-  public static final class Factory implements TransformerVideoGraph.Factory {
-    @Override
-    public MultipleInputVideoGraph create(
-        Context context,
-        ColorInfo inputColorInfo,
-        ColorInfo outputColorInfo,
-        DebugViewProvider debugViewProvider,
-        Listener listener,
-        Executor listenerExecutor,
-        VideoCompositorSettings videoCompositorSettings,
-        List<Effect> compositionEffects,
-        long initialTimestampOffsetUs) {
-      return new MultipleInputVideoGraph(
-          context,
-          inputColorInfo,
-          outputColorInfo,
-          debugViewProvider,
-          listener,
-          listenerExecutor,
-          videoCompositorSettings,
-          compositionEffects,
-          initialTimestampOffsetUs);
-    }
-  }
+public abstract class MultipleInputVideoGraph implements VideoGraph {
 
   private static final String SHARED_EXECUTOR_NAME = "Transformer:MultipleInputVideoGraph:Thread";
 
@@ -103,15 +72,16 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   private static final int COMPOSITOR_TEXTURE_OUTPUT_CAPACITY = 1;
 
   private final Context context;
+
   private final ColorInfo inputColorInfo;
   private final ColorInfo outputColorInfo;
   private final GlObjectsProvider glObjectsProvider;
   private final DebugViewProvider debugViewProvider;
-  private final Listener listener;
+  private final VideoGraph.Listener listener;
   private final Executor listenerExecutor;
   private final VideoCompositorSettings videoCompositorSettings;
   private final List<Effect> compositionEffects;
-  private final List<VideoFrameProcessingWrapper> preProcessingWrappers;
+  private final List<VideoFrameProcessor> preProcessors;
 
   private final ExecutorService sharedExecutorService;
 
@@ -132,12 +102,12 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
   private volatile boolean hasProducedFrameWithTimestampZero;
 
-  private MultipleInputVideoGraph(
+  protected MultipleInputVideoGraph(
       Context context,
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
       DebugViewProvider debugViewProvider,
-      Listener listener,
+      VideoGraph.Listener listener,
       Executor listenerExecutor,
       VideoCompositorSettings videoCompositorSettings,
       List<Effect> compositionEffects,
@@ -152,7 +122,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     this.compositionEffects = new ArrayList<>(compositionEffects);
     this.initialTimestampOffsetUs = initialTimestampOffsetUs;
     lastRenderedPresentationTimeUs = C.TIME_UNSET;
-    preProcessingWrappers = new ArrayList<>();
+    preProcessors = new ArrayList<>();
     sharedExecutorService = newSingleThreadScheduledExecutor(SHARED_EXECUTOR_NAME);
     glObjectsProvider = new SingleContextGlObjectsProvider();
     // TODO - b/289986435: Support injecting VideoFrameProcessor.Factory.
@@ -173,7 +143,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   @Override
   public void initialize() throws VideoFrameProcessingException {
     checkState(
-        preProcessingWrappers.isEmpty()
+        preProcessors.isEmpty()
             && videoCompositor == null
             && compositionVideoFrameProcessor == null
             && !released);
@@ -251,56 +221,61 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
   }
 
   @Override
-  public GraphInput createInput() throws VideoFrameProcessingException {
+  public int registerInput() throws VideoFrameProcessingException {
     checkStateNotNull(videoCompositor);
 
     int videoCompositorInputId = videoCompositor.registerInputSource();
     // Creating a new VideoFrameProcessor for the input.
-    VideoFrameProcessingWrapper preProcessingVideoFrameProcessorWrapper =
-        new VideoFrameProcessingWrapper(
-            context,
-            videoFrameProcessorFactory
-                .buildUpon()
-                .setTextureOutput(
-                    // Texture output to compositor.
-                    (textureProducer, texture, presentationTimeUs, syncObject) ->
-                        queuePreProcessingOutputToCompositor(
-                            videoCompositorInputId, textureProducer, texture, presentationTimeUs),
-                    PRE_COMPOSITOR_TEXTURE_OUTPUT_CAPACITY)
-                .build(),
-            inputColorInfo,
-            outputColorInfo,
-            DebugViewProvider.NONE,
-            listenerExecutor,
-            new VideoFrameProcessor.Listener() {
-              // All of this listener's methods are called on the sharedExecutorService.
-              @Override
-              public void onInputStreamRegistered(
-                  @VideoFrameProcessor.InputType int inputType,
-                  List<Effect> effects,
-                  FrameInfo frameInfo) {}
+    VideoFrameProcessor preProcessor =
+        videoFrameProcessorFactory
+            .buildUpon()
+            .setTextureOutput(
+                // Texture output to compositor.
+                (textureProducer, texture, presentationTimeUs, syncObject) ->
+                    queuePreProcessingOutputToCompositor(
+                        videoCompositorInputId, textureProducer, texture, presentationTimeUs),
+                PRE_COMPOSITOR_TEXTURE_OUTPUT_CAPACITY)
+            .build()
+            .create(
+                context,
+                DebugViewProvider.NONE,
+                inputColorInfo,
+                outputColorInfo,
+                // Pre-processors render frames as soon as available, to VideoCompositor.
+                /* renderFramesAutomatically= */ true,
+                listenerExecutor,
+                new VideoFrameProcessor.Listener() {
+                  // All of this listener's methods are called on the sharedExecutorService.
+                  @Override
+                  public void onInputStreamRegistered(
+                      @VideoFrameProcessor.InputType int inputType,
+                      List<Effect> effects,
+                      FrameInfo frameInfo) {}
 
-              @Override
-              public void onOutputSizeChanged(int width, int height) {}
+                  @Override
+                  public void onOutputSizeChanged(int width, int height) {}
 
-              @Override
-              public void onOutputFrameAvailableForRendering(long presentationTimeUs) {}
+                  @Override
+                  public void onOutputFrameAvailableForRendering(long presentationTimeUs) {}
 
-              @Override
-              public void onError(VideoFrameProcessingException exception) {
-                handleVideoFrameProcessingException(exception);
-              }
+                  @Override
+                  public void onError(VideoFrameProcessingException exception) {
+                    handleVideoFrameProcessingException(exception);
+                  }
 
-              @Override
-              public void onEnded() {
-                onPreProcessingVideoFrameProcessorEnded(videoCompositorInputId);
-              }
-            },
-            /* renderFramesAutomatically= */ true,
-            /* presentation= */ null,
-            initialTimestampOffsetUs);
-    preProcessingWrappers.add(preProcessingVideoFrameProcessorWrapper);
-    return preProcessingVideoFrameProcessorWrapper;
+                  @Override
+                  public void onEnded() {
+                    onPreProcessingVideoFrameProcessorEnded(videoCompositorInputId);
+                  }
+                });
+    preProcessors.add(preProcessor);
+    return videoCompositorInputId;
+  }
+
+  @Override
+  public VideoFrameProcessor getProcessor(int inputId) {
+    checkState(inputId < preProcessors.size());
+    return preProcessors.get(inputId);
   }
 
   @Override
@@ -320,10 +295,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     // Needs to release the frame processors before their internal executor services are released.
-    for (int i = 0; i < preProcessingWrappers.size(); i++) {
-      preProcessingWrappers.get(i).release();
+    for (int i = 0; i < preProcessors.size(); i++) {
+      preProcessors.get(i).release();
     }
-    preProcessingWrappers.clear();
+    preProcessors.clear();
 
     if (videoCompositor != null) {
       videoCompositor.release();
@@ -344,6 +319,14 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     released = true;
+  }
+
+  protected ColorInfo getInputColorInfo() {
+    return inputColorInfo;
+  }
+
+  protected long getInitialTimestampOffsetUs() {
+    return initialTimestampOffsetUs;
   }
 
   // This method is called on the sharedExecutorService.

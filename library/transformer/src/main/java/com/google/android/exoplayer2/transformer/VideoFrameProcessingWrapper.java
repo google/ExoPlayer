@@ -21,13 +21,11 @@ import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_
 import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_SURFACE;
 import static com.google.android.exoplayer2.util.VideoFrameProcessor.INPUT_TYPE_TEXTURE_ID;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.effect.Presentation;
-import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.FrameInfo;
 import com.google.android.exoplayer2.util.MimeTypes;
@@ -35,12 +33,10 @@ import com.google.android.exoplayer2.util.OnInputFrameProcessedListener;
 import com.google.android.exoplayer2.util.Size;
 import com.google.android.exoplayer2.util.SurfaceInfo;
 import com.google.android.exoplayer2.util.TimestampIterator;
-import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
-import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -60,31 +56,15 @@ import java.util.concurrent.atomic.AtomicLong;
   @Nullable final Presentation presentation;
 
   public VideoFrameProcessingWrapper(
-      Context context,
-      VideoFrameProcessor.Factory videoFrameProcessorFactory,
+      VideoFrameProcessor videoFrameProcessor,
       ColorInfo inputColorInfo,
-      ColorInfo outputColorInfo,
-      DebugViewProvider debugViewProvider,
-      Executor listenerExecutor,
-      VideoFrameProcessor.Listener listener,
-      boolean renderFramesAutomatically,
       @Nullable Presentation presentation,
-      long initialTimestampOffsetUs)
-      throws VideoFrameProcessingException {
+      long initialTimestampOffsetUs) {
+    this.videoFrameProcessor = videoFrameProcessor;
     this.mediaItemOffsetUs = new AtomicLong();
     this.inputColorInfo = inputColorInfo;
     this.initialTimestampOffsetUs = initialTimestampOffsetUs;
     this.presentation = presentation;
-
-    videoFrameProcessor =
-        videoFrameProcessorFactory.create(
-            context,
-            debugViewProvider,
-            inputColorInfo,
-            outputColorInfo,
-            renderFramesAutomatically,
-            listenerExecutor,
-            listener);
   }
 
   @Override

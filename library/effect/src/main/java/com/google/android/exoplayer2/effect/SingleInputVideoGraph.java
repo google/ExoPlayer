@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.android.exoplayer2.transformer;
+package com.google.android.exoplayer2.effect;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Assertions.checkState;
@@ -23,8 +23,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 import android.content.Context;
 import androidx.annotation.Nullable;
 import androidx.media3.common.VideoGraph;
-import com.google.android.exoplayer2.effect.Presentation;
-import com.google.android.exoplayer2.effect.VideoCompositorSettings;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.FrameInfo;
@@ -44,7 +42,10 @@ import java.util.concurrent.Executor;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-/* package */ abstract class SingleInputVideoGraph implements VideoGraph {
+public abstract class SingleInputVideoGraph implements VideoGraph {
+
+  /** The ID {@link #registerInput()} returns. */
+  public static final int SINGLE_INPUT_INDEX = 0;
 
   private final Context context;
   private final VideoFrameProcessor.Factory videoFrameProcessorFactory;
@@ -54,10 +55,11 @@ import java.util.concurrent.Executor;
   private final DebugViewProvider debugViewProvider;
   private final Executor listenerExecutor;
   private final boolean renderFramesAutomatically;
+
   private final long initialTimestampOffsetUs;
   @Nullable private final Presentation presentation;
 
-  @Nullable private VideoFrameProcessingWrapper videoFrameProcessingWrapper;
+  @Nullable private VideoFrameProcessor videoFrameProcessor;
 
   private boolean released;
   private volatile boolean hasProducedFrameWithTimestampZero;
@@ -101,16 +103,21 @@ import java.util.concurrent.Executor;
    * <p>This method must be called at most once.
    */
   @Override
-  public void initialize() throws VideoFrameProcessingException {
-    checkStateNotNull(videoFrameProcessingWrapper == null && !released);
+  public void initialize() {
+    // Initialization is deferred to registerInput();
+  }
 
-    videoFrameProcessingWrapper =
-        new VideoFrameProcessingWrapper(
+  @Override
+  public int registerInput() throws VideoFrameProcessingException {
+    checkStateNotNull(videoFrameProcessor == null && !released);
+
+    videoFrameProcessor =
+        videoFrameProcessorFactory.create(
             context,
-            videoFrameProcessorFactory,
+            debugViewProvider,
             inputColorInfo,
             outputColorInfo,
-            debugViewProvider,
+            renderFramesAutomatically,
             listenerExecutor,
             new VideoFrameProcessor.Listener() {
               private long lastProcessedFramePresentationTimeUs;
@@ -144,15 +151,18 @@ import java.util.concurrent.Executor;
               public void onEnded() {
                 listener.onEnded(lastProcessedFramePresentationTimeUs);
               }
-            },
-            renderFramesAutomatically,
-            presentation,
-            initialTimestampOffsetUs);
+            });
+    return SINGLE_INPUT_INDEX;
+  }
+
+  @Override
+  public VideoFrameProcessor getProcessor(int inputId) {
+    return checkStateNotNull(videoFrameProcessor);
   }
 
   @Override
   public void setOutputSurfaceInfo(@Nullable SurfaceInfo outputSurfaceInfo) {
-    checkNotNull(videoFrameProcessingWrapper).setOutputSurfaceInfo(outputSurfaceInfo);
+    checkNotNull(videoFrameProcessor).setOutputSurfaceInfo(outputSurfaceInfo);
   }
 
   @Override
@@ -166,14 +176,23 @@ import java.util.concurrent.Executor;
       return;
     }
 
-    if (videoFrameProcessingWrapper != null) {
-      videoFrameProcessingWrapper.release();
-      videoFrameProcessingWrapper = null;
+    if (videoFrameProcessor != null) {
+      videoFrameProcessor.release();
+      videoFrameProcessor = null;
     }
     released = true;
   }
 
-  protected VideoFrameProcessingWrapper getVideoFrameProcessingWrapper() {
-    return checkNotNull(videoFrameProcessingWrapper);
+  protected ColorInfo getInputColorInfo() {
+    return inputColorInfo;
+  }
+
+  protected long getInitialTimestampOffsetUs() {
+    return initialTimestampOffsetUs;
+  }
+
+  @Nullable
+  protected Presentation getPresentation() {
+    return presentation;
   }
 }

@@ -16,25 +16,20 @@
 
 package com.google.android.exoplayer2.transformer;
 
-import static com.google.android.exoplayer2.util.Assertions.checkState;
-
 import android.content.Context;
-import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.effect.Presentation;
-import com.google.android.exoplayer2.effect.SingleInputVideoGraph;
+import androidx.media3.common.VideoGraph;
+import com.google.android.exoplayer2.effect.MultipleInputVideoGraph;
 import com.google.android.exoplayer2.effect.VideoCompositorSettings;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
-import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.android.exoplayer2.video.ColorInfo;
 import java.util.List;
 import java.util.concurrent.Executor;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /**
  * A {@link TransformerVideoGraph Transformer}-specific implementation of {@link
- * SingleInputVideoGraph}.
+ * MultipleInputVideoGraph}.
  *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
  *     contains the same ExoPlayer code). See <a
@@ -42,89 +37,64 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
  *     migration guide</a> for more details, including a script to help with the migration.
  */
 @Deprecated
-/* package */ final class TransformerSingleInputVideoGraph extends SingleInputVideoGraph
+/* package */ final class TransformerMultipleInputVideoGraph extends MultipleInputVideoGraph
     implements TransformerVideoGraph {
 
-  /** A factory for creating {@link TransformerSingleInputVideoGraph} instances. */
+  /** A factory for creating {@link TransformerMultipleInputVideoGraph} instances. */
   public static final class Factory implements TransformerVideoGraph.Factory {
-
-    private final VideoFrameProcessor.Factory videoFrameProcessorFactory;
-
-    public Factory(VideoFrameProcessor.Factory videoFrameProcessorFactory) {
-      this.videoFrameProcessorFactory = videoFrameProcessorFactory;
-    }
-
     @Override
-    public TransformerSingleInputVideoGraph create(
+    public TransformerMultipleInputVideoGraph create(
         Context context,
         ColorInfo inputColorInfo,
         ColorInfo outputColorInfo,
         DebugViewProvider debugViewProvider,
-        Listener listener,
+        VideoGraph.Listener listener,
         Executor listenerExecutor,
         VideoCompositorSettings videoCompositorSettings,
         List<Effect> compositionEffects,
         long initialTimestampOffsetUs) {
-      @Nullable Presentation presentation = null;
-      for (int i = 0; i < compositionEffects.size(); i++) {
-        Effect effect = compositionEffects.get(i);
-        if (effect instanceof Presentation) {
-          presentation = (Presentation) effect;
-        }
-      }
-      return new TransformerSingleInputVideoGraph(
+      return new TransformerMultipleInputVideoGraph(
           context,
-          videoFrameProcessorFactory,
           inputColorInfo,
           outputColorInfo,
-          listener,
           debugViewProvider,
+          listener,
           listenerExecutor,
           videoCompositorSettings,
-          /* renderFramesAutomatically= */ true,
-          presentation,
+          compositionEffects,
           initialTimestampOffsetUs);
     }
   }
 
-  private @MonotonicNonNull VideoFrameProcessingWrapper videoFrameProcessingWrapper;
-
-  private TransformerSingleInputVideoGraph(
+  private TransformerMultipleInputVideoGraph(
       Context context,
-      VideoFrameProcessor.Factory videoFrameProcessorFactory,
       ColorInfo inputColorInfo,
       ColorInfo outputColorInfo,
-      Listener listener,
       DebugViewProvider debugViewProvider,
+      Listener listener,
       Executor listenerExecutor,
       VideoCompositorSettings videoCompositorSettings,
-      boolean renderFramesAutomatically,
-      @Nullable Presentation presentation,
+      List<Effect> compositionEffects,
       long initialTimestampOffsetUs) {
     super(
         context,
-        videoFrameProcessorFactory,
         inputColorInfo,
         outputColorInfo,
-        listener,
         debugViewProvider,
+        listener,
         listenerExecutor,
         videoCompositorSettings,
-        renderFramesAutomatically,
-        presentation,
+        compositionEffects,
         initialTimestampOffsetUs);
   }
 
   @Override
   public GraphInput createInput() throws VideoFrameProcessingException {
-    checkState(videoFrameProcessingWrapper == null);
     int inputId = registerInput();
-    videoFrameProcessingWrapper =
-        new VideoFrameProcessingWrapper(
-            getProcessor(inputId),
-            getInputColorInfo(),
-            getPresentation(),
-            getInitialTimestampOffsetUs());
-    return videoFrameProcessingWrapper;
+    return new VideoFrameProcessingWrapper(
+        getProcessor(inputId),
+        getInputColorInfo(),
+        /* presentation= */ null,
+        getInitialTimestampOffsetUs());
   }
 }
