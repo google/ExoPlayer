@@ -3,11 +3,48 @@
 ### Unreleased changes
 
 *   Common Library:
+*   ExoPlayer:
+*   Transformer:
+*   Track Selection:
+*   Extractors:
+*   Audio:
+*   Video:
+*   Text:
+*   Metadata:
+*   DRM:
+*   Effect:
+*   Muxers:
+*   IMA extension:
+*   Session:
+*   UI:
+*   Downloads:
+*   OkHttp Extension:
+*   Cronet Extension:
+*   RTMP Extension:
+*   HLS Extension:
+*   Smooth Streaming Extension:
+*   RTSP Extension:
+*   Decoder Extensions (FFmpeg, VP9, AV1, etc.):
+*   MIDI extension:
+*   Leanback extension:
+*   Cast Extension:
+*   Test Utilities:
+*   Remove deprecated symbols:
+
+## 1.2
+
+### 1.2.0-alpha02 (2023-089-29)
+
+This release includes the following changes since the
+[1.2.0-alpha01 release](#120-alpha01-2023-08-17)):
+
+*   Common Library:
     *   Upgrade `androidx.annotation:annotation-experimental` to `1.3.1`. This
         also introduces a transitive dependency on the Kotlin standard library
         from `media3-common`. Apps can
         [downgrade to remove this dependency if they want](https://developer.android.com/guide/topics/media/exoplayer/shrinking#remove-kotlin-dep).
         Fixes https://issuetracker.google.com/251172715.
+    *   Move `ExoPlayer.setAudioAttributes` to the `Player` interface.
 *   ExoPlayer:
     *   Add additional fields to Common Media Client Data (CMCD) logging: next
         object request (`nor`) and next range request (`nrr`)
@@ -23,18 +60,16 @@
         ([#11226](https://github.com/google/ExoPlayer/issues/11226)).
     *   Change `BaseRenderer.onStreamChanged()` to also receive a
         `MediaPeriodId` argument.
-    *   Move `ExoPlayer.setAudioAttributes` to the `Player` interface.
 *   Transformer:
     *   Changed `frameRate` and `durationUs` parameters of
         `SampleConsumer.queueInputBitmap` to `TimestampIterator`.
-*   Track Selection:
 *   Extractors:
     *   Add `BmpExtractor`.
     *   Add `WebpExtractor`.
-    *   Add `media3.extractor.heif.HeifExtractor`.
-    *   Add QuickTime classic
-        (https://developer.apple.com/standards/qtff-2001.pdf) support to
-        `Mp4Extractor`.
+    *   Add `HeifExtractor`.
+    *   Add
+        [QuickTime classic](https://developer.apple.com/standards/qtff-2001.pdf)
+        support to `Mp4Extractor`.
 *   Audio:
     *   Add support for Opus gapless metadata during offload playback.
     *   Allow renderer recovery by disabling offload if failed at first write
@@ -45,14 +80,9 @@
     *   Renamed `onExperimentalSleepingForOffloadChanged` as
         `onSleepingForOffloadChanged` and `onExperimentalOffloadedPlayback` as
         `onOffloadedPlayback`.
-*   Video:
-*   Text:
-*   Metadata:
-*   DRM:
 *   Effect:
     *   Changed `frameRate` and `durationUs` parameters of
         `VideoFrameProcessor.queueInputBitmap` to `TimestampIterator`.
-*   Muxers:
 *   IMA extension:
     *   Fix bug where a multi-period DASH live stream that is not the first item
         in a playlist can throw an exception
@@ -85,13 +115,6 @@
         successful, the subscription is accepted and `notifyChildrenChanged()`
         is called immediately to inform the browser
         ([#561](https://github.com/androidx/media/issues/561)).
-*   UI:
-*   Downloads:
-*   OkHttp Extension:
-*   Cronet Extension:
-*   RTMP Extension:
-*   HLS Extension:
-*   Smooth Streaming Extension:
 *   RTSP Extension:
     *   Fix a race condition that could lead to `IndexOutOfBoundsException` when
         falling back to TCP, or playback hanging in some situations.
@@ -100,20 +123,13 @@
         ([#577](https://github.com/androidx/media/issues/577)).
     *   Ignore custom Rtsp request methods in Options response public header
         ([#613](https://github.com/androidx/media/issues/613)).
-*   Decoder Extensions (FFmpeg, VP9, AV1, etc.):
-*   MIDI extension:
 *   Leanback extension:
     *   Fix bug where disabling a surface can cause an `ArithmeticException` in
         Leanback code ([#617](https://github.com/androidx/media/issues/617)).
-*   Cast Extension:
-*   Test Utilities:
-*   Remove deprecated symbols:
-
-## 1.2
 
 ### 1.2.0-alpha01 (2023-08-17)
 
-This release includes the following changes since
+This release includes the following changes since the
 [1.1.1 release](#111-2023-08-14)):
 
 *   Common Library:
