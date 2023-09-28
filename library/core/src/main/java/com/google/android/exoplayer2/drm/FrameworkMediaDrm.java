@@ -317,6 +317,24 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
   }
 
   @Override
+  @RequiresApi(29)
+  public void removeOfflineLicense(byte[] keySetId) {
+    if (Util.SDK_INT < 29) {
+      throw new UnsupportedOperationException();
+    }
+    mediaDrm.removeOfflineLicense(keySetId);
+  }
+
+  @Override
+  @RequiresApi(29)
+  public List<byte[]> getOfflineLicenseKeySetIds() {
+    if (Util.SDK_INT < 29) {
+      throw new UnsupportedOperationException();
+    }
+    return mediaDrm.getOfflineLicenseKeySetIds();
+  }
+
+  @Override
   @Nullable
   public PersistableBundle getMetrics() {
     if (Util.SDK_INT < 28) {
