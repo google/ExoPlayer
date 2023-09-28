@@ -24,7 +24,6 @@ import androidx.media3.common.DrmInitData;
 import androidx.media3.common.util.UnstableApi;
 import androidx.media3.common.util.Util;
 import androidx.media3.decoder.CryptoConfig;
-import com.google.common.collect.ImmutableList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -119,17 +118,6 @@ public final class DummyExoMediaDrm implements ExoMediaDrm {
   public void restoreKeys(byte[] sessionId, byte[] keySetId) {
     // Should not be invoked. No session should exist.
     throw new IllegalStateException();
-  }
-
-  @Override
-  public void removeOfflineLicense(byte[] keySetId) {
-    // Should not be invoked. No session should exist.
-    throw new IllegalStateException();
-  }
-
-  @Override
-  public ImmutableList<byte[]> getOfflineLicenseKeySetIds() {
-    return ImmutableList.of();
   }
 
   @Override

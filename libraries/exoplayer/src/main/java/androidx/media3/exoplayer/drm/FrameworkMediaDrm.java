@@ -26,7 +26,6 @@ import android.media.MediaDrmException;
 import android.media.NotProvisionedException;
 import android.media.UnsupportedSchemeException;
 import android.media.metrics.LogSessionId;
-import android.os.Build;
 import android.os.PersistableBundle;
 import android.text.TextUtils;
 import androidx.annotation.DoNotInline;
@@ -44,7 +43,6 @@ import androidx.media3.common.util.Util;
 import androidx.media3.exoplayer.analytics.PlayerId;
 import androidx.media3.extractor.mp4.PsshAtomUtil;
 import com.google.common.base.Charsets;
-import com.google.common.collect.ImmutableList;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -330,19 +328,21 @@ public final class FrameworkMediaDrm implements ExoMediaDrm {
   }
 
   @Override
-  @RequiresApi(Build.VERSION_CODES.Q)
+  @UnstableApi
+  @RequiresApi(29)
   public void removeOfflineLicense(byte[] keySetId) {
-    if (Util.SDK_INT < Build.VERSION_CODES.Q) {
+    if (Util.SDK_INT < 29) {
       throw new UnsupportedOperationException();
     }
     mediaDrm.removeOfflineLicense(keySetId);
   }
 
   @Override
-  @RequiresApi(Build.VERSION_CODES.Q)
+  @UnstableApi
+  @RequiresApi(29)
   public List<byte[]> getOfflineLicenseKeySetIds() {
-    if (Util.SDK_INT < Build.VERSION_CODES.Q) {
-      return ImmutableList.of();
+    if (Util.SDK_INT < 29) {
+      throw new UnsupportedOperationException();
     }
     return mediaDrm.getOfflineLicenseKeySetIds();
   }

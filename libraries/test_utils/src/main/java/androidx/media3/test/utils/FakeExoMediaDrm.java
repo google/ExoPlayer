@@ -361,16 +361,6 @@ public final class FakeExoMediaDrm implements ExoMediaDrm {
     throw new UnsupportedOperationException();
   }
 
-  @Override
-  public void removeOfflineLicense(byte[] keySetId) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public ImmutableList<byte[]> getOfflineLicenseKeySetIds() {
-    return ImmutableList.of();
-  }
-
   @Nullable
   @Override
   public PersistableBundle getMetrics() {

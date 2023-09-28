@@ -536,18 +536,26 @@ public interface ExoMediaDrm {
    * <p>See {@link MediaDrm#removeOfflineLicense(byte[])} for more details.
    *
    * @param keySetId The {@code keySetId} of the license to remove.
+   * @throws UnsupportedOperationException if the implementation doesn't support this method.
    */
-  void removeOfflineLicense(byte[] keySetId);
+  default void removeOfflineLicense(byte[] keySetId) {
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * Returns a list of the {@code keySetIds} for all offline licenses.
    *
    * <p>This is an optional method, and some implementations may only support it on certain Android
-   * API levels. If the method is unsupported an empty list is returned.
+   * API levels.
    *
    * <p>See {@link MediaDrm#getOfflineLicenseKeySetIds()} for more details.
+   *
+   * @return The list of {@code keySetIds} for all offline licenses.
+   * @throws UnsupportedOperationException if the implementation doesn't support this method.
    */
-  List<byte[]> getOfflineLicenseKeySetIds();
+  default List<byte[]> getOfflineLicenseKeySetIds() {
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * Returns metrics data for this ExoMediaDrm instance, or {@code null} if metrics are unavailable.
@@ -609,6 +617,4 @@ public interface ExoMediaDrm {
    */
   @C.CryptoType
   int getCryptoType();
-
-
 }
