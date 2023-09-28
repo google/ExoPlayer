@@ -17,6 +17,8 @@ package androidx.media3.exoplayer.dash.manifest;
 
 import androidx.media3.common.util.UnstableApi;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * A template from which URLs can be built.
@@ -56,7 +58,10 @@ public final class UrlTemplate {
     int identifiersCount = 0;
     String[] identifiersNames = { REPRESENTATION, NUMBER, BANDWIDTH, TIME };
     for(String identifierName : identifiersNames){
-      identifiersCount += template.split("\\$" + identifierName + "\\$").length - 1;
+      Pattern pattern = Pattern.compile("(\\$" + identifierName + "\\$|" + ESCAPED_DOLLAR + "\\$" + identifierName + "\\$" + ESCAPED_DOLLAR +")");
+      Matcher matcher = pattern.matcher(template);
+      while(matcher.find())
+        identifiersCount++;
     }
     String[] urlPieces = new String[identifiersCount+1];
     int[] identifiers = new int[identifiersCount];
