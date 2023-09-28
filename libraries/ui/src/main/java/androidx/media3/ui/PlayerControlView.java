@@ -361,7 +361,10 @@ public class PlayerControlView extends FrameLayout {
     this(context, attrs, defStyleAttr, attrs);
   }
 
+  // TODO: b/301602565 - See if there's a reasonable non-null root view group we could use below to
+  //  resolve InflateParams lint.
   @SuppressWarnings({
+    "InflateParams",
     "nullness:argument",
     "nullness:assignment",
     "nullness:method.invocation",
