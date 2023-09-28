@@ -16,9 +16,8 @@
 package androidx.media3.exoplayer.dash.manifest;
 
 import androidx.media3.common.util.UnstableApi;
+import java.util.ArrayList;
 import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * A template from which URLs can be built.
@@ -41,7 +40,7 @@ public final class UrlTemplate {
   private static final int TIME_ID = 4;
 
   private final String[] urlPieces;
-  private final int[] identifiers;
+  private final Integer[] identifiers;
   private final String[] identifierFormatTags;
   private final int identifierCount;
 
@@ -53,29 +52,20 @@ public final class UrlTemplate {
    * @throws IllegalArgumentException If the template string is malformed.
    */
   public static UrlTemplate compile(String template) {
-    // We can have more than once each identifier in the template so we need
-    // to count the total number of identifiers present in the template
-    int identifiersCount = 0;
-    String[] identifiersNames = { REPRESENTATION, NUMBER, BANDWIDTH, TIME };
-    for(String identifierName : identifiersNames){
-      Pattern pattern = Pattern.compile("(\\$" + identifierName + "\\$|" + ESCAPED_DOLLAR + "\\$" + identifierName + "\\$" + ESCAPED_DOLLAR +")");
-      Matcher matcher = pattern.matcher(template);
-      while(matcher.find())
-        identifiersCount++;
-    }
-    String[] urlPieces = new String[identifiersCount+1];
-    int[] identifiers = new int[identifiersCount];
-    String[] identifierFormatTags = new String[identifiersCount];
+    ArrayList<String> urlPieces = new ArrayList<>();
+    ArrayList<Integer> identifiers = new ArrayList<>();
+    ArrayList<String> identifierFormatTags = new ArrayList<>();
+
     int identifierCount = parseTemplate(template, urlPieces, identifiers, identifierFormatTags);
     return new UrlTemplate(urlPieces, identifiers, identifierFormatTags, identifierCount);
   }
 
   /** Internal constructor. Use {@link #compile(String)} to build instances of this class. */
   private UrlTemplate(
-      String[] urlPieces, int[] identifiers, String[] identifierFormatTags, int identifierCount) {
-    this.urlPieces = urlPieces;
-    this.identifiers = identifiers;
-    this.identifierFormatTags = identifierFormatTags;
+      ArrayList<String> urlPieces, ArrayList<Integer> identifiers, ArrayList<String> identifierFormatTags, int identifierCount) {
+    this.urlPieces = urlPieces.toArray(new String[0]);
+    this.identifiers = identifiers.toArray(new Integer[0]);
+    this.identifierFormatTags = identifierFormatTags.toArray(new String[0]);
     this.identifierCount = identifierCount;
   }
 
@@ -124,26 +114,27 @@ public final class UrlTemplate {
    * @throws IllegalArgumentException If the template string is malformed.
    */
   private static int parseTemplate(
-      String template, String[] urlPieces, int[] identifiers, String[] identifierFormatTags) {
-    urlPieces[0] = "";
+      String template, ArrayList<String> urlPieces, ArrayList<Integer> identifiers, ArrayList<String> identifierFormatTags) {
+    urlPieces.add("");
     int templateIndex = 0;
     int identifierCount = 0;
     while (templateIndex < template.length()) {
       int dollarIndex = template.indexOf("$", templateIndex);
       if (dollarIndex == -1) {
-        urlPieces[identifierCount] += template.substring(templateIndex);
+        urlPieces.set(identifierCount, urlPieces.get(identifierCount) + template.substring(templateIndex));
         templateIndex = template.length();
       } else if (dollarIndex != templateIndex) {
-        urlPieces[identifierCount] += template.substring(templateIndex, dollarIndex);
+        urlPieces.set(identifierCount, urlPieces.get(identifierCount) + template.substring(templateIndex, dollarIndex));
         templateIndex = dollarIndex;
       } else if (template.startsWith(ESCAPED_DOLLAR, templateIndex)) {
-        urlPieces[identifierCount] += "$";
+        urlPieces.set(identifierCount, urlPieces.get(identifierCount) + "$");
         templateIndex += 2;
       } else {
+        identifierFormatTags.add(null);
         int secondIndex = template.indexOf("$", templateIndex + 1);
         String identifier = template.substring(templateIndex + 1, secondIndex);
         if (identifier.equals(REPRESENTATION)) {
-          identifiers[identifierCount] = REPRESENTATION_ID;
+          identifiers.add(REPRESENTATION_ID);
         } else {
           int formatTagIndex = identifier.indexOf("%0");
           String formatTag = DEFAULT_FORMAT_TAG;
@@ -159,21 +150,21 @@ public final class UrlTemplate {
           }
           switch (identifier) {
             case NUMBER:
-              identifiers[identifierCount] = NUMBER_ID;
+              identifiers.add(NUMBER_ID);
               break;
             case BANDWIDTH:
-              identifiers[identifierCount] = BANDWIDTH_ID;
+              identifiers.add(BANDWIDTH_ID);
               break;
             case TIME:
-              identifiers[identifierCount] = TIME_ID;
+              identifiers.add(TIME_ID);
               break;
             default:
               throw new IllegalArgumentException("Invalid template: " + template);
           }
-          identifierFormatTags[identifierCount] = formatTag;
+          identifierFormatTags.set(identifierCount, formatTag);
         }
         identifierCount++;
-        urlPieces[identifierCount] = "";
+        urlPieces.add("");
         templateIndex = secondIndex + 1;
       }
     }
