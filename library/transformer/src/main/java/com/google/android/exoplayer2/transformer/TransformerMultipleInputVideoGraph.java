@@ -17,13 +17,13 @@
 package com.google.android.exoplayer2.transformer;
 
 import android.content.Context;
-import androidx.media3.common.VideoGraph;
 import com.google.android.exoplayer2.effect.MultipleInputVideoGraph;
 import com.google.android.exoplayer2.effect.VideoCompositorSettings;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.android.exoplayer2.video.ColorInfo;
+import com.google.android.exoplayer2.video.VideoGraph;
 import java.util.List;
 import java.util.concurrent.Executor;
 

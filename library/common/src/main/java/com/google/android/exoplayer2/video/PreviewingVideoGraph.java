@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media3.common;
+package com.google.android.exoplayer2.video;
 
 import android.content.Context;
 import java.util.List;

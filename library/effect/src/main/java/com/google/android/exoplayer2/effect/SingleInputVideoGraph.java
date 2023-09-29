@@ -22,7 +22,6 @@ import static com.google.android.exoplayer2.util.Assertions.checkStateNotNull;
 
 import android.content.Context;
 import androidx.annotation.Nullable;
-import androidx.media3.common.VideoGraph;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.FrameInfo;
@@ -30,6 +29,7 @@ import com.google.android.exoplayer2.util.SurfaceInfo;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.android.exoplayer2.video.ColorInfo;
+import com.google.android.exoplayer2.video.VideoGraph;
 import java.util.List;
 import java.util.concurrent.Executor;
 

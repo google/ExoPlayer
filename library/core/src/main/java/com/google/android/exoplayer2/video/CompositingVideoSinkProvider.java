@@ -27,8 +27,6 @@ import android.util.Pair;
 import android.view.Surface;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-import androidx.media3.common.PreviewingVideoGraph;
-import androidx.media3.common.VideoGraph;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.DebugViewProvider;

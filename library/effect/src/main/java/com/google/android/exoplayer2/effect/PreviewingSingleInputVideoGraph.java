@@ -18,11 +18,11 @@ package com.google.android.exoplayer2.effect;
 
 import android.content.Context;
 import androidx.annotation.Nullable;
-import androidx.media3.common.PreviewingVideoGraph;
 import com.google.android.exoplayer2.util.DebugViewProvider;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.android.exoplayer2.video.ColorInfo;
+import com.google.android.exoplayer2.video.PreviewingVideoGraph;
 import java.util.List;
 import java.util.concurrent.Executor;
 
