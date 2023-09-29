@@ -522,6 +522,11 @@ import org.checkerframework.dataflow.qual.Pure;
     }
 
     @Override
+    public void onOutputFrameAvailableForRendering(long presentationTimeUs) {
+      // Do nothing.
+    }
+
+    @Override
     public void onEnded(long finalFramePresentationTimeUs) {
       VideoSampleExporter.this.finalFramePresentationTimeUs = finalFramePresentationTimeUs;
       try {

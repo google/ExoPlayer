@@ -17,16 +17,20 @@ package com.google.android.exoplayer2.video;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
 import android.content.Context;
+import androidx.media3.common.PreviewingVideoGraph;
+import androidx.media3.common.VideoGraph;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.DebugViewProvider;
-import com.google.android.exoplayer2.util.VideoFrameProcessingException;
+import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
 import com.google.common.collect.ImmutableList;
+import java.util.List;
 import java.util.concurrent.Executor;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -127,29 +131,33 @@ public final class CompositingVideoSinkProviderTest {
   }
 
   private static CompositingVideoSinkProvider createCompositingVideoSinkProvider() {
-    VideoFrameProcessor.Factory factory = new TestVideoFrameProcessorFactory();
     VideoSink.RenderControl renderControl = new TestRenderControl();
     return new CompositingVideoSinkProvider(
-        ApplicationProvider.getApplicationContext(), factory, renderControl);
+        ApplicationProvider.getApplicationContext(),
+        new TestPreviewingVideoGraphFactory(),
+        renderControl);
   }
 
-  private static class TestVideoFrameProcessorFactory implements VideoFrameProcessor.Factory {
+  private static class TestPreviewingVideoGraphFactory implements PreviewingVideoGraph.Factory {
     // Using a mock but we don't assert mock interactions. If needed to assert interactions, we
     // should a fake instead.
+    private final PreviewingVideoGraph previewingVideoGraph =
+        Mockito.mock(PreviewingVideoGraph.class);
     private final VideoFrameProcessor videoFrameProcessor = Mockito.mock(VideoFrameProcessor.class);
 
     @Override
-    public VideoFrameProcessor create(
+    public PreviewingVideoGraph create(
         Context context,
-        DebugViewProvider debugViewProvider,
         ColorInfo inputColorInfo,
         ColorInfo outputColorInfo,
-        boolean renderFramesAutomatically,
+        DebugViewProvider debugViewProvider,
+        VideoGraph.Listener listener,
         Executor listenerExecutor,
-        VideoFrameProcessor.Listener listener)
-        throws VideoFrameProcessingException {
+        List<Effect> compositionEffects,
+        long initialTimestampOffsetUs) {
+      when(previewingVideoGraph.getProcessor(anyInt())).thenReturn(videoFrameProcessor);
       when(videoFrameProcessor.registerInputFrame()).thenReturn(true);
-      return videoFrameProcessor;
+      return previewingVideoGraph;
     }
   }
 

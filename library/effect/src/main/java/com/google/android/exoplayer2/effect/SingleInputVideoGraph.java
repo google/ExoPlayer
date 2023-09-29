@@ -140,6 +140,8 @@ public abstract class SingleInputVideoGraph implements VideoGraph {
                   hasProducedFrameWithTimestampZero = true;
                 }
                 lastProcessedFramePresentationTimeUs = presentationTimeUs;
+                listenerExecutor.execute(
+                    () -> listener.onOutputFrameAvailableForRendering(presentationTimeUs));
               }
 
               @Override

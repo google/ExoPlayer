@@ -26,6 +26,9 @@ import android.os.Handler;
 import android.util.Pair;
 import android.view.Surface;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
+import androidx.media3.common.PreviewingVideoGraph;
+import androidx.media3.common.VideoGraph;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.util.DebugViewProvider;
@@ -40,6 +43,7 @@ import com.google.android.exoplayer2.util.TimestampIterator;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.util.VideoFrameProcessingException;
 import com.google.android.exoplayer2.util.VideoFrameProcessor;
+import com.google.common.collect.ImmutableList;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -61,7 +65,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 /* package */ final class CompositingVideoSinkProvider implements VideoSinkProvider {
 
   private final Context context;
-  private final VideoFrameProcessor.Factory videoFrameProcessorFactory;
+  private final PreviewingVideoGraph.Factory previewingVideoGraphFactory;
   private final VideoSink.RenderControl renderControl;
 
   @Nullable private VideoSinkImpl videoSinkImpl;
@@ -74,8 +78,19 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       Context context,
       VideoFrameProcessor.Factory videoFrameProcessorFactory,
       VideoSink.RenderControl renderControl) {
+    this(
+        context,
+        new ReflectivePreviewingSingleInputVideoGraphFactory(videoFrameProcessorFactory),
+        renderControl);
+  }
+
+  @VisibleForTesting
+  /* package */ CompositingVideoSinkProvider(
+      Context context,
+      PreviewingVideoGraph.Factory previewingVideoGraphFactory,
+      VideoSink.RenderControl renderControl) {
     this.context = context;
-    this.videoFrameProcessorFactory = videoFrameProcessorFactory;
+    this.previewingVideoGraphFactory = previewingVideoGraphFactory;
     this.renderControl = renderControl;
   }
 
@@ -86,7 +101,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
     try {
       videoSinkImpl =
-          new VideoSinkImpl(context, videoFrameProcessorFactory, renderControl, sourceFormat);
+          new VideoSinkImpl(context, previewingVideoGraphFactory, renderControl, sourceFormat);
     } catch (VideoFrameProcessingException e) {
       throw new VideoSink.VideoSinkException(e, sourceFormat);
     }
@@ -151,10 +166,10 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
   }
 
-  private static final class VideoSinkImpl implements VideoSink, VideoFrameProcessor.Listener {
+  private static final class VideoSinkImpl implements VideoSink, VideoGraph.Listener {
 
     private final Context context;
-    private final RenderControl renderControl;
+    private final VideoSink.RenderControl renderControl;
     private final VideoFrameProcessor videoFrameProcessor;
     private final LongArrayQueue processedFramesBufferTimestampsUs;
     private final TimedValueQueue<Long> streamOffsets;
@@ -200,7 +215,7 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     /** Creates a new instance. */
     public VideoSinkImpl(
         Context context,
-        VideoFrameProcessor.Factory videoFrameProcessorFactory,
+        PreviewingVideoGraph.Factory previewingVideoGraphFactory,
         RenderControl renderControl,
         Format sourceFormat)
         throws VideoFrameProcessingException {
@@ -237,18 +252,22 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       @SuppressWarnings("nullness:assignment")
       @Initialized
       VideoSinkImpl thisRef = this;
-      videoFrameProcessor =
-          videoFrameProcessorFactory.create(
+      PreviewingVideoGraph videoGraph =
+          previewingVideoGraphFactory.create(
               context,
-              DebugViewProvider.NONE,
               inputColorInfo,
               outputColorInfo,
-              /* renderFramesAutomatically= */ false,
+              DebugViewProvider.NONE,
+              /* listener= */ thisRef,
               /* listenerExecutor= */ handler::post,
-              thisRef);
+              /* compositionEffects= */ ImmutableList.of(),
+              /* initialTimestampOffsetUs= */ 0);
+      int videoGraphInputId = videoGraph.registerInput();
+      videoFrameProcessor = videoGraph.getProcessor(videoGraphInputId);
+
       if (currentSurfaceAndSize != null) {
         Size outputSurfaceSize = currentSurfaceAndSize.second;
-        videoFrameProcessor.setOutputSurfaceInfo(
+        videoGraph.setOutputSurfaceInfo(
             new SurfaceInfo(
                 currentSurfaceAndSize.first,
                 outputSurfaceSize.getWidth(),
@@ -403,14 +422,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
       this.playbackSpeed = speed;
     }
 
-    // VideoFrameProcessor.Listener impl
-
-    @Override
-    public void onInputStreamRegistered(
-        @VideoFrameProcessor.InputType int inputType, List<Effect> effects, FrameInfo frameInfo) {
-      // Do nothing.
-    }
-
     @Override
     public void onOutputSizeChanged(int width, int height) {
       VideoSize newVideoSize = new VideoSize(width, height);
@@ -458,11 +469,9 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
     }
 
     @Override
-    public void onEnded() {
+    public void onEnded(long finalFramePresentationTimeUs) {
       throw new IllegalStateException();
     }
-
-    // Other methods
 
     public void release() {
       videoFrameProcessor.release();
@@ -528,7 +537,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
               outputSurface, outputResolution.getWidth(), outputResolution.getHeight()));
     }
 
-    /** Clears the set output surface info. */
     public void clearOutputSurfaceInfo() {
       videoFrameProcessor.setOutputSurfaceInfo(null);
       currentSurfaceAndSize = null;
@@ -618,6 +626,55 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
           buildScaleAndRotateTransformationMethod =
               scaleAndRotateTransformationBuilderClass.getMethod("build");
         }
+      }
+    }
+  }
+
+  /**
+   * Delays reflection for loading a {@linkplain PreviewingVideoGraph.Factory
+   * PreviewingSingleInputVideoGraph} instance.
+   */
+  private static final class ReflectivePreviewingSingleInputVideoGraphFactory
+      implements PreviewingVideoGraph.Factory {
+
+    private final VideoFrameProcessor.Factory videoFrameProcessorFactory;
+
+    public ReflectivePreviewingSingleInputVideoGraphFactory(
+        VideoFrameProcessor.Factory videoFrameProcessorFactory) {
+      this.videoFrameProcessorFactory = videoFrameProcessorFactory;
+    }
+
+    @Override
+    public PreviewingVideoGraph create(
+        Context context,
+        ColorInfo inputColorInfo,
+        ColorInfo outputColorInfo,
+        DebugViewProvider debugViewProvider,
+        VideoGraph.Listener listener,
+        Executor listenerExecutor,
+        List<Effect> compositionEffects,
+        long initialTimestampOffsetUs)
+        throws VideoFrameProcessingException {
+      try {
+        Class<?> previewingSingleInputVideoGraphFactoryClass =
+            Class.forName(
+                "com.google.android.exoplayer2.effect.PreviewingSingleInputVideoGraph$Factory");
+        PreviewingVideoGraph.Factory factory =
+            (PreviewingVideoGraph.Factory)
+                previewingSingleInputVideoGraphFactoryClass
+                    .getConstructor(VideoFrameProcessor.Factory.class)
+                    .newInstance(videoFrameProcessorFactory);
+        return factory.create(
+            context,
+            inputColorInfo,
+            outputColorInfo,
+            debugViewProvider,
+            listener,
+            listenerExecutor,
+            compositionEffects,
+            initialTimestampOffsetUs);
+      } catch (Exception e) {
+        throw VideoFrameProcessingException.from(e);
       }
     }
   }
