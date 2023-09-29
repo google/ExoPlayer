@@ -31,14 +31,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Unit tests for {@link DefaultImageDecoder} ensuring the buffer queue system operates correctly.
+ * Unit tests for {@link BitmapFactoryImageDecoder} ensuring the buffer queue system operates
+ * correctly.
  */
 @RunWith(AndroidJUnit4.class)
-public class DefaultImageDecoderBufferQueueTest {
+public class BitmapFactoryImageDecoderBufferQueueTest {
 
   private static final long TIMEOUT_MS = 5 * C.MICROS_PER_SECOND;
 
-  private DefaultImageDecoder fakeImageDecoder;
+  private BitmapFactoryImageDecoder fakeImageDecoder;
   private Bitmap decodedBitmap1;
   private Bitmap decodedBitmap2;
 
@@ -50,7 +51,7 @@ public class DefaultImageDecoderBufferQueueTest {
     decodedBitmap1 = Bitmap.createBitmap(/* width= */ 1, /* height= */ 1, Bitmap.Config.ARGB_8888);
     decodedBitmap2 = Bitmap.createBitmap(/* width= */ 2, /* height= */ 2, Bitmap.Config.ARGB_8888);
     fakeImageDecoder =
-        new DefaultImageDecoder.Factory(
+        new BitmapFactoryImageDecoder.Factory(
                 (data, length) -> ++decodeCallCount == 1 ? decodedBitmap1 : decodedBitmap2)
             .createImageDecoder();
   }

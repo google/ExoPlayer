@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,7 +79,7 @@ public class ImageRendererTest {
   public void setUp() throws Exception {
     decodeCallCount = 0;
     ImageDecoder.Factory fakeDecoderFactory =
-        new DefaultImageDecoder.Factory(
+        new BitmapFactoryImageDecoder.Factory(
             (data, length) -> ++decodeCallCount == 1 ? fakeDecodedBitmap1 : fakeDecodedBitmap2);
     ImageOutput queuingImageOutput =
         new ImageOutput() {
