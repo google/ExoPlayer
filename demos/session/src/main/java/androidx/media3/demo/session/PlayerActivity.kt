@@ -32,7 +32,9 @@ import androidx.media3.common.C.TRACK_TYPE_TEXT
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
-import androidx.media3.common.Tracks
+import androidx.media3.common.Player.EVENT_MEDIA_ITEM_TRANSITION
+import androidx.media3.common.Player.EVENT_TRACKS_CHANGED
+import androidx.media3.common.Timeline
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
@@ -113,12 +115,19 @@ class PlayerActivity : AppCompatActivity() {
 
     controller.addListener(
       object : Player.Listener {
-        override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-          updateMediaMetadataUI(mediaItem?.mediaMetadata ?: MediaMetadata.EMPTY)
+        override fun onTimelineChanged(timeline: Timeline, reason: Int) {
+          if (reason == Player.TIMELINE_CHANGE_REASON_PLAYLIST_CHANGED) {
+            updateCurrentPlaylistUI()
+          }
         }
 
-        override fun onTracksChanged(tracks: Tracks) {
-          playerView.setShowSubtitleButton(tracks.isTypeSupported(TRACK_TYPE_TEXT))
+        override fun onEvents(player: Player, events: Player.Events) {
+          if (events.contains(EVENT_MEDIA_ITEM_TRANSITION)) {
+            updateMediaMetadataUI(player.currentMediaItem?.mediaMetadata ?: MediaMetadata.EMPTY)
+          }
+          if (events.contains(EVENT_TRACKS_CHANGED)) {
+            playerView.setShowSubtitleButton(player.currentTracks.isTypeSupported(TRACK_TYPE_TEXT))
+          }
         }
       }
     )
