@@ -24,6 +24,8 @@
 *   Cronet Extension:
 *   RTMP Extension:
 *   HLS Extension:
+*   DASH Extension:
+    *   Allow multiple of the same DASH identifier in segment template url.
 *   Smooth Streaming Extension:
 *   RTSP Extension:
 *   Decoder Extensions (FFmpeg, VP9, AV1, etc.):
