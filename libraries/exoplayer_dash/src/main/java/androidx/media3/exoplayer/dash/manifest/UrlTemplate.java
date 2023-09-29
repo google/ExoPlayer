@@ -16,6 +16,7 @@
 package androidx.media3.exoplayer.dash.manifest;
 
 import androidx.media3.common.util.UnstableApi;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -39,9 +40,9 @@ public final class UrlTemplate {
   private static final int BANDWIDTH_ID = 3;
   private static final int TIME_ID = 4;
 
-  private final String[] urlPieces;
-  private final Integer[] identifiers;
-  private final String[] identifierFormatTags;
+  private final ArrayList<String> urlPieces;
+  private final ArrayList<Integer> identifiers;
+  private final ArrayList<String> identifierFormatTags;
   private final int identifierCount;
 
   /**
@@ -63,9 +64,9 @@ public final class UrlTemplate {
   /** Internal constructor. Use {@link #compile(String)} to build instances of this class. */
   private UrlTemplate(
       ArrayList<String> urlPieces, ArrayList<Integer> identifiers, ArrayList<String> identifierFormatTags, int identifierCount) {
-    this.urlPieces = urlPieces.toArray(new String[0]);
-    this.identifiers = identifiers.toArray(new Integer[0]);
-    this.identifierFormatTags = identifierFormatTags.toArray(new String[0]);
+    this.urlPieces = urlPieces;
+    this.identifiers = identifiers;
+    this.identifierFormatTags = identifierFormatTags;
     this.identifierCount = identifierCount;
   }
 
@@ -83,18 +84,18 @@ public final class UrlTemplate {
   public String buildUri(String representationId, long segmentNumber, int bandwidth, long time) {
     StringBuilder builder = new StringBuilder();
     for (int i = 0; i < identifierCount; i++) {
-      builder.append(urlPieces[i]);
-      if (identifiers[i] == REPRESENTATION_ID) {
+      builder.append(urlPieces.get(i));
+      if (identifiers.get(i) == REPRESENTATION_ID) {
         builder.append(representationId);
-      } else if (identifiers[i] == NUMBER_ID) {
-        builder.append(String.format(Locale.US, identifierFormatTags[i], segmentNumber));
-      } else if (identifiers[i] == BANDWIDTH_ID) {
-        builder.append(String.format(Locale.US, identifierFormatTags[i], bandwidth));
-      } else if (identifiers[i] == TIME_ID) {
-        builder.append(String.format(Locale.US, identifierFormatTags[i], time));
+      } else if (identifiers.get(i) == NUMBER_ID) {
+        builder.append(String.format(Locale.US, identifierFormatTags.get(i), segmentNumber));
+      } else if (identifiers.get(i) == BANDWIDTH_ID) {
+        builder.append(String.format(Locale.US, identifierFormatTags.get(i), bandwidth));
+      } else if (identifiers.get(i) == TIME_ID) {
+        builder.append(String.format(Locale.US, identifierFormatTags.get(i), time));
       }
     }
-    builder.append(urlPieces[identifierCount]);
+    builder.append(urlPieces.get(identifierCount));
     return builder.toString();
   }
 
