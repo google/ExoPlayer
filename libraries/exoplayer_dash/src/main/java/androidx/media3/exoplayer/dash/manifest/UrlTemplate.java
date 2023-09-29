@@ -17,6 +17,7 @@ package androidx.media3.exoplayer.dash.manifest;
 
 import androidx.media3.common.util.UnstableApi;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -39,9 +40,9 @@ public final class UrlTemplate {
   private static final int BANDWIDTH_ID = 3;
   private static final int TIME_ID = 4;
 
-  private final ArrayList<String> urlPieces;
-  private final ArrayList<Integer> identifiers;
-  private final ArrayList<String> identifierFormatTags;
+  private final List<String> urlPieces;
+  private final List<Integer> identifiers;
+  private final List<String> identifierFormatTags;
   private final int identifierCount;
 
   /**
@@ -52,9 +53,9 @@ public final class UrlTemplate {
    * @throws IllegalArgumentException If the template string is malformed.
    */
   public static UrlTemplate compile(String template) {
-    ArrayList<String> urlPieces = new ArrayList<>();
-    ArrayList<Integer> identifiers = new ArrayList<>();
-    ArrayList<String> identifierFormatTags = new ArrayList<>();
+    List<String> urlPieces = new ArrayList<>();
+    List<Integer> identifiers = new ArrayList<>();
+    List<String> identifierFormatTags = new ArrayList<>();
 
     int identifierCount = parseTemplate(template, urlPieces, identifiers, identifierFormatTags);
     return new UrlTemplate(urlPieces, identifiers, identifierFormatTags, identifierCount);
@@ -62,9 +63,9 @@ public final class UrlTemplate {
 
   /** Internal constructor. Use {@link #compile(String)} to build instances of this class. */
   private UrlTemplate(
-      ArrayList<String> urlPieces,
-      ArrayList<Integer> identifiers,
-      ArrayList<String> identifierFormatTags,
+      List<String> urlPieces,
+      List<Integer> identifiers,
+      List<String> identifierFormatTags,
       int identifierCount) {
     this.urlPieces = urlPieces;
     this.identifiers = identifiers;
@@ -118,9 +119,9 @@ public final class UrlTemplate {
    */
   private static int parseTemplate(
       String template,
-      ArrayList<String> urlPieces,
-      ArrayList<Integer> identifiers,
-      ArrayList<String> identifierFormatTags) {
+      List<String> urlPieces,
+      List<Integer> identifiers,
+      List<String> identifierFormatTags) {
     urlPieces.add("");
     int templateIndex = 0;
     int identifierCount = 0;
@@ -139,7 +140,7 @@ public final class UrlTemplate {
         urlPieces.set(identifierCount, urlPieces.get(identifierCount) + "$");
         templateIndex += 2;
       } else {
-        identifierFormatTags.add(null);
+        identifierFormatTags.add("");
         int secondIndex = template.indexOf("$", templateIndex + 1);
         String identifier = template.substring(templateIndex + 1, secondIndex);
         if (identifier.equals(REPRESENTATION)) {
