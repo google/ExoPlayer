@@ -16,7 +16,6 @@
 package androidx.media3.exoplayer.dash.manifest;
 
 import androidx.media3.common.util.UnstableApi;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -63,7 +62,10 @@ public final class UrlTemplate {
 
   /** Internal constructor. Use {@link #compile(String)} to build instances of this class. */
   private UrlTemplate(
-      ArrayList<String> urlPieces, ArrayList<Integer> identifiers, ArrayList<String> identifierFormatTags, int identifierCount) {
+      ArrayList<String> urlPieces,
+      ArrayList<Integer> identifiers,
+      ArrayList<String> identifierFormatTags,
+      int identifierCount) {
     this.urlPieces = urlPieces;
     this.identifiers = identifiers;
     this.identifierFormatTags = identifierFormatTags;
@@ -115,17 +117,23 @@ public final class UrlTemplate {
    * @throws IllegalArgumentException If the template string is malformed.
    */
   private static int parseTemplate(
-      String template, ArrayList<String> urlPieces, ArrayList<Integer> identifiers, ArrayList<String> identifierFormatTags) {
+      String template,
+      ArrayList<String> urlPieces,
+      ArrayList<Integer> identifiers,
+      ArrayList<String> identifierFormatTags) {
     urlPieces.add("");
     int templateIndex = 0;
     int identifierCount = 0;
     while (templateIndex < template.length()) {
       int dollarIndex = template.indexOf("$", templateIndex);
       if (dollarIndex == -1) {
-        urlPieces.set(identifierCount, urlPieces.get(identifierCount) + template.substring(templateIndex));
+        urlPieces.set(
+            identifierCount, urlPieces.get(identifierCount) + template.substring(templateIndex));
         templateIndex = template.length();
       } else if (dollarIndex != templateIndex) {
-        urlPieces.set(identifierCount, urlPieces.get(identifierCount) + template.substring(templateIndex, dollarIndex));
+        urlPieces.set(
+            identifierCount,
+            urlPieces.get(identifierCount) + template.substring(templateIndex, dollarIndex));
         templateIndex = dollarIndex;
       } else if (template.startsWith(ESCAPED_DOLLAR, templateIndex)) {
         urlPieces.set(identifierCount, urlPieces.get(identifierCount) + "$");
