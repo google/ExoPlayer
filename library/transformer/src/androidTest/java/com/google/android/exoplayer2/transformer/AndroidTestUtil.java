@@ -245,9 +245,8 @@ public final class AndroidTestUtil {
           .setCodecs("avc1.64001F")
           .build();
 
-  public static final String MP4_REMOTE_8K24_URI_STRING =
-      "https://storage.googleapis.com/exoplayer-test-media-1/mp4/8k24fps_4s.mp4";
-  public static final Format MP4_REMOTE_8K24_FORMAT =
+  public static final String MP4_ASSET_8K24_URI_STRING = "asset:///media/mp4/8k24fps_300ms.mp4";
+  public static final Format MP4_ASSET_8K24_FORMAT =
       new Format.Builder()
           .setSampleMimeType(MimeTypes.VIDEO_H265)
           .setWidth(7680)
