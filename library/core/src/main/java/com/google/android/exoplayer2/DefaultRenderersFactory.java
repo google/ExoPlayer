@@ -482,7 +482,7 @@ public class DefaultRenderersFactory implements RenderersFactory {
 
     try {
       // Full class names used for constructor args so the LINT rule triggers if any of them move.
-      Class<?> clazz = Class.forName("com.google.android.exoplayer2.decoder.midi.MidiRenderer");
+      Class<?> clazz = Class.forName("com.google.android.exoplayer2.ext.midi.MidiRenderer");
       Constructor<?> constructor = clazz.getConstructor(Context.class);
       Renderer renderer = (Renderer) constructor.newInstance(context);
       out.add(extensionRendererIndex++, renderer);

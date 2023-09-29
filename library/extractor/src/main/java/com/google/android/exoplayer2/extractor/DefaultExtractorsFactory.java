@@ -95,7 +95,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *   <li>BMP ({@link BmpExtractor})
  *   <li>HEIF ({@link HeifExtractor})
  *   <li>MIDI, if available, the MIDI extension's {@code
- *       com.google.android.exoplayer2.decoder.midi.MidiExtractor} is used.
+ *       com.google.android.exoplayer2.ext.midi.MidiExtractor} is used.
  * </ul>
  *
  * @deprecated com.google.android.exoplayer2 is deprecated. Please migrate to androidx.media3 (which
@@ -563,7 +563,7 @@ public final class DefaultExtractorsFactory implements ExtractorsFactory {
 
   private static Constructor<? extends Extractor> getMidiExtractorConstructor()
       throws ClassNotFoundException, NoSuchMethodException {
-    return Class.forName("com.google.android.exoplayer2.decoder.midi.MidiExtractor")
+    return Class.forName("com.google.android.exoplayer2.ext.midi.MidiExtractor")
         .asSubclass(Extractor.class)
         .getConstructor();
   }

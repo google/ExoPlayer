@@ -9,8 +9,8 @@
 -keepclassmembers class com.google.android.exoplayer2.ext.flac.FlacLibrary {
   public static boolean isAvailable();
 }
--dontnote com.google.android.exoplayer2.decoder.midi.MidiExtractor
--keepclassmembers class com.google.android.exoplayer2.decoder.midi.MidiExtractor {
+-dontnote com.google.android.exoplayer2.ext.midi.MidiExtractor
+-keepclassmembers class com.google.android.exoplayer2.ext.midi.MidiExtractor {
   <init>();
 }
 

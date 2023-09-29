@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.exoplayer2.decoder.midi;
+package com.google.android.exoplayer2.ext.midi;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import androidx.annotation.Nullable;
-import com.google.android.exoplayer2.decoder.midi.SonivoxWaveData.Envelope;
-import com.google.android.exoplayer2.decoder.midi.SonivoxWaveData.WavetableRegion;
+import com.google.android.exoplayer2.ext.midi.SonivoxWaveData.Envelope;
+import com.google.android.exoplayer2.ext.midi.SonivoxWaveData.WavetableRegion;
 import com.jsyn.data.ShortSample;
 import com.jsyn.ports.UnitInputPort;
 import com.jsyn.ports.UnitOutputPort;

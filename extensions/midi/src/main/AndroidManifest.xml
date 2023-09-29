@@ -14,6 +14,6 @@
      limitations under the License.
 -->
 
-<manifest package="com.google.android.exoplayer2.decoder.midi">
+<manifest package="com.google.android.exoplayer2.ext.midi">
   <uses-sdk />
 </manifest>

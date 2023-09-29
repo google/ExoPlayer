@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 @NonNullApi
-package com.google.android.exoplayer2.decoder.midi;
+package com.google.android.exoplayer2.ext.midi;
 
 import com.google.android.exoplayer2.util.NonNullApi;
