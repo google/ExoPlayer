@@ -16,6 +16,8 @@ project.ext {
  releaseVersion = '2.19.1'
  releaseVersionCode = 2_019_001
     minSdkVersion = 16
+    // See https://developer.android.com/training/cars/media/automotive-os#automotive-module
+    automotiveMinSdkVersion = 28
     appTargetSdkVersion = 34
     // Upgrading this requires [Internal ref: b/193254928] to be fixed, or some
     // additional robolectric config.

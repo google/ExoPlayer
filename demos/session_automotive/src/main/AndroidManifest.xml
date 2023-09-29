@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2023 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="androidx.media3.demo.session.automotive">
+
+  <uses-sdk/>
+  <uses-permission android:name="android.permission.INTERNET" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+
+  <uses-feature
+    android:name="android.hardware.type.automotive"
+    android:required="true" />
+  <uses-feature
+    android:name="android.hardware.wifi"
+    android:required="false" />
+  <uses-feature
+    android:name="android.hardware.screen.portrait"
+    android:required="false" />
+  <uses-feature
+    android:name="android.hardware.screen.landscape"
+    android:required="false" />
+
+  <meta-data android:name="com.android.automotive"
+    android:resource="@xml/automotive_app_desc"/>
+
+  <application
+      android:name="androidx.multidex.MultiDexApplication"
+      android:allowBackup="false"
+      android:taskAffinity=""
+      android:appCategory="audio"
+      android:icon="@mipmap/ic_launcher"
+      android:label="@string/app_name"
+      tools:replace="android:name">
+
+    <meta-data
+      android:name="androidx.car.app.TintableAttributionIcon"
+      android:resource="@mipmap/ic_launcher" />
+
+    <service
+        android:name=".AutomotiveService"
+        android:foregroundServiceType="mediaPlayback"
+        android:exported="true">
+      <intent-filter>
+        <action android:name="androidx.media3.session.MediaLibraryService"/>
+        <action android:name="android.media.browse.MediaBrowserService"/>
+      </intent-filter>
+    </service>
+
+    <!-- Artwork provider for content:// URIs -->
+    <provider
+      android:name="BitmapContentProvider"
+      android:authorities="androidx.media3"
+      android:exported="true" />
+
+  </application>
+
+</manifest>
