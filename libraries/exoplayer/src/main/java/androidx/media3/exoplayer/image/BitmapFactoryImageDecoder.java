@@ -48,7 +48,7 @@ import java.nio.ByteBuffer;
  * alongside one timestamp)).
  */
 @UnstableApi
-public final class DefaultImageDecoder
+public final class BitmapFactoryImageDecoder
     extends SimpleDecoder<DecoderInputBuffer, ImageOutputBuffer, ImageDecoderException>
     implements ImageDecoder {
 
@@ -67,7 +67,7 @@ public final class DefaultImageDecoder
     Bitmap decode(byte[] data, int length) throws ImageDecoderException;
   }
 
-  /** A factory for {@link DefaultImageDecoder} instances. */
+  /** A factory for {@link BitmapFactoryImageDecoder} instances. */
   public static final class Factory implements ImageDecoder.Factory {
     private static final ImmutableSet<String> SUPPORTED_IMAGE_TYPES = getSupportedMimeTypes();
 
@@ -77,7 +77,7 @@ public final class DefaultImageDecoder
      * Creates an instance using a {@link BitmapFactory} implementation of {@link BitmapDecoder}.
      */
     public Factory() {
-      this.bitmapDecoder = DefaultImageDecoder::decode;
+      this.bitmapDecoder = BitmapFactoryImageDecoder::decode;
     }
 
     /**
@@ -103,8 +103,8 @@ public final class DefaultImageDecoder
     }
 
     @Override
-    public DefaultImageDecoder createImageDecoder() {
-      return new DefaultImageDecoder(bitmapDecoder);
+    public BitmapFactoryImageDecoder createImageDecoder() {
+      return new BitmapFactoryImageDecoder(bitmapDecoder);
     }
 
     private static ImmutableSet<String> getSupportedMimeTypes() {
@@ -120,7 +120,7 @@ public final class DefaultImageDecoder
 
   private final BitmapDecoder bitmapDecoder;
 
-  private DefaultImageDecoder(BitmapDecoder bitmapDecoder) {
+  private BitmapFactoryImageDecoder(BitmapDecoder bitmapDecoder) {
     super(new DecoderInputBuffer[1], new ImageOutputBuffer[1]);
     this.bitmapDecoder = bitmapDecoder;
   }
@@ -140,7 +140,7 @@ public final class DefaultImageDecoder
     return new ImageOutputBuffer() {
       @Override
       public void release() {
-        DefaultImageDecoder.this.releaseOutputBuffer(this);
+        BitmapFactoryImageDecoder.this.releaseOutputBuffer(this);
       }
     };
   }

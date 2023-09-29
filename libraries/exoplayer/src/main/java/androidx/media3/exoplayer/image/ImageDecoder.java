@@ -32,7 +32,7 @@ public interface ImageDecoder
   interface Factory {
 
     /** Default implementation of an image decoder factory. */
-    ImageDecoder.Factory DEFAULT = new DefaultImageDecoder.Factory();
+    ImageDecoder.Factory DEFAULT = new BitmapFactoryImageDecoder.Factory();
 
     /**
      * Returns the highest {@link Capabilities} of the factory's decoders for the given {@link

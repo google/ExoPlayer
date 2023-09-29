@@ -34,21 +34,21 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.GraphicsMode;
 
-/** Unit tests for {@link DefaultImageDecoder}. */
+/** Unit tests for {@link BitmapFactoryImageDecoder}. */
 @RunWith(AndroidJUnit4.class)
 @GraphicsMode(value = NATIVE)
-public class DefaultImageDecoderTest {
+public class BitmapFactoryImageDecoderTest {
 
   private static final String PNG_TEST_IMAGE_PATH = "media/png/non-motion-photo-shortened.png";
   private static final String JPEG_TEST_IMAGE_PATH = "media/jpeg/non-motion-photo-shortened.jpg";
 
-  private DefaultImageDecoder decoder;
+  private BitmapFactoryImageDecoder decoder;
   private DecoderInputBuffer inputBuffer;
   private ImageOutputBuffer outputBuffer;
 
   @Before
   public void setUp() {
-    decoder = new DefaultImageDecoder.Factory().createImageDecoder();
+    decoder = new BitmapFactoryImageDecoder.Factory().createImageDecoder();
     inputBuffer = decoder.createInputBuffer();
     outputBuffer = decoder.createOutputBuffer();
   }

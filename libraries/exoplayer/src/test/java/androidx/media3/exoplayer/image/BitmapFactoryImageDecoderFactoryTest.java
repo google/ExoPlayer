@@ -26,11 +26,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Unit tests for {@link DefaultImageDecoder.Factory}. */
+/** Unit tests for {@link BitmapFactoryImageDecoder.Factory}. */
 @RunWith(AndroidJUnit4.class)
-public class DefaultImageDecoderFactoryTest {
+public class BitmapFactoryImageDecoderFactoryTest {
 
-  private final DefaultImageDecoder.Factory imageDecoderFactory = new DefaultImageDecoder.Factory();
+  private final BitmapFactoryImageDecoder.Factory imageDecoderFactory =
+      new BitmapFactoryImageDecoder.Factory();
 
   @Test
   public void supportsFormat_validFormat_returnsFormatSupported() throws Exception {
