@@ -224,7 +224,12 @@ object MediaItemTree {
             isPlayable = true,
             isBrowsable = true,
             mediaType = MediaMetadata.MEDIA_TYPE_ALBUM,
-            subtitleConfigurations
+            subtitleConfigurations,
+            album = null,
+            artist = null,
+            genre = null,
+            sourceUri = null,
+            imageUri
           )
         )
       treeNodes[ALBUM_ID]!!.addChild(albumFolderIdInTree)

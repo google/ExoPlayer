@@ -16,6 +16,8 @@
 *   Muxers:
 *   IMA extension:
 *   Session:
+    *   Add session demo module for Automotive OS and enable session demo for
+        Android Auto.
 *   UI:
 *   Downloads:
 *   OkHttp Extension:
@@ -111,7 +113,7 @@ This release includes the following changes since the
     *   Add `MediaLibrarySession.getSubscribedControllers(mediaId)` for
         convenience.
     *   Override `MediaLibrarySession.Callback.onSubscribe()` to assert the
-        availability of the parent Id for which the controller subscribes. If
+        availability of the parent ID for which the controller subscribes. If
         successful, the subscription is accepted and `notifyChildrenChanged()`
         is called immediately to inform the browser
         ([#561](https://github.com/androidx/media/issues/561)).
