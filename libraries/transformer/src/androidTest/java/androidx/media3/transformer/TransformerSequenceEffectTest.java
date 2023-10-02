@@ -18,6 +18,7 @@
 package androidx.media3.transformer;
 
 import static androidx.media3.common.util.Assertions.checkNotNull;
+import static androidx.media3.common.util.Util.SDK_INT;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.MAXIMUM_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE_LUMA;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.getBitmapAveragePixelAbsoluteDifferenceArgb8888;
 import static androidx.media3.test.utils.BitmapPixelTestUtil.maybeSaveTestBitmap;
@@ -29,6 +30,7 @@ import static androidx.media3.transformer.AndroidTestUtil.MP4_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.MP4_PORTRAIT_ASSET_URI_STRING;
 import static androidx.media3.transformer.AndroidTestUtil.extractBitmapsFromVideo;
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assume.assumeFalse;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -111,6 +113,13 @@ public final class TransformerSequenceEffectTest {
   @Test
   public void export_withCompositionPresentationAndWithPerMediaItemEffects() throws Exception {
     String testId = "export_withCompositionPresentationAndWithPerMediaItemEffects";
+
+    // Reference: b/296225823#comment5
+    assumeFalse(
+        "Some older MediaTek encoders have a pixel alignment of 16, which results in a 360 pixel"
+            + " width being re-scaled to 368.",
+        SDK_INT == 27 && (Util.MODEL.equals("redmi 6a") || Util.MODEL.equals("vivo 1820")));
+
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
