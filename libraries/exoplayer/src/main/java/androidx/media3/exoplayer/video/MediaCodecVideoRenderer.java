@@ -655,10 +655,12 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
 
   @Override
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
-    super.onPositionReset(positionUs, joining);
+    // Flush the video sink first to ensure it stops reading textures that will be owned by
+    // MediaCodec once the codec is flushed.
     if (videoSink != null) {
       videoSink.flush();
     }
+    super.onPositionReset(positionUs, joining);
 
     if (videoSinkProvider.isInitialized()) {
       videoSinkProvider.setStreamOffsetUs(getOutputStreamOffsetUs());
