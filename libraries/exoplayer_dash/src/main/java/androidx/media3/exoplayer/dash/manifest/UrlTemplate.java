@@ -43,7 +43,6 @@ public final class UrlTemplate {
   private final List<String> urlPieces;
   private final List<Integer> identifiers;
   private final List<String> identifierFormatTags;
-  private final int identifierCount;
 
   /**
    * Compile an instance from the provided template string.
@@ -57,20 +56,16 @@ public final class UrlTemplate {
     List<Integer> identifiers = new ArrayList<>();
     List<String> identifierFormatTags = new ArrayList<>();
 
-    int identifierCount = parseTemplate(template, urlPieces, identifiers, identifierFormatTags);
-    return new UrlTemplate(urlPieces, identifiers, identifierFormatTags, identifierCount);
+    parseTemplate(template, urlPieces, identifiers, identifierFormatTags);
+    return new UrlTemplate(urlPieces, identifiers, identifierFormatTags);
   }
 
   /** Internal constructor. Use {@link #compile(String)} to build instances of this class. */
   private UrlTemplate(
-      List<String> urlPieces,
-      List<Integer> identifiers,
-      List<String> identifierFormatTags,
-      int identifierCount) {
+      List<String> urlPieces, List<Integer> identifiers, List<String> identifierFormatTags) {
     this.urlPieces = urlPieces;
     this.identifiers = identifiers;
     this.identifierFormatTags = identifierFormatTags;
-    this.identifierCount = identifierCount;
   }
 
   /**
@@ -86,7 +81,7 @@ public final class UrlTemplate {
    */
   public String buildUri(String representationId, long segmentNumber, int bandwidth, long time) {
     StringBuilder builder = new StringBuilder();
-    for (int i = 0; i < identifierCount; i++) {
+    for (int i = 0; i < identifiers.size(); i++) {
       builder.append(urlPieces.get(i));
       if (identifiers.get(i) == REPRESENTATION_ID) {
         builder.append(representationId);
@@ -98,12 +93,12 @@ public final class UrlTemplate {
         builder.append(String.format(Locale.US, identifierFormatTags.get(i), time));
       }
     }
-    builder.append(urlPieces.get(identifierCount));
+    builder.append(urlPieces.get(identifiers.size()));
     return builder.toString();
   }
 
   /**
-   * Parses {@code template}, placing the decomposed components into the provided arrays.
+   * Parses {@code template}, placing the decomposed components into the provided lists.
    *
    * <p>If the return value is N, {@code urlPieces} will contain (N+1) strings that must be
    * interleaved with N arguments in order to construct a url. The N identifiers that correspond to
@@ -114,30 +109,28 @@ public final class UrlTemplate {
    * @param urlPieces A holder for pieces of url parsed from the template.
    * @param identifiers A holder for identifiers parsed from the template.
    * @param identifierFormatTags A holder for format tags corresponding to the parsed identifiers.
-   * @return The number of identifiers in the template url.
    * @throws IllegalArgumentException If the template string is malformed.
    */
-  private static int parseTemplate(
+  private static void parseTemplate(
       String template,
       List<String> urlPieces,
       List<Integer> identifiers,
       List<String> identifierFormatTags) {
     urlPieces.add("");
     int templateIndex = 0;
-    int identifierCount = 0;
     while (templateIndex < template.length()) {
       int dollarIndex = template.indexOf("$", templateIndex);
       if (dollarIndex == -1) {
         urlPieces.set(
-            identifierCount, urlPieces.get(identifierCount) + template.substring(templateIndex));
+            identifiers.size(), urlPieces.get(identifiers.size()) + template.substring(templateIndex));
         templateIndex = template.length();
       } else if (dollarIndex != templateIndex) {
         urlPieces.set(
-            identifierCount,
-            urlPieces.get(identifierCount) + template.substring(templateIndex, dollarIndex));
+            identifiers.size(),
+            urlPieces.get(identifiers.size()) + template.substring(templateIndex, dollarIndex));
         templateIndex = dollarIndex;
       } else if (template.startsWith(ESCAPED_DOLLAR, templateIndex)) {
-        urlPieces.set(identifierCount, urlPieces.get(identifierCount) + "$");
+        urlPieces.set(identifiers.size(), urlPieces.get(identifiers.size()) + "$");
         templateIndex += 2;
       } else {
         identifierFormatTags.add("");
@@ -171,13 +164,11 @@ public final class UrlTemplate {
             default:
               throw new IllegalArgumentException("Invalid template: " + template);
           }
-          identifierFormatTags.set(identifierCount, formatTag);
+          identifierFormatTags.set(identifiers.size() - 1, formatTag);
         }
-        identifierCount++;
         urlPieces.add("");
         templateIndex = secondIndex + 1;
       }
     }
-    return identifierCount;
   }
 }
