@@ -70,4 +70,22 @@ public class UrlTemplateTest {
       // Expected.
     }
   }
+
+  @Test
+  public void fullWithMultipleOccurrences() {
+    String template =
+        "$Bandwidth$_a1_$RepresentationID$_b1_$Time$_c1_$Number$_$Bandwidth$_a2_$RepresentationID$_b2_$Time$_c2_$Number$";
+    UrlTemplate urlTemplate = UrlTemplate.compile(template);
+    String url = urlTemplate.buildUri("abc1", 10, 650000, 5000);
+    assertThat(url).isEqualTo("650000_a1_abc1_b1_5000_c1_10_650000_a2_abc1_b2_5000_c2_10");
+  }
+
+  @Test
+  public void fullWithMultipleOccurrencesAndDollarEscaping() {
+    String template =
+        "$$$Bandwidth$$$_a1$$_$RepresentationID$_b1_$Time$_c1_$Number$$$_$$$Bandwidth$$$_a2$$_$RepresentationID$_b2_$Time$_c2_$Number$$$";
+    UrlTemplate urlTemplate = UrlTemplate.compile(template);
+    String url = urlTemplate.buildUri("abc1", 10, 650000, 5000);
+    assertThat(url).isEqualTo("$650000$_a1$_abc1_b1_5000_c1_10$_$650000$_a2$_abc1_b2_5000_c2_10$");
+  }
 }
