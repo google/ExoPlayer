@@ -100,10 +100,11 @@ public final class UrlTemplate {
   /**
    * Parses {@code template}, placing the decomposed components into the provided lists.
    *
-   * <p>If the return value is N, {@code urlPieces} will contain (N+1) strings that must be
-   * interleaved with N arguments in order to construct a url. The N identifiers that correspond to
-   * the required arguments, together with the tags that define their required formatting, are
-   * returned in {@code identifiers} and {@code identifierFormatTags} respectively.
+   * <p>If the number of identifiers in the {@code template} is N, {@code urlPieces} will contain
+   * (N+1) strings that must be interleaved with those N arguments in order to construct a url. The
+   * N identifiers that correspond to the required arguments, together with the tags that define
+   * their required formatting, are returned in {@code identifiers} and {@code identifierFormatTags}
+   * respectively.
    *
    * @param template The template to parse.
    * @param urlPieces A holder for pieces of url parsed from the template.
@@ -122,7 +123,8 @@ public final class UrlTemplate {
       int dollarIndex = template.indexOf("$", templateIndex);
       if (dollarIndex == -1) {
         urlPieces.set(
-            identifiers.size(), urlPieces.get(identifiers.size()) + template.substring(templateIndex));
+            identifiers.size(),
+            urlPieces.get(identifiers.size()) + template.substring(templateIndex));
         templateIndex = template.length();
       } else if (dollarIndex != templateIndex) {
         urlPieces.set(
