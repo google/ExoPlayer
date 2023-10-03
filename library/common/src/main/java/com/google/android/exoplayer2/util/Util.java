@@ -994,7 +994,7 @@ public final class Util {
   }
 
   /**
-   * Splits a string using {@code value.split(regex, -1}). Note: this is is similar to {@link
+   * Splits a string using {@code value.split(regex, -1}). Note: this is similar to {@link
    * String#split(String)} but empty matches at the end of the string will not be omitted from the
    * returned array.
    *

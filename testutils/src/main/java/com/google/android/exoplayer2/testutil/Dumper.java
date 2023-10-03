@@ -15,8 +15,11 @@
  */
 package com.google.android.exoplayer2.testutil;
 
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
+
 import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.util.Util;
 import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import java.util.Arrays;
 import java.util.Locale;
@@ -45,7 +48,16 @@ public final class Dumper {
 
   @CanIgnoreReturnValue
   public Dumper add(String field, @Nullable Object value) {
-    return addString(field + " = " + value + '\n');
+    checkNotNull(value);
+    String[] lines = Util.split(value.toString(), "\n");
+    addLine(field + " = " + lines[0]);
+    int fieldValueAdditionalIndent = field.length() + 3;
+    indent += fieldValueAdditionalIndent;
+    for (int i = 1; i < lines.length; i++) {
+      addLine(lines[i]);
+    }
+    indent -= fieldValueAdditionalIndent;
+    return this;
   }
 
   @CanIgnoreReturnValue
@@ -59,11 +71,11 @@ public final class Dumper {
     String string =
         String.format(
             Locale.US,
-            "%s = length %d, hash %X\n",
+            "%s = length %d, hash %X",
             field,
             value == null ? 0 : value.length,
             Arrays.hashCode(value));
-    return addString(string);
+    return addLine(string);
   }
 
   @CanIgnoreReturnValue
@@ -73,7 +85,7 @@ public final class Dumper {
 
   @CanIgnoreReturnValue
   public Dumper startBlock(String name) {
-    addString(name + ":\n");
+    addLine(name + ":");
     indent += INDENT_SIZE_IN_SPACES;
     return this;
   }
@@ -90,11 +102,12 @@ public final class Dumper {
   }
 
   @CanIgnoreReturnValue
-  private Dumper addString(String string) {
+  private Dumper addLine(String string) {
     for (int i = 0; i < indent; i++) {
       sb.append(' ');
     }
     sb.append(string);
+    sb.append('\n');
     return this;
   }
 }
