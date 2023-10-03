@@ -49,6 +49,34 @@ public final class DashPlaybackTest {
   public ShadowMediaCodecConfig mediaCodecConfig =
       ShadowMediaCodecConfig.forAllSupportedMimeTypes();
 
+  @Test
+  @Ignore(
+      "Disabled until subtitles are reliably asserted in robolectric tests [internal b/174661563].")
+  public void ttmlStandaloneXmlFile() throws Exception {
+    Context applicationContext = ApplicationProvider.getApplicationContext();
+    CapturingRenderersFactory capturingRenderersFactory =
+        new CapturingRenderersFactory(applicationContext);
+    ExoPlayer player =
+        new ExoPlayer.Builder(applicationContext, capturingRenderersFactory)
+            .setClock(new FakeClock(/* isAutoAdvancing= */ true))
+            .build();
+    player.setVideoSurface(new Surface(new SurfaceTexture(/* texName= */ 1)));
+    PlaybackOutput playbackOutput = PlaybackOutput.register(player, capturingRenderersFactory);
+
+    // Ensure the subtitle track is selected.
+    DefaultTrackSelector trackSelector =
+        checkNotNull((DefaultTrackSelector) player.getTrackSelector());
+    trackSelector.setParameters(trackSelector.buildUponParameters().setPreferredTextLanguage("en"));
+    player.setMediaItem(MediaItem.fromUri("asset:///media/dash/ttml-in-mp4/sample.mpd"));
+    player.prepare();
+    player.play();
+    TestPlayerRunHelper.runUntilPlaybackState(player, Player.STATE_ENDED);
+    player.release();
+
+    DumpFileAsserts.assertOutput(
+        applicationContext, playbackOutput, "playbackdumps/dash/ttml-in-mp4.dump");
+  }
+
   // https://github.com/google/ExoPlayer/issues/7985
   @Test
   @Ignore(
