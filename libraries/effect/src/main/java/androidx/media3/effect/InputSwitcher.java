@@ -111,7 +111,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         textureManager =
             new ExternalTextureManager(
                 glObjectsProvider, samplingShaderProgram, videoFrameProcessingTaskExecutor);
-        inputs.put(inputType, new Input(textureManager, samplingShaderProgram));
         break;
       case INPUT_TYPE_BITMAP:
         samplingShaderProgram =
@@ -128,7 +127,6 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         textureManager =
             new BitmapTextureManager(
                 glObjectsProvider, samplingShaderProgram, videoFrameProcessingTaskExecutor);
-        inputs.put(inputType, new Input(textureManager, samplingShaderProgram));
         break;
       case INPUT_TYPE_TEXTURE_ID:
         samplingShaderProgram =
@@ -145,11 +143,11 @@ import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
         textureManager =
             new TexIdTextureManager(
                 glObjectsProvider, samplingShaderProgram, videoFrameProcessingTaskExecutor);
-        inputs.put(inputType, new Input(textureManager, samplingShaderProgram));
         break;
       default:
         throw new VideoFrameProcessingException("Unsupported input type " + inputType);
     }
+    inputs.put(inputType, new Input(textureManager, samplingShaderProgram));
   }
 
   /** Sets the {@link GlShaderProgram} that {@code InputSwitcher} outputs to. */
