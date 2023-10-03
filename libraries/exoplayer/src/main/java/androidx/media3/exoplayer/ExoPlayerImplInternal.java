@@ -2251,6 +2251,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
             readingPeriodHolder.getStartPositionRendererTime(),
             readingPeriodHolder.getRendererOffset(),
             readingPeriodHolder.info.id);
+        if (offloadSchedulingEnabled) {
+          // Prevent sleeping across offload track transition else position won't get updated.
+          // TODO: (b/183635183) Optimize Offload End-Of-Stream: Sleep to just before end of track
+          setOffloadSchedulingEnabled(false);
+        }
       } else if (renderer.isEnded()) {
         // The renderer has finished playback, so we can disable it now.
         disableRenderer(renderer);
