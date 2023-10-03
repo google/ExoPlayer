@@ -410,7 +410,6 @@ public class MediaCodecVideoRenderer extends MediaCodecRenderer implements Video
     decodedVideoSize = VideoSize.UNKNOWN;
     tunnelingAudioSessionId = C.AUDIO_SESSION_ID_UNSET;
     firstFrameState = C.FIRST_FRAME_NOT_RENDERED_ONLY_ALLOWED_IF_STARTED;
-    reportedVideoSize = null;
   }
 
   @Override

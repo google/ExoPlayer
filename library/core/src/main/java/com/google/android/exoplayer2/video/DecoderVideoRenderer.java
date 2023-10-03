@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCA
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_REUSE_NOT_IMPLEMENTED;
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_NO;
 import static com.google.android.exoplayer2.source.SampleStream.FLAG_REQUIRE_FORMAT;
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.android.exoplayer2.util.Util.msToUs;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -119,16 +120,16 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
   private final TimedValueQueue<Format> formatQueue;
   private final DecoderInputBuffer flagsOnlyBuffer;
 
-  private Format inputFormat;
-  private Format outputFormat;
+  @Nullable private Format inputFormat;
+  @Nullable private Format outputFormat;
 
   @Nullable
   private Decoder<
           DecoderInputBuffer, ? extends VideoDecoderOutputBuffer, ? extends DecoderException>
       decoder;
 
-  private DecoderInputBuffer inputBuffer;
-  private VideoDecoderOutputBuffer outputBuffer;
+  @Nullable private DecoderInputBuffer inputBuffer;
+  @Nullable private VideoDecoderOutputBuffer outputBuffer;
   private @VideoOutputMode int outputMode;
   @Nullable private Object output;
   @Nullable private Surface outputSurface;
@@ -178,13 +179,13 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
     this.allowedJoiningTimeMs = allowedJoiningTimeMs;
     this.maxDroppedFramesToNotify = maxDroppedFramesToNotify;
     joiningDeadlineMs = C.TIME_UNSET;
-    clearReportedVideoSize();
     formatQueue = new TimedValueQueue<>();
     flagsOnlyBuffer = DecoderInputBuffer.newNoDataInstance();
     eventDispatcher = new EventDispatcher(eventHandler, eventListener);
     decoderReinitializationState = REINITIALIZATION_STATE_NONE;
     outputMode = C.VIDEO_OUTPUT_MODE_NONE;
     firstFrameState = C.FIRST_FRAME_NOT_RENDERED_ONLY_ALLOWED_IF_STARTED;
+    decoderCounters = new DecoderCounters();
   }
 
   // BaseRenderer implementation.
@@ -327,7 +328,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
   @Override
   protected void onDisabled() {
     inputFormat = null;
-    clearReportedVideoSize();
+    reportedVideoSize = null;
     lowerFirstFrameState(C.FIRST_FRAME_NOT_RENDERED_ONLY_ALLOWED_IF_STARTED);
     try {
       setSourceDrmSession(null);
@@ -368,7 +369,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
         outputBuffer.release();
         outputBuffer = null;
       }
-      decoder.flush();
+      checkNotNull(decoder).flush();
       decoderReceivedBuffers = false;
     }
   }
@@ -406,7 +407,8 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
 
     if (decoder == null) {
       maybeInitDecoder();
-      eventDispatcher.inputFormatChanged(inputFormat, /* decoderReuseEvaluation= */ null);
+      eventDispatcher.inputFormatChanged(
+          checkNotNull(inputFormat), /* decoderReuseEvaluation= */ null);
       return;
     }
 
@@ -415,12 +417,12 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
       evaluation =
           new DecoderReuseEvaluation(
               decoder.getName(),
-              oldFormat,
+              checkNotNull(oldFormat),
               newFormat,
               REUSE_RESULT_NO,
               DISCARD_REASON_DRM_SESSION_CHANGED);
     } else {
-      evaluation = canReuseDecoder(decoder.getName(), oldFormat, newFormat);
+      evaluation = canReuseDecoder(decoder.getName(), checkNotNull(oldFormat), newFormat);
     }
 
     if (evaluation.result == REUSE_RESULT_NO) {
@@ -433,7 +435,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
         maybeInitDecoder();
       }
     }
-    eventDispatcher.inputFormatChanged(inputFormat, evaluation);
+    eventDispatcher.inputFormatChanged(checkNotNull(inputFormat), evaluation);
   }
 
   /**
@@ -601,9 +603,9 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
     } else {
       maybeNotifyVideoSizeChanged(outputBuffer.width, outputBuffer.height);
       if (renderYuv) {
-        outputBufferRenderer.setOutputBuffer(outputBuffer);
+        checkNotNull(outputBufferRenderer).setOutputBuffer(outputBuffer);
       } else {
-        renderOutputBufferToSurface(outputBuffer, outputSurface);
+        renderOutputBufferToSurface(outputBuffer, checkNotNull(outputSurface));
       }
       consecutiveDroppedFrameCount = 0;
       decoderCounters.renderedOutputBufferCount++;
@@ -718,11 +720,11 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
 
     try {
       long decoderInitializingTimestamp = SystemClock.elapsedRealtime();
-      decoder = createDecoder(inputFormat, cryptoConfig);
+      decoder = createDecoder(checkNotNull(inputFormat), cryptoConfig);
       setDecoderOutputMode(outputMode);
       long decoderInitializedTimestamp = SystemClock.elapsedRealtime();
       eventDispatcher.decoderInitialized(
-          decoder.getName(),
+          checkNotNull(decoder).getName(),
           decoderInitializedTimestamp,
           decoderInitializedTimestamp - decoderInitializingTimestamp);
       decoderCounters.decoderInitCount++;
@@ -752,10 +754,11 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
       }
     }
 
+    DecoderInputBuffer inputBuffer = checkNotNull(this.inputBuffer);
     if (decoderReinitializationState == REINITIALIZATION_STATE_SIGNAL_END_OF_STREAM) {
       inputBuffer.setFlags(C.BUFFER_FLAG_END_OF_STREAM);
-      decoder.queueInputBuffer(inputBuffer);
-      inputBuffer = null;
+      checkNotNull(decoder).queueInputBuffer(inputBuffer);
+      this.inputBuffer = null;
       decoderReinitializationState = REINITIALIZATION_STATE_WAIT_END_OF_STREAM;
       return false;
     }
@@ -770,12 +773,12 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
       case C.RESULT_BUFFER_READ:
         if (inputBuffer.isEndOfStream()) {
           inputStreamEnded = true;
-          decoder.queueInputBuffer(inputBuffer);
-          inputBuffer = null;
+          checkNotNull(decoder).queueInputBuffer(inputBuffer);
+          this.inputBuffer = null;
           return false;
         }
         if (waitingForFirstSampleInFormat) {
-          formatQueue.add(inputBuffer.timeUs, inputFormat);
+          formatQueue.add(inputBuffer.timeUs, checkNotNull(inputFormat));
           waitingForFirstSampleInFormat = false;
         }
         if (inputBuffer.timeUs < getLastResetPositionUs()) {
@@ -784,11 +787,11 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
         inputBuffer.flip();
         inputBuffer.format = inputFormat;
         onQueueInputBuffer(inputBuffer);
-        decoder.queueInputBuffer(inputBuffer);
+        checkNotNull(decoder).queueInputBuffer(inputBuffer);
         buffersInCodecCount++;
         decoderReceivedBuffers = true;
         decoderCounters.queuedInputBufferCount++;
-        inputBuffer = null;
+        this.inputBuffer = null;
         return true;
       default:
         throw new IllegalStateException();
@@ -808,7 +811,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
   private boolean drainOutputBuffer(long positionUs, long elapsedRealtimeUs)
       throws ExoPlaybackException, DecoderException {
     if (outputBuffer == null) {
-      outputBuffer = decoder.dequeueOutputBuffer();
+      outputBuffer = checkNotNull(decoder).dequeueOutputBuffer();
       if (outputBuffer == null) {
         return false;
       }
@@ -831,7 +834,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
 
     boolean processedOutputBuffer = processOutputBuffer(positionUs, elapsedRealtimeUs);
     if (processedOutputBuffer) {
-      onProcessedOutputBuffer(outputBuffer.timeUs);
+      onProcessedOutputBuffer(checkNotNull(outputBuffer).timeUs);
       outputBuffer = null;
     }
     return processedOutputBuffer;
@@ -853,7 +856,9 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
       initialPositionUs = positionUs;
     }
 
-    long earlyUs = outputBuffer.timeUs - positionUs;
+    VideoDecoderOutputBuffer outputBuffer = checkNotNull(this.outputBuffer);
+    long bufferTimeUs = outputBuffer.timeUs;
+    long earlyUs = bufferTimeUs - positionUs;
     if (!hasOutput()) {
       // Skip frames in sync with playback, so we'll be at the right frame if the mode changes.
       if (isBufferLate(earlyUs)) {
@@ -863,14 +868,19 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
       return false;
     }
 
-    long presentationTimeUs = outputBuffer.timeUs - outputStreamOffsetUs;
-    Format format = formatQueue.pollFloor(presentationTimeUs);
+    Format format = formatQueue.pollFloor(bufferTimeUs);
     if (format != null) {
       outputFormat = format;
+    } else if (outputFormat == null) {
+      // After a stream change or after the initial start, there should be an input format change
+      // which we've not found. Check the Format queue in case the corresponding presentation
+      // timestamp is greater than bufferTimeUs
+      outputFormat = formatQueue.pollFirst();
     }
 
+    long presentationTimeUs = bufferTimeUs - outputStreamOffsetUs;
     if (shouldForceRender(earlyUs)) {
-      renderOutputBuffer(outputBuffer, presentationTimeUs, outputFormat);
+      renderOutputBuffer(outputBuffer, presentationTimeUs, checkNotNull(outputFormat));
       return true;
     }
 
@@ -889,7 +899,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
     }
 
     if (earlyUs < 30000) {
-      renderOutputBuffer(outputBuffer, presentationTimeUs, outputFormat);
+      renderOutputBuffer(outputBuffer, presentationTimeUs, checkNotNull(outputFormat));
       return true;
     }
 
@@ -928,7 +938,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
   }
 
   private void onOutputRemoved() {
-    clearReportedVideoSize();
+    reportedVideoSize = null;
     lowerFirstFrameState(C.FIRST_FRAME_NOT_RENDERED);
   }
 
@@ -953,18 +963,16 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
   private void maybeNotifyRenderedFirstFrame() {
     if (firstFrameState != C.FIRST_FRAME_RENDERED) {
       firstFrameState = C.FIRST_FRAME_RENDERED;
-      eventDispatcher.renderedFirstFrame(output);
+      if (output != null) {
+        eventDispatcher.renderedFirstFrame(output);
+      }
     }
   }
 
   private void maybeRenotifyRenderedFirstFrame() {
-    if (firstFrameState == C.FIRST_FRAME_RENDERED) {
+    if (firstFrameState == C.FIRST_FRAME_RENDERED && output != null) {
       eventDispatcher.renderedFirstFrame(output);
     }
-  }
-
-  private void clearReportedVideoSize() {
-    reportedVideoSize = null;
   }
 
   private void maybeNotifyVideoSizeChanged(int width, int height) {
