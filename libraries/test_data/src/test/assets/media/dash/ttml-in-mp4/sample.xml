@@ -1,0 +1,13 @@
+<tt xmlns="http://www.w3.org/ns/ttml">
+  <body>
+    <div>
+      <p begin="00:00:00.020" end="00:00:00.500">First Subtitle after 20ms of silence</p>
+    </div>
+    <div>
+      <p begin="00:00:00.250" end="00:00:00.400">Second Subtitle overlaps with first</p>
+    </div>
+    <div>
+      <p begin="00:00:00.700" end="00:00:00.950">Last subtitle<br/>And More</p>
+    </div>
+  </body>
+</tt>
