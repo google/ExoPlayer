@@ -21,22 +21,18 @@ import static com.google.android.exoplayer2.testutil.BitmapPixelTestUtil.readBit
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_720P_4_SECOND_HDR10_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
-import static com.google.android.exoplayer2.transformer.AndroidTestUtil.skipAndLogIfFormatsUnsupported;
+import static com.google.android.exoplayer2.transformer.mh.HdrCapabilitiesUtil.skipAndLogIfOpenGlToneMappingUnsupported;
 import static com.google.android.exoplayer2.transformer.mh.UnoptimizedGlEffect.NO_OP_EFFECT;
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.common.truth.Truth.assertThat;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.effect.DefaultVideoFrameProcessor;
 import com.google.android.exoplayer2.testutil.DecodeOneFrameUtil;
 import com.google.android.exoplayer2.testutil.VideoFrameProcessorTestRunner;
-import com.google.android.exoplayer2.util.GlUtil;
-import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.ColorInfo;
 import com.google.common.collect.ImmutableList;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
@@ -78,10 +74,6 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
   /** Input PQ video of which we only use the first frame. */
   private static final String INPUT_PQ_MP4_ASSET_STRING = "media/mp4/hdr10-720p.mp4";
 
-  private static final String SKIP_REASON_NO_OPENGL_UNDER_API_29 =
-      "OpenGL-based HDR to SDR tone mapping is unsupported below API 29.";
-  private static final String SKIP_REASON_NO_YUV = "Device lacks YUV extension support.";
-
   private static final ColorInfo TONE_MAP_SDR_COLOR =
       new ColorInfo.Builder()
           .setColorSpace(C.COLOR_SPACE_BT709)
@@ -101,7 +93,7 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
   @Test
   public void toneMap_hlgFrame_matchesGoldenFile() throws Exception {
     String testId = "toneMap_hlgFrame_matchesGoldenFile";
-    if (!deviceSupportsOpenGlToneMapping(testId, MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT)) {
+    if (skipAndLogIfOpenGlToneMappingUnsupported(testId, MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT)) {
       return;
     }
     videoFrameProcessorTestRunner =
@@ -140,7 +132,7 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
   @Test
   public void toneMapWithNoOpEffect_hlgFrame_matchesGoldenFile() throws Exception {
     String testId = "toneMapWithNoOpEffect_hlgFrame_matchesGoldenFile";
-    if (!deviceSupportsOpenGlToneMapping(testId, MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT)) {
+    if (skipAndLogIfOpenGlToneMappingUnsupported(testId, MP4_ASSET_1080P_5_SECOND_HLG10_FORMAT)) {
       return;
     }
     videoFrameProcessorTestRunner =
@@ -180,7 +172,7 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
   @Test
   public void toneMap_pqFrame_matchesGoldenFile() throws Exception {
     String testId = "toneMap_pqFrame_matchesGoldenFile";
-    if (!deviceSupportsOpenGlToneMapping(testId, MP4_ASSET_720P_4_SECOND_HDR10_FORMAT)) {
+    if (skipAndLogIfOpenGlToneMappingUnsupported(testId, MP4_ASSET_720P_4_SECOND_HDR10_FORMAT)) {
       return;
     }
 
@@ -220,7 +212,7 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
   @Test
   public void toneMapWithNoOpEffect_pqFrame_matchesGoldenFile() throws Exception {
     String testId = "toneMapWithNoOpEffect_pqFrame_matchesGoldenFile";
-    if (!deviceSupportsOpenGlToneMapping(testId, MP4_ASSET_720P_4_SECOND_HDR10_FORMAT)) {
+    if (skipAndLogIfOpenGlToneMappingUnsupported(testId, MP4_ASSET_720P_4_SECOND_HDR10_FORMAT)) {
       return;
     }
 
@@ -256,23 +248,6 @@ public final class ToneMapHdrToSdrUsingOpenGlPixelTest {
         getBitmapAveragePixelAbsoluteDifferenceArgb8888(expectedBitmap, actualBitmap, testId);
     assertThat(averagePixelAbsoluteDifference)
         .isAtMost(MAXIMUM_DEVICE_AVERAGE_PIXEL_ABSOLUTE_DIFFERENCE);
-  }
-
-  private static boolean deviceSupportsOpenGlToneMapping(String testId, Format inputFormat)
-      throws Exception {
-    Context context = getApplicationContext();
-    if (Util.SDK_INT < 29) {
-      recordTestSkipped(context, testId, SKIP_REASON_NO_OPENGL_UNDER_API_29);
-      return false;
-    }
-    if (!GlUtil.isYuvTargetExtensionSupported()) {
-      recordTestSkipped(context, testId, SKIP_REASON_NO_YUV);
-      return false;
-    }
-    if (skipAndLogIfFormatsUnsupported(context, testId, inputFormat, /* outputFormat= */ null)) {
-      return false;
-    }
-    return true;
   }
 
   private static VideoFrameProcessorTestRunner.Builder getDefaultFrameProcessorTestRunnerBuilder(
