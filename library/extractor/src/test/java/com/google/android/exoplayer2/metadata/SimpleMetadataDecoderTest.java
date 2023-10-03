@@ -20,7 +20,6 @@ import static org.junit.Assert.assertThrows;
 
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import com.google.android.exoplayer2.C;
 import java.nio.ByteBuffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -68,17 +67,6 @@ public class SimpleMetadataDecoderTest {
     directDataInputBuffer.data = ByteBuffer.wrap(new byte[8], /* offset= */ 4, /* length= */ 4);
 
     assertThrows(IllegalArgumentException.class, () -> decoder.decode(directDataInputBuffer));
-    assertThat(decoder.decodeWasCalled).isFalse();
-  }
-
-  @Test
-  public void decode_decodeOnlyBuffer_notPassedToDecodeInternal() {
-    TestSimpleMetadataDecoder decoder = new TestSimpleMetadataDecoder();
-    MetadataInputBuffer decodeOnlyBuffer = new MetadataInputBuffer();
-    decodeOnlyBuffer.data = ByteBuffer.wrap(new byte[8]);
-    decodeOnlyBuffer.setFlags(C.BUFFER_FLAG_DECODE_ONLY);
-
-    assertThat(decoder.decode(decodeOnlyBuffer)).isNull();
     assertThat(decoder.decodeWasCalled).isFalse();
   }
 
