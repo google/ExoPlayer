@@ -275,14 +275,9 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   }
 
   /**
-   * Sets whether to enable the experimental feature that keeps and flushes the {@link
-   * android.media.AudioTrack} when a seek occurs, as opposed to releasing and reinitialising. Off
-   * by default.
-   *
-   * <p>This method is experimental, and will be renamed or removed in a future release.
-   *
-   * @param enableKeepAudioTrackOnSeek Whether to keep the {@link android.media.AudioTrack} on seek.
+   * @deprecated Experimental method being removed.
    */
+  @Deprecated
   public void experimentalSetEnableKeepAudioTrackOnSeek(boolean enableKeepAudioTrackOnSeek) {
     this.experimentalKeepAudioTrackOnSeek = enableKeepAudioTrackOnSeek;
   }
