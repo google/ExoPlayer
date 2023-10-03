@@ -15,6 +15,7 @@
  */
 package androidx.media3.decoder;
 
+import androidx.annotation.CallSuper;
 import androidx.media3.common.C;
 import androidx.media3.common.util.UnstableApi;
 
@@ -25,6 +26,7 @@ public abstract class Buffer {
   private @C.BufferFlags int flags;
 
   /** Clears the buffer. */
+  @CallSuper
   public void clear() {
     flags = 0;
   }

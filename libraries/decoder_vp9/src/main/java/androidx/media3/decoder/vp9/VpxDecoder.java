@@ -102,9 +102,9 @@ public final class VpxDecoder
 
   @Override
   protected void releaseOutputBuffer(VideoDecoderOutputBuffer outputBuffer) {
-    // Decode only frames do not acquire a reference on the internal decoder buffer and thus do not
+    // Skipped frames do not acquire a reference on the internal decoder buffer and thus do not
     // require a call to vpxReleaseFrame.
-    if (outputMode == C.VIDEO_OUTPUT_MODE_SURFACE_YUV && !outputBuffer.isDecodeOnly()) {
+    if (outputMode == C.VIDEO_OUTPUT_MODE_SURFACE_YUV && !outputBuffer.shouldBeSkipped) {
       vpxReleaseFrame(vpxDecContext, outputBuffer);
     }
     super.releaseOutputBuffer(outputBuffer);
@@ -169,11 +169,13 @@ public final class VpxDecoder
       outputBuffer.init(inputBuffer.timeUs, outputMode, lastSupplementalData);
       int getFrameResult = vpxGetFrame(vpxDecContext, outputBuffer);
       if (getFrameResult == 1) {
-        outputBuffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
+        outputBuffer.shouldBeSkipped = true;
       } else if (getFrameResult == -1) {
         return new VpxDecoderException("Buffer initialization failed.");
       }
       outputBuffer.format = inputBuffer.format;
+    } else {
+      outputBuffer.shouldBeSkipped = true;
     }
     return null;
   }

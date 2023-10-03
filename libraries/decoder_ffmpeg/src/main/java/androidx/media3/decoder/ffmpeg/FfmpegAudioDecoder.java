@@ -113,13 +113,13 @@ import java.util.List;
       return new FfmpegDecoderException("Error decoding (see logcat).");
     } else if (result == AUDIO_DECODER_ERROR_INVALID_DATA) {
       // Treat invalid data errors as non-fatal to match the behavior of MediaCodec. No output will
-      // be produced for this buffer, so mark it as decode-only to ensure that the audio sink's
+      // be produced for this buffer, so mark it as skipped to ensure that the audio sink's
       // position is reset when more audio is produced.
-      outputBuffer.setFlags(C.BUFFER_FLAG_DECODE_ONLY);
+      outputBuffer.shouldBeSkipped = true;
       return null;
     } else if (result == 0) {
       // There's no need to output empty buffers.
-      outputBuffer.setFlags(C.BUFFER_FLAG_DECODE_ONLY);
+      outputBuffer.shouldBeSkipped = true;
       return null;
     }
     if (!hasOutputFormat) {

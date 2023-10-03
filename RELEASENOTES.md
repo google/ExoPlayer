@@ -29,6 +29,9 @@
 *   Smooth Streaming Extension:
 *   RTSP Extension:
 *   Decoder Extensions (FFmpeg, VP9, AV1, etc.):
+    *   Add `DecoderOutputBuffer.shouldBeSkipped` to directly mark output
+        buffers that don't need to be presented. This is preferred over
+        `C.BUFFER_FLAG_DECODE_ONLY`.
 *   MIDI extension:
 *   Leanback extension:
 *   Cast Extension:
