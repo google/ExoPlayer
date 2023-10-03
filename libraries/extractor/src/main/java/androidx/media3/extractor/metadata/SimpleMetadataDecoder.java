@@ -21,10 +21,7 @@ import androidx.media3.common.util.Assertions;
 import androidx.media3.common.util.UnstableApi;
 import java.nio.ByteBuffer;
 
-/**
- * A {@link MetadataDecoder} base class that validates input buffers and discards any for which
- * {@link MetadataInputBuffer#isDecodeOnly()} is {@code true}.
- */
+/** A {@link MetadataDecoder} base class that validates input buffers. */
 @UnstableApi
 public abstract class SimpleMetadataDecoder implements MetadataDecoder {
 
@@ -34,7 +31,7 @@ public abstract class SimpleMetadataDecoder implements MetadataDecoder {
     ByteBuffer buffer = Assertions.checkNotNull(inputBuffer.data);
     Assertions.checkArgument(
         buffer.position() == 0 && buffer.hasArray() && buffer.arrayOffset() == 0);
-    return inputBuffer.isDecodeOnly() ? null : decode(inputBuffer, buffer);
+    return decode(inputBuffer, buffer);
   }
 
   /**

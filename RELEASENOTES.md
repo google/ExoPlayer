@@ -11,6 +11,8 @@
 *   Video:
 *   Text:
 *   Metadata:
+    *   `MetadataDecoder.decode` will no longer be called for "decode-only"
+        samples as the implementation must return null anyway.
 *   DRM:
 *   Effect:
 *   Muxers:

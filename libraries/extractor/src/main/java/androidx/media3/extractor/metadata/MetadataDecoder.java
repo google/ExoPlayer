@@ -32,8 +32,7 @@ public interface MetadataDecoder {
    * ByteBuffer#hasArray()} is true.
    *
    * @param inputBuffer The input buffer to decode.
-   * @return The decoded metadata object, or {@code null} if the metadata could not be decoded or if
-   *     {@link MetadataInputBuffer#isDecodeOnly()} was set on the input buffer.
+   * @return The decoded metadata object, or {@code null} if the metadata could not be decoded.
    */
   @Nullable
   Metadata decode(MetadataInputBuffer inputBuffer);
