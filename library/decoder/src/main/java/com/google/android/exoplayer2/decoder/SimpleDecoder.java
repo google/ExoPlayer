@@ -236,6 +236,7 @@ public abstract class SimpleDecoder<
     if (inputBuffer.isEndOfStream()) {
       outputBuffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
     } else {
+      outputBuffer.timeUs = inputBuffer.timeUs;
       if (inputBuffer.isDecodeOnly()) {
         outputBuffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
       }
@@ -266,7 +267,7 @@ public abstract class SimpleDecoder<
     synchronized (lock) {
       if (flushed) {
         outputBuffer.release();
-      } else if (outputBuffer.isDecodeOnly()) {
+      } else if (outputBuffer.isDecodeOnly() || outputBuffer.shouldBeSkipped) {
         skippedOutputBufferCount++;
         outputBuffer.release();
       } else {

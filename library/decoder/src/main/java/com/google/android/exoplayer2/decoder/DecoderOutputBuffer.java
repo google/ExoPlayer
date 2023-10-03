@@ -15,6 +15,8 @@
  */
 package com.google.android.exoplayer2.decoder;
 
+import androidx.annotation.CallSuper;
+
 /**
  * Output buffer decoded by a {@link Decoder}.
  *
@@ -45,6 +47,21 @@ public abstract class DecoderOutputBuffer extends Buffer {
    */
   public int skippedOutputBufferCount;
 
+  /**
+   * Whether this buffer should be skipped, usually because the decoding process generated no data
+   * or invalid data.
+   */
+  public boolean shouldBeSkipped;
+
   /** Releases the output buffer for reuse. Must be called when the buffer is no longer needed. */
   public abstract void release();
+
+  @Override
+  @CallSuper
+  public void clear() {
+    super.clear();
+    timeUs = 0;
+    skippedOutputBufferCount = 0;
+    shouldBeSkipped = false;
+  }
 }

@@ -15,6 +15,7 @@
  */
 package com.google.android.exoplayer2.decoder;
 
+import androidx.annotation.CallSuper;
 import com.google.android.exoplayer2.C;
 
 /**
@@ -31,6 +32,7 @@ public abstract class Buffer {
   private @C.BufferFlags int flags;
 
   /** Clears the buffer. */
+  @CallSuper
   public void clear() {
     flags = 0;
   }
