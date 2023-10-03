@@ -18,11 +18,14 @@ package androidx.media3.common.util;
 import static androidx.media3.common.util.Assertions.checkState;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.math.LongMath;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
@@ -45,54 +48,92 @@ public class UtilScaleLargeValueParameterizedTest {
 
   @Parameters(name = "{0}")
   public static ImmutableList<Object[]> implementations() {
-    return ImmutableList.of(
-        new Object[] {"single-value", (ScaleLargeValueFn) Util::scaleLargeValue},
-        new Object[] {
-          "list",
-          (ScaleLargeValueFn)
-              (value, multiplier, divisor, roundingMode) ->
-                  Util.scaleLargeValues(ImmutableList.of(value), multiplier, divisor, roundingMode)[
-                      0]
-        },
-        new Object[] {
-          "array-in-place",
-          (ScaleLargeValueFn)
+    ImmutableList<Implementation> implementations =
+        ImmutableList.of(
+            new Implementation("single-value", Util::scaleLargeValue),
+            new Implementation(
+                "list",
+                (value, multiplier, divisor, roundingMode) ->
+                    Util.scaleLargeValues(
+                        ImmutableList.of(value), multiplier, divisor, roundingMode)[0]),
+            new Implementation(
+                "array-in-place",
+                (value, multiplier, divisor, roundingMode) -> {
+                  long[] values = new long[] {value};
+                  Util.scaleLargeValuesInPlace(values, multiplier, divisor, roundingMode);
+                  return values[0];
+                }),
+            new Implementation(
+                "single-timestamp",
+                (long timestamp, long multiplier, long divisor, RoundingMode roundingMode) -> {
+                  assumeTrue(
+                      roundingMode == RoundingMode.UNNECESSARY
+                          || roundingMode == RoundingMode.FLOOR);
+                  return Util.scaleLargeTimestamp(timestamp, multiplier, divisor);
+                }),
+            new Implementation(
+                "timestamp-list",
+                (timestamp, multiplier, divisor, roundingMode) -> {
+                  assumeTrue(
+                      roundingMode == RoundingMode.UNNECESSARY
+                          || roundingMode == RoundingMode.FLOOR);
+                  return Util.scaleLargeTimestamps(
+                      ImmutableList.of(timestamp), multiplier, divisor)[0];
+                }),
+            new Implementation(
+                "timestamp-array-in-place",
+                (timestamp, multiplier, divisor, roundingMode) -> {
+                  assumeTrue(
+                      roundingMode == RoundingMode.UNNECESSARY
+                          || roundingMode == RoundingMode.FLOOR);
+                  long[] timestamps = new long[] {timestamp};
+                  Util.scaleLargeTimestampsInPlace(timestamps, multiplier, divisor);
+                  return timestamps[0];
+                }));
+
+    List<Implementation> implementationsWithNegativeCases = new ArrayList<>();
+    for (Implementation implementation : implementations) {
+      implementationsWithNegativeCases.add(implementation);
+      implementationsWithNegativeCases.add(
+          new Implementation(
+              implementation.name + "-negative-value",
               (value, multiplier, divisor, roundingMode) -> {
-                long[] values = new long[] {value};
-                Util.scaleLargeValuesInPlace(values, multiplier, divisor, roundingMode);
-                return values[0];
-              }
-        },
-        new Object[] {
-          "single-timestamp",
-          (ScaleLargeValueFn)
-              (long timestamp, long multiplier, long divisor, RoundingMode roundingMode) -> {
-                assumeTrue(
-                    roundingMode == RoundingMode.UNNECESSARY || roundingMode == RoundingMode.FLOOR);
-                return Util.scaleLargeTimestamp(timestamp, multiplier, divisor);
-              }
-        },
-        new Object[] {
-          "timestamp-list",
-          (ScaleLargeValueFn)
-              (timestamp, multiplier, divisor, roundingMode) -> {
-                assumeTrue(
-                    roundingMode == RoundingMode.UNNECESSARY || roundingMode == RoundingMode.FLOOR);
-                return Util.scaleLargeTimestamps(ImmutableList.of(timestamp), multiplier, divisor)[
-                    0];
-              }
-        },
-        new Object[] {
-          "timestamp-array-in-place",
-          (ScaleLargeValueFn)
-              (timestamp, multiplier, divisor, roundingMode) -> {
-                assumeTrue(
-                    roundingMode == RoundingMode.UNNECESSARY || roundingMode == RoundingMode.FLOOR);
-                long[] timestamps = new long[] {timestamp};
-                Util.scaleLargeTimestampsInPlace(timestamps, multiplier, divisor);
-                return timestamps[0];
-              }
-        });
+                assumeTrue(roundingMode == RoundingMode.UNNECESSARY);
+                long result =
+                    implementation.scaleFn.scaleLargeValue(
+                        -value, multiplier, divisor, roundingMode);
+                assumeFalse(result == Long.MIN_VALUE || result == Long.MAX_VALUE);
+                return -result;
+              }));
+      implementationsWithNegativeCases.add(
+          new Implementation(
+              implementation.name + "-negative-multiplier",
+              (value, multiplier, divisor, roundingMode) -> {
+                assumeTrue(roundingMode == RoundingMode.UNNECESSARY);
+                long result =
+                    implementation.scaleFn.scaleLargeValue(
+                        value, -multiplier, divisor, roundingMode);
+                assumeFalse(result == Long.MIN_VALUE || result == Long.MAX_VALUE);
+                return -result;
+              }));
+      implementationsWithNegativeCases.add(
+          new Implementation(
+              implementation.name + "-negative-divisor",
+              (value, multiplier, divisor, roundingMode) -> {
+                assumeTrue(roundingMode == RoundingMode.UNNECESSARY);
+                long result =
+                    implementation.scaleFn.scaleLargeValue(
+                        value, multiplier, -divisor, roundingMode);
+                assumeFalse(result == Long.MIN_VALUE || result == Long.MAX_VALUE);
+                return -result;
+              }));
+    }
+
+    ImmutableList.Builder<Object[]> implementationsAsObjectArray = ImmutableList.builder();
+    for (Implementation implementation : implementationsWithNegativeCases) {
+      implementationsAsObjectArray.add(new Object[] {implementation.name, implementation.scaleFn});
+    }
+    return implementationsAsObjectArray.build();
   }
 
   // Every parameter has to be assigned to a field, even if it's only used to name the test.
@@ -275,6 +316,16 @@ public class UtilScaleLargeValueParameterizedTest {
             RoundingMode.FLOOR);
 
     assertThat(result).isEqualTo(Long.MAX_VALUE);
+  }
+
+  private static final class Implementation {
+    public final String name;
+    public final ScaleLargeValueFn scaleFn;
+
+    private Implementation(String name, ScaleLargeValueFn scaleFn) {
+      this.name = name;
+      this.scaleFn = scaleFn;
+    }
   }
 
   private interface ScaleLargeValueFn {

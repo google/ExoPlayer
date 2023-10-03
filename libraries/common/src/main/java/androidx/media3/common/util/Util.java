@@ -1840,12 +1840,13 @@ public final class Util {
       // Directly multiplying value and multiplier will overflow a long, so we try and cancel
       // with GCD and try directly multiplying again below. If that still overflows we fall
       // through to floating point arithmetic.
-      long gcdOfMultiplierAndDivisor = LongMath.gcd(multiplier, divisor);
+      long gcdOfMultiplierAndDivisor = LongMath.gcd(Math.abs(multiplier), Math.abs(divisor));
       long simplifiedMultiplier =
           LongMath.divide(multiplier, gcdOfMultiplierAndDivisor, RoundingMode.UNNECESSARY);
       long simplifiedDivisor =
           LongMath.divide(divisor, gcdOfMultiplierAndDivisor, RoundingMode.UNNECESSARY);
-      long gcdOfValueAndSimplifiedDivisor = LongMath.gcd(value, simplifiedDivisor);
+      long gcdOfValueAndSimplifiedDivisor =
+          LongMath.gcd(Math.abs(value), Math.abs(simplifiedDivisor));
       long simplifiedValue =
           LongMath.divide(value, gcdOfValueAndSimplifiedDivisor, RoundingMode.UNNECESSARY);
       simplifiedDivisor =
