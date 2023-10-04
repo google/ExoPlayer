@@ -68,6 +68,7 @@ import com.google.android.exoplayer2.analytics.MediaMetricsListener;
 import com.google.android.exoplayer2.analytics.PlayerId;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
+import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.audio.AuxEffectInfo;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
@@ -3115,6 +3116,16 @@ import java.util.concurrent.TimeoutException;
     @Override
     public void onAudioCodecError(Exception audioCodecError) {
       analyticsCollector.onAudioCodecError(audioCodecError);
+    }
+
+    @Override
+    public void onAudioTrackInitialized(AudioSink.AudioTrackConfig audioTrackConfig) {
+      analyticsCollector.onAudioTrackInitialized(audioTrackConfig);
+    }
+
+    @Override
+    public void onAudioTrackReleased(AudioSink.AudioTrackConfig audioTrackConfig) {
+      analyticsCollector.onAudioTrackReleased(audioTrackConfig);
     }
 
     // TextOutput implementation

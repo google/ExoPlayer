@@ -22,6 +22,7 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
+import android.media.AudioTrack;
 import android.media.MediaCodec;
 import android.media.MediaCodec.CodecException;
 import android.os.Looper;
@@ -235,6 +236,8 @@ public interface AnalyticsListener {
     EVENT_PLAYER_RELEASED,
     EVENT_AUDIO_CODEC_ERROR,
     EVENT_VIDEO_CODEC_ERROR,
+    EVENT_AUDIO_TRACK_INITIALIZED,
+    EVENT_AUDIO_TRACK_RELEASED
   })
   @interface EventFlags {}
 
@@ -432,6 +435,12 @@ public interface AnalyticsListener {
 
   /** The video codec encountered an error. */
   int EVENT_VIDEO_CODEC_ERROR = 1030;
+
+  /** An audio track has been initialized. */
+  int EVENT_AUDIO_TRACK_INITIALIZED = 1031;
+
+  /** An audio track has been released. */
+  int EVENT_AUDIO_TRACK_RELEASED = 1032;
 
   /** Time information of an event. */
   final class EventTime {
@@ -1060,6 +1069,26 @@ public interface AnalyticsListener {
    *     {@link MediaCodec}, or a {@link DecoderException} if the renderer uses a software decoder.
    */
   default void onAudioCodecError(EventTime eventTime, Exception audioCodecError) {}
+
+  /**
+   * Called when an {@link AudioTrack} has been initialized.
+   *
+   * @param eventTime The event time.
+   * @param audioTrackConfig The {@link AudioSink.AudioTrackConfig} of the initialized {@link
+   *     AudioTrack}.
+   */
+  default void onAudioTrackInitialized(
+      EventTime eventTime, AudioSink.AudioTrackConfig audioTrackConfig) {}
+
+  /**
+   * Called when an {@link AudioTrack} has been released.
+   *
+   * @param eventTime The event time.
+   * @param audioTrackConfig The {@link AudioSink.AudioTrackConfig} of the released {@link
+   *     AudioTrack}.
+   */
+  default void onAudioTrackReleased(
+      EventTime eventTime, AudioSink.AudioTrackConfig audioTrackConfig) {}
 
   /**
    * Called when the volume changes.

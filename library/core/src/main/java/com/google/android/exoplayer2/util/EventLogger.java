@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Tracks;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.audio.AudioAttributes;
+import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
 import com.google.android.exoplayer2.drm.DrmSession;
@@ -382,6 +383,18 @@ public class EventLogger implements AnalyticsListener {
   }
 
   @Override
+  public void onAudioTrackInitialized(
+      EventTime eventTime, AudioSink.AudioTrackConfig audioTrackConfig) {
+    logd(eventTime, "audioTrackInit", getAudioTrackConfigString(audioTrackConfig));
+  }
+
+  @Override
+  public void onAudioTrackReleased(
+      EventTime eventTime, AudioSink.AudioTrackConfig audioTrackConfig) {
+    logd(eventTime, "audioTrackReleased", getAudioTrackConfigString(audioTrackConfig));
+  }
+
+  @Override
   public void onVideoEnabled(EventTime eventTime, DecoderCounters decoderCounters) {
     logd(eventTime, "videoEnabled");
   }
@@ -700,5 +713,19 @@ public class EventLogger implements AnalyticsListener {
       default:
         return "?";
     }
+  }
+
+  private static String getAudioTrackConfigString(AudioSink.AudioTrackConfig audioTrackConfig) {
+    return audioTrackConfig.encoding
+        + ","
+        + audioTrackConfig.channelConfig
+        + ","
+        + audioTrackConfig.sampleRate
+        + ","
+        + audioTrackConfig.tunneling
+        + ","
+        + audioTrackConfig.offload
+        + ","
+        + audioTrackConfig.bufferSize;
   }
 }

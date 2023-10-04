@@ -40,6 +40,7 @@ import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.Tracks;
 import com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime;
 import com.google.android.exoplayer2.audio.AudioAttributes;
+import com.google.android.exoplayer2.audio.AudioSink;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
 import com.google.android.exoplayer2.drm.DrmSession;
@@ -265,6 +266,24 @@ public class DefaultAnalyticsCollector implements AnalyticsCollector {
         eventTime,
         AnalyticsListener.EVENT_AUDIO_CODEC_ERROR,
         listener -> listener.onAudioCodecError(eventTime, audioCodecError));
+  }
+
+  @Override
+  public void onAudioTrackInitialized(AudioSink.AudioTrackConfig audioTrackConfig) {
+    EventTime eventTime = generateReadingMediaPeriodEventTime();
+    sendEvent(
+        eventTime,
+        AnalyticsListener.EVENT_AUDIO_TRACK_INITIALIZED,
+        listener -> listener.onAudioTrackInitialized(eventTime, audioTrackConfig));
+  }
+
+  @Override
+  public void onAudioTrackReleased(AudioSink.AudioTrackConfig audioTrackConfig) {
+    EventTime eventTime = generateReadingMediaPeriodEventTime();
+    sendEvent(
+        eventTime,
+        AnalyticsListener.EVENT_AUDIO_TRACK_RELEASED,
+        listener -> listener.onAudioTrackReleased(eventTime, audioTrackConfig));
   }
 
   @Override

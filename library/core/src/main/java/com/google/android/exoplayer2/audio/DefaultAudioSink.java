@@ -760,7 +760,8 @@ public final class DefaultAudioSink implements AudioSink {
             bufferSize,
             audioProcessingPipeline,
             enableAudioTrackPlaybackParams,
-            enableOffloadGapless);
+            enableOffloadGapless,
+            tunneling);
     if (isAudioTrackInitialized()) {
       this.pendingConfiguration = pendingConfiguration;
     } else {
@@ -810,8 +811,12 @@ public final class DefaultAudioSink implements AudioSink {
     if (preferredDevice != null && Util.SDK_INT >= 23) {
       Api23.setPreferredDeviceOnAudioTrack(audioTrack, preferredDevice);
     }
-
     startMediaTimeUsNeedsInit = true;
+
+    if (listener != null) {
+      listener.onAudioTrackInitialized(configuration.buildAudioTrackConfig());
+    }
+
     return true;
   }
 
@@ -1014,8 +1019,7 @@ public final class DefaultAudioSink implements AudioSink {
 
   private AudioTrack buildAudioTrack(Configuration configuration) throws InitializationException {
     try {
-      AudioTrack audioTrack =
-          configuration.buildAudioTrack(tunneling, audioAttributes, audioSessionId);
+      AudioTrack audioTrack = configuration.buildAudioTrack(audioAttributes, audioSessionId);
       if (audioOffloadListener != null) {
         audioOffloadListener.onOffloadedPlayback(isOffloadedPlayback(audioTrack));
       }
@@ -1420,12 +1424,13 @@ public final class DefaultAudioSink implements AudioSink {
         // we next create an audio track.
         audioSessionId = C.AUDIO_SESSION_ID_UNSET;
       }
+      AudioTrackConfig oldAudioTrackConfig = configuration.buildAudioTrackConfig();
       if (pendingConfiguration != null) {
         configuration = pendingConfiguration;
         pendingConfiguration = null;
       }
       audioTrackPositionTracker.reset();
-      releaseAudioTrackAsync(audioTrack, releasingConditionVariable);
+      releaseAudioTrackAsync(audioTrack, releasingConditionVariable, listener, oldAudioTrackConfig);
       audioTrack = null;
     }
     writeExceptionPendingExceptionHolder.clear();
@@ -1816,11 +1821,15 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   private static void releaseAudioTrackAsync(
-      AudioTrack audioTrack, ConditionVariable releasedConditionVariable) {
+      AudioTrack audioTrack,
+      ConditionVariable releasedConditionVariable,
+      @Nullable Listener listener,
+      AudioTrackConfig audioTrackConfig) {
     // AudioTrack.release can take some time, so we call it on a background thread. The background
     // thread is shared statically to avoid creating many threads when multiple players are released
     // at the same time.
     releasedConditionVariable.close();
+    Handler audioTrackThreadHandler = new Handler(Looper.myLooper());
     synchronized (releaseExecutorLock) {
       if (releaseExecutor == null) {
         releaseExecutor = Util.newSingleThreadExecutor("ExoPlayer:AudioTrackReleaseThread");
@@ -1832,6 +1841,9 @@ public final class DefaultAudioSink implements AudioSink {
               audioTrack.flush();
               audioTrack.release();
             } finally {
+              if (listener != null && audioTrackThreadHandler.getLooper().getThread().isAlive()) {
+                audioTrackThreadHandler.post(() -> listener.onAudioTrackReleased(audioTrackConfig));
+              }
               releasedConditionVariable.open();
               synchronized (releaseExecutorLock) {
                 pendingReleaseCount--;
@@ -2011,6 +2023,7 @@ public final class DefaultAudioSink implements AudioSink {
     public final AudioProcessingPipeline audioProcessingPipeline;
     public final boolean enableAudioTrackPlaybackParams;
     public final boolean enableOffloadGapless;
+    public final boolean tunneling;
 
     public Configuration(
         Format inputFormat,
@@ -2023,7 +2036,8 @@ public final class DefaultAudioSink implements AudioSink {
         int bufferSize,
         AudioProcessingPipeline audioProcessingPipeline,
         boolean enableAudioTrackPlaybackParams,
-        boolean enableOffloadGapless) {
+        boolean enableOffloadGapless,
+        boolean tunneling) {
       this.inputFormat = inputFormat;
       this.inputPcmFrameSize = inputPcmFrameSize;
       this.outputMode = outputMode;
@@ -2035,6 +2049,7 @@ public final class DefaultAudioSink implements AudioSink {
       this.audioProcessingPipeline = audioProcessingPipeline;
       this.enableAudioTrackPlaybackParams = enableAudioTrackPlaybackParams;
       this.enableOffloadGapless = enableOffloadGapless;
+      this.tunneling = tunneling;
     }
 
     public Configuration copyWithBufferSize(int bufferSize) {
@@ -2049,7 +2064,8 @@ public final class DefaultAudioSink implements AudioSink {
           bufferSize,
           audioProcessingPipeline,
           enableAudioTrackPlaybackParams,
-          enableOffloadGapless);
+          enableOffloadGapless,
+          tunneling);
     }
 
     /** Returns if the configurations are sufficiently compatible to reuse the audio track. */
@@ -2071,12 +2087,21 @@ public final class DefaultAudioSink implements AudioSink {
       return Util.sampleCountToDurationUs(frameCount, outputSampleRate);
     }
 
-    public AudioTrack buildAudioTrack(
-        boolean tunneling, AudioAttributes audioAttributes, int audioSessionId)
+    public AudioTrackConfig buildAudioTrackConfig() {
+      return new AudioTrackConfig(
+          outputEncoding,
+          outputSampleRate,
+          outputChannelConfig,
+          tunneling,
+          outputMode == OUTPUT_MODE_OFFLOAD,
+          bufferSize);
+    }
+
+    public AudioTrack buildAudioTrack(AudioAttributes audioAttributes, int audioSessionId)
         throws InitializationException {
       AudioTrack audioTrack;
       try {
-        audioTrack = createAudioTrack(tunneling, audioAttributes, audioSessionId);
+        audioTrack = createAudioTrack(audioAttributes, audioSessionId);
       } catch (UnsupportedOperationException | IllegalArgumentException e) {
         throw new InitializationException(
             AudioTrack.STATE_UNINITIALIZED,
@@ -2108,20 +2133,18 @@ public final class DefaultAudioSink implements AudioSink {
       return audioTrack;
     }
 
-    private AudioTrack createAudioTrack(
-        boolean tunneling, AudioAttributes audioAttributes, int audioSessionId) {
+    private AudioTrack createAudioTrack(AudioAttributes audioAttributes, int audioSessionId) {
       if (Util.SDK_INT >= 29) {
-        return createAudioTrackV29(tunneling, audioAttributes, audioSessionId);
+        return createAudioTrackV29(audioAttributes, audioSessionId);
       } else if (Util.SDK_INT >= 21) {
-        return createAudioTrackV21(tunneling, audioAttributes, audioSessionId);
+        return createAudioTrackV21(audioAttributes, audioSessionId);
       } else {
         return createAudioTrackV9(audioAttributes, audioSessionId);
       }
     }
 
     @RequiresApi(29)
-    private AudioTrack createAudioTrackV29(
-        boolean tunneling, AudioAttributes audioAttributes, int audioSessionId) {
+    private AudioTrack createAudioTrackV29(AudioAttributes audioAttributes, int audioSessionId) {
       AudioFormat audioFormat =
           Util.getAudioFormat(outputSampleRate, outputChannelConfig, outputEncoding);
       android.media.AudioAttributes audioTrackAttributes =
@@ -2137,8 +2160,7 @@ public final class DefaultAudioSink implements AudioSink {
     }
 
     @RequiresApi(21)
-    private AudioTrack createAudioTrackV21(
-        boolean tunneling, AudioAttributes audioAttributes, int audioSessionId) {
+    private AudioTrack createAudioTrackV21(AudioAttributes audioAttributes, int audioSessionId) {
       return new AudioTrack(
           getAudioTrackAttributesV21(audioAttributes, tunneling),
           Util.getAudioFormat(outputSampleRate, outputChannelConfig, outputEncoding),

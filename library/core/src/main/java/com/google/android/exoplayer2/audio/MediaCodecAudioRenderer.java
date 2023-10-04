@@ -1023,6 +1023,16 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
     public void onAudioCapabilitiesChanged() {
       MediaCodecAudioRenderer.this.onRendererCapabilitiesChanged();
     }
+
+    @Override
+    public void onAudioTrackInitialized(AudioSink.AudioTrackConfig audioTrackConfig) {
+      eventDispatcher.audioTrackInitialized(audioTrackConfig);
+    }
+
+    @Override
+    public void onAudioTrackReleased(AudioSink.AudioTrackConfig audioTrackConfig) {
+      eventDispatcher.audioTrackReleased(audioTrackConfig);
+    }
   }
 
   @RequiresApi(23)
