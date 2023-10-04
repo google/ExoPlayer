@@ -19,6 +19,7 @@ import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCA
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.DISCARD_REASON_REUSE_NOT_IMPLEMENTED;
 import static com.google.android.exoplayer2.decoder.DecoderReuseEvaluation.REUSE_RESULT_NO;
 import static com.google.android.exoplayer2.source.SampleStream.FLAG_REQUIRE_FORMAT;
+import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.Math.max;
 import static java.lang.annotation.ElementType.TYPE_USE;
@@ -558,7 +559,9 @@ public abstract class DecoderAudioRenderer<
         outputBuffer.release();
         outputBuffer = null;
       }
+      Decoder<?, ?, ?> decoder = checkNotNull(this.decoder);
       decoder.flush();
+      decoder.setOutputStartTimeUs(getLastResetPositionUs());
       decoderReceivedBuffers = false;
     }
   }
@@ -736,6 +739,7 @@ public abstract class DecoderAudioRenderer<
       long codecInitializingTimestamp = SystemClock.elapsedRealtime();
       TraceUtil.beginSection("createAudioDecoder");
       decoder = createDecoder(inputFormat, cryptoConfig);
+      decoder.setOutputStartTimeUs(getLastResetPositionUs());
       TraceUtil.endSection();
       long codecInitializedTimestamp = SystemClock.elapsedRealtime();
       eventDispatcher.decoderInitialized(

@@ -151,8 +151,9 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
     if (lastReceivedTimestampUs == C.TIME_UNSET) {
       outputTimeUs = inputBuffer.timeUs;
     }
+    boolean isDecodeOnly = !isAtLeastOutputStartTimeUs(inputBuffer.timeUs);
     try {
-      if (!inputBuffer.isDecodeOnly()) {
+      if (!isDecodeOnly) {
         // Yield the thread to the Synthesizer to produce PCM samples up to this buffer's timestamp.
         if (lastReceivedTimestampUs != C.TIME_UNSET) {
           double timeToSleepSecs = (inputBuffer.timeUs - lastReceivedTimestampUs) * 0.000001D;
@@ -175,7 +176,7 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 
     int availableSamples = reader.available();
     // Ensure there are no remaining bytes if the input buffer is decode only.
-    checkState(!inputBuffer.isDecodeOnly() || reader.available() == 0);
+    checkState(!isDecodeOnly || availableSamples == 0);
 
     if (availableSamples > audioStreamOutputBuffer.length) {
       // Increase the size of the buffer by 25% of the availableSamples (arbitrary number).

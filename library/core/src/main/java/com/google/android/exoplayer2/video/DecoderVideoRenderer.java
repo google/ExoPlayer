@@ -369,7 +369,9 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
         outputBuffer.release();
         outputBuffer = null;
       }
-      checkNotNull(decoder).flush();
+      Decoder<?, ?, ?> decoder = checkNotNull(this.decoder);
+      decoder.flush();
+      decoder.setOutputStartTimeUs(getLastResetPositionUs());
       decoderReceivedBuffers = false;
     }
   }
@@ -721,6 +723,7 @@ public abstract class DecoderVideoRenderer extends BaseRenderer {
     try {
       long decoderInitializingTimestamp = SystemClock.elapsedRealtime();
       decoder = createDecoder(checkNotNull(inputFormat), cryptoConfig);
+      decoder.setOutputStartTimeUs(getLastResetPositionUs());
       setDecoderOutputMode(outputMode);
       long decoderInitializedTimestamp = SystemClock.elapsedRealtime();
       eventDispatcher.decoderInitialized(

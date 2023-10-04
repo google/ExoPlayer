@@ -83,6 +83,11 @@ public final class ExoplayerCuesDecoder implements SubtitleDecoder {
     return "ExoplayerCuesDecoder";
   }
 
+  @Override
+  public void setOutputStartTimeUs(long outputStartTimeUs) {
+    // Do nothing.
+  }
+
   @Nullable
   @Override
   public SubtitleInputBuffer dequeueInputBuffer() throws SubtitleDecoderException {

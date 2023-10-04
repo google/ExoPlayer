@@ -171,7 +171,7 @@ public final class VpxDecoder
       }
     }
 
-    if (!inputBuffer.isDecodeOnly()) {
+    if (isAtLeastOutputStartTimeUs(inputBuffer.timeUs)) {
       outputBuffer.init(inputBuffer.timeUs, outputMode, lastSupplementalData);
       int getFrameResult = vpxGetFrame(vpxDecContext, outputBuffer);
       if (getFrameResult == 1) {
