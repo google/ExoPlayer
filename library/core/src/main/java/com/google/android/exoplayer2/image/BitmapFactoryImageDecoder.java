@@ -131,7 +131,7 @@ public final class BitmapFactoryImageDecoder
 
   @Override
   public String getName() {
-    return "DefaultImageDecoder";
+    return "BitmapFactoryImageDecoder";
   }
 
   @Override
