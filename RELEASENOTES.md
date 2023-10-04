@@ -8,6 +8,9 @@
 *   Track Selection:
 *   Extractors:
 *   Audio:
+    *   Add `onAudioTrackInitialized` and `onAudioTrackReleased` callbacks to
+        `AnalyticsListener`, `AudioRendererEventListener` and
+        `AudioSink.Listener`.
 *   Video:
 *   Text:
 *   Metadata:

@@ -150,6 +150,22 @@ public interface AudioRendererEventListener {
    */
   default void onAudioSinkError(Exception audioSinkError) {}
 
+  /**
+   * Called when an {@link AudioTrack} has been initialized.
+   *
+   * @param audioTrackConfig The {@link AudioSink.AudioTrackConfig} of the initialized {@link
+   *     AudioTrack}.
+   */
+  default void onAudioTrackInitialized(AudioSink.AudioTrackConfig audioTrackConfig) {}
+
+  /**
+   * Called when an {@link AudioTrack} has been released.
+   *
+   * @param audioTrackConfig The {@link AudioSink.AudioTrackConfig} of the released {@link
+   *     AudioTrack}.
+   */
+  default void onAudioTrackReleased(AudioSink.AudioTrackConfig audioTrackConfig) {}
+
   /** Dispatches events to an {@link AudioRendererEventListener}. */
   final class EventDispatcher {
 
@@ -254,6 +270,20 @@ public interface AudioRendererEventListener {
     public void audioCodecError(Exception audioCodecError) {
       if (handler != null) {
         handler.post(() -> castNonNull(listener).onAudioCodecError(audioCodecError));
+      }
+    }
+
+    /** Invokes {@link AudioRendererEventListener#onAudioTrackInitialized}. */
+    public void audioTrackInitialized(AudioSink.AudioTrackConfig audioTrackConfig) {
+      if (handler != null) {
+        handler.post(() -> castNonNull(listener).onAudioTrackInitialized(audioTrackConfig));
+      }
+    }
+
+    /** Invokes {@link AudioRendererEventListener#onAudioTrackReleased}. */
+    public void audioTrackReleased(AudioSink.AudioTrackConfig audioTrackConfig) {
+      if (handler != null) {
+        handler.post(() -> castNonNull(listener).onAudioTrackReleased(audioTrackConfig));
       }
     }
   }

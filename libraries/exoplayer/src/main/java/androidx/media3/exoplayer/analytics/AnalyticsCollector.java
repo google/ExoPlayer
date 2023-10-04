@@ -179,6 +179,22 @@ public interface AnalyticsCollector
    */
   void onAudioCodecError(Exception audioCodecError);
 
+  /**
+   * Called when an {@link AudioTrack} has been initialized.
+   *
+   * @param audioTrackConfig The {@link AudioSink.AudioTrackConfig} of the initialized {@link
+   *     AudioTrack}.
+   */
+  void onAudioTrackInitialized(AudioSink.AudioTrackConfig audioTrackConfig);
+
+  /**
+   * Called when an {@link AudioTrack} has been released.
+   *
+   * @param audioTrackConfig The {@link AudioSink.AudioTrackConfig} of the released {@link
+   *     AudioTrack}.
+   */
+  void onAudioTrackReleased(AudioSink.AudioTrackConfig audioTrackConfig);
+
   // Video events.
 
   /**

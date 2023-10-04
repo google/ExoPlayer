@@ -138,6 +138,68 @@ public interface AudioSink {
 
     /** Called when audio capabilities changed. */
     default void onAudioCapabilitiesChanged() {}
+
+    /**
+     * Called when an {@link AudioTrack} has been initialized.
+     *
+     * @param audioTrackConfig The {@link AudioTrackConfig} of the initialized {@link AudioTrack}.
+     */
+    default void onAudioTrackInitialized(AudioTrackConfig audioTrackConfig) {}
+
+    /**
+     * Called when an {@link AudioTrack} has been released.
+     *
+     * @param audioTrackConfig The {@link AudioTrackConfig} of the released {@link AudioTrack}.
+     */
+    default void onAudioTrackReleased(AudioTrackConfig audioTrackConfig) {}
+  }
+
+  /** Configuration parameters used for an {@link AudioTrack}. */
+  final class AudioTrackConfig {
+
+    /* The {@link C.Encoding} of the audio data. */
+    public final @C.Encoding int encoding;
+
+    /** The sample rate of the audio data. */
+    public final int sampleRate;
+
+    /** The channel configuration of the track. See {@code AudioTrack.CHANNEL_OUT_XXX} constants. */
+    public final int channelConfig;
+
+    /** Whether tunneling is enabled for this track. */
+    public final boolean tunneling;
+
+    /** Whether offload is enabled for this track. */
+    public final boolean offload;
+
+    /** The buffer size of the track in bytes. */
+    public final int bufferSize;
+
+    /**
+     * Creates the audio track configuration parameters.
+     *
+     * @param encoding The {@link C.Encoding} of the audio data
+     * @param sampleRate The sample rate of the audio data.
+     * @param channelConfig The channel configuration of the track. See {@code
+     *     AudioTrack.CHANNEL_OUT_XXX} constants.
+     * @param tunneling Whether tunneling is enabled for this track.
+     * @param offload Whether offload is enabled for this track.
+     * @param bufferSize The buffer size of the track in bytes.
+     */
+    public AudioTrackConfig(
+        @C.Encoding int encoding,
+        int sampleRate,
+        int channelConfig,
+        boolean tunneling,
+        boolean offload,
+        int bufferSize) {
+      this.encoding = encoding;
+      this.sampleRate = sampleRate;
+      this.channelConfig = channelConfig;
+      this.tunneling = tunneling;
+      this.offload = offload;
+      this.bufferSize = bufferSize;
+    }
   }
 
   /** Thrown when a failure occurs configuring the sink. */
