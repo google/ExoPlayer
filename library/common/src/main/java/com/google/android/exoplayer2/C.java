@@ -302,8 +302,8 @@ public final class C {
   /** See {@link AudioFormat#ENCODING_DTS_HD}. */
   public static final int ENCODING_DTS_HD = AudioFormat.ENCODING_DTS_HD;
 
-  // TODO(internal b/283949283): Use AudioFormat.ENCODING_DTS_UHD_P2 when Android 14 is released.
-  public static final int ENCODING_DTS_UHD_P2 = 0x0000001e;
+  /** See {@link AudioFormat#ENCODING_DTS_UHD_P2}. */
+  public static final int ENCODING_DTS_UHD_P2 = AudioFormat.ENCODING_DTS_UHD_P2;
 
   /** See {@link AudioFormat#ENCODING_DOLBY_TRUEHD}. */
   public static final int ENCODING_DOLBY_TRUEHD = AudioFormat.ENCODING_DOLBY_TRUEHD;
