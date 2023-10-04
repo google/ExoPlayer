@@ -36,6 +36,19 @@ public interface Decoder<I, O, E extends DecoderException> {
   String getName();
 
   /**
+   * Sets the timestamp from which output buffers should be produced, in microseconds.
+   *
+   * <p>Any decoded buffer with a timestamp less than {@code outputStartTimeUs} should be skipped by
+   * the implementation and not made available via {@link #dequeueOutputBuffer}.
+   *
+   * <p>This method must only be called before {@linkplain #queueInputBuffer queuing the first input
+   * buffer} initially or after {@link #flush()}.
+   *
+   * @param outputStartTimeUs The time from which output buffer should be produced, in microseconds.
+   */
+  void setOutputStartTimeUs(long outputStartTimeUs);
+
+  /**
    * Dequeues the next input buffer to be filled and queued to the decoder.
    *
    * @return The input buffer, which will have been cleared, or null if a buffer isn't available.

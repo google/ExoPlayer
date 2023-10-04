@@ -33,11 +33,14 @@
     *   Allow multiple of the same DASH identifier in segment template url.
 *   Smooth Streaming Extension:
 *   RTSP Extension:
-*   Decoder Extensions (FFmpeg, VP9, AV1, etc.):
+*   Decoder Extensions (FFmpeg, VP9, AV1, MIDI, etc.):
     *   Add `DecoderOutputBuffer.shouldBeSkipped` to directly mark output
         buffers that don't need to be presented. This is preferred over
-        `C.BUFFER_FLAG_DECODE_ONLY`.
-*   MIDI extension:
+        `C.BUFFER_FLAG_DECODE_ONLY` that will be deprecated.
+    *   Add `Decoder.setOutputStartTimeUs` and
+        `SimpleDecoder.isAtLeastOutputStartTimeUs` to allow decoders to drop
+        decode-only samples before the start time. This should be preferred to
+        `Buffer.isDecodeOnly` that will be deprecated.
 *   Leanback extension:
 *   Cast Extension:
 *   Test Utilities:

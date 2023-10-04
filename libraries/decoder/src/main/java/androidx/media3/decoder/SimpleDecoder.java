@@ -48,6 +48,7 @@ public abstract class SimpleDecoder<
   private boolean flushed;
   private boolean released;
   private int skippedOutputBufferCount;
+  private long outputStartTimeUs;
 
   /**
    * @param inputBuffers An array of nulls that will be used to store references to input buffers.
@@ -56,6 +57,7 @@ public abstract class SimpleDecoder<
   @SuppressWarnings("nullness:method.invocation")
   protected SimpleDecoder(I[] inputBuffers, O[] outputBuffers) {
     lock = new Object();
+    outputStartTimeUs = C.TIME_UNSET;
     queuedInputBuffers = new ArrayDeque<>();
     queuedOutputBuffers = new ArrayDeque<>();
     availableInputBuffers = inputBuffers;
@@ -90,6 +92,30 @@ public abstract class SimpleDecoder<
     Assertions.checkState(availableInputBufferCount == availableInputBuffers.length);
     for (I inputBuffer : availableInputBuffers) {
       inputBuffer.ensureSpaceForWrite(size);
+    }
+  }
+
+  /**
+   * Returns whether a sample time is greater or equal to the {@link #setOutputStartTimeUs output
+   * start time}, if set.
+   *
+   * <p>If this method returns false, the buffer will not be made available as an output buffer.
+   *
+   * @param timeUs The buffer time, in microseconds.
+   * @return Whether the buffer time is greater or equal to the output start time, or {@code true}
+   *     if the output start time is not set.
+   */
+  protected final boolean isAtLeastOutputStartTimeUs(long timeUs) {
+    synchronized (lock) {
+      return outputStartTimeUs == C.TIME_UNSET || timeUs >= outputStartTimeUs;
+    }
+  }
+
+  @Override
+  public final void setOutputStartTimeUs(long outputStartTimeUs) {
+    synchronized (lock) {
+      Assertions.checkState(availableInputBufferCount == availableInputBuffers.length || flushed);
+      this.outputStartTimeUs = outputStartTimeUs;
     }
   }
 
@@ -233,7 +259,7 @@ public abstract class SimpleDecoder<
       outputBuffer.addFlag(C.BUFFER_FLAG_END_OF_STREAM);
     } else {
       outputBuffer.timeUs = inputBuffer.timeUs;
-      if (inputBuffer.isDecodeOnly()) {
+      if (!isAtLeastOutputStartTimeUs(inputBuffer.timeUs) || inputBuffer.isDecodeOnly()) {
         outputBuffer.addFlag(C.BUFFER_FLAG_DECODE_ONLY);
       }
       if (inputBuffer.isFirstSample()) {
@@ -263,7 +289,9 @@ public abstract class SimpleDecoder<
     synchronized (lock) {
       if (flushed) {
         outputBuffer.release();
-      } else if (outputBuffer.isDecodeOnly() || outputBuffer.shouldBeSkipped) {
+      } else if ((!outputBuffer.isEndOfStream() && !isAtLeastOutputStartTimeUs(outputBuffer.timeUs))
+          || outputBuffer.isDecodeOnly()
+          || outputBuffer.shouldBeSkipped) {
         skippedOutputBufferCount++;
         outputBuffer.release();
       } else {

@@ -105,7 +105,7 @@ public final class Gav1Decoder
           "gav1Decode error: " + gav1GetErrorMessage(gav1DecoderContext));
     }
 
-    boolean decodeOnly = inputBuffer.isDecodeOnly();
+    boolean decodeOnly = !isAtLeastOutputStartTimeUs(inputBuffer.timeUs);
     if (!decodeOnly) {
       outputBuffer.init(inputBuffer.timeUs, outputMode, /* supplementalData= */ null);
     }

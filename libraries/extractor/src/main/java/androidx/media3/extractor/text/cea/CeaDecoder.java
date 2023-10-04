@@ -59,6 +59,11 @@ import java.util.PriorityQueue;
   public abstract String getName();
 
   @Override
+  public final void setOutputStartTimeUs(long outputStartTimeUs) {
+    // Do nothing.
+  }
+
+  @Override
   public void setPositionUs(long positionUs) {
     playbackPositionUs = positionUs;
   }
