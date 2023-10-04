@@ -41,7 +41,7 @@ public abstract class SimpleMetadataDecoder implements MetadataDecoder {
 
   /**
    * Called by {@link #decode(MetadataInputBuffer)} after input buffer validation has been
-   * performed, except in the case that {@link MetadataInputBuffer#isDecodeOnly()} is {@code true}.
+   * performed.
    *
    * @param inputBuffer The input buffer to decode.
    * @param buffer The input buffer's {@link MetadataInputBuffer#data data buffer}, for convenience.
