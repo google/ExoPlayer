@@ -205,6 +205,9 @@ public final class VideoFrameProcessorTestRunner {
      * Sets the method to be called in {@link
      * VideoFrameProcessor.Listener#onOutputFrameAvailableForRendering}.
      *
+     * <p>The method will be called on the thread the {@link VideoFrameProcessorTestRunner} is
+     * created on.
+     *
      * <p>The default value is a no-op.
      */
     @CanIgnoreReturnValue
@@ -290,7 +293,7 @@ public final class VideoFrameProcessorTestRunner {
             inputColorInfo,
             outputColorInfo,
             /* renderFramesAutomatically= */ true,
-            MoreExecutors.directExecutor(),
+            /* listenerExecutor= */ MoreExecutors.directExecutor(),
             new VideoFrameProcessor.Listener() {
               @Override
               public void onInputStreamRegistered(
@@ -442,6 +445,11 @@ public final class VideoFrameProcessorTestRunner {
    */
   public void signalEndOfInput() {
     videoFrameProcessor.signalEndOfInput();
+  }
+
+  /** Calls {@link VideoFrameProcessor#flush}. */
+  public void flush() {
+    videoFrameProcessor.flush();
   }
 
   /** After {@link #signalEndOfInput}, is called, wait for this instance to end. */
