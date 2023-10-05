@@ -2060,8 +2060,8 @@ public abstract class MediaCodecRenderer extends BaseRenderer {
    * @param sampleCount The number of samples extracted from the sample queue in the buffer. This
    *     allows handling multiple samples as a batch for efficiency.
    * @param bufferPresentationTimeUs The presentation time of the output buffer in microseconds.
-   * @param isDecodeOnlyBuffer Whether the buffer was marked with {@link C#BUFFER_FLAG_DECODE_ONLY}
-   *     by the source.
+   * @param isDecodeOnlyBuffer Whether the buffer timestamp is less than the intended playback start
+   *     position.
    * @param isLastBuffer Whether the buffer is known to contain the last sample of the current
    *     stream. This flag is set on a best effort basis, and any logic relying on it should degrade
    *     gracefully to handle cases where it's not set.
