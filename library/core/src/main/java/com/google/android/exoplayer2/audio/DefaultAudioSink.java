@@ -1438,39 +1438,6 @@ public final class DefaultAudioSink implements AudioSink {
   }
 
   @Override
-  public void experimentalFlushWithoutAudioTrackRelease() {
-    // Prior to SDK 25, AudioTrack flush does not work as intended, and therefore it must be
-    // released and reinitialized. (Internal reference: b/143500232)
-    if (Util.SDK_INT < 25) {
-      flush();
-      return;
-    }
-
-    writeExceptionPendingExceptionHolder.clear();
-    initializationExceptionPendingExceptionHolder.clear();
-
-    if (!isAudioTrackInitialized()) {
-      return;
-    }
-
-    resetSinkStateForFlush();
-    if (audioTrackPositionTracker.isPlaying()) {
-      audioTrack.pause();
-    }
-    audioTrack.flush();
-
-    audioTrackPositionTracker.reset();
-    audioTrackPositionTracker.setAudioTrack(
-        audioTrack,
-        /* isPassthrough= */ configuration.outputMode == OUTPUT_MODE_PASSTHROUGH,
-        configuration.outputEncoding,
-        configuration.outputPcmFrameSize,
-        configuration.bufferSize);
-
-    startMediaTimeUsNeedsInit = true;
-  }
-
-  @Override
   public void reset() {
     flush();
     for (AudioProcessor audioProcessor : toIntPcmAvailableAudioProcessors) {
