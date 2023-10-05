@@ -15,7 +15,6 @@
  */
 package androidx.media3.exoplayer.audio;
 
-import static androidx.media3.exoplayer.audio.AudioSink.CURRENT_POSITION_NOT_SET;
 import static androidx.media3.exoplayer.audio.AudioSink.SINK_FORMAT_SUPPORTED_DIRECTLY;
 import static androidx.media3.exoplayer.audio.AudioSink.SINK_FORMAT_SUPPORTED_WITH_TRANSCODING;
 import static com.google.common.truth.Truth.assertThat;
@@ -315,42 +314,6 @@ public final class DefaultAudioSinkTest {
             .setPcmEncoding(C.ENCODING_AAC_LC)
             .build();
     assertThat(defaultAudioSink.supportsFormat(aacLcFormat)).isFalse();
-  }
-
-  @Test
-  public void handlesBufferAfterExperimentalFlush() throws Exception {
-    // This is demonstrating that no Exceptions are thrown as a result of handling a buffer after an
-    // experimental flush.
-    configureDefaultAudioSink(CHANNEL_COUNT_STEREO);
-    assertThat(
-            defaultAudioSink.handleBuffer(
-                createDefaultSilenceBuffer(),
-                /* presentationTimeUs= */ 0,
-                /* encodedAccessUnitCount= */ 1))
-        .isTrue();
-
-    // After the experimental flush we can successfully queue more input.
-    defaultAudioSink.experimentalFlushWithoutAudioTrackRelease();
-    assertThat(
-            defaultAudioSink.handleBuffer(
-                createDefaultSilenceBuffer(),
-                /* presentationTimeUs= */ 5_000,
-                /* encodedAccessUnitCount= */ 1))
-        .isTrue();
-  }
-
-  @Test
-  public void getCurrentPosition_returnsUnset_afterExperimentalFlush() throws Exception {
-    configureDefaultAudioSink(CHANNEL_COUNT_STEREO);
-    assertThat(
-            defaultAudioSink.handleBuffer(
-                createDefaultSilenceBuffer(),
-                /* presentationTimeUs= */ 5 * C.MICROS_PER_SECOND,
-                /* encodedAccessUnitCount= */ 1))
-        .isTrue();
-    defaultAudioSink.experimentalFlushWithoutAudioTrackRelease();
-    assertThat(defaultAudioSink.getCurrentPositionUs(/* sourceEnded= */ false))
-        .isEqualTo(CURRENT_POSITION_NOT_SET);
   }
 
   @Test

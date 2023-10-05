@@ -145,7 +145,6 @@ public abstract class DecoderAudioRenderer<
   private int encoderDelay;
   private int encoderPadding;
 
-  private boolean experimentalKeepAudioTrackOnSeek;
   private boolean firstStreamSampleRead;
 
   @Nullable private T decoder;
@@ -227,14 +226,6 @@ public abstract class DecoderAudioRenderer<
     audioTrackNeedsConfigure = true;
     setOutputStreamOffsetUs(C.TIME_UNSET);
     pendingOutputStreamOffsetsUs = new long[MAX_PENDING_OUTPUT_STREAM_OFFSET_COUNT];
-  }
-
-  /**
-   * @deprecated Experimental method being removed.
-   */
-  @Deprecated
-  public void experimentalSetEnableKeepAudioTrackOnSeek(boolean enableKeepAudioTrackOnSeek) {
-    this.experimentalKeepAudioTrackOnSeek = enableKeepAudioTrackOnSeek;
   }
 
   @Override
@@ -610,11 +601,7 @@ public abstract class DecoderAudioRenderer<
 
   @Override
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
-    if (experimentalKeepAudioTrackOnSeek) {
-      audioSink.experimentalFlushWithoutAudioTrackRelease();
-    } else {
-      audioSink.flush();
-    }
+    audioSink.flush();
 
     currentPositionUs = positionUs;
     allowPositionDiscontinuity = true;

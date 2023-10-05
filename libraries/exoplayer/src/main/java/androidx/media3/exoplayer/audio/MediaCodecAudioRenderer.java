@@ -117,8 +117,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   private boolean allowPositionDiscontinuity;
   private boolean audioSinkNeedsReset;
 
-  private boolean experimentalKeepAudioTrackOnSeek;
-
   @Nullable private WakeupListener wakeupListener;
 
   /**
@@ -271,14 +269,6 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   public String getName() {
     return TAG;
-  }
-
-  /**
-   * @deprecated Experimental method being removed.
-   */
-  @Deprecated
-  public void experimentalSetEnableKeepAudioTrackOnSeek(boolean enableKeepAudioTrackOnSeek) {
-    this.experimentalKeepAudioTrackOnSeek = enableKeepAudioTrackOnSeek;
   }
 
   @Override
@@ -620,11 +610,7 @@ public class MediaCodecAudioRenderer extends MediaCodecRenderer implements Media
   @Override
   protected void onPositionReset(long positionUs, boolean joining) throws ExoPlaybackException {
     super.onPositionReset(positionUs, joining);
-    if (experimentalKeepAudioTrackOnSeek) {
-      audioSink.experimentalFlushWithoutAudioTrackRelease();
-    } else {
-      audioSink.flush();
-    }
+    audioSink.flush();
 
     currentPositionUs = positionUs;
     allowPositionDiscontinuity = true;

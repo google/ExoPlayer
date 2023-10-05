@@ -614,12 +614,6 @@ public interface AudioSink {
    */
   void flush();
 
-  /**
-   * @deprecated Use {@link #flush()}.
-   */
-  @Deprecated
-  void experimentalFlushWithoutAudioTrackRelease();
-
   /** Resets the sink, releasing any resources that it currently holds. */
   void reset();
 
