@@ -338,11 +338,11 @@ public abstract class SimpleDecoder<
    * Decodes the {@code inputBuffer} and stores any decoded output in {@code outputBuffer}.
    *
    * @param inputBuffer The buffer to decode.
-   * @param outputBuffer The output buffer to store decoded data. The flag {@link
-   *     C#BUFFER_FLAG_DECODE_ONLY} will be set if the same flag is set on {@code inputBuffer}, but
-   *     may be set/unset as required. If the flag is set when the call returns then the output
-   *     buffer will not be made available to dequeue. The output buffer may not have been populated
-   *     in this case.
+   * @param outputBuffer The output buffer to store decoded data. The output buffer will not be made
+   *     available to dequeue if its {@link DecoderOutputBuffer#timeUs} is not {@linkplain
+   *     #isAtLeastOutputStartTimeUs at least the output start time} or when it's marked with {@link
+   *     DecoderOutputBuffer#shouldBeSkipped}. The output buffer may not have been populated in
+   *     these cases.
    * @param reset Whether the decoder must be reset before decoding.
    * @return A decoder exception if an error occurred, or null if decoding was successful.
    */
