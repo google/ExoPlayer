@@ -33,6 +33,9 @@
     *   Allow multiple of the same DASH identifier in segment template url.
 *   Smooth Streaming Extension:
 *   RTSP Extension:
+    *   Use RTSP Setup Response timeout value in time interval of sending
+        keep-alive RTSP Options requests
+        ([#662](https://github.com/androidx/media/issues/662)).
 *   Decoder Extensions (FFmpeg, VP9, AV1, MIDI, etc.):
     *   Add `DecoderOutputBuffer.shouldBeSkipped` to directly mark output
         buffers that don't need to be presented. This is preferred over
@@ -138,6 +141,8 @@ This release includes the following changes since the
         ([#577](https://github.com/androidx/media/issues/577)).
     *   Ignore custom Rtsp request methods in Options response public header
         ([#613](https://github.com/androidx/media/issues/613)).
+*   Decoder Extensions (FFmpeg, VP9, AV1, etc.):
+*   MIDI extension:
 *   Leanback extension:
     *   Fix bug where disabling a surface can cause an `ArithmeticException` in
         Leanback code ([#617](https://github.com/androidx/media/issues/617)).
