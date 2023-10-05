@@ -27,6 +27,7 @@ import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSE
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_FORMAT;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.MP4_ASSET_WITH_INCREASING_TIMESTAMPS_URI_STRING;
 import static com.google.android.exoplayer2.transformer.AndroidTestUtil.recordTestSkipped;
+import static com.google.android.exoplayer2.util.Util.SDK_INT;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.content.Context;
@@ -47,6 +48,7 @@ import com.google.android.exoplayer2.transformer.VideoEncoderSettings;
 import com.google.android.exoplayer2.util.Effect;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
+import org.junit.AssumptionViolatedException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -227,7 +229,7 @@ public class ExportTest {
     String testId = TAG + "_exportSef";
     Context context = ApplicationProvider.getApplicationContext();
 
-    if (Util.SDK_INT < 25) {
+    if (SDK_INT < 25) {
       // TODO(b/210593256): Remove test skipping after using an in-app muxer that supports B-frames
       //  before API 25.
       recordTestSkipped(context, testId, /* reason= */ "API version lacks muxing support");
@@ -278,6 +280,12 @@ public class ExportTest {
   public void exportTranscodeBt2020Sdr() throws Exception {
     String testId = TAG + "exportBt2020Sdr";
     Context context = ApplicationProvider.getApplicationContext();
+    // Reference: b/262732842#comment51
+    if (SDK_INT <= 27 && Util.MANUFACTURER.equals("samsung")) {
+      String reason = "Some older Samsung encoders report a non-specified error code";
+      recordTestSkipped(context, testId, reason);
+      throw new AssumptionViolatedException(reason);
+    }
     if (AndroidTestUtil.skipAndLogIfFormatsUnsupported(
         context,
         testId,
