@@ -13,6 +13,9 @@
         `AudioSink.Listener`.
 *   Video:
 *   Text:
+    *   Remove `ExoplayerCuesDecoder`. Text tracks with `sampleMimeType =
+        application/x-media3-cues` are now directly handled by `TextRenderer`
+        without needing a `SubtitleDecoder` instance.
 *   Metadata:
     *   `MetadataDecoder.decode` will no longer be called for "decode-only"
         samples as the implementation must return null anyway.

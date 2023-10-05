@@ -56,7 +56,6 @@ public interface SubtitleDecoderFactory {
    * <ul>
    *   <li>Cea608 ({@link Cea608Decoder})
    *   <li>Cea708 ({@link Cea708Decoder})
-   *   <li>Exoplayer Cues ({@link ExoplayerCuesDecoder})
    * </ul>
    */
   SubtitleDecoderFactory DEFAULT =
@@ -70,8 +69,7 @@ public interface SubtitleDecoderFactory {
           return delegate.supportsFormat(format)
               || Objects.equals(mimeType, MimeTypes.APPLICATION_CEA608)
               || Objects.equals(mimeType, MimeTypes.APPLICATION_MP4CEA608)
-              || Objects.equals(mimeType, MimeTypes.APPLICATION_CEA708)
-              || Objects.equals(mimeType, MimeTypes.APPLICATION_MEDIA3_CUES);
+              || Objects.equals(mimeType, MimeTypes.APPLICATION_CEA708);
         }
 
         @Override
@@ -92,8 +90,6 @@ public interface SubtitleDecoderFactory {
                     Cea608Decoder.MIN_DATA_CHANNEL_TIMEOUT_MS);
               case MimeTypes.APPLICATION_CEA708:
                 return new Cea708Decoder(format.accessibilityChannel, format.initializationData);
-              case MimeTypes.APPLICATION_MEDIA3_CUES:
-                return new ExoplayerCuesDecoder();
               default:
                 break;
             }

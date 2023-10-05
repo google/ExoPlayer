@@ -29,7 +29,7 @@ public final class CueEncoder {
 
   /**
    * Encodes a {@link Cue} list and duration to a byte array that can be decoded by {@link
-   * CueDecoder#decode(long, byte[])}.
+   * CueDecoder#decode}.
    *
    * @param cues Cues to be encoded.
    * @param durationUs Duration to be encoded, in microseconds.
